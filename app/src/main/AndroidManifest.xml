@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest package="com.myapp.lexicon"
+          xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name=".a_MainActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".b_AddWordActivity"
+            android:label="@string/title_activity_add_word"
+            android:parentActivityName=".a_MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".a_MainActivity"/>
+        </activity>
+        <activity
+            android:name=".d_WordEditor"
+            android:label="@string/title_activity_word_editor"
+            android:parentActivityName=".a_MainActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".a_MainActivity"/>
+        </activity>
+        <activity
+            android:name=".t_Tests"
+            android:label="@string/title_activity_check_self"
+            android:parentActivityName=".a_MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".a_MainActivity"/>
+        </activity>
+        <activity
+            android:name=".p_PlayList"
+            android:label="@string/title_activity_play_list"
+            android:parentActivityName=".a_MainActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".a_MainActivity"/>
+        </activity>
+
+        <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+        <!--
+             ATTENTION: This was auto-generated to add Google Play services to your project for
+             App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information.
+        -->
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version"/>
+
+        <service
+            android:name=".z_speechService"
+            android:enabled="true"
+            android:exported="false">
+        </service>
+    </application>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+</manifest>
