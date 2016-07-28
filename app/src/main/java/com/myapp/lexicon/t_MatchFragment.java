@@ -73,8 +73,14 @@ public class t_MatchFragment extends Fragment
                              Bundle savedInstanceState)
     {
         // Inflate the layout for this fragment
+        View fragment_view = inflater.inflate(R.layout.t_fragment_match, container, false);
+        initViews(fragment_view);
+        return fragment_view;
+    }
 
-        return inflater.inflate(R.layout.t_fragment_match, container, false);
+    private void initViews(View fragment_view)
+    {
+
     }
 
     // TODO: Rename method, update argument and hook method into UI event

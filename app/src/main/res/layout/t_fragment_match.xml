@@ -4,7 +4,7 @@
               android:layout_height="match_parent"
               android:orientation="vertical"
               tools:context="com.myapp.lexicon.t_MatchFragment"
-              android:background="#f59999">
+              android:background="@color/accent_material_light">
 
     <!-- TODO: Update blank fragment layout -->
     <TextView

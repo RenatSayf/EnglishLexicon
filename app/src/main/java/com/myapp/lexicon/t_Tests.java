@@ -32,6 +32,7 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         initViews();
+        
     }
 
     private void initViews()
