@@ -5,11 +5,13 @@ import android.net.Uri;
 import android.os.Bundle;
 //import android.app.Fragment;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.TableRow;
+
+import java.util.ArrayList;
 
 
 /**
@@ -32,6 +34,17 @@ public class t_MatchFragment extends Fragment
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+    private Button btnLeft0, btnLeft1, btnLeft2, btnLeft3, btnLeft4;
+    private Button btnRight0, btnRight1, btnRight2, btnRight3, btnRight4;
+    private TableRow tableRow0, tableRow1, tableRow2, tableRow3, tableRow4;
+    private Button[] arrayBtnLeft = new Button[5];
+    private Button[] arrayBtnRight = new Button[5];
+    private TableRow[] arrayTableRow = new TableRow[5];
+    private ArrayList<DataBaseEntry> wordsList = new ArrayList<>();
+
+    private int btn_position;
+    private int word_position;
+    private int buttonId;
 
     public t_MatchFragment()
     {
@@ -69,8 +82,7 @@ public class t_MatchFragment extends Fragment
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState)
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         // Inflate the layout for this fragment
         View fragment_view = inflater.inflate(R.layout.t_fragment_match, container, false);
@@ -80,8 +92,71 @@ public class t_MatchFragment extends Fragment
 
     private void initViews(View fragment_view)
     {
+        btnLeft0 = (Button) fragment_view.findViewById(R.id.left_button0);
+        btnLeft1 = (Button) fragment_view.findViewById(R.id.left_button1);
+        btnLeft2 = (Button) fragment_view.findViewById(R.id.left_button2);
+        btnLeft3 = (Button) fragment_view.findViewById(R.id.left_button3);
+        btnLeft4 = (Button) fragment_view.findViewById(R.id.left_button4);
+
+        btnRight0 = (Button) fragment_view.findViewById(R.id.right_button0);
+        btnRight1 = (Button) fragment_view.findViewById(R.id.right_button1);
+        btnRight2 = (Button) fragment_view.findViewById(R.id.right_button2);
+        btnRight3 = (Button) fragment_view.findViewById(R.id.right_button3);
+        btnRight4 = (Button) fragment_view.findViewById(R.id.right_button4);
+
+        arrayBtnLeft[0] = btnLeft0;     arrayBtnRight[0] = btnRight0;
+        arrayBtnLeft[1] = btnLeft1;     arrayBtnRight[1] = btnRight1;
+        arrayBtnLeft[2] = btnLeft2;     arrayBtnRight[2] = btnRight2;
+        arrayBtnLeft[3] = btnLeft3;     arrayBtnRight[3] = btnRight3;
+        arrayBtnLeft[4] = btnLeft4;     arrayBtnRight[4] = btnRight4;
+
+        arrayTableRow[0] = tableRow0;
+        arrayTableRow[1] = tableRow1;
+        arrayTableRow[2] = tableRow2;
+        arrayTableRow[3] = tableRow3;
+        arrayTableRow[4] = tableRow4;
+
+        btnLeft_OnClick();
+        btnRight_OnClick();
 
     }
+
+    private void btnLeft_OnClick()
+    {
+        View.OnClickListener clickListener = new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+
+            }
+        };
+
+        for (int i = 0; i < arrayBtnLeft.length; i++)
+        {
+            Button button = arrayBtnLeft[i];
+            button.setOnClickListener(clickListener);
+        }
+    }
+
+    private void btnRight_OnClick()
+    {
+        View.OnClickListener clickListener = new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+
+            }
+        };
+
+        for (int i = 0; i < arrayBtnRight.length; i++)
+        {
+            Button button = arrayBtnRight[i];
+            button.setOnClickListener(clickListener);
+        }
+    }
+
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri)
