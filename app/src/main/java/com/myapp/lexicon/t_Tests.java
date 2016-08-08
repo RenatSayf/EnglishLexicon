@@ -75,6 +75,7 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
     {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.t_tests_menu, menu);
+
         return true;
     }
     @Override

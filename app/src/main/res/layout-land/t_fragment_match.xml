@@ -8,15 +8,34 @@
               android:background="@color/accent_material_light">
 
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:layout_marginTop="10dp"
-        android:text="@string/header.matchfragment"
-        android:layout_gravity="center_horizontal"
-        android:textColor="#fdfafa"
-        />
+        android:gravity="center"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_marginTop="10dp"
+            android:paddingBottom="25dp"
+            android:layout_marginRight="10dp"
+            android:text="@string/header.matchfragment"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="#fdfafa"
+            />
+
+        <Button
+            android:id="@+id/btn_select_dict"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            />
+    </LinearLayout>
+
 
     <TableLayout
         android:layout_width="match_parent"

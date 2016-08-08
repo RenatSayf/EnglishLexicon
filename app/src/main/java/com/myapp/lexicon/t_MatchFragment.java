@@ -1,10 +1,14 @@
 package com.myapp.lexicon;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 //import android.app.Fragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,6 +49,8 @@ public class t_MatchFragment extends Fragment
     private int btn_position;
     private int word_position;
     private int buttonId;
+
+    SimpleCursorAdapter scAdapter;
 
     public t_MatchFragment()
     {
@@ -187,6 +193,7 @@ public class t_MatchFragment extends Fragment
         super.onDetach();
         mListener = null;
     }
+
 
     /**
      * This interface must be implemented by activities that contain this
