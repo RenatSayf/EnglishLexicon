@@ -2,17 +2,22 @@ package com.myapp.lexicon;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 //import android.app.Fragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewPropertyAnimator;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TableRow;
 
 import java.util.ArrayList;
@@ -38,12 +43,12 @@ public class t_MatchFragment extends Fragment
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
-    private Button btnLeft0, btnLeft1, btnLeft2, btnLeft3, btnLeft4;
-    private Button btnRight0, btnRight1, btnRight2, btnRight3, btnRight4;
-    private TableRow tableRow0, tableRow1, tableRow2, tableRow3, tableRow4;
-    private Button[] arrayBtnLeft = new Button[5];
-    private Button[] arrayBtnRight = new Button[5];
-    private TableRow[] arrayTableRow = new TableRow[5];
+    public static final int ROWS = 5;
+    private LinearLayout linLayoutLeft, linLayoutRight;
+    private ViewPropertyAnimator animToLeft, animToRight, animToTop, animToDown;
+    private long duration = 1000;
+    private Button[] arrayBtnLeft =new Button[ROWS];
+    private Button[] arrayBtnRight =new Button[ROWS];
     private ArrayList<DataBaseEntry> wordsList = new ArrayList<>();
 
     private int btn_position;
@@ -98,71 +103,93 @@ public class t_MatchFragment extends Fragment
 
     private void initViews(View fragment_view)
     {
-        btnLeft0 = (Button) fragment_view.findViewById(R.id.left_button0);
-        btnLeft1 = (Button) fragment_view.findViewById(R.id.left_button1);
-        btnLeft2 = (Button) fragment_view.findViewById(R.id.left_button2);
-        btnLeft3 = (Button) fragment_view.findViewById(R.id.left_button3);
-        btnLeft4 = (Button) fragment_view.findViewById(R.id.left_button4);
-
-        btnRight0 = (Button) fragment_view.findViewById(R.id.right_button0);
-        btnRight1 = (Button) fragment_view.findViewById(R.id.right_button1);
-        btnRight2 = (Button) fragment_view.findViewById(R.id.right_button2);
-        btnRight3 = (Button) fragment_view.findViewById(R.id.right_button3);
-        btnRight4 = (Button) fragment_view.findViewById(R.id.right_button4);
-
-        arrayBtnLeft[0] = btnLeft0;     arrayBtnRight[0] = btnRight0;
-        arrayBtnLeft[1] = btnLeft1;     arrayBtnRight[1] = btnRight1;
-        arrayBtnLeft[2] = btnLeft2;     arrayBtnRight[2] = btnRight2;
-        arrayBtnLeft[3] = btnLeft3;     arrayBtnRight[3] = btnRight3;
-        arrayBtnLeft[4] = btnLeft4;     arrayBtnRight[4] = btnRight4;
-
-        arrayTableRow[0] = tableRow0;
-        arrayTableRow[1] = tableRow1;
-        arrayTableRow[2] = tableRow2;
-        arrayTableRow[3] = tableRow3;
-        arrayTableRow[4] = tableRow4;
-
-        btnLeft_OnClick();
-        btnRight_OnClick();
+        linLayoutLeft = (LinearLayout) fragment_view.findViewById(R.id.left_layout);
+        linLayoutRight = (LinearLayout) fragment_view.findViewById(R.id.right_layout);
+        fillLayoutLeft(ROWS);
+        fillLayoutRight(ROWS);
 
     }
 
-    private void btnLeft_OnClick()
+    private void fillLayoutRight(int rowsCount)
     {
-        View.OnClickListener clickListener = new View.OnClickListener()
+        for (int i = 0; i < rowsCount; i++)
+        {
+            final Button button = new Button(getActivity().getApplicationContext());
+            button.setText("Кнопка "+i);
+            button.setId(i);
+            button.setBackgroundResource(R.drawable.text_button_for_test);
+            button.setTextColor(getResources().getColorStateList(R.color.t_text_color_for_btn));
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            params.setMargins(5,5,5,5);
+            linLayoutRight.addView(button, params);
+
+            arrayBtnRight[i]=button;
+            btnRight_OnClick(button, i);
+        }
+    }
+
+    private void fillLayoutLeft(int rowsCount)
+    {
+        for (int i = 0; i < rowsCount; i++)
+        {
+            final Button button = new Button(getActivity().getApplicationContext());
+            button.setText("Кнопка "+i);
+            button.setId(i);
+            button.setBackgroundResource(R.drawable.text_button_for_test);
+            button.setTextColor(getResources().getColorStateList(R.color.t_text_color_for_btn));
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            params.setMargins(5,5,5,5);
+            linLayoutLeft.addView(button, params);
+
+            arrayBtnLeft[i]=button;
+            btnLeft_OnClick(button, i);
+        }
+    }
+
+
+    private void btnLeft_OnClick(final View view, final int index)
+    {
+        view.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
 
             }
-        };
+        });
+    }
 
+    private void btnRight_OnClick(final View view, final int index)
+    {
+        view.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+
+            }
+        });
+    }
+
+    private void updateArrayClickListenerLeft(Button[] newArray)
+    {
+        arrayBtnLeft = newArray;
         for (int i = 0; i < arrayBtnLeft.length; i++)
         {
-            Button button = arrayBtnLeft[i];
-            button.setOnClickListener(clickListener);
+            btnLeft_OnClick(arrayBtnLeft[i], i);
         }
+        Button[] arrayBtn = arrayBtnLeft;
     }
 
-    private void btnRight_OnClick()
+    private void updateArrayClickListenerRight(Button[] newArray)
     {
-        View.OnClickListener clickListener = new View.OnClickListener()
+        arrayBtnLeft = newArray;
+        for (int i = 0; i < arrayBtnLeft.length; i++)
         {
-            @Override
-            public void onClick(View v)
-            {
-
-            }
-        };
-
-        for (int i = 0; i < arrayBtnRight.length; i++)
-        {
-            Button button = arrayBtnRight[i];
-            button.setOnClickListener(clickListener);
+            btnRight_OnClick(arrayBtnLeft[i], i);
         }
+        Button[] arrayBtn = arrayBtnLeft;
     }
-
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri)
