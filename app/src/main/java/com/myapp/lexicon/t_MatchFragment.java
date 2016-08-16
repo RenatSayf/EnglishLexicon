@@ -1,25 +1,23 @@
 package com.myapp.lexicon;
 
 import android.content.Context;
-import android.database.Cursor;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 //import android.app.Fragment;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.TableRow;
+import android.widget.Spinner;
+import android.widget.Toast;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 
@@ -43,17 +41,7 @@ public class t_MatchFragment extends Fragment
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
-    public static final int ROWS = 5;
-    private LinearLayout linLayoutLeft, linLayoutRight;
-    private ViewPropertyAnimator animToLeft, animToRight, animToTop, animToDown;
-    private long duration = 1000;
-    private Button[] arrayBtnLeft =new Button[ROWS];
-    private Button[] arrayBtnRight =new Button[ROWS];
-    private ArrayList<DataBaseEntry> wordsList = new ArrayList<>();
 
-    private int btn_position;
-    private int word_position;
-    private int buttonId;
 
     SimpleCursorAdapter scAdapter;
 
@@ -101,8 +89,44 @@ public class t_MatchFragment extends Fragment
         return fragment_view;
     }
 
+
+    public static final int ROWS = 5;
+    private LinearLayout linLayoutLeft, linLayoutRight;
+    private ViewPropertyAnimator animToLeft, animToRight, animToTop, animToDown;
+    private long duration = 1000;
+    private Button[] arrayBtnLeft =new Button[ROWS];
+    private Button[] arrayBtnRight =new Button[ROWS];
+    private ArrayList<DataBaseEntry> wordsList = new ArrayList<>();
+    private Spinner spinnListDict;
+    private int btn_left_position;
+    private int btn_right_position;
+    private int buttonId;
+    private DisplayMetrics metrics;
+    private int windowHeight;
+    private float textSize;
+    private final String LEFT_SIDE = "left";
+    private final String RIGHT_SIDE = "right";
+    private DataBaseQueries baseQueries;
+
     private void initViews(View fragment_view)
     {
+        metrics = new DisplayMetrics();
+        Display display = getActivity().getWindowManager().getDefaultDisplay();
+        display.getMetrics(metrics);
+        windowHeight = metrics.heightPixels;
+        textSize = windowHeight / 60;
+
+        try
+        {
+            baseQueries = new DataBaseQueries(getActivity().getApplicationContext());
+        } catch (SQLException e)
+        {
+            e.printStackTrace();
+            Toast.makeText(getActivity().getApplicationContext(),"Error - "+e.getMessage(),Toast.LENGTH_SHORT).show();
+            getActivity().finish();
+        }
+        spinnListDict = (Spinner) fragment_view.findViewById(R.id.spinn_list_dict);
+        baseQueries.setListTableToSpinner(spinnListDict);
         linLayoutLeft = (LinearLayout) fragment_view.findViewById(R.id.left_layout);
         linLayoutRight = (LinearLayout) fragment_view.findViewById(R.id.right_layout);
         fillLayoutLeft(ROWS);
@@ -117,12 +141,14 @@ public class t_MatchFragment extends Fragment
             final Button button = new Button(getActivity().getApplicationContext());
             button.setText("Кнопка "+i);
             button.setId(i);
+            button.setTextSize(textSize);
+            button.setPadding(0,0,0,0);
             button.setBackgroundResource(R.drawable.text_button_for_test);
             button.setTextColor(getResources().getColorStateList(R.color.t_text_color_for_btn));
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             params.setMargins(5,5,5,5);
+            params.weight = 1;
             linLayoutRight.addView(button, params);
-
             arrayBtnRight[i]=button;
             btnRight_OnClick(button, i);
         }
@@ -135,17 +161,17 @@ public class t_MatchFragment extends Fragment
             final Button button = new Button(getActivity().getApplicationContext());
             button.setText("Кнопка "+i);
             button.setId(i);
+            button.setTextSize(textSize);
             button.setBackgroundResource(R.drawable.text_button_for_test);
             button.setTextColor(getResources().getColorStateList(R.color.t_text_color_for_btn));
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             params.setMargins(5,5,5,5);
+            params.weight = 1;
             linLayoutLeft.addView(button, params);
-
             arrayBtnLeft[i]=button;
             btnLeft_OnClick(button, i);
         }
     }
-
 
     private void btnLeft_OnClick(final View view, final int index)
     {
@@ -190,6 +216,31 @@ public class t_MatchFragment extends Fragment
         }
         Button[] arrayBtn = arrayBtnLeft;
     }
+
+    private void animToLeft_Listener(ViewPropertyAnimator animator)
+    {
+
+    }
+
+    private void animToRight_Listener(ViewPropertyAnimator animator)
+    {
+
+    }
+
+    private void animToDown_Listener(ViewPropertyAnimator animator, String side)
+    {
+
+    }
+
+    private void animToTop_Listener(ViewPropertyAnimator animator, String side)
+    {
+
+    }
+
+
+
+
+
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri)

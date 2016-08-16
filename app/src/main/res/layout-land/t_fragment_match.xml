@@ -27,11 +27,11 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             />
 
-        <Button
-            android:id="@+id/btn_select_dict"
-            android:layout_width="wrap_content"
+        <Spinner
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
+            style="@style/spinner_style"
+            android:id="@+id/spinn_list_dict"
             />
     </LinearLayout>
 

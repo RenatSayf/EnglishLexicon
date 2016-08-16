@@ -379,7 +379,7 @@ public class DataBaseQueries
             protected void onPostExecute(Object array)
             {
                 ArrayList<String> arrayList = (ArrayList<String>) array;
-                ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, arrayList);
+                ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(context, R.layout.my_content_spinner_layout, arrayList);
                 spinner.setAdapter(adapterSpinner);
             }
         };
