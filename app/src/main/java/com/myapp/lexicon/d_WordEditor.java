@@ -125,8 +125,8 @@ public class d_WordEditor extends AppCompatActivity
             z_Log.v("Исключение - "+e.getMessage());
         }
         initViews();
-        dataBaseQueries.setListTableToSpinner(spinnerListDict);
-        dataBaseQueries.setListTableToSpinner(spinnerListDict2);
+        dataBaseQueries.setListTableToSpinner(spinnerListDict,0);
+        dataBaseQueries.setListTableToSpinner(spinnerListDict2,0);
 
     }
 

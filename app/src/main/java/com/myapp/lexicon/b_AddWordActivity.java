@@ -152,7 +152,7 @@ public class b_AddWordActivity extends AppCompatActivity
         {
             initViews();
             dataBaseQueries = new DataBaseQueries(this);
-            dataBaseQueries.setListTableToSpinner(spinnerListDict);
+            dataBaseQueries.setListTableToSpinner(spinnerListDict, 0);
         } catch (SQLException e)
         {
             e.printStackTrace();

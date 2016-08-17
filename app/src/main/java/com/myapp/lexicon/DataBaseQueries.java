@@ -9,7 +9,6 @@ import android.os.Handler;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.sql.SQLException;
@@ -22,7 +21,7 @@ import java.util.concurrent.ExecutionException;
 public class DataBaseQueries
 {
     private SQLiteDatabase _database;
-    private DatabaseHelper databaseHelper;
+    private static DatabaseHelper databaseHelper;
     private Handler handler;
     private Context context;
     public DataBaseQueries(SQLiteDatabase database)
@@ -42,6 +41,61 @@ public class DataBaseQueries
         databaseHelper = new DatabaseHelper(context);
         databaseHelper.create_db();
         databaseHelper.open();
+    }
+
+    public abstract static class GetWordsFromDBAsync extends AsyncTask<Object,Void,ArrayList<DataBaseEntry>>
+    {
+        public abstract void resultAsyncTask(ArrayList<DataBaseEntry> list);
+
+        @Override
+        protected ArrayList<DataBaseEntry> doInBackground(Object... params)
+        {
+            ArrayList<DataBaseEntry> entriesFromDB = getWordsFromDB((String) params[0], (int)params[1], (int)params[2]);
+            return entriesFromDB;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<DataBaseEntry> list)
+        {
+            resultAsyncTask(list);
+        }
+    }
+
+    public static ArrayList<DataBaseEntry> getWordsFromDB(String tableName, int startId, int endId)
+    {
+        ArrayList<DataBaseEntry> entriesFromDB = new ArrayList<>();
+        DataBaseEntry dataBaseEntry;
+        try
+        {
+            databaseHelper.open();
+            if (databaseHelper.database.isOpen())
+            {
+                Cursor cursor = databaseHelper.database.rawQuery("SELECT * FROM " + tableName + " WHERE RowID BETWEEN " + startId +" AND " + endId, null);
+                int count = cursor.getCount();
+                if (cursor.moveToFirst())
+                {
+                    while (!cursor.isAfterLast())
+                    {
+                        dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1));
+                        entriesFromDB.add(dataBaseEntry);
+                        cursor.moveToNext();
+                    }
+                }
+            } else
+            {
+                dataBaseEntry = new DataBaseEntry(null, null);
+            }
+        }
+        catch (Exception e)
+        {
+            z_Log.v("Возникло исключение - "+e.getMessage());
+            entriesFromDB.add(new DataBaseEntry(null,null));
+        }
+        finally
+        {
+            databaseHelper.database.close();
+        }
+        return entriesFromDB;
     }
 
     public ArrayList<DataBaseEntry> getEntriesFromDB(String tableName, int startId, int endId)
@@ -130,6 +184,45 @@ public class DataBaseQueries
         entriesFromDB = (ArrayList<DataBaseEntry>) asyncTask.get();
 
         return entriesFromDB;
+    }
+
+    public abstract static class GetWordsCountAsync extends AsyncTask<String, Void, Integer>
+    {
+        public abstract void resultAsyncTask(int res);
+        @Override
+        protected Integer doInBackground(String... params)
+        {
+            int count;
+            try
+            {
+                databaseHelper.open();
+                if (databaseHelper.database.isOpen())
+                {
+                    Cursor cursor=databaseHelper.database.query(params[0], null, null, null, null, null, null);
+                    count = cursor.getCount();
+                    z_Log.v("GetWordsCountAsync - " + count);
+                } else
+                {
+                    z_Log.v("GetWordsCountAsync database.isOpen() = " + databaseHelper.database.isOpen());
+                    count = 0;
+                }
+            }
+            catch (Exception e)
+            {
+                z_Log.v("ИСКЛЮЧЕНИЕ - " + e.getMessage());
+                count = 0;
+            }finally
+            {
+                databaseHelper.close();
+            }
+            return count;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer)
+        {
+            resultAsyncTask(integer);
+        }
     }
     public int getWordsCount(String dictName)
     {
@@ -335,7 +428,7 @@ public class DataBaseQueries
         listTable = (String[]) asyncTask.get();
         return listTable;
     }
-    public void setListTableToSpinner(final Spinner spinner)
+    public void setListTableToSpinner(final Spinner spinner, final int selection)
     {
         final ArrayList<String> list = new ArrayList<>();
         final AsyncTask asyncTask = new AsyncTask()
@@ -381,6 +474,14 @@ public class DataBaseQueries
                 ArrayList<String> arrayList = (ArrayList<String>) array;
                 ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(context, R.layout.my_content_spinner_layout, arrayList);
                 spinner.setAdapter(adapterSpinner);
+                if (selection >= arrayList.size())
+                {
+                    spinner.setSelection(0);
+                }
+                if (selection >= 0 && selection < arrayList.size())
+                {
+                    spinner.setSelection(selection);
+                }
             }
         };
         asyncTask.execute();

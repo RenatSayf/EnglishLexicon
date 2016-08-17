@@ -40,6 +40,7 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
         buttonMatchTest = (ImageButton) findViewById(R.id.btn_match_test);
         buttonSelectWordTest = (ImageButton) findViewById(R.id.btn_select_word_test);
         matchFragment = t_MatchFragment.newInstance(null,null);
+        matchFragment.setRetainInstance(true);
         button_OnClick();
     }
 
