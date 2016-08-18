@@ -1,6 +1,12 @@
 package com.myapp.lexicon;
 
+//import android.app.Fragment;
+//import android.app.FragmentTransaction;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -8,9 +14,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 
-public class t_Tests extends AppCompatActivity
+public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFragmentInteractionListener
 {
     private ImageButton buttonMatchTest, buttonSelectWordTest;
+    private t_MatchFragment matchFragment;
+    private FragmentTransaction transaction;
 
 
     @Override
@@ -24,12 +32,15 @@ public class t_Tests extends AppCompatActivity
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         initViews();
+        
     }
 
     private void initViews()
     {
         buttonMatchTest = (ImageButton) findViewById(R.id.btn_match_test);
         buttonSelectWordTest = (ImageButton) findViewById(R.id.btn_select_word_test);
+        matchFragment = t_MatchFragment.newInstance(null,null);
+        matchFragment.setRetainInstance(true);
         button_OnClick();
     }
 
@@ -40,7 +51,13 @@ public class t_Tests extends AppCompatActivity
             @Override
             public void onClick(View v)
             {
-
+                transaction = getSupportFragmentManager().beginTransaction();
+                //transaction = getFragmentManager().beginTransaction();
+                transaction.replace(R.id.match_fragment, matchFragment);
+                transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
+                //transaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right);
+                transaction.addToBackStack(null);
+                transaction.commit();
             }
         });
 
@@ -59,6 +76,7 @@ public class t_Tests extends AppCompatActivity
     {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.t_tests_menu, menu);
+
         return true;
     }
     @Override
@@ -69,22 +87,34 @@ public class t_Tests extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_item1)
-        {
-            return true;
-        }
-
         switch (id)
         {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
             case R.id.action_item1:
                 break;
             case R.id.action_item2:
                 break;
+            default:
+                return super.onOptionsItemSelected(item);
         }
+        return true;
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri)
+    {
+
+    }
 
 
-        return super.onOptionsItemSelected(item);
+    public void onBackPressed()
+    {
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0)
+            getSupportFragmentManager().popBackStack();
+        else
+            finish();
     }
 
 }
