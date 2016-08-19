@@ -2,6 +2,7 @@ package com.myapp.lexicon;
 
 import android.app.Application;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 /**
@@ -95,7 +96,8 @@ public class AppData extends Application
         AppData.engOnly = engOnly;
     }
 
-
+    public static Button[] arrayBtnLeft = new Button[t_MatchFragment.ROWS];
+    public static Button[] arrayBtnRight = new Button[t_MatchFragment.ROWS];
 
 
 
