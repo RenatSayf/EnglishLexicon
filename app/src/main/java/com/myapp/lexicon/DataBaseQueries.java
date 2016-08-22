@@ -61,6 +61,7 @@ public class DataBaseQueries
         }
     }
 
+
     public static ArrayList<DataBaseEntry> getWordsFromDB(String tableName, int startId, int endId)
     {
         ArrayList<DataBaseEntry> entriesFromDB = new ArrayList<>();
@@ -428,6 +429,54 @@ public class DataBaseQueries
         listTable = (String[]) asyncTask.get();
         return listTable;
     }
+
+    public abstract static class GetLictTableAsync extends AsyncTask<Void, Void, ArrayList<String>>
+    {
+        public abstract void resultAsyncTask(ArrayList<String> list);
+
+        @Override
+        protected ArrayList<String> doInBackground(Void... params)
+        {
+            final ArrayList<String> arrayList = new ArrayList<>();
+            String nameNotDict;
+            try
+            {
+                databaseHelper.open();
+                if (databaseHelper.database.isOpen())
+                {
+                    Cursor cursor = databaseHelper.database.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null);
+                    if (cursor.moveToFirst())
+                    {
+                        while ( !cursor.isAfterLast() )
+                        {
+                            nameNotDict = cursor.getString( cursor.getColumnIndex("name"));
+                            if (!nameNotDict.equals("android_metadata") && !nameNotDict.equals("sqlite_sequence"))
+                            {
+                                arrayList.add( cursor.getString( cursor.getColumnIndex("name")) );
+                            }
+                            cursor.moveToNext();
+                        }
+                    }
+                }
+            } catch (SQLException e)
+            {
+                z_Log.v("ИСКЛЮЧЕНИЕ - "+e);
+                e.printStackTrace();
+            }
+            finally
+            {
+                databaseHelper.close();
+            }
+            return arrayList;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<String> arrayList)
+        {
+            resultAsyncTask(arrayList);
+        }
+    }
+
     public void setListTableToSpinner(final Spinner spinner, final int selection)
     {
         final ArrayList<String> list = new ArrayList<>();
@@ -721,7 +770,37 @@ public class DataBaseQueries
         asyncTask.get();
     }
 
-    public long getIdOfWord(final String tableName, final String english, final String translate) throws ExecutionException, InterruptedException
+    public abstract static class GetRowIdOfWordAsync extends AsyncTask<String, Void, Integer>
+    {
+        public abstract void resultAsyncTask(Integer id);
+
+        @Override
+        protected Integer doInBackground(String... params)
+        {
+            int id = -1;
+            try
+            {
+                id = (int) getIdOfWord(params[0], params[1], params[2]);
+            } catch (ExecutionException e)
+            {
+                e.printStackTrace();
+            } catch (InterruptedException e)
+            {
+                z_Log.v("Возникло исключение - "+e.getMessage());
+                e.printStackTrace();
+            }
+
+            return id;
+        }
+
+        @Override
+        protected void onPostExecute(Integer id)
+        {
+            resultAsyncTask(id);
+        }
+    }
+
+    public static long getIdOfWord(final String tableName, final String english, final String translate) throws ExecutionException, InterruptedException
     {
         final long[] id = {-1};
 

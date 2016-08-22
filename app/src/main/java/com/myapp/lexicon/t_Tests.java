@@ -18,6 +18,7 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
 {
     private ImageButton buttonMatchTest, buttonSelectWordTest;
     private t_MatchFragment matchFragment;
+    private static String FRAGMENT_INSTANCE_NAME = "matchFragment";
     private FragmentTransaction transaction;
 
 
@@ -39,8 +40,14 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
     {
         buttonMatchTest = (ImageButton) findViewById(R.id.btn_match_test);
         buttonSelectWordTest = (ImageButton) findViewById(R.id.btn_select_word_test);
-        matchFragment = t_MatchFragment.newInstance(null,null);
-        matchFragment.setRetainInstance(true);
+
+        FragmentManager manager = getSupportFragmentManager();
+        matchFragment = (t_MatchFragment) manager.findFragmentByTag(FRAGMENT_INSTANCE_NAME);
+        if (matchFragment == null)
+        {
+            matchFragment = t_MatchFragment.newInstance(null,null);
+        }
+        //matchFragment.setRetainInstance(true);
         button_OnClick();
     }
 

@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -53,6 +54,7 @@ public class t_MatchFragment extends Fragment
     public t_MatchFragment()
     {
         // Required empty public constructor
+        this.setRetainInstance(true);
     }
 
     /**
@@ -92,6 +94,7 @@ public class t_MatchFragment extends Fragment
     private long duration = 1000;
     private ArrayList<DataBaseEntry> wordsList = new ArrayList<>();
     private Spinner spinnListDict;
+    private ArrayList<String> storedListDict = new ArrayList<>();
     private int spinnSelectedIndex = 0;
     private int btn_left_position;
     private int btn_right_position;
@@ -101,6 +104,7 @@ public class t_MatchFragment extends Fragment
     private float textSize;
     private final String LEFT_SIDE = "left";
     private final String RIGHT_SIDE = "right";
+    private final String KEY_STORED_LIST_DICT = "storedListDict";
     private DataBaseQueries baseQueries;
     private int wordsCount;
     private DataBaseQueries.GetWordsCountAsync getWordsCount;
@@ -109,6 +113,7 @@ public class t_MatchFragment extends Fragment
     private z_LockOrientation lockOrientation;
     private int wordIndex = 1;
     private String KEY_WORD_INDEX = "wordIndex";
+    View fragment_view = null;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -118,14 +123,27 @@ public class t_MatchFragment extends Fragment
         initViews(fragment_view);
         if (savedInstanceState==null)
         {
-
+            setItemsToSpinnListDict();
         }
 
         if (savedInstanceState != null)
         {
-            spinnSelectedIndex = savedInstanceState.getInt(SPINN_LIST_DICT);
+            storedListDict = savedInstanceState.getStringArrayList(KEY_STORED_LIST_DICT);
+            ArrayAdapter<String> spinnAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), R.layout.my_content_spinner_layout, storedListDict);
+            spinnListDict.setAdapter(spinnAdapter);
+            //spinnSelectedIndex = savedInstanceState.getInt(SPINN_LIST_DICT);
             wordIndex = savedInstanceState.getInt(KEY_WORD_INDEX);
 
+            for (int i = 0; i < ROWS; i++)
+            {
+                Button btnLeft = (Button) linLayoutRight.getChildAt(i);
+                btnLeft.setVisibility(AppData.arrayBtnRight[i].getVisibility());
+                btnLeft.setText(AppData.arrayBtnRight[i].getText().toString());
+
+                Button btnRight = (Button) linLayoutLeft.getChildAt(i);
+                btnRight.setVisibility(AppData.arrayBtnLeft[i].getVisibility());
+                btnRight.setText(AppData.arrayBtnLeft[i].getText().toString());
+            }
         }
 
         return fragment_view;
@@ -138,6 +156,12 @@ public class t_MatchFragment extends Fragment
         spinnSelectedIndex = spinnListDict.getSelectedItemPosition();
         outState.putInt(SPINN_LIST_DICT, spinnSelectedIndex);
         outState.putInt(KEY_WORD_INDEX, wordIndex);
+        outState.putStringArrayList(KEY_STORED_LIST_DICT, storedListDict);
+        for (int i = 0; i < ROWS; i++)
+        {
+            AppData.arrayBtnRight[i] = (Button) linLayoutRight.getChildAt(i);
+            AppData.arrayBtnLeft[i] = (Button) linLayoutLeft.getChildAt(i);
+        }
 
         super.onSaveInstanceState(outState);
     }
@@ -166,10 +190,8 @@ public class t_MatchFragment extends Fragment
         linLayoutRight = (LinearLayout) fragment_view.findViewById(R.id.right_layout);
         buttonsRightGone();
         //endregion
-        //region получение Spinner выбора словаря, добавление его содержимого и
-        //          назначение слушателя выбора элемента
+        //region получение Spinner выбора словаря
         spinnListDict = (Spinner) fragment_view.findViewById(R.id.spinn_list_dict);
-        baseQueries.setListTableToSpinner(spinnListDict, spinnSelectedIndex);
         spinnListDict_OnItemSelectedListener();
         //endregion
         //region инициализация генераторов случайных чисел
@@ -179,6 +201,25 @@ public class t_MatchFragment extends Fragment
 
     }
 
+    private void setItemsToSpinnListDict()
+    {
+        new DataBaseQueries.GetLictTableAsync()
+        {
+            @Override
+            public void resultAsyncTask(ArrayList<String> list)
+            {
+                ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(getActivity().getApplicationContext(), R.layout.my_content_spinner_layout, list);
+                spinnListDict.setAdapter(adapterSpinner);
+                spinnListDict.setSelection(spinnSelectedIndex);
+                spinnListDict_OnItemSelectedListener();
+                for (int i = 0; i < spinnListDict.getAdapter().getCount(); i++)
+                {
+                    storedListDict.add(spinnListDict.getAdapter().getItem(i).toString());
+                }
+            }
+        }.execute();
+    }
+
     private void buttonsRightGone()
     {
         for (int i = 0; i < ROWS; i++)
@@ -186,7 +227,6 @@ public class t_MatchFragment extends Fragment
             Button button = (Button) linLayoutRight.getChildAt(i);
             button.setId(i);
             button.setVisibility(View.GONE);
-            AppData.arrayBtnRight[i] = button;
         }
     }
 
@@ -197,7 +237,6 @@ public class t_MatchFragment extends Fragment
             Button button = (Button) linLayoutLeft.getChildAt(i);
             button.setId(i);
             button.setVisibility(View.GONE);
-            AppData.arrayBtnLeft[i] = button;
         }
     }
 
@@ -233,7 +272,7 @@ public class t_MatchFragment extends Fragment
             }
         });
     }
-    z_RandomNumberGenerator generator;
+
     private void fillLayoutRight(final int rowsCount)
     {
         buttonsRightGone();
@@ -253,7 +292,9 @@ public class t_MatchFragment extends Fragment
                 for (int i = 0; i < list.size(); i++)
                 {
                     int randIndex = generatorRight.generate();
+                    AppData.arrayBtnRight[i] = (Button) linLayoutRight.getChildAt(i);
                     AppData.arrayBtnRight[i].setText(list.get(randIndex).get_translate());
+
                 }
             }
         };
@@ -308,6 +349,7 @@ public class t_MatchFragment extends Fragment
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
     }
 
+    private String enWord = null;
     private void btnLeft_OnClick(final View view, final int index)
     {
         view.setOnClickListener(new View.OnClickListener()
@@ -315,11 +357,18 @@ public class t_MatchFragment extends Fragment
             @Override
             public void onClick(View v)
             {
+                enWord = AppData.arrayBtnLeft[index].getText().toString();
+                compareWords(spinnSelectedItem, enWord, ruWord);
+                if (index > 0)
+                {
 
+                }
             }
         });
     }
 
+
+    private String ruWord = null;
     private void btnRight_OnClick(final View view, final int index)
     {
         view.setOnClickListener(new View.OnClickListener()
@@ -327,12 +376,41 @@ public class t_MatchFragment extends Fragment
             @Override
             public void onClick(View v)
             {
+                ruWord = AppData.arrayBtnRight[index].getText().toString();
+                compareWords(spinnSelectedItem, enWord, ruWord);
                 if (index > 0)
                 {
 
                 }
             }
         });
+    }
+
+    private Integer resultCompare = 0;
+    private void compareWords(String tableName, String enword, String ruword)
+    {
+        if (enword == null || ruword == null)   return;
+        if (enword != null && ruword != null)
+        {
+            DataBaseQueries.GetRowIdOfWordAsync asyncTask = new DataBaseQueries.GetRowIdOfWordAsync()
+            {
+                @Override
+                public void resultAsyncTask(Integer id)
+                {
+                    resultCompare = id;
+                    if (resultCompare > 0)
+                    {
+                        Toast.makeText(getActivity().getApplicationContext(), "Правильно", Toast.LENGTH_SHORT).show();
+                        enWord = null; ruWord = null;
+                    }
+                    if (resultCompare < 0)
+                    {
+                        Toast.makeText(getActivity().getApplicationContext(), "Неправильно", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            };
+            asyncTask.execute(tableName, enword, ruword);
+        }
     }
 
     private void updateArrayClickListenerLeft(Button[] newArray)
