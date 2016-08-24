@@ -272,6 +272,7 @@ public class t_MatchFragment extends Fragment
             {
                 if (position == spinnSelectedIndex) return;
                 lockOrientation.lock();
+                wordIndex = 1;
                 spinnSelectedItem = spinnListDict.getSelectedItem().toString();
                 getWordsCount = new DataBaseQueries.GetWordsCountAsync()
                 {
