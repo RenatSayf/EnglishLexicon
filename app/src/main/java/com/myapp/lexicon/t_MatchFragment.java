@@ -216,8 +216,8 @@ public class t_MatchFragment extends Fragment
         spinnListDict_OnItemSelectedListener();
         //endregion
         //region инициализация генераторов случайных чисел
-        generatorLeft = new z_RandomNumberGenerator(wordsCount,0);
-        generatorRight = new z_RandomNumberGenerator(wordsCount, 100);
+        //generatorLeft = new z_RandomNumberGenerator(wordsCount,0);
+        //generatorRight = new z_RandomNumberGenerator(wordsCount, 100);
         //endregion
 
     }
@@ -440,29 +440,15 @@ public class t_MatchFragment extends Fragment
                         Toast.makeText(getActivity().getApplicationContext(), "Правильно", Toast.LENGTH_SHORT).show();
                         enWord = null; ruWord = null;
 
-//                        if (btn_right_position == 0)
-//                        {
-//                            animToRight = AppData.arrayBtnRight[0].animate().x((width + delta))
-//                                    .setDuration(duration)
-//                                    .setInterpolator(new AccelerateDecelerateInterpolator());
-//                            animToRight_Listener(animToRight);
-//                        }
-//                        if (btn_left_position == 0)
-//                        {
-//                            animToLeft = AppData.arrayBtnLeft[0].animate().x(-(width + delta))
-//                                    .setDuration(duration)
-//                                    .setInterpolator(new AccelerateDecelerateInterpolator());
-//                            animToLeft_Listener(animToLeft);
-//                        }
-
                         animToRight = AppData.arrayBtnRight[btn_right_position].animate().x((width + delta))
                                     .setDuration(duration)
                                     .setInterpolator(new AccelerateDecelerateInterpolator());
                             //animToRight_Listener(animToRight);
-                        animToLeft = AppData.arrayBtnLeft[btn_left_position].animate().x(-(width + delta))
+                        ViewPropertyAnimator animToLeft = AppData.arrayBtnLeft[btn_left_position].animate().x(-(width + delta))
                                     .setDuration(duration)
                                     .setInterpolator(new AccelerateDecelerateInterpolator());
                             animToLeft_Listener(animToLeft);
+
                     }
                     if (resultCompare < 0)
                     {
@@ -508,7 +494,7 @@ public class t_MatchFragment extends Fragment
             @Override
             public void onAnimationEnd(Animator animation)
             {
-                if (wordsCount - wordIndex <= ROWS)
+                if (wordIndex >= wordsCount)
                 {
                     AppData.arrayBtnLeft[btn_left_position].setVisibility(View.INVISIBLE);
                     AppData.arrayBtnRight[btn_right_position].setVisibility(View.INVISIBLE);
@@ -527,8 +513,8 @@ public class t_MatchFragment extends Fragment
                             AppData.arrayBtnLeft[btn_left_position].setText(list.get(randLeft).get_english());
                             AppData.arrayBtnRight[btn_right_position].setText(list.get(randRight).get_translate());
 
-                            AppData.arrayBtnLeft[btn_left_position].animate().translationX(0).setDuration(duration).setInterpolator(new AccelerateDecelerateInterpolator());
-                            AppData.arrayBtnRight[btn_right_position].animate().translationX(0).setDuration(duration).setInterpolator(new AccelerateDecelerateInterpolator());
+                            AppData.arrayBtnLeft[btn_left_position].animate().translationX(0).setDuration(duration).setInterpolator(new AccelerateDecelerateInterpolator()).setListener(null);
+                            AppData.arrayBtnRight[btn_right_position].animate().translationX(0).setDuration(duration).setInterpolator(new AccelerateDecelerateInterpolator()).setListener(null);
                             //wordsCount--;
                             wordIndex++;
                         }
