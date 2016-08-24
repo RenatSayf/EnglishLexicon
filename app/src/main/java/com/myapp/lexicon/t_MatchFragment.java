@@ -435,41 +435,34 @@ public class t_MatchFragment extends Fragment
                     resultCompare = id;
                     if (resultCompare > 0)
                     {
-                        wordsCount--;
-                        wordIndex++;
+                        //wordsCount--;
+                        //wordIndex++;
                         Toast.makeText(getActivity().getApplicationContext(), "Правильно", Toast.LENGTH_SHORT).show();
                         enWord = null; ruWord = null;
 
-                        if (btn_right_position == 0)
-                        {
-                            animToRight = AppData.arrayBtnRight[0].animate().x((width + delta))
+//                        if (btn_right_position == 0)
+//                        {
+//                            animToRight = AppData.arrayBtnRight[0].animate().x((width + delta))
+//                                    .setDuration(duration)
+//                                    .setInterpolator(new AccelerateDecelerateInterpolator());
+//                            animToRight_Listener(animToRight);
+//                        }
+//                        if (btn_left_position == 0)
+//                        {
+//                            animToLeft = AppData.arrayBtnLeft[0].animate().x(-(width + delta))
+//                                    .setDuration(duration)
+//                                    .setInterpolator(new AccelerateDecelerateInterpolator());
+//                            animToLeft_Listener(animToLeft);
+//                        }
+
+                        animToRight = AppData.arrayBtnRight[btn_right_position].animate().x((width + delta))
                                     .setDuration(duration)
                                     .setInterpolator(new AccelerateDecelerateInterpolator());
-                            animToRight_Listener(animToRight);
-                        }
-                        if (btn_left_position == 0)
-                        {
-                            animToLeft = AppData.arrayBtnLeft[0].animate().x(-(width + delta))
+                            //animToRight_Listener(animToRight);
+                        animToLeft = AppData.arrayBtnLeft[btn_left_position].animate().x(-(width + delta))
                                     .setDuration(duration)
                                     .setInterpolator(new AccelerateDecelerateInterpolator());
                             animToLeft_Listener(animToLeft);
-                        }
-
-                        if (btn_right_position > 0)
-                        {
-                            animToRight = AppData.arrayBtnRight[btn_right_position].animate().x((width + delta))
-                                    .setDuration(duration)
-                                    .setInterpolator(new AccelerateDecelerateInterpolator());
-                            animToRight_Listener(animToRight);
-                        }
-                        if (btn_left_position > 0)
-                        {
-                            animToLeft = AppData.arrayBtnLeft[btn_left_position].animate().x(-(width + delta))
-                                    .setDuration(duration)
-                                    .setInterpolator(new AccelerateDecelerateInterpolator());
-                            animToLeft_Listener(animToLeft);
-                        }
-
                     }
                     if (resultCompare < 0)
                     {
@@ -515,9 +508,10 @@ public class t_MatchFragment extends Fragment
             @Override
             public void onAnimationEnd(Animator animation)
             {
-                if (wordsCount < ROWS)
+                if (wordsCount - wordIndex <= ROWS)
                 {
                     AppData.arrayBtnLeft[btn_left_position].setVisibility(View.INVISIBLE);
+                    AppData.arrayBtnRight[btn_right_position].setVisibility(View.INVISIBLE);
                 }
                 else
                 {
@@ -535,6 +529,8 @@ public class t_MatchFragment extends Fragment
 
                             AppData.arrayBtnLeft[btn_left_position].animate().translationX(0).setDuration(duration).setInterpolator(new AccelerateDecelerateInterpolator());
                             AppData.arrayBtnRight[btn_right_position].animate().translationX(0).setDuration(duration).setInterpolator(new AccelerateDecelerateInterpolator());
+                            //wordsCount--;
+                            wordIndex++;
                         }
                     };
                     asyncTask.execute(spinnSelectedItem, wordIndex, wordIndex + ROWS);
