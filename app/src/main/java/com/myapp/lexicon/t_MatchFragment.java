@@ -1,8 +1,10 @@
 package com.myapp.lexicon;
 
+import android.animation.Animator;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
+import android.opengl.Visibility;
 import android.os.AsyncTask;
 import android.os.Bundle;
 //import android.app.Fragment;
@@ -14,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -88,16 +91,19 @@ public class t_MatchFragment extends Fragment
 
     }
 
-    public static final int ROWS = 5;
+    public static final int ROWS = 2;
     private LinearLayout linLayoutLeft, linLayoutRight;
     private ViewPropertyAnimator animToLeft, animToRight, animToTop, animToDown;
     private long duration = 1000;
     private ArrayList<DataBaseEntry> wordsList = new ArrayList<>();
     private Spinner spinnListDict;
     private ArrayList<String> storedListDict = new ArrayList<>();
-    private int spinnSelectedIndex = 0;
+    private int spinnSelectedIndex = -1;
     private int btn_left_position;
     private int btn_right_position;
+    private int height;
+    private int width;
+    private int delta = 30;
     private int buttonId;
     private DisplayMetrics metrics;
     private int windowHeight;
@@ -106,24 +112,36 @@ public class t_MatchFragment extends Fragment
     private final String RIGHT_SIDE = "right";
     private final String KEY_STORED_LIST_DICT = "storedListDict";
     private DataBaseQueries baseQueries;
-    private int wordsCount;
+    private static int wordsCount;
     private DataBaseQueries.GetWordsCountAsync getWordsCount;
-    private z_RandomNumberGenerator generatorLeft;
-    private z_RandomNumberGenerator generatorRight;
+    private static z_RandomNumberGenerator generatorLeft;
+    private static z_RandomNumberGenerator generatorRight;
     private z_LockOrientation lockOrientation;
     private int wordIndex = 1;
     private String KEY_WORD_INDEX = "wordIndex";
     View fragment_view = null;
 
+    private static int[] btnVisibleLeft = new int[ROWS];
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         // Inflate the layout for this fragment
+        super.onCreateView(inflater, container, savedInstanceState);
         View fragment_view = inflater.inflate(R.layout.t_fragment_match, container, false);
+
         initViews(fragment_view);
-        if (savedInstanceState==null)
+
+        if (savedInstanceState == null)
         {
             setItemsToSpinnListDict();
+            for (int i = 0; i < ROWS; i++)
+            {
+                AppData.arrayBtnLeft[i] = (Button) linLayoutLeft.getChildAt(i);
+                AppData.arrayBtnLeft[i].setId(10+i);
+                AppData.arrayBtnRight[i] = (Button) linLayoutRight.getChildAt(i);
+                AppData.arrayBtnRight[i].setId(20+i);
+            }
         }
 
         if (savedInstanceState != null)
@@ -131,30 +149,34 @@ public class t_MatchFragment extends Fragment
             storedListDict = savedInstanceState.getStringArrayList(KEY_STORED_LIST_DICT);
             ArrayAdapter<String> spinnAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), R.layout.my_content_spinner_layout, storedListDict);
             spinnListDict.setAdapter(spinnAdapter);
-            //spinnSelectedIndex = savedInstanceState.getInt(SPINN_LIST_DICT);
             wordIndex = savedInstanceState.getInt(KEY_WORD_INDEX);
 
             for (int i = 0; i < ROWS; i++)
             {
-                Button btnLeft = (Button) linLayoutRight.getChildAt(i);
-                btnLeft.setVisibility(AppData.arrayBtnRight[i].getVisibility());
-                btnLeft.setText(AppData.arrayBtnRight[i].getText().toString());
+                Button buttonLeft = (Button) linLayoutLeft.getChildAt(i);
+                buttonLeft.setText(AppData.arrayBtnLeft[i].getText());
+                buttonLeft.setVisibility(AppData.arrayBtnLeft[i].getVisibility());
+                AppData.arrayBtnLeft[i] = buttonLeft;
+                btnLeft_OnClick(AppData.arrayBtnLeft[i], i);
 
-                Button btnRight = (Button) linLayoutLeft.getChildAt(i);
-                btnRight.setVisibility(AppData.arrayBtnLeft[i].getVisibility());
-                btnRight.setText(AppData.arrayBtnLeft[i].getText().toString());
+                Button buttonRight = (Button) linLayoutRight.getChildAt(i);
+                buttonRight.setText(AppData.arrayBtnRight[i].getText());
+                buttonRight.setVisibility(AppData.arrayBtnRight[i].getVisibility());
+                AppData.arrayBtnRight[i] = buttonRight;
+                btnRight_OnClick(AppData.arrayBtnRight[i], i);
             }
+
         }
 
         return fragment_view;
     }
 
-    private String SPINN_LIST_DICT = "spinner";
+    private String KEY_SPINN_LIST_DICT = "spinner";
     @Override
     public void onSaveInstanceState(Bundle outState)
     {
         spinnSelectedIndex = spinnListDict.getSelectedItemPosition();
-        outState.putInt(SPINN_LIST_DICT, spinnSelectedIndex);
+        outState.putInt(KEY_SPINN_LIST_DICT, spinnSelectedIndex);
         outState.putInt(KEY_WORD_INDEX, wordIndex);
         outState.putStringArrayList(KEY_STORED_LIST_DICT, storedListDict);
         for (int i = 0; i < ROWS; i++)
@@ -222,32 +244,34 @@ public class t_MatchFragment extends Fragment
 
     private void buttonsRightGone()
     {
-        for (int i = 0; i < ROWS; i++)
+        for (int i = 0; i < linLayoutRight.getChildCount(); i++)
         {
             Button button = (Button) linLayoutRight.getChildAt(i);
-            button.setId(i);
+            button.setId(20+i);
             button.setVisibility(View.GONE);
         }
     }
 
     private void buttonsLeftGone()
     {
-        for (int i = 0; i < ROWS; i++)
+        for (int i = 0; i < linLayoutLeft.getChildCount(); i++)
         {
             Button button = (Button) linLayoutLeft.getChildAt(i);
-            button.setId(i);
+            button.setId(10+i);
             button.setVisibility(View.GONE);
         }
     }
 
     private String spinnSelectedItem;
+
     private void spinnListDict_OnItemSelectedListener()
     {
         spinnListDict.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
         {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+            public void onItemSelected(AdapterView<?> parent, View view, final int position, long id)
             {
+                if (position == spinnSelectedIndex) return;
                 lockOrientation.lock();
                 spinnSelectedItem = spinnListDict.getSelectedItem().toString();
                 getWordsCount = new DataBaseQueries.GetWordsCountAsync()
@@ -256,10 +280,11 @@ public class t_MatchFragment extends Fragment
                     public void resultAsyncTask(int res)
                     {
                         wordsCount = res;
-                        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
                         getWordsCount = null;
                         fillLayoutRight(wordsCount);
                         fillLayoutLeft(wordsCount);
+                        spinnSelectedIndex = position;
+                        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
                     }
                 };
                 getWordsCount.execute(spinnSelectedItem);
@@ -292,7 +317,6 @@ public class t_MatchFragment extends Fragment
                 for (int i = 0; i < list.size(); i++)
                 {
                     int randIndex = generatorRight.generate();
-                    AppData.arrayBtnRight[i] = (Button) linLayoutRight.getChildAt(i);
                     AppData.arrayBtnRight[i].setText(list.get(randIndex).get_translate());
 
                 }
@@ -305,8 +329,9 @@ public class t_MatchFragment extends Fragment
         {
             Button button = (Button) linLayoutRight.getChildAt(i);
             button.setVisibility(View.VISIBLE);
-            AppData.arrayBtnRight[i] = button;
+            button.setTranslationX(0);
             btnRight_OnClick(button, i);
+            AppData.arrayBtnRight[i] = button;
         }
 
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
@@ -331,6 +356,7 @@ public class t_MatchFragment extends Fragment
                 for (int i = 0; i < list.size(); i++)
                 {
                     int randIndex = generatorLeft.generate();
+                    AppData.arrayBtnLeft[i] = (Button) linLayoutLeft.getChildAt(i);
                     AppData.arrayBtnLeft[i].setText(list.get(randIndex).get_english());
                 }
             }
@@ -342,8 +368,9 @@ public class t_MatchFragment extends Fragment
         {
             Button button = (Button) linLayoutLeft.getChildAt(i);
             button.setVisibility(View.VISIBLE);
-            AppData.arrayBtnLeft[i] = button;
+            button.setTranslationX(0);
             btnLeft_OnClick(button, i);
+            AppData.arrayBtnLeft[i] = button;
         }
 
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
@@ -357,6 +384,9 @@ public class t_MatchFragment extends Fragment
             @Override
             public void onClick(View v)
             {
+                btn_left_position = index;
+                width = v.getWidth();
+                height = v.getHeight();
                 enWord = AppData.arrayBtnLeft[index].getText().toString();
                 compareWords(spinnSelectedItem, enWord, ruWord);
                 if (index > 0)
@@ -376,6 +406,9 @@ public class t_MatchFragment extends Fragment
             @Override
             public void onClick(View v)
             {
+                btn_right_position = index;
+                width = v.getWidth();
+                height = v.getHeight();
                 ruWord = AppData.arrayBtnRight[index].getText().toString();
                 compareWords(spinnSelectedItem, enWord, ruWord);
                 if (index > 0)
@@ -392,21 +425,56 @@ public class t_MatchFragment extends Fragment
         if (enword == null || ruword == null)   return;
         if (enword != null && ruword != null)
         {
+
             DataBaseQueries.GetRowIdOfWordAsync asyncTask = new DataBaseQueries.GetRowIdOfWordAsync()
             {
                 @Override
                 public void resultAsyncTask(Integer id)
                 {
+                    lockOrientation.lock();
                     resultCompare = id;
                     if (resultCompare > 0)
                     {
+                        wordsCount--;
                         Toast.makeText(getActivity().getApplicationContext(), "Правильно", Toast.LENGTH_SHORT).show();
                         enWord = null; ruWord = null;
+
+                        if (btn_right_position == 0)
+                        {
+                            animToRight = AppData.arrayBtnRight[0].animate().x((width + delta))
+                                    .setDuration(duration)
+                                    .setInterpolator(new AccelerateDecelerateInterpolator());
+                            animToRight_Listener(animToRight);
+                        }
+                        if (btn_left_position == 0)
+                        {
+                            animToLeft = AppData.arrayBtnLeft[0].animate().x(-(width + delta))
+                                    .setDuration(duration)
+                                    .setInterpolator(new AccelerateDecelerateInterpolator());
+                            animToLeft_Listener(animToLeft);
+                        }
+
+                        if (btn_right_position > 0)
+                        {
+                            animToRight = AppData.arrayBtnRight[btn_right_position].animate().x((width + delta))
+                                    .setDuration(duration)
+                                    .setInterpolator(new AccelerateDecelerateInterpolator());
+                            animToRight_Listener(animToRight);
+                        }
+                        if (btn_left_position > 0)
+                        {
+                            animToLeft = AppData.arrayBtnLeft[btn_left_position].animate().x(-(width + delta))
+                                    .setDuration(duration)
+                                    .setInterpolator(new AccelerateDecelerateInterpolator());
+                            animToLeft_Listener(animToLeft);
+                        }
+
                     }
                     if (resultCompare < 0)
                     {
                         Toast.makeText(getActivity().getApplicationContext(), "Неправильно", Toast.LENGTH_SHORT).show();
                     }
+                    getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
                 }
             };
             asyncTask.execute(tableName, enword, ruword);
@@ -435,12 +503,76 @@ public class t_MatchFragment extends Fragment
 
     private void animToLeft_Listener(ViewPropertyAnimator animator)
     {
+        animator.setListener(new Animator.AnimatorListener()
+        {
+            @Override
+            public void onAnimationStart(Animator animation)
+            {
 
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation)
+            {
+                if (wordsCount <= ROWS)
+                {
+                    AppData.arrayBtnLeft[btn_left_position].setVisibility(View.INVISIBLE);
+                }
+                else
+                {
+                    AppData.arrayBtnLeft[btn_left_position].animate().translationX(0).setDuration(duration).setInterpolator(new AccelerateDecelerateInterpolator());
+                }
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation)
+            {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation)
+            {
+
+            }
+        });
     }
 
     private void animToRight_Listener(ViewPropertyAnimator animator)
     {
+        animator.setListener(new Animator.AnimatorListener()
+        {
+            @Override
+            public void onAnimationStart(Animator animation)
+            {
 
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation)
+            {
+                if (wordsCount <= ROWS)
+                {
+                    AppData.arrayBtnRight[btn_right_position].setVisibility(View.INVISIBLE);
+                }
+                else
+                {
+                    AppData.arrayBtnRight[btn_right_position].animate().translationX(0).setDuration(duration).setInterpolator(new AccelerateDecelerateInterpolator());
+                }
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation)
+            {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation)
+            {
+
+            }
+        });
     }
 
     private void animToDown_Listener(ViewPropertyAnimator animator, String side)

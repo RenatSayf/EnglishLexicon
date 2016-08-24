@@ -47,6 +47,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
             android:orientation="vertical"
             android:gravity="center_horizontal"
             android:id="@+id/left_layout">
@@ -118,8 +119,19 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="@drawable/text_button_for_test"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="5dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="5dp"
+                android:textColor="@color/colorBlack"
+                />
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/text_button_for_test"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="10dp"
                 android:layout_marginBottom="5dp"
                 />
 
@@ -128,8 +140,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="@drawable/text_button_for_test"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="5dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="10dp"
                 android:layout_marginBottom="5dp"
                 />
 
@@ -138,8 +150,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="@drawable/text_button_for_test"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="5dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="10dp"
                 android:layout_marginBottom="5dp"
                 />
 
@@ -148,18 +160,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="@drawable/text_button_for_test"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="5dp"
-                android:layout_marginBottom="5dp"
-                />
-
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@drawable/text_button_for_test"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="5dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="10dp"
                 android:layout_marginBottom="5dp"
                 />
 
