@@ -90,7 +90,7 @@ public class t_MatchFragment extends Fragment
 
     }
 
-    public static final int ROWS = 2;
+    public static final int ROWS = 5;
     private LinearLayout linLayoutLeft, linLayoutRight;
     private ViewPropertyAnimator animToLeft, animToRight, animToTop, animToDown;
     private long duration = 1000;
@@ -308,7 +308,7 @@ public class t_MatchFragment extends Fragment
         {
             count = ROWS;
         }
-        generatorRight = new z_RandomNumberGenerator(count, 100);
+        generatorRight = new z_RandomNumberGenerator(count, 127);
         final int finalCount = count;
         AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
         {
@@ -507,8 +507,8 @@ public class t_MatchFragment extends Fragment
                         @Override
                         public void resultAsyncTask(ArrayList<DataBaseEntry> list)
                         {
-                            generatorLeft = new z_RandomNumberGenerator(list.size(), 0);
-                            generatorRight = new z_RandomNumberGenerator(list.size(), 100);
+                            generatorLeft = new z_RandomNumberGenerator(list.size(), 1);
+                            generatorRight = new z_RandomNumberGenerator(list.size(), 3);
                             int randLeft = generatorLeft.generate();
                             int randRight = generatorRight.generate();
                             AppData.arrayBtnLeft[btn_left_position].setText(list.get(randLeft).get_english());
