@@ -62,9 +62,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     private Button _btn_Previous;
     private ProgressBar _progressBar;
     private Switch switchRuSound;
-    private z_speechSynthesAsync _speechSynthesAsync;
     private Handler _handler;
-    private z_SaveFragment _saveFragment;
     Intent intentMyIntentService;
     private UpdateBroadcastReceiver mUpdateBroadcastReceiver;
 
@@ -280,6 +278,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             {
                 _check_self = new Intent(this, t_Tests.class);
             }
+            speechServiceOnPause();
             startActivity(_check_self);
         } else if (id == R.id.nav_play_list)
         {

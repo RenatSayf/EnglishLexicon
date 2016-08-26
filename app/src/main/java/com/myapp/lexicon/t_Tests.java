@@ -2,6 +2,8 @@ package com.myapp.lexicon;
 
 //import android.app.Fragment;
 //import android.app.FragmentTransaction;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.Voice;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.net.Uri;
@@ -9,10 +11,13 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+
+import java.util.Locale;
 
 public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFragmentInteractionListener
 {
@@ -20,7 +25,7 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
     private t_MatchFragment matchFragment;
     private static String FRAGMENT_INSTANCE_NAME = "matchFragment";
     private FragmentTransaction transaction;
-
+    private TextToSpeech speech;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -33,7 +38,28 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         initViews();
-        
+
+        speech = new TextToSpeech(this, new TextToSpeech.OnInitListener()
+        {
+            @Override
+            public void onInit(int status)
+            {
+                if (status == TextToSpeech.SUCCESS)
+                {
+                    int resultEn = speech.isLanguageAvailable(Locale.UK);
+                    if (resultEn != TextToSpeech.LANG_MISSING_DATA || resultEn != TextToSpeech.LANG_NOT_SUPPORTED)
+                    {
+                        Log.i("Lexicon", "Извините, английский язык не поддерживается");
+                        speech.setLanguage(Locale.US);
+
+                        speech.speak("go", TextToSpeech.QUEUE_ADD, null);
+                    }
+                } else
+                {
+                    Log.i("Lexicon", "z_speechSynthesAsync.onInit() - Ошибка!");
+                }
+            }
+        });
     }
 
     private void initViews()
