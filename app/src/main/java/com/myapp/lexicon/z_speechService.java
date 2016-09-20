@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 public class z_speechService extends IntentService
 {
-    private TextToSpeech textToSpeech;
+    public TextToSpeech textToSpeech;
     private HashMap<String, String> map = new HashMap<String, String>();
     private boolean stop = true;
     private ArrayList<p_ItemListDict> _playList;
@@ -39,14 +39,13 @@ public class z_speechService extends IntentService
     public z_speechService(TextToSpeech textToSpeech)
     {
         super("LexiconSpeechService");
-        this.textToSpeech = textToSpeech;
+        //this.textToSpeech = textToSpeech;
     }
 
     @Override
     public void onCreate()
     {
         super.onCreate();
-
 
 
         textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener()
@@ -72,6 +71,7 @@ public class z_speechService extends IntentService
                     z_Log.v("Конструктор.  status = " + status);
                 }
                 z_Log.v("Конструктор.  Выход из onInit()  status = " + status);
+
             }
         });
         if (_databaseHelper == null)
@@ -153,7 +153,7 @@ public class z_speechService extends IntentService
                             }
                             z_Log.v(list.get(0).get_english() + "    " + list.get(0).get_translate());
 
-                            if (!AppData.isEngOnly())
+                            if (a_MainActivity.settings.getBoolean(a_MainActivity.KEY_ENG_ONLY,true))
                             {
                                 try
                                 {
@@ -366,11 +366,11 @@ public class z_speechService extends IntentService
             SQLiteDatabase database1 = _databaseHelper.database;
             Cursor cursor=database1.query(dictName, null, null, null, null, null, null);
             count = cursor.getCount();
-            Log.i("Lexicon", "z_speechSynthesAsync.getWordsCount() - " + count);
+            Log.i("Lexicon", "z_Speaker.getWordsCount() - " + count);
         }
         catch (Exception e)
         {
-            Log.i("Lexicon", "ИСКЛЮЧЕНИЕ в z_speechSynthesAsync.getWordsCount() - " + e);
+            Log.i("Lexicon", "ИСКЛЮЧЕНИЕ в z_Speaker.getWordsCount() - " + e);
             count = 0;
         }finally
         {
@@ -389,7 +389,7 @@ public class z_speechService extends IntentService
             entries = dataBaseQueries.getEntriesFromDB(dictName, j, j);
         } catch (SQLException e)
         {
-            Log.i("Lexicon", "ИСКЛЮЧЕНИЕ в z_speechSynthesAsync.getOneEntryFromTable() - " + e);
+            Log.i("Lexicon", "ИСКЛЮЧЕНИЕ в z_Speaker.getOneEntryFromTable() - " + e);
         } finally
         {
             _databaseHelper.close();

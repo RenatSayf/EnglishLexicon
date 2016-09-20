@@ -18,6 +18,7 @@ import android.view.View;
 import android.widget.ImageButton;
 
 import java.util.Locale;
+import java.util.Set;
 
 public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFragmentInteractionListener
 {
@@ -39,27 +40,7 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
 
         initViews();
 
-        speech = new TextToSpeech(this, new TextToSpeech.OnInitListener()
-        {
-            @Override
-            public void onInit(int status)
-            {
-                if (status == TextToSpeech.SUCCESS)
-                {
-                    int resultEn = speech.isLanguageAvailable(Locale.UK);
-                    if (resultEn != TextToSpeech.LANG_MISSING_DATA || resultEn != TextToSpeech.LANG_NOT_SUPPORTED)
-                    {
-                        Log.i("Lexicon", "Извините, английский язык не поддерживается");
-                        speech.setLanguage(Locale.US);
 
-                        speech.speak("go", TextToSpeech.QUEUE_ADD, null);
-                    }
-                } else
-                {
-                    Log.i("Lexicon", "z_speechSynthesAsync.onInit() - Ошибка!");
-                }
-            }
-        });
     }
 
     private void initViews()

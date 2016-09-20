@@ -7,9 +7,11 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 //import android.app.Fragment;
+import android.speech.tts.TextToSpeech;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +27,8 @@ import android.widget.Toast;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Locale;
 
 
 /**
@@ -119,7 +123,6 @@ public class t_MatchFragment extends Fragment
     private z_LockOrientation lockOrientation;
     private int wordIndex = 1;
     private String KEY_WORD_INDEX = "wordIndex";
-    View fragment_view = null;
 
     private static int[] btnVisibleLeft = new int[ROWS];
 
@@ -217,6 +220,7 @@ public class t_MatchFragment extends Fragment
         spinnListDict = (Spinner) fragment_view.findViewById(R.id.spinn_list_dict);
         spinnListDict_OnItemSelectedListener();
         //endregion
+
     }
 
     private void setItemsToSpinnListDict()
@@ -427,6 +431,7 @@ public class t_MatchFragment extends Fragment
     }
 
     private Integer resultCompare = 0;
+
     private void compareWords(String tableName, String enword, String ruword)
     {
         if (enword == null || ruword == null)   return;
@@ -441,7 +446,10 @@ public class t_MatchFragment extends Fragment
                     resultCompare = id;
                     if (resultCompare > 0)
                     {
-                        Toast.makeText(getActivity().getApplicationContext(), "Правильно", Toast.LENGTH_SHORT).show();
+                        String text = AppData.arrayBtnLeft[btn_left_position].getText().toString();
+                        //Toast.makeText(getActivity().getApplicationContext(), "ПравильноXXX - "+text, Toast.LENGTH_SHORT).show();
+
+                        //a_SplashScreenActivity.speaker.speak(text);
                         enWord = null; ruWord = null;
 
                         animToRight = AppData.arrayBtnRight[btn_right_position].animate().x((width + delta))
