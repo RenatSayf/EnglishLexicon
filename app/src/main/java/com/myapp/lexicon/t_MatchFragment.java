@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 //import android.app.Fragment;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.DisplayMetrics;
@@ -449,7 +450,27 @@ public class t_MatchFragment extends Fragment
                         String text = AppData.arrayBtnLeft[btn_left_position].getText().toString();
                         //Toast.makeText(getActivity().getApplicationContext(), "ПравильноXXX - "+text, Toast.LENGTH_SHORT).show();
 
-                        //a_SplashScreenActivity.speaker.speak(text);
+                        a_SplashScreenActivity.speech.speak(text, TextToSpeech.QUEUE_ADD, a_SplashScreenActivity.map);
+                        a_SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+                        {
+                            @Override
+                            public void onStart(String utteranceId)
+                            {
+
+                            }
+
+                            @Override
+                            public void onDone(String utteranceId)
+                            {
+
+                            }
+
+                            @Override
+                            public void onError(String utteranceId)
+                            {
+
+                            }
+                        });
                         enWord = null; ruWord = null;
 
                         animToRight = AppData.arrayBtnRight[btn_right_position].animate().x((width + delta))
