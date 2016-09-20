@@ -40,7 +40,20 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
 
         initViews();
 
+        String language = a_SplashScreenActivity.speech.getLanguage().getDisplayLanguage();
+        String languageENG = Locale.US.getDisplayLanguage();
+        if (language != languageENG)
+        {
+            int languageAvailable = a_SplashScreenActivity.speech.isLanguageAvailable(Locale.US);
+            while (!language.equals(languageENG))
+            {
+                a_SplashScreenActivity.speech.setLanguage(Locale.US);
+                language = a_SplashScreenActivity.speech.getLanguage().getDisplayLanguage();
+            }
 
+            Locale lang = a_SplashScreenActivity.speech.getLanguage();
+            a_SplashScreenActivity.speech.speak("a", TextToSpeech.QUEUE_ADD, a_SplashScreenActivity.map);
+        }
     }
 
     private void initViews()

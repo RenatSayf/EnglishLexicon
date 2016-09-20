@@ -449,7 +449,6 @@ public class t_MatchFragment extends Fragment
                     {
                         String text = AppData.arrayBtnLeft[btn_left_position].getText().toString();
                         //Toast.makeText(getActivity().getApplicationContext(), "ПравильноXXX - "+text, Toast.LENGTH_SHORT).show();
-
                         a_SplashScreenActivity.speech.speak(text, TextToSpeech.QUEUE_ADD, a_SplashScreenActivity.map);
                         a_SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
                         {

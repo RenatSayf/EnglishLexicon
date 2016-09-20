@@ -19,8 +19,8 @@ import java.util.concurrent.TimeUnit;
 
 public class z_speechService extends IntentService
 {
-    public TextToSpeech textToSpeech;
-    private HashMap<String, String> map = new HashMap<String, String>();
+//    public TextToSpeech textToSpeech;
+//    private HashMap<String, String> map = new HashMap<String, String>();
     private boolean stop = true;
     private ArrayList<p_ItemListDict> _playList;
     private DatabaseHelper _databaseHelper;
@@ -48,32 +48,32 @@ public class z_speechService extends IntentService
         super.onCreate();
 
 
-        textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener()
-        {
-            @Override
-            public void onInit(int status)
-            {
-                map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "text");
-                if (status == TextToSpeech.SUCCESS)
-                {
-                    int resultRu = textToSpeech.setLanguage(Locale.getDefault());
-                    if (resultRu == TextToSpeech.LANG_MISSING_DATA || resultRu == TextToSpeech.LANG_NOT_SUPPORTED)
-                    {
-                        z_Log.v("Конструктор.  Извините, русский язык не поддерживается");
-                    }
-                    int resultEn = textToSpeech.setLanguage(Locale.US);
-                    if (resultEn == TextToSpeech.LANG_MISSING_DATA || resultEn == TextToSpeech.LANG_NOT_SUPPORTED)
-                    {
-                        z_Log.v("Конструктор.  Извините, английский язык не поддерживается");
-                    }
-                }else
-                {
-                    z_Log.v("Конструктор.  status = " + status);
-                }
-                z_Log.v("Конструктор.  Выход из onInit()  status = " + status);
-
-            }
-        });
+//        textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener()
+//        {
+//            @Override
+//            public void onInit(int status)
+//            {
+//                map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "text");
+//                if (status == TextToSpeech.SUCCESS)
+//                {
+//                    int resultRu = textToSpeech.setLanguage(Locale.getDefault());
+//                    if (resultRu == TextToSpeech.LANG_MISSING_DATA || resultRu == TextToSpeech.LANG_NOT_SUPPORTED)
+//                    {
+//                        z_Log.v("Конструктор.  Извините, русский язык не поддерживается");
+//                    }
+//                    int resultEn = textToSpeech.setLanguage(Locale.US);
+//                    if (resultEn == TextToSpeech.LANG_MISSING_DATA || resultEn == TextToSpeech.LANG_NOT_SUPPORTED)
+//                    {
+//                        z_Log.v("Конструктор.  Извините, английский язык не поддерживается");
+//                    }
+//                }else
+//                {
+//                    z_Log.v("Конструктор.  status = " + status);
+//                }
+//                z_Log.v("Конструктор.  Выход из onInit()  status = " + status);
+//
+//            }
+//        });
         if (_databaseHelper == null)
         {
             _databaseHelper = new DatabaseHelper(getApplicationContext());
@@ -106,8 +106,8 @@ public class z_speechService extends IntentService
     {
         super.onDestroy();
         stop = true;
-        textToSpeech.stop();
-        textToSpeech.shutdown();
+//        textToSpeech.stop();
+//        textToSpeech.shutdown();
         z_Log.v("Разрушаем процесс");
     }
 
@@ -142,8 +142,9 @@ public class z_speechService extends IntentService
                             if (stop)
                             {
                                 z_Log.v(" onHandleIntent() stop = " + stop);
-                                textToSpeech.stop();
-                                textToSpeech.shutdown();
+//                                textToSpeech.stop();
+//                                textToSpeech.shutdown();
+                                a_SplashScreenActivity.speech.stop();
                                 break;
                             }
                             ArrayList<DataBaseEntry> list = dataBaseQueries.getEntriesFromDB(playListItem.get_dictName(), j, j);
@@ -188,8 +189,9 @@ public class z_speechService extends IntentService
                             if (stop)
                             {
                                 z_Log.v(" onHandleIntent() stop = " + stop);
-                                textToSpeech.stop();
-                                textToSpeech.shutdown();
+//                                textToSpeech.stop();
+//                                textToSpeech.shutdown();
+                                a_SplashScreenActivity.speech.stop();
                                 break;
                             }
                             AppData.set_Nword(j);
@@ -203,8 +205,9 @@ public class z_speechService extends IntentService
                     if (stop)
                     {
                         z_Log.v(" onHandleIntent() stop = " + stop);
-                        textToSpeech.stop();
-                        textToSpeech.shutdown();
+//                        textToSpeech.stop();
+//                        textToSpeech.shutdown();
+                        a_SplashScreenActivity.speech.stop();
                         break;
                     }
                     AppData.set_Ndict(i);
@@ -238,7 +241,7 @@ public class z_speechService extends IntentService
             z_Log.v("speakWord() Текст не соответствует языку = " + text);
             return null;
         }
-        textToSpeech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+        a_SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
         {
             @Override
             public void onStart(String utteranceId)
@@ -263,14 +266,18 @@ public class z_speechService extends IntentService
             }
         });
 
-        int res = -3;
-        textToSpeech.setLanguage(lang);
+        Locale language = a_SplashScreenActivity.speech.getLanguage();
+        if (language != lang)
+        {
+            a_SplashScreenActivity.speech.setLanguage(lang);
+        }
         int count = 0;
+        int res = -3;
         while (res < 0)
         {
             //TimeUnit.MILLISECONDS.sleep(1);
             Thread.sleep(10);
-            res = textToSpeech.isLanguageAvailable(lang);
+            res = a_SplashScreenActivity.speech.isLanguageAvailable(lang);
             count++;
             if (count >= 2000)
             {
@@ -284,9 +291,9 @@ public class z_speechService extends IntentService
             return text;
         }
         z_Log.v("textToSpeech.setLanguage(lang) = " + res + "    count = " + count);
-        textToSpeech.speak(text, TextToSpeech.QUEUE_ADD, map);
+        a_SplashScreenActivity.speech.speak(text, TextToSpeech.QUEUE_ADD, a_SplashScreenActivity.map);
 
-        while (textToSpeech.isSpeaking())
+        while (a_SplashScreenActivity.speech.isSpeaking())
         {
             //TimeUnit.MILLISECONDS.sleep(1);
             Thread.sleep(10);
@@ -300,7 +307,7 @@ public class z_speechService extends IntentService
         Locale lang = Locale.US;
         textEn = text_en;
         textRu = text_ru;
-        textToSpeech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+        a_SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
         {
             @Override
             public void onStart(String utteranceId)
@@ -327,14 +334,18 @@ public class z_speechService extends IntentService
             }
         });
 
+        Locale language = a_SplashScreenActivity.speech.getLanguage();
+        if (language != lang)
+        {
+            a_SplashScreenActivity.speech.setLanguage(lang);
+        }
+        a_SplashScreenActivity.speech.playSilence(1500, TextToSpeech.QUEUE_ADD, a_SplashScreenActivity.map);
         int res = -3;
-        textToSpeech.setLanguage(lang);
-        textToSpeech.playSilence(1500, TextToSpeech.QUEUE_ADD, map);
         int count = 0;
         while (res < 0)
         {
             Thread.sleep(10);
-            res = textToSpeech.isLanguageAvailable(lang);
+            res = a_SplashScreenActivity.speech.isLanguageAvailable(lang);
             count++;
             if (count >= 2000)
             {
@@ -347,9 +358,9 @@ public class z_speechService extends IntentService
             return null;
         }
         z_Log.v("textToSpeech.setLanguage(lang) = " + res + "    count = " + count);
-        textToSpeech.speak(text_en, TextToSpeech.QUEUE_ADD, map);
+        a_SplashScreenActivity.speech.speak(text_en, TextToSpeech.QUEUE_ADD, a_SplashScreenActivity.map);
 
-        while (textToSpeech.isSpeaking())
+        while (a_SplashScreenActivity.speech.isSpeaking())
         {
             Thread.sleep(10);
         }
@@ -379,21 +390,5 @@ public class z_speechService extends IntentService
         return count;
     }
 
-    private ArrayList<DataBaseEntry> getOneEntryFromTable(String dictName, int j)
-    {
-        ArrayList<DataBaseEntry> entries = null;
-        try
-        {
-            _databaseHelper.open();
-            DataBaseQueries dataBaseQueries = new DataBaseQueries(_databaseHelper.database);
-            entries = dataBaseQueries.getEntriesFromDB(dictName, j, j);
-        } catch (SQLException e)
-        {
-            Log.i("Lexicon", "ИСКЛЮЧЕНИЕ в z_Speaker.getOneEntryFromTable() - " + e);
-        } finally
-        {
-            _databaseHelper.close();
-        }
-        return entries;
-    }
+
 }
