@@ -43,8 +43,9 @@ import java.util.concurrent.ExecutionException;
 
 public class a_MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener //AppCompatActivity ActionBarActivity
 {
-    public static ArrayList<String> listDict = new ArrayList<String>(Arrays.asList("This Application", "Everyday", "Travel", "Computers"));
     public static SharedPreferences kept_playList;
+    public static SharedPreferences settings;
+    public static String KEY_ENG_ONLY = "eng_only";
 
     private Intent add_word;
     private Intent _add_dict;
@@ -62,9 +63,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     private Button _btn_Previous;
     private ProgressBar _progressBar;
     private Switch switchRuSound;
-    private z_speechSynthesAsync _speechSynthesAsync;
     private Handler _handler;
-    private z_SaveFragment _saveFragment;
     Intent intentMyIntentService;
     private UpdateBroadcastReceiver mUpdateBroadcastReceiver;
 
@@ -81,6 +80,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a_navig_main);
 
+
         final PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
         this.wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"my_tag");
         this.wakeLock.acquire();
@@ -88,10 +88,11 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         //getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
+        kept_playList=getSharedPreferences("play_list", MODE_PRIVATE);
+        settings = getSharedPreferences(KEY_ENG_ONLY, MODE_PRIVATE);
         initViews();
 
-        kept_playList=getSharedPreferences("play_list", MODE_PRIVATE);
+
 
         //z_speechService speechService=new z_speechService();
         //intentMyIntentService = new Intent(this, speechService.getClass());
@@ -103,7 +104,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         updateIntentFilter.addCategory(Intent.CATEGORY_DEFAULT);
         registerReceiver(mUpdateBroadcastReceiver, updateIntentFilter);
 
-        //_speechSynthesAsync = new z_speechSynthesAsync(this, _textViewEn, _textViewRu);
+        //_speechSynthesAsync = new z_Speaker(this, _textViewEn, _textViewRu);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -133,6 +134,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         _btn_Next = (Button) findViewById(R.id.btn_next);
         _progressBar = (ProgressBar) findViewById(R.id.progressBar);
         switchRuSound = (Switch) findViewById(R.id.switch_ru_sound);
+        switchRuSound.setChecked(settings.getBoolean(KEY_ENG_ONLY, true));
         switchRuSound_OnCheckedChange();
     }
 
@@ -280,6 +282,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             {
                 _check_self = new Intent(this, t_Tests.class);
             }
+            speechServiceOnPause();
             startActivity(_check_self);
         } else if (id == R.id.nav_play_list)
         {
@@ -683,14 +686,15 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             {
                 if (isChecked)
                 {
-                    AppData.setEngOnly(false);
+                    settings.edit().putBoolean(KEY_ENG_ONLY,true).apply();
                     Toast toast = Toast.makeText(a_MainActivity.this,"Русскоязычное озвучивание включено",Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.TOP, 0, 0);
                     toast.show();
+
                 }
                 else
                 {
-                    AppData.setEngOnly(true);
+                    settings.edit().putBoolean(KEY_ENG_ONLY,false).apply();
                     Toast toast = Toast.makeText(a_MainActivity.this,"Русскоязычное озвучивание отключено",Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.TOP, 0, 0);
                     toast.show();

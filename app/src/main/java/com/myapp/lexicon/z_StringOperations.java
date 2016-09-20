@@ -19,9 +19,10 @@ public class z_StringOperations
     {
         String str = text;
         String[] lang = new String[2];
+        int char_first;
         for (int i = 0; i < str.length(); i++)
         {
-            int char_first = str.codePointAt(0);
+            char_first = str.codePointAt(i);
             if ((char_first >= 33 && char_first <= 64) || (str.codePointAt(i) >= 91 && str.codePointAt(i) <= 96) || (str.codePointAt(i) >= 123 && str.codePointAt(i) <= 126))
             {
                 continue;

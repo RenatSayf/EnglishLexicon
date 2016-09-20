@@ -2,6 +2,8 @@ package com.myapp.lexicon;
 
 //import android.app.Fragment;
 //import android.app.FragmentTransaction;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.Voice;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.net.Uri;
@@ -9,17 +11,22 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 
+import java.util.Locale;
+import java.util.Set;
+
 public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFragmentInteractionListener
 {
     private ImageButton buttonMatchTest, buttonSelectWordTest;
     private t_MatchFragment matchFragment;
+    private static String FRAGMENT_INSTANCE_NAME = "matchFragment";
     private FragmentTransaction transaction;
-
+    private TextToSpeech speech;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -32,15 +39,22 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         initViews();
-        
+
+
     }
 
     private void initViews()
     {
         buttonMatchTest = (ImageButton) findViewById(R.id.btn_match_test);
         buttonSelectWordTest = (ImageButton) findViewById(R.id.btn_select_word_test);
-        matchFragment = t_MatchFragment.newInstance(null,null);
-        matchFragment.setRetainInstance(true);
+
+        FragmentManager manager = getSupportFragmentManager();
+        matchFragment = (t_MatchFragment) manager.findFragmentByTag(FRAGMENT_INSTANCE_NAME);
+        if (matchFragment == null)
+        {
+            matchFragment = t_MatchFragment.newInstance(null,null);
+        }
+        //matchFragment.setRetainInstance(true);
         button_OnClick();
     }
 

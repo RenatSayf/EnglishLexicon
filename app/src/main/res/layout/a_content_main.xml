@@ -42,7 +42,7 @@
                 android:singleLine="false"
                 android:showText="false"
                 android:typeface="sans"
-                android:checked="true"
+                android:checked="false"
                 />
 
         </FrameLayout>
