@@ -15,8 +15,6 @@ import java.util.Locale;
  */
 public class a_SplashScreenActivity extends Activity
 {
-    public static z_Speaker speaker;
-
     public static TextToSpeech speech;
     public static HashMap<String, String> map = new HashMap<String, String>();
 

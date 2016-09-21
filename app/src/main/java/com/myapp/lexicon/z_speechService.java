@@ -19,8 +19,6 @@ import java.util.concurrent.TimeUnit;
 
 public class z_speechService extends IntentService
 {
-//    public TextToSpeech textToSpeech;
-//    private HashMap<String, String> map = new HashMap<String, String>();
     private boolean stop = true;
     private ArrayList<p_ItemListDict> _playList;
     private DatabaseHelper _databaseHelper;
@@ -36,44 +34,11 @@ public class z_speechService extends IntentService
         super("LexiconSpeechService");
     }
 
-    public z_speechService(TextToSpeech textToSpeech)
-    {
-        super("LexiconSpeechService");
-        //this.textToSpeech = textToSpeech;
-    }
-
     @Override
     public void onCreate()
     {
         super.onCreate();
 
-
-//        textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener()
-//        {
-//            @Override
-//            public void onInit(int status)
-//            {
-//                map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "text");
-//                if (status == TextToSpeech.SUCCESS)
-//                {
-//                    int resultRu = textToSpeech.setLanguage(Locale.getDefault());
-//                    if (resultRu == TextToSpeech.LANG_MISSING_DATA || resultRu == TextToSpeech.LANG_NOT_SUPPORTED)
-//                    {
-//                        z_Log.v("Конструктор.  Извините, русский язык не поддерживается");
-//                    }
-//                    int resultEn = textToSpeech.setLanguage(Locale.US);
-//                    if (resultEn == TextToSpeech.LANG_MISSING_DATA || resultEn == TextToSpeech.LANG_NOT_SUPPORTED)
-//                    {
-//                        z_Log.v("Конструктор.  Извините, английский язык не поддерживается");
-//                    }
-//                }else
-//                {
-//                    z_Log.v("Конструктор.  status = " + status);
-//                }
-//                z_Log.v("Конструктор.  Выход из onInit()  status = " + status);
-//
-//            }
-//        });
         if (_databaseHelper == null)
         {
             _databaseHelper = new DatabaseHelper(getApplicationContext());
@@ -106,8 +71,6 @@ public class z_speechService extends IntentService
     {
         super.onDestroy();
         stop = true;
-//        textToSpeech.stop();
-//        textToSpeech.shutdown();
         z_Log.v("Разрушаем процесс");
     }
 
@@ -142,8 +105,6 @@ public class z_speechService extends IntentService
                             if (stop)
                             {
                                 z_Log.v(" onHandleIntent() stop = " + stop);
-//                                textToSpeech.stop();
-//                                textToSpeech.shutdown();
                                 a_SplashScreenActivity.speech.stop();
                                 break;
                             }
@@ -163,6 +124,13 @@ public class z_speechService extends IntentService
                                 {
                                     z_Log.v("Исключение - "+e.getMessage());
                                     e.printStackTrace();
+                                }
+
+                                if (stop)
+                                {
+                                    z_Log.v(" onHandleIntent() stop = " + stop);
+                                    a_SplashScreenActivity.speech.stop();
+                                    break;
                                 }
 
                                 try
@@ -189,8 +157,6 @@ public class z_speechService extends IntentService
                             if (stop)
                             {
                                 z_Log.v(" onHandleIntent() stop = " + stop);
-//                                textToSpeech.stop();
-//                                textToSpeech.shutdown();
                                 a_SplashScreenActivity.speech.stop();
                                 break;
                             }
@@ -205,8 +171,6 @@ public class z_speechService extends IntentService
                     if (stop)
                     {
                         z_Log.v(" onHandleIntent() stop = " + stop);
-//                        textToSpeech.stop();
-//                        textToSpeech.shutdown();
                         a_SplashScreenActivity.speech.stop();
                         break;
                     }
@@ -255,7 +219,13 @@ public class z_speechService extends IntentService
             }
 
             @Override
-            public void onDone(String utteranceId){}
+            public void onDone(String utteranceId)
+            {
+                if (stop)
+                {
+                    a_SplashScreenActivity.speech.stop();
+                }
+            }
 
             @Override
             public void onError(String utteranceId)
@@ -269,13 +239,13 @@ public class z_speechService extends IntentService
         Locale language = a_SplashScreenActivity.speech.getLanguage();
         if (language != lang)
         {
+            a_SplashScreenActivity.speech.stop();
             a_SplashScreenActivity.speech.setLanguage(lang);
         }
         int count = 0;
         int res = -3;
         while (res < 0)
         {
-            //TimeUnit.MILLISECONDS.sleep(1);
             Thread.sleep(10);
             res = a_SplashScreenActivity.speech.isLanguageAvailable(lang);
             count++;
@@ -290,12 +260,21 @@ public class z_speechService extends IntentService
         {
             return text;
         }
+        if (stop)
+        {
+            a_SplashScreenActivity.speech.stop();
+            return text;
+        }
         z_Log.v("textToSpeech.setLanguage(lang) = " + res + "    count = " + count);
         a_SplashScreenActivity.speech.speak(text, TextToSpeech.QUEUE_ADD, a_SplashScreenActivity.map);
 
         while (a_SplashScreenActivity.speech.isSpeaking())
         {
-            //TimeUnit.MILLISECONDS.sleep(1);
+            if (stop)
+            {
+                a_SplashScreenActivity.speech.stop();
+                break;
+            }
             Thread.sleep(10);
         }
         z_Log.v("speakWord()   text = " + text);
@@ -323,6 +302,10 @@ public class z_speechService extends IntentService
                 updateIntent.putExtra(EXTRA_KEY_UPDATE_RU, textRu);
                 updateIntent.putExtra(EXTRA_KEY_UPDATE_DICT, textDict);
                 sendBroadcast(updateIntent);
+                if (stop)
+                {
+                    a_SplashScreenActivity.speech.stop();
+                }
             }
 
             @Override
@@ -337,6 +320,7 @@ public class z_speechService extends IntentService
         Locale language = a_SplashScreenActivity.speech.getLanguage();
         if (language != lang)
         {
+            a_SplashScreenActivity.speech.stop();
             a_SplashScreenActivity.speech.setLanguage(lang);
         }
         a_SplashScreenActivity.speech.playSilence(1500, TextToSpeech.QUEUE_ADD, a_SplashScreenActivity.map);
@@ -362,6 +346,11 @@ public class z_speechService extends IntentService
 
         while (a_SplashScreenActivity.speech.isSpeaking())
         {
+            if (stop)
+            {
+                a_SplashScreenActivity.speech.stop();
+                break;
+            }
             Thread.sleep(10);
         }
         z_Log.v("speakWord()   text = " + text_en);
