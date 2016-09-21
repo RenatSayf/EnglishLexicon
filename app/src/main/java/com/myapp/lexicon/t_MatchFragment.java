@@ -13,6 +13,7 @@ import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v7.app.AlertDialog;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -277,6 +278,7 @@ public class t_MatchFragment extends Fragment
                 if (position == spinnSelectedIndex) return;
                 lockOrientation.lock();
                 wordIndex = 1;
+                guessedWordsCount = 0;
                 spinnSelectedItem = spinnListDict.getSelectedItem().toString();
                 getWordsCount = new DataBaseQueries.GetWordsCountAsync()
                 {
@@ -429,7 +431,7 @@ public class t_MatchFragment extends Fragment
     }
 
     private Integer resultCompare = 0;
-
+    private int guessedWordsCount = 0;
     private void compareWords(String tableName, String enword, String ruword)
     {
         if (enword == null || ruword == null)   return;
@@ -445,6 +447,7 @@ public class t_MatchFragment extends Fragment
                     if (resultCompare > 0)
                     {
                         counterRightAnswer++;
+                        guessedWordsCount++;
                         String text = AppData.arrayBtnLeft[btn_left_position].getText().toString();
                         a_SplashScreenActivity.speech.speak(text, TextToSpeech.QUEUE_ADD, a_SplashScreenActivity.map);
                         a_SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
@@ -482,6 +485,7 @@ public class t_MatchFragment extends Fragment
                     if (resultCompare < 0)
                     {
                         Toast.makeText(getActivity().getApplicationContext(), "Неправильно", Toast.LENGTH_SHORT).show();
+                        counterRightAnswer--;
                         Animation animNotRight = AnimationUtils.loadAnimation(getActivity().getApplicationContext(), R.anim.anim_not_right);
                         animNotRight.setAnimationListener(new Animation.AnimationListener()
                         {
@@ -555,6 +559,11 @@ public class t_MatchFragment extends Fragment
                 {
                     AppData.arrayBtnLeft[btn_left_position].setVisibility(View.INVISIBLE);
                     AppData.arrayBtnRight[btn_right_position].setVisibility(View.INVISIBLE);
+                    if (guessedWordsCount == wordsCount)
+                    {
+                        Toast.makeText(getActivity().getApplicationContext(),"Завершено",Toast.LENGTH_SHORT).show();
+                        dialogComplete();
+                    }
                 }
                 else
                 {
@@ -643,7 +652,14 @@ public class t_MatchFragment extends Fragment
 
     }
 
-
+    private void dialogComplete()
+    {
+        View view = getActivity().getLayoutInflater().inflate(R.layout.t_dialog_complete_test, null);
+        new AlertDialog.Builder(getActivity())
+                .setTitle("Завершено")
+                .setView(view)
+                .create().show();
+    }
 
 
 
