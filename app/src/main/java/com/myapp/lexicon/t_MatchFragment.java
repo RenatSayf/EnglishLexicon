@@ -3,6 +3,8 @@ package com.myapp.lexicon;
 import android.animation.Animator;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -12,13 +14,14 @@ import android.speech.tts.UtteranceProgressListener;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -28,8 +31,6 @@ import android.widget.Toast;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Locale;
 
 
 /**
@@ -124,6 +125,7 @@ public class t_MatchFragment extends Fragment
     private z_LockOrientation lockOrientation;
     private int wordIndex = 1;
     private String KEY_WORD_INDEX = "wordIndex";
+    private int counterRightAnswer = 0;
 
     private static int[] btnVisibleLeft = new int[ROWS];
 
@@ -389,22 +391,20 @@ public class t_MatchFragment extends Fragment
     }
 
     private String enWord = null;
+    private Button btnNoRight = null;
     private void btnLeft_OnClick(final View view, final int index)
     {
         view.setOnClickListener(new View.OnClickListener()
         {
             @Override
-            public void onClick(View v)
+            public void onClick(View view)
             {
                 btn_left_position = index;
-                width = v.getWidth();
-                height = v.getHeight();
+                width = view.getWidth();
+                height = view.getHeight();
                 enWord = AppData.arrayBtnLeft[index].getText().toString();
                 compareWords(spinnSelectedItem, enWord, ruWord);
-                if (index > 0)
-                {
-
-                }
+                btnNoRight = (Button) view;
             }
         });
     }
@@ -416,17 +416,14 @@ public class t_MatchFragment extends Fragment
         view.setOnClickListener(new View.OnClickListener()
         {
             @Override
-            public void onClick(View v)
+            public void onClick(View view)
             {
                 btn_right_position = index;
-                width = v.getWidth();
-                height = v.getHeight();
+                width = view.getWidth();
+                height = view.getHeight();
                 ruWord = AppData.arrayBtnRight[index].getText().toString();
                 compareWords(spinnSelectedItem, enWord, ruWord);
-                if (index > 0)
-                {
-
-                }
+                btnNoRight = (Button) view;
             }
         });
     }
@@ -447,8 +444,8 @@ public class t_MatchFragment extends Fragment
                     resultCompare = id;
                     if (resultCompare > 0)
                     {
+                        counterRightAnswer++;
                         String text = AppData.arrayBtnLeft[btn_left_position].getText().toString();
-                        //Toast.makeText(getActivity().getApplicationContext(), "ПравильноXXX - "+text, Toast.LENGTH_SHORT).show();
                         a_SplashScreenActivity.speech.speak(text, TextToSpeech.QUEUE_ADD, a_SplashScreenActivity.map);
                         a_SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
                         {
@@ -485,6 +482,33 @@ public class t_MatchFragment extends Fragment
                     if (resultCompare < 0)
                     {
                         Toast.makeText(getActivity().getApplicationContext(), "Неправильно", Toast.LENGTH_SHORT).show();
+                        Animation animNotRight = AnimationUtils.loadAnimation(getActivity().getApplicationContext(), R.anim.anim_not_right);
+                        animNotRight.setAnimationListener(new Animation.AnimationListener()
+                        {
+                            @Override
+                            public void onAnimationStart(Animation animation)
+                            {
+
+                            }
+
+                            @Override
+                            public void onAnimationEnd(Animation animation)
+                            {
+
+                                btnNoRight.setBackgroundResource(R.drawable.text_button_for_test);
+                            }
+
+                            @Override
+                            public void onAnimationRepeat(Animation animation)
+                            {
+
+                            }
+                        });
+                        if (btnNoRight != null)
+                        {
+                            btnNoRight.setBackgroundResource(R.drawable.text_btn_for_test_red);
+                            btnNoRight.startAnimation(animNotRight);
+                        }
                     }
                     getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
                 }
