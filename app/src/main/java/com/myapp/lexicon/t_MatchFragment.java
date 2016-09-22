@@ -1,10 +1,9 @@
 package com.myapp.lexicon;
 
 import android.animation.Animator;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -26,6 +25,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -127,6 +127,7 @@ public class t_MatchFragment extends Fragment
     private int wordIndex = 1;
     private String KEY_WORD_INDEX = "wordIndex";
     private int counterRightAnswer = 0;
+    private ArrayList<String> arrStudiedDict = new ArrayList<>();
 
     private static int[] btnVisibleLeft = new int[ROWS];
 
@@ -276,30 +277,7 @@ public class t_MatchFragment extends Fragment
             public void onItemSelected(AdapterView<?> parent, View view, final int position, long id)
             {
                 if (position == spinnSelectedIndex) return;
-                lockOrientation.lock();
-                wordIndex = 1;
-                guessedWordsCount = 0;
-                spinnSelectedItem = spinnListDict.getSelectedItem().toString();
-                getWordsCount = new DataBaseQueries.GetWordsCountAsync()
-                {
-                    @Override
-                    public void resultAsyncTask(int res)
-                    {
-                        wordsCount = res;
-                        wordsResidue = wordsCount - ROWS;
-                        if (wordsResidue > 0)
-                        {
-                            generatorLeft = new z_RandomNumberGenerator(wordsResidue,0);
-                            generatorRight = new z_RandomNumberGenerator(wordsResidue, 127);
-                        }
-                        getWordsCount = null;
-                        fillLayoutRight(wordsCount);
-                        fillLayoutLeft(wordsCount);
-                        spinnSelectedIndex = position;
-                        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-                    }
-                };
-                getWordsCount.execute(spinnSelectedItem);
+                startTest(position);
             }
 
             @Override
@@ -308,6 +286,34 @@ public class t_MatchFragment extends Fragment
 
             }
         });
+    }
+
+    private void startTest(final int position)
+    {
+        lockOrientation.lock();
+        wordIndex = 1;
+        guessedWordsCount = 0;
+        spinnSelectedItem = spinnListDict.getSelectedItem().toString();
+        getWordsCount = new DataBaseQueries.GetWordsCountAsync()
+        {
+            @Override
+            public void resultAsyncTask(int res)
+            {
+                wordsCount = res;
+                wordsResidue = wordsCount - ROWS;
+                if (wordsResidue > 0)
+                {
+                    generatorLeft = new z_RandomNumberGenerator(wordsResidue,0);
+                    generatorRight = new z_RandomNumberGenerator(wordsResidue, 127);
+                }
+                getWordsCount = null;
+                fillLayoutRight(wordsCount);
+                fillLayoutLeft(wordsCount);
+                spinnSelectedIndex = position;
+                getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+            }
+        };
+        getWordsCount.execute(spinnSelectedItem);
     }
 
     private void fillLayoutRight(final int rowsCount)
@@ -514,6 +520,12 @@ public class t_MatchFragment extends Fragment
                             btnNoRight.startAnimation(animNotRight);
                         }
                     }
+                    boolean contains = arrStudiedDict.contains(spinnListDict.getSelectedItem());
+                    if (counterRightAnswer == wordsCount && !contains)
+                    {
+                        arrStudiedDict.add(spinnListDict.getSelectedItem().toString());
+                        counterRightAnswer = 0;
+                    }
                     getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
                 }
             };
@@ -652,13 +664,57 @@ public class t_MatchFragment extends Fragment
 
     }
 
+    Dialog dialogComplete;
     private void dialogComplete()
     {
-        View view = getActivity().getLayoutInflater().inflate(R.layout.t_dialog_complete_test, null);
-        new AlertDialog.Builder(getActivity())
+        final View dialogView = getActivity().getLayoutInflater().inflate(R.layout.t_dialog_complete_test, null);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
                 .setTitle("Завершено")
-                .setView(view)
-                .create().show();
+                .setCancelable(false)
+                .setView(dialogView);
+        dialogComplete = builder.create();
+        dialogComplete.show();
+        ImageButton buttonNext = (ImageButton) dialogView.findViewById(R.id.btn_next);
+        buttonNext.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                int count = spinnListDict.getAdapter().getCount();
+                int position = spinnListDict.getSelectedItemPosition();
+                if (position < count)
+                {
+                    position++;
+                    spinnListDict.setSelection(position);
+                }
+                if (position == count)
+                {
+                    position = 0;
+                    spinnListDict.setSelection(position);
+                }
+                dialogComplete.dismiss();
+            }
+        });
+        ImageButton buttonRepeat = (ImageButton) dialogView.findViewById(R.id.btn_repeat);
+        buttonRepeat.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                startTest(spinnListDict.getSelectedItemPosition());
+                dialogComplete.dismiss();
+            }
+        });
+        ImageButton buttonComplete = (ImageButton) dialogView.findViewById(R.id.btn_complete);
+        buttonComplete.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                ArrayList<String> arrStudiedDict = t_MatchFragment.this.arrStudiedDict;
+                dialogComplete.dismiss();
+            }
+        });
     }
 
 
