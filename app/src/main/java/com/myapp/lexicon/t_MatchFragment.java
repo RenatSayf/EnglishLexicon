@@ -574,7 +574,8 @@ public class t_MatchFragment extends Fragment
                     if (guessedWordsCount == wordsCount)
                     {
                         Toast.makeText(getActivity().getApplicationContext(),"Завершено",Toast.LENGTH_SHORT).show();
-                        dialogComplete();
+                        //dialogComplete();
+                        z_Dialogs.getInstance().dialogComplete(getActivity(), spinnListDict);
                     }
                 }
                 else
