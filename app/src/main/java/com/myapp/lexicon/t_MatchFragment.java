@@ -2,6 +2,7 @@ package com.myapp.lexicon;
 
 import android.animation.Animator;
 import android.app.Dialog;
+import android.app.Instrumentation;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
@@ -15,6 +16,7 @@ import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AlertDialog;
 import android.util.DisplayMetrics;
 import android.view.Display;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,7 +44,7 @@ import java.util.ArrayList;
  * Use the {@link t_MatchFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class t_MatchFragment extends Fragment
+public class t_MatchFragment extends Fragment implements z_Dialogs.IDialogCompleteResult
 {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -225,6 +227,7 @@ public class t_MatchFragment extends Fragment
         spinnListDict = (Spinner) fragment_view.findViewById(R.id.spinn_list_dict);
         spinnListDict_OnItemSelectedListener();
         //endregion
+        z_Dialogs.getInstance().setIDialogCompleteResult(this);
 
     }
 
@@ -574,8 +577,7 @@ public class t_MatchFragment extends Fragment
                     if (guessedWordsCount == wordsCount)
                     {
                         Toast.makeText(getActivity().getApplicationContext(),"Завершено",Toast.LENGTH_SHORT).show();
-                        //dialogComplete();
-                        z_Dialogs.getInstance().dialogComplete(getActivity(), spinnListDict);
+                        z_Dialogs.getInstance().dialogComplete(getActivity());
                     }
                 }
                 else
@@ -624,6 +626,38 @@ public class t_MatchFragment extends Fragment
             }
         });
     }
+
+    @Override
+    public void dialogCompleteResult(int res)
+    {
+        if (res == 0)
+        {
+            startTest(res);
+        }
+        if (res > 0)
+        {
+            int count = spinnListDict.getAdapter().getCount();
+            int position = spinnListDict.getSelectedItemPosition();
+            if (position < count)
+            {
+                position++;
+                spinnListDict.setSelection(position);
+            }
+            if (position == count)
+            {
+                position = 0;
+                spinnListDict.setSelection(position);
+            }
+        }
+        if (res < 0)
+        {
+            spinnListDict.setSelection(-1);
+            getActivity().onBackPressed();
+        }
+
+    }
+
+
 
     private void animToRight_Listener(ViewPropertyAnimator animator)
     {

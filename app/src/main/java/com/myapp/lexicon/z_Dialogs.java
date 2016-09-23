@@ -32,7 +32,12 @@ public class z_Dialogs extends Activity
         void dialogCompleteResult(int res);
     }
 
-    public void dialogComplete(Activity activity, final Spinner spinner)
+    public void setIDialogCompleteResult(IDialogCompleteResult result)
+    {
+        this.iDialogCompleteResult = result;
+    }
+
+    public void dialogComplete(Activity activity)
     {
         final Dialog dialogComplete;
         final View dialogView = activity.getLayoutInflater().inflate(R.layout.t_dialog_complete_test, null);
@@ -48,17 +53,9 @@ public class z_Dialogs extends Activity
             @Override
             public void onClick(View v)
             {
-                int count = spinner.getAdapter().getCount();
-                int position = spinner.getSelectedItemPosition();
-                if (position < count)
+                if (iDialogCompleteResult != null)
                 {
-                    position++;
-                    spinner.setSelection(position);
-                }
-                if (position == count)
-                {
-                    position = 0;
-                    spinner.setSelection(position);
+                    iDialogCompleteResult.dialogCompleteResult(1);
                 }
                 dialogComplete.dismiss();
             }
@@ -69,7 +66,10 @@ public class z_Dialogs extends Activity
             @Override
             public void onClick(View v)
             {
-
+                if (iDialogCompleteResult != null)
+                {
+                    iDialogCompleteResult.dialogCompleteResult(0);
+                }
                 dialogComplete.dismiss();
             }
         });
@@ -79,7 +79,10 @@ public class z_Dialogs extends Activity
             @Override
             public void onClick(View v)
             {
-
+                if (iDialogCompleteResult != null)
+                {
+                    iDialogCompleteResult.dialogCompleteResult(-1);
+                }
                 dialogComplete.dismiss();
             }
         });
