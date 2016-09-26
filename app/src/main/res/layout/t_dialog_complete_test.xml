@@ -20,10 +20,10 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_gravity="left"
-                android:textAppearance="?android:attr/textAppearanceMedium"
+
                 android:text="Результат:"
-                android:textSize="20sp"
-                android:id="@+id/txt_view_label1"/>
+                android:id="@+id/txt_view_label1"
+                android:textSize="18sp"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -32,7 +32,7 @@
                 android:gravity="left"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="Отлично"
-                android:textSize="20sp"
+                android:textSize="18sp"
                 android:id="@+id/txt_view_result"/>
         </LinearLayout>
 
@@ -50,7 +50,7 @@
                 android:layout_gravity="left"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="Верно:"
-                android:textSize="20sp"
+                android:textSize="18sp"
                 android:id="@+id/txt_view_label2"/>
 
             <TextView
@@ -60,7 +60,7 @@
                 android:gravity="left"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="50 из 50"
-                android:textSize="20sp"
+                android:textSize="18sp"
                 android:id="@+id/txt_view_errors"/>
         </LinearLayout>
 
@@ -84,7 +84,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
-                    android:src="@drawable/btn_cancel_action"
+                    android:src="@drawable/btn_next_action"
                     android:background="@android:color/transparent"
                     android:id="@+id/btn_next"
                     android:layout_gravity="center_horizontal"
@@ -115,7 +115,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
-                    android:src="@drawable/edit_btn_foreground"
+                    android:src="@drawable/btn_repeat_action"
                     android:background="@android:color/transparent"
                     android:layout_gravity="center_horizontal"
                     android:id="@+id/btn_repeat"
@@ -143,7 +143,7 @@
                 <ImageButton
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/btn_delete_action"
+                    android:src="@drawable/btn_close_action"
                     android:background="@android:color/transparent"
                     android:layout_gravity="center_horizontal"
                     android:id="@+id/btn_complete"

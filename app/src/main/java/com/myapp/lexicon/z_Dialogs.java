@@ -7,8 +7,10 @@ import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Ренат on 22.09.2016.
@@ -37,7 +39,7 @@ public class z_Dialogs extends Activity
         this.iDialogCompleteResult = result;
     }
 
-    public void dialogComplete(Activity activity)
+    public void dialogComplete(Activity activity, ArrayList<String> params)
     {
         final Dialog dialogComplete;
         final View dialogView = activity.getLayoutInflater().inflate(R.layout.t_dialog_complete_test, null);
@@ -47,6 +49,8 @@ public class z_Dialogs extends Activity
                 .setView(dialogView);
         dialogComplete = builder.create();
         dialogComplete.show();
+        TextView textView = (TextView) dialogView.findViewById(R.id.txt_view_result);
+        textView.setText(params.get(0));
         ImageButton buttonNext = (ImageButton) dialogView.findViewById(R.id.btn_next);
         buttonNext.setOnClickListener(new View.OnClickListener()
         {
@@ -87,5 +91,7 @@ public class z_Dialogs extends Activity
             }
         });
     }
+
+
 
 }

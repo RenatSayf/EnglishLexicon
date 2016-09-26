@@ -34,6 +34,7 @@ import android.widget.Toast;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -130,6 +131,7 @@ public class t_MatchFragment extends Fragment implements z_Dialogs.IDialogComple
     private String KEY_WORD_INDEX = "wordIndex";
     private int counterRightAnswer = 0;
     private ArrayList<String> arrStudiedDict = new ArrayList<>();
+    private t_TestResults testResults;
 
     private static int[] btnVisibleLeft = new int[ROWS];
 
@@ -201,6 +203,7 @@ public class t_MatchFragment extends Fragment implements z_Dialogs.IDialogComple
 
     private void initViews(View fragment_view)
     {
+        testResults = new t_TestResults();
         textSize = getHeightScreen() / 60;
         //region Инициализация экземпляра z_LockOrientation для блокировки смены ориентации экрана
         lockOrientation = new z_LockOrientation(getActivity());
@@ -577,7 +580,9 @@ public class t_MatchFragment extends Fragment implements z_Dialogs.IDialogComple
                     if (guessedWordsCount == wordsCount)
                     {
                         Toast.makeText(getActivity().getApplicationContext(),"Завершено",Toast.LENGTH_SHORT).show();
-                        z_Dialogs.getInstance().dialogComplete(getActivity());
+                        ArrayList<String> list = new ArrayList<String>();
+                        list.add(testResults.getOverallResult(counterRightAnswer, wordsCount));
+                        z_Dialogs.getInstance().dialogComplete(getActivity(), list);
                     }
                 }
                 else
@@ -652,6 +657,7 @@ public class t_MatchFragment extends Fragment implements z_Dialogs.IDialogComple
         if (res < 0)
         {
             spinnListDict.setSelection(-1);
+            spinnSelectedIndex = -1;
             getActivity().onBackPressed();
         }
 
