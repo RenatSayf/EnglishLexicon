@@ -1,9 +1,11 @@
 package com.myapp.lexicon;
 
 import android.animation.Animator;
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.Instrumentation;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -13,7 +15,7 @@ import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SimpleCursorAdapter;
-import android.support.v7.app.AlertDialog;
+import android.app.AlertDialog;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.KeyEvent;
@@ -203,7 +205,7 @@ public class t_MatchFragment extends Fragment implements z_Dialogs.IDialogComple
 
     private void initViews(View fragment_view)
     {
-        testResults = new t_TestResults();
+        testResults = new t_TestResults(getActivity());
         textSize = getHeightScreen() / 60;
         //region Инициализация экземпляра z_LockOrientation для блокировки смены ориентации экрана
         lockOrientation = new z_LockOrientation(getActivity());
@@ -530,7 +532,7 @@ public class t_MatchFragment extends Fragment implements z_Dialogs.IDialogComple
                     if (counterRightAnswer == wordsCount && !contains)
                     {
                         arrStudiedDict.add(spinnListDict.getSelectedItem().toString());
-                        counterRightAnswer = 0;
+                        //counterRightAnswer = 0;
                     }
                     getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
                 }
@@ -580,9 +582,12 @@ public class t_MatchFragment extends Fragment implements z_Dialogs.IDialogComple
                     if (guessedWordsCount == wordsCount)
                     {
                         Toast.makeText(getActivity().getApplicationContext(),"Завершено",Toast.LENGTH_SHORT).show();
+
                         ArrayList<String> list = new ArrayList<String>();
                         list.add(testResults.getOverallResult(counterRightAnswer, wordsCount));
+                        list.add(counterRightAnswer + getString(R.string.text_out_of) + wordsCount);
                         z_Dialogs.getInstance().dialogComplete(getActivity(), list);
+                        counterRightAnswer = 0;
                     }
                 }
                 else
@@ -659,10 +664,13 @@ public class t_MatchFragment extends Fragment implements z_Dialogs.IDialogComple
             spinnListDict.setSelection(-1);
             spinnSelectedIndex = -1;
             getActivity().onBackPressed();
+            if (arrStudiedDict.size() > 0)
+            {
+                z_Dialogs.getInstance().dialogChangePlayList(this.getActivity(), arrStudiedDict);
+            }
         }
 
     }
-
 
 
     private void animToRight_Listener(ViewPropertyAnimator animator)

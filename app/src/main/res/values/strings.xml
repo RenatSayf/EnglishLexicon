@@ -127,5 +127,8 @@
     <string name="header.matchfragment">Найди соответствия в словаре:</string>
     <string name="text_excellent">Отлично</string>
     <string name="text_good">Хорошо</string>
-    <string name="text_badly">Плохо</string>
+    <string name="text_bad">Плохо</string>
+    <string name="text_out_of">" из "</string>
+
+
 </resources>

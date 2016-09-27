@@ -6,4 +6,5 @@
     <color name="colorWhite">#FFFFFFFF</color>
     <color name="colorBlack">#FF000000</color>
     <color name="testMatchPageColor">#42ed8a</color>
+    <color name="colorOrange">#e6a612</color>
 </resources>
