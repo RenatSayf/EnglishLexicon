@@ -81,10 +81,11 @@ public class z_speechService extends IntentService
         updateIntent = new Intent();
         updateIntent.setAction(ACTION_UPDATE);
         updateIntent.addCategory(Intent.CATEGORY_DEFAULT);
-        _playList = a_MainActivity.getPlayList();
+
         while (!stop)
         {
             z_Log.v(" stop = " + stop);
+            _playList = a_MainActivity.getPlayList();
             if (_playList.size() > 0)
             {
                 if(!AppData.get_isPause()) AppData.set_Ndict(0);
@@ -239,14 +240,14 @@ public class z_speechService extends IntentService
         Locale language = a_SplashScreenActivity.speech.getLanguage();
         if (language != lang)
         {
-            a_SplashScreenActivity.speech.stop();
+            //a_SplashScreenActivity.speech.stop();
             a_SplashScreenActivity.speech.setLanguage(lang);
         }
         int count = 0;
         int res = -3;
         while (res < 0)
         {
-            Thread.sleep(10);
+            Thread.sleep(100);
             res = a_SplashScreenActivity.speech.isLanguageAvailable(lang);
             count++;
             if (count >= 2000)
@@ -275,7 +276,7 @@ public class z_speechService extends IntentService
                 a_SplashScreenActivity.speech.stop();
                 break;
             }
-            Thread.sleep(10);
+            Thread.sleep(100);
         }
         z_Log.v("speakWord()   text = " + text);
 
