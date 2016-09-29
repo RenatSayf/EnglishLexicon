@@ -27,6 +27,7 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
     private static String FRAGMENT_INSTANCE_NAME = "matchFragment";
     private FragmentTransaction transaction;
     private TextToSpeech speech;
+    public static t_DialogTestComplete dialogTestComplete = new t_DialogTestComplete();
 
     @Override
     protected void onCreate(Bundle savedInstanceState)

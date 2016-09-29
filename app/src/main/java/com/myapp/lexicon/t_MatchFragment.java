@@ -1,11 +1,7 @@
 package com.myapp.lexicon;
 
 import android.animation.Animator;
-import android.app.Activity;
-import android.app.Dialog;
-import android.app.Instrumentation;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -15,10 +11,8 @@ import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SimpleCursorAdapter;
-import android.app.AlertDialog;
 import android.util.DisplayMetrics;
 import android.view.Display;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,14 +23,12 @@ import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -47,7 +39,7 @@ import java.util.List;
  * Use the {@link t_MatchFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class t_MatchFragment extends Fragment implements z_Dialogs.IDialogCompleteResult
+public class t_MatchFragment extends Fragment implements t_DialogTestComplete.IDialogComplete_Result
 {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -134,7 +126,7 @@ public class t_MatchFragment extends Fragment implements z_Dialogs.IDialogComple
     private int counterRightAnswer = 0;
     private ArrayList<String> arrStudiedDict = new ArrayList<>();
     private t_TestResults testResults;
-
+    private t_DialogTestComplete dialogTestComplete;
     private static int[] btnVisibleLeft = new int[ROWS];
 
     @Override
@@ -203,8 +195,11 @@ public class t_MatchFragment extends Fragment implements z_Dialogs.IDialogComple
         super.onSaveInstanceState(outState);
     }
 
+
     private void initViews(View fragment_view)
     {
+        //dialogTestComplete = new t_DialogTestComplete();
+
         testResults = new t_TestResults(getActivity());
         textSize = getHeightScreen() / 60;
         //region Инициализация экземпляра z_LockOrientation для блокировки смены ориентации экрана
@@ -232,7 +227,7 @@ public class t_MatchFragment extends Fragment implements z_Dialogs.IDialogComple
         spinnListDict = (Spinner) fragment_view.findViewById(R.id.spinn_list_dict);
         spinnListDict_OnItemSelectedListener();
         //endregion
-        z_Dialogs.getInstance().setIDialogCompleteResult(this);
+        //z_Dialogs.getInstance().setIDialogCompleteResult(this);
 
     }
 
@@ -561,6 +556,7 @@ public class t_MatchFragment extends Fragment implements z_Dialogs.IDialogComple
         Button[] arrayBtn = AppData.arrayBtnRight;
     }
 
+
     private void animToLeft_Listener(ViewPropertyAnimator animator)
     {
         animator.setListener(new Animator.AnimatorListener()
@@ -581,14 +577,21 @@ public class t_MatchFragment extends Fragment implements z_Dialogs.IDialogComple
                     AppData.arrayBtnRight[btn_right_position].setVisibility(View.INVISIBLE);
                     if (guessedWordsCount == wordsCount)
                     {
-                        Toast.makeText(getActivity().getApplicationContext(),"Завершено",Toast.LENGTH_SHORT).show();
-
                         ArrayList<String> list = new ArrayList<String>();
                         list.add(testResults.getOverallResult(counterRightAnswer, wordsCount));
                         list.add(counterRightAnswer + getString(R.string.text_out_of) + wordsCount);
-                        z_Dialogs.getInstance().dialogComplete(getActivity(), list);
                         counterRightAnswer = 0;
+
+                        dialogTestComplete = new t_DialogTestComplete();
+                        dialogTestComplete.setIDialogCompleteResult(t_MatchFragment.this);
+                        Bundle bundle = new Bundle();
+                        bundle.putString(dialogTestComplete.KEY_RESULT, list.get(0));
+                        bundle.putString(dialogTestComplete.KEY_ERRORS, list.get(1));
+                        dialogTestComplete.setArguments(bundle);
+                        dialogTestComplete.setCancelable(false);
+                        dialogTestComplete.show(getFragmentManager(), "dialog_complete_lexicon");
                     }
+                    getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
                 }
                 else
                 {
@@ -713,62 +716,6 @@ public class t_MatchFragment extends Fragment implements z_Dialogs.IDialogComple
 
     }
 
-    Dialog dialogComplete;
-    private void dialogComplete()
-    {
-        final View dialogView = getActivity().getLayoutInflater().inflate(R.layout.t_dialog_complete_test, null);
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
-                .setTitle("Завершено")
-                .setCancelable(false)
-                .setView(dialogView);
-        dialogComplete = builder.create();
-        dialogComplete.show();
-        ImageButton buttonNext = (ImageButton) dialogView.findViewById(R.id.btn_next);
-        buttonNext.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                int count = spinnListDict.getAdapter().getCount();
-                int position = spinnListDict.getSelectedItemPosition();
-                if (position < count)
-                {
-                    position++;
-                    spinnListDict.setSelection(position);
-                }
-                if (position == count)
-                {
-                    position = 0;
-                    spinnListDict.setSelection(position);
-                }
-                dialogComplete.dismiss();
-            }
-        });
-        ImageButton buttonRepeat = (ImageButton) dialogView.findViewById(R.id.btn_repeat);
-        buttonRepeat.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                startTest(spinnListDict.getSelectedItemPosition());
-                dialogComplete.dismiss();
-            }
-        });
-        ImageButton buttonComplete = (ImageButton) dialogView.findViewById(R.id.btn_complete);
-        buttonComplete.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                ArrayList<String> arrStudiedDict = t_MatchFragment.this.arrStudiedDict;
-                dialogComplete.dismiss();
-            }
-        });
-    }
-
-
-
-
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri)
     {
@@ -803,6 +750,13 @@ public class t_MatchFragment extends Fragment implements z_Dialogs.IDialogComple
     public void onPause()
     {
         super.onPause();
+    }
+
+    @Override
+    public void onDestroy()
+    {
+        super.onDestroy();
+        spinnSelectedIndex = -1;
     }
 
     /**

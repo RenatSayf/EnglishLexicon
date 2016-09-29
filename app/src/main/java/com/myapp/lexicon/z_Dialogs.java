@@ -2,8 +2,10 @@ package com.myapp.lexicon;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.app.AlertDialog;
 import android.view.View;
@@ -17,6 +19,7 @@ import java.util.ArrayList;
  */
 public class z_Dialogs extends Activity
 {
+    private z_LockOrientation lockOrientation;
     private static z_Dialogs ourInstance = new z_Dialogs();
     public IDialogCompleteResult iDialogCompleteResult;
 
@@ -39,8 +42,9 @@ public class z_Dialogs extends Activity
         this.iDialogCompleteResult = result;
     }
 
-    public void dialogComplete(Activity activity, ArrayList<String> params)
+    public void dialogComplete(final Activity activity, ArrayList<String> params)
     {
+        lockOrientation = new z_LockOrientation(activity);
         final Dialog dialogComplete;
         final View dialogView = activity.getLayoutInflater().inflate(R.layout.t_dialog_complete_test, null);
         final AlertDialog.Builder builder = new AlertDialog.Builder(activity)
@@ -49,6 +53,8 @@ public class z_Dialogs extends Activity
                 .setView(dialogView);
         dialogComplete = builder.create();
         dialogComplete.show();
+        lockOrientation.lock();
+
         TextView textViewResult = (TextView) dialogView.findViewById(R.id.txt_view_result);
         if (params.size() > 0)
         {
@@ -66,11 +72,13 @@ public class z_Dialogs extends Activity
                 textViewResult.setTextColor(Color.RED);
             }
         }
+
         TextView textViewErrors = (TextView) dialogView.findViewById(R.id.txt_view_errors);
         if (params.size() > 1)
         {
             textViewErrors.setText(params.get(1));
         }
+
         ImageButton buttonNext = (ImageButton) dialogView.findViewById(R.id.btn_next);
         buttonNext.setOnClickListener(new View.OnClickListener()
         {
@@ -82,8 +90,10 @@ public class z_Dialogs extends Activity
                     iDialogCompleteResult.dialogCompleteResult(1);
                 }
                 dialogComplete.dismiss();
+                activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
             }
         });
+
         ImageButton buttonRepeat = (ImageButton) dialogView.findViewById(R.id.btn_repeat);
         buttonRepeat.setOnClickListener(new View.OnClickListener()
         {
@@ -95,8 +105,10 @@ public class z_Dialogs extends Activity
                     iDialogCompleteResult.dialogCompleteResult(0);
                 }
                 dialogComplete.dismiss();
+                activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
             }
         });
+
         ImageButton buttonComplete = (ImageButton) dialogView.findViewById(R.id.btn_complete);
         buttonComplete.setOnClickListener(new View.OnClickListener()
         {
@@ -108,6 +120,7 @@ public class z_Dialogs extends Activity
                     iDialogCompleteResult.dialogCompleteResult(-1);
                 }
                 dialogComplete.dismiss();
+                activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
             }
         });
     }
