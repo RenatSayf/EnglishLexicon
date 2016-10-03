@@ -3,28 +3,25 @@ package com.myapp.lexicon;
 //import android.app.Fragment;
 //import android.app.FragmentTransaction;
 import android.speech.tts.TextToSpeech;
-import android.speech.tts.Voice;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 
 import java.util.Locale;
-import java.util.Set;
 
 public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFragmentInteractionListener
 {
     private ImageButton buttonMatchTest, buttonSelectWordTest;
     private t_MatchFragment matchFragment;
-    private static String FRAGMENT_INSTANCE_NAME = "matchFragment";
+    private static String MATCH_FRAGMENT = "matchFragment";
+    private t_DefineCorrectFragment correctFragment;
+    private String CORRECT_FRAGMENT = "correctFragment";
     private FragmentTransaction transaction;
     private TextToSpeech speech;
     public static t_DialogTestComplete dialogTestComplete = new t_DialogTestComplete();
@@ -38,6 +35,7 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 
         initViews();
 
@@ -59,10 +57,16 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
         buttonSelectWordTest = (ImageButton) findViewById(R.id.btn_select_word_test);
 
         FragmentManager manager = getSupportFragmentManager();
-        matchFragment = (t_MatchFragment) manager.findFragmentByTag(FRAGMENT_INSTANCE_NAME);
+        matchFragment = (t_MatchFragment) manager.findFragmentByTag(MATCH_FRAGMENT);
         if (matchFragment == null)
         {
             matchFragment = t_MatchFragment.newInstance(null,null);
+        }
+
+        correctFragment = (t_DefineCorrectFragment) manager.findFragmentByTag(CORRECT_FRAGMENT);
+        if (correctFragment == null)
+        {
+            correctFragment = new t_DefineCorrectFragment();
         }
         //matchFragment.setRetainInstance(true);
         button_OnClick();
@@ -90,19 +94,25 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
             @Override
             public void onClick(View v)
             {
-
+                transaction = getSupportFragmentManager().beginTransaction();
+                //transaction = getFragmentManager().beginTransaction();
+                transaction.replace(R.id.correct_fragment, correctFragment);
+                transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
+                //transaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right);
+                transaction.addToBackStack(null);
+                transaction.commit();
             }
         });
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.t_tests_menu, menu);
-
-        return true;
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu)
+//    {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        getMenuInflater().inflate(R.menu.t_tests_menu, menu);
+//
+//        return true;
+//    }
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {

@@ -2,4 +2,5 @@
 <resources>
     <color name="page_background">#39f44c</color>
     <color name="btn_word_background">#FFC6CCC6</color>
+    <color name="pape_background_blue">#50bff7</color>
 </resources>

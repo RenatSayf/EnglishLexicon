@@ -90,6 +90,12 @@
         android:id="@+id/match_fragment"
         />
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/correct_fragment"
+        />
+
 
 
 </RelativeLayout>

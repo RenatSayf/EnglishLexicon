@@ -669,7 +669,12 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
             getActivity().onBackPressed();
             if (arrStudiedDict.size() > 0)
             {
-                z_Dialogs.getInstance().dialogChangePlayList(this.getActivity(), arrStudiedDict);
+                t_DialogChangePlayList dialogChangePlayList = new t_DialogChangePlayList();
+                Bundle bundle = new Bundle();
+                bundle.putStringArrayList(dialogChangePlayList.KEY_LIST_DICT, arrStudiedDict);
+                dialogChangePlayList.setArguments(bundle);
+                dialogChangePlayList.setCancelable(false);
+                dialogChangePlayList.show(getFragmentManager(), "dialog_change_pl_lexicon");
             }
         }
 
