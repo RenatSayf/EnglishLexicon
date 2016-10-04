@@ -206,17 +206,6 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
         lockOrientation = new z_LockOrientation(getActivity());
         //endregion
 
-        //region инициализация экземпляра DataBaseQueries для работы с БД
-        try
-        {
-            baseQueries = new DataBaseQueries(getActivity().getApplicationContext());
-        } catch (SQLException e)
-        {
-            e.printStackTrace();
-            Toast.makeText(getActivity().getApplicationContext(),"Error - "+e.getMessage(),Toast.LENGTH_SHORT).show();
-            getActivity().finish();
-        }
-        //endregion
         linLayoutLeft = (LinearLayout) fragment_view.findViewById(R.id.left_layout);
         buttonsLeftGone();
         //region получение правого LinearLayout и скрытие его содержимого
@@ -227,8 +216,6 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
         spinnListDict = (Spinner) fragment_view.findViewById(R.id.spinn_list_dict);
         spinnListDict_OnItemSelectedListener();
         //endregion
-        //z_Dialogs.getInstance().setIDialogCompleteResult(this);
-
     }
 
     private void setItemsToSpinnListDict()

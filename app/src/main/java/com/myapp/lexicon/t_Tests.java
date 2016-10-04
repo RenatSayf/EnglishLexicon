@@ -12,7 +12,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
+import java.sql.SQLException;
 import java.util.Locale;
 
 public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFragmentInteractionListener
@@ -23,6 +25,9 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
     private t_DefineCorrectFragment correctFragment;
     private String CORRECT_FRAGMENT = "correctFragment";
     private FragmentTransaction transaction;
+    private DataBaseQueries baseQueries;
+
+
     private TextToSpeech speech;
     public static t_DialogTestComplete dialogTestComplete = new t_DialogTestComplete();
 
@@ -53,6 +58,16 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
 
     private void initViews()
     {
+        try
+        {
+            baseQueries = new DataBaseQueries(this);
+        } catch (SQLException e)
+        {
+            e.printStackTrace();
+            Toast.makeText(this,"Error - "+e.getMessage(),Toast.LENGTH_SHORT).show();
+            this.finish();
+        }
+
         buttonMatchTest = (ImageButton) findViewById(R.id.btn_match_test);
         buttonSelectWordTest = (ImageButton) findViewById(R.id.btn_select_word_test);
 
