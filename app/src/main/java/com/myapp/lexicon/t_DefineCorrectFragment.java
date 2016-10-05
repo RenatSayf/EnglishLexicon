@@ -5,16 +5,12 @@ import android.animation.Animator;
 import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.speech.tts.TextToSpeech;
-import android.speech.tts.UtteranceProgressListener;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -45,6 +41,12 @@ public class t_DefineCorrectFragment extends Fragment
     private int delta = 30;
     private long duration = 1000;
     private ViewPropertyAnimator animToLeft, animToRight, animToTop, animToDown;
+    private int wordIndex = 1;
+    private int guessedWordsCount = 0;
+    private String spinnSelectedItem;
+    private int wordsCount;
+    private int wordsResidue;
+    private static z_RandomNumberGenerator generatorLeft;
 
     public t_DefineCorrectFragment()
     {
@@ -126,12 +128,7 @@ public class t_DefineCorrectFragment extends Fragment
         });
     }
 
-    private int wordIndex = 1;
-    private int guessedWordsCount = 0;
-    private String spinnSelectedItem;
-    private int wordsCount;
-    private int wordsResidue;
-    private static z_RandomNumberGenerator generatorLeft;
+
 
     private void startTest(final int position)
     {
@@ -156,9 +153,6 @@ public class t_DefineCorrectFragment extends Fragment
             }
         };
         getWordsCount.execute(spinnSelectedItem);
-
-
-        //fillLayoutLeft(ROWS);
     }
 
     private void fillLayoutLeft(final int rowsCount)
@@ -345,9 +339,9 @@ public class t_DefineCorrectFragment extends Fragment
         });
     }
 
-    private void animToRight_Listener(ViewPropertyAnimator animToRight)
+    private void animToRight_Listener(ViewPropertyAnimator animator)
     {
-        animToRight.setListener(new Animator.AnimatorListener()
+        animator.setListener(new Animator.AnimatorListener()
         {
             @Override
             public void onAnimationStart(Animator animation)
@@ -358,21 +352,29 @@ public class t_DefineCorrectFragment extends Fragment
             @Override
             public void onAnimationEnd(Animator animation)
             {
-                int j = 0;
-                Button[] newArray = new Button[ROWS];
-                newArray[0] = buttonsArray[btn_position];
-                for (int i=0; i < btn_position; i++)
+                Button[] newArray;
+                if (wordIndex >= wordsCount || wordsResidue <= 0)
                 {
-                    j++;
-                    newArray[j] = buttonsArray[i];
+                    int j = 0;
+                    newArray = new Button[ROWS];
+                    newArray[0] = buttonsArray[btn_position];
+                    for (int i=0; i < btn_position; i++)
+                    {
+                        j++;
+                        newArray[j] = buttonsArray[i];
+                    }
+
+                    for (int i = btn_position+1; i < buttonsArray.length; i++)
+                    {
+                        newArray[i] = buttonsArray[i];
+
+                    }
+                    updateArrayClickListenerLeft(newArray);
+                } else
+                {
+
                 }
 
-                for (int i = btn_position+1; i < buttonsArray.length; i++)
-                {
-                    newArray[i] = buttonsArray[i];
-
-                }
-                updateArrayClickListenerLeft(newArray);
                 getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
             }
 

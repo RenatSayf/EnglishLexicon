@@ -19,11 +19,13 @@ import java.util.Locale;
 
 public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFragmentInteractionListener
 {
-    private ImageButton buttonMatchTest, buttonSelectWordTest;
+    private ImageButton buttonMatchTest, buttonSelectWordTest, buttonTest3;
     private t_MatchFragment matchFragment;
     private static String MATCH_FRAGMENT = "matchFragment";
     private t_DefineCorrectFragment correctFragment;
     private String CORRECT_FRAGMENT = "correctFragment";
+    private t_DefineCorrectFragment2 correctFragment2;
+    private String CORRECT_FRAGMENT2 = "correctFragment2";
     private FragmentTransaction transaction;
     private DataBaseQueries baseQueries;
 
@@ -70,6 +72,7 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
 
         buttonMatchTest = (ImageButton) findViewById(R.id.btn_match_test);
         buttonSelectWordTest = (ImageButton) findViewById(R.id.btn_select_word_test);
+        buttonTest3 = (ImageButton) findViewById(R.id.btn_test_3);
 
         FragmentManager manager = getSupportFragmentManager();
         matchFragment = (t_MatchFragment) manager.findFragmentByTag(MATCH_FRAGMENT);
@@ -82,6 +85,12 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
         if (correctFragment == null)
         {
             correctFragment = new t_DefineCorrectFragment();
+        }
+
+        correctFragment2 = (t_DefineCorrectFragment2) manager.findFragmentByTag(CORRECT_FRAGMENT2);
+        if (correctFragment2 == null)
+        {
+            correctFragment2 = new t_DefineCorrectFragment2();
         }
         //matchFragment.setRetainInstance(true);
         button_OnClick();
@@ -112,6 +121,21 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
                 transaction = getSupportFragmentManager().beginTransaction();
                 //transaction = getFragmentManager().beginTransaction();
                 transaction.replace(R.id.correct_fragment, correctFragment);
+                transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
+                //transaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right);
+                transaction.addToBackStack(null);
+                transaction.commit();
+            }
+        });
+
+        buttonTest3.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                transaction = getSupportFragmentManager().beginTransaction();
+                //transaction = getFragmentManager().beginTransaction();
+                transaction.replace(R.id.correct_fragment2, correctFragment2);
                 transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
                 //transaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right);
                 transaction.addToBackStack(null);
