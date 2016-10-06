@@ -1,14 +1,12 @@
 package com.myapp.lexicon;
 
 
-import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewPropertyAnimator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -25,7 +23,7 @@ import java.util.ArrayList;
  */
 public class t_DefineCorrectFragment2 extends Fragment
 {
-    public static final int ROWS = 5;
+    public static final int ROWS = 3;
     private static Button[] buttonsArray;
     private static TextView[] textViewArray;
     private static String mainWord;
@@ -185,18 +183,17 @@ public class t_DefineCorrectFragment2 extends Fragment
             public void resultAsyncTask(ArrayList<DataBaseEntry> list)
             {
                 controlList = list;
-                for (int i = 0; i < list.size(); i++)
+                for (int i = 0; i < controlList.size(); i++)
                 {
                     int randIndex = generator.generate();
-                    buttonsArray[i].setText(list.get(randIndex).get_translate());
-                    wordIndex = finalCount;
+                    buttonsArray[i].setText(controlList.get(randIndex).get_translate());
+                    wordIndex++;
                 }
                 textView.setText(list.get(0).get_english());
             }
         };
         asyncTask.execute(spinnSelectedItem, wordIndex, count);
         asyncTask = null;
-
 
         for (int i = 0; i < count; i++)
         {
@@ -209,8 +206,6 @@ public class t_DefineCorrectFragment2 extends Fragment
                 buttonsArray[i] = button;
             }
         }
-
-
     }
 
     private void btnLeft_OnClick(final View view, final int index)
@@ -232,6 +227,7 @@ public class t_DefineCorrectFragment2 extends Fragment
         });
     }
 
+    private static ArrayList<DataBaseEntry> nextWord;
     private void compareWords(String tableName, String enword, String ruword)
     {
         if (enword == null || ruword == null)   return;
@@ -253,12 +249,43 @@ public class t_DefineCorrectFragment2 extends Fragment
             if (indexEn == indexRu && indexEn != -1 && indexRu != -1)
             {
                 Toast.makeText(getActivity(), "Правильно", Toast.LENGTH_SHORT).show();
+                final int copyIndexEn = indexEn;
+                AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
+                {
+                    @Override
+                    public void resultAsyncTask(ArrayList<DataBaseEntry> list)
+                    {
+                        if (list.size() > 0)
+                        {
+                            controlList.set(copyIndexEn, list.get(0));
+                            buttonsArray[btn_position].setText(controlList.get(0).get_translate());
+                            textView.setText(controlList.get(0).get_english());
+                        }
+                        else if (list.size() == 0 && controlList.size() > 0)
+                        {
+                            controlList.remove(copyIndexEn);
+                            textView.setText("");
+                            if (controlList.size() > 0)
+                            {
+                                textView.setText(controlList.get(controlList.size()-1).get_english());
+                            }
+                            buttonsArray[btn_position].setVisibility(View.GONE);
+                        }
+                        wordIndex++;
+                    }
+                };
+                asyncTask.execute(tableName, wordIndex+1, wordIndex+1);
             }
             else
             {
                 Toast.makeText(getActivity(), "Неправильно", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    private void getNextWordFromDB(String tableName, int index)
+    {
+
     }
 
 }
