@@ -28,7 +28,7 @@ import java.util.ArrayList;
 public class t_DefineCorrectFragment extends Fragment
 {
     public static final int ROWS = 5;
-    private static Button[] buttonsArray = new Button[ROWS];
+    private static Button[] buttonsArray;
     private static ArrayList<String> storedListDict = new ArrayList<>();
     private TextView textView;
     private LinearLayout buttonsLayout;
@@ -36,6 +36,7 @@ public class t_DefineCorrectFragment extends Fragment
     private static int spinnSelectedIndex = -1;
     private z_LockOrientation lockOrientation;
     private int btn_position;
+    private String KEY_BTN_POSITION = "btn_position";
     private int width;
     private int height;
     private int delta = 30;
@@ -46,7 +47,10 @@ public class t_DefineCorrectFragment extends Fragment
     private String spinnSelectedItem;
     private int wordsCount;
     private int wordsResidue;
-    private static z_RandomNumberGenerator generatorLeft;
+    private static z_RandomNumberGenerator randomGenerator;
+    private static ArrayList<DataBaseEntry> controlList;
+    private static int controlListSize = 0;
+    private int range = 127;
 
     public t_DefineCorrectFragment()
     {
@@ -69,7 +73,34 @@ public class t_DefineCorrectFragment extends Fragment
         spinnListDict_OnItemSelectedListener();
         setItemsToSpinnListDict();
 
+        if (savedInstanceState != null)
+        {
+            for (int i = 0; i < buttonsLayout.getChildCount(); i++)
+            {
+                Button button = (Button) buttonsLayout.getChildAt(i);
+                try
+                {
+                    button.setText(buttonsArray[i].getText());
+                    button.setVisibility(buttonsArray[i].getVisibility());
+                    //buttonLeft.setTextSize(textSize);
+                    buttonsArray[i] = button;
+                    btnLeft_OnClick(buttonsArray[i], i);
+                }
+                catch (ArrayIndexOutOfBoundsException e)
+                {
+                    button.setVisibility(View.GONE);
+                }
+            }
+        }
+
         return fragment_view;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState)
+    {
+        outState.putInt(KEY_BTN_POSITION, btn_position);
+        super.onSaveInstanceState(outState);
     }
 
     private void buttonsLeftGone()
@@ -133,6 +164,8 @@ public class t_DefineCorrectFragment extends Fragment
     private void startTest(final int position)
     {
         lockOrientation.lock();
+        buttonsArray = null;
+        btn_position = 0;
         wordIndex = 1;
         guessedWordsCount = 0;
         spinnSelectedItem = spinnListDict.getSelectedItem().toString();
@@ -143,11 +176,7 @@ public class t_DefineCorrectFragment extends Fragment
             {
                 wordsCount = res;
                 wordsResidue = wordsCount - ROWS;
-                if (wordsResidue > 0)
-                {
-                    generatorLeft = new z_RandomNumberGenerator(wordsResidue,0);
-                }
-                fillLayoutLeft(wordsCount);
+                fillLayoutLeft(ROWS);
                 spinnSelectedIndex = position;
                 getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
             }
@@ -165,35 +194,36 @@ public class t_DefineCorrectFragment extends Fragment
         {
             count = ROWS;
         }
-        final z_RandomNumberGenerator generator = new z_RandomNumberGenerator(count, 0);
+
         final int finalCount = count;
         AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
         {
             @Override
             public void resultAsyncTask(ArrayList<DataBaseEntry> list)
             {
-                for (int i = 0; i < list.size(); i++)
+                controlList = list;
+                controlListSize = controlList.size();
+                buttonsArray = new Button[controlListSize];
+                randomGenerator = new z_RandomNumberGenerator(controlListSize, range);
+                for (int i = 0; i < controlList.size(); i++)
                 {
-                    int randIndex = generator.generate();
-                    buttonsArray[i].setText(list.get(randIndex).get_english());
-                    //AppData.arrayBtnLeft[i].setTextSize(textSize);
-                    wordIndex = finalCount;
+                    Button button = (Button) buttonsLayout.getChildAt(i);
+                    button.setVisibility(View.VISIBLE);
+                    button.setTranslationX(0);
+                    button.setTranslationY(0);
+                    btnLeft_OnClick(button, i);
+                    buttonsArray[i] = button;
+
+                    buttonsArray[i].setText(controlList.get(i).get_translate());
+                    wordIndex++;
                 }
+                int randIndex = randomGenerator.generate();
+                textView.setText(list.get(randIndex).get_english());
+                getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
             }
         };
-        asyncTask.execute(spinnSelectedItem, wordIndex, count);
+        asyncTask.execute(spinnSelectedItem, wordIndex, ROWS);
         asyncTask = null;
-
-        for (int i = 0; i < count; i++)
-        {
-            Button button = (Button) buttonsLayout.getChildAt(i);
-            button.setVisibility(View.VISIBLE);
-            button.setTranslationX(0);
-            btnLeft_OnClick(button, i);
-            buttonsArray[i] = button;
-        }
-
-        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
     }
 
     private void btnLeft_OnClick(final View view, final int index)
@@ -203,14 +233,17 @@ public class t_DefineCorrectFragment extends Fragment
             @Override
             public void onClick(View view)
             {
+                int requestedOrientation = getActivity().getRequestedOrientation();
+                if (requestedOrientation != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+                {
+                    return;
+                }
+
                 lockOrientation.lock();
                 btn_position = index;
                 width = view.getWidth();
                 height = view.getHeight();
 
-//                enWord = AppData.arrayBtnLeft[index].getText().toString();
-//                compareWords(spinnSelectedItem, enWord, ruWord);
-//                btnNoRight = (Button) view;
                 Toast.makeText(getActivity(), "Клик по кнопке "+index, Toast.LENGTH_SHORT).show();
                 compareWords("AAA","SSS","DDD");
             }
@@ -219,6 +252,7 @@ public class t_DefineCorrectFragment extends Fragment
 
     private void compareWords(String tableName, String enword, String ruword)
     {
+        //lockOrientation.lock();
         animToRight = buttonsArray[btn_position].animate().x((width + delta))
                 .setDuration(duration)
                 .setInterpolator(new AccelerateDecelerateInterpolator());
@@ -291,6 +325,7 @@ public class t_DefineCorrectFragment extends Fragment
             {
                 animToTop = buttonsArray[btn_position].animate().translationYBy(-height * btn_position).setDuration(10);
                 animToTop_Listener(animToTop);
+                //getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
             }
 
             @Override
@@ -352,11 +387,11 @@ public class t_DefineCorrectFragment extends Fragment
             @Override
             public void onAnimationEnd(Animator animation)
             {
-                Button[] newArray;
-                if (wordIndex >= wordsCount || wordsResidue <= 0)
+                Button[] newArray = null;
+                if (true)
                 {
                     int j = 0;
-                    newArray = new Button[ROWS];
+                    newArray = new Button[buttonsArray.length];
                     newArray[0] = buttonsArray[btn_position];
                     for (int i=0; i < btn_position; i++)
                     {
@@ -396,9 +431,12 @@ public class t_DefineCorrectFragment extends Fragment
     {
         buttonsArray = null;
         buttonsArray = newArray;
-        for (int i = 0; i < newArray.length; i++)
+        for (int i = 0; i < buttonsArray.length; i++)
         {
-            btnLeft_OnClick(buttonsArray[i], i);
+            if (buttonsArray[i] != null)
+            {
+                btnLeft_OnClick(buttonsArray[i], i);
+            }
         }
         Button[] arrayBtn = buttonsArray;
     }

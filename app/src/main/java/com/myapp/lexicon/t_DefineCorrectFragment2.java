@@ -23,7 +23,7 @@ import java.util.ArrayList;
  */
 public class t_DefineCorrectFragment2 extends Fragment
 {
-    public static final int ROWS = 3;
+    public static final int ROWS = 5;
     private static Button[] buttonsArray;
     private static TextView[] textViewArray;
     private static String mainWord;
@@ -38,7 +38,7 @@ public class t_DefineCorrectFragment2 extends Fragment
     private static String spinnSelectedItem;
     private static int wordsCount;
     private static int wordsResidue;
-    private static z_RandomNumberGenerator generatorLeft;
+
 
     public t_DefineCorrectFragment2()
     {
@@ -151,10 +151,6 @@ public class t_DefineCorrectFragment2 extends Fragment
             {
                 wordsCount = res;
                 wordsResidue = wordsCount - ROWS;
-                if (wordsResidue > 0)
-                {
-                    generatorLeft = new z_RandomNumberGenerator(wordsResidue,0);
-                }
                 fillLayoutLeft(wordsCount);
                 spinnSelectedIndex = position;
             }
@@ -175,7 +171,7 @@ public class t_DefineCorrectFragment2 extends Fragment
         }
         buttonsArray = new Button[count];
 
-        final z_RandomNumberGenerator generator = new z_RandomNumberGenerator(count, 0);
+        final z_RandomNumberGenerator generator = new z_RandomNumberGenerator(count, 100);
         final int finalCount = count;
         AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
         {
@@ -183,13 +179,16 @@ public class t_DefineCorrectFragment2 extends Fragment
             public void resultAsyncTask(ArrayList<DataBaseEntry> list)
             {
                 controlList = list;
+                controlListSize = controlList.size();
+                randomGenerator = new z_RandomNumberGenerator(controlListSize, 133);
                 for (int i = 0; i < controlList.size(); i++)
                 {
-                    int randIndex = generator.generate();
-                    buttonsArray[i].setText(controlList.get(randIndex).get_translate());
+                    buttonsArray[i].setText(controlList.get(i).get_translate());
                     wordIndex++;
                 }
-                textView.setText(list.get(0).get_english());
+                int randIndex = randomGenerator.generate();
+                textView.setText(list.get(randIndex).get_english());
+
             }
         };
         asyncTask.execute(spinnSelectedItem, wordIndex, count);
@@ -207,7 +206,7 @@ public class t_DefineCorrectFragment2 extends Fragment
             }
         }
     }
-
+    private static int controlListSize = 0;
     private void btnLeft_OnClick(final View view, final int index)
     {
         view.setOnClickListener(new View.OnClickListener()
@@ -216,18 +215,14 @@ public class t_DefineCorrectFragment2 extends Fragment
             public void onClick(View view)
             {
                 btn_position = index;
-
-
-//                enWord = AppData.arrayBtnLeft[index].getText().toString();
-//                compareWords(spinnSelectedItem, enWord, ruWord);
-//                btnNoRight = (Button) view;
                 Toast.makeText(getActivity(), "Клик по кнопке "+index, Toast.LENGTH_SHORT).show();
                 compareWords(spinnSelectedItem,textView.getText().toString(),buttonsArray[btn_position].getText().toString());
             }
         });
     }
 
-    private static ArrayList<DataBaseEntry> nextWord;
+    private static z_RandomNumberGenerator randomGenerator;
+    private int range = 127;
     private void compareWords(String tableName, String enword, String ruword)
     {
         if (enword == null || ruword == null)   return;
@@ -258,16 +253,30 @@ public class t_DefineCorrectFragment2 extends Fragment
                         if (list.size() > 0)
                         {
                             controlList.set(copyIndexEn, list.get(0));
-                            buttonsArray[btn_position].setText(controlList.get(0).get_translate());
-                            textView.setText(controlList.get(0).get_english());
+                            buttonsArray[btn_position].setText(list.get(0).get_translate());
+                            if (controlListSize != controlList.size())
+                            {
+                                randomGenerator = new z_RandomNumberGenerator(controlList.size(), range);
+                                controlListSize = controlList.size();
+                            }
+                            int randomNumber = randomGenerator.generate();
+                            if (randomNumber < 0)
+                            {
+                                randomGenerator = new z_RandomNumberGenerator(controlListSize, range);
+                                randomNumber = randomGenerator.generate();
+                            }
+                            textView.setText(controlList.get(randomNumber).get_english());
+
                         }
-                        else if (list.size() == 0 && controlList.size() > 0)
+                        else if (list.size() == 0 && controlList.size() <= ROWS)
                         {
                             controlList.remove(copyIndexEn);
                             textView.setText("");
                             if (controlList.size() > 0)
                             {
-                                textView.setText(controlList.get(controlList.size()-1).get_english());
+                                randomGenerator = new z_RandomNumberGenerator(controlList.size(), range);
+                                int randomNumber = randomGenerator.generate();
+                                textView.setText(controlList.get(randomNumber).get_english());
                             }
                             buttonsArray[btn_position].setVisibility(View.GONE);
                         }

@@ -1,5 +1,8 @@
 package com.myapp.lexicon;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Ренат on 05.04.2016.
  */

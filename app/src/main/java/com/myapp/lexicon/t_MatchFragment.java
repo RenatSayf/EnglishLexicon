@@ -204,6 +204,7 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
         textSize = getHeightScreen() / 60;
         //region Инициализация экземпляра z_LockOrientation для блокировки смены ориентации экрана
         lockOrientation = new z_LockOrientation(getActivity());
+        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         //endregion
 
         linLayoutLeft = (LinearLayout) fragment_view.findViewById(R.id.left_layout);
@@ -283,6 +284,7 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
         lockOrientation.lock();
         wordIndex = 1;
         guessedWordsCount = 0;
+        counterRightAnswer = 0;
         spinnSelectedItem = spinnListDict.getSelectedItem().toString();
         getWordsCount = new DataBaseQueries.GetWordsCountAsync()
         {
@@ -300,7 +302,7 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
                 fillLayoutRight(wordsCount);
                 fillLayoutLeft(wordsCount);
                 spinnSelectedIndex = position;
-                getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+                //getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
             }
         };
         getWordsCount.execute(spinnSelectedItem);
@@ -310,7 +312,7 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
     {
         buttonsRightGone();
         if (rowsCount <= 0) return;
-        lockOrientation.lock();
+        //lockOrientation.lock();
         int count = rowsCount;
         if (count > ROWS)
         {
@@ -330,6 +332,7 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
                     AppData.arrayBtnRight[i].setTextSize(textSize);
                     wordIndex = finalCount;
                 }
+                //getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
             }
         };
         asyncTask.execute(spinnSelectedItem, wordIndex, count);
@@ -343,15 +346,13 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
             btnRight_OnClick(button, i);
             AppData.arrayBtnRight[i] = button;
         }
-
-        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
     }
 
     private void fillLayoutLeft(final int rowsCount)
     {
         buttonsLeftGone();
         if (rowsCount <= 0) return;
-        lockOrientation.lock();
+        //lockOrientation.lock();
         int count = rowsCount;
         if (count > ROWS)
         {
@@ -371,6 +372,7 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
                     AppData.arrayBtnLeft[i].setTextSize(textSize);
                     wordIndex = finalCount;
                 }
+                getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
             }
         };
         asyncTask.execute(spinnSelectedItem, wordIndex, count);
@@ -384,8 +386,6 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
             btnLeft_OnClick(button, i);
             AppData.arrayBtnLeft[i] = button;
         }
-
-        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
     }
 
     private String enWord = null;
@@ -397,6 +397,11 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
             @Override
             public void onClick(View view)
             {
+                int requestedOrientation = getActivity().getRequestedOrientation();
+                if (requestedOrientation != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+                {
+                    return;
+                }
                 btn_left_position = index;
                 width = view.getWidth();
                 height = view.getHeight();
@@ -416,6 +421,11 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
             @Override
             public void onClick(View view)
             {
+                int requestedOrientation = getActivity().getRequestedOrientation();
+                if (requestedOrientation != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+                {
+                    return;
+                }
                 btn_right_position = index;
                 width = view.getWidth();
                 height = view.getHeight();
@@ -496,6 +506,7 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
                             {
 
                                 btnNoRight.setBackgroundResource(R.drawable.text_button_for_test);
+                                getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
                             }
 
                             @Override
@@ -510,13 +521,14 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
                             btnNoRight.startAnimation(animNotRight);
                         }
                     }
-                    boolean contains = arrStudiedDict.contains(spinnListDict.getSelectedItem());
-                    if (counterRightAnswer == wordsCount && !contains)
-                    {
-                        arrStudiedDict.add(spinnListDict.getSelectedItem().toString());
-                        //counterRightAnswer = 0;
-                    }
-                    getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+//                    boolean contains = arrStudiedDict.contains(spinnListDict.getSelectedItem());
+//                    boolean containsInPlayList = a_MainActivity.getPlayList().contains(spinnListDict.getSelectedItem());
+//                    if (counterRightAnswer == wordsCount && !contains && containsInPlayList)
+//                    {
+//                        arrStudiedDict.add(spinnListDict.getSelectedItem().toString());
+//                        //counterRightAnswer = 0;
+//                    }
+                    //getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
                 }
             };
             asyncTask.execute(tableName, enword, ruword);
@@ -557,7 +569,7 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
             @Override
             public void onAnimationEnd(Animator animation)
             {
-                lockOrientation.lock();
+                //lockOrientation.lock();
                 if (wordIndex >= wordsCount || wordsResidue <= 0)
                 {
                     AppData.arrayBtnLeft[btn_left_position].setVisibility(View.INVISIBLE);
@@ -567,7 +579,7 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
                         ArrayList<String> list = new ArrayList<String>();
                         list.add(testResults.getOverallResult(counterRightAnswer, wordsCount));
                         list.add(counterRightAnswer + getString(R.string.text_out_of) + wordsCount);
-                        counterRightAnswer = 0;
+                        //counterRightAnswer = 0;
 
                         dialogTestComplete = new t_DialogTestComplete();
                         dialogTestComplete.setIDialogCompleteResult(t_MatchFragment.this);
@@ -592,7 +604,7 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
                             AppData.arrayBtnLeft[btn_left_position].setText(list.get(0).get_english());
                             AppData.arrayBtnLeft[btn_left_position].animate().translationX(0).setDuration(duration).setInterpolator(new AccelerateDecelerateInterpolator()).setListener(null);
                             wordIndex++;
-                            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+                            //getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
                         }
                     };
                     asyncTaskLeft.execute(spinnSelectedItem, randLeft, randLeft);
@@ -604,8 +616,9 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
                         public void resultAsyncTask(ArrayList<DataBaseEntry> list)
                         {
                             AppData.arrayBtnRight[btn_right_position].setText(list.get(0).get_translate());
-                            AppData.arrayBtnRight[btn_right_position].animate().translationX(0).setDuration(duration).setInterpolator(new AccelerateDecelerateInterpolator()).setListener(null);
-                            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+                            ViewPropertyAnimator animToRight = AppData.arrayBtnRight[btn_right_position].animate().translationX(0).setDuration(duration).setInterpolator(new AccelerateDecelerateInterpolator());
+                            animToRight_Listener(animToRight);
+
                         }
                     };
                     asyncTaskRight.execute(spinnSelectedItem, randRight, randRight);
@@ -632,10 +645,12 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
     {
         if (res == 0)
         {
+            addToStudiedList();
             startTest(res);
         }
         if (res > 0)
         {
+            addToStudiedList();
             int count = spinnListDict.getAdapter().getCount();
             int position = spinnListDict.getSelectedItemPosition();
             if (position < count)
@@ -651,6 +666,8 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
         }
         if (res < 0)
         {
+            addToStudiedList();
+
             spinnListDict.setSelection(-1);
             spinnSelectedIndex = -1;
             getActivity().onBackPressed();
@@ -667,6 +684,24 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
 
     }
 
+    private void addToStudiedList()
+    {
+        boolean containsInPlayList = false;
+        for (p_ItemListDict item : a_MainActivity.getPlayList())
+        {
+            if (item.get_dictName().equals(spinnListDict.getSelectedItem()))
+            {
+                containsInPlayList = true; break;
+            }
+        }
+        boolean contains = arrStudiedDict.contains(spinnListDict.getSelectedItem());
+        if (counterRightAnswer == wordsCount && !contains && containsInPlayList)
+        {
+            arrStudiedDict.add(spinnListDict.getSelectedItem().toString());
+            counterRightAnswer = 0;
+        }
+    }
+
 
     private void animToRight_Listener(ViewPropertyAnimator animator)
     {
@@ -681,13 +716,13 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
             @Override
             public void onAnimationEnd(Animator animation)
             {
-
+                getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
             }
 
             @Override
             public void onAnimationCancel(Animator animation)
             {
-
+                getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
             }
 
             @Override
