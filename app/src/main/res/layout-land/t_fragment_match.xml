@@ -31,7 +31,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/spinner_style"
-            android:id="@+id/spinn_list_dict"
+            android:id="@+id/spinn_one_of_five"
             />
     </LinearLayout>
 
@@ -50,7 +50,7 @@
             android:layout_marginLeft="10dp"
             android:orientation="vertical"
             android:gravity="center_horizontal"
-            android:id="@+id/left_layout">
+            android:id="@+id/layout_one_of_five">
 
             <Button
                 android:layout_width="match_parent"

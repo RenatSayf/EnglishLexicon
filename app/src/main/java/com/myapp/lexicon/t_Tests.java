@@ -19,13 +19,15 @@ import java.util.Locale;
 
 public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFragmentInteractionListener
 {
-    private ImageButton buttonMatchTest, buttonSelectWordTest, buttonTest3;
+    private ImageButton buttonMatchTest, buttonSelectWordTest, buttonTest3, buttonOneOfFive;
     private t_MatchFragment matchFragment;
     private static String MATCH_FRAGMENT = "matchFragment";
     private t_DefineCorrectFragment correctFragment;
     private String CORRECT_FRAGMENT = "correctFragment";
     private t_DefineCorrectFragment2 correctFragment2;
     private String CORRECT_FRAGMENT2 = "correctFragment2";
+    private t_OneOfFiveTest oneOfFiveTest;
+    private String ONE_OF_FIVE_FRAGMENT = "one_of_five";
     private FragmentTransaction transaction;
     private DataBaseQueries baseQueries;
 
@@ -73,6 +75,7 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
         buttonMatchTest = (ImageButton) findViewById(R.id.btn_match_test);
         buttonSelectWordTest = (ImageButton) findViewById(R.id.btn_select_word_test);
         buttonTest3 = (ImageButton) findViewById(R.id.btn_test_3);
+        buttonOneOfFive = (ImageButton) findViewById(R.id.btn_test_1of5);
 
         FragmentManager manager = getSupportFragmentManager();
         matchFragment = (t_MatchFragment) manager.findFragmentByTag(MATCH_FRAGMENT);
@@ -92,7 +95,13 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
         {
             correctFragment2 = new t_DefineCorrectFragment2();
         }
-        //matchFragment.setRetainInstance(true);
+
+        oneOfFiveTest = (t_OneOfFiveTest) manager.findFragmentByTag(ONE_OF_FIVE_FRAGMENT);
+        if (oneOfFiveTest == null)
+        {
+            oneOfFiveTest = new t_OneOfFiveTest();
+        }
+
         button_OnClick();
     }
 
@@ -136,6 +145,21 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
                 transaction = getSupportFragmentManager().beginTransaction();
                 //transaction = getFragmentManager().beginTransaction();
                 transaction.replace(R.id.correct_fragment2, correctFragment2);
+                transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
+                //transaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right);
+                transaction.addToBackStack(null);
+                transaction.commit();
+            }
+        });
+
+        buttonOneOfFive.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                transaction = getSupportFragmentManager().beginTransaction();
+                //transaction = getFragmentManager().beginTransaction();
+                transaction.replace(R.id.fragment_1of5, oneOfFiveTest);
                 transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
                 //transaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right);
                 transaction.addToBackStack(null);

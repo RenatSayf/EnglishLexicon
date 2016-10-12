@@ -27,7 +27,6 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 
 
@@ -207,14 +206,14 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         //endregion
 
-        linLayoutLeft = (LinearLayout) fragment_view.findViewById(R.id.left_layout);
+        linLayoutLeft = (LinearLayout) fragment_view.findViewById(R.id.layout_one_of_five);
         buttonsLeftGone();
         //region получение правого LinearLayout и скрытие его содержимого
         linLayoutRight = (LinearLayout) fragment_view.findViewById(R.id.right_layout);
         buttonsRightGone();
         //endregion
         //region получение Spinner выбора словаря
-        spinnListDict = (Spinner) fragment_view.findViewById(R.id.spinn_list_dict);
+        spinnListDict = (Spinner) fragment_view.findViewById(R.id.spinn_one_of_five);
         spinnListDict_OnItemSelectedListener();
         //endregion
     }
@@ -506,7 +505,6 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
                             {
 
                                 btnNoRight.setBackgroundResource(R.drawable.text_button_for_test);
-                                getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
                             }
 
                             @Override

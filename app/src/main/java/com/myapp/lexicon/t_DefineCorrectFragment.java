@@ -65,10 +65,10 @@ public class t_DefineCorrectFragment extends Fragment
         // Inflate the layout for this fragment
         lockOrientation = new z_LockOrientation(getActivity());
         View fragment_view = inflater.inflate(R.layout.t_define_correct_layout, container, false);
-        spinnListDict= (Spinner) fragment_view.findViewById(R.id.spinn_list_dict);
-        buttonsLayout = (LinearLayout) fragment_view.findViewById(R.id.left_layout);
+        spinnListDict= (Spinner) fragment_view.findViewById(R.id.spinn_one_of_five);
+        buttonsLayout = (LinearLayout) fragment_view.findViewById(R.id.layout_one_of_five);
         //buttonsLeftGone();
-        textView = (TextView) fragment_view.findViewById(R.id.text_view);
+        textView = (TextView) fragment_view.findViewById(R.id.text_view_one_of_five);
 
         spinnListDict_OnItemSelectedListener();
         setItemsToSpinnListDict();
