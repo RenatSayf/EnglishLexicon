@@ -30,7 +30,6 @@ import android.widget.ViewSwitcher;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
 
 public class d_WordEditor extends AppCompatActivity
 {
@@ -78,7 +77,7 @@ public class d_WordEditor extends AppCompatActivity
         editTextEn = (EditText) findViewById(R.id.edit_text_en);
         editTextRu = (EditText) findViewById(R.id.edit_text_ru);
         spinnerCountRepeat = (Spinner) findViewById(R.id.spinn_cout_repeat);
-        spinnerListDict2 = (Spinner) findViewById(R.id.spinn_list_dict);
+        spinnerListDict2 = (Spinner) findViewById(R.id.spinn_one_of_five);
 
         checkCopy = (CheckBox) findViewById(R.id.check_copy);
 

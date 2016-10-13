@@ -27,7 +27,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/spinner_style"
-            android:id="@+id/spinn_list_dict"
+            android:id="@+id/spinn_one_of_five"
             />
     </LinearLayout>
 
@@ -42,7 +42,7 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="center_horizontal"
-            android:id="@+id/left_layout"
+            android:id="@+id/layout_one_of_five"
             android:layout_marginTop="10dp">
 
 

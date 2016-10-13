@@ -460,7 +460,7 @@ public class DataBaseQueries
                 }
             } catch (SQLException e)
             {
-                z_Log.v("ИСКЛЮЧЕНИЕ - "+e);
+                z_Log.v("ИСКЛЮЧЕНИЕ - "+e.getMessage());
                 e.printStackTrace();
             }
             finally

@@ -125,4 +125,11 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="header.matchfragment">Найди соответствия в словаре:</string>
+    <string name="header.correctfragment">Выбери правильно в словаре:</string>
+    <string name="text_excellent">Отлично</string>
+    <string name="text_good">Хорошо</string>
+    <string name="text_bad">Плохо</string>
+    <string name="text_out_of">" из "</string>
+
+
 </resources>

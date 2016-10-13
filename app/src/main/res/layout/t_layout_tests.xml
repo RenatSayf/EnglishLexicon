@@ -8,6 +8,8 @@
     android:fitsSystemWindows="true"
     tools:context=".t_Tests">
 
+    <include layout="@layout/t_content_tests"/>
+
     <android.support.design.widget.AppBarLayout
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
@@ -21,8 +23,6 @@
             app:popupTheme="@style/AppTheme.PopupOverlay"/>
 
     </android.support.design.widget.AppBarLayout>
-
-    <include layout="@layout/t_content_tests"/>
 
 
 </android.support.design.widget.CoordinatorLayout>

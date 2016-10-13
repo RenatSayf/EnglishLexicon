@@ -8,16 +8,18 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 //import android.app.Fragment;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -25,10 +27,7 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Locale;
 
 
 /**
@@ -39,7 +38,7 @@ import java.util.Locale;
  * Use the {@link t_MatchFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class t_MatchFragment extends Fragment
+public class t_MatchFragment extends Fragment implements t_DialogTestComplete.IDialogComplete_Result
 {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -123,7 +122,10 @@ public class t_MatchFragment extends Fragment
     private z_LockOrientation lockOrientation;
     private int wordIndex = 1;
     private String KEY_WORD_INDEX = "wordIndex";
-
+    private int counterRightAnswer = 0;
+    private ArrayList<String> arrStudiedDict = new ArrayList<>();
+    private t_TestResults testResults;
+    private t_DialogTestComplete dialogTestComplete;
     private static int[] btnVisibleLeft = new int[ROWS];
 
     @Override
@@ -192,35 +194,28 @@ public class t_MatchFragment extends Fragment
         super.onSaveInstanceState(outState);
     }
 
+
     private void initViews(View fragment_view)
     {
+        //dialogTestComplete = new t_DialogTestComplete();
+
+        testResults = new t_TestResults(getActivity());
         textSize = getHeightScreen() / 60;
         //region Инициализация экземпляра z_LockOrientation для блокировки смены ориентации экрана
         lockOrientation = new z_LockOrientation(getActivity());
+        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         //endregion
 
-        //region инициализация экземпляра DataBaseQueries для работы с БД
-        try
-        {
-            baseQueries = new DataBaseQueries(getActivity().getApplicationContext());
-        } catch (SQLException e)
-        {
-            e.printStackTrace();
-            Toast.makeText(getActivity().getApplicationContext(),"Error - "+e.getMessage(),Toast.LENGTH_SHORT).show();
-            getActivity().finish();
-        }
-        //endregion
-        linLayoutLeft = (LinearLayout) fragment_view.findViewById(R.id.left_layout);
+        linLayoutLeft = (LinearLayout) fragment_view.findViewById(R.id.layout_one_of_five);
         buttonsLeftGone();
         //region получение правого LinearLayout и скрытие его содержимого
         linLayoutRight = (LinearLayout) fragment_view.findViewById(R.id.right_layout);
         buttonsRightGone();
         //endregion
         //region получение Spinner выбора словаря
-        spinnListDict = (Spinner) fragment_view.findViewById(R.id.spinn_list_dict);
+        spinnListDict = (Spinner) fragment_view.findViewById(R.id.spinn_one_of_five);
         spinnListDict_OnItemSelectedListener();
         //endregion
-
     }
 
     private void setItemsToSpinnListDict()
@@ -272,29 +267,7 @@ public class t_MatchFragment extends Fragment
             public void onItemSelected(AdapterView<?> parent, View view, final int position, long id)
             {
                 if (position == spinnSelectedIndex) return;
-                lockOrientation.lock();
-                wordIndex = 1;
-                spinnSelectedItem = spinnListDict.getSelectedItem().toString();
-                getWordsCount = new DataBaseQueries.GetWordsCountAsync()
-                {
-                    @Override
-                    public void resultAsyncTask(int res)
-                    {
-                        wordsCount = res;
-                        wordsResidue = wordsCount - ROWS;
-                        if (wordsResidue > 0)
-                        {
-                            generatorLeft = new z_RandomNumberGenerator(wordsResidue,0);
-                            generatorRight = new z_RandomNumberGenerator(wordsResidue, 127);
-                        }
-                        getWordsCount = null;
-                        fillLayoutRight(wordsCount);
-                        fillLayoutLeft(wordsCount);
-                        spinnSelectedIndex = position;
-                        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-                    }
-                };
-                getWordsCount.execute(spinnSelectedItem);
+                startTest(position);
             }
 
             @Override
@@ -305,11 +278,40 @@ public class t_MatchFragment extends Fragment
         });
     }
 
+    private void startTest(final int position)
+    {
+        lockOrientation.lock();
+        wordIndex = 1;
+        guessedWordsCount = 0;
+        counterRightAnswer = 0;
+        spinnSelectedItem = spinnListDict.getSelectedItem().toString();
+        getWordsCount = new DataBaseQueries.GetWordsCountAsync()
+        {
+            @Override
+            public void resultAsyncTask(int res)
+            {
+                wordsCount = res;
+                wordsResidue = wordsCount - ROWS;
+                if (wordsResidue > 0)
+                {
+                    generatorLeft = new z_RandomNumberGenerator(wordsResidue,0);
+                    generatorRight = new z_RandomNumberGenerator(wordsResidue, 127);
+                }
+                getWordsCount = null;
+                fillLayoutRight(wordsCount);
+                fillLayoutLeft(wordsCount);
+                spinnSelectedIndex = position;
+                //getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+            }
+        };
+        getWordsCount.execute(spinnSelectedItem);
+    }
+
     private void fillLayoutRight(final int rowsCount)
     {
         buttonsRightGone();
         if (rowsCount <= 0) return;
-        lockOrientation.lock();
+        //lockOrientation.lock();
         int count = rowsCount;
         if (count > ROWS)
         {
@@ -329,6 +331,7 @@ public class t_MatchFragment extends Fragment
                     AppData.arrayBtnRight[i].setTextSize(textSize);
                     wordIndex = finalCount;
                 }
+                //getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
             }
         };
         asyncTask.execute(spinnSelectedItem, wordIndex, count);
@@ -342,15 +345,13 @@ public class t_MatchFragment extends Fragment
             btnRight_OnClick(button, i);
             AppData.arrayBtnRight[i] = button;
         }
-
-        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
     }
 
     private void fillLayoutLeft(final int rowsCount)
     {
         buttonsLeftGone();
         if (rowsCount <= 0) return;
-        lockOrientation.lock();
+        //lockOrientation.lock();
         int count = rowsCount;
         if (count > ROWS)
         {
@@ -370,6 +371,7 @@ public class t_MatchFragment extends Fragment
                     AppData.arrayBtnLeft[i].setTextSize(textSize);
                     wordIndex = finalCount;
                 }
+                getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
             }
         };
         asyncTask.execute(spinnSelectedItem, wordIndex, count);
@@ -383,27 +385,28 @@ public class t_MatchFragment extends Fragment
             btnLeft_OnClick(button, i);
             AppData.arrayBtnLeft[i] = button;
         }
-
-        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
     }
 
     private String enWord = null;
+    private Button btnNoRight = null;
     private void btnLeft_OnClick(final View view, final int index)
     {
         view.setOnClickListener(new View.OnClickListener()
         {
             @Override
-            public void onClick(View v)
+            public void onClick(View view)
             {
+                int requestedOrientation = getActivity().getRequestedOrientation();
+                if (requestedOrientation != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+                {
+                    return;
+                }
                 btn_left_position = index;
-                width = v.getWidth();
-                height = v.getHeight();
+                width = view.getWidth();
+                height = view.getHeight();
                 enWord = AppData.arrayBtnLeft[index].getText().toString();
                 compareWords(spinnSelectedItem, enWord, ruWord);
-                if (index > 0)
-                {
-
-                }
+                btnNoRight = (Button) view;
             }
         });
     }
@@ -415,23 +418,25 @@ public class t_MatchFragment extends Fragment
         view.setOnClickListener(new View.OnClickListener()
         {
             @Override
-            public void onClick(View v)
+            public void onClick(View view)
             {
+                int requestedOrientation = getActivity().getRequestedOrientation();
+                if (requestedOrientation != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+                {
+                    return;
+                }
                 btn_right_position = index;
-                width = v.getWidth();
-                height = v.getHeight();
+                width = view.getWidth();
+                height = view.getHeight();
                 ruWord = AppData.arrayBtnRight[index].getText().toString();
                 compareWords(spinnSelectedItem, enWord, ruWord);
-                if (index > 0)
-                {
-
-                }
+                btnNoRight = (Button) view;
             }
         });
     }
 
     private Integer resultCompare = 0;
-
+    private int guessedWordsCount = 0;
     private void compareWords(String tableName, String enword, String ruword)
     {
         if (enword == null || ruword == null)   return;
@@ -446,10 +451,30 @@ public class t_MatchFragment extends Fragment
                     resultCompare = id;
                     if (resultCompare > 0)
                     {
+                        counterRightAnswer++;
+                        guessedWordsCount++;
                         String text = AppData.arrayBtnLeft[btn_left_position].getText().toString();
-                        //Toast.makeText(getActivity().getApplicationContext(), "ПравильноXXX - "+text, Toast.LENGTH_SHORT).show();
+                        a_SplashScreenActivity.speech.speak(text, TextToSpeech.QUEUE_ADD, a_SplashScreenActivity.map);
+                        a_SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+                        {
+                            @Override
+                            public void onStart(String utteranceId)
+                            {
 
-                        //a_SplashScreenActivity.speaker.speak(text);
+                            }
+
+                            @Override
+                            public void onDone(String utteranceId)
+                            {
+
+                            }
+
+                            @Override
+                            public void onError(String utteranceId)
+                            {
+
+                            }
+                        });
                         enWord = null; ruWord = null;
 
                         animToRight = AppData.arrayBtnRight[btn_right_position].animate().x((width + delta))
@@ -465,8 +490,43 @@ public class t_MatchFragment extends Fragment
                     if (resultCompare < 0)
                     {
                         Toast.makeText(getActivity().getApplicationContext(), "Неправильно", Toast.LENGTH_SHORT).show();
+                        counterRightAnswer--;
+                        Animation animNotRight = AnimationUtils.loadAnimation(getActivity().getApplicationContext(), R.anim.anim_not_right);
+                        animNotRight.setAnimationListener(new Animation.AnimationListener()
+                        {
+                            @Override
+                            public void onAnimationStart(Animation animation)
+                            {
+
+                            }
+
+                            @Override
+                            public void onAnimationEnd(Animation animation)
+                            {
+
+                                btnNoRight.setBackgroundResource(R.drawable.text_button_for_test);
+                            }
+
+                            @Override
+                            public void onAnimationRepeat(Animation animation)
+                            {
+
+                            }
+                        });
+                        if (btnNoRight != null)
+                        {
+                            btnNoRight.setBackgroundResource(R.drawable.text_btn_for_test_red);
+                            btnNoRight.startAnimation(animNotRight);
+                        }
                     }
-                    getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+//                    boolean contains = arrStudiedDict.contains(spinnListDict.getSelectedItem());
+//                    boolean containsInPlayList = a_MainActivity.getPlayList().contains(spinnListDict.getSelectedItem());
+//                    if (counterRightAnswer == wordsCount && !contains && containsInPlayList)
+//                    {
+//                        arrStudiedDict.add(spinnListDict.getSelectedItem().toString());
+//                        //counterRightAnswer = 0;
+//                    }
+                    //getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
                 }
             };
             asyncTask.execute(tableName, enword, ruword);
@@ -493,6 +553,7 @@ public class t_MatchFragment extends Fragment
         Button[] arrayBtn = AppData.arrayBtnRight;
     }
 
+
     private void animToLeft_Listener(ViewPropertyAnimator animator)
     {
         animator.setListener(new Animator.AnimatorListener()
@@ -506,11 +567,28 @@ public class t_MatchFragment extends Fragment
             @Override
             public void onAnimationEnd(Animator animation)
             {
-                lockOrientation.lock();
+                //lockOrientation.lock();
                 if (wordIndex >= wordsCount || wordsResidue <= 0)
                 {
                     AppData.arrayBtnLeft[btn_left_position].setVisibility(View.INVISIBLE);
                     AppData.arrayBtnRight[btn_right_position].setVisibility(View.INVISIBLE);
+                    if (guessedWordsCount == wordsCount)
+                    {
+                        ArrayList<String> list = new ArrayList<String>();
+                        list.add(testResults.getOverallResult(counterRightAnswer, wordsCount));
+                        list.add(counterRightAnswer + getString(R.string.text_out_of) + wordsCount);
+                        //counterRightAnswer = 0;
+
+                        dialogTestComplete = new t_DialogTestComplete();
+                        dialogTestComplete.setIDialogCompleteResult(t_MatchFragment.this);
+                        Bundle bundle = new Bundle();
+                        bundle.putString(dialogTestComplete.KEY_RESULT, list.get(0));
+                        bundle.putString(dialogTestComplete.KEY_ERRORS, list.get(1));
+                        dialogTestComplete.setArguments(bundle);
+                        dialogTestComplete.setCancelable(false);
+                        dialogTestComplete.show(getFragmentManager(), "dialog_complete_lexicon");
+                    }
+                    getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
                 }
                 else
                 {
@@ -524,7 +602,7 @@ public class t_MatchFragment extends Fragment
                             AppData.arrayBtnLeft[btn_left_position].setText(list.get(0).get_english());
                             AppData.arrayBtnLeft[btn_left_position].animate().translationX(0).setDuration(duration).setInterpolator(new AccelerateDecelerateInterpolator()).setListener(null);
                             wordIndex++;
-                            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+                            //getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
                         }
                     };
                     asyncTaskLeft.execute(spinnSelectedItem, randLeft, randLeft);
@@ -536,8 +614,9 @@ public class t_MatchFragment extends Fragment
                         public void resultAsyncTask(ArrayList<DataBaseEntry> list)
                         {
                             AppData.arrayBtnRight[btn_right_position].setText(list.get(0).get_translate());
-                            AppData.arrayBtnRight[btn_right_position].animate().translationX(0).setDuration(duration).setInterpolator(new AccelerateDecelerateInterpolator()).setListener(null);
-                            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+                            ViewPropertyAnimator animToRight = AppData.arrayBtnRight[btn_right_position].animate().translationX(0).setDuration(duration).setInterpolator(new AccelerateDecelerateInterpolator());
+                            animToRight_Listener(animToRight);
+
                         }
                     };
                     asyncTaskRight.execute(spinnSelectedItem, randRight, randRight);
@@ -559,6 +638,69 @@ public class t_MatchFragment extends Fragment
         });
     }
 
+    @Override
+    public void dialogCompleteResult(int res)
+    {
+        if (res == 0)
+        {
+            addToStudiedList();
+            startTest(res);
+        }
+        if (res > 0)
+        {
+            addToStudiedList();
+            int count = spinnListDict.getAdapter().getCount();
+            int position = spinnListDict.getSelectedItemPosition();
+            if (position < count)
+            {
+                position++;
+                spinnListDict.setSelection(position);
+            }
+            if (position == count)
+            {
+                position = 0;
+                spinnListDict.setSelection(position);
+            }
+        }
+        if (res < 0)
+        {
+            addToStudiedList();
+
+            spinnListDict.setSelection(-1);
+            spinnSelectedIndex = -1;
+            getActivity().onBackPressed();
+            if (arrStudiedDict.size() > 0)
+            {
+                t_DialogChangePlayList dialogChangePlayList = new t_DialogChangePlayList();
+                Bundle bundle = new Bundle();
+                bundle.putStringArrayList(dialogChangePlayList.KEY_LIST_DICT, arrStudiedDict);
+                dialogChangePlayList.setArguments(bundle);
+                dialogChangePlayList.setCancelable(false);
+                dialogChangePlayList.show(getFragmentManager(), "dialog_change_pl_lexicon");
+            }
+        }
+
+    }
+
+    private void addToStudiedList()
+    {
+        boolean containsInPlayList = false;
+        for (p_ItemListDict item : a_MainActivity.getPlayList())
+        {
+            if (item.get_dictName().equals(spinnListDict.getSelectedItem()))
+            {
+                containsInPlayList = true; break;
+            }
+        }
+        boolean contains = arrStudiedDict.contains(spinnListDict.getSelectedItem());
+        if (counterRightAnswer == wordsCount && !contains && containsInPlayList)
+        {
+            arrStudiedDict.add(spinnListDict.getSelectedItem().toString());
+            counterRightAnswer = 0;
+        }
+    }
+
+
     private void animToRight_Listener(ViewPropertyAnimator animator)
     {
         animator.setListener(new Animator.AnimatorListener()
@@ -572,13 +714,13 @@ public class t_MatchFragment extends Fragment
             @Override
             public void onAnimationEnd(Animator animation)
             {
-
+                getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
             }
 
             @Override
             public void onAnimationCancel(Animator animation)
             {
-
+                getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
             }
 
             @Override
@@ -598,11 +740,6 @@ public class t_MatchFragment extends Fragment
     {
 
     }
-
-
-
-
-
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri)
@@ -638,6 +775,13 @@ public class t_MatchFragment extends Fragment
     public void onPause()
     {
         super.onPause();
+    }
+
+    @Override
+    public void onDestroy()
+    {
+        super.onDestroy();
+        spinnSelectedIndex = -1;
     }
 
     /**
