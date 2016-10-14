@@ -5,6 +5,7 @@ import android.view.ViewPropertyAnimator;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
@@ -21,7 +22,7 @@ public class t_Animator extends Animation
     private TextView textView;
     private ViewPropertyAnimator animToLeft, animToRight, animToTop, animToDown;
     private long duration = 1000;
-    private int delta = 100;
+    private int delta = 50;
 
     public t_Animator(Button[] buttons, TextView textView)
     {
@@ -79,6 +80,7 @@ public class t_Animator extends Animation
                         {
                             iTextViewToleftEnd.textViewToLeftEnd(1);
                         }
+                        //buttonToTop(tempButton);
                     }
 
                     @Override
@@ -98,26 +100,70 @@ public class t_Animator extends Animation
                 });
     }
 
-    public void buttonToRight(int index)
+    private Button tempButton;
+    public void buttonToRight(LinearLayout layout, float x, float y)
     {
-        animToRight = buttons[index].animate().x((buttons[index].getWidth() + delta))
-                .setDuration(duration)
-                .setInterpolator(new AccelerateDecelerateInterpolator());
-    }
-
-    public void buttonsToDown(int index)
-    {
-        for (int i=index-1; i >= 0; i--)
+        for (int i = 0; i < layout.getChildCount(); i++)
         {
-            animToDown = buttons[i].animate()
-                    .translationYBy(buttons[index].getHeight())
-                    .setDuration(duration)
-                    .setInterpolator(new AccelerateDecelerateInterpolator());
-            if (i == 0)
+            Button button = (Button) layout.getChildAt(i);
+            if (y == button.getY() && x == button.getX())
             {
-                buttonsToDown_Listener(animToDown);
+                tempButton = button;
+                animToRight = button.animate().translationXBy((button.getWidth() + delta))
+                        .setDuration(duration)
+                        .setInterpolator(new AccelerateDecelerateInterpolator())
+                        .setListener(new Animator.AnimatorListener()
+                        {
+                            @Override
+                            public void onAnimationStart(Animator animation)
+                            {
+
+                            }
+
+                            @Override
+                            public void onAnimationEnd(Animator animation)
+                            {
+                                buttonToTop(tempButton);
+                            }
+
+                            @Override
+                            public void onAnimationCancel(Animator animation)
+                            {
+
+                            }
+
+                            @Override
+                            public void onAnimationRepeat(Animator animation)
+                            {
+
+                            }
+                        });
+                break;
             }
         }
+    }
+
+    public void buttonsToDown(LinearLayout layout, float x, float y)
+    {
+        ViewPropertyAnimator animToDown = null;
+        for (int i = 0; i < layout.getChildCount(); i++)
+        {
+            Button button = (Button) layout.getChildAt(i);
+            float X = button.getX();
+            float Y = button.getY();
+            float height = button.getHeight();
+            if (Y < y && x == X)
+            {
+                animToDown = button.animate()
+                        .translationYBy(button.getHeight())
+                        .setDuration(duration)
+                        .setInterpolator(new AccelerateDecelerateInterpolator());
+            }
+        }
+//        if (animToDown != null)
+//        {
+//            buttonsToDown_Listener(animToDown);
+//        }
     }
 
     private void buttonsToDown_Listener(ViewPropertyAnimator animToDown)
@@ -133,10 +179,11 @@ public class t_Animator extends Animation
             @Override
             public void onAnimationEnd(Animator animation)
             {
-                if (iButtonsToDownEnd != null)
-                {
-                    iButtonsToDownEnd.buttonsToDownEnd(1);
-                }
+//                if (iButtonsToDownEnd != null)
+//                {
+//                    iButtonsToDownEnd.buttonsToDownEnd(1);
+//                }
+//                buttonToTop(tempButton);
             }
 
             @Override
@@ -156,10 +203,10 @@ public class t_Animator extends Animation
         });
     }
 
-    public void buttonToTop(int index)
+    public void buttonToTop(Button button)
     {
-        animToTop = buttons[index].animate()
-                .translationYBy(-buttons[index].getHeight() * index)
+        animToTop = button.animate()
+                .translationYBy(-button.getY())
                 .setDuration(10)
                 .setListener(new Animator.AnimatorListener()
                 {
@@ -176,6 +223,7 @@ public class t_Animator extends Animation
                         {
                             iButtonToTopListener.buttonToTopListener(1);
                         }
+                        //buttonToLeft(tempButton);
                     }
 
                     @Override
@@ -206,9 +254,9 @@ public class t_Animator extends Animation
         void buttonToLeftListener(int result);
     }
 
-    public void buttonToLeft(int index)
+    public void buttonToLeft(Button button)
     {
-        buttons[index].animate().x(delta).setDuration(duration)
+        button.animate().translationXBy(-button.getWidth()-delta).setDuration(duration)
                 .setInterpolator(new AccelerateDecelerateInterpolator())
                 .setListener(new Animator.AnimatorListener()
                 {
@@ -248,7 +296,7 @@ public class t_Animator extends Animation
                     @Override
                     public void onAnimationStart(Animator animation)
                     {
-
+                        //buttonToLeft(tempButton);
                     }
 
                     @Override
@@ -258,6 +306,7 @@ public class t_Animator extends Animation
                         {
                             iButtonToLeftListener.buttonToLeftListener(1);
                         }
+                        buttonToLeft(tempButton);
                     }
 
                     @Override

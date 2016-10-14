@@ -210,20 +210,10 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewTol
         };
         asyncTask.execute(spinnSelectedItem, wordIndex, count);
         asyncTask = null;
-
-//        for (int i = 0; i < count; i++)
-//        {
-//            Button button = (Button) buttonsLayout.getChildAt(i);
-//            button.setVisibility(View.VISIBLE);
-//            button.setTranslationX(0);
-//            btnLeft_OnClick(button, i);
-//            if (button.getVisibility() == View.VISIBLE)
-//            {
-//                buttonsArray[i] = button;
-//            }
-//        }
     }
     private static int controlListSize = 0;
+    private float buttonY;
+    private float buttonX;
     private void btnLeft_OnClick(final View view, final int index)
     {
         view.setOnClickListener(new View.OnClickListener()
@@ -231,6 +221,9 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewTol
             @Override
             public void onClick(View view)
             {
+                Button button = (Button) view;
+                buttonY = button.getY();
+                buttonX = button.getX();
                 btn_position = index;
                 Toast.makeText(getActivity(), "Клик по кнопке "+index, Toast.LENGTH_SHORT).show();
                 compareWords(spinnSelectedItem,textView.getText().toString(),buttonsArray[btn_position].getText().toString());
@@ -271,10 +264,10 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewTol
                     {
                         listFromDB = list;
                         animator.textViewToLeft();
-                        animator.buttonToRight(btn_position);
+                        animator.buttonToRight(buttonsLayout, buttonX, buttonY);
                     }
                 };
-                asyncTask.execute(tableName, wordIndex+1, wordIndex+1);
+                asyncTask.execute(tableName, wordIndex, wordIndex);
             }
             else
             {
@@ -316,14 +309,14 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewTol
             }
             buttonsArray[btn_position].setVisibility(View.INVISIBLE);
         }
-        if (btn_position == 0)
+        if (buttonY < 1)
         {
-            animator.buttonToRight(btn_position);
+            //animator.buttonToRight(buttonsLayout, buttonX, buttonY);
         }
 
-        if (btn_position > 0)
+        if (buttonY > 60)
         {
-            animator.buttonsToDown(btn_position);
+            animator.buttonsToDown(buttonsLayout, buttonX, buttonY);
         }
 
 
@@ -335,41 +328,41 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewTol
     {
         //Toast.makeText(getActivity(), "buttonsToDownEnd = "+result, Toast.LENGTH_SHORT).show();
         //animator.textViewToRight();
-        animator.buttonToTop(btn_position);
+        //animator.buttonToTop(btn_position);
     }
 
     @Override
     public void buttonToTopListener(int result)
     {
         animator.textViewToRight();
-        animator.buttonToLeft(btn_position);
+        //animator.buttonToLeft(btn_position);
     }
 
     @Override
     public void buttonToLeftListener(int result)
     {
-        Button[] newArray = null;
-        if (true)
-        {
-            int j = 0;
-            newArray = new Button[buttonsArray.length];
-            newArray[0] = buttonsArray[btn_position];
-            for (int i=0; i < btn_position; i++)
-            {
-                j++;
-                newArray[j] = buttonsArray[i];
-            }
-
-            for (int i = btn_position+1; i < buttonsArray.length; i++)
-            {
-                newArray[i] = buttonsArray[i];
-
-            }
-            //updateArrayClickListenerLeft(newArray);
-        } else
-        {
-
-        }
+//        Button[] newArray = null;
+//        if (true)
+//        {
+//            int j = 0;
+//            newArray = new Button[buttonsArray.length];
+//            newArray[0] = buttonsArray[btn_position];
+//            for (int i=0; i < btn_position; i++)
+//            {
+//                j++;
+//                newArray[j] = buttonsArray[i];
+//            }
+//
+//            for (int i = btn_position+1; i < buttonsArray.length; i++)
+//            {
+//                newArray[i] = buttonsArray[i];
+//
+//            }
+//            //updateArrayClickListenerLeft(newArray);
+//        } else
+//        {
+//
+//        }
     }
 
     private void updateArrayClickListenerLeft(Button[] newArray)
