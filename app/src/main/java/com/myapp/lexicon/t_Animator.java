@@ -123,7 +123,7 @@ public class t_Animator extends Animation
                             @Override
                             public void onAnimationEnd(Animator animation)
                             {
-                                buttonToTop(tempButton);
+                                //buttonToTop(tempButton);
                             }
 
                             @Override
@@ -146,6 +146,7 @@ public class t_Animator extends Animation
     public void buttonsToDown(LinearLayout layout, float x, float y)
     {
         ViewPropertyAnimator animToDown = null;
+        boolean isListener = false;
         for (int i = 0; i < layout.getChildCount(); i++)
         {
             Button button = (Button) layout.getChildAt(i);
@@ -158,12 +159,13 @@ public class t_Animator extends Animation
                         .translationYBy(button.getHeight())
                         .setDuration(duration)
                         .setInterpolator(new AccelerateDecelerateInterpolator());
+                if (!isListener)
+                {
+                    isListener = true;
+                    buttonsToDown_Listener(animToDown);
+                }
             }
         }
-//        if (animToDown != null)
-//        {
-//            buttonsToDown_Listener(animToDown);
-//        }
     }
 
     private void buttonsToDown_Listener(ViewPropertyAnimator animToDown)
@@ -183,7 +185,7 @@ public class t_Animator extends Animation
 //                {
 //                    iButtonsToDownEnd.buttonsToDownEnd(1);
 //                }
-//                buttonToTop(tempButton);
+                buttonToTop(tempButton);
             }
 
             @Override
@@ -296,7 +298,7 @@ public class t_Animator extends Animation
                     @Override
                     public void onAnimationStart(Animator animation)
                     {
-                        //buttonToLeft(tempButton);
+                        buttonToLeft(tempButton);
                     }
 
                     @Override
@@ -306,7 +308,7 @@ public class t_Animator extends Animation
                         {
                             iButtonToLeftListener.buttonToLeftListener(1);
                         }
-                        buttonToLeft(tempButton);
+                        //buttonToLeft(tempButton);
                     }
 
                     @Override
