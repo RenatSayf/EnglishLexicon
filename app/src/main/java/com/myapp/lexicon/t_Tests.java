@@ -27,7 +27,7 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
     private t_DefineCorrectFragment2 correctFragment2;
     private String CORRECT_FRAGMENT2 = "correctFragment2";
     private t_OneOfFiveTest oneOfFiveTest;
-    private String ONE_OF_FIVE_FRAGMENT = "one_of_five";
+    private static String ONE_OF_FIVE_FRAGMENT = "one_of_five";
     private FragmentTransaction transaction;
     private DataBaseQueries baseQueries;
 

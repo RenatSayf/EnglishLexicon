@@ -15,7 +15,8 @@ public class t_Animator
 {
     public  static t_Animator instance = new t_Animator();
 
-    public ITextViewToLeftListener iTextViewToLeftListener;
+    public static ITextViewToLeftListener iTextViewToLeftListener;
+    public static ITextViewToRightListener iTextViewToRightListener;
 
     private TextView textView;
     private LinearLayout layout;
@@ -40,12 +41,22 @@ public class t_Animator
 
     public interface ITextViewToLeftListener
     {
-        void textViewToLeftListener(int result);
+        void textViewToLeftListener(int result, TextView textView, Button button);
     }
 
     public void setTextViewToLeftListener(ITextViewToLeftListener listener)
     {
         iTextViewToLeftListener = listener;
+    }
+
+    public interface ITextViewToRightListener
+    {
+        void textViewToRightListener(int result);
+    }
+
+    public void setTextViewToRightListener(ITextViewToRightListener listener)
+    {
+        iTextViewToRightListener = listener;
     }
 
     public void textViewToLeft()
@@ -66,7 +77,7 @@ public class t_Animator
                     {
                         if (iTextViewToLeftListener != null)
                         {
-                            iTextViewToLeftListener.textViewToLeftListener(1);
+                            iTextViewToLeftListener.textViewToLeftListener(1, textView, button);
                         }
                     }
 
@@ -75,7 +86,7 @@ public class t_Animator
                     {
                         if (iTextViewToLeftListener != null)
                         {
-                            iTextViewToLeftListener.textViewToLeftListener(-1);
+                            iTextViewToLeftListener.textViewToLeftListener(-1, textView, button);
                         }
                     }
 
@@ -87,6 +98,7 @@ public class t_Animator
                 });
     }
 
+    private Button button;
     private int buttonId;
     private int getButtonId()
     {
@@ -102,7 +114,8 @@ public class t_Animator
     {
         ViewPropertyAnimator animToRight;
         setButtonId(buttonId);
-        final Button button = (Button) layout.findViewById(getButtonId());
+
+        button = (Button) layout.findViewById(getButtonId());
         if (button != null)
         {
             animToRight = button.animate().translationXBy((button.getWidth() + delta))
@@ -229,9 +242,45 @@ public class t_Animator
                 .setInterpolator(new AccelerateDecelerateInterpolator());
     }
 
-    private void textViewToRight()
+    public void buttonToLeft(int buttonId)
     {
-        textView.animate().translationX(0)
+        Button button = (Button) layout.findViewById(buttonId);
+        if (button == null) return;
+        button.animate().translationXBy(-button.getWidth() - delta)
+                .setDuration(duration)
+                .setInterpolator(new AccelerateDecelerateInterpolator())
+                .setListener(new Animator.AnimatorListener()
+                {
+                    @Override
+                    public void onAnimationStart(Animator animation)
+                    {
+                        textViewToRight();
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation)
+                    {
+
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation)
+                    {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation)
+                    {
+
+                    }
+                });
+    }
+
+    public void textViewToRight()
+    {
+        TextView _textView = this.textView;
+        _textView.animate().translationX(0)
                 .setDuration(duration)
                 .setInterpolator(new AccelerateDecelerateInterpolator())
                 .setListener(new Animator.AnimatorListener()
@@ -245,13 +294,19 @@ public class t_Animator
                     @Override
                     public void onAnimationEnd(Animator animation)
                     {
-
+                        if (iTextViewToRightListener != null)
+                        {
+                            iTextViewToRightListener.textViewToRightListener(1);
+                        }
                     }
 
                     @Override
                     public void onAnimationCancel(Animator animation)
                     {
-
+                        if (iTextViewToRightListener != null)
+                        {
+                            iTextViewToRightListener.textViewToRightListener(-1);
+                        }
                     }
 
                     @Override
