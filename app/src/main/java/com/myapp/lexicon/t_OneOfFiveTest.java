@@ -42,7 +42,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
     private static float buttonY;
     private static float buttonX;
     private Button tempButton;
-    private static int buttonId;
+    private int tempButtonId;
     private static z_RandomNumberGenerator randomGenerator;
     private static ArrayList<DataBaseEntry> listFromDB;
     private static int indexEn = -1;
@@ -64,7 +64,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
     @Override
     public void onSaveInstanceState(Bundle outState)
     {
-//        outState.putInt(KEY_BUTTON_ID, buttonId);
+        outState.putInt(KEY_BUTTON_ID, tempButtonId);
 //        outState.putFloat(KEY_BUTTON_X, buttonX);
 //        outState.putFloat(KEY_BUTTON_Y, buttonY);
         outState.putString(KEY_TEXT, textView.getText().toString());
@@ -88,6 +88,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
         if (savedInstanceState != null)
         {
             textView.setText(savedInstanceState.getString(KEY_TEXT));
+            tempButtonId = savedInstanceState.getInt(KEY_BUTTON_ID);
         }
 
         spinnListDict_OnItemSelectedListener();
@@ -245,7 +246,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
             public void onClick(View view)
             {
                 tempButton = (Button) view;
-                buttonId = tempButton.getId();
+                tempButtonId = tempButton.getId();
                 buttonY = tempButton.getY();
                 buttonX = tempButton.getX();
                 compareWords(spinnSelectedItem,textView.getText().toString(), tempButton.getText().toString());
@@ -281,7 +282,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
                     {
                         listFromDB = list;
                         animator.textViewToLeft();
-                        animator.buttonToRight(buttonsLayout, buttonId);
+                        animator.buttonToRight(buttonsLayout, tempButtonId);
                     }
                 };
                 asyncTask.execute(tableName, wordIndex, wordIndex);
