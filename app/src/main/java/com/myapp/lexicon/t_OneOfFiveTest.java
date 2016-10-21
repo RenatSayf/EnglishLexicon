@@ -259,7 +259,6 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
     }
 
     private static z_RandomNumberGenerator randomGenerator;
-    private int range = 127;
     private static ArrayList<DataBaseEntry> listFromDB;
     private static int indexEn = -1;
     private static int indexRu = -1;
@@ -307,11 +306,10 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
     @Override
     public void textViewToLeftListener(int result, TextView textView, Button button)
     {
+        int range = 127;
         if (listFromDB.size() > 0)
         {
             controlList.set(indexEn, listFromDB.get(0));
-            //buttonsArray[btn_position].setText(listFromDB.get(0).get_translate());
-            //button = (Button) buttonsLayout.findViewById(buttonId);
             button.setText(listFromDB.get(0).get_translate());
             if (controlListSize != controlList.size())
             {
@@ -353,19 +351,16 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
     @Override
     public void textViewToRightListener(int result)
     {
-        saveButtonsLayoutState();
         activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-
     }
 
     private void saveButtonsLayoutState()
     {
-        for (int i = 0; i < buttonsLayout.getChildCount(); i++)
+        int childCount = buttonsLayout.getChildCount();
+        buttonsArray = new Button[childCount];
+        for (int i = 0; i < childCount; i++)
         {
-            if (buttonsLayout.getChildAt(i).getVisibility() == View.VISIBLE)
-            {
-                buttonsArray[i] = (Button) buttonsLayout.getChildAt(i);
-            }
+            buttonsArray[i] = (Button) buttonsLayout.getChildAt(i);
         }
     }
 
