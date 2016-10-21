@@ -15,8 +15,8 @@ public class t_Animator
 {
     public  static t_Animator instance = new t_Animator();
 
-    public static ITextViewToLeftListener iTextViewToLeftListener;
-    public static ITextViewToRightListener iTextViewToRightListener;
+    public ITextViewToLeftListener iTextViewToLeftListener;
+    public ITextViewToRightListener iTextViewToRightListener;
 
     private TextView textView;
     private LinearLayout layout;
@@ -51,7 +51,7 @@ public class t_Animator
 
     public interface ITextViewToRightListener
     {
-        void textViewToRightListener(int result);
+        void textViewToRightListener(int result, TextView textView);
     }
 
     public void setTextViewToRightListener(ITextViewToRightListener listener)
@@ -296,7 +296,7 @@ public class t_Animator
                     {
                         if (iTextViewToRightListener != null)
                         {
-                            iTextViewToRightListener.textViewToRightListener(1);
+                            iTextViewToRightListener.textViewToRightListener(1, textView);
                         }
                     }
 
@@ -305,7 +305,7 @@ public class t_Animator
                     {
                         if (iTextViewToRightListener != null)
                         {
-                            iTextViewToRightListener.textViewToRightListener(-1);
+                            iTextViewToRightListener.textViewToRightListener(-1, textView);
                         }
                     }
 
