@@ -38,9 +38,9 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
     private static int wordIndex = 1;
     private static String spinnSelectedItem;
     private static int wordsCount;
-    private static int controlListSize = 0;
+    private int controlListSize = 0;
     private static float buttonY;
-    private static float buttonX;
+    private float buttonX;
     private Button tempButton;
     private int tempButtonId;
     private static z_RandomNumberGenerator randomGenerator;
@@ -54,6 +54,8 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
     private String KEY_BUTTON_X = "key_button_x";
     private String KEY_BUTTON_Y = "key_button_y";
     private String KEY_TEXT = "key_text";
+    private String KEY_INDEX_EN = "key_index_en";
+    private String KEY_CONTROL_LIST_SIZE = "key_control_list_size";
 
     FragmentActivity activity;
     public t_OneOfFiveTest()
@@ -65,12 +67,15 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
     public void onSaveInstanceState(Bundle outState)
     {
         outState.putInt(KEY_BUTTON_ID, tempButtonId);
-//        outState.putFloat(KEY_BUTTON_X, buttonX);
-//        outState.putFloat(KEY_BUTTON_Y, buttonY);
+        outState.putFloat(KEY_BUTTON_X, buttonX);
+        //outState.putFloat(KEY_BUTTON_Y, buttonY);
         outState.putString(KEY_TEXT, textView.getText().toString());
+        //outState.putInt(KEY_INDEX_EN, indexEn);
+        outState.putInt(KEY_CONTROL_LIST_SIZE, controlListSize);
         saveButtonsLayoutState();
         super.onSaveInstanceState(outState);
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState)
@@ -89,6 +94,10 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
         {
             textView.setText(savedInstanceState.getString(KEY_TEXT));
             tempButtonId = savedInstanceState.getInt(KEY_BUTTON_ID);
+            buttonX = savedInstanceState.getFloat(KEY_BUTTON_X);
+            //buttonY = savedInstanceState.getFloat(KEY_BUTTON_Y);
+            //indexEn = savedInstanceState.getInt(KEY_INDEX_EN);
+            controlListSize = savedInstanceState.getInt(KEY_CONTROL_LIST_SIZE);
         }
 
         spinnListDict_OnItemSelectedListener();
