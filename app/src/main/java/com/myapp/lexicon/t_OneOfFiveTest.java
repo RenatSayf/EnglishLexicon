@@ -36,8 +36,8 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
     private Spinner spinnListDict;
     private static int spinnSelectedIndex = -1;
     private static int wordIndex = 1;
-    private static String spinnSelectedItem;
-    private static int wordsCount;
+    private String spinnSelectedItem;
+    private int wordsCount;
     private int controlListSize = 0;
     private static float buttonY;
     private float buttonX;
@@ -56,6 +56,8 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
     private String KEY_TEXT = "key_text";
     private String KEY_INDEX_EN = "key_index_en";
     private String KEY_CONTROL_LIST_SIZE = "key_control_list_size";
+    private String KEY_WORDS_COUNT = "key_words_count";
+    private String KEY_SPINN_SELECT_ITEM = "key_spinn_select_item";
 
     FragmentActivity activity;
     public t_OneOfFiveTest()
@@ -72,6 +74,8 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
         outState.putString(KEY_TEXT, textView.getText().toString());
         //outState.putInt(KEY_INDEX_EN, indexEn);
         outState.putInt(KEY_CONTROL_LIST_SIZE, controlListSize);
+        outState.putInt(KEY_WORDS_COUNT, wordsCount);
+        outState.putString(KEY_SPINN_SELECT_ITEM, spinnSelectedItem);
         saveButtonsLayoutState();
         super.onSaveInstanceState(outState);
     }
@@ -98,6 +102,8 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
             //buttonY = savedInstanceState.getFloat(KEY_BUTTON_Y);
             //indexEn = savedInstanceState.getInt(KEY_INDEX_EN);
             controlListSize = savedInstanceState.getInt(KEY_CONTROL_LIST_SIZE);
+            wordsCount = savedInstanceState.getInt(KEY_WORDS_COUNT);
+            spinnSelectedItem = savedInstanceState.getString(KEY_SPINN_SELECT_ITEM);
         }
 
         spinnListDict_OnItemSelectedListener();
