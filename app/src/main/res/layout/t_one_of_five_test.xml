@@ -41,11 +41,19 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="20dp"
-            android:layout_marginBottom="30dp"
+            android:layout_marginBottom="5dp"
             android:text="Text"
             android:textSize="22sp"
             android:id="@+id/text_view_1of5"
             />
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:id="@+id/progress_test1of5"
+            android:visibility="visible"
+            android:indeterminate="false"
+            android:layout_height="50dp"/>
 
         <ScrollView android:layout_width="match_parent"
                     android:layout_height="match_parent"

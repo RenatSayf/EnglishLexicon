@@ -25,7 +25,7 @@ import java.util.ArrayList;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class t_DefineCorrectFragment extends Fragment
+public class t_ListenEndClickFragment extends Fragment
 {
     public static final int ROWS = 5;
     private static Button[] buttonsArray;
@@ -52,7 +52,7 @@ public class t_DefineCorrectFragment extends Fragment
     private static int controlListSize = 0;
     private int range = 127;
 
-    public t_DefineCorrectFragment()
+    public t_ListenEndClickFragment()
     {
         // Required empty public constructor
     }
@@ -64,7 +64,7 @@ public class t_DefineCorrectFragment extends Fragment
     {
         // Inflate the layout for this fragment
         lockOrientation = new z_LockOrientation(getActivity());
-        View fragment_view = inflater.inflate(R.layout.t_define_correct_layout, container, false);
+        View fragment_view = inflater.inflate(R.layout.t_listen_end_click_layout, container, false);
         spinnListDict= (Spinner) fragment_view.findViewById(R.id.spinn_one_of_five);
         buttonsLayout = (LinearLayout) fragment_view.findViewById(R.id.layout_one_of_five);
         //buttonsLeftGone();

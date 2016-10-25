@@ -3,8 +3,8 @@
              android:layout_width="match_parent"
              android:layout_height="match_parent"
               android:orientation="vertical"
-             tools:context="com.myapp.lexicon.t_DefineCorrectFragment2"
-              android:background="@color/pape_background_orange"
+             tools:context="com.myapp.lexicon.t_ListenEndClickFragment"
+              android:background="@color/pape_background_blue"
     >
 
     <LinearLayout android:layout_width="match_parent"
@@ -28,7 +28,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/spinner_style"
-            android:id="@+id/spinn_list_dict2"
+            android:id="@+id/spinn_one_of_five"
             />
     </LinearLayout>
 
@@ -45,12 +45,12 @@
             android:layout_marginBottom="30dp"
             android:text="Text"
             android:textSize="22sp"
-            android:id="@+id/text_view2"
+            android:id="@+id/text_view_one_of_five"
             />
 
         <ScrollView android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="10dp">
+            android:layout_height="match_parent"
+            android:layout_marginBottom="10dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -59,7 +59,7 @@
                 android:layout_marginLeft="30dp"
                 android:layout_marginRight="30dp"
                 android:gravity="center_horizontal"
-                android:id="@+id/left_layout2"
+                android:id="@+id/layout_one_of_five"
                 android:layout_marginTop="0dp">
 
                 <Button

@@ -73,7 +73,7 @@
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:layout_gravity="center_horizontal"
-                    android:text="Выбери правильно"
+                    android:text="Послушай и кликни"
                     />
 
 
@@ -108,7 +108,7 @@
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:layout_gravity="center_horizontal"
-                    android:text="Соответствие"
+                    android:text="Напиши слово"
                     />
             </LinearLayout>
 
@@ -123,7 +123,7 @@
                     android:layout_height="74dp"
                     android:layout_gravity="center_horizontal"
                     android:id="@+id/btn_test_1of5"
-                    android:src="@drawable/common_ic_googleplayservices"
+                    android:src="@drawable/icon_match"
                     android:background="@android:color/transparent"/>
 
                 <TextView
@@ -152,13 +152,13 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/correct_fragment"
+        android:id="@+id/listen_end_click_fragment"
         />
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/correct_fragment2"
+        android:id="@+id/write_word_fragment"
         />
 
     <FrameLayout

@@ -22,9 +22,9 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
     private ImageButton buttonMatchTest, buttonSelectWordTest, buttonTest3, buttonOneOfFive;
     private t_MatchFragment matchFragment;
     private static String MATCH_FRAGMENT = "matchFragment";
-    private t_DefineCorrectFragment correctFragment;
-    private String CORRECT_FRAGMENT = "correctFragment";
-    private t_DefineCorrectFragment2 correctFragment2;
+    private t_ListenEndClickFragment listenEndClickFragment;
+    private String LISTEN_END_CLICK_FRAGMENT = "listenEndClickFragment";
+    private t_WriteWordFragment correctFragment2;
     private String CORRECT_FRAGMENT2 = "correctFragment2";
     private t_OneOfFiveTest oneOfFiveTest;
     private static String ONE_OF_FIVE_FRAGMENT = "one_of_five";
@@ -84,16 +84,16 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
             matchFragment = t_MatchFragment.newInstance(null,null);
         }
 
-        correctFragment = (t_DefineCorrectFragment) manager.findFragmentByTag(CORRECT_FRAGMENT);
-        if (correctFragment == null)
+        listenEndClickFragment = (t_ListenEndClickFragment) manager.findFragmentByTag(LISTEN_END_CLICK_FRAGMENT);
+        if (listenEndClickFragment == null)
         {
-            correctFragment = new t_DefineCorrectFragment();
+            listenEndClickFragment = new t_ListenEndClickFragment();
         }
 
-        correctFragment2 = (t_DefineCorrectFragment2) manager.findFragmentByTag(CORRECT_FRAGMENT2);
+        correctFragment2 = (t_WriteWordFragment) manager.findFragmentByTag(CORRECT_FRAGMENT2);
         if (correctFragment2 == null)
         {
-            correctFragment2 = new t_DefineCorrectFragment2();
+            correctFragment2 = new t_WriteWordFragment();
         }
 
         oneOfFiveTest = (t_OneOfFiveTest) manager.findFragmentByTag(ONE_OF_FIVE_FRAGMENT);
@@ -129,7 +129,7 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
             {
                 transaction = getSupportFragmentManager().beginTransaction();
                 //transaction = getFragmentManager().beginTransaction();
-                transaction.replace(R.id.correct_fragment, correctFragment);
+                transaction.replace(R.id.listen_end_click_fragment, listenEndClickFragment);
                 transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
                 //transaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right);
                 transaction.addToBackStack(null);
@@ -144,7 +144,7 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
             {
                 transaction = getSupportFragmentManager().beginTransaction();
                 //transaction = getFragmentManager().beginTransaction();
-                transaction.replace(R.id.correct_fragment2, correctFragment2);
+                transaction.replace(R.id.write_word_fragment, correctFragment2);
                 transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
                 //transaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right);
                 transaction.addToBackStack(null);

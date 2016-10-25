@@ -13,6 +13,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,38 +27,41 @@ import java.util.ArrayList;
 public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToLeftListener, t_Animator.ITextViewToRightListener
 {
     public static final int ROWS = 5;
+
     private static Button[] buttonsArray;
     private static ArrayList<String> storedListDict = new ArrayList<>();
     private static ArrayList<DataBaseEntry> controlList;
     private static ArrayList<DataBaseEntry> additionalList;
     private static int additonalCount = 0;
-    private TextView textView;
-    private LinearLayout buttonsLayout;
-    private Spinner spinnListDict;
-    private static int spinnSelectedIndex = -1;
     private static int wordIndex = 1;
-    private String spinnSelectedItem;
-    private int wordsCount;
-    private int controlListSize = 0;
     private static float buttonY;
-    private float buttonX;
-    private Button tempButton;
-    private int tempButtonId;
+    private static float buttonX;
     private static z_RandomNumberGenerator randomGenerator;
     private static ArrayList<DataBaseEntry> listFromDB;
     private static int indexEn = -1;
     private static int indexRu = -1;
+
+    private TextView textView;
+    private LinearLayout buttonsLayout;
+    private Spinner spinnListDict;
+    private ProgressBar progressBar;
+    private int spinnSelectedIndex = -1;
+    private String spinnSelectedItem;
+    private int wordsCount;
+    private int controlListSize = 0;
+    private Button tempButton;
+    private int tempButtonId;
     private t_Animator animator;
     private z_LockOrientation lockOrientation;
 
     private String KEY_BUTTON_ID = "key_button_id";
-    private String KEY_BUTTON_X = "key_button_x";
-    private String KEY_BUTTON_Y = "key_button_y";
     private String KEY_TEXT = "key_text";
-    private String KEY_INDEX_EN = "key_index_en";
     private String KEY_CONTROL_LIST_SIZE = "key_control_list_size";
     private String KEY_WORDS_COUNT = "key_words_count";
     private String KEY_SPINN_SELECT_ITEM = "key_spinn_select_item";
+    private String KEY_SPINN_SELECT_INDEX = "key_spinn_select_index";
+    private String KEY_PROGRESS = "key_progress";
+    private String KEY_PROGRESS_MAX = "key_progress_max";
 
     FragmentActivity activity;
     public t_OneOfFiveTest()
@@ -69,13 +73,13 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
     public void onSaveInstanceState(Bundle outState)
     {
         outState.putInt(KEY_BUTTON_ID, tempButtonId);
-        outState.putFloat(KEY_BUTTON_X, buttonX);
-        //outState.putFloat(KEY_BUTTON_Y, buttonY);
         outState.putString(KEY_TEXT, textView.getText().toString());
-        //outState.putInt(KEY_INDEX_EN, indexEn);
         outState.putInt(KEY_CONTROL_LIST_SIZE, controlListSize);
         outState.putInt(KEY_WORDS_COUNT, wordsCount);
         outState.putString(KEY_SPINN_SELECT_ITEM, spinnSelectedItem);
+        outState.putInt(KEY_SPINN_SELECT_INDEX, spinnSelectedIndex);
+        outState.putInt(KEY_PROGRESS_MAX, progressBar.getMax());
+        outState.putInt(KEY_PROGRESS, progressBar.getProgress());
         saveButtonsLayoutState();
         super.onSaveInstanceState(outState);
     }
@@ -92,18 +96,19 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
         spinnListDict= (Spinner) fragment_view.findViewById(R.id.spinn_1of5);
         buttonsLayout = (LinearLayout) fragment_view.findViewById(R.id.layout_1of5);
         textView = (TextView) fragment_view.findViewById(R.id.text_view_1of5);
+        progressBar = (ProgressBar) fragment_view.findViewById(R.id.progress_test1of5);
         animator = t_Animator.getInstance();
 
         if (savedInstanceState != null)
         {
             textView.setText(savedInstanceState.getString(KEY_TEXT));
             tempButtonId = savedInstanceState.getInt(KEY_BUTTON_ID);
-            buttonX = savedInstanceState.getFloat(KEY_BUTTON_X);
-            //buttonY = savedInstanceState.getFloat(KEY_BUTTON_Y);
-            //indexEn = savedInstanceState.getInt(KEY_INDEX_EN);
             controlListSize = savedInstanceState.getInt(KEY_CONTROL_LIST_SIZE);
             wordsCount = savedInstanceState.getInt(KEY_WORDS_COUNT);
             spinnSelectedItem = savedInstanceState.getString(KEY_SPINN_SELECT_ITEM);
+            spinnSelectedIndex = savedInstanceState.getInt(KEY_SPINN_SELECT_INDEX);
+            progressBar.setMax(savedInstanceState.getInt(KEY_PROGRESS_MAX));
+            progressBar.setProgress(savedInstanceState.getInt(KEY_PROGRESS));
         }
 
         spinnListDict_OnItemSelectedListener();
@@ -198,6 +203,8 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
                 wordsCount = res;
                 fillLayoutLeft(wordsCount);
                 spinnSelectedIndex = position;
+                progressBar.setMax(wordsCount);
+                progressBar.setProgress(0);
             }
         };
         getWordsCount.execute(spinnSelectedItem);
@@ -296,6 +303,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
                     public void resultAsyncTask(ArrayList<DataBaseEntry> list)
                     {
                         listFromDB = list;
+                        progressBar.setProgress(progressBar.getProgress()+1);
                         animator.textViewToLeft();
                         animator.buttonToRight(buttonsLayout, tempButtonId);
                     }
