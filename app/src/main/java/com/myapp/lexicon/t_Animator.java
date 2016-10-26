@@ -1,10 +1,12 @@
 package com.myapp.lexicon;
 
 import android.animation.Animator;
+import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 /**
@@ -160,10 +162,11 @@ public class t_Animator
             Button button = (Button) layout.getChildAt(i);
             float X = button.getX();
             float Y = button.getY();
+
             if (Y < y && x == X && button.getId() != getButtonId())
             {
                 animToDown = button.animate()
-                        .translationYBy(button.getHeight())
+                        .translationYBy(button.getHeight()+3)
                         .setDuration(duration)
                         .setInterpolator(new AccelerateDecelerateInterpolator());
                 if (!isListener)
@@ -204,7 +207,7 @@ public class t_Animator
     {
         Button button = (Button) layout.findViewById(getButtonId());
         if (button == null) return;
-        button.animate().translationYBy(-button.getY())
+        button.animate().translationYBy(-button.getY()+2)
                 .setDuration(10)
                 .setListener(new Animator.AnimatorListener()
                 {

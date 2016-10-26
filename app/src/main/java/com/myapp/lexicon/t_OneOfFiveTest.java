@@ -144,8 +144,12 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
             {
                 Button button = (Button) buttonsLayout.getChildAt(i);
                 button.setText(buttonsArray[i].getText());
-                button.setTranslationX(buttonsArray[i].getTranslationX());
-                button.setTranslationY(buttonsArray[i].getTranslationY());
+//                button.setTranslationX(buttonsArray[i].getTranslationX());
+//                button.setTranslationY(buttonsArray[i].getTranslationY());
+
+                button.setLeft(buttonsArray[i].getLeft());
+                button.setTop(buttonsArray[i].getTop());
+
                 button.setVisibility(buttonsArray[i].getVisibility());
                 btnLeft_OnClick(button);
             }
