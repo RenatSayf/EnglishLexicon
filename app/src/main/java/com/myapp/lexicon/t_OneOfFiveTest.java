@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,9 +56,10 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
     private int tempButtonId;
     private t_Animator animator;
     private z_LockOrientation lockOrientation;
-    private int counterRightAnswer = 0;
+    private static int counterRightAnswer = 0;
     private t_TestResults testResults;
     private t_DialogTestComplete dialogTestComplete;
+    private ArrayList<String> arrStudiedDict = new ArrayList<>();
 
     private String KEY_BUTTON_ID = "key_button_id";
     private String KEY_TEXT = "key_text";
@@ -69,7 +71,8 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
     private String KEY_PROGRESS_MAX = "key_progress_max";
     private String KEY_COUNTER_RIGHT_ANSWER = "key_counter_right";
 
-    FragmentActivity activity;
+    static FragmentActivity activity;
+    static FragmentManager fragmentManager;
     public t_OneOfFiveTest()
     {
         // Required empty public constructor
@@ -86,7 +89,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
         outState.putInt(KEY_SPINN_SELECT_INDEX, spinnSelectedIndex);
         outState.putInt(KEY_PROGRESS_MAX, progressBar.getMax());
         outState.putInt(KEY_PROGRESS, progressBar.getProgress());
-        outState.putInt(KEY_COUNTER_RIGHT_ANSWER, counterRightAnswer);
+        //outState.putInt(KEY_COUNTER_RIGHT_ANSWER, counterRightAnswer);
         saveButtonsLayoutState();
         super.onSaveInstanceState(outState);
     }
@@ -107,6 +110,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
     {
         // Inflate the layout for this fragment
         activity = getActivity();
+        fragmentManager = getFragmentManager();
         lockOrientation = new z_LockOrientation(activity);
         testResults = new t_TestResults(activity);
         View fragment_view = inflater.inflate(R.layout.t_one_of_five_test, container, false);
@@ -115,6 +119,8 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
         textView = (TextView) fragment_view.findViewById(R.id.text_view_1of5);
         progressBar = (ProgressBar) fragment_view.findViewById(R.id.progress_test1of5);
         animator = t_Animator.getInstance();
+        dialogTestComplete = t_DialogTestComplete.getInstance();
+        dialogTestComplete.setIDialogCompleteResult(t_OneOfFiveTest.this);
 
         if (savedInstanceState != null)
         {
@@ -126,7 +132,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
             spinnSelectedIndex = savedInstanceState.getInt(KEY_SPINN_SELECT_INDEX);
             progressBar.setMax(savedInstanceState.getInt(KEY_PROGRESS_MAX));
             progressBar.setProgress(savedInstanceState.getInt(KEY_PROGRESS));
-            counterRightAnswer = savedInstanceState.getInt(KEY_COUNTER_RIGHT_ANSWER);
+            //counterRightAnswer = savedInstanceState.getInt(KEY_COUNTER_RIGHT_ANSWER);
         }
 
         spinnListDict_OnItemSelectedListener();
@@ -418,24 +424,75 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
             //Toast.makeText(activity,"Тест завершен",Toast.LENGTH_SHORT).show();
             ArrayList<String> list = new ArrayList<String>();
             list.add(testResults.getOverallResult(counterRightAnswer, wordsCount));
-            list.add(counterRightAnswer + getString(R.string.text_out_of) + wordsCount);
-            dialogTestComplete = new t_DialogTestComplete();
-            dialogTestComplete.setIDialogCompleteResult(t_OneOfFiveTest.this);
+            list.add(counterRightAnswer + activity.getString(R.string.text_out_of) + wordsCount);
             Bundle bundle = new Bundle();
             bundle.putString(dialogTestComplete.KEY_RESULT, list.get(0));
             bundle.putString(dialogTestComplete.KEY_ERRORS, list.get(1));
             dialogTestComplete.setArguments(bundle);
             dialogTestComplete.setCancelable(false);
-            dialogTestComplete.show(getFragmentManager(), "dialog_complete_lexicon");
+            dialogTestComplete.show(fragmentManager, "dialog_complete_lexicon");
         }
     }
-
-
-
 
     @Override
     public void dialogCompleteResult(int res)
     {
+        if (res == 0)
+        {
+            addToStudiedList();
+            spinnSelectedIndex = spinnListDict.getSelectedItemPosition();
+            startTest(spinnSelectedIndex);
+        }
+        if (res > 0)
+        {
+            addToStudiedList();
+            int count = spinnListDict.getAdapter().getCount();
+            int position = spinnListDict.getSelectedItemPosition();
+            if (position < count)
+            {
+                position++;
+                spinnListDict.setSelection(position);
+            }
+            if (position == count)
+            {
+                position = 0;
+                spinnListDict.setSelection(position);
+            }
+        }
+        if (res < 0)
+        {
+            addToStudiedList();
 
+            spinnListDict.setSelection(-1);
+            spinnSelectedIndex = -1;
+            getActivity().onBackPressed();
+            if (arrStudiedDict.size() > 0)
+            {
+                t_DialogChangePlayList dialogChangePlayList = new t_DialogChangePlayList();
+                Bundle bundle = new Bundle();
+                bundle.putStringArrayList(dialogChangePlayList.KEY_LIST_DICT, arrStudiedDict);
+                dialogChangePlayList.setArguments(bundle);
+                dialogChangePlayList.setCancelable(false);
+                dialogChangePlayList.show(getFragmentManager(), "dialog_change_pl_lexicon");
+            }
+        }
+    }
+
+    private void addToStudiedList()
+    {
+        boolean containsInPlayList = false;
+        for (p_ItemListDict item : a_MainActivity.getPlayList())
+        {
+            if (item.get_dictName().equals(spinnListDict.getSelectedItem()))
+            {
+                containsInPlayList = true; break;
+            }
+        }
+        boolean contains = arrStudiedDict.contains(spinnListDict.getSelectedItem());
+        if (counterRightAnswer == wordsCount && !contains && containsInPlayList)
+        {
+            arrStudiedDict.add(spinnListDict.getSelectedItem().toString());
+            counterRightAnswer = 0;
+        }
     }
 }

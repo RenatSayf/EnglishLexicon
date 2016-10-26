@@ -579,7 +579,8 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
                         list.add(counterRightAnswer + getString(R.string.text_out_of) + wordsCount);
                         //counterRightAnswer = 0;
 
-                        dialogTestComplete = new t_DialogTestComplete();
+                        //dialogTestComplete = new t_DialogTestComplete();
+                        dialogTestComplete = t_DialogTestComplete.getInstance();
                         dialogTestComplete.setIDialogCompleteResult(t_MatchFragment.this);
                         Bundle bundle = new Bundle();
                         bundle.putString(dialogTestComplete.KEY_RESULT, list.get(0));
