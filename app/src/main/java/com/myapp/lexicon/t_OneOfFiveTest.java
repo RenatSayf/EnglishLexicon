@@ -43,6 +43,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
     private static ArrayList<DataBaseEntry> listFromDB;
     private static int indexEn = -1;
     private static int indexRu = -1;
+    private static String[] textArray;
 
     private TextView textView;
     private LinearLayout buttonsLayout;
@@ -90,18 +91,21 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
         outState.putInt(KEY_PROGRESS_MAX, progressBar.getMax());
         outState.putInt(KEY_PROGRESS, progressBar.getProgress());
         //outState.putInt(KEY_COUNTER_RIGHT_ANSWER, counterRightAnswer);
-        saveButtonsLayoutState();
+        //saveButtonsLayoutState();
         super.onSaveInstanceState(outState);
     }
-
+    private int[]top;
     private void saveButtonsLayoutState()
     {
         int childCount = buttonsLayout.getChildCount();
+        top = new int[childCount];
         buttonsArray = new Button[childCount];
         for (int i = 0; i < childCount; i++)
         {
             buttonsArray[i] = (Button) buttonsLayout.getChildAt(i);
+            top[i] = (int) buttonsLayout.getChildAt(i).getY();
         }
+        return;
     }
 
     @Override
@@ -143,15 +147,16 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
             for (int i = 0; i < buttonsArray.length; i++)
             {
                 Button button = (Button) buttonsLayout.getChildAt(i);
-                button.setText(buttonsArray[i].getText());
-//                button.setTranslationX(buttonsArray[i].getTranslationX());
-//                button.setTranslationY(buttonsArray[i].getTranslationY());
 
-                button.setLeft(buttonsArray[i].getLeft());
-                button.setTop(buttonsArray[i].getTop());
+                button.setText(buttonsArray[i].getText());
+                button.setTranslationX(buttonsArray[i].getTranslationX());
+                button.setTranslationY(buttonsArray[i].getTranslationY());
+
+//                button.setTranslationX(buttonsArray[i].getLeft());
+//                button.setTranslationY(buttonsArray[i].getTop());
 
                 button.setVisibility(buttonsArray[i].getVisibility());
-                btnLeft_OnClick(button);
+                btnLeft_OnClick(button, i);
             }
             animator.setLayout(buttonsLayout, textView);
         }
@@ -255,6 +260,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
             public void resultAsyncTask(ArrayList<DataBaseEntry> list)
             {
                 buttonsArray = new Button[list.size()];
+                textArray = new String[list.size()];
                 controlList = list;
                 additionalList = new ArrayList<>();
                 additonalCount = 0;
@@ -273,10 +279,11 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
                     if (button.getVisibility() == View.VISIBLE)
                     {
                         buttonsArray[i] = button;
-                        btnLeft_OnClick(button);
+                        btnLeft_OnClick(button, i);
                     }
 
                     button.setText(controlList.get(i).get_translate());
+                    textArray[i] = button.getText().toString();
                     wordIndex++;
                 }
                 int randIndex = randomGenerator.generate();
@@ -289,7 +296,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
         asyncTask = null;
     }
 
-    private void btnLeft_OnClick(final View view)
+    private void btnLeft_OnClick(final View view, final int index)
     {
         view.setOnClickListener(new View.OnClickListener()
         {
@@ -300,6 +307,10 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
                 tempButtonId = tempButton.getId();
                 buttonY = tempButton.getY();
                 buttonX = tempButton.getX();
+                for (int i = index; i > 0 ; i--)
+                {
+                    textArray[i] = textArray[i-1];
+                }
                 compareWords(spinnSelectedItem,textView.getText().toString(), tempButton.getText().toString());
             }
         });
@@ -382,6 +393,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
         {
             controlList.set(indexEn, listFromDB.get(0));
             button.setText(listFromDB.get(0).get_translate());
+            textArray[0] = button.getText().toString();
             if (controlListSize != controlList.size())
             {
                 randomGenerator = new z_RandomNumberGenerator(controlList.size(), range);
@@ -400,6 +412,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
         {
             controlList.remove(indexEn);
             button.setText(additionalList.get(additonalCount).get_translate());
+            textArray[0] = button.getText().toString();
             additonalCount++;
             textView.setText("");
             if (controlList.size() > 0)
