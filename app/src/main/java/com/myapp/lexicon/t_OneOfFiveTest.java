@@ -33,7 +33,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
 {
     public static final int ROWS = 5;
 
-    private static Button[] buttonsArray;
+    //private static Button[] buttonsArray;
     private static ArrayList<String> storedListDict = new ArrayList<>();
     private static ArrayList<DataBaseEntry> controlList;
     private static ArrayList<DataBaseEntry> additionalList;
@@ -106,8 +106,11 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
             int top = button.getTop();
             float y = button.getY();
             float translationY = button.getTranslationY();
+            RelativeLayout.LayoutParams buttonParams = (RelativeLayout.LayoutParams) button.getLayoutParams();
+            int leftMargin = buttonParams.leftMargin;
+            int rightMargin = buttonParams.rightMargin;
             RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-            layoutParams.setMargins(0, (int) button.getY(), 0, 0);
+            layoutParams.setMargins(leftMargin, (int) button.getY(), rightMargin, 0);
             if (paramsList.size() == buttonsLayout.getChildCount())
             {
                 paramsList.set(i, layoutParams);
@@ -117,7 +120,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
                 paramsList.add(layoutParams);
                 textArray.add(button.getText().toString());
             }
-            buttonsLayout.updateViewLayout(button, layoutParams);
+            //buttonsLayout.updateViewLayout(button, layoutParams);
         }
         return;
     }
@@ -217,6 +220,9 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, final int position, long id)
             {
+                textArray.clear();
+                paramsList.clear();
+
                 if (position == spinnSelectedIndex) return;
                 startTest(position);
 
@@ -233,6 +239,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
     private void startTest(final int position)
     {
         wordIndex = 1;
+
         spinnSelectedItem = spinnListDict.getSelectedItem().toString();
         DataBaseQueries.GetWordsCountAsync getWordsCount = new DataBaseQueries.GetWordsCountAsync()
         {
@@ -265,7 +272,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
             @Override
             public void resultAsyncTask(ArrayList<DataBaseEntry> list)
             {
-                buttonsArray = new Button[list.size()];
+                //buttonsArray = new Button[list.size()];
                 controlList = list;
                 additionalList = new ArrayList<>();
                 additonalCount = 0;
@@ -283,7 +290,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
                     button.setTranslationY(0);
                     if (button.getVisibility() == View.VISIBLE)
                     {
-                        buttonsArray[i] = button;
+                        //buttonsArray[i] = button;
                         btnLeft_OnClick(button);
                     }
 
