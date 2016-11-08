@@ -21,7 +21,7 @@ public class t_Animator
     public ITextViewToRightListener iTextViewToRightListener;
 
     private TextView textView;
-    private LinearLayout layout;
+    private RelativeLayout layout;
     private long duration = 1000;
     private int delta = 60;
 
@@ -35,7 +35,7 @@ public class t_Animator
         return instance;
     }
 
-    public void setLayout(LinearLayout layout, TextView textView)
+    public void setLayout(RelativeLayout layout, TextView textView)
     {
         this.textView = textView;
         this.layout = layout;
@@ -112,7 +112,7 @@ public class t_Animator
         this.buttonId = buttonId;
     }
 
-    public void buttonToRight(LinearLayout layout, int buttonId)
+    public void buttonToRight(RelativeLayout layout, int buttonId)
     {
         ViewPropertyAnimator animToRight;
         setButtonId(buttonId);
@@ -205,7 +205,7 @@ public class t_Animator
 
     private void buttonToTop()
     {
-        Button button = (Button) layout.findViewById(getButtonId());
+        final Button button = (Button) layout.findViewById(getButtonId());
         if (button == null) return;
         button.animate().translationYBy(-button.getY()+2)
                 .setDuration(10)
@@ -239,7 +239,7 @@ public class t_Animator
 
     private void buttonToLeft()
     {
-        Button button = (Button) layout.findViewById(getButtonId());
+        final Button button = (Button) layout.findViewById(getButtonId());
         if (button == null) return;
         button.animate().translationXBy(-button.getWidth()-delta).setDuration(duration)
                 .setInterpolator(new AccelerateDecelerateInterpolator());

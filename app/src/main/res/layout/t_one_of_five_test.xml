@@ -8,6 +8,7 @@
 
     <LinearLayout android:layout_width="match_parent"
                   android:layout_height="wrap_content"
+                  android:layout_weight="0"
                   android:orientation="vertical"
                   android:layout_marginLeft="30dp"
                   android:layout_marginRight="30dp">
@@ -31,59 +32,62 @@
             />
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
 
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="36dp"
-            android:layout_marginTop="18dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:background="@color/colorWhite">
 
-            <TextView
-                android:id="@+id/text_view_1of5"
+        <LinearLayout android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+                      android:layout_weight="0.2"
+            android:orientation="vertical">
+
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="2dp"
-                android:gravity="center_horizontal"
-                android:text="Text"
-                android:textSize="22sp"
-                />
-        </FrameLayout>
+                android:layout_height="36dp"
+                android:layout_marginTop="18dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:background="@color/colorWhite">
 
-        <ProgressBar
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:id="@+id/progress_test1of5"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:visibility="visible"
-            android:indeterminate="false"
-            android:layout_height="50dp"/>
+                <TextView
+                    android:id="@+id/text_view_1of5"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="2dp"
+                    android:gravity="center_horizontal"
+                    android:text="Text"
+                    android:textSize="22sp"
+                    />
+            </FrameLayout>
 
-        <ScrollView android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0dp"
-            android:layout_marginTop="-5dp">
+            <ProgressBar
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_weight="1"
+                android:id="@+id/progress_test1of5"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:visibility="visible"
+                android:indeterminate="false"
+                android:layout_height="50dp"/>
+        </LinearLayout>
 
-            <LinearLayout
+
+        <!--<ScrollView android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:layout_marginBottom="0dp"-->
+            <!--android:layout_marginTop="-5dp">-->
+
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
+                android:layout_weight="1"
                 android:id="@+id/layout_1of5"
                 android:layout_marginTop="0dp"
-                android:layout_marginBottom="10dp"
-                android:animateLayoutChanges="true">
+                android:layout_marginBottom="10dp">
 
                 <Button
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:layout_marginLeft="30dp"
                     android:layout_marginRight="30dp"
                     android:layout_marginTop="2dp"
@@ -96,11 +100,10 @@
                 <Button
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:layout_marginLeft="30dp"
                     android:layout_marginRight="30dp"
                     android:layout_marginTop="2dp"
-
+                    android:layout_below="@+id/btn_0"
                     android:background="@drawable/text_button_for_test"
                     android:textColor="@android:color/holo_orange_dark"
                     android:id="@+id/btn_1"
@@ -109,11 +112,10 @@
                 <Button
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:layout_marginLeft="30dp"
                     android:layout_marginRight="30dp"
                     android:layout_marginTop="2dp"
-
+                    android:layout_below="@+id/btn_1"
                     android:background="@drawable/text_button_for_test"
                     android:textColor="@android:color/holo_blue_dark"
                     android:id="@+id/btn_2"
@@ -122,11 +124,10 @@
                 <Button
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:layout_marginLeft="30dp"
                     android:layout_marginRight="30dp"
                     android:layout_marginTop="2dp"
-
+                    android:layout_below="@+id/btn_2"
                     android:background="@drawable/text_button_for_test"
                     android:textColor="@android:color/holo_red_dark"
                     android:id="@+id/btn_3"
@@ -135,20 +136,19 @@
                 <Button
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:layout_marginLeft="30dp"
                     android:layout_marginRight="30dp"
                     android:layout_marginTop="2dp"
-
+                    android:layout_below="@+id/btn_3"
                     android:background="@drawable/text_button_for_test"
                     android:textColor="@android:color/black"
                     android:id="@+id/btn_4"
                     />
 
-            </LinearLayout>
-        </ScrollView>
+            </RelativeLayout>
+        <!--</ScrollView>-->
 
 
-    </LinearLayout>
+
 
 </LinearLayout>
