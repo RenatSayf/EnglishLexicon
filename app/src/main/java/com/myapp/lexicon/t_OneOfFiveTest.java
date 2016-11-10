@@ -4,6 +4,7 @@ package com.myapp.lexicon;
 import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -65,6 +66,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
     private t_DialogTestComplete dialogTestComplete;
     private ArrayList<String> arrStudiedDict = new ArrayList<>();
 
+    //private static Bundle bundle;
     private String KEY_BUTTON_ID = "key_button_id";
     private String KEY_TEXT = "key_text";
     private String KEY_CONTROL_LIST_SIZE = "key_control_list_size";
@@ -106,7 +108,6 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
             int top = button.getTop();
             float y = button.getY();
             float translationY = button.getTranslationY();
-            //button.setTop((int) button.getY());
             RelativeLayout.LayoutParams buttonParams = (RelativeLayout.LayoutParams) button.getLayoutParams();
             int topMargin = buttonParams.topMargin;
             int bottomMargin = buttonParams.bottomMargin;
@@ -128,10 +129,20 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState)
     {
         // Inflate the layout for this fragment
+        if (savedInstanceState == null && t_Tests.bundle.containsKey(KEY_TEXT))
+        {
+            savedInstanceState = t_Tests.bundle;
+        }
         activity = getActivity();
         fragmentManager = getFragmentManager();
         lockOrientation = new z_LockOrientation(activity);
@@ -166,26 +177,25 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
             progressBar.setMax(savedInstanceState.getInt(KEY_PROGRESS_MAX));
             progressBar.setProgress(savedInstanceState.getInt(KEY_PROGRESS));
             //counterRightAnswer = savedInstanceState.getInt(KEY_COUNTER_RIGHT_ANSWER);
+            if (paramsList.size() > 0)
+            {
+                for (int i = 0; i < buttonsLayout.getChildCount(); i++)
+                {
+                    Button button = (Button) buttonsLayout.getChildAt(i);
+                    button.setLayoutParams(paramsList.get(i));
+                    button.setText(textArray.get(i));
+                    if (button.getText().toString().equals(""))
+                    {
+                        button.setVisibility(View.GONE);
+                    }
+                    btnLeft_OnClick(button);
+                }
+                animator.setLayout(buttonsLayout, textView);
+            }
         }
-
         spinnListDict_OnItemSelectedListener();
         setItemsToSpinnListDict();
 
-        if (savedInstanceState != null && paramsList.size() > 0)
-        {
-            for (int i = 0; i < buttonsLayout.getChildCount(); i++)
-            {
-                Button button = (Button) buttonsLayout.getChildAt(i);
-                button.setLayoutParams(paramsList.get(i));
-                button.setText(textArray.get(i));
-                if (button.getText().toString().equals(""))
-                {
-                    button.setVisibility(View.GONE);
-                }
-                btnLeft_OnClick(button);
-            }
-            animator.setLayout(buttonsLayout, textView);
-        }
         return fragment_view;
     }
 
@@ -543,4 +553,14 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
             counterRightAnswer = 0;
         }
     }
+
+    @Override
+    public void onPause()
+    {
+        super.onPause();
+        t_Tests.bundle = new Bundle();
+        onSaveInstanceState(t_Tests.bundle);
+    }
+
+
 }

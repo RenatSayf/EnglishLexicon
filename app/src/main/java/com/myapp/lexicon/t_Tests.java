@@ -31,6 +31,8 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
     private FragmentTransaction transaction;
     private DataBaseQueries baseQueries;
 
+    public static Bundle bundle;
+
 
     private TextToSpeech speech;
     public static t_DialogTestComplete dialogTestComplete = new t_DialogTestComplete();
@@ -42,7 +44,7 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
         setContentView(R.layout.t_layout_tests);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        bundle = new Bundle();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
