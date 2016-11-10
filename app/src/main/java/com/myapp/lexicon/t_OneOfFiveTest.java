@@ -106,7 +106,10 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
             int top = button.getTop();
             float y = button.getY();
             float translationY = button.getTranslationY();
+            //button.setTop((int) button.getY());
             RelativeLayout.LayoutParams buttonParams = (RelativeLayout.LayoutParams) button.getLayoutParams();
+            int topMargin = buttonParams.topMargin;
+            int bottomMargin = buttonParams.bottomMargin;
             int leftMargin = buttonParams.leftMargin;
             int rightMargin = buttonParams.rightMargin;
             RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);

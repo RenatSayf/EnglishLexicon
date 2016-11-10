@@ -9,6 +9,9 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+
 /**
  * Created by Ренат on 12.10.2016.
  */
@@ -153,20 +156,42 @@ public class t_Animator
         }
     }
 
+    public int getMinMarginTop()
+    {
+        int topMargin = 0;
+        try
+        {
+            RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) layout.getChildAt(0).getLayoutParams();
+            topMargin = layoutParams.topMargin;
+            for (int i = 0; i < layout.getChildCount(); i++)
+            {
+                layoutParams = (RelativeLayout.LayoutParams) layout.getChildAt(i).getLayoutParams();
+                if (layoutParams.topMargin < topMargin)
+                {
+                    topMargin = layoutParams.topMargin;
+                }
+            }
+        } catch (Exception e)
+        {
+            return 0;
+        }
+        return topMargin;
+    }
+
     public void buttonsToDown(float x, float y)
     {
         ViewPropertyAnimator animToDown;
         boolean isListener = false;
+        int topMargin = getMinMarginTop();
         for (int i = 0; i < layout.getChildCount(); i++)
         {
             Button button = (Button) layout.getChildAt(i);
             float X = button.getX();
             float Y = button.getY();
-
             if (Y < y && x == X && button.getId() != getButtonId())
             {
                 animToDown = button.animate()
-                        .translationYBy(button.getHeight()+3)
+                        .translationYBy(button.getHeight()+topMargin)
                         .setDuration(duration)
                         .setInterpolator(new AccelerateDecelerateInterpolator());
                 if (!isListener)
@@ -207,7 +232,8 @@ public class t_Animator
     {
         final Button button = (Button) layout.findViewById(getButtonId());
         if (button == null) return;
-        button.animate().translationYBy(-button.getY()+2)
+        int topMargin = getMinMarginTop();
+        button.animate().translationYBy(-button.getY()+topMargin)
                 .setDuration(10)
                 .setListener(new Animator.AnimatorListener()
                 {
