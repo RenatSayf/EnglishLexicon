@@ -156,7 +156,7 @@ public class t_Animator
         }
     }
 
-    public int getMinMarginTop()
+    private int getMinMarginTop()
     {
         int topMargin = 0;
         try
