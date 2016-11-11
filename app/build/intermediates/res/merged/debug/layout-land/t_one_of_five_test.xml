@@ -1,27 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:background="@drawable/one_of_five_background"
               android:orientation="vertical"
-              tools:context="com.myapp.lexicon.t_OneOfFiveTest">
+              tools:context="com.myapp.lexicon.t_OneOfFiveTest"
+                >
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
-        android:layout_weight="0"
-        android:orientation="vertical">
+        android:layout_marginTop="10dp"
+        android:layout_weight="3"
+        android:orientation="horizontal">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="30dp"
             android:text="@string/header.correctfragment"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textSize="14sp"
+            android:textSize="@dimen/activity_horizontal_margin"
 
             />
 
@@ -30,22 +35,21 @@
             style="@style/spinner_style"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
             />
     </LinearLayout>
 
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.2"
-        android:orientation="vertical">
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_weight="0.2"
+                  android:orientation="vertical">
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="36dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="0dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:layout_marginTop="18dp"
             android:background="@color/colorWhite">
 
             <TextView
@@ -56,37 +60,34 @@
                 android:layout_margin="2dp"
                 android:gravity="center_horizontal"
                 android:text="Text"
-                android:textSize="22sp"
+                android:textSize="@dimen/activity_horizontal_margin"
                 />
         </FrameLayout>
 
         <ProgressBar
-            android:id="@+id/progress_test1of5"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:id="@+id/progress_test1of5"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:layout_weight="1"
+            android:visibility="visible"
             android:indeterminate="false"
-            android:visibility="visible"/>
+            android:layout_height="20dp"/>
     </LinearLayout>
-
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="0dp"
+        android:layout_marginBottom="5dp"
         android:layout_marginTop="5dp"
-        android:layout_weight="1">
+        android:layout_weight="2">
 
         <RelativeLayout
             android:id="@+id/layout_1of5"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:layout_marginTop="0dp"
-            android:layout_weight="0">
+            android:layout_height="match_parent"
+            >
 
             <Button
                 android:id="@+id/btn_0"
@@ -94,7 +95,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="30dp"
                 android:layout_marginRight="30dp"
-
+                android:textSize="@dimen/activity_horizontal_margin"
                 android:layout_marginTop="2dp"
                 android:background="@drawable/text_button_for_test"
                 android:textColor="@android:color/holo_red_dark"
@@ -110,12 +111,14 @@
                 android:layout_marginTop="2dp"
                 android:background="@drawable/text_button_for_test"
                 android:textColor="@android:color/holo_orange_dark"
+                android:textSize="@dimen/activity_horizontal_margin"
                 />
 
             <Button
                 android:id="@+id/btn_2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textSize="@dimen/activity_horizontal_margin"
                 android:layout_below="@+id/btn_1"
                 android:layout_marginLeft="30dp"
                 android:layout_marginRight="30dp"
@@ -128,6 +131,7 @@
                 android:id="@+id/btn_3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textSize="@dimen/activity_horizontal_margin"
                 android:layout_below="@+id/btn_2"
                 android:layout_marginLeft="30dp"
                 android:layout_marginRight="30dp"
@@ -140,6 +144,7 @@
                 android:id="@+id/btn_4"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textSize="@dimen/activity_horizontal_margin"
                 android:layout_below="@+id/btn_3"
                 android:layout_marginLeft="30dp"
                 android:layout_marginRight="30dp"
@@ -150,6 +155,5 @@
 
         </RelativeLayout>
     </ScrollView>
-
 
 </LinearLayout>
