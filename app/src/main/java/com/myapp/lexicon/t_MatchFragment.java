@@ -24,6 +24,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -96,6 +97,7 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
     public static final int ROWS = 5;
     private LinearLayout linLayoutLeft, linLayoutRight;
     private ViewPropertyAnimator animToLeft, animToRight, animToTop, animToDown;
+    private ProgressBar progressBar;
     private long duration = 1000;
     private ArrayList<DataBaseEntry> wordsList = new ArrayList<>();
     private Spinner spinnListDict;
@@ -128,6 +130,9 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
     private t_DialogTestComplete dialogTestComplete;
     private static int[] btnVisibleLeft = new int[ROWS];
 
+    private String KEY_PROGRESS = "key_progress";
+    private String KEY_PROGRESS_MAX = "key_progress_max";
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
@@ -155,6 +160,8 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
             ArrayAdapter<String> spinnAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), R.layout.my_content_spinner_layout, storedListDict);
             spinnListDict.setAdapter(spinnAdapter);
             wordIndex = savedInstanceState.getInt(KEY_WORD_INDEX);
+            progressBar.setMax(savedInstanceState.getInt(KEY_PROGRESS_MAX));
+            progressBar.setProgress(savedInstanceState.getInt(KEY_PROGRESS));
 
             for (int i = 0; i < ROWS; i++)
             {
@@ -185,6 +192,8 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
         outState.putInt(KEY_SPINN_LIST_DICT, spinnSelectedIndex);
         outState.putInt(KEY_WORD_INDEX, wordIndex);
         outState.putStringArrayList(KEY_STORED_LIST_DICT, storedListDict);
+        outState.putInt(KEY_PROGRESS_MAX, progressBar.getMax());
+        outState.putInt(KEY_PROGRESS, progressBar.getProgress());
         for (int i = 0; i < ROWS; i++)
         {
             AppData.arrayBtnRight[i] = (Button) linLayoutRight.getChildAt(i);
@@ -216,6 +225,7 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
         spinnListDict = (Spinner) fragment_view.findViewById(R.id.spinn_one_of_five);
         spinnListDict_OnItemSelectedListener();
         //endregion
+        progressBar = (ProgressBar) fragment_view.findViewById(R.id.progressMatch);
     }
 
     private void setItemsToSpinnListDict()
@@ -301,6 +311,8 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
                 fillLayoutRight(wordsCount);
                 fillLayoutLeft(wordsCount);
                 spinnSelectedIndex = position;
+                progressBar.setMax(wordsCount);
+                progressBar.setProgress(0);
                 //getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
             }
         };
@@ -453,6 +465,7 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
                     {
                         counterRightAnswer++;
                         guessedWordsCount++;
+                        progressBar.setProgress(progressBar.getProgress()+1);
                         String text = AppData.arrayBtnLeft[btn_left_position].getText().toString();
                         a_SplashScreenActivity.speech.speak(text, TextToSpeech.QUEUE_ADD, a_SplashScreenActivity.map);
                         a_SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
