@@ -4,6 +4,8 @@ package com.myapp.lexicon;
 import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -387,6 +389,27 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
                     {
                         listFromDB = list;
                         progressBar.setProgress(progressBar.getProgress()+1);
+                        a_SplashScreenActivity.speech.speak(textView.getText().toString(), TextToSpeech.QUEUE_ADD, a_SplashScreenActivity.map);
+                        a_SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+                        {
+                            @Override
+                            public void onStart(String utteranceId)
+                            {
+
+                            }
+
+                            @Override
+                            public void onDone(String utteranceId)
+                            {
+
+                            }
+
+                            @Override
+                            public void onError(String utteranceId)
+                            {
+
+                            }
+                        });
                         animator.textViewToLeft();
                         animator.buttonToRight(buttonsLayout, tempButtonId);
                         counterRightAnswer++;
@@ -452,15 +475,21 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
         }
         else if (listFromDB.size() == 0 && controlList.size() <= ROWS)
         {
-            controlList.remove(indexEn);
-            button.setText(additionalList.get(additonalCount).get_translate());
-            additonalCount++;
-            textView.setText("");
-            if (controlList.size() > 0)
+            try
             {
-                randomGenerator = new z_RandomNumberGenerator(controlList.size(), range);
-                int randomNumber = randomGenerator.generate();
-                textView.setText(controlList.get(randomNumber).get_english());
+                controlList.remove(indexEn);
+                button.setText(additionalList.get(additonalCount).get_translate());
+                additonalCount++;
+                textView.setText("");
+                if (controlList.size() > 0)
+                {
+                    randomGenerator = new z_RandomNumberGenerator(controlList.size(), range);
+                    int randomNumber = randomGenerator.generate();
+                    textView.setText(controlList.get(randomNumber).get_english());
+                }
+            } catch (Exception e)
+            {
+                Toast.makeText(getActivity(), "Ошибка - "+e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }
         if (buttonY > 0)
