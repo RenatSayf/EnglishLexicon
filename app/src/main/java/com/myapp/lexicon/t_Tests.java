@@ -20,14 +20,19 @@ import java.util.Locale;
 public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFragmentInteractionListener
 {
     private ImageButton buttonMatchTest, buttonSelectWordTest, buttonTest3, buttonOneOfFive;
+
     private t_MatchFragment matchFragment;
     private static String MATCH_FRAGMENT = "matchFragment";
+
     private t_ListenEndClickFragment listenEndClickFragment;
     private String LISTEN_END_CLICK_FRAGMENT = "listenEndClickFragment";
+
     private t_WriteWordFragment correctFragment2;
     private String CORRECT_FRAGMENT2 = "correctFragment2";
+
     private t_OneOfFiveTest oneOfFiveTest;
     private static String ONE_OF_FIVE_FRAGMENT = "one_of_five";
+
     private FragmentTransaction transaction;
     private DataBaseQueries baseQueries;
 
