@@ -71,7 +71,7 @@ public class t_ListenEndClickFragment extends Fragment
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState)
+                             final Bundle savedInstanceState)
     {
         // Inflate the layout for this fragment
         lockOrientation = new z_LockOrientation(getActivity());
@@ -126,9 +126,15 @@ public class t_ListenEndClickFragment extends Fragment
                 }
 
                 topPanelVisible(touchDown, touchUp, isOpen);
+
                 return true;
             }
         });
+
+//        if (savedInstanceState == null)
+//        {
+//            topPanelVisible(0, 1, isOpen);
+//        }
 
         return fragment_view;
     }
@@ -213,6 +219,7 @@ public class t_ListenEndClickFragment extends Fragment
                 fillLayoutLeft(ROWS);
                 spinnSelectedIndex = position;
                 getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+                topPanelVisible(0, 1, isOpen);
             }
         };
         getWordsCount.execute(spinnSelectedItem);
@@ -351,20 +358,9 @@ public class t_ListenEndClickFragment extends Fragment
         }
     }
 
-    private void topPanelHide()
+    @Override
+    public void onResume()
     {
-
+        super.onResume();
     }
-
-
-
-
-
-
-
-
-
-
-
-
 }
