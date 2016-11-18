@@ -35,14 +35,14 @@ public class t_ListenEndClickFragment extends Fragment
     private static RelativeLayout.LayoutParams saveTopPanelParams;
     private static boolean isOpen = false;
 
-    private RelativeLayout relativeLayout;
+    private RelativeLayout relLayout;
     private ScrollView scrollView;
     private LinearLayout topPanel;
     private RelativeLayout.LayoutParams topPanelParams;
     private float touchDown = 0, touchUp = 0;
     private static ArrayList<String> storedListDict = new ArrayList<>();
     private TextView textView;
-    private LinearLayout buttonsLayout;
+    private RelativeLayout buttonsLayout;
     private Spinner spinnListDict;
     private static int spinnSelectedIndex = -1;
     private z_LockOrientation lockOrientation;
@@ -77,15 +77,14 @@ public class t_ListenEndClickFragment extends Fragment
         lockOrientation = new z_LockOrientation(getActivity());
         View fragment_view = inflater.inflate(R.layout.t_listen_end_click_layout, container, false);
 
-
-        relativeLayout = (RelativeLayout) fragment_view.findViewById(R.id.rel_layout);
+        relLayout = (RelativeLayout) fragment_view.findViewById(R.id.rel_layout);
         topPanel = (LinearLayout) fragment_view.findViewById(R.id.top_panel);
         topPanelParams = (RelativeLayout.LayoutParams) topPanel.getLayoutParams();
         scrollView = (ScrollView) fragment_view.findViewById(R.id.scroll_view);
         spinnListDict = (Spinner) fragment_view.findViewById(R.id.spinner_dict);
-        buttonsLayout = (LinearLayout) fragment_view.findViewById(R.id.layout_one_of_five);
+        buttonsLayout = (RelativeLayout) fragment_view.findViewById(R.id.buttons_layout);
 
-        textView = (TextView) fragment_view.findViewById(R.id.text_view_one_of_five);
+        textView = (TextView) fragment_view.findViewById(R.id.text_view_listen_layout);
 
         spinnListDict_OnItemSelectedListener();
         setItemsToSpinnListDict();

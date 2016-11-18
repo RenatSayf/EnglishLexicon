@@ -8,4 +8,9 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="appbar_padding_top">8dp</dimen>
     <dimen name="matchfragment.textsize.arraybuttons">12sp</dimen>
+
+    <dimen name="text_size_for_test">24sp</dimen>
+    <dimen name="text_size_for_test_land">12sp</dimen>
+
+    <dimen name="buttons_text_size_land_small_">8sp</dimen>
 </resources>
