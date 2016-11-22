@@ -37,6 +37,7 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
     private DataBaseQueries baseQueries;
 
     public static Bundle bundle;
+    public static Bundle bundleListenTest;
 
 
     private TextToSpeech speech;
@@ -50,6 +51,7 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         bundle = new Bundle();
+        bundleListenTest = new Bundle();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
@@ -216,9 +218,15 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
     public void onBackPressed()
     {
         if (getSupportFragmentManager().getBackStackEntryCount() > 0)
+        {
             getSupportFragmentManager().popBackStack();
+        }
         else
+        {
+            bundle = null;
+            bundleListenTest = null;
             finish();
+        }
     }
 
 }

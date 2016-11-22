@@ -80,7 +80,7 @@ public class b_AddWordActivity extends AppCompatActivity
         buttonAddWord = (Button) findViewById(R.id.button_add);
         buttonAddWord_onClick();
         langSystem = getApplicationContext().getResources().getConfiguration().locale.getLanguage();
-        button_sound1 = (ImageButton) findViewById(R.id.btn_sound1);
+        button_sound1 = (ImageButton) findViewById(R.id.btn_speech);
         button_sound2 = (ImageButton) findViewById(R.id.btn_sound2);
         button_sound1_onClick();
         button_sound2_onClick();

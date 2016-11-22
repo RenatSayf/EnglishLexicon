@@ -25,7 +25,7 @@
                 android:layout_height="match_parent"
                 android:layout_below="@+id/text_view_listen_layout"
                 android:layout_marginBottom="0dp"
-                android:id="@+id/scroll_view">
+                android:id="@+id/linear_layout">
 
         <RelativeLayout
             android:layout_width="match_parent"
