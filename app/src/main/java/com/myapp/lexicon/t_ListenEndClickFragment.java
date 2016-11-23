@@ -34,18 +34,18 @@ import java.util.ArrayList;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class t_ListenEndClickFragment extends Fragment
+public class t_ListenEndClickFragment extends Fragment implements t_DialogTestComplete.IDialogComplete_Result
 {
     public static final int ROWS = 5;
 
     private static RelativeLayout.LayoutParams saveTopPanelParams;
     private static boolean isOpen = false;
-    private static int spinnSelectedIndex = -1;
+    private int spinnSelectedIndex = -1;
     private static ArrayList<String> storedListDict = new ArrayList<>();
     private static z_RandomNumberGenerator randomGenerator;
     private static ArrayList<DataBaseEntry> controlList;
     private static ArrayList<DataBaseEntry> additionalList;
-    private static int controlListSize = 0;
+    private int controlListSize = 0;
     private static ArrayList<String> textArray = new ArrayList<>();
     private static String textEn;
     private static int indexEn = -1;
@@ -65,20 +65,26 @@ public class t_ListenEndClickFragment extends Fragment
     private Spinner spinnListDict;
     private ImageButton buttonSpeech;
     private ProgressBar progressBar;
+    private Button topPanelButtonOK;
+    private Button topPanelButtonFinish;
 
     private z_LockOrientation lockOrientation;
-    private int btn_position;
+    //private int btn_position;
     private String KEY_BTN_POSITION = "btn_position";
-    private int width;
-    private int height;
-    private int delta = 30;
+    private String KEY_CONTROL_LIST_SIZE = "key_control_list_size";
+    private String KEY_WORDS_COUNT = "key_words_count";
+    private String KEY_SPINN_SELECT_ITEM = "key_spinn_select_item";
+    private String KEY_SPINN_SELECT_INDEX = "key_spinn_select_index";
+    private String KEY_PROGRESS = "key_progress";
+    private String KEY_PROGRESS_MAX = "key_progress_max";
+    private String KEY_WORD_INDEX = "key_word_index";
     private long duration = 1000;
-    private ViewPropertyAnimator animToLeft, animToRight, animToTop, animToDown;
     private int wordIndex = 1;
-    private int guessedWordsCount = 0;
     private String spinnSelectedItem;
     private int wordsCount;
-    private int wordsResidue;
+    private t_DialogTestComplete dialogTestComplete;
+    private ArrayList<String> arrStudiedDict = new ArrayList<>();
+    private t_TestResults testResults;
 
     private int range = 4;
 
@@ -87,12 +93,42 @@ public class t_ListenEndClickFragment extends Fragment
         // Required empty public constructor
     }
 
+
+    @Override
+    public void onSaveInstanceState(Bundle outState)
+    {
+        //outState.putInt(KEY_BTN_POSITION, btn_position);
+        outState.putInt(KEY_CONTROL_LIST_SIZE, controlListSize);
+        outState.putInt(KEY_WORD_INDEX, wordIndex);
+        outState.putInt(KEY_WORDS_COUNT, wordsCount);
+        outState.putString(KEY_SPINN_SELECT_ITEM, spinnSelectedItem);
+        outState.putInt(KEY_SPINN_SELECT_INDEX, spinnSelectedIndex);
+        outState.putInt(KEY_PROGRESS, progressBar.getProgress());
+        outState.putInt(KEY_PROGRESS_MAX, progressBar.getMax());
+
+        if (isOpen)
+        {
+            saveTopPanelParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+            saveTopPanelParams.setMargins(topPanelParams.leftMargin, (int) topPanel.getY(), topPanelParams.rightMargin, topPanelParams.height);
+
+        }
+
+        textArray.clear();
+        for (int i = 0; i < buttonsLayout.getChildCount(); i++)
+        {
+            Button button = (Button) buttonsLayout.getChildAt(i);
+            textArray.add(button.getText().toString());
+        }
+
+        super.onSaveInstanceState(outState);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState)
     {
         // Inflate the layout for this fragment
-        if (savedInstanceState == null && t_Tests.bundleListenTest.containsKey(KEY_BTN_POSITION))
+        if (savedInstanceState == null && t_Tests.bundleListenTest.containsKey(KEY_WORD_INDEX))
         {
             savedInstanceState = t_Tests.bundleListenTest;
         }
@@ -109,6 +145,13 @@ public class t_ListenEndClickFragment extends Fragment
         buttonSpeech = (ImageButton) fragment_view.findViewById(R.id.btn_speech);
         buttonSpeech_OnClick();
         progressBar = (ProgressBar) fragment_view.findViewById(R.id.prog_bar_listen);
+        topPanelButtonOK = (Button) fragment_view.findViewById(R.id.btn_ok);
+        topPanelButtonFinish = (Button) fragment_view.findViewById(R.id.btn_complete);
+        topPanelButtons_OnClick();
+
+        testResults = new t_TestResults(getActivity());
+        dialogTestComplete = t_DialogTestComplete.getInstance();
+        dialogTestComplete.setIDialogCompleteResult(t_ListenEndClickFragment.this);
 
 
         spinnListDict_OnItemSelectedListener();
@@ -121,6 +164,14 @@ public class t_ListenEndClickFragment extends Fragment
 
         if (savedInstanceState != null)
         {
+            wordIndex = savedInstanceState.getInt(KEY_WORD_INDEX);
+            controlListSize = savedInstanceState.getInt(KEY_CONTROL_LIST_SIZE);
+            wordsCount = savedInstanceState.getInt(KEY_WORDS_COUNT);
+            spinnSelectedItem = savedInstanceState.getString(KEY_SPINN_SELECT_ITEM);
+            spinnSelectedIndex = savedInstanceState.getInt(KEY_SPINN_SELECT_INDEX);
+            progressBar.setProgress(savedInstanceState.getInt(KEY_PROGRESS));
+            progressBar.setMax(savedInstanceState.getInt(KEY_PROGRESS_MAX));
+
             for (int i = 0; i < buttonsLayout.getChildCount(); i++)
             {
                 Button button = (Button) buttonsLayout.getChildAt(i);
@@ -193,33 +244,11 @@ public class t_ListenEndClickFragment extends Fragment
         });
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState)
-    {
-        outState.putInt(KEY_BTN_POSITION, btn_position);
-
-        if (isOpen)
-        {
-            saveTopPanelParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-            saveTopPanelParams.setMargins(topPanelParams.leftMargin, (int) topPanel.getY(), topPanelParams.rightMargin, topPanelParams.height);
-
-        }
-
-        textArray.clear();
-        for (int i = 0; i < buttonsLayout.getChildCount(); i++)
-        {
-            Button button = (Button) buttonsLayout.getChildAt(i);
-            textArray.add(button.getText().toString());
-        }
-
-        super.onSaveInstanceState(outState);
-    }
-
     private void setItemsToSpinnListDict()
     {
         if (storedListDict.size() > 0)
         {
-            ArrayAdapter<String> spinnAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), R.layout.my_content_spinner_layout, storedListDict);
+            ArrayAdapter<String> spinnAdapter = new ArrayAdapter<>(getActivity().getApplicationContext(), R.layout.my_content_spinner_layout, storedListDict);
             spinnListDict.setAdapter(spinnAdapter);
             return;
         }
@@ -262,25 +291,22 @@ public class t_ListenEndClickFragment extends Fragment
         });
     }
 
-
-
     private void startTest(final int position)
     {
         lockOrientation.lock();
-        btn_position = 0;
+        //btn_position = 0;
         wordIndex = 1;
-        guessedWordsCount = 0;
         spinnSelectedItem = spinnListDict.getSelectedItem().toString();
         DataBaseQueries.GetWordsCountAsync getWordsCount = new DataBaseQueries.GetWordsCountAsync()
         {
             @Override
             public void resultAsyncTask(int res)
             {
+                wordsCount = res;
                 fillLayoutLeft();
                 spinnSelectedIndex = position;
                 progressBar.setMax(res);
                 progressBar.setProgress(0);
-                getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
                 topPanelVisible(0, 1, isOpen);
             }
         };
@@ -340,13 +366,9 @@ public class t_ListenEndClickFragment extends Fragment
                 {
                     return;
                 }
-
                 lockOrientation.lock();
                 tempButton = (Button) view;
-                btn_position = index;
-                width = view.getWidth();
-                height = view.getHeight();
-
+                //btn_position = index;
                 //Toast.makeText(getActivity(), "Клик по кнопке "+index, Toast.LENGTH_SHORT).show();
                 compareWords(spinnSelectedItem, textEn, tempButton.getText().toString());
             }
@@ -404,7 +426,6 @@ public class t_ListenEndClickFragment extends Fragment
 
                         }
                     });
-
                     counterRightAnswer++;
                 }
             };
@@ -441,9 +462,6 @@ public class t_ListenEndClickFragment extends Fragment
                 tempButton.startAnimation(animNotRight);
             }
         }
-
-
-        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
     }
 
     private void animButtonToLeft(final Button button)
@@ -542,7 +560,41 @@ public class t_ListenEndClickFragment extends Fragment
                     @Override
                     public void onAnimationEnd(Animator animation)
                     {
+                        a_SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, a_SplashScreenActivity.map);
+                        a_SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+                        {
+                            @Override
+                            public void onStart(String utteranceId)
+                            {
 
+                            }
+
+                            @Override
+                            public void onDone(String utteranceId)
+                            {
+
+                            }
+
+                            @Override
+                            public void onError(String utteranceId)
+                            {
+
+                            }
+                        });
+                        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+                        if (textEn == "")
+                        {
+                            //Toast.makeText(activity,"Тест завершен",Toast.LENGTH_SHORT).show();
+                            ArrayList<String> list = new ArrayList<String>();
+                            list.add(testResults.getOverallResult(counterRightAnswer, wordsCount));
+                            list.add(counterRightAnswer + getActivity().getString(R.string.text_out_of) + wordsCount);
+                            Bundle bundle = new Bundle();
+                            bundle.putString(dialogTestComplete.KEY_RESULT, list.get(0));
+                            bundle.putString(dialogTestComplete.KEY_ERRORS, list.get(1));
+                            dialogTestComplete.setArguments(bundle);
+                            dialogTestComplete.setCancelable(false);
+                            dialogTestComplete.show(getFragmentManager(), "dialog_complete_lexicon");
+                        }
                     }
 
                     @Override
@@ -557,6 +609,68 @@ public class t_ListenEndClickFragment extends Fragment
 
                     }
                 });
+    }
+
+    @Override
+    public void dialogCompleteResult(int res)
+    {
+        if (res == 0)
+        {
+            addToStudiedList();
+            spinnSelectedIndex = spinnListDict.getSelectedItemPosition();
+            startTest(spinnSelectedIndex);
+        }
+        if (res > 0)
+        {
+            addToStudiedList();
+            int count = spinnListDict.getAdapter().getCount();
+            int position = spinnListDict.getSelectedItemPosition();
+            if (position < count)
+            {
+                position++;
+                spinnListDict.setSelection(position);
+            }
+            if (position == count)
+            {
+                position = 0;
+                spinnListDict.setSelection(position);
+            }
+        }
+        if (res < 0)
+        {
+            addToStudiedList();
+
+            spinnListDict.setSelection(-1);
+            spinnSelectedIndex = -1;
+            getActivity().onBackPressed();
+            if (arrStudiedDict.size() > 0)
+            {
+                t_DialogChangePlayList dialogChangePlayList = new t_DialogChangePlayList();
+                Bundle bundle = new Bundle();
+                bundle.putStringArrayList(dialogChangePlayList.KEY_LIST_DICT, arrStudiedDict);
+                dialogChangePlayList.setArguments(bundle);
+                dialogChangePlayList.setCancelable(false);
+                dialogChangePlayList.show(getFragmentManager(), "dialog_change_pl_lexicon");
+            }
+        }
+    }
+
+    private void addToStudiedList()
+    {
+        boolean containsInPlayList = false;
+        for (p_ItemListDict item : a_MainActivity.getPlayList())
+        {
+            if (item.get_dictName().equals(spinnListDict.getSelectedItem()))
+            {
+                containsInPlayList = true; break;
+            }
+        }
+        boolean contains = arrStudiedDict.contains(spinnListDict.getSelectedItem());
+        if (counterRightAnswer == wordsCount && !contains && containsInPlayList)
+        {
+            arrStudiedDict.add(spinnListDict.getSelectedItem().toString());
+            counterRightAnswer = 0;
+        }
     }
 
     private void topPanelVisible(float touchDown, float touchUp, boolean isOpen)
@@ -621,6 +735,29 @@ public class t_ListenEndClickFragment extends Fragment
         }
     }
 
+    private void topPanelButtons_OnClick()
+    {
+        topPanelButtonOK.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                topPanelVisible(1, 0, isOpen);
+            }
+        });
+        topPanelButtonFinish.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                topPanelVisible(1, 0, isOpen);
+                spinnListDict.setSelection(-1);
+                spinnSelectedIndex = -1;
+                getActivity().onBackPressed();
+            }
+        });
+    }
+
     @Override
     public void onPause()
     {
@@ -628,4 +765,6 @@ public class t_ListenEndClickFragment extends Fragment
         t_Tests.bundleListenTest = new Bundle();
         onSaveInstanceState(t_Tests.bundleListenTest);
     }
+
+
 }
