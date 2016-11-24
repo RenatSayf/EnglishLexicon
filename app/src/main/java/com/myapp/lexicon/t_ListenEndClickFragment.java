@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.support.v4.app.Fragment;
+import android.support.v4.util.TimeUtils;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -28,7 +29,10 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import java.sql.Time;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
+
 
 
 /**
@@ -40,12 +44,10 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
 
     private static RelativeLayout.LayoutParams saveTopPanelParams;
     private static boolean isOpen = false;
-    private int spinnSelectedIndex = -1;
     private static ArrayList<String> storedListDict = new ArrayList<>();
     private static z_RandomNumberGenerator randomGenerator;
     private static ArrayList<DataBaseEntry> controlList;
     private static ArrayList<DataBaseEntry> additionalList;
-    private int controlListSize = 0;
     private static ArrayList<String> textArray = new ArrayList<>();
     private static String textEn;
     private static int indexEn = -1;
@@ -53,7 +55,6 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
     private static ArrayList<DataBaseEntry> listFromDB;
     private static int counterRightAnswer = 0;
     private static int additonalCount = 0;
-
 
     private RelativeLayout relLayout;
     private LinearLayout linLayout;
@@ -63,21 +64,13 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
     private Button tempButton;
     private RelativeLayout buttonsLayout;
     private Spinner spinnListDict;
+    private int spinnSelectedIndex = -1;
     private ImageButton buttonSpeech;
     private ProgressBar progressBar;
     private Button topPanelButtonOK;
     private Button topPanelButtonFinish;
-
+    private int controlListSize = 0;
     private z_LockOrientation lockOrientation;
-    //private int btn_position;
-    private String KEY_BTN_POSITION = "btn_position";
-    private String KEY_CONTROL_LIST_SIZE = "key_control_list_size";
-    private String KEY_WORDS_COUNT = "key_words_count";
-    private String KEY_SPINN_SELECT_ITEM = "key_spinn_select_item";
-    private String KEY_SPINN_SELECT_INDEX = "key_spinn_select_index";
-    private String KEY_PROGRESS = "key_progress";
-    private String KEY_PROGRESS_MAX = "key_progress_max";
-    private String KEY_WORD_INDEX = "key_word_index";
     private long duration = 1000;
     private int wordIndex = 1;
     private String spinnSelectedItem;
@@ -85,19 +78,25 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
     private t_DialogTestComplete dialogTestComplete;
     private ArrayList<String> arrStudiedDict = new ArrayList<>();
     private t_TestResults testResults;
-
     private int range = 4;
+
+    private String KEY_CONTROL_LIST_SIZE = "key_control_list_size";
+    private String KEY_WORDS_COUNT = "key_words_count";
+    private String KEY_SPINN_SELECT_ITEM = "key_spinn_select_item";
+    private String KEY_SPINN_SELECT_INDEX = "key_spinn_select_index";
+    private String KEY_PROGRESS = "key_progress";
+    private String KEY_PROGRESS_MAX = "key_progress_max";
+    private String KEY_WORD_INDEX = "key_word_index";
+
 
     public t_ListenEndClickFragment()
     {
         // Required empty public constructor
     }
 
-
     @Override
     public void onSaveInstanceState(Bundle outState)
     {
-        //outState.putInt(KEY_BTN_POSITION, btn_position);
         outState.putInt(KEY_CONTROL_LIST_SIZE, controlListSize);
         outState.putInt(KEY_WORD_INDEX, wordIndex);
         outState.putInt(KEY_WORDS_COUNT, wordsCount);
@@ -110,7 +109,6 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
         {
             saveTopPanelParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
             saveTopPanelParams.setMargins(topPanelParams.leftMargin, (int) topPanel.getY(), topPanelParams.rightMargin, topPanelParams.height);
-
         }
 
         textArray.clear();
@@ -135,7 +133,6 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
 
         lockOrientation = new z_LockOrientation(getActivity());
         View fragment_view = inflater.inflate(R.layout.t_listen_end_click_layout, container, false);
-
         relLayout = (RelativeLayout) fragment_view.findViewById(R.id.rel_layout);
         topPanel = (LinearLayout) fragment_view.findViewById(R.id.top_panel);
         topPanelParams = (RelativeLayout.LayoutParams) topPanel.getLayoutParams();
@@ -152,7 +149,6 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
         testResults = new t_TestResults(getActivity());
         dialogTestComplete = t_DialogTestComplete.getInstance();
         dialogTestComplete.setIDialogCompleteResult(t_ListenEndClickFragment.this);
-
 
         spinnListDict_OnItemSelectedListener();
         setItemsToSpinnListDict();
@@ -179,7 +175,7 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
                 {
                     button.setText(textArray.get(i));
                     button.setVisibility(View.VISIBLE);
-                    btnLeft_OnClick(button, i);
+                    btnLeft_OnClick(button);
                 }
                 else
                 {
@@ -219,6 +215,7 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
             @Override
             public void onClick(View v)
             {
+                topPanelVisible(1, 0, isOpen);
                 a_SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, a_SplashScreenActivity.map);
                 a_SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
                 {
@@ -294,7 +291,6 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
     private void startTest(final int position)
     {
         lockOrientation.lock();
-        //btn_position = 0;
         wordIndex = 1;
         spinnSelectedItem = spinnListDict.getSelectedItem().toString();
         DataBaseQueries.GetWordsCountAsync getWordsCount = new DataBaseQueries.GetWordsCountAsync()
@@ -307,6 +303,7 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
                 spinnSelectedIndex = position;
                 progressBar.setMax(res);
                 progressBar.setProgress(0);
+                counterRightAnswer = 0;
                 topPanelVisible(0, 1, isOpen);
             }
         };
@@ -341,7 +338,7 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
                     Button button = (Button) buttonsLayout.getChildAt(i);
                     button.setText(controlList.get(i).get_translate());
                     button.setVisibility(View.VISIBLE);
-                    btnLeft_OnClick(button, i);
+                    btnLeft_OnClick(button);
                     wordIndex++;
                 }
                 randomGenerator = new z_RandomNumberGenerator(controlListSize, range);
@@ -354,7 +351,7 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
         asyncTask = null;
     }
 
-    private void btnLeft_OnClick(final View view, final int index)
+    private void btnLeft_OnClick(final View view)
     {
         view.setOnClickListener(new View.OnClickListener()
         {
@@ -368,8 +365,6 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
                 }
                 lockOrientation.lock();
                 tempButton = (Button) view;
-                //btn_position = index;
-                //Toast.makeText(getActivity(), "Клик по кнопке "+index, Toast.LENGTH_SHORT).show();
                 compareWords(spinnSelectedItem, textEn, tempButton.getText().toString());
             }
         });
@@ -404,7 +399,9 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
                     if (tempButton != null)
                     {
                         tempButton.setText(textEn);
+                        tempButton.setBackgroundResource(R.drawable.text_btn_for_test_green);
                     }
+
                     a_SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, a_SplashScreenActivity.map);
                     a_SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
                     {
@@ -433,7 +430,6 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
         }
         else
         {
-            //Toast.makeText(getActivity(), "Неправильно", Toast.LENGTH_SHORT).show();
             counterRightAnswer--;
             Animation animNotRight = AnimationUtils.loadAnimation(getActivity().getApplicationContext(), R.anim.anim_not_right);
             animNotRight.setAnimationListener(new Animation.AnimationListener()
@@ -448,6 +444,7 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
                 public void onAnimationEnd(Animation animation)
                 {
                     tempButton.setBackgroundResource(R.drawable.text_button_for_test);
+                    getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
                 }
 
                 @Override
@@ -485,8 +482,6 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
                         DisplayMetrics metrics = new DisplayMetrics();
                         display.getMetrics(metrics);
                         button.setX(metrics.widthPixels+10);
-                        //button.setText(listFromDB.get(0).get_translate());
-
                         int range = 4;
                         if (listFromDB.size() > 0)
                         {
@@ -554,7 +549,7 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
                     @Override
                     public void onAnimationStart(Animator animation)
                     {
-
+                        tempButton.setBackgroundResource(R.drawable.text_button_for_test);
                     }
 
                     @Override
@@ -584,7 +579,6 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
                         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
                         if (textEn == "")
                         {
-                            //Toast.makeText(activity,"Тест завершен",Toast.LENGTH_SHORT).show();
                             ArrayList<String> list = new ArrayList<String>();
                             list.add(testResults.getOverallResult(counterRightAnswer, wordsCount));
                             list.add(counterRightAnswer + getActivity().getString(R.string.text_out_of) + wordsCount);
