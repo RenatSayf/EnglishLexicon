@@ -78,7 +78,7 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginBottom="5dp"
         android:layout_marginTop="5dp"
         android:layout_weight="2">
@@ -86,16 +86,17 @@
         <RelativeLayout
             android:id="@+id/layout_1of5"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             >
 
             <Button
                 android:id="@+id/btn_0"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:text="xxx"
                 android:layout_marginLeft="30dp"
                 android:layout_marginRight="30dp"
-                android:textSize="@dimen/activity_horizontal_margin"
+                android:textSize="@dimen/text_size_for_test_land"
                 android:layout_marginTop="2dp"
                 android:background="@drawable/text_button_for_test"
                 android:textColor="@android:color/holo_red_dark"
@@ -105,20 +106,22 @@
                 android:id="@+id/btn_1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+
                 android:layout_below="@+id/btn_0"
                 android:layout_marginLeft="30dp"
                 android:layout_marginRight="30dp"
                 android:layout_marginTop="2dp"
                 android:background="@drawable/text_button_for_test"
                 android:textColor="@android:color/holo_orange_dark"
-                android:textSize="@dimen/activity_horizontal_margin"
+                android:textSize="@dimen/text_size_for_test_land"
                 />
 
             <Button
                 android:id="@+id/btn_2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="@dimen/activity_horizontal_margin"
+
+                android:textSize="@dimen/text_size_for_test_land"
                 android:layout_below="@+id/btn_1"
                 android:layout_marginLeft="30dp"
                 android:layout_marginRight="30dp"
@@ -131,7 +134,8 @@
                 android:id="@+id/btn_3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="@dimen/activity_horizontal_margin"
+
+                android:textSize="@dimen/text_size_for_test_land"
                 android:layout_below="@+id/btn_2"
                 android:layout_marginLeft="30dp"
                 android:layout_marginRight="30dp"
@@ -144,7 +148,8 @@
                 android:id="@+id/btn_4"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="@dimen/activity_horizontal_margin"
+
+                android:textSize="@dimen/text_size_for_test_land"
                 android:layout_below="@+id/btn_3"
                 android:layout_marginLeft="30dp"
                 android:layout_marginRight="30dp"
