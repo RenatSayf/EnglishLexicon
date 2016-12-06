@@ -19,10 +19,13 @@ import java.util.Locale;
 
 public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFragmentInteractionListener
 {
-    private ImageButton buttonMatchTest, buttonSelectWordTest, buttonTest3, buttonOneOfFive;
+    private ImageButton buttonFindPair, buttonMatchTest, buttonSelectWordTest, buttonTest3, buttonOneOfFive;
 
     private t_MatchFragment matchFragment;
     private static String MATCH_FRAGMENT = "matchFragment";
+
+    private t_FindPairFragment findPairFragment;
+    private String FIND_PAIR_FRAGMENT = "find_pair_fragment";
 
     private t_ListenEndClickFragment listenEndClickFragment;
     private String LISTEN_END_CLICK_FRAGMENT = "listenEndClickFragment";
@@ -82,6 +85,7 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
         }
 
         buttonMatchTest = (ImageButton) findViewById(R.id.btn_match_test);
+        buttonFindPair = (ImageButton) findViewById(R.id.btn_find_pair);
         buttonSelectWordTest = (ImageButton) findViewById(R.id.btn_select_word_test);
         buttonTest3 = (ImageButton) findViewById(R.id.btn_test_3);
         buttonOneOfFive = (ImageButton) findViewById(R.id.btn_test_1of5);
@@ -91,6 +95,12 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
         if (matchFragment == null)
         {
             matchFragment = t_MatchFragment.newInstance(null,null);
+        }
+
+        findPairFragment = (t_FindPairFragment) manager.findFragmentByTag(FIND_PAIR_FRAGMENT);
+        if (findPairFragment == null)
+        {
+            findPairFragment = new t_FindPairFragment();
         }
 
         listenEndClickFragment = (t_ListenEndClickFragment) manager.findFragmentByTag(LISTEN_END_CLICK_FRAGMENT);
@@ -126,6 +136,19 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
                 transaction.replace(R.id.match_fragment, matchFragment);
                 transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
                 //transaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right);
+                transaction.addToBackStack(null);
+                transaction.commit();
+            }
+        });
+
+        buttonFindPair.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.find_pair_fragment, findPairFragment);
+                transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
                 transaction.addToBackStack(null);
                 transaction.commit();
             }
