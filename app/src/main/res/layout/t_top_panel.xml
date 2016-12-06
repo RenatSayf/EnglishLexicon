@@ -12,13 +12,17 @@
         android:text="Распознай слова на слух"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAlignment="center"/>
+        android:textAlignment="center"
+        android:id="@+id/header_top_panel"
+        android:textSize="18sp"
+        android:textColor="@color/colorBlack"/>
 
     <TextView
         android:text="Словарь:"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"/>
+        android:layout_marginTop="10dp"
+        />
 
     <Spinner
         android:layout_width="match_parent"
