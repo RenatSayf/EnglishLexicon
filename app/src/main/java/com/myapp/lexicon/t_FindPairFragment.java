@@ -454,7 +454,7 @@ public class t_FindPairFragment extends Fragment
 
     private void animScale_Listener(ViewPropertyAnimator animScale)
     {
-
+        if (animScale == null) return;
         animScale.setListener(new Animator.AnimatorListener()
         {
             @Override
@@ -466,7 +466,17 @@ public class t_FindPairFragment extends Fragment
             @Override
             public void onAnimationEnd(Animator animation)
             {
-
+                if (tempButtonLeft != null && tempButtonRight != null)
+                {
+                    tempButtonLeft.setX(-metrics.widthPixels);
+                    tempButtonRight.setX(metrics.widthPixels);
+                    tempButtonLeft.setScaleX(1.0f);
+                    tempButtonLeft.setScaleY(1.0f);
+                    tempButtonRight.setScaleX(1.0f);
+                    tempButtonRight.setScaleY(1.0f);
+                    tempButtonLeft.animate().translationX(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null);
+                    tempButtonRight.animate().translationX(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null);
+                }
             }
 
             @Override
