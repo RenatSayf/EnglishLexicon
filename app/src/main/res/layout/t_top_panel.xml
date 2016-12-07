@@ -46,7 +46,7 @@
             android:id="@+id/btn_ok"
             android:layout_weight="3"
             android:background="@drawable/text_button_for_test"
-            android:minHeight="0dp"/>
+            android:minHeight="32dp"/>
 
         <Button
             android:text="Завершить"
@@ -55,7 +55,7 @@
             android:id="@+id/btn_complete"
             android:layout_weight="1"
             android:background="@drawable/text_button_for_test"
-            android:minHeight="0dp"/>
+            android:minHeight="32dp"/>
 
     </LinearLayout>
 </LinearLayout>

@@ -5,6 +5,8 @@ import android.animation.Animator;
 import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
 import android.view.Display;
@@ -12,7 +14,11 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewPropertyAnimator;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.AnticipateOvershootInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -65,9 +71,18 @@ public class t_FindPairFragment extends Fragment
     private static ArrayList<DataBaseEntry> additionalList;
     private static int additonalCount = 0;
     private int controlListSize = 0;
-    private static z_RandomNumberGenerator randomGenerator;
-    private int range = 4;
+    private static z_RandomNumberGenerator randGenLeft;
+    private static z_RandomNumberGenerator randGenRight;
+    private int rangeLeft = 1;
+    private int rangeRight = 4;
     DisplayMetrics metrics;
+    private static int indexEn = -1;
+    private static int indexRu = -1;
+    private static ArrayList<DataBaseEntry> listFromDB;
+    private String enWord = null;
+    private String ruWord = null;
+    private Button tempButtonLeft;
+    private Button tempButtonRight;
 
     private String KEY_CONTROL_LIST_SIZE = "key_control_list_size";
     private String KEY_WORDS_COUNT = "key_words_count";
@@ -175,6 +190,22 @@ public class t_FindPairFragment extends Fragment
             hideWordButtons();
         }
 
+        if (savedInstanceState != null)
+        {
+            if (textArrayleft.size() == btnLayoutLeft.getChildCount() && textArrayRight.size() == btnLayoutRight.getChildCount())
+            {
+                for (int i = 0; i < btnLayoutLeft.getChildCount() && i < btnLayoutRight.getChildCount(); i++)
+                {
+                    Button buttonLeft = (Button) btnLayoutLeft.getChildAt(i);
+                    Button buttonRight = (Button) btnLayoutRight.getChildAt(i);
+                    buttonLeft.setText(textArrayleft.get(i));
+                    buttonRight.setText(textArrayRight.get(i));
+                    btnLeft_OnClick(buttonLeft);
+                    btnRight_OnClick(buttonRight);
+                }
+            }
+        }
+
         return fragment_view;
     }
 
@@ -256,25 +287,34 @@ public class t_FindPairFragment extends Fragment
                             additionalList.add(entry);
                         }
                         controlListSize = controlList.size();
-
+                        randGenLeft = new z_RandomNumberGenerator(controlListSize, rangeLeft);
+                        randGenRight = new z_RandomNumberGenerator(controlListSize, rangeRight);
                         for (int i = 0; i < controlList.size(); i++)
                         {
                             Button btnLeft = (Button) btnLayoutLeft.getChildAt(i);
                             Button btnRight = (Button) btnLayoutRight.getChildAt(i);
-                            btnLeft.setText(controlList.get(i).get_english());
-                            btnRight.setText(controlList.get(i).get_translate());
+                            btnLeft.setText(controlList.get(randGenLeft.generate()).get_english());
+                            btnRight.setText(controlList.get(randGenRight.generate()).get_translate());
                             btnLeft.setX(metrics.widthPixels);
                             btnRight.setX(-metrics.widthPixels);
                             btnLeft.setVisibility(View.VISIBLE);
                             btnRight.setVisibility(View.VISIBLE);
                             btnLeft.animate().translationX(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator());
                             btnRight.animate().translationX(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator());
-                            //btnLeft_OnClick(btnLeft);
+                            btnLeft_OnClick(btnLeft);
+                            btnRight_OnClick(btnRight);
                             wordIndex++;
                         }
-                        randomGenerator = new z_RandomNumberGenerator(controlListSize, range);
-                        int randIndex = randomGenerator.generate();
-
+                        if (textArrayleft.size() == 0 && textArrayRight.size() == 0)
+                        {
+                            for (int i = 0; i < btnLayoutLeft.getChildCount() && i < btnLayoutRight.getChildCount(); i++)
+                            {
+                                Button buttonLeft = (Button) btnLayoutLeft.getChildAt(i);
+                                textArrayleft.add(buttonLeft.getText().toString());
+                                Button buttonRight = (Button) btnLayoutRight.getChildAt(i);
+                                textArrayRight.add(buttonRight.getText().toString());
+                            }
+                        }
                         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
                     }
                 };
@@ -283,6 +323,164 @@ public class t_FindPairFragment extends Fragment
             }
         };
         getWordsCount.execute(spinnSelectedItem);
+    }
+
+    private void btnRight_OnClick(final Button button)
+    {
+        button.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                //Toast.makeText(getActivity(), button.getText(), Toast.LENGTH_SHORT).show();
+                int requestedOrientation = getActivity().getRequestedOrientation();
+                if (requestedOrientation != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) return;
+                tempButtonRight = (Button) view;
+                ruWord = button.getText().toString();
+                compareWords(spinnSelectedItem, enWord, ruWord);
+            }
+        });
+    }
+
+    private void btnLeft_OnClick(final Button button)
+    {
+        button.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                //Toast.makeText(getActivity(), button.getText(), Toast.LENGTH_SHORT).show();
+                int requestedOrientation = getActivity().getRequestedOrientation();
+                if (requestedOrientation != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) return;
+                tempButtonLeft = (Button) view;
+                enWord = button.getText().toString();
+                compareWords(spinnSelectedItem, enWord, ruWord);
+            }
+        });
+    }
+
+    private void compareWords(String tableName, final String enword, String ruword)
+    {
+        if (enword == null || ruword == null)   return;
+
+        if (enword != null && ruword != null)
+        {
+            lockOrientation.lock();
+            for (int i = 0; i < controlList.size(); i++)
+            {
+                if (controlList.get(i).get_english().equals(enword))
+                {
+                    indexEn = i;
+                }
+                if (controlList.get(i).get_translate().equals(ruword))
+                {
+                    indexRu = i;
+                }
+            }
+
+            if (indexEn == indexRu && indexEn != -1 && indexRu != -1)
+            {
+                AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
+                {
+                    @Override
+                    public void resultAsyncTask(ArrayList<DataBaseEntry> list)
+                    {
+                        listFromDB = list;
+                        progressBar.setProgress(progressBar.getProgress()+1);
+                        a_SplashScreenActivity.speech.speak(enword, TextToSpeech.QUEUE_ADD, a_SplashScreenActivity.map);
+                        a_SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+                        {
+                            @Override
+                            public void onStart(String utteranceId)
+                            {
+
+                            }
+
+                            @Override
+                            public void onDone(String utteranceId)
+                            {
+
+                            }
+
+                            @Override
+                            public void onError(String utteranceId)
+                            {
+
+                            }
+                        });
+                        ViewPropertyAnimator animScale = tempButtonLeft.animate().scaleX(0).scaleY(0).setDuration(duration).setInterpolator(new AccelerateInterpolator());
+                        animScale_Listener(animScale);
+                        tempButtonRight.animate().scaleX(0).scaleY(0).setDuration(duration).setInterpolator(new AccelerateInterpolator());
+//                        animator.textViewToLeft();
+//                        animator.buttonToRight(buttonsLayout, tempButtonId);
+                        counterRightAnswer++;
+                    }
+                };
+                asyncTask.execute(tableName, wordIndex, wordIndex);
+            }
+            else
+            {
+                //Toast.makeText(getActivity(), "Неправильно", Toast.LENGTH_SHORT).show();
+                counterRightAnswer--;
+                Animation animNotRight = AnimationUtils.loadAnimation(getActivity().getApplicationContext(), R.anim.anim_not_right);
+                animNotRight.setAnimationListener(new Animation.AnimationListener()
+                {
+                    @Override
+                    public void onAnimationStart(Animation animation)
+                    {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation)
+                    {
+                        //tempButton.setBackgroundResource(R.drawable.text_button_for_test);
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation)
+                    {
+
+                    }
+                });
+//                if (tempButton != null)
+//                {
+//                    tempButton.setBackgroundResource(R.drawable.text_btn_for_test_red);
+//                    tempButton.startAnimation(animNotRight);
+//                }
+            }
+        }
+    }
+
+    private void animScale_Listener(ViewPropertyAnimator animScale)
+    {
+
+        animScale.setListener(new Animator.AnimatorListener()
+        {
+            @Override
+            public void onAnimationStart(Animator animation)
+            {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation)
+            {
+
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation)
+            {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation)
+            {
+
+            }
+        });
     }
 
     private void hideWordButtons()
