@@ -272,7 +272,15 @@ public class t_FindPairFragment extends Fragment
                 progressBar.setProgress(0);
                 counterRightAnswer = 0;
                 topPanelVisible(0, 1, isOpen);
-                //hideWordButtons();
+
+                if (wordsCount - ROWS > 0)
+                {
+                    randGenLeft = new z_RandomNumberGenerator(wordsCount - ROWS, 1);
+                    randGenRight = new z_RandomNumberGenerator(wordsCount - ROWS, 2);
+
+                    //randGenLeft = new z_RandomNumberGenerator(1,wordsCount - ROWS);
+                    //randGenRight = new z_RandomNumberGenerator(4, wordsCount - ROWS);
+                }
 
                 AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
                 {
@@ -287,8 +295,8 @@ public class t_FindPairFragment extends Fragment
                             additionalList.add(entry);
                         }
                         controlListSize = controlList.size();
-                        randGenLeft = new z_RandomNumberGenerator(controlListSize, rangeLeft);
-                        randGenRight = new z_RandomNumberGenerator(controlListSize, rangeRight);
+                        z_RandomNumberGenerator randGenLeft = new z_RandomNumberGenerator(controlListSize, rangeLeft);
+                        z_RandomNumberGenerator randGenRight = new z_RandomNumberGenerator(controlListSize, rangeRight);
                         for (int i = 0; i < controlList.size(); i++)
                         {
                             Button btnLeft = (Button) btnLayoutLeft.getChildAt(i);
@@ -333,6 +341,7 @@ public class t_FindPairFragment extends Fragment
             public void onClick(View view)
             {
                 //Toast.makeText(getActivity(), button.getText(), Toast.LENGTH_SHORT).show();
+
                 int requestedOrientation = getActivity().getRequestedOrientation();
                 if (requestedOrientation != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) return;
                 tempButtonRight = (Button) view;
@@ -408,11 +417,10 @@ public class t_FindPairFragment extends Fragment
 
                             }
                         });
-                        ViewPropertyAnimator animScale = tempButtonLeft.animate().scaleX(0).scaleY(0).setDuration(duration).setInterpolator(new AccelerateInterpolator());
+                        ViewPropertyAnimator animScale = tempButtonLeft.animate().scaleX(0).scaleY(0).setDuration(duration).setInterpolator(new AccelerateDecelerateInterpolator());
                         animScale_Listener(animScale);
-                        tempButtonRight.animate().scaleX(0).scaleY(0).setDuration(duration).setInterpolator(new AccelerateInterpolator());
-//                        animator.textViewToLeft();
-//                        animator.buttonToRight(buttonsLayout, tempButtonId);
+                        tempButtonRight.animate().scaleX(0).scaleY(0).setDuration(duration).setInterpolator(new AccelerateDecelerateInterpolator());
+
                         counterRightAnswer++;
                     }
                 };
@@ -468,15 +476,74 @@ public class t_FindPairFragment extends Fragment
             {
                 if (tempButtonLeft != null && tempButtonRight != null)
                 {
-                    tempButtonLeft.setX(-metrics.widthPixels);
-                    tempButtonRight.setX(metrics.widthPixels);
-                    tempButtonLeft.setScaleX(1.0f);
-                    tempButtonLeft.setScaleY(1.0f);
-                    tempButtonRight.setScaleX(1.0f);
-                    tempButtonRight.setScaleY(1.0f);
-                    tempButtonLeft.animate().translationX(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null);
-                    tempButtonRight.animate().translationX(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null);
+                    int randLeft = 0;
+                    int randRight = 0;
+                    while (randLeft == randRight)
+                    {
+                        randLeft = randGenLeft.generate();
+                        randRight = randGenRight.generate();
+                        if (randRight == -1 && randLeft == -1)
+                        {
+                            randLeft = randLeft + 2;
+                            randRight = randRight + 3;
+                            break;
+                        }
+                    }
+
+                    db_GetPairWords getPairWords = new db_GetPairWords(getActivity())
+                    {
+                        @Override
+                        public void resultAsyncTask(ArrayList<DataBaseEntry> list)
+                        {
+                            if (list.size() == 2)
+                            {
+                                tempButtonLeft.setText(list.get(0).get_english());
+                                tempButtonRight.setText(list.get(1).get_translate());
+                                tempButtonLeft.setX(-metrics.widthPixels);
+                                tempButtonRight.setX(metrics.widthPixels);
+                                tempButtonLeft.setScaleX(1.0f);
+                                tempButtonLeft.setScaleY(1.0f);
+                                tempButtonRight.setScaleX(1.0f);
+                                tempButtonRight.setScaleY(1.0f);
+                                tempButtonLeft.animate().translationX(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null);
+                                ViewPropertyAnimator animatorFromRight = tempButtonRight.animate().translationX(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator());
+                                animatorFromRight_Listener(animatorFromRight);
+                            }
+                        }
+                    };
+                    getPairWords.execute(spinnSelectedItem, randLeft+ROWS, randRight+ROWS);
                 }
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation)
+            {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation)
+            {
+
+            }
+        });
+    }
+
+    private void animatorFromRight_Listener(ViewPropertyAnimator animatorFromRight)
+    {
+        animatorFromRight.setListener(new Animator.AnimatorListener()
+        {
+            @Override
+            public void onAnimationStart(Animator animation)
+            {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation)
+            {
+                enWord = null; ruWord = null;
+                getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
             }
 
             @Override
