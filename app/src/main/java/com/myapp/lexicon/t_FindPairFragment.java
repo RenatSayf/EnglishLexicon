@@ -16,7 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.AnticipateOvershootInterpolator;
@@ -64,6 +63,7 @@ public class t_FindPairFragment extends Fragment
     private z_LockOrientation lockOrientation;
     private int wordIndex = 1;
     private int wordsCount;
+    private int wordsResidue;
     private static int counterRightAnswer = 0;
     private static ArrayList<String> textArrayleft = new ArrayList<>();
     private static ArrayList<String> textArrayRight = new ArrayList<>();
@@ -83,6 +83,7 @@ public class t_FindPairFragment extends Fragment
     private String ruWord = null;
     private Button tempButtonLeft;
     private Button tempButtonRight;
+    private Button btnNoRight;
 
     private String KEY_CONTROL_LIST_SIZE = "key_control_list_size";
     private String KEY_WORDS_COUNT = "key_words_count";
@@ -259,7 +260,7 @@ public class t_FindPairFragment extends Fragment
     private void startTest(final int position)
     {
         lockOrientation.lock();
-        wordIndex = 1;
+        wordIndex = 0;
         spinnSelectedItem = spinnListDict.getSelectedItem().toString();
         DataBaseQueries.GetWordsCountAsync getWordsCount = new DataBaseQueries.GetWordsCountAsync()
         {
@@ -273,15 +274,13 @@ public class t_FindPairFragment extends Fragment
                 counterRightAnswer = 0;
                 topPanelVisible(0, 1, isOpen);
 
-                if (wordsCount - ROWS > 0)
+                wordsCount = res;
+                wordsResidue = wordsCount - ROWS;
+                if (wordsResidue > 0)
                 {
-                    randGenLeft = new z_RandomNumberGenerator(wordsCount - ROWS, 1);
-                    randGenRight = new z_RandomNumberGenerator(wordsCount - ROWS, 2);
-
-                    //randGenLeft = new z_RandomNumberGenerator(1,wordsCount - ROWS);
-                    //randGenRight = new z_RandomNumberGenerator(4, wordsCount - ROWS);
+                    randGenLeft = new z_RandomNumberGenerator(wordsResidue,0);
+                    randGenRight = new z_RandomNumberGenerator(wordsResidue, 127);
                 }
-
                 AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
                 {
                     @Override
@@ -311,7 +310,7 @@ public class t_FindPairFragment extends Fragment
                             btnRight.animate().translationX(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator());
                             btnLeft_OnClick(btnLeft);
                             btnRight_OnClick(btnRight);
-                            wordIndex++;
+                            //wordIndex++;
                         }
                         if (textArrayleft.size() == 0 && textArrayRight.size() == 0)
                         {
@@ -347,6 +346,7 @@ public class t_FindPairFragment extends Fragment
                 tempButtonRight = (Button) view;
                 ruWord = button.getText().toString();
                 compareWords(spinnSelectedItem, enWord, ruWord);
+                btnNoRight = (Button) view;
             }
         });
     }
@@ -364,99 +364,99 @@ public class t_FindPairFragment extends Fragment
                 tempButtonLeft = (Button) view;
                 enWord = button.getText().toString();
                 compareWords(spinnSelectedItem, enWord, ruWord);
+                btnNoRight = (Button) view;
             }
         });
     }
 
-    private void compareWords(String tableName, final String enword, String ruword)
+    private void compareWords(final String tableName, final String enword, String ruword)
     {
         if (enword == null || ruword == null)   return;
 
         if (enword != null && ruword != null)
         {
             lockOrientation.lock();
-            for (int i = 0; i < controlList.size(); i++)
+            DataBaseQueries.GetRowIdOfWordAsync asyncTask = new DataBaseQueries.GetRowIdOfWordAsync()
             {
-                if (controlList.get(i).get_english().equals(enword))
+                @Override
+                public void resultAsyncTask(Integer id)
                 {
-                    indexEn = i;
-                }
-                if (controlList.get(i).get_translate().equals(ruword))
-                {
-                    indexRu = i;
-                }
-            }
-
-            if (indexEn == indexRu && indexEn != -1 && indexRu != -1)
-            {
-                AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
-                {
-                    @Override
-                    public void resultAsyncTask(ArrayList<DataBaseEntry> list)
+                    if (id > 0)
                     {
-                        listFromDB = list;
-                        progressBar.setProgress(progressBar.getProgress()+1);
-                        a_SplashScreenActivity.speech.speak(enword, TextToSpeech.QUEUE_ADD, a_SplashScreenActivity.map);
-                        a_SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+                        wordIndex++;
+                        AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
                         {
                             @Override
-                            public void onStart(String utteranceId)
+                            public void resultAsyncTask(ArrayList<DataBaseEntry> list)
+                            {
+                                listFromDB = list;
+                                progressBar.setProgress(progressBar.getProgress()+1);
+                                a_SplashScreenActivity.speech.speak(enword, TextToSpeech.QUEUE_ADD, a_SplashScreenActivity.map);
+                                a_SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+                                {
+                                    @Override
+                                    public void onStart(String utteranceId)
+                                    {
+
+                                    }
+
+                                    @Override
+                                    public void onDone(String utteranceId)
+                                    {
+
+                                    }
+
+                                    @Override
+                                    public void onError(String utteranceId)
+                                    {
+
+                                    }
+                                });
+                                ViewPropertyAnimator animScale = tempButtonLeft.animate().scaleX(0).scaleY(0).setDuration(duration).setInterpolator(new AccelerateDecelerateInterpolator());
+                                animScale_Listener(animScale);
+                                tempButtonRight.animate().scaleX(0).scaleY(0).setDuration(duration).setInterpolator(new AccelerateDecelerateInterpolator());
+
+                                counterRightAnswer++;
+                            }
+                        };
+                        asyncTask.execute(tableName, wordIndex, wordIndex);
+                    }
+                    if (id < 0)
+                    {
+                        //Toast.makeText(getActivity(), "Неправильно", Toast.LENGTH_SHORT).show();
+                        counterRightAnswer--;
+                        Animation animNotRight = AnimationUtils.loadAnimation(getActivity().getApplicationContext(), R.anim.anim_not_right);
+                        animNotRight.setAnimationListener(new Animation.AnimationListener()
+                        {
+                            @Override
+                            public void onAnimationStart(Animation animation)
                             {
 
                             }
 
                             @Override
-                            public void onDone(String utteranceId)
+                            public void onAnimationEnd(Animation animation)
                             {
-
+                                //tempButton.setBackgroundResource(R.drawable.text_button_for_test);
+                                btnNoRight.setBackgroundResource(R.drawable.text_button_for_test);
+                                getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
                             }
 
                             @Override
-                            public void onError(String utteranceId)
+                            public void onAnimationRepeat(Animation animation)
                             {
 
                             }
                         });
-                        ViewPropertyAnimator animScale = tempButtonLeft.animate().scaleX(0).scaleY(0).setDuration(duration).setInterpolator(new AccelerateDecelerateInterpolator());
-                        animScale_Listener(animScale);
-                        tempButtonRight.animate().scaleX(0).scaleY(0).setDuration(duration).setInterpolator(new AccelerateDecelerateInterpolator());
-
-                        counterRightAnswer++;
+                        if (btnNoRight != null)
+                        {
+                            btnNoRight.setBackgroundResource(R.drawable.text_btn_for_test_red);
+                            btnNoRight.startAnimation(animNotRight);
+                        }
                     }
-                };
-                asyncTask.execute(tableName, wordIndex, wordIndex);
-            }
-            else
-            {
-                //Toast.makeText(getActivity(), "Неправильно", Toast.LENGTH_SHORT).show();
-                counterRightAnswer--;
-                Animation animNotRight = AnimationUtils.loadAnimation(getActivity().getApplicationContext(), R.anim.anim_not_right);
-                animNotRight.setAnimationListener(new Animation.AnimationListener()
-                {
-                    @Override
-                    public void onAnimationStart(Animation animation)
-                    {
-
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animation animation)
-                    {
-                        //tempButton.setBackgroundResource(R.drawable.text_button_for_test);
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animation animation)
-                    {
-
-                    }
-                });
-//                if (tempButton != null)
-//                {
-//                    tempButton.setBackgroundResource(R.drawable.text_btn_for_test_red);
-//                    tempButton.startAnimation(animNotRight);
-//                }
-            }
+                }
+            };
+            asyncTask.execute(tableName, enword, ruword);
         }
     }
 
@@ -476,29 +476,30 @@ public class t_FindPairFragment extends Fragment
             {
                 if (tempButtonLeft != null && tempButtonRight != null)
                 {
-                    int randLeft = 0;
-                    int randRight = 0;
-                    while (randLeft == randRight)
+                    int randLeft = randGenLeft.generate() + ROWS;
+                    int randRight = randLeft + 2;
+                    if (randRight > wordsCount)
                     {
-                        randLeft = randGenLeft.generate();
-                        randRight = randGenRight.generate();
-                        if (randRight == -1 && randLeft == -1)
-                        {
-                            randLeft = randLeft + 2;
-                            randRight = randRight + 3;
-                            break;
-                        }
+                        randRight = wordsCount - wordIndex + 1;
                     }
-
                     db_GetPairWords getPairWords = new db_GetPairWords(getActivity())
                     {
                         @Override
                         public void resultAsyncTask(ArrayList<DataBaseEntry> list)
                         {
-                            if (list.size() == 2)
+                            if (list.size() == 1)
                             {
                                 tempButtonLeft.setText(list.get(0).get_english());
-                                tempButtonRight.setText(list.get(1).get_translate());
+                                tempButtonRight.setText(list.get(0).get_translate());
+                            }
+                            else if (list.size() == 2)
+                            {
+                                tempButtonLeft.setText(list.get(1).get_english());
+                                tempButtonRight.setText(list.get(0).get_translate());
+                            }
+
+                            if (list.size() > 0)
+                            {
                                 tempButtonLeft.setX(-metrics.widthPixels);
                                 tempButtonRight.setX(metrics.widthPixels);
                                 tempButtonLeft.setScaleX(1.0f);
@@ -508,10 +509,15 @@ public class t_FindPairFragment extends Fragment
                                 tempButtonLeft.animate().translationX(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null);
                                 ViewPropertyAnimator animatorFromRight = tempButtonRight.animate().translationX(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator());
                                 animatorFromRight_Listener(animatorFromRight);
+                                //wordIndex++;
+                            }
+                            else if (list.size() == 0)
+                            {
+
                             }
                         }
                     };
-                    getPairWords.execute(spinnSelectedItem, randLeft+ROWS, randRight+ROWS);
+                    getPairWords.execute(spinnSelectedItem, randLeft, randRight);
                 }
             }
 
