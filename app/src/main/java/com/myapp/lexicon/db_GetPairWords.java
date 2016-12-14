@@ -34,6 +34,11 @@ public abstract class db_GetPairWords extends AsyncTask<Object,Void,ArrayList<Da
 
     public ArrayList<DataBaseEntry> getWordsFromDB(String tableName, int firstId, int secondId)
     {
+        String order = "ASC";
+        if (firstId > secondId)
+        {
+            order = "DESC";
+        }
         ArrayList<DataBaseEntry> entriesFromDB = new ArrayList<>();
         DataBaseEntry dataBaseEntry;
         try
@@ -41,7 +46,7 @@ public abstract class db_GetPairWords extends AsyncTask<Object,Void,ArrayList<Da
             databaseHelper.open();
             if (databaseHelper.database.isOpen())
             {
-                Cursor cursor = databaseHelper.database.rawQuery("SELECT * FROM " + tableName + " WHERE RowID = " + firstId +" OR RowID = " + secondId, null);
+                Cursor cursor = databaseHelper.database.rawQuery("SELECT * FROM " + tableName + " WHERE RowID = " + firstId +" OR RowID = " + secondId + " ORDER BY Rowid " + order, null);
                 int count = cursor.getCount();
                 if (cursor.moveToFirst())
                 {

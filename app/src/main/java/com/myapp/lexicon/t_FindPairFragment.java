@@ -27,6 +27,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -51,7 +52,6 @@ public class t_FindPairFragment extends Fragment
     private static boolean isOpen = false;
 
     private LinearLayout btnLayoutLeft, btnLayoutRight;
-    private Button buttonWord;
 
     private Spinner spinnListDict;
     private int spinnSelectedIndex = -1;
@@ -63,7 +63,6 @@ public class t_FindPairFragment extends Fragment
     private z_LockOrientation lockOrientation;
     private int wordIndex = 1;
     private int wordsCount;
-    private int wordsResidue;
     private static int counterRightAnswer = 0;
     private static ArrayList<String> textArrayleft = new ArrayList<>();
     private static ArrayList<String> textArrayRight = new ArrayList<>();
@@ -71,13 +70,8 @@ public class t_FindPairFragment extends Fragment
     private static ArrayList<DataBaseEntry> additionalList;
     private static int additonalCount = 0;
     private int controlListSize = 0;
-    private static z_RandomNumberGenerator randGenLeft;
-    private static z_RandomNumberGenerator randGenRight;
-    private int rangeLeft = 1;
-    private int rangeRight = 4;
-    DisplayMetrics metrics;
-    private static int indexEn = -1;
-    private static int indexRu = -1;
+    private int rangeRight = 50;
+    private DisplayMetrics metrics;
     private static ArrayList<DataBaseEntry> listFromDB;
     private String enWord = null;
     private String ruWord = null;
@@ -92,6 +86,7 @@ public class t_FindPairFragment extends Fragment
     private String KEY_PROGRESS = "key_progress";
     private String KEY_PROGRESS_MAX = "key_progress_max";
     private String KEY_WORD_INDEX = "key_word_index";
+    private String KEY_NEXT_INDEX = "key_next_index";
 
 
     public t_FindPairFragment()
@@ -114,6 +109,14 @@ public class t_FindPairFragment extends Fragment
         {
             saveTopPanelParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
             saveTopPanelParams.setMargins(topPanelParams.leftMargin, (int) topPanel.getY(), topPanelParams.rightMargin, topPanelParams.height);
+        }
+
+        for (int i = 0; i < btnLayoutLeft.getChildCount(); i++)
+        {
+            Button btnLeft = (Button) btnLayoutLeft.getChildAt(i);
+            Button btnRight = (Button) btnLayoutRight.getChildAt(i);
+            textArrayleft.set(i, btnLeft.getText().toString());
+            textArrayRight.set(i, btnRight.getText().toString());
         }
         super.onSaveInstanceState(outState);
     }
@@ -200,7 +203,15 @@ public class t_FindPairFragment extends Fragment
                     Button buttonLeft = (Button) btnLayoutLeft.getChildAt(i);
                     Button buttonRight = (Button) btnLayoutRight.getChildAt(i);
                     buttonLeft.setText(textArrayleft.get(i));
+                    if (textArrayleft.get(i).equals(""))
+                    {
+                        buttonLeft.setVisibility(View.INVISIBLE);
+                    }
                     buttonRight.setText(textArrayRight.get(i));
+                    if (textArrayRight.get(i).equals(""))
+                    {
+                        buttonRight.setVisibility(View.INVISIBLE);
+                    }
                     btnLeft_OnClick(buttonLeft);
                     btnRight_OnClick(buttonRight);
                 }
@@ -218,7 +229,6 @@ public class t_FindPairFragment extends Fragment
             public void onItemSelected(AdapterView<?> parent, View view, final int position, long id)
             {
                 if (position == spinnSelectedIndex) return;
-//                textArray.clear();
                 startTest(position);
                 topPanelVisible(1, 0, isOpen);
             }
@@ -273,63 +283,72 @@ public class t_FindPairFragment extends Fragment
                 progressBar.setProgress(0);
                 counterRightAnswer = 0;
                 topPanelVisible(0, 1, isOpen);
-
-                wordsCount = res;
-                wordsResidue = wordsCount - ROWS;
-                if (wordsResidue > 0)
+                hideWordButtons();
+                if (wordsCount < ROWS)
                 {
-                    randGenLeft = new z_RandomNumberGenerator(wordsResidue,0);
-                    randGenRight = new z_RandomNumberGenerator(wordsResidue, 127);
+                    fillButtonsLayout(spinnSelectedItem, wordIndex, wordsCount);
                 }
-                AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
+                else
                 {
-                    @Override
-                    public void resultAsyncTask(ArrayList<DataBaseEntry> list)
-                    {
-                        controlList = list;
-                        additionalList = new ArrayList<>();
-                        additonalCount = 0;
-                        for (DataBaseEntry entry : list)
-                        {
-                            additionalList.add(entry);
-                        }
-                        controlListSize = controlList.size();
-                        z_RandomNumberGenerator randGenLeft = new z_RandomNumberGenerator(controlListSize, rangeLeft);
-                        z_RandomNumberGenerator randGenRight = new z_RandomNumberGenerator(controlListSize, rangeRight);
-                        for (int i = 0; i < controlList.size(); i++)
-                        {
-                            Button btnLeft = (Button) btnLayoutLeft.getChildAt(i);
-                            Button btnRight = (Button) btnLayoutRight.getChildAt(i);
-                            btnLeft.setText(controlList.get(randGenLeft.generate()).get_english());
-                            btnRight.setText(controlList.get(randGenRight.generate()).get_translate());
-                            btnLeft.setX(metrics.widthPixels);
-                            btnRight.setX(-metrics.widthPixels);
-                            btnLeft.setVisibility(View.VISIBLE);
-                            btnRight.setVisibility(View.VISIBLE);
-                            btnLeft.animate().translationX(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator());
-                            btnRight.animate().translationX(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator());
-                            btnLeft_OnClick(btnLeft);
-                            btnRight_OnClick(btnRight);
-                            //wordIndex++;
-                        }
-                        if (textArrayleft.size() == 0 && textArrayRight.size() == 0)
-                        {
-                            for (int i = 0; i < btnLayoutLeft.getChildCount() && i < btnLayoutRight.getChildCount(); i++)
-                            {
-                                Button buttonLeft = (Button) btnLayoutLeft.getChildAt(i);
-                                textArrayleft.add(buttonLeft.getText().toString());
-                                Button buttonRight = (Button) btnLayoutRight.getChildAt(i);
-                                textArrayRight.add(buttonRight.getText().toString());
-                            }
-                        }
-                        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-                    }
-                };
-                asyncTask.execute(spinnSelectedItem, wordIndex, ROWS);
-                asyncTask = null;
+                    fillButtonsLayout(spinnSelectedItem, wordIndex, ROWS);
+                }
             }
         };
         getWordsCount.execute(spinnSelectedItem);
+    }
+
+    private void fillButtonsLayout(String dictName, int start, int end)
+    {
+        AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
+        {
+            @Override
+            public void resultAsyncTask(ArrayList<DataBaseEntry> list)
+            {
+                controlList = list;
+                additionalList = new ArrayList<>();
+                additonalCount = 0;
+                for (DataBaseEntry entry : list)
+                {
+                    additionalList.add(entry);
+                }
+                controlListSize = controlList.size();
+                z_RandomNumberGenerator randGenRight = new z_RandomNumberGenerator(controlListSize, rangeRight);
+                long delay = 0;
+                for (int i = 0; i < controlList.size(); i++)
+                {
+                    Button btnLeft = (Button) btnLayoutLeft.getChildAt(i);
+                    Button btnRight = (Button) btnLayoutRight.getChildAt(i);
+                    btnLeft.setScaleX(1.0f);
+                    btnLeft.setScaleY(1.0f);
+                    btnRight.setScaleX(1.0f);
+                    btnRight.setScaleY(1.0f);
+                    btnLeft.setText(controlList.get(i).get_english());
+                    btnRight.setText(controlList.get(randGenRight.generate()).get_translate());
+                    btnLeft.setX(-metrics.widthPixels);
+                    btnRight.setX(metrics.widthPixels);
+                    btnLeft.setVisibility(View.VISIBLE);
+                    btnRight.setVisibility(View.VISIBLE);
+                    btnLeft.animate().translationX(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null).setStartDelay(delay);
+                    btnRight.animate().translationX(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null).setStartDelay(delay);
+                    delay += 70;
+                    btnLeft_OnClick(btnLeft);
+                    btnRight_OnClick(btnRight);
+                }
+                if (textArrayleft.size() == 0 && textArrayRight.size() == 0)
+                {
+                    for (int i = 0; i < btnLayoutLeft.getChildCount() && i < btnLayoutRight.getChildCount(); i++)
+                    {
+                        Button buttonLeft = (Button) btnLayoutLeft.getChildAt(i);
+                        textArrayleft.add(buttonLeft.getText().toString());
+                        Button buttonRight = (Button) btnLayoutRight.getChildAt(i);
+                        textArrayRight.add(buttonRight.getText().toString());
+                    }
+                }
+                getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+            }
+        };
+        asyncTask.execute(dictName, start, end);
+        asyncTask = null;
     }
 
     private void btnRight_OnClick(final Button button)
@@ -340,7 +359,6 @@ public class t_FindPairFragment extends Fragment
             public void onClick(View view)
             {
                 //Toast.makeText(getActivity(), button.getText(), Toast.LENGTH_SHORT).show();
-
                 int requestedOrientation = getActivity().getRequestedOrientation();
                 if (requestedOrientation != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) return;
                 tempButtonRight = (Button) view;
@@ -384,42 +402,35 @@ public class t_FindPairFragment extends Fragment
                     if (id > 0)
                     {
                         wordIndex++;
-                        AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
+                        progressBar.setProgress(progressBar.getProgress()+1);
+                        tempButtonLeft.setBackgroundResource(R.drawable.text_btn_for_test_green);
+                        tempButtonRight.setBackgroundResource(R.drawable.text_btn_for_test_green);
+                        a_SplashScreenActivity.speech.speak(enword, TextToSpeech.QUEUE_ADD, a_SplashScreenActivity.map);
+                        a_SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
                         {
                             @Override
-                            public void resultAsyncTask(ArrayList<DataBaseEntry> list)
+                            public void onStart(String utteranceId)
                             {
-                                listFromDB = list;
-                                progressBar.setProgress(progressBar.getProgress()+1);
-                                a_SplashScreenActivity.speech.speak(enword, TextToSpeech.QUEUE_ADD, a_SplashScreenActivity.map);
-                                a_SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
-                                {
-                                    @Override
-                                    public void onStart(String utteranceId)
-                                    {
 
-                                    }
-
-                                    @Override
-                                    public void onDone(String utteranceId)
-                                    {
-
-                                    }
-
-                                    @Override
-                                    public void onError(String utteranceId)
-                                    {
-
-                                    }
-                                });
-                                ViewPropertyAnimator animScale = tempButtonLeft.animate().scaleX(0).scaleY(0).setDuration(duration).setInterpolator(new AccelerateDecelerateInterpolator());
-                                animScale_Listener(animScale);
-                                tempButtonRight.animate().scaleX(0).scaleY(0).setDuration(duration).setInterpolator(new AccelerateDecelerateInterpolator());
-
-                                counterRightAnswer++;
                             }
-                        };
-                        asyncTask.execute(tableName, wordIndex, wordIndex);
+
+                            @Override
+                            public void onDone(String utteranceId)
+                            {
+
+                            }
+
+                            @Override
+                            public void onError(String utteranceId)
+                            {
+
+                            }
+                        });
+                        ViewPropertyAnimator animScale = tempButtonLeft.animate().scaleX(0).scaleY(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setStartDelay(0);
+                        animScale_Listener(animScale);
+                        tempButtonRight.animate().scaleX(0).scaleY(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setStartDelay(0);
+
+                        counterRightAnswer++;
                     }
                     if (id < 0)
                     {
@@ -437,7 +448,6 @@ public class t_FindPairFragment extends Fragment
                             @Override
                             public void onAnimationEnd(Animation animation)
                             {
-                                //tempButton.setBackgroundResource(R.drawable.text_button_for_test);
                                 btnNoRight.setBackgroundResource(R.drawable.text_button_for_test);
                                 getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
                             }
@@ -460,6 +470,7 @@ public class t_FindPairFragment extends Fragment
         }
     }
 
+    private int t = 1;
     private void animScale_Listener(ViewPropertyAnimator animScale)
     {
         if (animScale == null) return;
@@ -476,80 +487,34 @@ public class t_FindPairFragment extends Fragment
             {
                 if (tempButtonLeft != null && tempButtonRight != null)
                 {
-                    int randLeft = randGenLeft.generate() + ROWS;
-                    int randRight = randLeft + 2;
-                    if (randRight > wordsCount)
+                    getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+                    tempButtonLeft.setBackgroundResource(R.drawable.text_button_for_test);
+                    tempButtonRight.setBackgroundResource(R.drawable.text_button_for_test);
+                    enWord = null;
+                    ruWord = null;
+                    tempButtonLeft.setText(null);
+                    tempButtonRight.setText(null);
+                    boolean isFill = true;
+                    for (int i = 0; i < btnLayoutLeft.getChildCount(); i++)
                     {
-                        randRight = wordsCount - wordIndex + 1;
-                    }
-                    db_GetPairWords getPairWords = new db_GetPairWords(getActivity())
-                    {
-                        @Override
-                        public void resultAsyncTask(ArrayList<DataBaseEntry> list)
+                        Button button = (Button) btnLayoutLeft.getChildAt(i);
+                        if (!button.getText().equals(""))
                         {
-                            if (list.size() == 1)
-                            {
-                                tempButtonLeft.setText(list.get(0).get_english());
-                                tempButtonRight.setText(list.get(0).get_translate());
-                            }
-                            else if (list.size() == 2)
-                            {
-                                tempButtonLeft.setText(list.get(1).get_english());
-                                tempButtonRight.setText(list.get(0).get_translate());
-                            }
-
-                            if (list.size() > 0)
-                            {
-                                tempButtonLeft.setX(-metrics.widthPixels);
-                                tempButtonRight.setX(metrics.widthPixels);
-                                tempButtonLeft.setScaleX(1.0f);
-                                tempButtonLeft.setScaleY(1.0f);
-                                tempButtonRight.setScaleX(1.0f);
-                                tempButtonRight.setScaleY(1.0f);
-                                tempButtonLeft.animate().translationX(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null);
-                                ViewPropertyAnimator animatorFromRight = tempButtonRight.animate().translationX(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator());
-                                animatorFromRight_Listener(animatorFromRight);
-                                //wordIndex++;
-                            }
-                            else if (list.size() == 0)
-                            {
-
-                            }
+                            isFill = false;
+                            break;
                         }
-                    };
-                    getPairWords.execute(spinnSelectedItem, randLeft, randRight);
+                    }
+                    if (isFill)
+                    {
+                        fillButtonsLayout(spinnSelectedItem, wordIndex + 1, wordIndex + ROWS);
+                    }
+
+                    if (wordIndex == wordsCount)
+                    {
+                        Toast.makeText(getActivity(),"Завершено",Toast.LENGTH_SHORT).show();
+                    }
+
                 }
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation)
-            {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation)
-            {
-
-            }
-        });
-    }
-
-    private void animatorFromRight_Listener(ViewPropertyAnimator animatorFromRight)
-    {
-        animatorFromRight.setListener(new Animator.AnimatorListener()
-        {
-            @Override
-            public void onAnimationStart(Animator animation)
-            {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation)
-            {
-                enWord = null; ruWord = null;
-                getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
             }
 
             @Override
