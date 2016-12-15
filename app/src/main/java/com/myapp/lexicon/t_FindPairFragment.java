@@ -71,7 +71,7 @@ public class t_FindPairFragment extends Fragment implements t_DialogTestComplete
     private static ArrayList<DataBaseEntry> additionalList;
     private static int additonalCount = 0;
     private int controlListSize = 0;
-    private int rangeRight = 50;
+    private int rangeRight = -1;
     private DisplayMetrics metrics;
     private static ArrayList<DataBaseEntry> listFromDB;
     private String enWord = null;
@@ -318,6 +318,7 @@ public class t_FindPairFragment extends Fragment implements t_DialogTestComplete
         getWordsCount.execute(spinnSelectedItem);
     }
 
+    private static int buttonMaxHeigt;
     private void fillButtonsLayout(String dictName, int start, int end)
     {
         AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
