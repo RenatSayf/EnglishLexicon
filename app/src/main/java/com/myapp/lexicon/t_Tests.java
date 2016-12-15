@@ -39,8 +39,9 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
     private FragmentTransaction transaction;
     private DataBaseQueries baseQueries;
 
-    public static Bundle bundle;
+    public static Bundle bundleOneOfFiveTest;
     public static Bundle bundleListenTest;
+    public static Bundle bundleFindPair;
 
 
     private TextToSpeech speech;
@@ -53,10 +54,8 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
         setContentView(R.layout.t_layout_tests);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        bundle = new Bundle();
-        bundleListenTest = new Bundle();
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         initViews();
 
@@ -101,12 +100,14 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
         if (findPairFragment == null)
         {
             findPairFragment = new t_FindPairFragment();
+            bundleFindPair = new Bundle();
         }
 
         listenEndClickFragment = (t_ListenEndClickFragment) manager.findFragmentByTag(LISTEN_END_CLICK_FRAGMENT);
         if (listenEndClickFragment == null)
         {
             listenEndClickFragment = new t_ListenEndClickFragment();
+            bundleListenTest = new Bundle();
         }
 
         correctFragment2 = (t_WriteWordFragment) manager.findFragmentByTag(CORRECT_FRAGMENT2);
@@ -119,6 +120,7 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
         if (oneOfFiveTest == null)
         {
             oneOfFiveTest = new t_OneOfFiveTest();
+            bundleOneOfFiveTest = new Bundle();
         }
 
         button_OnClick();
@@ -246,7 +248,7 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
         }
         else
         {
-            bundle = null;
+            bundleOneOfFiveTest = null;
             bundleListenTest = null;
             finish();
         }

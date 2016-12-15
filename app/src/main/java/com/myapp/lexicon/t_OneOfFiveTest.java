@@ -6,11 +6,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +17,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
@@ -68,7 +65,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
     private t_DialogTestComplete dialogTestComplete;
     private ArrayList<String> arrStudiedDict = new ArrayList<>();
 
-    //private static Bundle bundle;
+    //private static Bundle bundleOneOfFiveTest;
     private String KEY_BUTTON_ID = "key_button_id";
     private String KEY_TEXT = "key_text";
     private String KEY_CONTROL_LIST_SIZE = "key_control_list_size";
@@ -141,9 +138,9 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
                              Bundle savedInstanceState)
     {
         // Inflate the layout for this fragment
-        if (savedInstanceState == null && t_Tests.bundle.containsKey(KEY_TEXT))
+        if (savedInstanceState == null && t_Tests.bundleOneOfFiveTest.containsKey(KEY_TEXT))
         {
-            savedInstanceState = t_Tests.bundle;
+            savedInstanceState = t_Tests.bundleOneOfFiveTest;
         }
         activity = getActivity();
         fragmentManager = getFragmentManager();
@@ -587,8 +584,8 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
     public void onPause()
     {
         super.onPause();
-        t_Tests.bundle = new Bundle();
-        onSaveInstanceState(t_Tests.bundle);
+        t_Tests.bundleOneOfFiveTest = new Bundle();
+        onSaveInstanceState(t_Tests.bundleOneOfFiveTest);
     }
 
 

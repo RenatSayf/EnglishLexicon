@@ -35,7 +35,7 @@ import java.util.ArrayList;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class t_FindPairFragment extends Fragment
+public class t_FindPairFragment extends Fragment implements t_DialogTestComplete.IDialogComplete_Result
 {
     public static int ROWS = 5;
 
@@ -66,6 +66,7 @@ public class t_FindPairFragment extends Fragment
     private static int counterRightAnswer = 0;
     private static ArrayList<String> textArrayleft = new ArrayList<>();
     private static ArrayList<String> textArrayRight = new ArrayList<>();
+    private ArrayList<String> arrStudiedDict = new ArrayList<>();
     private static ArrayList<DataBaseEntry> controlList;
     private static ArrayList<DataBaseEntry> additionalList;
     private static int additonalCount = 0;
@@ -78,6 +79,9 @@ public class t_FindPairFragment extends Fragment
     private Button tempButtonLeft;
     private Button tempButtonRight;
     private Button btnNoRight;
+
+    private t_DialogTestComplete dialogTestComplete;
+    private t_TestResults testResults;
 
     private String KEY_CONTROL_LIST_SIZE = "key_control_list_size";
     private String KEY_WORDS_COUNT = "key_words_count";
@@ -122,10 +126,23 @@ public class t_FindPairFragment extends Fragment
     }
 
     @Override
+    public void onPause()
+    {
+        super.onPause();
+        t_Tests.bundleFindPair = new Bundle();
+        onSaveInstanceState(t_Tests.bundleFindPair);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState)
     {
         // Inflate the layout for this fragment
+        if (savedInstanceState == null && t_Tests.bundleFindPair.containsKey(KEY_WORD_INDEX))
+        {
+            savedInstanceState = t_Tests.bundleFindPair;
+        }
+
         lockOrientation = new z_LockOrientation(getActivity());
         Display display = getActivity().getWindowManager().getDefaultDisplay();
         metrics = new DisplayMetrics();
@@ -217,6 +234,10 @@ public class t_FindPairFragment extends Fragment
                 }
             }
         }
+
+        testResults = new t_TestResults(getActivity());
+        dialogTestComplete = t_DialogTestComplete.getInstance();
+        dialogTestComplete.setIDialogCompleteResult(t_FindPairFragment.this);
 
         return fragment_view;
     }
@@ -511,9 +532,17 @@ public class t_FindPairFragment extends Fragment
 
                     if (wordIndex == wordsCount)
                     {
-                        Toast.makeText(getActivity(),"Завершено",Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getActivity(),"Завершено",Toast.LENGTH_SHORT).show();
+                        ArrayList<String> list = new ArrayList<String>();
+                        list.add(testResults.getOverallResult(counterRightAnswer, wordsCount));
+                        list.add(counterRightAnswer + getActivity().getString(R.string.text_out_of) + wordsCount);
+                        Bundle bundle = new Bundle();
+                        bundle.putString(dialogTestComplete.KEY_RESULT, list.get(0));
+                        bundle.putString(dialogTestComplete.KEY_ERRORS, list.get(1));
+                        dialogTestComplete.setArguments(bundle);
+                        dialogTestComplete.setCancelable(false);
+                        dialogTestComplete.show(getFragmentManager(), "dialog_complete_lexicon");
                     }
-
                 }
             }
 
@@ -531,6 +560,68 @@ public class t_FindPairFragment extends Fragment
         });
     }
 
+    @Override
+    public void dialogCompleteResult(int res)
+    {
+        if (res == 0)
+        {
+            addToStudiedList();
+            spinnSelectedIndex = spinnListDict.getSelectedItemPosition();
+            startTest(spinnSelectedIndex);
+        }
+        if (res > 0)
+        {
+            addToStudiedList();
+            int count = spinnListDict.getAdapter().getCount();
+            int position = spinnListDict.getSelectedItemPosition();
+            if (position < count)
+            {
+                position++;
+                spinnListDict.setSelection(position);
+            }
+            if (position == count)
+            {
+                position = 0;
+                spinnListDict.setSelection(position);
+            }
+        }
+        if (res < 0)
+        {
+            addToStudiedList();
+
+            spinnListDict.setSelection(-1);
+            spinnSelectedIndex = -1;
+            getActivity().onBackPressed();
+            if (arrStudiedDict.size() > 0)
+            {
+                t_DialogChangePlayList dialogChangePlayList = new t_DialogChangePlayList();
+                Bundle bundle = new Bundle();
+                bundle.putStringArrayList(dialogChangePlayList.KEY_LIST_DICT, arrStudiedDict);
+                dialogChangePlayList.setArguments(bundle);
+                dialogChangePlayList.setCancelable(false);
+                dialogChangePlayList.show(getFragmentManager(), "dialog_change_pl_lexicon");
+            }
+        }
+    }
+
+    private void addToStudiedList()
+    {
+        boolean containsInPlayList = false;
+        for (p_ItemListDict item : a_MainActivity.getPlayList())
+        {
+            if (item.get_dictName().equals(spinnListDict.getSelectedItem()))
+            {
+                containsInPlayList = true; break;
+            }
+        }
+        boolean contains = arrStudiedDict.contains(spinnListDict.getSelectedItem());
+        if (counterRightAnswer == wordsCount && !contains && containsInPlayList)
+        {
+            arrStudiedDict.add(spinnListDict.getSelectedItem().toString());
+            counterRightAnswer = 0;
+        }
+    }
+
     private void hideWordButtons()
     {
         for (int i = 0; i < btnLayoutLeft.getChildCount(); i++)
@@ -538,7 +629,9 @@ public class t_FindPairFragment extends Fragment
             Button btnLeft = (Button) btnLayoutLeft.getChildAt(i);
             Button btnRight = (Button) btnLayoutRight.getChildAt(i);
             btnLeft.setVisibility(View.GONE);
+            btnLeft.setText(null);
             btnRight.setVisibility(View.GONE);
+            btnRight.setText(null);
         }
     }
 
@@ -625,5 +718,6 @@ public class t_FindPairFragment extends Fragment
             }
         });
     }
+
 
 }
