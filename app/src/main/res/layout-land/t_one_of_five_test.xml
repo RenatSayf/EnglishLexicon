@@ -86,7 +86,7 @@
         <RelativeLayout
             android:id="@+id/layout_1of5"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             >
 
             <Button
@@ -151,6 +151,7 @@
                 android:layout_marginTop="2dp"
                 android:background="@drawable/text_button_for_test"
                 android:textColor="@android:color/holo_purple"
+                android:layout_centerInParent="true"
                 />
 
         </RelativeLayout>

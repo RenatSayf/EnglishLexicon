@@ -64,6 +64,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
     private t_TestResults testResults;
     private t_DialogTestComplete dialogTestComplete;
     private ArrayList<String> arrStudiedDict = new ArrayList<>();
+    private static t_TextArrayHelper arrayHelper;
 
     //private static Bundle bundleOneOfFiveTest;
     private String KEY_BUTTON_ID = "key_button_id";
@@ -176,18 +177,20 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
             progressBar.setMax(savedInstanceState.getInt(KEY_PROGRESS_MAX));
             progressBar.setProgress(savedInstanceState.getInt(KEY_PROGRESS));
             //counterRightAnswer = savedInstanceState.getInt(KEY_COUNTER_RIGHT_ANSWER);
-            if (paramsList.size() > 0)
+            ArrayList<String> currentArray = arrayHelper.getCurrentArray();
+             if (paramsList.size() > 0)
             {
                 for (int i = 0; i < buttonsLayout.getChildCount(); i++)
                 {
                     Button button = (Button) buttonsLayout.getChildAt(i);
                     button.setLayoutParams(paramsList.get(i));
-                    button.setText(textArray.get(i));
+                    //button.setText(textArray.get(i));
+                    button.setText(currentArray.get(i));
                     if (button.getText().toString().equals(""))
                     {
                         button.setVisibility(View.GONE);
                     }
-                    btnLeft_OnClick(button);
+                    btnLeft_OnClick(i, button);
                 }
                 animator.setLayout(buttonsLayout, textView);
             }
@@ -326,7 +329,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
                     button.setTranslationY(0);
                     if (button.getVisibility() == View.VISIBLE)
                     {
-                        btnLeft_OnClick(button);
+                        btnLeft_OnClick(i, button);
                     }
 
                     button.setText(controlList.get(i).get_translate());
@@ -336,13 +339,15 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
                 textView.setText(list.get(randIndex).get_english());
                 textView.setTranslationX(0);
                 textView.setTranslationY(0);
+                arrayHelper = new t_TextArrayHelper(buttonsLayout);
             }
         };
         asyncTask.execute(spinnSelectedItem, wordIndex, count);
         asyncTask = null;
     }
 
-    private void btnLeft_OnClick(final View view)
+    private int btnIndex;
+    private void btnLeft_OnClick(final int index, final View view)
     {
         view.setOnClickListener(new View.OnClickListener()
         {
@@ -351,6 +356,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
             {
                 tempButton = (Button) view;
                 tempButtonId = tempButton.getId();
+                btnIndex = index;
                 buttonY = tempButton.getY();
                 buttonX = tempButton.getX();
                 compareWords(spinnSelectedItem,textView.getText().toString(), tempButton.getText().toString());
@@ -379,6 +385,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
 
             if (indexEn == indexRu && indexEn != -1 && indexRu != -1)
             {
+                arrayHelper.updateArray(btnIndex, tempButton.getText().toString());
                 AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
                 {
                     @Override
@@ -456,6 +463,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
         {
             controlList.set(indexEn, listFromDB.get(0));
             button.setText(listFromDB.get(0).get_translate());
+            arrayHelper.updateArray(0, listFromDB.get(0).get_translate());
             if (controlListSize != controlList.size())
             {
                 randomGenerator = new z_RandomNumberGenerator(controlList.size(), range);
