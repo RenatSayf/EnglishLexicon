@@ -51,8 +51,6 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
     private static ArrayList<DataBaseEntry> listFromDB;
     private static int indexEn = -1;
     private static int indexRu = -1;
-    private static ArrayList<RelativeLayout.LayoutParams> paramsList = new ArrayList<RelativeLayout.LayoutParams>();
-    private static ArrayList<RelativeLayout.LayoutParams> startParams = new ArrayList<>();
     private static ArrayList<String> textArray = new ArrayList<>();
 
     private TextView textView;
@@ -71,12 +69,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
     private t_TestResults testResults;
     private t_DialogTestComplete dialogTestComplete;
     private ArrayList<String> arrStudiedDict = new ArrayList<>();
-    //private static t_TextArrayHelper arrayHelper;
-    private static ArrayList<Float> arrayY;
-    //private Map<Float, String> stringMap;
-    //private Map<Float, String> sortBtnsLayout;
 
-    //private static Bundle bundleOneOfFiveTest;
     private String KEY_BUTTON_ID = "key_button_id";
     private String KEY_TEXT = "key_text";
     private String KEY_CONTROL_LIST_SIZE = "key_control_list_size";
@@ -166,16 +159,6 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
         dialogTestComplete = t_DialogTestComplete.getInstance();
         dialogTestComplete.setIDialogCompleteResult(t_OneOfFiveTest.this);
 
-        //запоминаем исходные парамеры макета
-//        if (startParams.size() == 0)
-//        {
-//            for (int i = 0; i < buttonsLayout.getChildCount(); i++)
-//            {
-//                Button button = (Button) buttonsLayout.getChildAt(i);
-//                startParams.add((RelativeLayout.LayoutParams) button.getLayoutParams());
-//            }
-//        }
-
         if (savedInstanceState != null)
         {
             textView.setText(savedInstanceState.getString(KEY_TEXT));
@@ -186,28 +169,26 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
             spinnSelectedIndex = savedInstanceState.getInt(KEY_SPINN_SELECT_INDEX);
             progressBar.setMax(savedInstanceState.getInt(KEY_PROGRESS_MAX));
             progressBar.setProgress(savedInstanceState.getInt(KEY_PROGRESS));
-            //counterRightAnswer = savedInstanceState.getInt(KEY_COUNTER_RIGHT_ANSWER);
-//            if (textArray.size() == buttonsLayout.getChildCount())
-//            {
-                for (int i = 0; i < buttonsLayout.getChildCount(); i++)
+
+            for (int i = 0; i < buttonsLayout.getChildCount(); i++)
+            {
+                Button button = (Button) buttonsLayout.getChildAt(i);
+                try
                 {
-                    Button button = (Button) buttonsLayout.getChildAt(i);
-                    try
-                    {
-                        button.setText(textArray.get(i));
-                    } catch (Exception e)
-                    {
-                        button.setText(null);
-                    }
-                    if (button.getText().toString().equals(""))
-                    {
-                        button.setVisibility(View.GONE);
-                    }
-                    btnLeft_OnClick(i, button);
+                    button.setText(textArray.get(i));
+                } catch (Exception e)
+                {
+                    button.setText(null);
                 }
-                animator.setLayout(buttonsLayout, textView);
-            //}
+                if (button.getText().toString().equals(""))
+                {
+                    button.setVisibility(View.GONE);
+                }
+                btnLeft_OnClick(i, button);
+            }
+            animator.setLayout(buttonsLayout, textView);
         }
+
         spinnListDict_OnItemSelectedListener();
         setItemsToSpinnListDict();
 
@@ -227,16 +208,6 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
         animator.setLayout(buttonsLayout, textView);
         animator.setTextViewToLeftListener(t_OneOfFiveTest.this);
         animator.setTextViewToRightListener(t_OneOfFiveTest.this);
-    }
-
-    private void resetLayout()
-    {
-        for (int i = 0; i < buttonsLayout.getChildCount(); i++)
-        {
-            Button button = (Button) buttonsLayout.getChildAt(i);
-            button.setText(null);
-        }
-        //textArray.clear();
     }
 
     private void setItemsToSpinnListDict()
@@ -274,7 +245,6 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
             {
                 if (position == spinnSelectedIndex) return;
                 textArray.clear();
-                //paramsList.clear();
                 startTest(position);
             }
 
@@ -289,7 +259,6 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
     private void startTest(final int position)
     {
         wordIndex = 1;
-        //resetLayout();
         spinnSelectedItem = spinnListDict.getSelectedItem().toString();
         DataBaseQueries.GetWordsCountAsync getWordsCount = new DataBaseQueries.GetWordsCountAsync()
         {
@@ -349,7 +318,6 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
                 textView.setText(list.get(randIndex).get_english());
                 textView.setTranslationX(0);
                 textView.setTranslationY(0);
-                //arrayHelper = new t_TextArrayHelper(buttonsLayout);
             }
         };
         asyncTask.execute(spinnSelectedItem, wordIndex, count);
@@ -395,7 +363,6 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
 
             if (indexEn == indexRu && indexEn != -1 && indexRu != -1)
             {
-                //arrayHelper.updateArray(btnIndex, tempButton.getText().toString());
                 AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
                 {
                     @Override
@@ -492,10 +459,8 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
         {
             try
             {
-
                 controlList.remove(indexEn);
                 button.setText(additionalList.get(additonalCount).get_translate());
-                //arrayHelper.updateArray(0, additionalList.get(additonalCount).get_translate());
                 additonalCount++;
                 textView.setText("");
                 if (controlList.size() > 0)
