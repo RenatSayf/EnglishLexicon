@@ -4,6 +4,9 @@ import android.animation.Animator;
 import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AnticipateInterpolator;
+import android.view.animation.AnticipateOvershootInterpolator;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -24,7 +27,7 @@ public class t_Animator
     public ITextViewToRightListener iTextViewToRightListener;
 
     private TextView textView;
-    private RelativeLayout layout;
+    private LinearLayout layout;
     private long duration = 1000;
     private int delta = 60;
 
@@ -38,7 +41,7 @@ public class t_Animator
         return instance;
     }
 
-    public void setLayout(RelativeLayout layout, TextView textView)
+    public void setLayout(LinearLayout layout, TextView textView)
     {
         this.textView = textView;
         this.layout = layout;
@@ -115,7 +118,7 @@ public class t_Animator
         this.buttonId = buttonId;
     }
 
-    public void buttonToRight(RelativeLayout layout, int buttonId)
+    public void buttonToRight(LinearLayout layout, int buttonId)
     {
         ViewPropertyAnimator animToRight;
         setButtonId(buttonId);
@@ -161,11 +164,11 @@ public class t_Animator
         int topMargin = 0;
         try
         {
-            RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) layout.getChildAt(0).getLayoutParams();
+            LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) layout.getChildAt(0).getLayoutParams();
             topMargin = layoutParams.topMargin;
             for (int i = 0; i < layout.getChildCount(); i++)
             {
-                layoutParams = (RelativeLayout.LayoutParams) layout.getChildAt(i).getLayoutParams();
+                layoutParams = (LinearLayout.LayoutParams) layout.getChildAt(i).getLayoutParams();
                 if (layoutParams.topMargin < topMargin)
                 {
                     topMargin = layoutParams.topMargin;
@@ -192,8 +195,8 @@ public class t_Animator
             {
                 animToDown = button.animate()
                         .translationYBy(button.getHeight()+topMargin)
-                        .setDuration(duration)
-                        .setInterpolator(new AccelerateDecelerateInterpolator());
+                        .setDuration(300)
+                        .setInterpolator(new AccelerateInterpolator());
                 if (!isListener)
                 {
                     isListener = true;
@@ -268,7 +271,7 @@ public class t_Animator
         final Button button = (Button) layout.findViewById(getButtonId());
         if (button == null) return;
         button.animate().translationXBy(-button.getWidth()-delta).setDuration(duration)
-                .setInterpolator(new AccelerateDecelerateInterpolator());
+                .setInterpolator(new AnticipateOvershootInterpolator());
     }
 
     public void buttonToLeft(int buttonId)

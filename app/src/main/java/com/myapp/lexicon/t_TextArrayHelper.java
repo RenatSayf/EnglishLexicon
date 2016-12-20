@@ -14,7 +14,7 @@ public class t_TextArrayHelper
 {
     private ArrayList<String> textArray;
 
-    public t_TextArrayHelper(RelativeLayout layout)
+    public t_TextArrayHelper(LinearLayout layout)
     {
         textArray = new ArrayList<>();
         for (int i = 0; i < layout.getChildCount(); i++)
@@ -32,11 +32,11 @@ public class t_TextArrayHelper
 
     public void updateArray(int index, String text)
     {
-        if (index == 0 && !text.equals(""))
-        {
-            textArray.set(0, text);
-        }
-        if (index > 0)
+//        if (index == 0 && !text.equals(""))
+//        {
+//            textArray.set(0, text);
+//        }
+        if (index >= 0)
         {
             for (int i = index; i > 0; i--)
             {
@@ -52,7 +52,7 @@ public class t_TextArrayHelper
         return textArray;
     }
 
-    public void clear()
+    public void clearArray()
     {
         textArray.clear();
     }
