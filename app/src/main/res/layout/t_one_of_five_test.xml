@@ -1,4 +1,4 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
@@ -12,7 +12,8 @@
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
         android:layout_weight="0"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="gone">
 
         <TextView
             android:layout_width="wrap_content"
@@ -37,8 +38,9 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="0.2"
-        android:orientation="vertical">
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:id="@+id/up_lin_layout">
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -84,9 +86,10 @@
             android:id="@+id/layout_1of5"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_below="@id/up_lin_layout"
             android:orientation="vertical"
             android:layout_marginBottom="10dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="0dp"
             android:layout_weight="1">
 
             <Button
@@ -151,17 +154,17 @@
         </LinearLayout>
     <!--</ScrollView>-->
 
-    <!--<LinearLayout-->
-        <!--android:id="@+id/top_panel"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_marginTop="-158dp">-->
+    <LinearLayout
+        android:id="@+id/top_panel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="-158dp">
 
-        <!--<include-->
-            <!--layout="@layout/t_top_panel"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"/>-->
-    <!--</LinearLayout>-->
+        <include
+            layout="@layout/t_top_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
 
 
-</LinearLayout>
+</RelativeLayout>

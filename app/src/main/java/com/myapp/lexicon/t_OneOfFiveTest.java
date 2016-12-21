@@ -1,6 +1,7 @@
 package com.myapp.lexicon;
 
 
+import android.animation.Animator;
 import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -11,8 +12,10 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
@@ -39,6 +42,18 @@ import java.util.TreeMap;
 public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToLeftListener, t_Animator.ITextViewToRightListener, t_DialogTestComplete.IDialogComplete_Result
 {
     public static final int ROWS = 5;
+
+    private static RelativeLayout.LayoutParams saveTopPanelParams;
+
+    private LinearLayout linLayout;
+    private LinearLayout topPanel;
+    private RelativeLayout.LayoutParams topPanelParams;
+    private float touchDown = 0, touchUp = 0;
+    private Button topPanelButtonOK;
+    private Button topPanelButtonFinish;
+    private TextView headerTopPanel;
+    private long duration = 1000;
+    private static boolean isOpen = false;
 
     private static ArrayList<String> storedListDict = new ArrayList<>();
     private static ArrayList<DataBaseEntry> controlList;
@@ -99,6 +114,13 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
         outState.putInt(KEY_PROGRESS_MAX, progressBar.getMax());
         outState.putInt(KEY_PROGRESS, progressBar.getProgress());
         //outState.putInt(KEY_COUNTER_RIGHT_ANSWER, counterRightAnswer);
+
+        if (isOpen)
+        {
+            saveTopPanelParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+            saveTopPanelParams.setMargins(topPanelParams.leftMargin, (int) topPanel.getY(), topPanelParams.rightMargin, topPanelParams.height);
+        }
+
         saveButtonsLayoutState();
         super.onSaveInstanceState(outState);
     }
@@ -151,7 +173,16 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
         lockOrientation = new z_LockOrientation(activity);
         testResults = new t_TestResults(activity);
         View fragment_view = inflater.inflate(R.layout.t_one_of_five_test, container, false);
-        spinnListDict= (Spinner) fragment_view.findViewById(R.id.spinn_1of5);
+
+        topPanel = (LinearLayout) fragment_view.findViewById(R.id.top_panel);
+        topPanelParams = (RelativeLayout.LayoutParams) topPanel.getLayoutParams();
+        headerTopPanel = (TextView) fragment_view.findViewById(R.id.header_top_panel);
+        headerTopPanel.setText("Выбери правильно");
+        topPanelButtonOK = (Button) fragment_view.findViewById(R.id.btn_ok);
+        topPanelButtonFinish = (Button) fragment_view.findViewById(R.id.btn_complete);
+        topPanelButtons_OnClick();
+
+        spinnListDict= (Spinner) fragment_view.findViewById(R.id.spinner_dict);
         buttonsLayout = (LinearLayout) fragment_view.findViewById(R.id.layout_1of5);
         textView = (TextView) fragment_view.findViewById(R.id.text_view_1of5);
         progressBar = (ProgressBar) fragment_view.findViewById(R.id.progress_test1of5);
@@ -191,6 +222,30 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
 
         spinnListDict_OnItemSelectedListener();
         setItemsToSpinnListDict();
+
+        buttonsLayout.setOnTouchListener(new View.OnTouchListener()
+        {
+            @Override
+            public boolean onTouch(View v, MotionEvent event)
+            {
+                if (event.getAction() == MotionEvent.ACTION_DOWN)
+                {
+                    touchDown = event.getY();
+                }
+                else if (event.getAction() == MotionEvent.ACTION_UP)
+                {
+                    touchUp = event.getY();
+                }
+
+                topPanelVisible(touchDown, touchUp, isOpen);
+
+                return true;
+            }
+        });
+        if (savedInstanceState != null && isOpen)
+        {
+            topPanel.setLayoutParams(saveTopPanelParams);
+        }
 
         return fragment_view;
     }
@@ -246,6 +301,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
                 if (position == spinnSelectedIndex) return;
                 textArray.clear();
                 startTest(position);
+                topPanelVisible(1, 0, isOpen);
             }
 
             @Override
@@ -271,6 +327,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
                 progressBar.setMax(wordsCount);
                 progressBar.setProgress(0);
                 counterRightAnswer = 0;
+                topPanelVisible(0, 1, isOpen);
             }
         };
         getWordsCount.execute(spinnSelectedItem);
@@ -571,6 +628,90 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
         super.onPause();
         t_Tests.bundleOneOfFiveTest = new Bundle();
         onSaveInstanceState(t_Tests.bundleOneOfFiveTest);
+    }
+
+    private void topPanelVisible(float touchDown, float touchUp, boolean isOpen)
+    {
+        if (touchDown < touchUp && !isOpen)
+        {
+            topPanel.animate().y(topPanelParams.bottomMargin).setDuration(1000).setInterpolator(new AccelerateDecelerateInterpolator()).setListener(new Animator.AnimatorListener()
+            {
+                @Override
+                public void onAnimationStart(Animator animator)
+                {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animator)
+                {
+                    t_OneOfFiveTest.isOpen = true;
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animator)
+                {
+
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animator)
+                {
+
+                }
+            });
+        }
+        else if (touchDown > touchUp && isOpen)
+        {
+            topPanel.animate().y(topPanelParams.topMargin).setDuration(1000).setListener(new Animator.AnimatorListener()
+            {
+                @Override
+                public void onAnimationStart(Animator animator)
+                {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animator)
+                {
+                    t_OneOfFiveTest.isOpen = false;
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animator)
+                {
+
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animator)
+                {
+
+                }
+            });
+        }
+    }
+    private void topPanelButtons_OnClick()
+    {
+        topPanelButtonOK.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                topPanelVisible(1, 0, isOpen);
+            }
+        });
+        topPanelButtonFinish.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                topPanelVisible(1, 0, isOpen);
+                spinnListDict.setSelection(-1);
+                spinnSelectedIndex = -1;
+                getActivity().onBackPressed();
+            }
+        });
     }
 
 
