@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.AnticipateOvershootInterpolator;
@@ -79,6 +80,7 @@ public class t_FindPairFragment extends Fragment implements t_DialogTestComplete
     private Button tempButtonLeft;
     private Button tempButtonRight;
     private Button btnNoRight;
+    private t_Animator animator;
 
     private t_DialogTestComplete dialogTestComplete;
     private t_TestResults testResults;
@@ -516,6 +518,9 @@ public class t_FindPairFragment extends Fragment implements t_DialogTestComplete
                     ruWord = null;
                     tempButtonLeft.setText(null);
                     tempButtonRight.setText(null);
+                    buttonsToDown(btnLayoutLeft, tempButtonLeft.getX(), tempButtonLeft.getY());
+                    buttonsToDown(btnLayoutRight, tempButtonRight.getX(), tempButtonRight.getY());
+
                     boolean isFill = true;
                     for (int i = 0; i < btnLayoutLeft.getChildCount(); i++)
                     {
@@ -559,6 +564,29 @@ public class t_FindPairFragment extends Fragment implements t_DialogTestComplete
 
             }
         });
+    }
+
+    public void buttonsToDown(LinearLayout layout, float x, float y)
+    {
+        LinearLayout.LayoutParams layoutParams;// = (LinearLayout.LayoutParams) layout.getChildAt(0).getLayoutParams();
+        int topMargin;// = layoutParams.topMargin;
+        for (int i = 0; i < layout.getChildCount(); i++)
+        {
+            layoutParams = (LinearLayout.LayoutParams) layout.getChildAt(i).getLayoutParams();
+            topMargin = layoutParams.topMargin;
+            Button button = (Button) layout.getChildAt(i);
+            float X = button.getX();
+            float Y = button.getY();
+            if (Y < y && x == X)
+            {
+                button.animate()
+                        .translationYBy(button.getHeight() + topMargin)
+                        .setDuration(300)
+                        .setStartDelay(0)
+                        .setInterpolator(new AccelerateInterpolator())
+                        .setListener(null);
+            }
+        }
     }
 
     @Override
