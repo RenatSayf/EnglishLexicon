@@ -1,6 +1,7 @@
 package com.myapp.lexicon;
 
 import android.animation.Animator;
+import android.util.DisplayMetrics;
 import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -67,9 +68,9 @@ public class t_Animator
         iTextViewToRightListener = listener;
     }
 
-    public void textViewToLeft()
+    public void textViewToLeft(DisplayMetrics metrics)
     {
-        textView.animate().x(-(textView.getWidth() + delta))
+        textView.animate().x(-(metrics.widthPixels + delta))
                 .setDuration(duration)
                 .setInterpolator(new AccelerateDecelerateInterpolator())
                 .setListener(new Animator.AnimatorListener()
@@ -118,7 +119,7 @@ public class t_Animator
         this.buttonId = buttonId;
     }
 
-    public void buttonToRight(LinearLayout layout, int buttonId)
+    public void buttonToRight(LinearLayout layout, int buttonId, DisplayMetrics metrics)
     {
         ViewPropertyAnimator animToRight;
         setButtonId(buttonId);
@@ -126,8 +127,9 @@ public class t_Animator
         button = (Button) layout.findViewById(getButtonId());
         if (button != null)
         {
-            animToRight = button.animate().translationXBy((button.getWidth() + delta))
+            animToRight = button.animate().translationXBy((button.getWidth()+delta))
                     .setDuration(duration)
+                    .setStartDelay(0)
                     .setInterpolator(new AccelerateDecelerateInterpolator())
                     .setListener(new Animator.AnimatorListener()
                     {
@@ -196,6 +198,7 @@ public class t_Animator
                 animToDown = button.animate()
                         .translationYBy(button.getHeight()+topMargin)
                         .setDuration(300)
+                        .setStartDelay(0)
                         .setInterpolator(new AccelerateInterpolator());
                 if (!isListener)
                 {
@@ -238,6 +241,7 @@ public class t_Animator
         int topMargin = getMinMarginTop();
         button.animate().translationYBy(-button.getY()+topMargin)
                 .setDuration(10)
+                .setStartDelay(0)
                 .setListener(new Animator.AnimatorListener()
                 {
                     @Override
@@ -270,7 +274,9 @@ public class t_Animator
     {
         final Button button = (Button) layout.findViewById(getButtonId());
         if (button == null) return;
-        button.animate().translationXBy(-button.getWidth()-delta).setDuration(duration)
+        button.animate().translationXBy(-button.getWidth()-delta)
+                .setDuration(duration)
+                .setStartDelay(0)
                 .setInterpolator(new AnticipateOvershootInterpolator());
     }
 
@@ -314,7 +320,8 @@ public class t_Animator
         TextView _textView = this.textView;
         _textView.animate().translationX(0)
                 .setDuration(duration)
-                .setInterpolator(new AccelerateDecelerateInterpolator())
+                .setStartDelay(0)
+                .setInterpolator(new AnticipateOvershootInterpolator())
                 .setListener(new Animator.AnimatorListener()
                 {
                     @Override

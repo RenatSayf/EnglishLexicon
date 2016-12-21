@@ -10,7 +10,8 @@ import android.speech.tts.UtteranceProgressListener;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.util.SparseArray;
+import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -18,6 +19,7 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.AnticipateOvershootInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -67,6 +69,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
     private static int indexEn = -1;
     private static int indexRu = -1;
     private static ArrayList<String> textArray = new ArrayList<>();
+    private DisplayMetrics displayMetrics;
 
     private TextView textView;
     private LinearLayout buttonsLayout;
@@ -172,6 +175,11 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
         fragmentManager = getFragmentManager();
         lockOrientation = new z_LockOrientation(activity);
         testResults = new t_TestResults(activity);
+
+        Display display = getActivity().getWindowManager().getDefaultDisplay();
+        displayMetrics = new DisplayMetrics();
+        display.getMetrics(displayMetrics);
+
         View fragment_view = inflater.inflate(R.layout.t_one_of_five_test, container, false);
 
         topPanel = (LinearLayout) fragment_view.findViewById(R.id.top_panel);
@@ -189,6 +197,11 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
         animator = t_Animator.getInstance();
         dialogTestComplete = t_DialogTestComplete.getInstance();
         dialogTestComplete.setIDialogCompleteResult(t_OneOfFiveTest.this);
+
+        if (savedInstanceState == null)
+        {
+            buttonsLeftGone();
+        }
 
         if (savedInstanceState != null)
         {
@@ -256,7 +269,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
         {
             Button button = (Button) buttonsLayout.getChildAt(i);
             button.setTranslationX(0);
-            button.setTranslationY(0);
+            button.setTranslationY(displayMetrics.widthPixels);
             button.setText(null);
             button.setVisibility(View.GONE);
         }
@@ -357,24 +370,24 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
                 }
                 controlListSize = controlList.size();
                 randomGenerator = new z_RandomNumberGenerator(controlListSize, 133);
+                long start_delay = 0;
                 for (int i = 0; i < controlList.size(); i++)
                 {
                     Button button = (Button) buttonsLayout.getChildAt(i);
-                    button.setVisibility(View.VISIBLE);
-                    button.setTranslationX(0);
+                    button.setTranslationX(displayMetrics.widthPixels);
                     button.setTranslationY(0);
-                    if (button.getVisibility() == View.VISIBLE)
-                    {
-                        btnLeft_OnClick(i, button);
-                    }
-
+                    button.setVisibility(View.VISIBLE);
+                    button.animate().translationX(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null).setStartDelay(start_delay);
+                    start_delay += 70;
+                    btnLeft_OnClick(i, button);
                     button.setText(controlList.get(i).get_translate());
                     wordIndex++;
                 }
                 int randIndex = randomGenerator.generate();
                 textView.setText(list.get(randIndex).get_english());
-                textView.setTranslationX(0);
+                textView.setTranslationX(-displayMetrics.widthPixels);
                 textView.setTranslationY(0);
+                textView.animate().translationX(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null).setStartDelay(start_delay);
             }
         };
         asyncTask.execute(spinnSelectedItem, wordIndex, count);
@@ -448,8 +461,9 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
 
                             }
                         });
-                        animator.textViewToLeft();
-                        animator.buttonToRight(buttonsLayout, tempButtonId);
+
+                        animator.textViewToLeft(displayMetrics);
+                        animator.buttonToRight(buttonsLayout, tempButtonId, displayMetrics);
                         counterRightAnswer++;
                     }
                 };
