@@ -147,7 +147,8 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
         topPanelButtons_OnClick();
 
         testResults = new t_TestResults(getActivity());
-        dialogTestComplete = t_DialogTestComplete.getInstance();
+        //dialogTestComplete = t_DialogTestComplete.getInstance();
+        dialogTestComplete = new t_DialogTestComplete();
         dialogTestComplete.setIDialogCompleteResult(t_ListenEndClickFragment.this);
 
         spinnListDict_OnItemSelectedListener();

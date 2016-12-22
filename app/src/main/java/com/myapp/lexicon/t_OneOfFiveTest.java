@@ -195,7 +195,8 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
         textView = (TextView) fragment_view.findViewById(R.id.text_view_1of5);
         progressBar = (ProgressBar) fragment_view.findViewById(R.id.progress_test1of5);
         animator = t_Animator.getInstance();
-        dialogTestComplete = t_DialogTestComplete.getInstance();
+        dialogTestComplete = new t_DialogTestComplete();
+        //dialogTestComplete = t_DialogTestComplete.getInstance();
         dialogTestComplete.setIDialogCompleteResult(t_OneOfFiveTest.this);
 
         if (savedInstanceState == null)

@@ -29,14 +29,8 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
 
 
 /**
@@ -137,28 +131,20 @@ public class t_FindPairFragment extends Fragment implements t_DialogTestComplete
 
     private void saveButtonsLayoutState()
     {
-        Map<Float, String> stringMap = new HashMap<>();
-        for (int i = 0; i < btnLayoutLeft.getChildCount(); i++)
-        {
-            Button button = (Button) btnLayoutLeft.getChildAt(i);
-            stringMap.put(button.getY(), button.getText().toString());
-        }
-
-        Map<Float, String> sortBtnsLayout = new TreeMap<>(new Comparator<Float>()
-        {
-            @Override
-            public int compare(Float lhs, Float rhs)
-            {
-                return lhs.compareTo(rhs);
-            }
-        });
-        sortBtnsLayout.putAll(stringMap);
-
-        Collection<String> stringCollection = sortBtnsLayout.values();
         textArrayleft.clear();
-        for (String item : stringCollection)
+        textArrayRight.clear();
+        for (int i = 0; i < btnLayoutLeft.getChildCount() && i < btnLayoutRight.getChildCount(); i++)
         {
-            textArrayleft.add(item);
+            Button buttonLeft = (Button) btnLayoutLeft.getChildAt(i);
+            Button buttonRight = (Button) btnLayoutRight.getChildAt(i);
+            if (!buttonLeft.getText().toString().equals(""))
+            {
+                textArrayleft.add(buttonLeft.getText().toString());
+            }
+            if (!buttonRight.getText().toString().equals(""))
+            {
+                textArrayRight.add(buttonRight.getText().toString());
+            }
         }
         return;
     }
@@ -252,20 +238,32 @@ public class t_FindPairFragment extends Fragment implements t_DialogTestComplete
 
         if (savedInstanceState != null)
         {
-            if (textArrayleft.size() == btnLayoutLeft.getChildCount() && textArrayRight.size() == btnLayoutRight.getChildCount())
+            if (textArrayleft.size() <= btnLayoutLeft.getChildCount() && textArrayRight.size() <= btnLayoutRight.getChildCount())
             {
                 for (int i = 0; i < btnLayoutLeft.getChildCount() && i < btnLayoutRight.getChildCount(); i++)
                 {
                     Button buttonLeft = (Button) btnLayoutLeft.getChildAt(i);
                     Button buttonRight = (Button) btnLayoutRight.getChildAt(i);
-                    buttonLeft.setText(textArrayleft.get(i));
-                    if (textArrayleft.get(i).equals(""))
+                    try
+                    {
+                        if (!textArrayleft.get(i).equals(""))
+                        {
+                            buttonLeft.setText(textArrayleft.get(i));
+                        }
+
+                    } catch (Exception e)
                     {
                         buttonLeft.setVisibility(View.INVISIBLE);
                         buttonLeft.setText(null);
                     }
-                    buttonRight.setText(textArrayRight.get(i));
-                    if (textArrayRight.get(i).equals(""))
+
+                    try
+                    {
+                        if (!textArrayRight.get(i).equals(""))
+                        {
+                            buttonRight.setText(textArrayRight.get(i));
+                        }
+                    }catch (Exception e)
                     {
                         buttonRight.setVisibility(View.INVISIBLE);
                         buttonRight.setText(null);
@@ -277,8 +275,8 @@ public class t_FindPairFragment extends Fragment implements t_DialogTestComplete
         }
 
         testResults = new t_TestResults(getActivity());
-        dialogTestComplete = t_DialogTestComplete.getInstance();
-        dialogTestComplete.setIDialogCompleteResult(t_FindPairFragment.this);
+        //dialogTestComplete = t_DialogTestComplete.getInstance();
+        //dialogTestComplete.setIDialogCompleteResult(t_FindPairFragment.this);
 
         return fragment_view;
     }
@@ -563,8 +561,8 @@ public class t_FindPairFragment extends Fragment implements t_DialogTestComplete
                     tempButtonLeft.setVisibility(View.INVISIBLE);
                     tempButtonRight.setVisibility(View.INVISIBLE);
 
-                    buttonsToDown(btnLayoutLeft, tempButtonLeft.getX(), tempButtonLeft.getY());
-                    buttonsToDown(btnLayoutRight, tempButtonRight.getX(), tempButtonRight.getY());
+                    buttonsToDown(btnLayoutLeft, tempButtonLeft.getX(), tempButtonLeft.getY(), false);
+                    buttonsToDown(btnLayoutRight, tempButtonRight.getX(), tempButtonRight.getY(), true);
 
 //                    boolean isFill = true;
 //                    for (int i = 0; i < btnLayoutLeft.getChildCount(); i++)
@@ -611,14 +609,12 @@ public class t_FindPairFragment extends Fragment implements t_DialogTestComplete
         });
     }
 
-    public void buttonsToDown(LinearLayout layout, float x, float y)
+    public void buttonsToDown(LinearLayout layout, float x, float y, final boolean isListen)
     {
         LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) layout.getChildAt(0).getLayoutParams();
         int topMargin = layoutParams.topMargin;
         for (int i = 0; i < layout.getChildCount(); i++)
         {
-            //layoutParams = (LinearLayout.LayoutParams) layout.getChildAt(i).getLayoutParams();
-            //topMargin = layoutParams.topMargin;
             Button button = (Button) layout.getChildAt(i);
             float X = button.getX();
             float Y = button.getY();
@@ -640,47 +636,55 @@ public class t_FindPairFragment extends Fragment implements t_DialogTestComplete
                             @Override
                             public void onAnimationEnd(Animator animation)
                             {
-//                                tempButtonLeft.setVisibility(View.INVISIBLE);
-//                                tempButtonRight.setVisibility(View.INVISIBLE);
                                 getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-                                boolean isFill = true;
-                                for (int i = 0; i < btnLayoutLeft.getChildCount(); i++)
+                                if (isListen)
                                 {
-                                    Button button = (Button) btnLayoutLeft.getChildAt(i);
-                                    if (!button.getText().equals(""))
+                                    boolean isFill = true;
+                                    for (int i = 0; i < btnLayoutLeft.getChildCount(); i++)
                                     {
-                                        isFill = false;
-                                        break;
-                                    }
-                                }
-                                if (isFill)
-                                {
-                                    fillButtonsLayout(spinnSelectedItem, wordIndex + 1, wordIndex + ROWS);
-                                }
-
-                                if (wordIndex == wordsCount)
-                                {
-                                    //Toast.makeText(getActivity(),"Завершено",Toast.LENGTH_SHORT).show();
-                                    ArrayList<String> list = new ArrayList<String>();
-                                    list.add(testResults.getOverallResult(counterRightAnswer, wordsCount));
-                                    list.add(counterRightAnswer + getActivity().getString(R.string.text_out_of) + wordsCount);
-                                    try
-                                    {
-                                        if (!dialogTestComplete.isAdded())
+                                        Button button = (Button) btnLayoutLeft.getChildAt(i);
+                                        if (!button.getText().equals(""))
                                         {
-                                            Bundle bundle = new Bundle();
-                                            bundle.putString(dialogTestComplete.KEY_RESULT, list.get(0));
-                                            bundle.putString(dialogTestComplete.KEY_ERRORS, list.get(1));
-                                            dialogTestComplete.setArguments(bundle);
-                                            dialogTestComplete.setCancelable(false);
-
-                                            dialogTestComplete.show(getFragmentManager(), "dialog_complete_find_pair");
+                                            isFill = false;
+                                            break;
                                         }
-
-                                    } catch (IllegalStateException e)
+                                    }
+                                    if (isFill)
                                     {
-                                        dialogTestComplete = null;
-                                        return;
+                                        fillButtonsLayout(spinnSelectedItem, wordIndex + 1, wordIndex + ROWS);
+                                    }
+
+                                    if (wordIndex == wordsCount)
+                                    {
+                                        //Toast.makeText(getActivity(),"Завершено",Toast.LENGTH_SHORT).show();
+                                        ArrayList<String> list = new ArrayList<String>();
+                                        list.add(testResults.getOverallResult(counterRightAnswer, wordsCount));
+                                        list.add(counterRightAnswer + getActivity().getString(R.string.text_out_of) + wordsCount);
+                                        if (dialogTestComplete == null)
+                                        {
+                                            dialogTestComplete = new t_DialogTestComplete();
+                                            dialogTestComplete.setIDialogCompleteResult(t_FindPairFragment.this);
+                                        }
+                                        if (dialogTestComplete != null)
+                                        {
+                                            try
+                                            {
+                                                if (!dialogTestComplete.isAdded())
+                                                {
+                                                    Bundle bundle = new Bundle();
+                                                    bundle.putString(dialogTestComplete.KEY_RESULT, list.get(0));
+                                                    bundle.putString(dialogTestComplete.KEY_ERRORS, list.get(1));
+                                                    dialogTestComplete.setArguments(bundle);
+                                                    dialogTestComplete.setCancelable(false);
+                                                    dialogTestComplete.show(getFragmentManager(), "dialog_complete_find_pair");
+                                                }
+
+                                            } catch (IllegalStateException e)
+                                            {
+                                                dialogTestComplete = null;
+                                                return;
+                                            }
+                                        }
                                     }
                                 }
                             }
