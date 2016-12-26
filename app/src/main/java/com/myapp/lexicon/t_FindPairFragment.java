@@ -611,6 +611,7 @@ public class t_FindPairFragment extends Fragment implements t_DialogTestComplete
 
     public void buttonsToDown(LinearLayout layout, float x, float y, final boolean isListen)
     {
+        ViewPropertyAnimator animator;
         LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) layout.getChildAt(0).getLayoutParams();
         int topMargin = layoutParams.topMargin;
         for (int i = 0; i < layout.getChildCount(); i++)
@@ -620,87 +621,87 @@ public class t_FindPairFragment extends Fragment implements t_DialogTestComplete
             float Y = button.getY();
             if (Y < y && x == X)
             {
-                button.animate()
+                animator = button.animate()
                         .translationYBy(button.getHeight() + topMargin)
                         .setDuration(300)
                         .setStartDelay(0)
-                        .setInterpolator(new AccelerateInterpolator())
-                        .setListener(new Animator.AnimatorListener()
+                        .setInterpolator(new AccelerateInterpolator()).setListener(null);
+                if (i == 0 && isListen)
+                {
+                    animator.setListener(new Animator.AnimatorListener()
+                    {
+                        @Override
+                        public void onAnimationStart(Animator animation)
                         {
-                            @Override
-                            public void onAnimationStart(Animator animation)
-                            {
 
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animation)
+                        {
+                            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+                            boolean isFill = true;
+                            for (int i = 0; i < btnLayoutLeft.getChildCount(); i++)
+                            {
+                                Button button = (Button) btnLayoutLeft.getChildAt(i);
+                                if (!button.getText().equals(""))
+                                {
+                                    isFill = false;
+                                    break;
+                                }
+                            }
+                            if (isFill)
+                            {
+                                fillButtonsLayout(spinnSelectedItem, wordIndex + 1, wordIndex + ROWS);
                             }
 
-                            @Override
-                            public void onAnimationEnd(Animator animation)
+                            if (wordIndex == wordsCount)
                             {
-                                getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-                                if (isListen)
+                                //Toast.makeText(getActivity(),"Завершено",Toast.LENGTH_SHORT).show();
+                                ArrayList<String> list = new ArrayList<String>();
+                                list.add(testResults.getOverallResult(counterRightAnswer, wordsCount));
+                                list.add(counterRightAnswer + getActivity().getString(R.string.text_out_of) + wordsCount);
+                                if (dialogTestComplete == null)
                                 {
-                                    boolean isFill = true;
-                                    for (int i = 0; i < btnLayoutLeft.getChildCount(); i++)
+                                    dialogTestComplete = new t_DialogTestComplete();
+                                    dialogTestComplete.setIDialogCompleteResult(t_FindPairFragment.this);
+                                }
+                                if (dialogTestComplete != null)
+                                {
+                                    try
                                     {
-                                        Button button = (Button) btnLayoutLeft.getChildAt(i);
-                                        if (!button.getText().equals(""))
+                                        if (!dialogTestComplete.isAdded())
                                         {
-                                            isFill = false;
-                                            break;
+                                            Bundle bundle = new Bundle();
+                                            bundle.putString(dialogTestComplete.KEY_RESULT, list.get(0));
+                                            bundle.putString(dialogTestComplete.KEY_ERRORS, list.get(1));
+                                            dialogTestComplete.setArguments(bundle);
+                                            dialogTestComplete.setCancelable(false);
+                                            dialogTestComplete.show(getFragmentManager(), "dialog_complete_find_pair");
                                         }
-                                    }
-                                    if (isFill)
-                                    {
-                                        fillButtonsLayout(spinnSelectedItem, wordIndex + 1, wordIndex + ROWS);
-                                    }
 
-                                    if (wordIndex == wordsCount)
+                                    } catch (IllegalStateException e)
                                     {
-                                        //Toast.makeText(getActivity(),"Завершено",Toast.LENGTH_SHORT).show();
-                                        ArrayList<String> list = new ArrayList<String>();
-                                        list.add(testResults.getOverallResult(counterRightAnswer, wordsCount));
-                                        list.add(counterRightAnswer + getActivity().getString(R.string.text_out_of) + wordsCount);
-                                        if (dialogTestComplete == null)
-                                        {
-                                            dialogTestComplete = new t_DialogTestComplete();
-                                            dialogTestComplete.setIDialogCompleteResult(t_FindPairFragment.this);
-                                        }
-                                        if (dialogTestComplete != null)
-                                        {
-                                            try
-                                            {
-                                                if (!dialogTestComplete.isAdded())
-                                                {
-                                                    Bundle bundle = new Bundle();
-                                                    bundle.putString(dialogTestComplete.KEY_RESULT, list.get(0));
-                                                    bundle.putString(dialogTestComplete.KEY_ERRORS, list.get(1));
-                                                    dialogTestComplete.setArguments(bundle);
-                                                    dialogTestComplete.setCancelable(false);
-                                                    dialogTestComplete.show(getFragmentManager(), "dialog_complete_find_pair");
-                                                }
-
-                                            } catch (IllegalStateException e)
-                                            {
-                                                dialogTestComplete = null;
-                                                return;
-                                            }
-                                        }
+                                        dialogTestComplete = null;
+                                        return;
                                     }
                                 }
                             }
+                        }
 
-                            @Override
-                            public void onAnimationCancel(Animator animation)
-                            {
+                        @Override
+                        public void onAnimationCancel(Animator animation)
+                        {
 
-                            }
+                        }
 
-                            @Override
-                            public void onAnimationRepeat(Animator animation)
-                            {
+                        @Override
+                        public void onAnimationRepeat(Animator animation)
+                        {
 
-                            }
-                        });
+                        }
+                    });
+                }
             }
         }
     }
