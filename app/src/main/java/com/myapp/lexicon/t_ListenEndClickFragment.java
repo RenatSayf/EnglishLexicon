@@ -19,6 +19,7 @@ import android.view.ViewPropertyAnimator;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.AnticipateOvershootInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -62,7 +63,7 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
     private RelativeLayout.LayoutParams topPanelParams;
     private float touchDown = 0, touchUp = 0;
     private Button tempButton;
-    private RelativeLayout buttonsLayout;
+    private LinearLayout buttonsLayout;
     private Spinner spinnListDict;
     private int spinnSelectedIndex = -1;
     private ImageButton buttonSpeech;
@@ -79,6 +80,7 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
     private ArrayList<String> arrStudiedDict = new ArrayList<>();
     private t_TestResults testResults;
     private int range = 4;
+    private DisplayMetrics displayMetrics;
 
     private String KEY_CONTROL_LIST_SIZE = "key_control_list_size";
     private String KEY_WORDS_COUNT = "key_words_count";
@@ -131,14 +133,18 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
             savedInstanceState = t_Tests.bundleListenTest;
         }
 
+        Display display = getActivity().getWindowManager().getDefaultDisplay();
+        displayMetrics = new DisplayMetrics();
+        display.getMetrics(displayMetrics);
+
         lockOrientation = new z_LockOrientation(getActivity());
         View fragment_view = inflater.inflate(R.layout.t_listen_end_click_layout, container, false);
-        relLayout = (RelativeLayout) fragment_view.findViewById(R.id.rel_layout);
+        //relLayout = (RelativeLayout) fragment_view.findViewById(R.id.rel_layout);
         topPanel = (LinearLayout) fragment_view.findViewById(R.id.top_panel);
         topPanelParams = (RelativeLayout.LayoutParams) topPanel.getLayoutParams();
         linLayout = (LinearLayout) fragment_view.findViewById(R.id.linear_layout);
         spinnListDict = (Spinner) fragment_view.findViewById(R.id.spinner_dict);
-        buttonsLayout = (RelativeLayout) fragment_view.findViewById(R.id.buttons_layout);
+        buttonsLayout = (LinearLayout) fragment_view.findViewById(R.id.buttons_layout);
         buttonSpeech = (ImageButton) fragment_view.findViewById(R.id.btn_speech);
         buttonSpeech_OnClick();
         progressBar = (ProgressBar) fragment_view.findViewById(R.id.prog_bar_listen);
@@ -153,6 +159,11 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
 
         spinnListDict_OnItemSelectedListener();
         setItemsToSpinnListDict();
+
+        if (savedInstanceState == null)
+        {
+            hideWordButtons();
+        }
 
         if (savedInstanceState != null && isOpen)
         {
@@ -333,12 +344,16 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
                     additionalList.add(entry);
                 }
                 controlListSize = controlList.size();
-
+                long start_delay = 0;
                 for (int i = 0; i < controlList.size(); i++)
                 {
                     Button button = (Button) buttonsLayout.getChildAt(i);
                     button.setText(controlList.get(i).get_translate());
+                    button.setTranslationX(displayMetrics.widthPixels);
+                    button.setTranslationY(0);
                     button.setVisibility(View.VISIBLE);
+                    button.animate().translationX(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null).setStartDelay(start_delay);
+                    start_delay += 70;
                     btnLeft_OnClick(button);
                     wordIndex++;
                 }
@@ -466,7 +481,7 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
     {
         if (button == null) return;
         button.animate().translationX(-button.getWidth()-button.getLeft())
-                .setDuration(duration)
+                .setDuration(duration - 500)
                 .setInterpolator(new AccelerateDecelerateInterpolator())
                 .setListener(new Animator.AnimatorListener()
                 {
@@ -544,7 +559,7 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
         if (button == null) return;
         button.animate().translationX(0)
                 .setDuration(duration)
-                .setInterpolator(new AccelerateDecelerateInterpolator())
+                .setInterpolator(new AnticipateOvershootInterpolator())
                 .setListener(new Animator.AnimatorListener()
                 {
                     @Override
@@ -727,6 +742,19 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
 
                 }
             });
+        }
+    }
+
+    private void hideWordButtons()
+    {
+        for (int i = 0; i < buttonsLayout.getChildCount(); i++)
+        {
+            Button btnLeft = (Button) buttonsLayout.getChildAt(i);
+            Button btnRight = (Button) buttonsLayout.getChildAt(i);
+            btnLeft.setVisibility(View.INVISIBLE);
+            btnLeft.setText(null);
+            btnRight.setVisibility(View.INVISIBLE);
+            btnRight.setText(null);
         }
     }
 
