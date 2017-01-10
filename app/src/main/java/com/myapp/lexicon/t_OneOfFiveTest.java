@@ -465,6 +465,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
 
                         animator.textViewToLeft(displayMetrics);
                         animator.buttonToRight(buttonsLayout, tempButtonId, displayMetrics);
+                        tempButton.setBackgroundResource(R.drawable.text_btn_for_test_green);
                         counterRightAnswer++;
                     }
                 };
@@ -512,7 +513,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
         {
             controlList.set(indexEn, listFromDB.get(0));
             button.setText(listFromDB.get(0).get_translate());
-            //arrayHelper.updateArray(0, listFromDB.get(0).get_translate());
+            button.setBackgroundResource(R.drawable.text_button_for_test);
             if (controlListSize != controlList.size())
             {
                 randomGenerator = new z_RandomNumberGenerator(controlList.size(), range);
@@ -529,6 +530,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
         }
         else if (listFromDB.size() == 0 && controlList.size() <= ROWS)
         {
+            button.setBackgroundResource(R.drawable.text_button_for_test);
             try
             {
                 controlList.remove(indexEn);

@@ -73,6 +73,7 @@ public class t_Animator
         textView.animate().x(-(metrics.widthPixels + delta))
                 .setDuration(duration)
                 .setInterpolator(new AccelerateDecelerateInterpolator())
+                .setStartDelay(0)
                 .setListener(new Animator.AnimatorListener()
                 {
                     @Override
