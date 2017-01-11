@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_height="match_parent"
+    >
 
     <ViewFlipper
         android:id="@+id/view_flipper"
@@ -20,14 +21,14 @@
             android:src="@drawable/img_uk"
             />
 
-        <!--<ImageView-->
-            <!--android:id="@+id/imageView2"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:alpha="0.9"-->
-            <!--android:scaleType="center"-->
-            <!--android:src="@drawable/angliya2"-->
-            <!--/>-->
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:alpha="0.9"
+            android:scaleType="center"
+            android:src="@drawable/img_uk2"
+            />
 
         <!--<ImageView-->
             <!--android:id="@+id/imageView3"-->
@@ -56,14 +57,14 @@
             <!--android:src="@drawable/angliya5"-->
             <!--/>-->
 
-        <!--<ImageView-->
-            <!--android:id="@+id/imageView6"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:alpha="0.9"-->
-            <!--android:scaleType="center"-->
-            <!--android:src="@drawable/img_uk7"-->
-            <!--/>-->
+        <ImageView
+            android:id="@+id/imageView6"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:alpha="0.9"
+            android:scaleType="center"
+            android:src="@drawable/img_uk7"
+            />
 
     </ViewFlipper>
 
