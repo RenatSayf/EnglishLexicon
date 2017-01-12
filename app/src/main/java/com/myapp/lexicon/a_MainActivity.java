@@ -26,6 +26,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -33,6 +34,7 @@ import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewFlipper;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -46,10 +48,9 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     public static SharedPreferences kept_playList;
     public static SharedPreferences settings;
     public static String KEY_ENG_ONLY = "eng_only";
+    public static DatabaseHelper databaseHelper;
 
     private Intent add_word;
-    private Intent _add_dict;
-    private Intent _dict_setting;
     private Intent _word_editor;
     private Intent _check_self;
     private Intent _play_list;
@@ -63,14 +64,11 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     private Button _btn_Previous;
     private ProgressBar _progressBar;
     private Switch switchRuSound;
-    private Handler _handler;
-    Intent intentMyIntentService;
+    private Intent intentMyIntentService;
     private UpdateBroadcastReceiver mUpdateBroadcastReceiver;
+    private z_BackgroundAnim backgroundAnim;
 
     protected PowerManager.WakeLock wakeLock;
-
-    public static DatabaseHelper databaseHelper;
-    public static ArrayList<DataBaseEntry> dataBaseEntry= new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -80,31 +78,30 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a_navig_main);
 
-
         final PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
         this.wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"my_tag");
         this.wakeLock.acquire();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        //getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         kept_playList=getSharedPreferences("play_list", MODE_PRIVATE);
         settings = getSharedPreferences(KEY_ENG_ONLY, MODE_PRIVATE);
         initViews();
 
-
-
-        //z_speechService speechService=new z_speechService();
-        //intentMyIntentService = new Intent(this, speechService.getClass());
         intentMyIntentService = new Intent(this, z_speechService.class);
 
-        mUpdateBroadcastReceiver = new UpdateBroadcastReceiver();
         // Регистрируем приёмник
+        mUpdateBroadcastReceiver = new UpdateBroadcastReceiver();
         IntentFilter updateIntentFilter = new IntentFilter(z_speechService.ACTION_UPDATE);
         updateIntentFilter.addCategory(Intent.CATEGORY_DEFAULT);
-        registerReceiver(mUpdateBroadcastReceiver, updateIntentFilter);
-
-        //_speechSynthesAsync = new z_Speaker(this, _textViewEn, _textViewRu);
+        try
+        {
+            registerReceiver(mUpdateBroadcastReceiver, updateIntentFilter);
+        } catch (Exception e)
+        {
+            z_Log.v(e.getMessage());
+        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -124,6 +121,8 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     }
     private void initViews()
     {
+        backgroundAnim = new z_BackgroundAnim(this, (ViewFlipper) findViewById(R.id.view_flipper));
+        backgroundAnim.startAnimByRandom();
         _textViewEn = (TextView) findViewById(R.id.enTextView);
         _textViewRu = (TextView) findViewById(R.id.ruTextView);
         _textViewDict = (TextView) findViewById(R.id.textViewDict);
@@ -158,7 +157,6 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     protected void onStop()
     {
         super.onStop();
-
 
     }
 
@@ -195,13 +193,15 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     {
         super.onDestroy();
         Log.i("Lexicon", "Заход в a_MainActivity.onDestroy()");
-
+        unregisterReceiver(mUpdateBroadcastReceiver);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
     }
 
     @Override
     public void onBackPressed()
     {
         Log.i("Lexicon", "Заход в a_MainActivity.onBackPressed");
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START))
         {
@@ -217,7 +217,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     {
         // Inflate the menu; this adds items to the action bar if it is present.
         Log.i("Lexicon", "Заход в a_MainActivity.onCreateOptionsMenu");
-        getMenuInflater().inflate(R.menu.a_up_menu_main, menu);
+        //getMenuInflater().inflate(R.menu.a_up_menu_main, menu);
         return true;
     }
 
@@ -295,6 +295,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             startActivity(_play_list);
         } else if (id == R.id.nav_exit)
         {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
             databaseHelper.close();
             speechServiceOnStop();
             wakeLock.release();
@@ -532,6 +533,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     protected void onSaveInstanceState(Bundle outState)
     {
         super.onSaveInstanceState(outState);
+        backgroundAnim.onSaveInstanceState(null);
 //        outState.putString("enText", _textViewEn.getText().toString());
 //        outState.putString("ruText", _textViewRu.getText().toString());
     }
