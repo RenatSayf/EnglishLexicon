@@ -64,4 +64,12 @@ public class z_BackgroundAnim extends AppCompatActivity
     {
         displayedChild = flipper.getDisplayedChild();
     }
+
+    @Override
+    protected void onDestroy()
+    {
+        flipper.stopFlipping();
+        displayedChild = 0;
+        index = 0;
+    }
 }

@@ -43,7 +43,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
-public class a_MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener //AppCompatActivity ActionBarActivity
+public class a_MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
     public static SharedPreferences kept_playList;
     public static SharedPreferences settings;
@@ -67,14 +67,13 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     private Intent intentMyIntentService;
     private UpdateBroadcastReceiver mUpdateBroadcastReceiver;
     private z_BackgroundAnim backgroundAnim;
+    private boolean isFirstTime = true;
 
     protected PowerManager.WakeLock wakeLock;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
-        Log.i("Lexicon", "Заход в a_MainActivity.onCreate");
-        Log.d("Lexicon", "Заход в a_MainActivity.onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a_navig_main);
 
@@ -116,7 +115,10 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             databaseHelper.create_db();
         }
 
-
+        if (savedInstanceState != null)
+        {
+            isFirstTime = false;
+        }
 
     }
     private void initViews()
@@ -141,7 +143,6 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     protected void onPause()
     {
         super.onPause();
-        Log.i("Lexicon", "Заход в a_MainActivity.onPause()");
         AppData.setEnText(_textViewEn.getText().toString());
         AppData.setRuText(_textViewRu.getText().toString());
         AppData.setCurrentDict(_textViewDict.getText().toString());
@@ -157,14 +158,18 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     protected void onStop()
     {
         super.onStop();
+    }
 
+    @Override
+    protected void onRestart()
+    {
+        super.onRestart();
     }
 
     @Override
     protected void onResume()
     {
         super.onResume();
-        Log.i("Lexicon", "Вход в a_MainActivity.onResume()");
         try
         {
             if (!a_MainActivity.databaseHelper.database.isOpen())
@@ -174,7 +179,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         }
         catch (Exception ex)
         {
-            Log.i("Lexicon", "Исключение в a_MainActivity.onResume() databaseHelper = " + ex);
+            z_Log.v(ex.getMessage());
         }
         _textViewEn.setText(AppData.getEnText());
         _textViewRu.setText(AppData.getRuText());
@@ -185,14 +190,13 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         _btn_Next.setVisibility(AppData.buttonNextVisible);
         _btn_Previous.setVisibility(AppData.buttonPreviousVisible);
         _progressBar.setVisibility(AppData.progBarMainActVisible);
-        Log.i("Lexicon", "Выход из a_MainActivity.onResume()");
     }
 
     @Override
     protected void onDestroy()
     {
         super.onDestroy();
-        Log.i("Lexicon", "Заход в a_MainActivity.onDestroy()");
+        databaseHelper.close();
         unregisterReceiver(mUpdateBroadcastReceiver);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
     }
@@ -200,8 +204,9 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     @Override
     public void onBackPressed()
     {
-        Log.i("Lexicon", "Заход в a_MainActivity.onBackPressed");
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
+        backgroundAnim.onDestroy();
+        speechServiceOnPause();
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START))
         {
@@ -216,7 +221,6 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     public boolean onCreateOptionsMenu(Menu menu)
     {
         // Inflate the menu; this adds items to the action bar if it is present.
-        Log.i("Lexicon", "Заход в a_MainActivity.onCreateOptionsMenu");
         //getMenuInflater().inflate(R.menu.a_up_menu_main, menu);
         return true;
     }
@@ -255,7 +259,6 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         }
         else if (id == R.id.nav_add_dict)
         {
-            Log.i("Lexicon", "Заход в a_MainActivity.onNavigationItemSelected R.id.nav_add_dict");
             dialogAddDict();
         }
         else if (id == R.id.nav_delete_dict)
@@ -286,16 +289,15 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             startActivity(_check_self);
         } else if (id == R.id.nav_play_list)
         {
-            Log.i("Lexicon", "Заход в a_MainActivity.onNavigationItemSelected R.id.nav_play_list");
             if (_play_list == null)
             {
-                Log.i("Lexicon", "_play_list = " + _play_list);
                 _play_list = new Intent(this, p_PlayList.class);
             }
             startActivity(_play_list);
         } else if (id == R.id.nav_exit)
         {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
+            backgroundAnim.onDestroy();
             databaseHelper.close();
             speechServiceOnStop();
             wakeLock.release();
@@ -318,8 +320,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             items = dataBaseQueries.setListTableToSpinner();
         } catch (Exception e)
         {
-            z_Log.v("Исключение - "+e);
-            e.printStackTrace();
+            z_Log.v("Исключение - "+e.getMessage());
         }
         boolean[]choice = new boolean[items.length];
         new AlertDialog.Builder(this).setTitle(R.string.title_del_dict)
@@ -352,7 +353,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
                                         removeItemPlayList(item);
                                     } catch (Exception e)
                                     {
-                                        z_Log.v("Исключение - " + e + "   result = " + result);
+                                        z_Log.v("Исключение - " + e.getMessage() + "\nresult = " + result);
                                         e.printStackTrace();
                                     }
                                 }
@@ -387,8 +388,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
                                 dataBaseQueries.addTableToDbAsync(dictName);
                             } catch (Exception e)
                             {
-                                z_Log.v("Возникло исключение - "+e);
-                                e.printStackTrace();
+                                z_Log.v("Возникло исключение - "+e.getMessage());
                             }
                             Toast toast = Toast.makeText(getApplicationContext(), "Добавлен новый словарь: "+dictName, Toast.LENGTH_LONG);
                             toast.setGravity(Gravity.CENTER, 0, 0);
@@ -416,14 +416,12 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
                     {
                         String str_wrong = str.substring(i);
                         editText.setText(str.replace(str_wrong,""));
-                        z_Log.v("Первый символ имеет код - " + str.codePointAt(i));
                     }
                     if ((str.codePointAt(i) >= 33 && str.codePointAt(i) <= 47) || (str.codePointAt(i) >= 58 && str.codePointAt(i) <= 64) ||
                             (str.codePointAt(i) >= 91 && str.codePointAt(i) <= 96) || (str.codePointAt(i) >= 123 && str.codePointAt(i) <= 126))
                     {
                         String str_wrong = str.substring(i);
                         editText.setText(str.replace(str_wrong,""));
-                        z_Log.v("Введенный символ имеет код - " + str.codePointAt(i));
                     }
                 }
             }
@@ -469,12 +467,14 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     Runnable runnable;
     public void btnPlayClick(View view)
     {
-        z_Log.v("Вход в btnPlayClick()");
         if (a_MainActivity.getPlayList().size() > 0)
         {
-            Toast toast = Toast.makeText(this, R.string.message_about_start,Toast.LENGTH_LONG);
-            toast.setGravity(Gravity.CENTER,0,0);
-            toast.show();
+            if (isFirstTime)
+            {
+                Toast toast = Toast.makeText(this, R.string.message_about_start,Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.TOP,0,0);
+                toast.show();
+            }
             startService(intentMyIntentService);
             _btn_Play.setVisibility(View.GONE);
             _btn_Stop.setVisibility(View.VISIBLE);
@@ -493,17 +493,13 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     }
     public void btnPauseClick(View view)
     {
-        z_Log.v("Вход в btnPauseClick()");
         Toast toast = Toast.makeText(this, R.string.message_about_pause,Toast.LENGTH_SHORT);
-        toast.setGravity(Gravity.CENTER,0,0);
         toast.show();
         speechServiceOnPause();
-        _textViewRu.setText(null);
     }
 
     public void btnStopClick(View view)
     {
-        z_Log.v("Вход в btnStopClick()");
         speechServiceOnStop();
         _textViewEn.setText(null);
         _textViewRu.setText(null);
@@ -521,7 +517,8 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         {
             stopService(new Intent(this, z_speechService.class));
         }
-
+        _textViewEn.setText(null);
+        _textViewRu.setText(null);
         _btn_Play.setVisibility(View.VISIBLE);
         _btn_Stop.setVisibility(View.GONE);
         _btn_Pause.setVisibility(View.GONE);
@@ -628,25 +625,25 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
 
             if (AppData.get_Ndict() == 0 && AppData.get_Nword() == 1 && playList.size() > 1) // 1
             {
-                z_Log.v(" Вариант 1   AppData.get_Ndict() = " + AppData.get_Ndict() + "    AppData.get_Nword() = " + AppData.get_Nword() + "   playList.size() = " + playList.size());
+                //z_Log.v(" Вариант 1   AppData.get_Ndict() = " + AppData.get_Ndict() + "    AppData.get_Nword() = " + AppData.get_Nword() + "   playList.size() = " + playList.size());
                 ndict = playList.size() - 1;
                 nword = dataBaseQueries.getEntriesCountAsync(playList.get(ndict).get_dictName());
             }
             else if (AppData.get_Ndict() == 0 && AppData.get_Nword() == 1 && playList.size() == 1) // 2
             {
-                z_Log.v(" Вариант 2   AppData.get_Ndict() = " + AppData.get_Ndict() + "    AppData.get_Nword() = " + AppData.get_Nword());
+                //z_Log.v(" Вариант 2   AppData.get_Ndict() = " + AppData.get_Ndict() + "    AppData.get_Nword() = " + AppData.get_Nword());
                 ndict = AppData.get_Ndict();
                 nword = dataBaseQueries.getEntriesCountAsync(playList.get(ndict).get_dictName());
             }
             else if (AppData.get_Nword() > 1) // 3
             {
-                z_Log.v(" Вариант 3   AppData.get_Ndict() = " + AppData.get_Ndict() + "    AppData.get_Nword() = " + AppData.get_Nword() + "   playList.size()-1 = " + (playList.size()-1));
+                //z_Log.v(" Вариант 3   AppData.get_Ndict() = " + AppData.get_Ndict() + "    AppData.get_Nword() = " + AppData.get_Nword() + "   playList.size()-1 = " + (playList.size()-1));
                 ndict = AppData.get_Ndict();
                 nword = AppData.get_Nword() - 1;
             }
             else if (playList.size()>1 && AppData.get_Ndict()>0 && AppData.get_Nword()==1) // 4
             {
-                z_Log.v(" Вариант 3   AppData.get_Ndict() = " + AppData.get_Ndict() + "    AppData.get_Nword() = " + AppData.get_Nword() + "   playList.size() = " + playList.size());
+                //z_Log.v(" Вариант 3   AppData.get_Ndict() = " + AppData.get_Ndict() + "    AppData.get_Nword() = " + AppData.get_Nword() + "   playList.size() = " + playList.size());
                 ndict = AppData.get_Ndict() - 1;
                 nword = dataBaseQueries.getEntriesCountAsync(playList.get(ndict).get_dictName());
             }
@@ -655,7 +652,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             AppData.set_Ndict(ndict);
             AppData.setCurrentDict(playList.get(ndict).get_dictName());
             list = dataBaseQueries.getEntriesFromDBAsync(playList.get(AppData.get_Ndict()).get_dictName(), AppData.get_Nword(), AppData.get_Nword());
-            z_Log.v("list.size() = " + list.size() + "   AppData.get_Ndict() = " + AppData.get_Ndict() + "  AppData.get_Nword() = " + AppData.get_Nword());
+            //z_Log.v("list.size() = " + list.size() + "   AppData.get_Ndict() = " + AppData.get_Ndict() + "  AppData.get_Nword() = " + AppData.get_Nword());
         }
         else
         {
@@ -677,6 +674,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         }
         _btn_Pause.setVisibility(View.GONE);
         _btn_Play.setVisibility(View.VISIBLE);
+        _textViewRu.setText(null);
     }
 
     public void switchRuSound_OnCheckedChange()
