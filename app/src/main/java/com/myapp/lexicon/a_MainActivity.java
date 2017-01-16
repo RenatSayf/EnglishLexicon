@@ -7,11 +7,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.PowerManager;
-import android.speech.tts.TextToSpeech;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -21,7 +18,6 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -38,7 +34,6 @@ import android.widget.ViewFlipper;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -64,7 +59,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     private Button _btn_Previous;
     private ProgressBar _progressBar;
     private Switch switchRuSound;
-    private Intent intentMyIntentService;
+    private Intent speechIntentService;
     private UpdateBroadcastReceiver mUpdateBroadcastReceiver;
     private z_BackgroundAnim backgroundAnim;
     private boolean isFirstTime = true;
@@ -88,7 +83,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         settings = getSharedPreferences(KEY_ENG_ONLY, MODE_PRIVATE);
         initViews();
 
-        intentMyIntentService = new Intent(this, z_speechService.class);
+        speechIntentService = new Intent(this, z_speechService.class);
 
         // Регистрируем приёмник
         mUpdateBroadcastReceiver = new UpdateBroadcastReceiver();
@@ -128,6 +123,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         _textViewEn = (TextView) findViewById(R.id.enTextView);
         _textViewRu = (TextView) findViewById(R.id.ruTextView);
         _textViewDict = (TextView) findViewById(R.id.textViewDict);
+        _textViewDict.setVisibility(View.INVISIBLE);
         _btn_Play = (Button) findViewById(R.id.btn_play);
         _btn_Stop = (Button) findViewById(R.id.btn_stop);
         _btn_Pause = (Button) findViewById(R.id.btn_pause);
@@ -475,13 +471,14 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
                 toast.setGravity(Gravity.TOP,0,0);
                 toast.show();
             }
-            startService(intentMyIntentService);
+            startService(speechIntentService);
             _btn_Play.setVisibility(View.GONE);
             _btn_Stop.setVisibility(View.VISIBLE);
             _btn_Pause.setVisibility(View.VISIBLE);
             _btn_Next.setVisibility(View.VISIBLE);
             _btn_Previous.setVisibility(View.VISIBLE);
             _textViewRu.setText(null);
+            _textViewDict.setVisibility(View.VISIBLE);
         } else
         {
             Toast toast = Toast.makeText(this, R.string.no_playlist, Toast.LENGTH_SHORT);
@@ -509,9 +506,9 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     {
         AppData.set_Nword(0);
         AppData.set_isPause(false);
-        if (intentMyIntentService != null)
+        if (speechIntentService != null)
         {
-            stopService(intentMyIntentService);
+            stopService(speechIntentService);
         }
         else
         {
@@ -524,6 +521,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         _btn_Pause.setVisibility(View.GONE);
         _btn_Next.setVisibility(View.GONE);
         _btn_Previous.setVisibility(View.GONE);
+        _textViewDict.setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -664,9 +662,9 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     private void speechServiceOnPause()
     {
         AppData.set_isPause(true);
-        if (intentMyIntentService != null)
+        if (speechIntentService != null)
         {
-            stopService(intentMyIntentService);
+            stopService(speechIntentService);
         }
         else
         {

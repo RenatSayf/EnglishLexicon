@@ -130,6 +130,9 @@
     <string name="text_good">Хорошо</string>
     <string name="text_bad">Плохо</string>
     <string name="text_out_of">" из "</string>
+    <string name="message_inst_tts_data">На Вашем устройстве отсутствует поддержка английского(США) языка. Что бы исправить это необходимо установить голосовые функции для английского(США) языка</string>
+    <string name="message_inst_tts_engine">На Вашем устройстве отсутствует поддержка синтеза речи. Необходимо перейти в Google Play и установить "Синтезатор речи Google"</string>
+    <string name="url_google_tts"><![CDATA[https://play.google.com/store/apps/details?id=com.google.android.tts&hl=ru]]></string>
 
 
 </resources>

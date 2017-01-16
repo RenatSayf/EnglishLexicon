@@ -42,9 +42,12 @@
                         android:id="@+id/textViewDict"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:minWidth="80dp"
                         android:layout_gravity="start"
                         android:textAppearance="?android:attr/textAppearanceSmall"
-                        android:background="@drawable/text_background"/>
+                        android:textAlignment="center"
+                        android:background="@drawable/text_background"
+                        />
 
                     <Switch
                         android:id="@+id/switch_ru_sound"
