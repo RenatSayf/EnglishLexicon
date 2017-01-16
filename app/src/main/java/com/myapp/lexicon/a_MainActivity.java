@@ -113,6 +113,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         if (savedInstanceState != null)
         {
             isFirstTime = false;
+            _textViewDict.setVisibility(View.VISIBLE);
         }
 
     }
