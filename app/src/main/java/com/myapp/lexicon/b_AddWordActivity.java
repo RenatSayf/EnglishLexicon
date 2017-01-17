@@ -23,6 +23,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -37,6 +38,7 @@ import java.util.regex.Pattern;
 public class b_AddWordActivity extends AppCompatActivity
 {
     private EditText textViewEnter;
+    private LinearLayout layoutLinkYa;
     private TextView textViewLinkYandex;
     private EditText textViewResult;
     private ImageButton buttonEdit;
@@ -49,6 +51,8 @@ public class b_AddWordActivity extends AppCompatActivity
     private String langSystem;
     private ImageButton button_sound1;
     private ImageButton button_sound2;
+    private ImageButton button_swap;
+    private ImageButton buttonClean1, buttonClean2;
     private DataBaseQueries dataBaseQueries;
     private TextToSpeech speechText;
     private boolean speech_able_en = true;
@@ -60,10 +64,14 @@ public class b_AddWordActivity extends AppCompatActivity
     private Intent play_list_activity;
     private Intent word_editor_activity;
 
+    private static int transCounter = 0;
+
     private void initViews() throws SQLException
     {
         textViewEnter = (EditText) findViewById(R.id.textViewEnter);
         textViewEnter_onChange();
+        layoutLinkYa = (LinearLayout) findViewById(R.id.lin_layout_link_ya);
+        layoutLinkYa.setVisibility(View.GONE);
         textViewLinkYandex = (TextView) findViewById(R.id.textViewLinkYandex);
         textViewLinkYandex.setText(Html.fromHtml(getResources().getString(R.string.link_to_yandex_trans)));
         textViewResult = (EditText) findViewById(R.id.textViewResult);
@@ -73,8 +81,11 @@ public class b_AddWordActivity extends AppCompatActivity
         buttonTrans = (Button) findViewById(R.id.button_trans);
         buttonTrans_onClick();
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.GONE);
         progressBarEn = (ProgressBar) findViewById(R.id.progressEn);
+        progressBarEn.setVisibility(View.GONE);
         progressBarRu = (ProgressBar) findViewById(R.id.progressRu);
+        progressBarRu.setVisibility(View.GONE);
         spinnerListDict = (Spinner) findViewById(R.id.spinn_one_of_five);
         spinnerListDict_onItemSelected();
         buttonAddWord = (Button) findViewById(R.id.button_add);
@@ -84,7 +95,13 @@ public class b_AddWordActivity extends AppCompatActivity
         button_sound2 = (ImageButton) findViewById(R.id.btn_sound2);
         button_sound1_onClick();
         button_sound2_onClick();
+        button_swap = (ImageButton) findViewById(R.id.btn_swap);
+        buttonSwap_onClick();
+        buttonClean1 = (ImageButton) findViewById(R.id.btn_clean1);
+        buttonClean2 = (ImageButton) findViewById(R.id.btn_clean2);
+        buttonClean_onClick();
     }
+
     private void initTTS()
     {
         speechText = new TextToSpeech(b_AddWordActivity.this, new TextToSpeech.OnInitListener()
@@ -119,7 +136,6 @@ public class b_AddWordActivity extends AppCompatActivity
                     {
                         progressBarEn.setVisibility(View.GONE);
                         progressBarRu.setVisibility(View.GONE);
-                        z_Log.v("Начал говорить");
                     }
 
                     @Override
@@ -127,7 +143,6 @@ public class b_AddWordActivity extends AppCompatActivity
                     {
                         progressBarEn.setVisibility(View.GONE);
                         progressBarRu.setVisibility(View.GONE);
-                        z_Log.v("Закончил говорить");
                     }
 
                     @Override
@@ -160,11 +175,18 @@ public class b_AddWordActivity extends AppCompatActivity
 
         initTTS();
 
-        if (!isOnline(this))
+        if (!isOnline(this) && savedInstanceState == null)
         {
             Toast toast = Toast.makeText(this, R.string.msg_not_internet, Toast.LENGTH_LONG);
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
+        }
+        if (savedInstanceState != null && transCounter > 0)
+        {
+            if (layoutLinkYa.getVisibility() == View.GONE)
+            {
+                layoutLinkYa.setVisibility(View.VISIBLE);
+            }
         }
 
 
@@ -187,15 +209,15 @@ public class b_AddWordActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu)
     {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.b_add_word_menu, menu);
-        tests_activity = new Intent();
-        tests_activity.setClass(this, t_Tests.class);
-
-        play_list_activity = new Intent();
-        play_list_activity.setClass(this, p_PlayList.class);
-
-        word_editor_activity = new Intent();
-        word_editor_activity.setClass(this, d_WordEditor.class);
+//        getMenuInflater().inflate(R.menu.b_add_word_menu, menu);
+//        tests_activity = new Intent();
+//        tests_activity.setClass(this, t_Tests.class);
+//
+//        play_list_activity = new Intent();
+//        play_list_activity.setClass(this, p_PlayList.class);
+//
+//        word_editor_activity = new Intent();
+//        word_editor_activity.setClass(this, d_WordEditor.class);
         return true;
     }
 
@@ -271,7 +293,7 @@ public class b_AddWordActivity extends AppCompatActivity
                 if (textViewResult.getText().toString().equals("") || textViewEnter.getText().toString().equals(""))
                 {
                     buttonAddWord.setEnabled(false);
-                    textViewLinkYandex.setVisibility(View.GONE);
+                    //textViewLinkYandex.setVisibility(View.GONE);
                 }else
                 {
                     buttonAddWord.setEnabled(true);
@@ -295,7 +317,7 @@ public class b_AddWordActivity extends AppCompatActivity
                 flag_btn_trans_click = true;
                 b_OnlineTranslatorApi translatorApi = new b_OnlineTranslatorApi(textViewResult, progressBar);
                 translatorApi.getTranslateAsync(textViewEnter.getText().toString());
-
+                transCounter++;
             }
         });
     }
@@ -314,7 +336,8 @@ public class b_AddWordActivity extends AppCompatActivity
             {
                 if (isOnline(b_AddWordActivity.this) && flag_btn_trans_click)
                 {
-                    textViewLinkYandex.setVisibility(View.VISIBLE);
+                    //textViewLinkYandex.setVisibility(View.VISIBLE);
+                    layoutLinkYa.setVisibility(View.VISIBLE);
                     flag_btn_trans_click = false;
                 }
 
@@ -324,7 +347,7 @@ public class b_AddWordActivity extends AppCompatActivity
                 }else
                 {
                     buttonAddWord.setEnabled(false);
-                    textViewLinkYandex.setVisibility(View.GONE);
+                    //textViewLinkYandex.setVisibility(View.GONE);
                 }
             }
 
@@ -408,7 +431,6 @@ public class b_AddWordActivity extends AppCompatActivity
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
             {
                 selectDict = spinnerListDict.getSelectedItem().toString();
-                //Toast.makeText(b_AddWordActivity.this,"Selected - "+selectDict,Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -458,7 +480,6 @@ public class b_AddWordActivity extends AppCompatActivity
             @Override
             public void onClick(View v)
             {
-
                 String text1 = textViewEnter.getText().toString();
                 if (speech_able_en && !text1.equals("") && getLangOfText(text1).equals("en"))
                 {
@@ -485,20 +506,54 @@ public class b_AddWordActivity extends AppCompatActivity
             @Override
             public void onClick(View v)
             {
-
                 String text2 = textViewResult.getText().toString();
                 if (speech_able_en && !text2.equals("") && getLangOfText(text2).equals("en"))
                 {
                     progressBarRu.setVisibility(View.VISIBLE);
-                    speechText.setLanguage(Locale.US);
-                    speechText.speak(text2, TextToSpeech.QUEUE_ADD, utterance_Id);
+                    a_SplashScreenActivity.speech.setLanguage(Locale.US);
+                    a_SplashScreenActivity.speech.speak(text2, TextToSpeech.QUEUE_ADD, a_SplashScreenActivity.map);
                 }
                 if (speech_able_ru && !text2.equals("") && getLangOfText(text2).equals("ru"))
                 {
                     progressBarRu.setVisibility(View.VISIBLE);
-                    speechText.setLanguage(Locale.getDefault());
-                    speechText.speak(text2, TextToSpeech.QUEUE_ADD, utterance_Id);
+                    a_SplashScreenActivity.speech.setLanguage(Locale.getDefault());
+                    a_SplashScreenActivity.speech.speak(text2, TextToSpeech.QUEUE_ADD, a_SplashScreenActivity.map);
                 }
+            }
+        });
+    }
+
+    private void buttonSwap_onClick()
+    {
+        button_swap.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                String temp = textViewEnter.getText().toString();
+                textViewEnter.setText(textViewResult.getText());
+                textViewResult.setText(temp);
+            }
+        });
+    }
+
+    private void buttonClean_onClick()
+    {
+        buttonClean1.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                textViewEnter.setText(null);
+            }
+        });
+
+        buttonClean2.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                textViewResult.setText(null);
             }
         });
     }

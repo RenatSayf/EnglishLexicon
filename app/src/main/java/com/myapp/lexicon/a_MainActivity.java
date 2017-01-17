@@ -369,8 +369,8 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         final View view = getLayoutInflater().inflate(R.layout.a_dialog_add_dict, null);
         final EditText editText = (EditText) view.findViewById(R.id.dialog_add_dict);
         editText.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
-        new AlertDialog.Builder(this).setTitle("New Dictionary").setIcon(R.drawable.icon_add_dict)
-                .setPositiveButton("Add", new DialogInterface.OnClickListener()
+        new AlertDialog.Builder(this).setTitle(R.string.title_new_dictionary).setIcon(R.drawable.icon_add_dict)
+                .setPositiveButton(R.string.btn_text_add, new DialogInterface.OnClickListener()
                 {
                     @Override
                     public void onClick(DialogInterface dialog, int which)
@@ -393,7 +393,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
                         }
                     }
                 })
-                .setNegativeButton("Cancel", null)
+                .setNegativeButton(R.string.btn_text_cancel, null)
                 .setView(view).create().show();
 
         editText.addTextChangedListener(new TextWatcher()
