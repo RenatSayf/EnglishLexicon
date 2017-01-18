@@ -137,6 +137,8 @@
     <string name="btn_text_add">Добавить</string>
     <string name="btn_text_cancel">Отмена</string>
     <string name="text_set_dict_name">Задайте имя словаря</string>
+    <string name="search_hint">search_hint</string>
+    <string name="menu_search">Найти</string>
 
 
 </resources>

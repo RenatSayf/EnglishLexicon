@@ -1,7 +1,10 @@
 package com.myapp.lexicon;
 
 import android.app.AlertDialog;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -24,6 +27,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
@@ -34,6 +38,7 @@ import java.util.ArrayList;
 public class d_WordEditor extends AppCompatActivity
 {
     private Spinner spinnerListDict;
+    private SearchView searchView;
     private ListView listView;
     private ImageButton buttonWrite;
     private ImageButton buttonDelete;
@@ -50,11 +55,15 @@ public class d_WordEditor extends AppCompatActivity
     private DataBaseQueries dataBaseQueries;
     private ViewSwitcher switcher;
     private Animation slide_in_left, slide_out_right;
+
+    private static boolean searchIsVisible = false;
     
 
     private void initViews()
     {
         spinnerListDict =(Spinner)findViewById(R.id.spinner);
+        searchView = (SearchView) findViewById(R.id.search_view);
+        searchView.setVisibility(View.GONE);
         listView=(ListView) findViewById(R.id.listView);
 
         progressBar= (ProgressBar) findViewById(R.id.progressBar);
@@ -126,6 +135,14 @@ public class d_WordEditor extends AppCompatActivity
         initViews();
         dataBaseQueries.setListTableToSpinner(spinnerListDict,0);
         dataBaseQueries.setListTableToSpinner(spinnerListDict2,0);
+
+        if (savedInstanceState != null)
+        {
+            if (searchIsVisible)
+            {
+                searchView.setVisibility(View.VISIBLE);
+            }
+        }
 
     }
 
@@ -516,7 +533,13 @@ public class d_WordEditor extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu)
     {
         // Inflate the menu; this adds items to the action bar if it is present.
+
         getMenuInflater().inflate(R.menu.d_word_editor_menu, menu);
+
+//        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+//        SearchView searchView = (SearchView) menu.findItem(R.id.word_search).getActionView();
+//        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+
         return true;
     }
     @Override
@@ -529,16 +552,29 @@ public class d_WordEditor extends AppCompatActivity
 
         switch (id)
         {
-            case R.id.action_item1:
-                break;
-            case R.id.action_item2:
+            case R.id.word_search:
+                if (searchView.getVisibility() == View.GONE)
+                {
+                    searchView.setVisibility(View.VISIBLE);
+                    searchIsVisible = true;
+                }
+                else if (searchView.getVisibility() == View.VISIBLE)
+                {
+                    searchView.setVisibility(View.GONE);
+                    searchIsVisible = false;
+                }
                 break;
         }
         return super.onOptionsItemSelected(item);
     }
 
-
-    
-    
-
+    @Override
+    protected void onNewIntent(Intent intent)
+    {
+        if (Intent.ACTION_SEARCH.equals(intent.getAction()))
+        {
+            // Здесь будет храниться то, что пользователь ввёл в поисковой строке
+            String search = intent.getStringExtra(SearchManager.QUERY);
+        }
+    }
 }
