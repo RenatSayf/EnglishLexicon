@@ -34,7 +34,8 @@
             android:name=".b_AddWordActivity"
             android:label="@string/title_activity_add_word"
             android:parentActivityName=".a_MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden"> <!--прячем клавиатуру при запуске активити-->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".a_MainActivity"/>
@@ -43,7 +44,7 @@
             android:name=".d_WordEditor"
             android:label="@string/title_activity_word_editor"
             android:parentActivityName=".a_MainActivity"
-            android:screenOrientation="portrait"
+            android:screenOrientation="unspecified"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

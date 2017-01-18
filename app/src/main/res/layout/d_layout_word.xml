@@ -1,36 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--<layout xmlns:android="http://schemas.android.com/apk/res/android"-->
-        <!--xmlns:app="http://schemas.android.com/apk/res-auto">-->
-
-    <!--<data>-->
-
-    <!--</data>-->
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:orientation="horizontal"
+            android:orientation="vertical"
               android:layout_width="match_parent"
-              android:layout_height="match_parent"
+              android:layout_height="wrap_content"
               android:id="@+id/table_words"
+              android:layout_margin="5dp"
+              android:layout_marginBottom="2dp"
               >
 
     <TextView
         android:id="@+id/english"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:paddingLeft="10dp"
-        android:textSize="25sp"
-        android:background="#80fea6"/>
+        android:textSize="18sp"
+        android:background="@drawable/words_list_view_background_en"/>
 
     <TextView
         android:id="@+id/translate"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:paddingRight="10dp"
-        android:textSize="25sp"
-        android:background="#9edef9"/>
+        android:layout_marginBottom="2dp"
+        android:paddingLeft="10dp"
+        android:textSize="14sp"
+        android:background="@drawable/words_list_view_background_ru"/>
 
 </LinearLayout>
 
-<!--</layout>-->
