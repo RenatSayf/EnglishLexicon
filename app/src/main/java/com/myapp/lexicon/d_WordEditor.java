@@ -30,6 +30,7 @@ import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import java.sql.SQLException;
@@ -64,6 +65,7 @@ public class d_WordEditor extends AppCompatActivity
         spinnerListDict =(Spinner)findViewById(R.id.spinner);
         searchView = (SearchView) findViewById(R.id.search_view);
         searchView.setVisibility(View.GONE);
+        searchView_onListeners();
         listView=(ListView) findViewById(R.id.listView);
 
         progressBar= (ProgressBar) findViewById(R.id.progressBar);
@@ -105,8 +107,6 @@ public class d_WordEditor extends AppCompatActivity
         checkCopy_OnClick();
         checkMove_OnClick();
     }
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -223,7 +223,7 @@ public class d_WordEditor extends AppCompatActivity
                 z_Log.v("Вход в spinnerListDict.setOnItemSelectedListener = " + selectedItem);
                 dataBaseEntries = getEntriesFromDB(selectedItem);
 
-                lictViewAdapter = new d_ListViewAdapter(dataBaseEntries, d_WordEditor.this);
+                lictViewAdapter = new d_ListViewAdapter(dataBaseEntries, d_WordEditor.this, R.id.search_view);
                 handler.sendEmptyMessage(0);
             }
         }).start();
@@ -567,6 +567,27 @@ public class d_WordEditor extends AppCompatActivity
         }
         return super.onOptionsItemSelected(item);
     }
+
+    private void searchView_onListeners()
+    {
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener()
+        {
+            @Override
+            public boolean onQueryTextSubmit(String query)
+            {
+
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText)
+            {
+                d_WordEditor.this.lictViewAdapter.getFilter().filter(newText);
+                return true;
+            }
+        });
+    }
+
 
     @Override
     protected void onNewIntent(Intent intent)
