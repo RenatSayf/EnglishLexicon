@@ -2,7 +2,6 @@ package com.myapp.lexicon;
 
 import android.app.AlertDialog;
 import android.app.SearchManager;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -30,7 +29,6 @@ import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import java.sql.SQLException;
@@ -48,7 +46,7 @@ public class d_WordEditor extends AppCompatActivity
     private Spinner spinnerCountRepeat, spinnerListDict2;
     private CheckBox checkCopy, checkMove;
     private LinearLayout layoutSpinner;
-    private d_ListViewAdapter lictViewAdapter;
+    private static d_ListViewAdapter lictViewAdapter;
     private ArrayList<DataBaseEntry> dataBaseEntries;
     private Handler handler;
     private ProgressBar progressBar;
@@ -58,6 +56,9 @@ public class d_WordEditor extends AppCompatActivity
     private Animation slide_in_left, slide_out_right;
 
     private static boolean searchIsVisible = false;
+
+    private String KEY_SWITCHER_DISPLAYED_CHILD = "sw-d-ch";
+    private String KEY_SPINNER_SELECT_INDEX = "sp-slt-idx";
     
 
     private void initViews()
@@ -109,6 +110,13 @@ public class d_WordEditor extends AppCompatActivity
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState)
+    {
+        outState.putInt(KEY_SWITCHER_DISPLAYED_CHILD, switcher.getDisplayedChild());
+        outState.putInt(KEY_SPINNER_SELECT_INDEX, spinnerListDict.getSelectedItemPosition());
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
@@ -142,6 +150,10 @@ public class d_WordEditor extends AppCompatActivity
             {
                 searchView.setVisibility(View.VISIBLE);
             }
+
+            switcher.setDisplayedChild(savedInstanceState.getInt(KEY_SWITCHER_DISPLAYED_CHILD));
+            spinnerListDict.setSelection(savedInstanceState.getInt(KEY_SPINNER_SELECT_INDEX));
+            listViewSetSource(false);
         }
 
     }
@@ -168,7 +180,7 @@ public class d_WordEditor extends AppCompatActivity
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
             {
                 progressBar.setVisibility(View.VISIBLE);
-                listViewSetSource();
+                listViewSetSource(true);
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent){}
@@ -213,17 +225,25 @@ public class d_WordEditor extends AppCompatActivity
         });
     }
 
-    private void listViewSetSource()
+    private void listViewSetSource(final boolean update)
     {
         new Thread(new Runnable()
         {
             public void run()
             {
-                String selectedItem = spinnerListDict.getSelectedItem().toString();
-                z_Log.v("Вход в spinnerListDict.setOnItemSelectedListener = " + selectedItem);
-                dataBaseEntries = getEntriesFromDB(selectedItem);
+                if (update)
+                {
+                    lictViewAdapter = null;
+                }
+                //String selectedItem = spinnerListDict.getSelectedItem().toString();
+                //z_Log.v("Вход в spinnerListDict.setOnItemSelectedListener = " + selectedItem);
 
-                lictViewAdapter = new d_ListViewAdapter(dataBaseEntries, d_WordEditor.this, R.id.search_view);
+
+                if (lictViewAdapter == null)
+                {
+                    dataBaseEntries = getEntriesFromDB(spinnerListDict.getSelectedItem().toString());
+                    lictViewAdapter = new d_ListViewAdapter(dataBaseEntries, d_WordEditor.this, R.id.search_view);
+                }
                 handler.sendEmptyMessage(0);
             }
         }).start();
@@ -386,7 +406,7 @@ public class d_WordEditor extends AppCompatActivity
                 {
                     z_Log.v("Возникло исключение - "+e.getMessage());
                 }
-                listViewSetSource();
+                listViewSetSource(true);
                 switcher.showPrevious();
             }
         });
@@ -441,7 +461,7 @@ public class d_WordEditor extends AppCompatActivity
                         }
                         dataBaseQueries.insertWordInTable(new_table_name, baseEntry);
                     }
-                    listViewSetSource();
+                    listViewSetSource(true);
                     switcher.showPrevious();
                 }
                 else
@@ -582,8 +602,15 @@ public class d_WordEditor extends AppCompatActivity
             @Override
             public boolean onQueryTextChange(String newText)
             {
-                d_WordEditor.this.lictViewAdapter.getFilter().filter(newText);
-                return true;
+                try
+                {
+                    //// TODO: 19.01.2017 Фильтрация ListView, вызов
+                    d_WordEditor.this.lictViewAdapter.getFilter().filter(newText);
+                } catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+                return false;
             }
         });
     }

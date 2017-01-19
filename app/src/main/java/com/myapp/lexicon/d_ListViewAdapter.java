@@ -22,6 +22,7 @@ import static android.R.attr.resource;
 public class d_ListViewAdapter extends ArrayAdapter implements Filterable
 {
     private ArrayList<DataBaseEntry> entries;
+    private ArrayList<DataBaseEntry> tempEntries;
     private Context context;
 
     public d_ListViewAdapter(ArrayList<DataBaseEntry> entries, Context context, int resource)
@@ -29,6 +30,7 @@ public class d_ListViewAdapter extends ArrayAdapter implements Filterable
         super(context, resource);
         this.entries = entries;
         this.context = context;
+        this.tempEntries = new ArrayList<>(entries);
     }
 
     public d_ListViewAdapter(Context context, int resource)
@@ -74,9 +76,8 @@ public class d_ListViewAdapter extends ArrayAdapter implements Filterable
         return wordView;
     }
 
-    @NonNull
     @Override
-    public Filter getFilter()
+    public Filter getFilter() //// TODO: 19.01.2017 Фильтрацтя ListView
     {
         Filter filter = new Filter()
         {
@@ -86,13 +87,13 @@ public class d_ListViewAdapter extends ArrayAdapter implements Filterable
                 FilterResults results = new FilterResults();
                 if (constraint == null || constraint.length() == 0)
                 {
-                    results.values = entries;
-                    results.count = entries.size();
+                    results.values = tempEntries;
+                    results.count = tempEntries.size();
                 }
                 else
                 {
                     ArrayList<DataBaseEntry> filteredEntries = new ArrayList<>();
-                    for (DataBaseEntry entry : entries)
+                    for (DataBaseEntry entry : tempEntries)
                     {
                         if (entry.get_english().contains(constraint) || entry.get_translate().contains(constraint))
                         {
@@ -105,6 +106,7 @@ public class d_ListViewAdapter extends ArrayAdapter implements Filterable
                 return results;
             }
 
+            @SuppressWarnings("unchecked")
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results)
             {
