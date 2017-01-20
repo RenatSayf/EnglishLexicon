@@ -64,6 +64,10 @@ public class d_WordEditor extends AppCompatActivity
     private String KEY_SPINNER_SELECT_INDEX = "sp-slt-idx";
     private String KEY_SPINNER_ITEMS = "sp-items";
     private String KEY_SEARCH_QUERY = "srch-query";
+    private String KEY_EDITTEXT_EN = "edit-txt-en";
+    private String KEY_EDITTEXT_RU = "edit-txt-ru";
+    private String KEY_CHECK_COPY = "check-copy";
+    private String KEY_CHECK_MOVE = "check-move";
     
 
     private void initViews()
@@ -128,6 +132,10 @@ public class d_WordEditor extends AppCompatActivity
             spinnerItems.add(spinnerListDict.getItemAtPosition(i).toString());
         }
         outState.putStringArrayList(KEY_SPINNER_ITEMS, spinnerItems);
+        outState.putString(KEY_EDITTEXT_EN, editTextEn.getText().toString());
+        outState.putString(KEY_EDITTEXT_RU, editTextRu.getText().toString());
+        outState.putBoolean(KEY_CHECK_COPY, checkCopy.isChecked());
+        outState.putBoolean(KEY_CHECK_MOVE, checkMove.isChecked());
     }
 
     @Override
@@ -171,6 +179,19 @@ public class d_WordEditor extends AppCompatActivity
             spinnerListDict.setSelection(savedInstanceState.getInt(KEY_SPINNER_SELECT_INDEX));
             spinner_select_pos = spinnerListDict.getSelectedItemPosition();
             listViewSetSource(false);
+
+            editTextEn.setText(savedInstanceState.getString(KEY_EDITTEXT_EN));
+            editTextRu.setText(savedInstanceState.getString(KEY_EDITTEXT_RU));
+            checkCopy.setChecked(savedInstanceState.getBoolean(KEY_CHECK_COPY));
+            checkMove.setChecked(savedInstanceState.getBoolean(KEY_CHECK_MOVE));
+            if (checkMove.isChecked())
+            {
+                layoutSpinner.setVisibility(View.VISIBLE);
+            }
+            else
+            {
+                layoutSpinner.setVisibility(View.GONE);
+            }
         }
         else
         {
@@ -441,6 +462,15 @@ public class d_WordEditor extends AppCompatActivity
             @Override
             public void onClick(View v)
             {
+                if (editTextEn.getText().toString().equals("") || editTextRu.getText().toString().equals(""))
+                {
+                    return;
+                }
+                if (editTextRu.getText().toString().equals(testTextRu) && editTextEn.getText().toString().equals(testTextEn))
+                {
+                    return;
+                }
+
                 z_StringOperations stringOperations = z_StringOperations.getInstance();
                 if (stringOperations.getLangOfText(editTextEn.getText().toString())[1].equals("en") &&
                         stringOperations.getLangOfText(editTextRu.getText().toString())[1].equals("ru"))
