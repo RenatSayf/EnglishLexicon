@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -29,6 +30,7 @@ import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import java.sql.SQLException;
@@ -37,6 +39,7 @@ import java.util.ArrayList;
 public class d_WordEditor extends AppCompatActivity
 {
     private Spinner spinnerListDict;
+    private int spinner_select_pos = -1;
     private SearchView searchView;
     private ListView listView;
     private ImageButton buttonWrite;
@@ -46,7 +49,7 @@ public class d_WordEditor extends AppCompatActivity
     private Spinner spinnerCountRepeat, spinnerListDict2;
     private CheckBox checkCopy, checkMove;
     private LinearLayout layoutSpinner;
-    private static d_ListViewAdapter lictViewAdapter;
+    private static d_ListViewAdapter listViewAdapter;
     private ArrayList<DataBaseEntry> dataBaseEntries;
     private Handler handler;
     private ProgressBar progressBar;
@@ -59,14 +62,18 @@ public class d_WordEditor extends AppCompatActivity
 
     private String KEY_SWITCHER_DISPLAYED_CHILD = "sw-d-ch";
     private String KEY_SPINNER_SELECT_INDEX = "sp-slt-idx";
+    private String KEY_SPINNER_ITEMS = "sp-items";
+    private String KEY_SEARCH_QUERY = "srch-query";
     
 
     private void initViews()
     {
         spinnerListDict =(Spinner)findViewById(R.id.spinner);
+
         searchView = (SearchView) findViewById(R.id.search_view);
         searchView.setVisibility(View.GONE);
         searchView_onListeners();
+
         listView=(ListView) findViewById(R.id.listView);
 
         progressBar= (ProgressBar) findViewById(R.id.progressBar);
@@ -114,6 +121,13 @@ public class d_WordEditor extends AppCompatActivity
     {
         outState.putInt(KEY_SWITCHER_DISPLAYED_CHILD, switcher.getDisplayedChild());
         outState.putInt(KEY_SPINNER_SELECT_INDEX, spinnerListDict.getSelectedItemPosition());
+        outState.putString(KEY_SEARCH_QUERY, searchView.getQuery().toString());
+        ArrayList<String> spinnerItems = new ArrayList<>();
+        for (int i = 0; i < spinnerListDict.getCount(); i++)
+        {
+            spinnerItems.add(spinnerListDict.getItemAtPosition(i).toString());
+        }
+        outState.putStringArrayList(KEY_SPINNER_ITEMS, spinnerItems);
     }
 
     @Override
@@ -125,23 +139,22 @@ public class d_WordEditor extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
+        try
+        {
+            dataBaseQueries = new DataBaseQueries(this);
+        } catch (SQLException e)
+        {
+            Toast.makeText(this,"Data base error - "+e.getMessage(),Toast.LENGTH_SHORT).show();
+            this.finish();
+        }
         if (_databaseHelper == null)
         {
             _databaseHelper = new DatabaseHelper(this);
             _databaseHelper.create_db();
         }
 
-        try
-        {
-            dataBaseQueries = new DataBaseQueries(this);
-        } catch (SQLException e)
-        {
-            e.printStackTrace();
-            z_Log.v("Исключение - "+e.getMessage());
-        }
         initViews();
-        dataBaseQueries.setListTableToSpinner(spinnerListDict,0);
+
         dataBaseQueries.setListTableToSpinner(spinnerListDict2,0);
 
         if (savedInstanceState != null)
@@ -149,27 +162,32 @@ public class d_WordEditor extends AppCompatActivity
             if (searchIsVisible)
             {
                 searchView.setVisibility(View.VISIBLE);
+                searchView.setQuery(savedInstanceState.getString(KEY_SEARCH_QUERY), false);
             }
 
             switcher.setDisplayedChild(savedInstanceState.getInt(KEY_SWITCHER_DISPLAYED_CHILD));
+            ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(this, R.layout.my_content_spinner_layout, savedInstanceState.getStringArrayList(KEY_SPINNER_ITEMS));
+            spinnerListDict.setAdapter(adapterSpinner);
             spinnerListDict.setSelection(savedInstanceState.getInt(KEY_SPINNER_SELECT_INDEX));
+            spinner_select_pos = spinnerListDict.getSelectedItemPosition();
             listViewSetSource(false);
         }
-
+        else
+        {
+            dataBaseQueries.setListTableToSpinner(spinnerListDict,0);
+        }
     }
 
     @Override
     protected void onPause()
     {
         super.onPause();
-
     }
 
     @Override
     protected void onDestroy()
     {
         super.onDestroy();
-
     }
 
     private void spinner_OnItemSelected()
@@ -179,6 +197,7 @@ public class d_WordEditor extends AppCompatActivity
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
             {
+                if(spinner_select_pos == position) return;
                 progressBar.setVisibility(View.VISIBLE);
                 listViewSetSource(true);
             }
@@ -206,7 +225,7 @@ public class d_WordEditor extends AppCompatActivity
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
             {
-                z_Log.v("spinnerCountRepeat position = "+position);
+                z_Log.v("spinnerCountRepeat position = "+ position);
                 if (position != testCountRepeat-1 && !editTextEn.getText().equals(null) && !editTextRu.getText().equals(null))
                 {
                     buttonWrite.setEnabled(true);
@@ -227,36 +246,39 @@ public class d_WordEditor extends AppCompatActivity
 
     private void listViewSetSource(final boolean update)
     {
-        new Thread(new Runnable()
+        if (update)
         {
-            public void run()
+            new Thread(new Runnable()
             {
-                if (update)
-                {
-                    lictViewAdapter = null;
-                }
-                //String selectedItem = spinnerListDict.getSelectedItem().toString();
-                //z_Log.v("Вход в spinnerListDict.setOnItemSelectedListener = " + selectedItem);
-
-
-                if (lictViewAdapter == null)
+                public void run()
                 {
                     dataBaseEntries = getEntriesFromDB(spinnerListDict.getSelectedItem().toString());
-                    lictViewAdapter = new d_ListViewAdapter(dataBaseEntries, d_WordEditor.this, R.id.search_view);
+                    listViewAdapter = new d_ListViewAdapter(dataBaseEntries, d_WordEditor.this, R.id.search_view);
+                    try
+                    {
+                        handler.sendEmptyMessage(0);
+                    } catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
                 }
-                handler.sendEmptyMessage(0);
-            }
-        }).start();
+            }).start();
 
-        handler=new Handler()
-        {
-            @Override
-            public void handleMessage(Message msg)
+            handler=new Handler()
             {
-                listView.setAdapter(lictViewAdapter);
-                progressBar.setVisibility(View.GONE);
-            }
-        };
+                @Override
+                public void handleMessage(Message msg)
+                {
+                    listView.setAdapter(listViewAdapter);
+                    progressBar.setVisibility(View.GONE);
+                }
+            };
+        }
+        else
+        {
+            listView.setAdapter(listViewAdapter);
+            progressBar.setVisibility(View.GONE);
+        }
     }
 
     private long rowID;
@@ -605,7 +627,7 @@ public class d_WordEditor extends AppCompatActivity
                 try
                 {
                     //// TODO: 19.01.2017 Фильтрация ListView, вызов
-                    d_WordEditor.this.lictViewAdapter.getFilter().filter(newText);
+                    d_WordEditor.this.listViewAdapter.getFilter().filter(newText);
                 } catch (Exception e)
                 {
                     e.printStackTrace();

@@ -8,5 +8,6 @@
     android:textAppearance="?android:attr/textAppearanceMedium"
     android:id="@+id/text1"
     android:textColor="#060606"
-    android:textAlignment="inherit"/>
+    android:textAlignment="inherit"
+    />
 
