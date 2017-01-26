@@ -35,6 +35,7 @@
     </string-array>
 
     <string-array name="count_repeat">
+        <item>0</item>
         <item>1</item>
         <item>2</item>
         <item>3</item>
@@ -139,6 +140,8 @@
     <string name="text_set_dict_name">Задайте имя словаря</string>
     <string name="search_hint">search_hint</string>
     <string name="menu_search">Найти</string>
+    <string name="dialog_title_confirm_action">Подтвердите ваши действия</string>
+    <string name="dialog_msg_delete_word">"Вы действительно хотите удалить слово из словаря - "</string>
 
 
 </resources>

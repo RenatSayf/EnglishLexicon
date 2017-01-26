@@ -19,6 +19,7 @@ import static android.R.attr.resource;
 /**
  * Created by Ренат on 29.03.2016.
  */
+// TODO: 26.01.2017 ListView adapter class
 public class d_ListViewAdapter extends ArrayAdapter implements Filterable
 {
     private ArrayList<DataBaseEntry> entries;
@@ -72,6 +73,9 @@ public class d_ListViewAdapter extends ArrayAdapter implements Filterable
 
         TextView textTranslate = (TextView) wordView.findViewById(R.id.translate);
         textTranslate.setText(dataBaseEntry.get_translate());
+
+        TextView textCountRepeat = (TextView) wordView.findViewById(R.id.count_repeat);
+        textCountRepeat.setText(dataBaseEntry.get_count_repeat());
 
         return wordView;
     }

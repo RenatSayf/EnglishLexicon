@@ -9,5 +9,6 @@
     android:id="@+id/text1"
     android:textColor="#060606"
     android:textAlignment="inherit"
+    android:layout_marginBottom="10dp"
     />
 

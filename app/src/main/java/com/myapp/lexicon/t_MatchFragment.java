@@ -222,7 +222,7 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
         buttonsRightGone();
         //endregion
         //region получение Spinner выбора словаря
-        spinnListDict = (Spinner) fragment_view.findViewById(R.id.spinn_one_of_five);
+        spinnListDict = (Spinner) fragment_view.findViewById(R.id.spinn_dict_to);
         spinnListDict_OnItemSelectedListener();
         //endregion
         progressBar = (ProgressBar) fragment_view.findViewById(R.id.progressMatch);

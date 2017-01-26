@@ -57,35 +57,10 @@
                 android:layout_gravity="center"
                 />
 
-            <!--<LinearLayout-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="40dp"-->
-                <!--android:orientation="horizontal"-->
-                <!--android:gravity="center">-->
-
-                <!--<Button-->
-                    <!--style="?android:attr/buttonStyleSmall"-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="match_parent"-->
-                    <!--android:id="@+id/btn_previous"-->
-                    <!--android:drawableLeft="@drawable/ic_previous_page"/>-->
-
-                <!--<Button-->
-                    <!--style="?android:attr/buttonStyleSmall"-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="match_parent"-->
-                    <!--android:id="@+id/btn_next"-->
-                    <!--android:drawableLeft="@drawable/ic_next_page"/>-->
-
-            <!--</LinearLayout>-->
-
-
         </LinearLayout>
 
         <include layout="@layout/d_word_item"></include>
 
     </ViewSwitcher>
-
-<!--</LinearLayout>-->
 
 </LinearLayout>

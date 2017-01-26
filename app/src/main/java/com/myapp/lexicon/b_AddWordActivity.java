@@ -86,7 +86,7 @@ public class b_AddWordActivity extends AppCompatActivity
         progressBarEn.setVisibility(View.GONE);
         progressBarRu = (ProgressBar) findViewById(R.id.progressRu);
         progressBarRu.setVisibility(View.GONE);
-        spinnerListDict = (Spinner) findViewById(R.id.spinn_one_of_five);
+        spinnerListDict = (Spinner) findViewById(R.id.spinn_dict_to);
         spinnerListDict_onItemSelected();
         buttonAddWord = (Button) findViewById(R.id.button_add);
         buttonAddWord_onClick();

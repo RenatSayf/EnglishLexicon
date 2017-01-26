@@ -1,31 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:orientation="vertical"
+            android:orientation="horizontal"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:id="@+id/table_words"
               android:layout_margin="5dp"
-              android:layout_marginBottom="2dp"
+              android:layout_marginBottom="3dp"
               >
 
-    <TextView
-        android:id="@+id/english"
-        android:layout_width="match_parent"
+    <LinearLayout android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:paddingLeft="10dp"
-        android:textSize="18sp"
-        android:background="@drawable/words_list_view_background_en"/>
+                  android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/english"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingLeft="10dp"
+            android:textSize="18sp"
+            android:background="@drawable/words_list_view_background_en"/>
+
+        <TextView
+            android:id="@+id/translate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginBottom="3dp"
+            android:paddingLeft="10dp"
+            android:textSize="14sp"
+            android:background="@drawable/words_list_view_background_ru"/>
+    </LinearLayout>
 
     <TextView
-        android:id="@+id/translate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:layout_marginBottom="2dp"
-        android:paddingLeft="10dp"
-        android:textSize="14sp"
-        android:background="@drawable/words_list_view_background_ru"/>
+        android:id="@+id/count_repeat"
+        android:layout_width="45dp"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical|center_horizontal"
+        android:layout_marginBottom="3dp"
+        android:text="0"
+        android:textSize="18sp"
+        android:textAlignment="inherit"
+        android:background="@color/page_background"/>
 
 </LinearLayout>
 
