@@ -627,7 +627,7 @@ public class DataBaseQueries
         values.put(DatabaseHelper.COLUMN_ENGLISH, entry.get_english());
         values.put(DatabaseHelper.COLUMN_TRANS, entry.get_translate());
         values.put(DatabaseHelper.COLUMN_IMAGE, "");
-        values.put(DatabaseHelper.COLUMN_Count_REPEAT, 1);
+        values.put(DatabaseHelper.COLUMN_Count_REPEAT, entry.get_count_repeat());
 
         AsyncTask asyncTask = new AsyncTask()
         {

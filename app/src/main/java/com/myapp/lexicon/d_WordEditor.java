@@ -71,8 +71,7 @@ public class d_WordEditor extends AppCompatActivity
     private String KEY_EDITTEXT_RU = "edit-txt-ru";
     private String KEY_CHECK_COPY = "check-copy";
     private String KEY_CHECK_MOVE = "check-move";
-    private String KEY_BTN_WRITE_ENABLED = "btn_write_enabled";
-    
+
 
     private void initViews()
     {
@@ -115,8 +114,6 @@ public class d_WordEditor extends AppCompatActivity
 
         spinner_OnItemSelected();
         listView_OnItemClick();
-        editTextEn_OnTextChanged();
-        editTextRu_OnTextChanged();
         buttonWrite_OnClick();
         buttonDelete_OnClick();
         buttonCancel_OnClick();
@@ -141,7 +138,6 @@ public class d_WordEditor extends AppCompatActivity
         outState.putString(KEY_EDITTEXT_RU, editTextRu.getText().toString());
         outState.putBoolean(KEY_CHECK_COPY, checkCopy.isChecked());
         outState.putBoolean(KEY_CHECK_MOVE, checkMove.isChecked());
-        //outState.putBoolean(KEY_BTN_WRITE_ENABLED, buttonWrite.isEnabled());
     }
 
     @Override
@@ -160,7 +156,7 @@ public class d_WordEditor extends AppCompatActivity
             dataBaseQueries = new DataBaseQueries(this);
         } catch (SQLException e)
         {
-            Toast.makeText(this,"Data base error - "+e.getMessage(),Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,getString(R.string.msg_data_base_error)+e.getMessage(),Toast.LENGTH_SHORT).show();
             this.finish();
         }
         if (_databaseHelper == null)
@@ -196,7 +192,6 @@ public class d_WordEditor extends AppCompatActivity
 
             editTextEn.setText(savedInstanceState.getString(KEY_EDITTEXT_EN));
             editTextRu.setText(savedInstanceState.getString(KEY_EDITTEXT_RU));
-            //buttonWrite.setEnabled(savedInstanceState.getBoolean(KEY_BTN_WRITE_ENABLED));
             checkCopy.setChecked(savedInstanceState.getBoolean(KEY_CHECK_COPY));
             checkMove.setChecked(savedInstanceState.getBoolean(KEY_CHECK_MOVE));
             if (checkMove.isChecked())
@@ -240,50 +235,13 @@ public class d_WordEditor extends AppCompatActivity
             @Override
             public void onNothingSelected(AdapterView<?> parent){}
         });
-
-        spinnerListDict2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
-        {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
-            {
-
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent)
-            {
-
-            }
-        });
-
-        spinnerCountRepeat.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
-        {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
-            {
-//                z_Log.v("spinnerCountRepeat position = "+ position);
-//                if (position != testCountRepeat-1 && !editTextEn.getText().equals(null) && !editTextRu.getText().equals(null))
-//                {
-//                    buttonWrite.setEnabled(true);
-//                }
-//                else
-//                {
-//                    buttonWrite.setEnabled(false);
-//                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent)
-            {
-
-            }
-        });
     }
 
     private void listViewSetSource(final boolean update)
     {
         if (update)
         {
+            // TODO:  Handler() асинхронная загрузка данных в ListView
             new Thread(new Runnable()
             {
                 public void run()
@@ -318,12 +276,11 @@ public class d_WordEditor extends AppCompatActivity
         }
     }
 
-    private long rowID;
+    private static long rowID;
     private static String testTextEn;
     private static String testTextRu;
     private static String testCurrentDict;
     private static int testCountRepeat;
-    private long listViewSelectItem;
     private void listView_OnItemClick()
     {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
@@ -331,7 +288,6 @@ public class d_WordEditor extends AppCompatActivity
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
-                listViewSelectItem = id;
                 TextView textViewEn = (TextView) view.findViewById(R.id.english);
                 testTextEn = textViewEn.getText().toString();
                 editTextEn.setText(textViewEn.getText().toString());
@@ -339,24 +295,23 @@ public class d_WordEditor extends AppCompatActivity
                 TextView textViewRu = (TextView) view.findViewById(R.id.translate);
                 testTextRu = textViewRu.getText().toString();
                 editTextRu.setText(textViewRu.getText().toString());
+
+                TextView textViewCounRepeat = (TextView) view.findViewById(R.id.count_repeat);
+                testCountRepeat = Integer.parseInt(textViewCounRepeat.getText().toString());
+                spinnerCountRepeat.setSelection(testCountRepeat);
+
                 String tableName = spinnerListDict.getSelectedItem().toString();
                 testCurrentDict = spinnerListDict.getSelectedItem().toString();
-                z_Log.v("spinnerListDict.getSelectedItem() = "+tableName);
                 try
                 {
                     rowID = dataBaseQueries.getIdOfWord(tableName, testTextEn, testTextRu);
-                    testCountRepeat = Integer.parseInt(dataBaseEntries.get(position).get_count_repeat());
+
                 } catch (Exception e)
                 {
-                    testCountRepeat = 1;
-                    z_Log.v("Исключение - "+e.getMessage());
+                    Toast.makeText(d_WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
-                spinnerCountRepeat.setSelection(testCountRepeat - 1);
                 checkMove.setChecked(false);
                 layoutSpinner.setVisibility(View.GONE);
-
-
-                z_Log.v("rowID = "+rowID);
                 switcher.showNext();
             }
         });
@@ -368,73 +323,6 @@ public class d_WordEditor extends AppCompatActivity
                 //z_Log.v("Выбран долгим нажатием - "+position);
 
                 return false;
-            }
-        });
-    }
-
-
-    private void editTextRu_OnTextChanged()
-    {
-        editTextEn.addTextChangedListener(new TextWatcher()
-        {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after)
-            {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count)
-            {
-//                if (editTextEn.getText().toString().equals("") || editTextRu.getText().toString().equals(""))
-//                {
-//                    buttonWrite.setEnabled(false);
-//                }else
-//                {
-//                    buttonWrite.setEnabled(true);
-//                }
-//                if (editTextEn.getText().toString().equals(testTextEn))
-//                {
-//                    buttonWrite.setEnabled(false);
-//                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s)
-            {
-            }
-        });
-    }
-
-    private void editTextEn_OnTextChanged()
-    {
-        editTextRu.addTextChangedListener(new TextWatcher()
-        {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after)
-            {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count)
-            {
-//                if (editTextEn.getText().toString().equals("") || editTextRu.getText().toString().equals(""))
-//                {
-//                    buttonWrite.setEnabled(false);
-//                }else
-//                {
-//                    buttonWrite.setEnabled(true);
-//                }
-//                if (editTextRu.getText().toString().equals(testTextRu))
-//                {
-//                    buttonWrite.setEnabled(false);
-//                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s)
-            {
-
             }
         });
     }
@@ -476,7 +364,7 @@ public class d_WordEditor extends AppCompatActivity
                                     dataBaseQueries.dataBaseVacuum(tableName);
                                 } catch (Exception e)
                                 {
-                                    z_Log.v("Возникло исключение - "+e.getMessage());
+                                    Toast.makeText(d_WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
                                     d_WordEditor.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
                                 }
                                 listViewSetSource(true);
@@ -528,7 +416,7 @@ public class d_WordEditor extends AppCompatActivity
                             dataBaseQueries.updateWordInTable(tableName, rowID, baseEntry);
                         } catch (Exception e)
                         {
-                            z_Log.v("Возникло исключение - "+e.getMessage());
+                            Toast.makeText(d_WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     }
                     else if (checkMove.isChecked() && !checkCopy.isChecked())
@@ -539,7 +427,7 @@ public class d_WordEditor extends AppCompatActivity
                             dataBaseQueries.dataBaseVacuum(tableName);
                         } catch (Exception e)
                         {
-                            z_Log.v("Возникло исключение - "+e.getMessage());
+                            Toast.makeText(d_WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                         dataBaseQueries.insertWordInTable(new_table_name, baseEntry);
                     }
@@ -550,7 +438,7 @@ public class d_WordEditor extends AppCompatActivity
                             dataBaseQueries.updateWordInTable(tableName, rowID, baseEntry);
                         } catch (Exception e)
                         {
-                            z_Log.v("Возникло исключение - "+e.getMessage());
+                            Toast.makeText(d_WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                         dataBaseQueries.insertWordInTable(new_table_name, baseEntry);
                     }

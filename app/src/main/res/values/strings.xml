@@ -142,6 +142,7 @@
     <string name="menu_search">Найти</string>
     <string name="dialog_title_confirm_action">Подтвердите ваши действия</string>
     <string name="dialog_msg_delete_word">"Вы действительно хотите удалить слово из словаря - "</string>
+    <string name="msg_data_base_error">"Ошибка базы данных - "</string>
 
 
 </resources>

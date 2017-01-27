@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
+// TODO:  IntentService class
 public class z_speechService extends IntentService
 {
     private boolean stop = true;
