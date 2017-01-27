@@ -52,20 +52,20 @@ public abstract class db_GetPairWords extends AsyncTask<Object,Void,ArrayList<Da
                 {
                     while (!cursor.isAfterLast())
                     {
-                        dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1));
+                        dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1), cursor.getString(3));
                         entriesFromDB.add(dataBaseEntry);
                         cursor.moveToNext();
                     }
                 }
             } else
             {
-                dataBaseEntry = new DataBaseEntry(null, null);
+                dataBaseEntry = new DataBaseEntry(null, null, null);
             }
         }
         catch (Exception e)
         {
             z_Log.v("Возникло исключение - "+e.getMessage());
-            entriesFromDB.add(new DataBaseEntry(null,null));
+            entriesFromDB.add(new DataBaseEntry(null,null,null));
         }
         finally
         {

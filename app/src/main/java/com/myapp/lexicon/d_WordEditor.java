@@ -627,7 +627,7 @@ public class d_WordEditor extends AppCompatActivity
             {
                 while (!cursor.isAfterLast())
                 {
-                    DataBaseEntry dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1));
+                    DataBaseEntry dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1), cursor.getString(3));
                     entriesFromDB.add(dataBaseEntry);
                     cursor.moveToNext();
                 }

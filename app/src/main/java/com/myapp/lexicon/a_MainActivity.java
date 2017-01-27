@@ -605,7 +605,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         }
         else
         {
-            list.add(new DataBaseEntry(null,null));
+            list.add(new DataBaseEntry(null,null,null));
         }
         return list;
     }
@@ -655,7 +655,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         }
         else
         {
-            list.add(new DataBaseEntry(null,null));
+            list.add(new DataBaseEntry(null,null,null));
         }
         return list;
     }

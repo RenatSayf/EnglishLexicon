@@ -397,7 +397,7 @@ public class b_AddWordActivity extends AppCompatActivity
             public void onClick(View v)
             {
                 long id = -1;
-                DataBaseEntry entry = new DataBaseEntry(null, null);
+                DataBaseEntry entry = new DataBaseEntry(null, null, null);
                 int res = checkText(textViewEnter.getText().toString(), textViewResult.getText().toString());
                 if (res == 1)
                 {
