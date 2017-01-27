@@ -115,64 +115,63 @@ public class z_speechService extends IntentService
                             {
                                 continue;
                             }
-                            z_Log.v(list.get(0).get_english() + "    " + list.get(0).get_translate());
+                            int repeat = Integer.parseInt(list.get(0).get_count_repeat());
 
                             if (a_MainActivity.settings.getBoolean(a_MainActivity.KEY_ENG_ONLY,true))
                             {
-                                try
+                                for (int t = 0; t < repeat; t++)
                                 {
-                                    speakWord(list.get(0).get_english(), Locale.US);
-                                } catch (InterruptedException e)
-                                {
-                                    z_Log.v("Исключение - "+e.getMessage());
-                                    e.printStackTrace();
-                                }
+                                    try
+                                    {
+                                        speakWord(list.get(0).get_english(), Locale.US);
+                                    } catch (InterruptedException e)
+                                    {
+                                        z_Log.v("Исключение - "+e.getMessage());
+                                        e.printStackTrace();
+                                    }
 
-                                if (stop)
-                                {
-                                    z_Log.v(" onHandleIntent() stop = " + stop);
-                                    a_SplashScreenActivity.speech.stop();
-                                    break;
-                                }
+                                    if (stop)
+                                    {
+                                        a_SplashScreenActivity.speech.stop();
+                                        break;
+                                    }
 
-                                try
-                                {
-                                    speakWord(list.get(0).get_translate(), Locale.getDefault());
-                                } catch (InterruptedException e)
-                                {
-                                    z_Log.v("Исключение - "+e.getMessage());
-                                    e.printStackTrace();
+                                    try
+                                    {
+                                        speakWord(list.get(0).get_translate(), Locale.getDefault());
+                                    } catch (InterruptedException e)
+                                    {
+                                        e.printStackTrace();
+                                    }
                                 }
                             }
                             else
                             {
                                 try
                                 {
-                                    speakEnglishOnly(list.get(0).get_english(),list.get(0).get_translate());
+                                    for (int t = 0; t < repeat; t++)
+                                    {
+                                        speakEnglishOnly(list.get(0).get_english(),list.get(0).get_translate());
+                                    }
                                 } catch (InterruptedException e)
                                 {
-                                    z_Log.v("Исключение - "+e.getMessage());
                                     e.printStackTrace();
                                 }
                             }
 
                             if (stop)
                             {
-                                z_Log.v(" onHandleIntent() stop = " + stop);
                                 a_SplashScreenActivity.speech.stop();
                                 break;
                             }
                             AppData.set_Nword(j);
-                            //AppData.set_isPause(false);
                         }
                     } else
                     {
-                        z_Log.v(" wordsCountInTable = " + wordsCountInTable);
                         break;
                     }
                     if (stop)
                     {
-                        z_Log.v(" onHandleIntent() stop = " + stop);
                         a_SplashScreenActivity.speech.stop();
                         break;
                     }
@@ -181,10 +180,8 @@ public class z_speechService extends IntentService
                 }
             } else
             {
-                z_Log.v("  _playList.size() = " + _playList.size());
                 break;
             }
-            //AppData.set_isPause(false);
         }
     }
 
