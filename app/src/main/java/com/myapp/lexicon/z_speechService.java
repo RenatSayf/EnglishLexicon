@@ -223,6 +223,7 @@ public class z_speechService extends IntentService
             public void onError(String utteranceId)
             {
                 Toast.makeText(getApplicationContext(), R.string.speech_error, Toast.LENGTH_SHORT).show();
+                speek_done[0] = true;
             }
         });
 
