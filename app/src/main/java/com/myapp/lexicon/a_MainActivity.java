@@ -481,7 +481,9 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
                 toast.setGravity(Gravity.TOP,0,0);
                 toast.show();
             }
+            //speechIntentService = new Intent(this, z_speechService.class);
             speechIntentService.putExtra(getString(R.string.key_play_order), 0);
+            speechIntentService.putExtra(getString(R.string.is_one_time), false);
             startService(speechIntentService);
             _btn_Play.setVisibility(View.GONE);
             _btn_Stop.setVisibility(View.VISIBLE);
@@ -495,6 +497,11 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             Toast toast = Toast.makeText(this, R.string.no_playlist, Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER,0,0);
             toast.show();
+            if (_play_list == null)
+            {
+                _play_list = new Intent(this, p_PlayList.class);
+            }
+            startActivity(_play_list);
         }
         _progressBar.setVisibility(View.VISIBLE);
 
@@ -510,15 +517,13 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     public void btnStopClick(View view)
     {
         speechServiceOnStop();
-
-        _textViewEn.setText(null);
-        _textViewRu.setText(null);
     }
 
     private void speechServiceOnStop()
     {
         AppData.set_Nword(0);
         AppData.set_isPause(false);
+
         if (speechIntentService != null)
         {
             stopService(speechIntentService);
@@ -527,8 +532,8 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         {
             stopService(new Intent(this, z_speechService.class));
         }
-//        z_speechService2.stopIntentService();
-//        z_speechService2.resetCount();
+//        z_speechService.stopIntentService();
+//        z_speechService.resetCount();
         _textViewEn.setText(null);
         _textViewRu.setText(null);
         _btn_Play.setVisibility(View.VISIBLE);
@@ -685,7 +690,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         {
             stopService(new Intent(this, z_speechService.class));
         }
-        //z_speechService2.stopIntentService();
+        //z_speechService.stopIntentService();
         _btn_Pause.setVisibility(View.GONE);
         _btn_Play.setVisibility(View.VISIBLE);
         _textViewRu.setText(null);

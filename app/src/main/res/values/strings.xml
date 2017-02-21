@@ -146,6 +146,7 @@
     <string name="key_play_order">key_play_order</string>
     <string name="text_msg_not_match_lang">Текст не соответствует языку</string>
     <string name="speech_error">Error of speech synthesis</string>
+    <string name="is_one_time">is_one_time</string>
 
 
 </resources>
