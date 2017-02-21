@@ -8,12 +8,12 @@ import android.os.IBinder;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 // TODO:  IntentService class
 public class z_speechService extends IntentService
@@ -123,7 +123,7 @@ public class z_speechService extends IntentService
                                 {
                                     try
                                     {
-                                        speakWord(list.get(0).get_english(), Locale.US);
+                                        speakWord(list.get(0));
                                     } catch (InterruptedException e)
                                     {
                                         z_Log.v("Исключение - "+e.getMessage());
@@ -134,14 +134,6 @@ public class z_speechService extends IntentService
                                     {
                                         a_SplashScreenActivity.speech.stop();
                                         break;
-                                    }
-
-                                    try
-                                    {
-                                        speakWord(list.get(0).get_translate(), Locale.getDefault());
-                                    } catch (InterruptedException e)
-                                    {
-                                        e.printStackTrace();
                                     }
                                 }
                             }
@@ -190,29 +182,18 @@ public class z_speechService extends IntentService
     private String textRu;
     private String textDict;
 
-    private String speakWord(String text, Locale lang) throws InterruptedException
+    private void speakWord(final DataBaseEntry entries) throws InterruptedException
     {
-        if (lang == Locale.US)
-        {
-            textEn = text;
-            textRu = "";
-        }
-        else if (lang != Locale.US)
-        {
-            textRu = text;
-        }
-        else
-        {
-            z_Log.v("speakWord() Текст не соответствует языку = " + text);
-            return null;
-        }
+        final boolean[] speek_done = {false};
         a_SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
         {
             @Override
             public void onStart(String utteranceId)
             {
-//                z_Log.v("  Начинаем синтез речи utteranceId = " + utteranceId);
-//                z_Log.v("  _wordses  textEn = " + textEn + "    " + "textRu = " + textRu);
+                if (utteranceId.equals("ru"))
+                {
+                    textRu = entries.get_translate();
+                }
                 updateIntent.putExtra(EXTRA_KEY_UPDATE_EN, textEn);
                 updateIntent.putExtra(EXTRA_KEY_UPDATE_RU, textRu);
                 updateIntent.putExtra(EXTRA_KEY_UPDATE_DICT, textDict);
@@ -225,63 +206,49 @@ public class z_speechService extends IntentService
                 if (stop)
                 {
                     a_SplashScreenActivity.speech.stop();
+                    return;
                 }
-
+                if (utteranceId.equals("en"))
+                {
+                    textRu = entries.get_translate();
+                    HashMap<String,String> mapRu = new HashMap<String, String>();
+                    mapRu.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "ru");
+                    a_SplashScreenActivity.speech.setLanguage(Locale.getDefault());
+                    a_SplashScreenActivity.speech.speak(textRu, TextToSpeech.QUEUE_ADD, mapRu);
+                }
+                if (utteranceId.equals("ru"))
+                {
+                    speek_done[0] = true;
+                }
             }
 
             @Override
             public void onError(String utteranceId)
             {
-                //z_Log.v("Ошибка синтеза");
-                updateIntent.putExtra(EXTRA_KEY_UPDATE_RU, textRu);
-                sendBroadcast(updateIntent);
+//                updateIntent.putExtra(EXTRA_KEY_UPDATE_RU, textRu);
+//                sendBroadcast(updateIntent);
             }
         });
 
-        Locale language = a_SplashScreenActivity.speech.getLanguage();
-        if (language != lang)
+        HashMap<String,String> mapEn = new HashMap<>();
+        mapEn.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "en");
+        textEn = entries.get_english();
+        textRu = "";
+        a_SplashScreenActivity.speech.setLanguage(Locale.US);
+        a_SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, mapEn);
+
+        while (!speek_done[0])
         {
-            //a_SplashScreenActivity.speech.stop();
-            a_SplashScreenActivity.speech.setLanguage(lang);
-        }
-        int count = 0;
-        int res = -3;
-        while (res < 0)
-        {
-            Thread.sleep(100);
-            res = a_SplashScreenActivity.speech.isLanguageAvailable(lang);
-            count++;
-            if (count >= 2000)
+            try
             {
-                z_Log.v("textToSpeech.isLanguageAvailable(lang) = " + res + ".    " + lang.getDisplayName() + " язык недоступен");
-                //text = null;
-                break;
+                TimeUnit.SECONDS.sleep(1);
+            } catch (InterruptedException e)
+            {
+                e.printStackTrace();
             }
         }
-        if (text == null || res <0)
-        {
-            return text;
-        }
-        if (stop)
-        {
-            a_SplashScreenActivity.speech.stop();
-            return text;
-        }
-        z_Log.v("textToSpeech.setLanguage(lang) = " + res + "    count = " + count);
-        a_SplashScreenActivity.speech.speak(text, TextToSpeech.QUEUE_ADD, a_SplashScreenActivity.map);
 
-        while (a_SplashScreenActivity.speech.isSpeaking())
-        {
-            if (stop)
-            {
-                a_SplashScreenActivity.speech.stop();
-                break;
-            }
-            Thread.sleep(100);
-        }
-        z_Log.v("speakWord()   text = " + text);
-
-        return text;
+        return;
     }
     private String speakEnglishOnly(String text_en, String text_ru) throws InterruptedException
     {
