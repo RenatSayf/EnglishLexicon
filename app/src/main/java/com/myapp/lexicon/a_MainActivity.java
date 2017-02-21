@@ -1,6 +1,8 @@
 package com.myapp.lexicon;
 
+import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -35,6 +37,7 @@ import android.widget.ViewFlipper;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
@@ -84,10 +87,12 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         initViews();
 
         speechIntentService = new Intent(this, z_speechService.class);
+        //speechIntentService = new Intent(this, z_speechService2.class);
 
         // Регистрируем приёмник
         mUpdateBroadcastReceiver = new UpdateBroadcastReceiver();
         IntentFilter updateIntentFilter = new IntentFilter(z_speechService.ACTION_UPDATE);
+        //IntentFilter updateIntentFilter = new IntentFilter(z_speechService2.ACTION_UPDATE);
         updateIntentFilter.addCategory(Intent.CATEGORY_DEFAULT);
         try
         {
@@ -196,6 +201,10 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         databaseHelper.close();
         unregisterReceiver(mUpdateBroadcastReceiver);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
+        if (!isActivityOnTop())
+        {
+
+        }
     }
 
     @Override
@@ -472,6 +481,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
                 toast.setGravity(Gravity.TOP,0,0);
                 toast.show();
             }
+            speechIntentService.putExtra(getString(R.string.key_play_order), 0);
             startService(speechIntentService);
             _btn_Play.setVisibility(View.GONE);
             _btn_Stop.setVisibility(View.VISIBLE);
@@ -494,11 +504,13 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         Toast toast = Toast.makeText(this, R.string.message_about_pause,Toast.LENGTH_SHORT);
         toast.show();
         speechServiceOnPause();
+
     }
 
     public void btnStopClick(View view)
     {
         speechServiceOnStop();
+
         _textViewEn.setText(null);
         _textViewRu.setText(null);
     }
@@ -515,6 +527,8 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         {
             stopService(new Intent(this, z_speechService.class));
         }
+//        z_speechService2.stopIntentService();
+//        z_speechService2.resetCount();
         _textViewEn.setText(null);
         _textViewRu.setText(null);
         _btn_Play.setVisibility(View.VISIBLE);
@@ -671,6 +685,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         {
             stopService(new Intent(this, z_speechService.class));
         }
+        //z_speechService2.stopIntentService();
         _btn_Pause.setVisibility(View.GONE);
         _btn_Play.setVisibility(View.VISIBLE);
         _textViewRu.setText(null);
@@ -711,6 +726,23 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
 //                toast.show();
             }
         });
+    }
+
+    // TODO: ActivityManager.RunningAppProcessInfo Проверка, что активити находится на верху стека
+    public boolean isActivityOnTop()
+    {
+        final ActivityManager activityManager = (ActivityManager) getSystemService(Service.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> runningAppProcesses = activityManager.getRunningAppProcesses();
+        if (runningAppProcesses.size() > 0)
+        {
+            String processName = runningAppProcesses.get(0).processName;
+            String packageName = getApplicationInfo().packageName;
+            if (processName.equals(packageName))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     public class UpdateBroadcastReceiver extends BroadcastReceiver

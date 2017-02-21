@@ -101,4 +101,62 @@ public class AppData extends Application
 
 
 
+
+    private static String currentDict2;
+    public static String getCurrentDict2()
+    {
+        return currentDict2;
+    }
+
+    public static void setCurrentDict2(String currentDict)
+    {
+        AppData.currentDict2 = currentDict;
+    }
+
+    private static int _Ndict2;
+    private static int _Nword2 = 1;
+    public static int get_Ndict2()
+    {
+        return _Ndict2;
+    }
+
+    public static void set_Ndict2(int Ndict)
+    {
+        _Ndict2 = Ndict;
+    }
+
+    public static int get_Nword2()
+    {
+        return _Nword2;
+    }
+
+    public static void set_Nword2(int Nword)
+    {
+        _Nword2 = Nword;
+    }
+
+    private static boolean _isPause2 = false;
+    public static boolean get_isPause2()
+    {
+        return _isPause2;
+    }
+
+    public static void set_isPause2(boolean isPause)
+    {
+        _isPause2 = isPause;
+    }
+
+    private static boolean engOnly2 = false;
+    public static boolean isEngOnly2()
+    {
+        return engOnly2;
+    }
+
+    public static void setEngOnly2(boolean engOnly)
+    {
+        AppData.engOnly2 = engOnly;
+    }
+
+
+
 }

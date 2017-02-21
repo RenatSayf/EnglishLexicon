@@ -88,6 +88,11 @@
             android:enabled="true"
             android:exported="false">
         </service>
+        <!--<service-->
+            <!--android:name=".z_speechService2"-->
+            <!--android:enabled="true"-->
+            <!--android:exported="false">-->
+        <!--</service>-->
     </application>
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />

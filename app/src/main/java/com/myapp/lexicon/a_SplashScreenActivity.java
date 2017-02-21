@@ -48,6 +48,7 @@ public class a_SplashScreenActivity extends Activity
                     {
                         speech.setLanguage(Locale.US);
                         speech.speak("lets go",TextToSpeech.QUEUE_ADD,map);
+                        //z_speechService2.setSpeechReferens(speech);
                     }
                 }else
                 {

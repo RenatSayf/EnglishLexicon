@@ -1,21 +1,19 @@
 package com.myapp.lexicon;
 
 import android.app.IntentService;
-import android.app.Service;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.IBinder;
-import android.os.Process;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
 // TODO:  IntentService class
 public class z_speechService extends IntentService
@@ -83,9 +81,11 @@ public class z_speechService extends IntentService
         updateIntent.setAction(ACTION_UPDATE);
         updateIntent.addCategory(Intent.CATEGORY_DEFAULT);
 
+        _playList = a_MainActivity.getPlayList();
+        if (_playList.size() == 0) return;
+
         while (!stop)
         {
-            z_Log.v(" stop = " + stop);
             _playList = a_MainActivity.getPlayList();
             if (_playList.size() > 0)
             {
@@ -183,11 +183,13 @@ public class z_speechService extends IntentService
                 break;
             }
         }
+
     }
 
     private String textEn;
     private String textRu;
     private String textDict;
+
     private String speakWord(String text, Locale lang) throws InterruptedException
     {
         if (lang == Locale.US)
@@ -209,8 +211,8 @@ public class z_speechService extends IntentService
             @Override
             public void onStart(String utteranceId)
             {
-                z_Log.v("  Начинаем синтез речи utteranceId = " + utteranceId);
-                z_Log.v("  _wordses  textEn = " + textEn + "    " + "textRu = " + textRu);
+//                z_Log.v("  Начинаем синтез речи utteranceId = " + utteranceId);
+//                z_Log.v("  _wordses  textEn = " + textEn + "    " + "textRu = " + textRu);
                 updateIntent.putExtra(EXTRA_KEY_UPDATE_EN, textEn);
                 updateIntent.putExtra(EXTRA_KEY_UPDATE_RU, textRu);
                 updateIntent.putExtra(EXTRA_KEY_UPDATE_DICT, textDict);
@@ -224,12 +226,13 @@ public class z_speechService extends IntentService
                 {
                     a_SplashScreenActivity.speech.stop();
                 }
+
             }
 
             @Override
             public void onError(String utteranceId)
             {
-                z_Log.v("Ошибка синтеза");
+                //z_Log.v("Ошибка синтеза");
                 updateIntent.putExtra(EXTRA_KEY_UPDATE_RU, textRu);
                 sendBroadcast(updateIntent);
             }
