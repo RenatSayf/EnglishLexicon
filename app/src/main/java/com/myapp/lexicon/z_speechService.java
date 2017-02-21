@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 // TODO:  IntentService class
 public class z_speechService extends IntentService
 {
-    private boolean stop = true;
+    private static boolean stop = true;
     private ArrayList<p_ItemListDict> playList;
     private DatabaseHelper databaseHelper;
     private String textEn;
@@ -74,10 +74,23 @@ public class z_speechService extends IntentService
         databaseHelper.close();
     }
 
+    public static void stopIntentService()
+    {
+        stop = true;
+    }
+
+    public static void resetCount()
+    {
+//        dictIndex = 0; // Сброс индексов списков и элементов
+//        wordIndex = 1;
+    }
+
     private Intent updateIntent;
     @Override
     protected void onHandleIntent(Intent intent)
     {
+        int order = intent.getIntExtra(getString(R.string.key_play_order), 0);
+        stop = intent.getBooleanExtra(getString(R.string.is_one_time), true);
         updateIntent = new Intent();
         updateIntent.setAction(ACTION_UPDATE);
         updateIntent.addCategory(Intent.CATEGORY_DEFAULT);
@@ -85,96 +98,106 @@ public class z_speechService extends IntentService
         playList = a_MainActivity.getPlayList();
         if (playList.size() == 0) return;
 
-        while (!stop)
+        if (order == 0)
         {
-            playList = a_MainActivity.getPlayList();
-            if (playList.size() > 0)
+            do
             {
-                if(!AppData.get_isPause()) AppData.set_Ndict(0);
-                for (int i = AppData.get_Ndict(); i < playList.size(); i++)
+                playList = a_MainActivity.getPlayList();
+                if (playList.size() > 0)
                 {
-                    p_ItemListDict playListItem = playList.get(i);
-                    textDict = playListItem.get_dictName();
-                    AppData.setCurrentDict(textDict);
-                    AppData.set_Ndict(i);
-                    int wordsCountInTable = getWordsCount(playListItem.get_dictName());
-                    if (wordsCountInTable > 0)
+                    if (!AppData.get_isPause()) AppData.set_Ndict(0);
+                    for (int i = AppData.get_Ndict(); i < playList.size(); i++)
                     {
-                        if(!AppData.get_isPause()) AppData.set_Nword(1);
-                        for (int j = AppData.get_Nword(); j <= wordsCountInTable; j++)
+                        p_ItemListDict playListItem = playList.get(i);
+                        textDict = playListItem.get_dictName();
+                        AppData.setCurrentDict(textDict);
+                        AppData.set_Ndict(i);
+                        int wordsCountInTable = getWordsCount(playListItem.get_dictName());
+                        if (wordsCountInTable > 0)
                         {
-                            AppData.set_Nword(j);
+                            if (!AppData.get_isPause()) AppData.set_Nword(1);
+                            for (int j = AppData.get_Nword(); j <= wordsCountInTable; j++)
+                            {
+                                AppData.set_Nword(j);
 
-                            if (stop)
-                            {
-                                a_SplashScreenActivity.speech.stop();
-                                break;
-                            }
-                            ArrayList<DataBaseEntry> list = getEntriesFromDB(playListItem.get_dictName(), j, j);
-                            if (list.size() == 0)
-                            {
-                                continue;
-                            }
-                            int repeat = Integer.parseInt(list.get(0).get_count_repeat());
-
-                            if (a_MainActivity.settings.getBoolean(a_MainActivity.KEY_ENG_ONLY,true))
-                            {
-                                for (int t = 0; t < repeat; t++)
+//                                if (stop)
+//                                {
+//                                    a_SplashScreenActivity.speech.stop();
+//                                    break;
+//                                }
+                                ArrayList<DataBaseEntry> list = getEntriesFromDB(playListItem.get_dictName(), j, j);
+                                if (list.size() == 0)
                                 {
-                                    try
-                                    {
-                                        speakWord(list.get(0), false);
-                                    } catch (InterruptedException e)
-                                    {
-                                        Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                                        e.printStackTrace();
-                                        break;
-                                    }
-
-                                    if (stop)
-                                    {
-                                        a_SplashScreenActivity.speech.stop();
-                                        break;
-                                    }
+                                    continue;
                                 }
-                            }
-                            else
-                            {
+
+                                int repeat = 0;
                                 try
+                                {
+                                    repeat = Integer.parseInt(list.get(0).get_count_repeat());
+                                } catch (NumberFormatException e)
+                                {
+                                    repeat = 1;
+                                }
+
+                                if (a_MainActivity.settings.getBoolean(a_MainActivity.KEY_ENG_ONLY, true))
                                 {
                                     for (int t = 0; t < repeat; t++)
                                     {
-                                        speakWord(list.get(0), true);
-                                    }
-                                } catch (InterruptedException e)
-                                {
-                                    e.printStackTrace();
-                                }
-                            }
+                                        try
+                                        {
+                                            speakWord(list.get(0), false);
+                                        } catch (InterruptedException e)
+                                        {
+                                            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                                            e.printStackTrace();
+                                            break;
+                                        }
 
-                            if (stop)
-                            {
-                                a_SplashScreenActivity.speech.stop();
-                                break;
+//                                        if (stop)
+//                                        {
+//                                            a_SplashScreenActivity.speech.stop();
+//                                            break;
+//                                        }
+                                    }
+                                } else
+                                {
+                                    try
+                                    {
+                                        for (int t = 0; t < repeat; t++)
+                                        {
+                                            speakWord(list.get(0), true);
+                                        }
+                                    } catch (InterruptedException e)
+                                    {
+                                        e.printStackTrace();
+                                    }
+                                }
+
+//                                if (stop)
+//                                {
+//                                    a_SplashScreenActivity.speech.stop();
+//                                    break;
+//                                }
+                                AppData.set_Nword(j);
                             }
-                            AppData.set_Nword(j);
+                        } else
+                        {
+                            break;
                         }
-                    } else
-                    {
-                        break;
+//                        if (stop)
+//                        {
+//                            a_SplashScreenActivity.speech.stop();
+//                            break;
+//                        }
+                        AppData.set_Ndict(i);
+                        AppData.set_isPause(false);
                     }
-                    if (stop)
-                    {
-                        a_SplashScreenActivity.speech.stop();
-                        break;
-                    }
-                    AppData.set_Ndict(i);
-                    AppData.set_isPause(false);
+                } else
+                {
+                    break;
                 }
-            } else
-            {
-                break;
-            }
+            } while (!stop);
         }
 
     }
