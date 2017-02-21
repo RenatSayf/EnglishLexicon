@@ -26,10 +26,11 @@ public class DataBaseEntry
 //        this._english=english;
 //        this._translate=translate;
 //    }
-    public DataBaseEntry(String english, String translate)
+    public DataBaseEntry(String english, String translate, String count_repeat)
     {
         this._english=english;
         this._translate=translate;
+        this._count_repeat=count_repeat;
     }
     public String get_id()
     {

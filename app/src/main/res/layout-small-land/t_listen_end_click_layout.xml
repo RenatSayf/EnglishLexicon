@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                tools:context="com.myapp.lexicon.t_ListenEndClickFragment"
+                android:background="@color/pape_background_blue"
+                android:id="@+id/rel_layout"
+    >
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="10dp"
+        android:text="Text"
+        android:textSize="@dimen/text_size_for_test"
+        android:id="@+id/text_view_listen_layout"
+        />
+
+    <ScrollView android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/text_view_listen_layout"
+                android:layout_marginBottom="0dp"
+                android:id="@+id/linear_layout">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="20"
+            android:orientation="vertical"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:gravity="center_horizontal"
+            android:id="@+id/buttons_layout"
+            android:layout_marginTop="20dp">
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/text_button_for_test"
+                android:layout_weight="1"
+                android:layout_marginBottom="10dp"
+                android:id="@+id/btn0"
+                android:textSize="@dimen/buttons_text_size_land_small_"
+                android:text="text"
+                android:minHeight="0dp"/>
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/text_button_for_test"
+                android:layout_weight="1"
+                android:layout_marginBottom="10dp"
+                android:id="@+id/btn1"
+                android:layout_below="@+id/btn0"
+                android:textSize="@dimen/buttons_text_size_land_small_"
+                android:text="text"
+                android:minHeight="0dp"
+                />
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/text_button_for_test"
+                android:layout_weight="1"
+                android:layout_marginBottom="10dp"
+                android:id="@+id/btn2"
+                android:layout_below="@+id/btn1"
+                android:textSize="@dimen/activity_vertical_margin"
+                android:text="text"
+                android:minHeight="0dp"
+                />
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/text_button_for_test"
+                android:layout_weight="1"
+                android:layout_marginBottom="10dp"
+                android:id="@+id/btn3"
+                android:layout_below="@+id/btn2"
+                android:textSize="@dimen/buttons_text_size_land_small_"
+                android:text="text"
+                android:minHeight="0dp"
+                />
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/text_button_for_test"
+                android:layout_weight="1"
+                android:layout_marginBottom="10dp"
+                android:id="@+id/btn4"
+                android:layout_below="@+id/btn3"
+                android:textSize="@dimen/buttons_text_size_land_small_"
+                android:text="text"
+                android:minHeight="0dp"
+                />
+
+        </RelativeLayout>
+    </ScrollView>
+
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="-158dp"
+                  android:id="@+id/top_panel">
+
+        <include
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            layout="@layout/t_top_panel"/>
+    </LinearLayout>
+
+
+</RelativeLayout>
+
+

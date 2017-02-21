@@ -12,8 +12,18 @@ public class z_RandomNumberGenerator
     private final Random rnd;
     private final int Count;
     private int genCount=0;
+    private int start = 0;
     public z_RandomNumberGenerator(int in, int seed)
     {
+        Count=in;
+        rnd=new Random(in);
+        rnd.setSeed(seed);
+        input = new BitSet(in);
+    }
+
+    public z_RandomNumberGenerator(int start, int in, int seed)
+    {
+        this.start = start;
         Count=in;
         rnd=new Random(in);
         rnd.setSeed(seed);
@@ -33,6 +43,6 @@ public class z_RandomNumberGenerator
         while (input.get(next));
         input.set(next);
         genCount++;
-        return next;
+        return next + start;
     }
 }

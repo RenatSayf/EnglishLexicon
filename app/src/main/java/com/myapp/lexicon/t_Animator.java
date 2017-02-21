@@ -1,69 +1,79 @@
 package com.myapp.lexicon;
 
 import android.animation.Animator;
+import android.util.DisplayMetrics;
+import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.Animation;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AnticipateInterpolator;
+import android.view.animation.AnticipateOvershootInterpolator;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * Created by Ренат on 12.10.2016.
  */
 
-public class t_Animator extends Animation
+public class t_Animator
 {
-    public static ITextViewToleftEnd iTextViewToleftEnd;
-    public static IButtonsToDownEnd iButtonsToDownEnd;
-    public static IButtonToTopListener iButtonToTopListener;
+    public  static t_Animator instance = new t_Animator();
 
-    private Button[] buttons;
+    public ITextViewToLeftListener iTextViewToLeftListener;
+    public ITextViewToRightListener iTextViewToRightListener;
+
     private TextView textView;
-    private ViewPropertyAnimator animToLeft, animToRight, animToTop, animToDown;
+    private LinearLayout layout;
     private long duration = 1000;
-    private int delta = 100;
+    private int delta = 60;
 
-    public t_Animator(Button[] buttons, TextView textView)
+    public t_Animator()
     {
-        this.buttons = buttons;
+
+    }
+
+    public static t_Animator getInstance()
+    {
+        return instance;
+    }
+
+    public void setLayout(LinearLayout layout, TextView textView)
+    {
         this.textView = textView;
+        this.layout = layout;
     }
 
-    public interface ITextViewToleftEnd
+    public interface ITextViewToLeftListener
     {
-        void textViewToLeftEnd(int result);
+        void textViewToLeftListener(int result, TextView textView, Button button);
     }
 
-    public void registrationITextViewToleftEnd(ITextViewToleftEnd end)
+    public void setTextViewToLeftListener(ITextViewToLeftListener listener)
     {
-        iTextViewToleftEnd = end;
+        iTextViewToLeftListener = listener;
     }
 
-    public interface IButtonsToDownEnd
+    public interface ITextViewToRightListener
     {
-        void buttonsToDownEnd(int result);
+        void textViewToRightListener(int result, TextView textView);
     }
 
-    public void registrationButtonsToDownEnd(IButtonsToDownEnd end)
+    public void setTextViewToRightListener(ITextViewToRightListener listener)
     {
-        iButtonsToDownEnd = end;
+        iTextViewToRightListener = listener;
     }
 
-    public interface IButtonToTopListener
+    public void textViewToLeft(DisplayMetrics metrics)
     {
-        void buttonToTopListener(int result);
-    }
-
-    public void setButtonToTopListener(IButtonToTopListener end)
-    {
-        iButtonToTopListener = end;
-    }
-
-    public void textViewToLeft()
-    {
-        textView.animate().x(-(textView.getWidth() + delta))
+        textView.animate().x(-(metrics.widthPixels + delta))
                 .setDuration(duration)
                 .setInterpolator(new AccelerateDecelerateInterpolator())
+                .setStartDelay(0)
                 .setListener(new Animator.AnimatorListener()
                 {
                     @Override
@@ -75,18 +85,18 @@ public class t_Animator extends Animation
                     @Override
                     public void onAnimationEnd(Animator animation)
                     {
-                        if (iTextViewToleftEnd != null)
+                        if (iTextViewToLeftListener != null)
                         {
-                            iTextViewToleftEnd.textViewToLeftEnd(1);
+                            iTextViewToLeftListener.textViewToLeftListener(1, textView, button);
                         }
                     }
 
                     @Override
                     public void onAnimationCancel(Animator animation)
                     {
-                        if (iTextViewToleftEnd != null)
+                        if (iTextViewToLeftListener != null)
                         {
-                            iTextViewToleftEnd.textViewToLeftEnd(-1);
+                            iTextViewToLeftListener.textViewToLeftListener(-1, textView, button);
                         }
                     }
 
@@ -98,69 +108,141 @@ public class t_Animator extends Animation
                 });
     }
 
-    public void buttonToRight(int index)
+    private Button button;
+    private int buttonId;
+    private int getButtonId()
     {
-        animToRight = buttons[index].animate().x((buttons[index].getWidth() + delta))
-                .setDuration(duration)
-                .setInterpolator(new AccelerateDecelerateInterpolator());
+        return buttonId;
     }
 
-    public void buttonsToDown(int index)
+    private void setButtonId(int buttonId)
     {
-        for (int i=index-1; i >= 0; i--)
+        this.buttonId = buttonId;
+    }
+
+    public void buttonToRight(LinearLayout layout, int buttonId, DisplayMetrics metrics)
+    {
+        ViewPropertyAnimator animToRight;
+        setButtonId(buttonId);
+
+        button = (Button) layout.findViewById(getButtonId());
+        if (button != null)
         {
-            animToDown = buttons[i].animate()
-                    .translationYBy(buttons[index].getHeight())
+            animToRight = button.animate().translationXBy((button.getWidth()+delta))
                     .setDuration(duration)
-                    .setInterpolator(new AccelerateDecelerateInterpolator());
-            if (i == 0)
+                    .setStartDelay(0)
+                    .setInterpolator(new AccelerateDecelerateInterpolator())
+                    .setListener(new Animator.AnimatorListener()
+                    {
+                        @Override
+                        public void onAnimationStart(Animator animation)
+                        {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animation)
+                        {
+                            int id = getButtonId();
+                            buttonToTop();
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animation)
+                        {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animation)
+                        {
+
+                        }
+                    });
+        }
+    }
+
+    private int getMinMarginTop()
+    {
+        int topMargin = 0;
+        try
+        {
+            LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) layout.getChildAt(0).getLayoutParams();
+            topMargin = layoutParams.topMargin;
+            for (int i = 0; i < layout.getChildCount(); i++)
             {
-                buttonsToDown_Listener(animToDown);
+                layoutParams = (LinearLayout.LayoutParams) layout.getChildAt(i).getLayoutParams();
+                if (layoutParams.topMargin < topMargin)
+                {
+                    topMargin = layoutParams.topMargin;
+                }
+            }
+        } catch (Exception e)
+        {
+            return 0;
+        }
+        return topMargin;
+    }
+
+    public void buttonsToDown(float x, float y)
+    {
+        ViewPropertyAnimator animToDown;
+        boolean isListener = false;
+        int topMargin = getMinMarginTop();
+        for (int i = 0; i < layout.getChildCount(); i++)
+        {
+            Button button = (Button) layout.getChildAt(i);
+            float X = button.getX();
+            float Y = button.getY();
+            if (Y < y && x == X && button.getId() != getButtonId())
+            {
+                animToDown = button.animate()
+                        .translationYBy(button.getHeight()+topMargin)
+                        .setDuration(300)
+                        .setStartDelay(0)
+                        .setInterpolator(new AccelerateInterpolator());
+                if (!isListener)
+                {
+                    isListener = true;
+                    animToDown.setListener(new Animator.AnimatorListener()
+                    {
+                        @Override
+                        public void onAnimationStart(Animator animation)
+                        {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animation)
+                        {
+                            textViewToRight();
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animation)
+                        {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animation)
+                        {
+
+                        }
+                    });
+                }
             }
         }
     }
 
-    private void buttonsToDown_Listener(ViewPropertyAnimator animToDown)
+    private void buttonToTop()
     {
-        animToDown.setListener(new Animator.AnimatorListener()
-        {
-            @Override
-            public void onAnimationStart(Animator animation)
-            {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation)
-            {
-                if (iButtonsToDownEnd != null)
-                {
-                    iButtonsToDownEnd.buttonsToDownEnd(1);
-                }
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation)
-            {
-                if (iButtonsToDownEnd != null)
-                {
-                    iButtonsToDownEnd.buttonsToDownEnd(-1);
-                }
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation)
-            {
-
-            }
-        });
-    }
-
-    public void buttonToTop(int index)
-    {
-        animToTop = buttons[index].animate()
-                .translationYBy(-buttons[index].getHeight() * index)
+        final Button button = (Button) layout.findViewById(getButtonId());
+        if (button == null) return;
+        int topMargin = getMinMarginTop();
+        button.animate().translationYBy(-button.getY()+topMargin)
                 .setDuration(10)
+                .setStartDelay(0)
                 .setListener(new Animator.AnimatorListener()
                 {
                     @Override
@@ -172,19 +254,13 @@ public class t_Animator extends Animation
                     @Override
                     public void onAnimationEnd(Animator animation)
                     {
-                        if (iButtonToTopListener != null)
-                        {
-                            iButtonToTopListener.buttonToTopListener(1);
-                        }
+
                     }
 
                     @Override
                     public void onAnimationCancel(Animator animation)
                     {
-                        if (iButtonToTopListener != null)
-                        {
-                            iButtonToTopListener.buttonToTopListener(-1);
-                        }
+
                     }
 
                     @Override
@@ -195,27 +271,29 @@ public class t_Animator extends Animation
                 });
     }
 
-    public static IButtonToLeftListener iButtonToLeftListener;
-    public void setButtonToLeftListener(IButtonToLeftListener listener)
+    private void buttonToLeft()
     {
-        iButtonToLeftListener = listener;
+        final Button button = (Button) layout.findViewById(getButtonId());
+        if (button == null) return;
+        button.animate().translationXBy(-button.getWidth()-delta)
+                .setDuration(duration)
+                .setStartDelay(0)
+                .setInterpolator(new AnticipateOvershootInterpolator());
     }
 
-    public interface IButtonToLeftListener
+    public void buttonToLeft(int buttonId)
     {
-        void buttonToLeftListener(int result);
-    }
-
-    public void buttonToLeft(int index)
-    {
-        buttons[index].animate().x(delta).setDuration(duration)
+        Button button = (Button) layout.findViewById(buttonId);
+        if (button == null) return;
+        button.animate().translationXBy(-button.getWidth() - delta)
+                .setDuration(duration)
                 .setInterpolator(new AccelerateDecelerateInterpolator())
                 .setListener(new Animator.AnimatorListener()
                 {
                     @Override
                     public void onAnimationStart(Animator animation)
                     {
-
+                        textViewToRight();
                     }
 
                     @Override
@@ -240,32 +318,34 @@ public class t_Animator extends Animation
 
     public void textViewToRight()
     {
-        textView.animate().translationX(0)
+        TextView _textView = this.textView;
+        _textView.animate().translationX(0)
                 .setDuration(duration)
-                .setInterpolator(new AccelerateDecelerateInterpolator())
+                .setStartDelay(0)
+                .setInterpolator(new AnticipateOvershootInterpolator())
                 .setListener(new Animator.AnimatorListener()
                 {
                     @Override
                     public void onAnimationStart(Animator animation)
                     {
-
+                        buttonToLeft();
                     }
 
                     @Override
                     public void onAnimationEnd(Animator animation)
                     {
-                        if (iButtonToLeftListener != null)
+                        if (iTextViewToRightListener != null)
                         {
-                            iButtonToLeftListener.buttonToLeftListener(1);
+                            iTextViewToRightListener.textViewToRightListener(1, textView);
                         }
                     }
 
                     @Override
                     public void onAnimationCancel(Animator animation)
                     {
-                        if (iButtonToLeftListener != null)
+                        if (iTextViewToRightListener != null)
                         {
-                            iButtonToLeftListener.buttonToLeftListener(1);
+                            iTextViewToRightListener.textViewToRightListener(-1, textView);
                         }
                     }
 

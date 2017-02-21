@@ -1,156 +1,192 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:showIn="@layout/a_layout_main"
     tools:context=".a_MainActivity"
-    android:orientation="vertical">
+    tools:showIn="@layout/a_layout_main">
 
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="match_parent">
+
+        <include
+            layout="@layout/a_image_background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:id="@+id/textViewDict"/>
+                android:layout_margin="10dp"
+                android:layout_weight="0"
+                android:orientation="horizontal"
+                android:layout_gravity="top">
 
-            <Switch
-                android:layout_width="wrap_content"
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/textViewDict"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minWidth="80dp"
+                        android:layout_gravity="start"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:textAlignment="center"
+                        android:background="@drawable/text_background"
+                        />
+
+                    <Switch
+                        android:id="@+id/switch_ru_sound"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:checked="false"
+                        android:showText="false"
+                        android:singleLine="false"
+                        android:splitTrack="false"
+                        android:textOff="Ru Выкл"
+                        android:textOn="Ru Вкл"
+                        android:typeface="sans"
+                        />
+
+                </FrameLayout>
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:id="@+id/switch_ru_sound"
-                android:textOn="Ru Вкл"
-                android:textOff="Ru Выкл"
-                android:splitTrack="false"
-                android:singleLine="false"
-                android:showText="false"
-                android:typeface="sans"
-                android:checked="false"
-                />
+                android:layout_margin="15dp"
+                android:layout_weight="0"
+                android:background="@drawable/text_background"
+                android:layout_gravity="center"
+                android:orientation="vertical">
 
+                <TextView
+                    android:id="@+id/enTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0"
+                    android:background="@android:color/transparent"
+                    android:gravity="center"
+                    android:textAlignment="center"
+                    android:textColor="#132ef7"
+                    android:textSize="40sp"
+                    android:textStyle="normal|bold"/>
+
+                <Button
+                    android:id="@+id/btn_play"
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:drawableLeft="@drawable/btn_play2"
+                    android:onClick="btnPlayClick"
+                    />
+
+                <TextView
+                    android:id="@+id/ruTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0"
+                    android:background="@android:color/transparent"
+                    android:gravity="center"
+                    android:phoneNumber="false"
+                    android:textAlignment="center"
+                    android:textColor="#0b9404"
+                    android:textSize="40sp"
+                    android:textStyle="normal|bold"/>
+
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    style="?android:attr/progressBarStyleLarge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="gone"
+                    />
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:id="@+id/bottomPanel"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_weight="0"
+                android:layout_gravity="bottom"
+                android:orientation="horizontal"
+                android:gravity="center_horizontal">
+
+                <Button
+                    android:id="@+id/btn_previous"
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:drawableLeft="@drawable/btn_previous"
+                    android:onClick="btnBackClick"
+                    android:visibility="visible"
+                    android:gravity="center_horizontal"
+                    />
+
+                <!--<Button-->
+                <!--style="?android:attr/buttonStyleSmall"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:id="@+id/btn_play"-->
+                <!--android:drawableLeft="@drawable/btn_play2"-->
+                <!--android:onClick="btnPlayClick"-->
+                <!--/>-->
+
+                <Button
+                    android:id="@+id/btn_pause"
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:drawableLeft="@drawable/btn_pause"
+                    android:onClick="btnPauseClick"
+                    android:visibility="visible"
+                    >
+
+                </Button>
+
+                <Button
+                    android:id="@+id/btn_stop"
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:drawableLeft="@drawable/btn_stop"
+                    android:onClick="btnStopClick"
+                    android:visibility="visible"
+                    />
+
+                <Button
+                    android:id="@+id/btn_next"
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:drawableLeft="@drawable/btn_next"
+                    android:onClick="btnNextClick"
+                    android:visibility="visible"
+                    />
+
+            </LinearLayout>
         </FrameLayout>
-
-    </LinearLayout>
-
-
-    <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/enTextView"
-            android:textAlignment="center"
-            android:textColor="#070101"
-            android:textSize="40sp"
-            android:layout_weight="0.45"
-            android:gravity="center"
-            android:background="@android:color/transparent"/>
-
-        <Button
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:id="@+id/btn_play"
-            android:drawableLeft="@drawable/btn_play2"
-            android:onClick="btnPlayClick"
-            />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/ruTextView"
-            android:textColor="#070101"
-            android:textSize="40sp"
-            android:layout_weight="0.45"
-            android:gravity="center"
-            android:background="@android:color/transparent"
-            android:phoneNumber="false"
-            android:textAlignment="center"/>
-
-    <ProgressBar
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/progressBar"
-        android:layout_gravity="center"
-        android:visibility="gone"
-        />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:orientation="horizontal"
-        android:id="@+id/bottomPanel"
-        android:gravity="center">
-
-        <Button
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:id="@+id/btn_previous"
-            android:drawableLeft="@drawable/btn_previous"
-            android:visibility="gone"
-            android:onClick="btnBackClick"
-            />
-
-        <!--<Button-->
-            <!--style="?android:attr/buttonStyleSmall"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:id="@+id/btn_play"-->
-            <!--android:drawableLeft="@drawable/btn_play2"-->
-            <!--android:onClick="btnPlayClick"-->
-            <!--/>-->
-
-        <Button
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:id="@+id/btn_pause"
-            android:drawableLeft="@drawable/btn_pause"
-            android:visibility="gone"
-            android:onClick="btnPauseClick"
-            >
-
-        </Button>
-
-        <Button
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:id="@+id/btn_stop"
-            android:drawableLeft="@drawable/btn_stop"
-            android:visibility="gone"
-            android:onClick="btnStopClick"
-            />
-
-        <Button
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:id="@+id/btn_next"
-            android:visibility="gone"
-            android:drawableLeft="@drawable/btn_next"
-            android:onClick="btnNextClick"
-            />
-
-    </LinearLayout>
+    </FrameLayout>
 
 
-</LinearLayout>
+</RelativeLayout>

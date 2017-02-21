@@ -1,136 +1,157 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:background="@color/dim_foreground_disabled_material_dark"
+              android:background="@drawable/side_nav_bar"
               android:orientation="vertical"
               >
 
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_weight="3">
+    <FrameLayout android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-        <ScrollView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:padding="10dp">
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingBottom="70dp"
+            android:layout_weight="0">
 
-            <LinearLayout
+            <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                >
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="@string/label_english"
-                    />
-
-                <EditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:id="@+id/edit_text_en"
-                    android:background="@color/background_floating_material_light"/>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="@string/label_russian"
-                    />
-
-                <EditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:id="@+id/edit_text_ru"
-                    android:background="@color/background_floating_material_light"/>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="@string/label_count_repeat"
-                    android:allowUndo="false"
-                    />
-
-                <Spinner
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    style="@style/spinner_style"
-                    android:id="@+id/spinn_cout_repeat"
-                    android:layout_marginTop="8dp"
-                    android:entries="@array/count_repeat"
-                    />
-
-                <CheckBox
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:text="Переместить в словарь"
-                    android:id="@+id/check_move"/>
+                android:layout_weight="1"
+                android:padding="10dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:id="@+id/lin_layout_spin"
+                    android:orientation="vertical"
                     >
 
-                    <Spinner
-                        android:layout_width="wrap_content"
+                    <TextView
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginRight="5dp"
-                        android:layout_weight="3"
-                        style="@style/spinner_style"
-                        android:id="@+id/spinn_one_of_five"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:text="@string/label_english"
+                        android:textColor="@color/colorWhite"
+                        />
+
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:entries="@array/not_move"/>
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:id="@+id/edit_text_en"
+                        android:background="@drawable/text_button_for_test"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:text="@string/label_russian"
+                        android:textColor="@color/colorWhite"
+                        />
+
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:id="@+id/edit_text_ru"
+                        android:background="@drawable/text_button_for_test"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:text="@string/label_count_repeat"
+                        android:textColor="@color/colorWhite"
+                        android:allowUndo="false"
+                        />
+
+                    <Spinner
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        style="@style/spinner_style"
+                        android:id="@+id/spinn_cout_repeat"
+                        android:layout_marginTop="8dp"
+                        android:entries="@array/count_repeat"
+                        />
 
                     <CheckBox
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="0"
-                        android:text="@string/label_copy"
-                        android:id="@+id/check_copy"
-                        android:layout_gravity="center_vertical|end"
-                        />
+                        android:layout_marginTop="10dp"
+                        android:text="Переместить в словарь"
+                        android:id="@+id/check_move"
+                        android:textColor="@color/colorWhite"
+
+                        style="@android:style/Widget.Holo.Light.CompoundButton.CheckBox"
+                        app:buttonTint="@color/colorWhite"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:id="@+id/lin_layout_spin"
+                        >
+
+                        <Spinner
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="5dp"
+                            android:layout_weight="3"
+                            style="@style/spinner_style"
+                            android:id="@+id/spinn_dict_to_move"
+                            android:layout_marginTop="8dp"
+                            android:entries="@array/not_move"/>
+
+                        <CheckBox
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0"
+                            android:text="@string/label_copy"
+                            android:id="@+id/check_copy"
+                            android:layout_gravity="center_vertical|end"
+                            android:textColor="@color/colorWhite"
+                            app:buttonTint="@color/colorWhite"/>
+
+                    </LinearLayout>
+
 
                 </LinearLayout>
 
+            </ScrollView>
+        </LinearLayout>
 
-            </LinearLayout>
-
-        </ScrollView>
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:orientation="horizontal"
-        android:layout_weight="1"
-        android:gravity="center_horizontal">
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:orientation="vertical"
-            android:gravity="center_horizontal">
+            android:orientation="horizontal"
+            android:layout_weight="0"
+            android:gravity="center_horizontal"
+            android:layout_gravity="bottom"
+            android:paddingTop="10dp"
+            android:background="@color/colorGrey">
 
-            <ImageButton
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:orientation="vertical"
+                android:gravity="center_horizontal">
+
+                <ImageButton
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
@@ -146,66 +167,74 @@
                     android:layout_marginTop="5dp"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:text="Отмена"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorBlack"
                     android:allowUndo="false"
                     />
-        </LinearLayout>
+            </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center_horizontal"
-            android:layout_marginTop="5dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginLeft="10dp">
-
-            <ImageButton
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:src="@drawable/edit_btn_foreground"
-                android:background="@android:color/transparent"
-                android:layout_gravity="center_horizontal"
-                android:id="@+id/btn_write"
-                />
-
-            <TextView
-                android:layout_width="80dp"
-                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
                 android:layout_marginTop="5dp"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Записать"
-                android:allowUndo="false"
-                />
-        </LinearLayout>
+                android:layout_marginRight="10dp"
+                android:layout_marginLeft="10dp">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:orientation="vertical"
-            android:gravity="center_horizontal">
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:src="@drawable/edit_btn_foreground"
+                    android:background="@android:color/transparent"
+                    android:layout_gravity="center_horizontal"
+                    android:id="@+id/btn_write"
+                    />
 
-            <ImageButton
+                <TextView
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="Записать"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorBlack"
+                    android:allowUndo="false"
+                    />
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/btn_delete_action"
-                android:background="@android:color/transparent"
-                android:layout_gravity="center_horizontal"
-                android:id="@+id/btn_delete"
-                />
-
-            <TextView
-                android:layout_width="80dp"
-                android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Удалить"
-                android:allowUndo="false"
-                />
+                android:orientation="vertical"
+                android:gravity="center_horizontal">
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/btn_delete_action"
+                    android:background="@android:color/transparent"
+                    android:layout_gravity="center_horizontal"
+                    android:id="@+id/btn_delete"
+                    />
+
+                <TextView
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="Удалить"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorBlack"
+                    android:allowUndo="false"
+                    />
+            </LinearLayout>
+
+
         </LinearLayout>
+    </FrameLayout>
 
-
-    </LinearLayout>
 
 </LinearLayout>

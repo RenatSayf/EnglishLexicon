@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/dialog_add_dict"
-        android:hint="Dictionary name"
+        android:hint="@string/text_set_dict_name"
         android:inputType="textPersonName"
         />
 

@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 public class t_DialogTestComplete extends android.support.v4.app.DialogFragment
 {
+    //private static t_DialogTestComplete instance = new t_DialogTestComplete();
     public String KEY_RESULT = "result";
     public String KEY_ERRORS = "errors";
     public static IDialogComplete_Result iDialogCompleteResult;
@@ -29,6 +30,11 @@ public class t_DialogTestComplete extends android.support.v4.app.DialogFragment
     {
 
     }
+
+//    public static t_DialogTestComplete getInstance()
+//    {
+//        return instance;
+//    }
 
     public interface IDialogComplete_Result
     {

@@ -11,136 +11,167 @@
     android:background="#6bfd5e">
 
 
-    <LinearLayout android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Выберите тест"
-            android:layout_marginTop="10dp"
-            android:layout_gravity="center_horizontal"/>
-
+    <ScrollView android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="30dp"
-            >
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-            <LinearLayout
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Выберите тест"
+                android:layout_marginTop="10dp"
+                android:layout_gravity="center_horizontal"/>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
                 android:orientation="vertical"
-                android:layout_weight="1">
+                android:layout_marginTop="30dp"
+                >
 
-                <ImageButton
-                    android:layout_width="74dp"
-                    android:layout_height="74dp"
-                    android:layout_gravity="center_horizontal"
-                    android:id="@+id/btn_match_test"
-                    android:src="@drawable/icon_match"
-                    android:background="@android:color/transparent"/>
-
-                <TextView
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:layout_gravity="center_horizontal"
-                    android:text="Соответствие"
-                    android:id="@+id/textView2"/>
+                    android:orientation="vertical"
+                    android:layout_weight="1"
+                    android:visibility="gone">
+
+                    <ImageButton
+                        android:layout_width="74dp"
+                        android:layout_height="74dp"
+                        android:layout_gravity="center_horizontal"
+                        android:id="@+id/btn_match_test"
+                        android:src="@drawable/icon_match"
+                        android:background="@android:color/transparent"/>
+
+                    <TextView
+                        android:layout_width="74dp"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:layout_gravity="center_horizontal"
+                        android:text="Соответствие"
+                        android:id="@+id/textView2"
+                        android:textAlignment="center"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_weight="1">
+
+                    <ImageButton
+                        android:layout_width="74dp"
+                        android:layout_height="74dp"
+                        android:layout_gravity="center_horizontal"
+                        android:id="@+id/btn_find_pair"
+                        android:src="@drawable/icon_match"
+                        android:background="@android:color/transparent"/>
+
+                    <TextView
+                        android:layout_width="74dp"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:layout_gravity="center_horizontal"
+                        android:text="Нади пару"
+                        android:id="@+id/textView_find_pair"
+                        android:textAlignment="center"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_weight="1">
+
+                    <ImageButton
+                        android:layout_width="74dp"
+                        android:layout_height="74dp"
+                        android:layout_gravity="center_horizontal"
+                        android:id="@+id/btn_test_1of5"
+                        android:src="@drawable/icon_match"
+                        android:background="@android:color/transparent"/>
+
+                    <TextView
+                        android:layout_width="74dp"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:layout_gravity="center_horizontal"
+                        android:text="1 из 5"
+                        android:textAlignment="center"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_weight="1">
+
+                    <ImageButton
+                        android:layout_width="74dp"
+                        android:layout_height="74dp"
+                        android:layout_gravity="center_horizontal"
+                        android:src="@drawable/icon_match"
+                        android:background="@android:color/transparent"
+                        android:id="@+id/btn_select_word_test"/>
+
+                    <TextView
+                        android:layout_width="74dp"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:layout_gravity="center_horizontal"
+                        android:text="Послушай и кликни"
+                        android:textAlignment="center"/>
+
+                </LinearLayout>
+
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_weight="1">
+                android:orientation="horizontal"
+                android:layout_marginTop="30dp"
+                android:visibility="gone"
+                >
 
-                <ImageButton
-                    android:layout_width="74dp"
-                    android:layout_height="74dp"
-                    android:layout_gravity="center_horizontal"
-                    android:src="@drawable/icon_match"
-                    android:background="@android:color/transparent"
-                    android:id="@+id/btn_select_word_test"/>
 
-                <TextView
+
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:layout_gravity="center_horizontal"
-                    android:text="Выбери правильно"
-                    />
+                    android:orientation="vertical"
+                    android:layout_weight="1">
 
+                    <ImageButton
+                        android:layout_width="74dp"
+                        android:layout_height="74dp"
+                        android:layout_gravity="center_horizontal"
+                        android:id="@+id/btn_test_3"
+                        android:src="@drawable/icon_match"
+                        android:background="@android:color/transparent"/>
+
+                    <TextView
+                        android:layout_width="74dp"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:layout_gravity="center_horizontal"
+                        android:text="Напиши слово"
+                        android:textAlignment="center"/>
+                </LinearLayout>
 
             </LinearLayout>
-
 
         </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="30dp"
-            >
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_weight="1">
-
-                <ImageButton
-                    android:layout_width="74dp"
-                    android:layout_height="74dp"
-                    android:layout_gravity="center_horizontal"
-                    android:id="@+id/btn_test_3"
-                    android:src="@drawable/icon_match"
-                    android:background="@android:color/transparent"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:layout_gravity="center_horizontal"
-                    android:text="Соответствие"
-                    />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_weight="1">
-
-                <ImageButton
-                    android:layout_width="74dp"
-                    android:layout_height="74dp"
-                    android:layout_gravity="center_horizontal"
-                    android:id="@+id/btn_test_1of5"
-                    android:src="@drawable/common_ic_googleplayservices"
-                    android:background="@android:color/transparent"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:layout_gravity="center_horizontal"
-                    android:text="1 из 5"
-                    />
-            </LinearLayout>
-
-
-
-        </LinearLayout>
-
-
-    </LinearLayout>
+    </ScrollView>
 
 
     <FrameLayout
@@ -152,13 +183,19 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/correct_fragment"
+        android:id="@+id/find_pair_fragment"
         />
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/correct_fragment2"
+        android:id="@+id/listen_end_click_fragment"
+        />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/write_word_fragment"
         />
 
     <FrameLayout

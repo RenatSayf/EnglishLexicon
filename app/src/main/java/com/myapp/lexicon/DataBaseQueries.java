@@ -77,20 +77,20 @@ public class DataBaseQueries
                 {
                     while (!cursor.isAfterLast())
                     {
-                        dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1));
+                        dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1), cursor.getString(3));
                         entriesFromDB.add(dataBaseEntry);
                         cursor.moveToNext();
                     }
                 }
             } else
             {
-                dataBaseEntry = new DataBaseEntry(null, null);
+                dataBaseEntry = new DataBaseEntry(null, null, null);
             }
         }
         catch (Exception e)
         {
             z_Log.v("Возникло исключение - "+e.getMessage());
-            entriesFromDB.add(new DataBaseEntry(null,null));
+            entriesFromDB.add(new DataBaseEntry(null,null, null));
         }
         finally
         {
@@ -115,7 +115,7 @@ public class DataBaseQueries
                 {
                     while (!cursor.isAfterLast())
                     {
-                        DataBaseEntry dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1));
+                        DataBaseEntry dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1), cursor.getString(3));
                         entriesFromDB.add(dataBaseEntry);
                         cursor.moveToNext();
                     }
@@ -128,7 +128,7 @@ public class DataBaseQueries
         catch (Exception e)
         {
             Log.i("Lexicon", "Исключение в DataBaseQueries.getEntriesFromDB() = " + e);
-            entriesFromDB.add(new DataBaseEntry(null,null));
+            entriesFromDB.add(new DataBaseEntry(null,null, null));
         }
         finally
         {
@@ -159,7 +159,7 @@ public class DataBaseQueries
                         {
                             while (!cursor.isAfterLast())
                             {
-                                DataBaseEntry dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1));
+                                DataBaseEntry dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1), cursor.getString(3));
                                 entries.add(dataBaseEntry);
                                 cursor.moveToNext();
                             }
@@ -172,7 +172,7 @@ public class DataBaseQueries
                 catch (Exception e)
                 {
                     z_Log.v("  Исключение в DataBaseQueries.getEntriesFromDBAsync() = " + e);
-                    entries.add(new DataBaseEntry(null,null));
+                    entries.add(new DataBaseEntry(null,null,null));
                 }
                 finally
                 {
@@ -627,7 +627,7 @@ public class DataBaseQueries
         values.put(DatabaseHelper.COLUMN_ENGLISH, entry.get_english());
         values.put(DatabaseHelper.COLUMN_TRANS, entry.get_translate());
         values.put(DatabaseHelper.COLUMN_IMAGE, "");
-        values.put(DatabaseHelper.COLUMN_Count_REPEAT, 1);
+        values.put(DatabaseHelper.COLUMN_Count_REPEAT, entry.get_count_repeat());
 
         AsyncTask asyncTask = new AsyncTask()
         {

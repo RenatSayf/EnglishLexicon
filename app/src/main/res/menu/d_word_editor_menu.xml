@@ -4,14 +4,21 @@
       xmlns:tools="http://schemas.android.com/tools"
       tools:context=".WordEditor">
 
-    <item android:id="@+id/action_item1"
-          android:title="Add Dictionary"
-          android:orderInCategory="100"
-          app:showAsAction="never"/>
+    <item
+        android:id="@+id/word_search"
+        android:icon="@drawable/icon_search"
+        android:actionViewClass="android.support.v7.widget.SearchView"
+        app:showAsAction="collapseActionView|ifRoom"
+        android:title="@string/menu_search"/>
 
-    <item android:id="@+id/action_item2"
-          android:title="Add Word"
-          android:orderInCategory="100"
-          app:showAsAction="never"/>
+    <!--<item android:id="@+id/action_item1"-->
+          <!--android:title="Add Dictionary"-->
+          <!--android:orderInCategory="100"-->
+          <!--app:showAsAction="never"/>-->
+
+    <!--<item android:id="@+id/action_item2"-->
+          <!--android:title="Add Word"-->
+          <!--android:orderInCategory="100"-->
+          <!--app:showAsAction="never"/>-->
 
 </menu>

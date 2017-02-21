@@ -80,6 +80,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
             _actualPathDb = directoryDb.getAbsolutePath() + "/" + DB_NAME;
             File fileDb = new File(_actualPathDb);
             Log.i("Lexicon", "_actualPathDb - "+_actualPathDb);
+            boolean exists = fileDb.exists();
             if (!fileDb.exists())
             {
                 //this.getWritableDatabase();

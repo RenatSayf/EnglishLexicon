@@ -21,7 +21,7 @@ import java.util.ArrayList;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class t_DefineCorrectFragment2 extends Fragment
+public class t_WriteWordFragment extends Fragment
 {
     public static final int ROWS = 5;
     private static Button[] buttonsArray;
@@ -40,7 +40,7 @@ public class t_DefineCorrectFragment2 extends Fragment
     private static int wordsResidue;
 
 
-    public t_DefineCorrectFragment2()
+    public t_WriteWordFragment()
     {
         // Required empty public constructor
     }
@@ -57,7 +57,7 @@ public class t_DefineCorrectFragment2 extends Fragment
                              Bundle savedInstanceState)
     {
         // Inflate the layout for this fragment
-        View fragment_view = inflater.inflate(R.layout.t_define_correct_layout2, container, false);
+        View fragment_view = inflater.inflate(R.layout.t_write_word_layout, container, false);
         spinnListDict= (Spinner) fragment_view.findViewById(R.id.spinn_list_dict2);
         buttonsLayout = (LinearLayout) fragment_view.findViewById(R.id.left_layout2);
         //buttonsLeftGone();

@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimary">#3f51b5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
-    <color name="colorWhite">#FFFFFFFF</color>
+    <color name="colorWhite">#ffffff</color>
     <color name="colorBlack">#FF000000</color>
     <color name="testMatchPageColor">#42ed8a</color>
     <color name="colorOrange">#e6a612</color>
     <color name="colorYellow">#e6f241</color>
+    <color name="one_of_five_backgr">#d6e413</color>
+    <color name="colorGrey">#aaafd7</color>
 </resources>

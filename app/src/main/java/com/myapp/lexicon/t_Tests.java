@@ -19,17 +19,29 @@ import java.util.Locale;
 
 public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFragmentInteractionListener
 {
-    private ImageButton buttonMatchTest, buttonSelectWordTest, buttonTest3, buttonOneOfFive;
+    private ImageButton buttonFindPair, buttonMatchTest, buttonSelectWordTest, buttonTest3, buttonOneOfFive;
+
     private t_MatchFragment matchFragment;
     private static String MATCH_FRAGMENT = "matchFragment";
-    private t_DefineCorrectFragment correctFragment;
-    private String CORRECT_FRAGMENT = "correctFragment";
-    private t_DefineCorrectFragment2 correctFragment2;
+
+    private t_FindPairFragment findPairFragment;
+    private String FIND_PAIR_FRAGMENT = "find_pair_fragment";
+
+    private t_ListenEndClickFragment listenEndClickFragment;
+    private String LISTEN_END_CLICK_FRAGMENT = "listenEndClickFragment";
+
+    private t_WriteWordFragment correctFragment2;
     private String CORRECT_FRAGMENT2 = "correctFragment2";
+
     private t_OneOfFiveTest oneOfFiveTest;
-    private String ONE_OF_FIVE_FRAGMENT = "one_of_five";
+    private static String ONE_OF_FIVE_FRAGMENT = "one_of_five";
+
     private FragmentTransaction transaction;
     private DataBaseQueries baseQueries;
+
+    public static Bundle bundleOneOfFiveTest;
+    public static Bundle bundleListenTest;
+    public static Bundle bundleFindPair;
 
 
     private TextToSpeech speech;
@@ -44,7 +56,6 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
 
         initViews();
 
@@ -73,6 +84,7 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
         }
 
         buttonMatchTest = (ImageButton) findViewById(R.id.btn_match_test);
+        buttonFindPair = (ImageButton) findViewById(R.id.btn_find_pair);
         buttonSelectWordTest = (ImageButton) findViewById(R.id.btn_select_word_test);
         buttonTest3 = (ImageButton) findViewById(R.id.btn_test_3);
         buttonOneOfFive = (ImageButton) findViewById(R.id.btn_test_1of5);
@@ -84,22 +96,31 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
             matchFragment = t_MatchFragment.newInstance(null,null);
         }
 
-        correctFragment = (t_DefineCorrectFragment) manager.findFragmentByTag(CORRECT_FRAGMENT);
-        if (correctFragment == null)
+        findPairFragment = (t_FindPairFragment) manager.findFragmentByTag(FIND_PAIR_FRAGMENT);
+        if (findPairFragment == null)
         {
-            correctFragment = new t_DefineCorrectFragment();
+            findPairFragment = new t_FindPairFragment();
+            bundleFindPair = new Bundle();
         }
 
-        correctFragment2 = (t_DefineCorrectFragment2) manager.findFragmentByTag(CORRECT_FRAGMENT2);
+        listenEndClickFragment = (t_ListenEndClickFragment) manager.findFragmentByTag(LISTEN_END_CLICK_FRAGMENT);
+        if (listenEndClickFragment == null)
+        {
+            listenEndClickFragment = new t_ListenEndClickFragment();
+            bundleListenTest = new Bundle();
+        }
+
+        correctFragment2 = (t_WriteWordFragment) manager.findFragmentByTag(CORRECT_FRAGMENT2);
         if (correctFragment2 == null)
         {
-            correctFragment2 = new t_DefineCorrectFragment2();
+            correctFragment2 = new t_WriteWordFragment();
         }
 
         oneOfFiveTest = (t_OneOfFiveTest) manager.findFragmentByTag(ONE_OF_FIVE_FRAGMENT);
         if (oneOfFiveTest == null)
         {
             oneOfFiveTest = new t_OneOfFiveTest();
+            bundleOneOfFiveTest = new Bundle();
         }
 
         button_OnClick();
@@ -122,6 +143,19 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
             }
         });
 
+        buttonFindPair.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.find_pair_fragment, findPairFragment);
+                transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
+                transaction.addToBackStack(null);
+                transaction.commit();
+            }
+        });
+
         buttonSelectWordTest.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -129,7 +163,7 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
             {
                 transaction = getSupportFragmentManager().beginTransaction();
                 //transaction = getFragmentManager().beginTransaction();
-                transaction.replace(R.id.correct_fragment, correctFragment);
+                transaction.replace(R.id.listen_end_click_fragment, listenEndClickFragment);
                 transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
                 //transaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right);
                 transaction.addToBackStack(null);
@@ -144,7 +178,7 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
             {
                 transaction = getSupportFragmentManager().beginTransaction();
                 //transaction = getFragmentManager().beginTransaction();
-                transaction.replace(R.id.correct_fragment2, correctFragment2);
+                transaction.replace(R.id.write_word_fragment, correctFragment2);
                 transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
                 //transaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right);
                 transaction.addToBackStack(null);
@@ -209,9 +243,15 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
     public void onBackPressed()
     {
         if (getSupportFragmentManager().getBackStackEntryCount() > 0)
+        {
             getSupportFragmentManager().popBackStack();
+        }
         else
+        {
+            bundleOneOfFiveTest = null;
+            bundleListenTest = null;
             finish();
+        }
     }
 
 }
