@@ -86,7 +86,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         settings = getSharedPreferences(KEY_ENG_ONLY, MODE_PRIVATE);
         initViews();
 
-        speechIntentService = new Intent(this, z_speechService.class);
+        //speechIntentService = new Intent(this, z_speechService.class);
         //speechIntentService = new Intent(this, z_speechService2.class);
 
         // Регистрируем приёмник
@@ -481,10 +481,13 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
                 toast.setGravity(Gravity.TOP,0,0);
                 toast.show();
             }
-            //speechIntentService = new Intent(this, z_speechService.class);
+
+            speechIntentService = new Intent(this, z_speechService.class);
             speechIntentService.putExtra(getString(R.string.key_play_order), 0);
             speechIntentService.putExtra(getString(R.string.is_one_time), false);
+            speechServiceOnPause();
             startService(speechIntentService);
+
             _btn_Play.setVisibility(View.GONE);
             _btn_Stop.setVisibility(View.VISIBLE);
             _btn_Pause.setVisibility(View.VISIBLE);
@@ -528,10 +531,10 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         {
             stopService(speechIntentService);
         }
-        else
-        {
-            stopService(new Intent(this, z_speechService.class));
-        }
+//        else
+//        {
+//            stopService(new Intent(this, z_speechService.class));
+//        }
 //        z_speechService.stopIntentService();
 //        z_speechService.resetCount();
         _textViewEn.setText(null);
@@ -571,6 +574,13 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             _textViewEn.setText(list.get(0).get_english());
             _textViewRu.setText(list.get(0).get_translate());
             _textViewDict.setText(AppData.getCurrentDict());
+            if (speechIntentService == null)
+            {
+                speechIntentService = new Intent(this, z_speechService.class);
+            }
+            speechIntentService.putExtra(getString(R.string.key_play_order), 1);
+            speechIntentService.putExtra(getString(R.string.is_one_time), true);
+            startService(speechIntentService);
         }
     }
     public void btnNextClick(View view) throws SQLException, ExecutionException, InterruptedException
@@ -582,6 +592,13 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             _textViewEn.setText(list.get(0).get_english());
             _textViewRu.setText(list.get(0).get_translate());
             _textViewDict.setText(AppData.getCurrentDict());
+            if (speechIntentService == null)
+            {
+                speechIntentService = new Intent(this, z_speechService.class);
+            }
+            speechIntentService.putExtra(getString(R.string.key_play_order), 0);
+            speechIntentService.putExtra(getString(R.string.is_one_time), true);
+            startService(speechIntentService);
         }
     }
 
@@ -686,11 +703,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         {
             stopService(speechIntentService);
         }
-        else
-        {
-            stopService(new Intent(this, z_speechService.class));
-        }
-        //z_speechService.stopIntentService();
+        z_speechService.stopIntentService();
         _btn_Pause.setVisibility(View.GONE);
         _btn_Play.setVisibility(View.VISIBLE);
         _textViewRu.setText(null);

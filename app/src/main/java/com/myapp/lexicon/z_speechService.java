@@ -19,7 +19,7 @@ public class z_speechService extends IntentService
 {
     private static boolean stop = true;
     private ArrayList<p_ItemListDict> playList;
-    private DatabaseHelper databaseHelper;
+    private static DatabaseHelper databaseHelper;
     private String textEn;
     private String textRu;
     private String textDict;
@@ -119,12 +119,6 @@ public class z_speechService extends IntentService
                             for (int j = AppData.get_Nword(); j <= wordsCountInTable; j++)
                             {
                                 AppData.set_Nword(j);
-
-//                                if (stop)
-//                                {
-//                                    a_SplashScreenActivity.speech.stop();
-//                                    break;
-//                                }
                                 ArrayList<DataBaseEntry> list = getEntriesFromDB(playListItem.get_dictName(), j, j);
                                 if (list.size() == 0)
                                 {
@@ -153,12 +147,6 @@ public class z_speechService extends IntentService
                                             e.printStackTrace();
                                             break;
                                         }
-
-//                                        if (stop)
-//                                        {
-//                                            a_SplashScreenActivity.speech.stop();
-//                                            break;
-//                                        }
                                     }
                                 } else
                                 {
@@ -173,23 +161,12 @@ public class z_speechService extends IntentService
                                         e.printStackTrace();
                                     }
                                 }
-
-//                                if (stop)
-//                                {
-//                                    a_SplashScreenActivity.speech.stop();
-//                                    break;
-//                                }
                                 AppData.set_Nword(j);
                             }
                         } else
                         {
                             break;
                         }
-//                        if (stop)
-//                        {
-//                            a_SplashScreenActivity.speech.stop();
-//                            break;
-//                        }
                         AppData.set_Ndict(i);
                         AppData.set_isPause(false);
                     }
