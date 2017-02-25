@@ -19,7 +19,7 @@ public class z_speechService extends IntentService
 {
     private static boolean stop = true;
     private ArrayList<p_ItemListDict> playList;
-    private static DatabaseHelper databaseHelper;
+    private DatabaseHelper databaseHelper;
     private String textEn;
     private String textRu;
     private String textDict;
