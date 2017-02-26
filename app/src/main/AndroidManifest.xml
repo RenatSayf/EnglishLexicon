@@ -67,7 +67,7 @@
             android:name=".p_PlayList"
             android:label="@string/title_activity_play_list"
             android:parentActivityName=".a_MainActivity"
-            android:screenOrientation="portrait"
+            android:screenOrientation="unspecified"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

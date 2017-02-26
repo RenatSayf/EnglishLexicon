@@ -1,41 +1,26 @@
 package com.myapp.lexicon;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.Toast;
 
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.common.api.GoogleApiClient;
-
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 public class p_PlayList extends AppCompatActivity
 {
-    private Spinner _spinner_order_play;
+    private Spinner spinneOrderPlay;
     private ListView listViewDict;
     private p_ListViewAdapter lictViewAdapter;
-    private ArrayList<String> play_list = new ArrayList<>();
-    private DatabaseHelper _databaseHelper;
+    private ArrayList<String> playList = new ArrayList<>();
+    private DatabaseHelper databaseHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -46,15 +31,15 @@ public class p_PlayList extends AppCompatActivity
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        if (_databaseHelper == null)
+        if (databaseHelper == null)
         {
-            _databaseHelper = new DatabaseHelper(this);
-            _databaseHelper.create_db();
+            databaseHelper = new DatabaseHelper(this);
+            databaseHelper.create_db();
         }
 
         listViewDict = (ListView) findViewById(R.id.listView_playList);
-        _spinner_order_play = (Spinner) findViewById(R.id.spinner_order_play);
-        _spinner_order_play.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
+        spinneOrderPlay = (Spinner) findViewById(R.id.spinner_order_play);
+        spinneOrderPlay.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
         {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
@@ -62,13 +47,13 @@ public class p_PlayList extends AppCompatActivity
                 switch (position)
                 {
                     case 0:
-                        Toast.makeText(getBaseContext(), "Вбран элемент = " + position, Toast.LENGTH_SHORT).show();
+
                         break;
                     case 1:
-                        Toast.makeText(getBaseContext(), "Вбран элемент = " + position, Toast.LENGTH_SHORT).show();
+
                         break;
                     case 2:
-                        Toast.makeText(getBaseContext(), "Вбран элемент = " + position, Toast.LENGTH_SHORT).show();
+
                         break;
                 }
             }
@@ -76,15 +61,30 @@ public class p_PlayList extends AppCompatActivity
             public void onNothingSelected(AdapterView<?> parent) { }
         });
 
-        lictViewAdapter = new p_ListViewAdapter(a_MainActivity.getPlayList(), p_PlayList.this);
-        listViewDict.setAdapter(lictViewAdapter);
+        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.key_play_list), MODE_PRIVATE);
+        String play_list_items = sharedPreferences.getString(getString(R.string.play_list_items), null);
+
+        if (play_list_items != null && play_list_items.length() > 0)
+        {
+            String[] splitArray = play_list_items.split(" ");
+            for (int i = 0; i < splitArray.length; i++)
+            {
+                playList.add(i, splitArray[i]);
+            }
+        }
+
+        if (playList.size() > 0)
+        {
+            lictViewAdapter = new p_ListViewAdapter(playList, p_PlayList.this);
+            listViewDict.setAdapter(lictViewAdapter);
+        }
 
         listViewDict.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
         {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
             {
-                Log.i("Lexicon", "Вход в p_PlayList.listViewDict.setOnItemSelectedListener() position = " + position);
+
             }
 
             @Override
@@ -99,56 +99,17 @@ public class p_PlayList extends AppCompatActivity
     protected void onPause()
     {
         super.onPause();
-        Log.i("Lexicon", "Вход в p_PlayList.onPause()");
-        //a_MainActivity.databaseHelper.close();
-        a_MainActivity.savePlayList(play_list);
+        a_MainActivity.savePlayList(playList);
     }
 
     @Override
     protected void onDestroy()
     {
         super.onDestroy();
-        Log.i("Lexicon", "Вход в p_PlayList.onDestroy()");
-        //a_MainActivity.databaseHelper.close();
-        a_MainActivity.savePlayList(play_list);
+        a_MainActivity.savePlayList(playList);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
-        // Inflate the menu; this adds _items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.p_play_list_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        String idStr = Integer.toString(id);
-        //noinspection SimplifiableIfStatement
-
-        switch (id)
-        {
-            case R.id.action_item1:
-
-                break;
-            case R.id.action_item2:
-
-                break;
-            default:
-                break;
-        }
-
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    private String[] _items;
-    Set<String> dict_for_storage = new HashSet<String>();
+    private String[] dictArray;
 
     public void buttonAddClick(View view)
     {
@@ -156,7 +117,7 @@ public class p_PlayList extends AppCompatActivity
         getListTableFromDbAsync.execute();
         try
         {
-            _items = getListTableFromDbAsync.get();
+            dictArray = getListTableFromDbAsync.get();
         } catch (InterruptedException e)
         {
             e.printStackTrace();
@@ -165,17 +126,20 @@ public class p_PlayList extends AppCompatActivity
             e.printStackTrace();
         }
 
-        Log.i("Lexicon", "buttonAddClick _items = " + _items);
-        boolean[] choice = new boolean[_items.length];
+        boolean[] choice = new boolean[dictArray.length];
         new AlertDialog.Builder(this).setTitle(R.string.access_dict)
-                .setMultiChoiceItems(_items, choice, new DialogInterface.OnMultiChoiceClickListener()
+                .setMultiChoiceItems(dictArray, choice, new DialogInterface.OnMultiChoiceClickListener()
                 {
                     @Override
                     public void onClick(DialogInterface dialog, int which, boolean isChecked)
                     {
-                        Toast.makeText(getBaseContext(), R.string.select_dict + " - " + _items[which], Toast.LENGTH_SHORT).show();
-                        play_list.add(_items[which]);
-                        a_MainActivity.savePlayList(play_list);
+                        if (isChecked)
+                        {
+                            if (!playList.contains(dictArray[which]))
+                            {
+                                playList.add(dictArray[which]);
+                            }
+                        }
                     }
                 })
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener()
@@ -185,32 +149,27 @@ public class p_PlayList extends AppCompatActivity
                     {
                         try
                         {
-                            lictViewAdapter = new p_ListViewAdapter(a_MainActivity.getPlayList(), p_PlayList.this);
+                            lictViewAdapter = new p_ListViewAdapter(playList, p_PlayList.this);
                             listViewDict.setAdapter(lictViewAdapter);
+                            String play_list_string = "";
+                            for (String item : playList)
+                            {
+                                play_list_string += item + " ";
+                            }
+                            play_list_string.trim();
+                            SharedPreferences sharedPreferences = p_PlayList.this.getSharedPreferences(getString(R.string.key_play_list), MODE_PRIVATE);
+                            sharedPreferences.edit().putString(getString(R.string.play_list_items), play_list_string).apply();
                         } catch (Exception e)
                         {
-                            Log.i("Lexicon", "Исключение в p_PlayList.buttonAddClick() setPositiveButton.onClick() = " + e);
                             e.printStackTrace();
                         }
                     }
                 }).create().show();
     }
 
-    @Override
-    public void onStart()
-    {
-        super.onStart();
-    }
-
-    @Override
-    public void onStop()
-    {
-        super.onStop();
-    }
     public void onClickCheckBoxItem(View view)
     {
-        Log.i("Lexicon", "Вход в p_PlayList.onClickCheckBoxItem()" );
-        lictViewAdapter = new p_ListViewAdapter(a_MainActivity.getPlayList(), p_PlayList.this);
+        lictViewAdapter = new p_ListViewAdapter(playList, p_PlayList.this);
         listViewDict.setAdapter(lictViewAdapter);
     }
 

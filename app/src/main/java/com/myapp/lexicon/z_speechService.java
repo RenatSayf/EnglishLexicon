@@ -2,6 +2,7 @@ package com.myapp.lexicon;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.IBinder;
 import android.speech.tts.TextToSpeech;
@@ -91,6 +92,23 @@ public class z_speechService extends IntentService
 //        wordIndex = 1;
     }
 
+    public ArrayList<String> getPlayList()
+    {
+        ArrayList<String> listDicts=new ArrayList<>();
+        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.key_play_list), MODE_PRIVATE);
+        String play_list_items = sharedPreferences.getString(getString(R.string.play_list_items), null);
+        if (play_list_items != null && play_list_items.length() > 0)
+        {
+            String[] splitArray = play_list_items.split(" ");
+            for (int i = 0; i < splitArray.length; i++)
+            {
+                listDicts.add(i, splitArray[i]);
+            }
+        }
+
+        return listDicts;
+    }
+
     private Intent updateIntent;
     @Override
     protected void onHandleIntent(Intent intent)
@@ -101,14 +119,14 @@ public class z_speechService extends IntentService
         updateIntent.setAction(ACTION_UPDATE);
         updateIntent.addCategory(Intent.CATEGORY_DEFAULT);
 
-        playList = a_MainActivity.getPlayList();
+        playList = getPlayList();
         if (playList.size() == 0) return;
 
         if (order == 0)
         {
             do
             {
-                playList = a_MainActivity.getPlayList();
+                playList = getPlayList();
                 if (playList.size() > 0)
                 {
                     if (!AppData.get_isPause()) AppData.set_Ndict(0);
@@ -187,7 +205,7 @@ public class z_speechService extends IntentService
         {
             do
             {
-                playList = a_MainActivity.getPlayList();
+                playList = getPlayList();
                 if (playList.size() > 0)
                 {
                     if (!AppData.get_isPause()) AppData.set_Ndict(0);

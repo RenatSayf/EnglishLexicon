@@ -2,6 +2,7 @@ package com.myapp.lexicon;
 
 
 import android.animation.Animator;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -34,6 +35,7 @@ import java.sql.Time;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+import static android.content.Context.MODE_PRIVATE;
 
 
 /**
@@ -665,10 +667,27 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
         }
     }
 
+    public ArrayList<String> getPlayList()
+    {
+        ArrayList<String> listDicts=new ArrayList<>();
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(getString(R.string.key_play_list), MODE_PRIVATE);
+        String play_list_items = sharedPreferences.getString(getString(R.string.play_list_items), null);
+        if (play_list_items != null && play_list_items.length() > 0)
+        {
+            String[] splitArray = play_list_items.split(" ");
+            for (int i = 0; i < splitArray.length; i++)
+            {
+                listDicts.add(i, splitArray[i]);
+            }
+        }
+
+        return listDicts;
+    }
+
     private void addToStudiedList()
     {
         boolean containsInPlayList = false;
-        for (String item : a_MainActivity.getPlayList())
+        for (String item : getPlayList())
         {
             if (item.equals(spinnListDict.getSelectedItem()))
             {

@@ -1,7 +1,7 @@
 package com.myapp.lexicon;
 
 import android.content.Context;
-import android.util.Log;
+import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,28 +12,30 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import static android.content.Context.MODE_PRIVATE;
+
 /**
  * Created by Ренат on 05.04.2016.
  */
 public class p_ListViewAdapter extends BaseAdapter
 {
-    private Context _context;
-    private ArrayList<String> _list;
+    private Context context;
+    private ArrayList<String> list;
     public p_ListViewAdapter(ArrayList<String> list, Context context)
     {
-        this._list = list;
-        this._context = context;
+        this.list = list;
+        this.context = context;
     }
     @Override
     public int getCount()
     {
-        return _list.size();
+        return list.size();
     }
 
     @Override
     public Object getItem(int position)
     {
-        return _list.get(position);
+        return list.get(position);
     }
 
     @Override
@@ -43,16 +45,16 @@ public class p_ListViewAdapter extends BaseAdapter
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent)
+    public View getView(final int position, View convertView, ViewGroup parent)
     {
         View dictView=convertView;
         if (dictView == null)
         {
-            dictView= LayoutInflater.from(_context).inflate(R.layout.p_listview_item, null);
+            dictView= LayoutInflater.from(context).inflate(R.layout.p_listview_item, null);
         }
-        final String list =  _list.get(position);
+        final String item =  this.list.get(position);
         TextView dictName = (TextView) dictView.findViewById(R.id.textView_item);
-        dictName.setText(list);
+        dictName.setText(item);
 
         final CheckBox isSelected = (CheckBox) dictView.findViewById(R.id.checkBox_item);
         isSelected.setChecked(true);
@@ -61,9 +63,17 @@ public class p_ListViewAdapter extends BaseAdapter
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
             {
-                CompoundButton btn = buttonView;
-                Log.i("Lexicon", "Вход в p_ListViewAdapter.getView().onCheckedChanged " + list);
-                a_MainActivity.removeItemPlayList(list);
+                SharedPreferences play_list = context.getSharedPreferences("play_list", MODE_PRIVATE);
+
+                list.remove(position);
+                String play_list_string = "";
+                for (String item : list)
+                {
+                    play_list_string += item + " ";
+                }
+                play_list_string.trim();
+                SharedPreferences sharedPreferences = context.getSharedPreferences(context.getString(R.string.key_play_list), MODE_PRIVATE);
+                sharedPreferences.edit().putString(context.getString(R.string.play_list_items), play_list_string).apply();
             }
         });
         return dictView;

@@ -217,6 +217,10 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         super.onDestroy();
         unregisterReceiver(mUpdateBroadcastReceiver);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
+        if (!isActivityOnTop())
+        {
+            speechServiceOnPause();
+        }
     }
 
     @Override
@@ -266,7 +270,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-
+        speechServiceOnPause();
         if (id == R.id.nav_add_word)
         {
             if (addWord == null)
@@ -337,7 +341,8 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             items = dataBaseQueries.setListTableToSpinner();
         } catch (Exception e)
         {
-            z_Log.v("Исключение - "+e.getMessage());
+            e.printStackTrace();
+            return;
         }
         boolean[]choice = new boolean[items.length];
         new AlertDialog.Builder(this).setTitle(R.string.title_del_dict)
@@ -347,7 +352,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
                     public void onClick(DialogInterface dialog, int which, boolean isChecked)
                     {
                         delete_items.add(items[which]);
-                        Toast.makeText(a_MainActivity.this, "Добавлен элемент - " + delete_items.get(delete_items.size()-1), Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(a_MainActivity.this, "Добавлен элемент - " + delete_items.get(delete_items.size()-1), Toast.LENGTH_SHORT).show();
                     }
                 }).setPositiveButton(R.string.button_text_delete, new DialogInterface.OnClickListener()
         {
@@ -370,7 +375,6 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
                                         removeItemPlayList(item);
                                     } catch (Exception e)
                                     {
-                                        z_Log.v("Исключение - " + e.getMessage() + "\nresult = " + result);
                                         e.printStackTrace();
                                     }
                                 }
@@ -405,9 +409,9 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
                                 dataBaseQueries.addTableToDbAsync(dictName);
                             } catch (Exception e)
                             {
-                                z_Log.v("Возникло исключение - "+e.getMessage());
+                                e.printStackTrace();
                             }
-                            Toast toast = Toast.makeText(getApplicationContext(), "Добавлен новый словарь: "+dictName, Toast.LENGTH_LONG);
+                            Toast toast = Toast.makeText(getApplicationContext(), getString(R.string.text_added_new_dict)+dictName, Toast.LENGTH_LONG);
                             toast.setGravity(Gravity.CENTER, 0, 0);
                             toast.show();
                         }
@@ -457,13 +461,18 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         savedPlayList.edit().remove(KEY_PLAY_LIST).commit();
         savedPlayList.edit().putStringSet(KEY_PLAY_LIST, existDicts).commit();
     }
-    public static ArrayList<String> getPlayList()
+    public ArrayList<String> getPlayList()
     {
         ArrayList<String> listDicts=new ArrayList<>();
-        Set<String> listKeptDict = savedPlayList.getStringSet(KEY_PLAY_LIST, new HashSet<String>());
-        for (String item : listKeptDict)
+        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.key_play_list), MODE_PRIVATE);
+        String play_list_items = sharedPreferences.getString(getString(R.string.play_list_items), null);
+        if (play_list_items != null && play_list_items.length() > 0)
         {
-            listDicts.add(item);
+            String[] splitArray = play_list_items.split(" ");
+            for (int i = 0; i < splitArray.length; i++)
+            {
+                listDicts.add(i, splitArray[i]);
+            }
         }
 
         return listDicts;
@@ -484,7 +493,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
 //    Runnable runnable;
     public void btnPlayClick(View view)
     {
-        if (a_MainActivity.getPlayList().size() > 0)
+        if (getPlayList().size() > 0)
         {
             if (isFirstTime)
             {
@@ -592,7 +601,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         int ndict = 0; int nword = 1;
         ArrayList<DataBaseEntry> list = null;
         dataBaseQueries = new DataBaseQueries(this);
-        ArrayList<String> playList = a_MainActivity.getPlayList();
+        ArrayList<String> playList = getPlayList();
         int wordsCount = dataBaseQueries.getEntriesCountAsync(playList.get(AppData.get_Ndict()));
         if (playList.size() > 0)
         {
@@ -636,7 +645,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         int ndict = 0; int nword = 1;
         ArrayList<DataBaseEntry> list = null;
         dataBaseQueries = new DataBaseQueries(this);
-        ArrayList<String> playList = a_MainActivity.getPlayList();
+        ArrayList<String> playList = getPlayList();
         String dict;
         if (playList.size() > 0 && AppData.get_Ndict() < playList.size())
         {

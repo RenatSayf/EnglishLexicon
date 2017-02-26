@@ -2,6 +2,7 @@ package com.myapp.lexicon;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.speech.tts.TextToSpeech;
@@ -39,6 +40,7 @@ public class z_speechService2 extends IntentService
     private static z_RandomNumberGenerator wordIndexGen;
     private DatabaseHelper databaseHelper;
     private DataBaseQueries dataBaseQueries;
+    private ArrayList<String> playList;
 
     private static IStartStopService iStartStopService;
     public static void setStartStopListeners(IStartStopService listeners)
@@ -80,6 +82,8 @@ public class z_speechService2 extends IntentService
         {
             e.printStackTrace();
         }
+
+        playList = getPlayList();
     }
 
     @Override
@@ -108,6 +112,23 @@ public class z_speechService2 extends IntentService
         }
     }
 
+    public ArrayList<String> getPlayList()
+    {
+        ArrayList<String> listDicts=new ArrayList<>();
+        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.key_play_list), MODE_PRIVATE);
+        String play_list_items = sharedPreferences.getString(getString(R.string.play_list_items), null);
+        if (play_list_items != null && play_list_items.length() > 0)
+        {
+            String[] splitArray = play_list_items.split(" ");
+            for (int i = 0; i < splitArray.length; i++)
+            {
+                listDicts.add(i, splitArray[i]);
+            }
+        }
+
+        return listDicts;
+    }
+
     int wordsQuantity;
     @Override
     protected void onHandleIntent(Intent intent)
@@ -119,15 +140,15 @@ public class z_speechService2 extends IntentService
 
         if (play_order == 1 && wordIndex == 0 && dictIndex == 0)
         {
-            dictIndex = a_MainActivity.getPlayList().size()-1;
-            wordIndex = getWordsCount(a_MainActivity.getPlayList().get(dictIndex));
+            dictIndex = playList.size()-1;
+            wordIndex = getWordsCount(playList.get(dictIndex));
         }
 
         if (play_order == 2)
         {
-            for (int i = 0; i < a_MainActivity.getPlayList().size(); i++)
+            for (int i = 0; i < playList.size(); i++)
             {
-                wordsQuantity += a_MainActivity.getPlayList().size();
+                wordsQuantity += playList.size();
             }
             Date date = new Date();
             wordIndexGen = new z_RandomNumberGenerator(wordsQuantity, (int) date.getTime());
@@ -160,13 +181,13 @@ public class z_speechService2 extends IntentService
         switch (order)
         {
             case 0: // Прямое воспроизведение слов
-                if (word_index >= getWordsCount(a_MainActivity.getPlayList().get(dictIndex)))
+                if (word_index >= getWordsCount(playList.get(dictIndex)))
                 {
                     // Если индекс элемента текущего списка >= количества эл. в этом списке, счетчик эл. обнуляем, индекс списка увелич на 1
                     wordIndex = 1;
                     dictIndex++;
                 }
-                if (dictIndex >= a_MainActivity.getPlayList().size())
+                if (dictIndex >= playList.size())
                 {
                     // Если индекс списка >= общего колич. списков - индекс списка обнуляем
                     wordIndex = 1;
@@ -176,21 +197,21 @@ public class z_speechService2 extends IntentService
             case 1: // Обратное воспроизведение слов
                 if (wordIndex < 1 && dictIndex < 0)
                 {
-                    dictIndex = a_MainActivity.getPlayList().size() - 1;
-                    wordIndex = getWordsCount(a_MainActivity.getPlayList().get(dictIndex));
+                    dictIndex = playList.size() - 1;
+                    wordIndex = getWordsCount(playList.get(dictIndex));
                 }
                 if (word_index < 0)
                 {
                     dictIndex--;
                     if (dictIndex >= 0)
                     {
-                        wordIndex = getWordsCount(a_MainActivity.getPlayList().get(dictIndex));
+                        wordIndex = getWordsCount(playList.get(dictIndex));
                     }
                 }
                 if (dictIndex < 0)
                 {
-                    dictIndex = a_MainActivity.getPlayList().size()-1;
-                    wordIndex = getWordsCount(a_MainActivity.getPlayList().get(dictIndex));
+                    dictIndex = playList.size()-1;
+                    wordIndex = getWordsCount(playList.get(dictIndex));
                 }
                 break;
             case 2: // Случайное воспроизведение слов
@@ -202,11 +223,11 @@ public class z_speechService2 extends IntentService
                 }
 
                 int i = 1;
-                while (i <= a_MainActivity.getPlayList().size())
+                while (i <= playList.size())
                 {
-                    if (wordIndex >= a_MainActivity.getPlayList().size())
+                    if (wordIndex >= playList.size())
                     {
-                        wordIndex = wordIndex - getWordsCount(a_MainActivity.getPlayList().get(i));
+                        wordIndex = wordIndex - getWordsCount(playList.get(i));
                         i++;
                     }
                     else
@@ -221,7 +242,7 @@ public class z_speechService2 extends IntentService
 
         final int tempListIndex = dictIndex;
         final int tempWordIndex = wordIndex;
-        final ArrayList<DataBaseEntry> list = dataBaseQueries.getEntriesFromDB(a_MainActivity.getPlayList().get(dictIndex), wordIndex, wordIndex);
+        final ArrayList<DataBaseEntry> list = dataBaseQueries.getEntriesFromDB(playList.get(dictIndex), wordIndex, wordIndex);
         //done_repeat = 0;
 //        if (done_repeat == 0)
 //        {

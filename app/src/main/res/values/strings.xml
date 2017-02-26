@@ -88,8 +88,8 @@
     <string name="title_activity_dict_set">Настройки словаря</string>
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="delete_dict">Удалить словарь</string>
-    <string name="spinner_order_play_header">Порядок воспроизведения</string>
-    <string name="play_list_header">Список воспроизведения</string>
+    <string name="spinner_order_play_header">Порядок воспроизведения:</string>
+    <string name="play_list_header">Список воспроизведения:</string>
     <string name="add">Добавить</string>
     <string name="access_dict">Доступные словари</string>
     <string name="select_dict">Выбран словарь</string>
@@ -149,6 +149,10 @@
     <string name="is_one_time">is_one_time</string>
     <string name="text_ru_off">Ru Выкл</string>
     <string name="text_ru_on">Ru Вкл</string>
+    <string name="text_added_new_dict">"Добавлен новый словарь: "</string>
+    <string name="play_list_set">play_list</string>
+    <string name="key_play_list">play_list</string>
+    <string name="play_list_items">play_list_items</string>
 
 
 </resources>

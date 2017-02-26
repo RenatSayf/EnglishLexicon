@@ -94,7 +94,6 @@
                         android:text="Переместить в словарь"
                         android:id="@+id/check_move"
                         android:textColor="@color/colorWhite"
-
                         style="@android:style/Widget.Holo.Light.CompoundButton.CheckBox"
                         app:buttonTint="@color/colorWhite"/>
 
