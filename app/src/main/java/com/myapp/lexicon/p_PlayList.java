@@ -34,7 +34,7 @@ public class p_PlayList extends AppCompatActivity
     private Spinner _spinner_order_play;
     private ListView listViewDict;
     private p_ListViewAdapter lictViewAdapter;
-    private ArrayList<p_ItemListDict> play_list = new ArrayList<p_ItemListDict>();
+    private ArrayList<String> play_list = new ArrayList<>();
     private DatabaseHelper _databaseHelper;
 
     @Override
@@ -174,7 +174,7 @@ public class p_PlayList extends AppCompatActivity
                     public void onClick(DialogInterface dialog, int which, boolean isChecked)
                     {
                         Toast.makeText(getBaseContext(), R.string.select_dict + " - " + _items[which], Toast.LENGTH_SHORT).show();
-                        play_list.add(new p_ItemListDict(_items[which], true));
+                        play_list.add(_items[which]);
                         a_MainActivity.savePlayList(play_list);
                     }
                 })

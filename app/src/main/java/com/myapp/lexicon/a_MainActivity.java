@@ -9,7 +9,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.opengl.Visibility;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.support.design.widget.NavigationView;
@@ -64,7 +63,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     private Button btnPrevious;
     private ProgressBar progressBar;
     private Switch switchRuSound;
-    private Intent speechIntentService;
+    private static Intent speechIntentService;
     private UpdateBroadcastReceiver mUpdateBroadcastReceiver;
     private z_BackgroundAnim backgroundAnim;
     private boolean isFirstTime = true;
@@ -154,9 +153,13 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         textViewDict.setVisibility(View.INVISIBLE);
         btnPlay = (Button) findViewById(R.id.btn_play);
         btnStop = (Button) findViewById(R.id.btn_stop);
+        btnStop.setVisibility(View.GONE);
         btnPause = (Button) findViewById(R.id.btn_pause);
+        btnPause.setVisibility(View.GONE);
         btnPrevious = (Button) findViewById(R.id.btn_previous);
+        btnPrevious.setVisibility(View.GONE);
         btnNext = (Button) findViewById(R.id.btn_next);
+        btnNext.setVisibility(View.GONE);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         switchRuSound = (Switch) findViewById(R.id.switch_ru_sound);
         switchRuSound.setChecked(settings.getBoolean(KEY_ENG_ONLY, true));
@@ -444,35 +447,35 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             public void afterTextChanged(Editable s){}
         });
     }
-    public static void savePlayList(ArrayList<p_ItemListDict> addDicts)
+    public static void savePlayList(ArrayList<String> addDicts)
     {
-        Set<String> existDicts = a_MainActivity.savedPlayList.getStringSet("play_list", new HashSet<String>());
+        Set<String> existDicts = a_MainActivity.savedPlayList.getStringSet(KEY_PLAY_LIST, new HashSet<String>());
         for (int i = 0; i < addDicts.size(); i++)
         {
-            existDicts.add(addDicts.get(i).get_dictName());
+            existDicts.add(addDicts.get(i));
         }
-        savedPlayList.edit().remove("play_list").commit();
-        savedPlayList.edit().putStringSet("play_list", existDicts).commit();
+        savedPlayList.edit().remove(KEY_PLAY_LIST).commit();
+        savedPlayList.edit().putStringSet(KEY_PLAY_LIST, existDicts).commit();
     }
-    public static ArrayList<p_ItemListDict> getPlayList()
+    public static ArrayList<String> getPlayList()
     {
-        ArrayList<p_ItemListDict> listDicts=new ArrayList<>();
-        Set<String> listKeptDict = savedPlayList.getStringSet("play_list", new HashSet<String>());
+        ArrayList<String> listDicts=new ArrayList<>();
+        Set<String> listKeptDict = savedPlayList.getStringSet(KEY_PLAY_LIST, new HashSet<String>());
         for (String item : listKeptDict)
         {
-            listDicts.add(new p_ItemListDict(item, true));
+            listDicts.add(item);
         }
 
         return listDicts;
     }
     public static boolean removeItemPlayList(String name)
     {
-        Set<String> listKeptDict = savedPlayList.getStringSet("play_list", new HashSet<String>());
+        Set<String> listKeptDict = savedPlayList.getStringSet(KEY_PLAY_LIST, new HashSet<String>());
         if (listKeptDict.contains(name))
         {
             listKeptDict.remove(name);
-            savedPlayList.edit().remove("play_list").commit();
-            savedPlayList.edit().putStringSet("play_list", listKeptDict).commit();
+            savedPlayList.edit().remove(KEY_PLAY_LIST).commit();
+            savedPlayList.edit().putStringSet(KEY_PLAY_LIST, listKeptDict).commit();
             return true;
         }
         return false;
@@ -552,28 +555,23 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     }
 
     private DataBaseQueries dataBaseQueries;
-    public void btnBackClick(View view) throws SQLException, ExecutionException, InterruptedException
+
+    public void btnNextBackClick(View view) throws SQLException, ExecutionException, InterruptedException
     {
         speechServiceOnPause();
-        ArrayList<DataBaseEntry> list = getBack();
-        if (list.size() > 0)
+        int order_play = -1;
+        int id = view.getId();
+        ArrayList<DataBaseEntry> list = new ArrayList<>();
+        if (id == R.id.btn_previous)
         {
-            textViewEn.setText(list.get(0).get_english());
-            textViewRu.setText(list.get(0).get_translate());
-            textViewDict.setText(AppData.getCurrentDict());
-            if (speechIntentService == null)
-            {
-                speechIntentService = new Intent(this, z_speechService.class);
-            }
-            speechIntentService.putExtra(getString(R.string.key_play_order), 1);
-            speechIntentService.putExtra(getString(R.string.is_one_time), true);
-            startService(speechIntentService);
+            list = getPrevious();
+            order_play = 1;
         }
-    }
-    public void btnNextClick(View view) throws SQLException, ExecutionException, InterruptedException
-    {
-        speechServiceOnPause();
-        ArrayList<DataBaseEntry> list = getNext();
+        if (id == R.id.btn_next)
+        {
+            list = getNext();
+            order_play = 0;
+        }
         if (list.size() > 0)
         {
             textViewEn.setText(list.get(0).get_english());
@@ -583,7 +581,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             {
                 speechIntentService = new Intent(this, z_speechService.class);
             }
-            speechIntentService.putExtra(getString(R.string.key_play_order), 0);
+            speechIntentService.putExtra(getString(R.string.key_play_order), order_play);
             speechIntentService.putExtra(getString(R.string.is_one_time), true);
             startService(speechIntentService);
         }
@@ -594,8 +592,8 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         int ndict = 0; int nword = 1;
         ArrayList<DataBaseEntry> list = null;
         dataBaseQueries = new DataBaseQueries(this);
-        ArrayList<p_ItemListDict> playList = a_MainActivity.getPlayList();
-        int wordsCount = dataBaseQueries.getEntriesCountAsync(playList.get(AppData.get_Ndict()).get_dictName());
+        ArrayList<String> playList = a_MainActivity.getPlayList();
+        int wordsCount = dataBaseQueries.getEntriesCountAsync(playList.get(AppData.get_Ndict()));
         if (playList.size() > 0)
         {
             if (AppData.get_Ndict() == playList.size()-1 && AppData.get_Nword() == wordsCount)
@@ -616,15 +614,15 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
                 ndict = AppData.get_Ndict();
                 nword = AppData.get_Nword() + 1;
             }
-            else if (playList.size()>1 && AppData.get_Ndict()<playList.size()-1 && AppData.get_Nword()==wordsCount)
+            else if (playList.size()>1 && AppData.get_Ndict()<playList.size()-1 && AppData.get_Nword() == wordsCount)
             {
                 ndict = AppData.get_Ndict() + 1;
                 nword = 1;
             }
             AppData.set_Nword(nword);
             AppData.set_Ndict(ndict);
-            AppData.setCurrentDict(playList.get(ndict).get_dictName());
-            list = dataBaseQueries.getEntriesFromDBAsync(playList.get(AppData.get_Ndict()).get_dictName(), AppData.get_Nword(), AppData.get_Nword());
+            AppData.setCurrentDict(playList.get(ndict));
+            list = dataBaseQueries.getEntriesFromDBAsync(playList.get(AppData.get_Ndict()), AppData.get_Nword(), AppData.get_Nword());
         }
         else
         {
@@ -633,48 +631,43 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         return list;
     }
 
-    private ArrayList<DataBaseEntry> getBack() throws SQLException, ExecutionException, InterruptedException
+    private ArrayList<DataBaseEntry> getPrevious() throws SQLException, ExecutionException, InterruptedException
     {
         int ndict = 0; int nword = 1;
         ArrayList<DataBaseEntry> list = null;
         dataBaseQueries = new DataBaseQueries(this);
-        ArrayList<p_ItemListDict> playList = a_MainActivity.getPlayList();
-        p_ItemListDict dict;
+        ArrayList<String> playList = a_MainActivity.getPlayList();
+        String dict;
         if (playList.size() > 0 && AppData.get_Ndict() < playList.size())
         {
             dict = playList.get(AppData.get_Ndict());
-            int wordsCount = dataBaseQueries.getEntriesCountAsync(dict.get_dictName());
+            int wordsCount = dataBaseQueries.getEntriesCountAsync(dict);
 
-            if (AppData.get_Ndict() == 0 && AppData.get_Nword() == 1 && playList.size() > 1) // 1
+            if (AppData.get_Ndict() == 0 && AppData.get_Nword() == 1 && playList.size() > 1)
             {
-                //z_Log.v(" Вариант 1   AppData.get_Ndict() = " + AppData.get_Ndict() + "    AppData.get_Nword() = " + AppData.get_Nword() + "   playList.size() = " + playList.size());
                 ndict = playList.size() - 1;
-                nword = dataBaseQueries.getEntriesCountAsync(playList.get(ndict).get_dictName());
+                nword = dataBaseQueries.getEntriesCountAsync(playList.get(ndict));
             }
-            else if (AppData.get_Ndict() == 0 && AppData.get_Nword() == 1 && playList.size() == 1) // 2
+            else if (AppData.get_Ndict() == 0 && AppData.get_Nword() == 1 && playList.size() == 1)
             {
-                //z_Log.v(" Вариант 2   AppData.get_Ndict() = " + AppData.get_Ndict() + "    AppData.get_Nword() = " + AppData.get_Nword());
                 ndict = AppData.get_Ndict();
-                nword = dataBaseQueries.getEntriesCountAsync(playList.get(ndict).get_dictName());
+                nword = dataBaseQueries.getEntriesCountAsync(playList.get(ndict));
             }
-            else if (AppData.get_Nword() > 1) // 3
+            else if (AppData.get_Nword() > 1)
             {
-                //z_Log.v(" Вариант 3   AppData.get_Ndict() = " + AppData.get_Ndict() + "    AppData.get_Nword() = " + AppData.get_Nword() + "   playList.size()-1 = " + (playList.size()-1));
                 ndict = AppData.get_Ndict();
                 nword = AppData.get_Nword() - 1;
             }
-            else if (playList.size()>1 && AppData.get_Ndict()>0 && AppData.get_Nword()==1) // 4
+            else if (playList.size()>1 && AppData.get_Ndict()>0 && AppData.get_Nword()==1)
             {
-                //z_Log.v(" Вариант 3   AppData.get_Ndict() = " + AppData.get_Ndict() + "    AppData.get_Nword() = " + AppData.get_Nword() + "   playList.size() = " + playList.size());
                 ndict = AppData.get_Ndict() - 1;
-                nword = dataBaseQueries.getEntriesCountAsync(playList.get(ndict).get_dictName());
+                nword = dataBaseQueries.getEntriesCountAsync(playList.get(ndict));
             }
 
             AppData.set_Nword(nword);
             AppData.set_Ndict(ndict);
-            AppData.setCurrentDict(playList.get(ndict).get_dictName());
-            list = dataBaseQueries.getEntriesFromDBAsync(playList.get(AppData.get_Ndict()).get_dictName(), AppData.get_Nword(), AppData.get_Nword());
-            //z_Log.v("list.size() = " + list.size() + "   AppData.get_Ndict() = " + AppData.get_Ndict() + "  AppData.get_Nword() = " + AppData.get_Nword());
+            AppData.setCurrentDict(playList.get(ndict));
+            list = dataBaseQueries.getEntriesFromDBAsync(playList.get(AppData.get_Ndict()), AppData.get_Nword(), AppData.get_Nword());
         }
         else
         {

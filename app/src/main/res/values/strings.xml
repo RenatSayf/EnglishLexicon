@@ -147,6 +147,8 @@
     <string name="text_msg_not_match_lang">Текст не соответствует языку</string>
     <string name="speech_error">Error of speech synthesis</string>
     <string name="is_one_time">is_one_time</string>
+    <string name="text_ru_off">Ru Выкл</string>
+    <string name="text_ru_on">Ru Вкл</string>
 
 
 </resources>

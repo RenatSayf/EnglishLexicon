@@ -668,9 +668,9 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
     private void addToStudiedList()
     {
         boolean containsInPlayList = false;
-        for (p_ItemListDict item : a_MainActivity.getPlayList())
+        for (String item : a_MainActivity.getPlayList())
         {
-            if (item.get_dictName().equals(spinnListDict.getSelectedItem()))
+            if (item.equals(spinnListDict.getSelectedItem()))
             {
                 containsInPlayList = true; break;
             }

@@ -624,9 +624,9 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
     private void addToStudiedList()
     {
         boolean containsInPlayList = false;
-        for (p_ItemListDict item : a_MainActivity.getPlayList())
+        for (String item : a_MainActivity.getPlayList())
         {
-            if (item.get_dictName().equals(spinnListDict.getSelectedItem()))
+            if (item.equals(spinnListDict.getSelectedItem()))
             {
                 containsInPlayList = true; break;
             }

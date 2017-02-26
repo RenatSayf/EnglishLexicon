@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 public class z_speechService extends IntentService
 {
     private static boolean stop = true;
-    private ArrayList<p_ItemListDict> playList;
+    private ArrayList<String> playList;
     private DatabaseHelper databaseHelper;
     private String textEn;
     private String textRu;
@@ -71,7 +71,13 @@ public class z_speechService extends IntentService
     {
         super.onDestroy();
         stop = true;
-        databaseHelper.close();
+        try
+        {
+            databaseHelper.close();
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     public static void stopIntentService()
@@ -108,18 +114,97 @@ public class z_speechService extends IntentService
                     if (!AppData.get_isPause()) AppData.set_Ndict(0);
                     for (int i = AppData.get_Ndict(); i < playList.size(); i++)
                     {
-                        p_ItemListDict playListItem = playList.get(i);
-                        textDict = playListItem.get_dictName();
+                        String playListItem = playList.get(i);
+                        textDict = playListItem;
                         AppData.setCurrentDict(textDict);
                         AppData.set_Ndict(i);
-                        int wordsCountInTable = getWordsCount(playListItem.get_dictName());
+                        int wordsCountInTable = getWordsCount(playListItem);
                         if (wordsCountInTable > 0)
                         {
                             if (!AppData.get_isPause()) AppData.set_Nword(1);
                             for (int j = AppData.get_Nword(); j <= wordsCountInTable; j++)
                             {
                                 AppData.set_Nword(j);
-                                ArrayList<DataBaseEntry> list = getEntriesFromDB(playListItem.get_dictName(), j, j);
+                                ArrayList<DataBaseEntry> list = getEntriesFromDB(playListItem, j, j);
+                                if (list.size() == 0)
+                                {
+                                    continue;
+                                }
+
+                                int repeat = 0;
+                                try
+                                {
+                                    repeat = Integer.parseInt(list.get(0).get_count_repeat());
+                                } catch (NumberFormatException e)
+                                {
+                                    repeat = 1;
+                                }
+
+                                if (a_MainActivity.settings.getBoolean(a_MainActivity.KEY_ENG_ONLY, true))
+                                {
+                                    for (int t = 0; t < repeat; t++)
+                                    {
+                                        try
+                                        {
+                                            speakWord(list.get(0), false);
+                                        } catch (InterruptedException e)
+                                        {
+                                            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                                            e.printStackTrace();
+                                            break;
+                                        }
+                                    }
+                                } else
+                                {
+                                    try
+                                    {
+                                        for (int t = 0; t < repeat; t++)
+                                        {
+                                            speakWord(list.get(0), true);
+                                        }
+                                    } catch (InterruptedException e)
+                                    {
+                                        e.printStackTrace();
+                                    }
+                                }
+                                AppData.set_Nword(j);
+                            }
+                        } else
+                        {
+                            break;
+                        }
+                        AppData.set_Ndict(i);
+                        AppData.set_isPause(false);
+                    }
+                } else
+                {
+                    break;
+                }
+            } while (!stop);
+        }
+
+        if (order == 1)
+        {
+            do
+            {
+                playList = a_MainActivity.getPlayList();
+                if (playList.size() > 0)
+                {
+                    if (!AppData.get_isPause()) AppData.set_Ndict(0);
+                    for (int i = AppData.get_Ndict(); i >= 0; i--)
+                    {
+                        String playListItem = playList.get(i);
+                        textDict = playListItem;
+                        AppData.setCurrentDict(textDict);
+                        AppData.set_Ndict(i);
+                        int wordsCountInTable = getWordsCount(playListItem);
+                        if (wordsCountInTable > 0)
+                        {
+                            if (!AppData.get_isPause()) AppData.set_Nword(1);
+                            for (int j = AppData.get_Nword(); j >= 1; j--)
+                            {
+                                AppData.set_Nword(j);
+                                ArrayList<DataBaseEntry> list = getEntriesFromDB(playListItem, j, j);
                                 if (list.size() == 0)
                                 {
                                     continue;

@@ -120,7 +120,7 @@ public class z_speechService2 extends IntentService
         if (play_order == 1 && wordIndex == 0 && dictIndex == 0)
         {
             dictIndex = a_MainActivity.getPlayList().size()-1;
-            wordIndex = getWordsCount(a_MainActivity.getPlayList().get(dictIndex).get_dictName());
+            wordIndex = getWordsCount(a_MainActivity.getPlayList().get(dictIndex));
         }
 
         if (play_order == 2)
@@ -160,7 +160,7 @@ public class z_speechService2 extends IntentService
         switch (order)
         {
             case 0: // Прямое воспроизведение слов
-                if (word_index >= getWordsCount(a_MainActivity.getPlayList().get(dictIndex).get_dictName()))
+                if (word_index >= getWordsCount(a_MainActivity.getPlayList().get(dictIndex)))
                 {
                     // Если индекс элемента текущего списка >= количества эл. в этом списке, счетчик эл. обнуляем, индекс списка увелич на 1
                     wordIndex = 1;
@@ -177,20 +177,20 @@ public class z_speechService2 extends IntentService
                 if (wordIndex < 1 && dictIndex < 0)
                 {
                     dictIndex = a_MainActivity.getPlayList().size() - 1;
-                    wordIndex = getWordsCount(a_MainActivity.getPlayList().get(dictIndex).get_dictName());
+                    wordIndex = getWordsCount(a_MainActivity.getPlayList().get(dictIndex));
                 }
                 if (word_index < 0)
                 {
                     dictIndex--;
                     if (dictIndex >= 0)
                     {
-                        wordIndex = getWordsCount(a_MainActivity.getPlayList().get(dictIndex).get_dictName());
+                        wordIndex = getWordsCount(a_MainActivity.getPlayList().get(dictIndex));
                     }
                 }
                 if (dictIndex < 0)
                 {
                     dictIndex = a_MainActivity.getPlayList().size()-1;
-                    wordIndex = getWordsCount(a_MainActivity.getPlayList().get(dictIndex).get_dictName());
+                    wordIndex = getWordsCount(a_MainActivity.getPlayList().get(dictIndex));
                 }
                 break;
             case 2: // Случайное воспроизведение слов
@@ -206,7 +206,7 @@ public class z_speechService2 extends IntentService
                 {
                     if (wordIndex >= a_MainActivity.getPlayList().size())
                     {
-                        wordIndex = wordIndex - getWordsCount(a_MainActivity.getPlayList().get(i).get_dictName());
+                        wordIndex = wordIndex - getWordsCount(a_MainActivity.getPlayList().get(i));
                         i++;
                     }
                     else
@@ -221,7 +221,7 @@ public class z_speechService2 extends IntentService
 
         final int tempListIndex = dictIndex;
         final int tempWordIndex = wordIndex;
-        final ArrayList<DataBaseEntry> list = dataBaseQueries.getEntriesFromDB(a_MainActivity.getPlayList().get(dictIndex).get_dictName(), wordIndex, wordIndex);
+        final ArrayList<DataBaseEntry> list = dataBaseQueries.getEntriesFromDB(a_MainActivity.getPlayList().get(dictIndex), wordIndex, wordIndex);
         //done_repeat = 0;
 //        if (done_repeat == 0)
 //        {

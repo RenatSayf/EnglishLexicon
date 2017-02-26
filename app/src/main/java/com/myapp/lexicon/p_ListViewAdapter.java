@@ -18,8 +18,8 @@ import java.util.ArrayList;
 public class p_ListViewAdapter extends BaseAdapter
 {
     private Context _context;
-    private ArrayList<p_ItemListDict> _list;
-    public p_ListViewAdapter(ArrayList<p_ItemListDict> list, Context context)
+    private ArrayList<String> _list;
+    public p_ListViewAdapter(ArrayList<String> list, Context context)
     {
         this._list = list;
         this._context = context;
@@ -50,9 +50,9 @@ public class p_ListViewAdapter extends BaseAdapter
         {
             dictView= LayoutInflater.from(_context).inflate(R.layout.p_listview_item, null);
         }
-        final p_ItemListDict list =  _list.get(position);
+        final String list =  _list.get(position);
         TextView dictName = (TextView) dictView.findViewById(R.id.textView_item);
-        dictName.setText(list.get_dictName());
+        dictName.setText(list);
 
         final CheckBox isSelected = (CheckBox) dictView.findViewById(R.id.checkBox_item);
         isSelected.setChecked(true);
@@ -62,8 +62,8 @@ public class p_ListViewAdapter extends BaseAdapter
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
             {
                 CompoundButton btn = buttonView;
-                Log.i("Lexicon", "Вход в p_ListViewAdapter.getView().onCheckedChanged " + list.get_dictName());
-                a_MainActivity.removeItemPlayList(list.get_dictName());
+                Log.i("Lexicon", "Вход в p_ListViewAdapter.getView().onCheckedChanged " + list);
+                a_MainActivity.removeItemPlayList(list);
             }
         });
         return dictView;
