@@ -11,10 +11,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
-import android.widget.TextView;
+
+import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 
 /**
@@ -30,6 +30,8 @@ public class a_SplashScreenActivity extends Activity
     public String EXTRA_KEY_ERROR_MSG = "key_error_message";    // TODO: UpdateBroadcastReceiver. 3 - определение ключа для приемника
     public String EXTRA_KEY_MSG_ID = "key_msg_id";              // TODO: UpdateBroadcastReceiver. 3 - определение ключа для приемника
     public String ACTION_UPDATE = "com.myapp.lexicon.a_SplashScreenActivity";   // TODO: UpdateBroadcastReceiver. 4 - определения действия
+
+    private AppSettings appSettings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -115,24 +117,27 @@ public class a_SplashScreenActivity extends Activity
                 {
                     // TODO: UpdateBroadcastReceiver. 11 - кладем сообщение в Intent
                     messageErrorIntent.putExtra(EXTRA_KEY_MSG_ID, Locale.US.getDisplayLanguage());
-                    messageErrorIntent.putExtra(EXTRA_KEY_ERROR_MSG, getString(R.string.message_inst_tts_data));
                     // TODO: UpdateBroadcastReceiver. 12 - отправка сообщения приемнику
                     sendBroadcast(messageErrorIntent);
                 }
                 if (utteranceId.equals(Locale.getDefault().getDisplayLanguage()))
                 {
                     messageErrorIntent.putExtra(EXTRA_KEY_MSG_ID, Locale.getDefault().getDisplayLanguage());
-                    messageErrorIntent.putExtra(EXTRA_KEY_ERROR_MSG, getString(R.string.message_inst_tts_data_ru));
                     sendBroadcast(messageErrorIntent);
                 }
             }
         });
     }
 
+    {
+        appSettings = new AppSettings(a_SplashScreenActivity.this);
+    }
+
     private void dialogErrorTTS(final Intent intent, String message, boolean isContinue)
     {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this).setTitle("Предупреждение:").setIcon(R.drawable.icon_warning)
-                .setPositiveButton(R.string.btn_text_ok, new DialogInterface.OnClickListener()
+
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this).setTitle(R.string.dialog_title_warning).setIcon(R.drawable.icon_warning)
+                .setPositiveButton(R.string.btn_text_setup, new DialogInterface.OnClickListener()
                 {
                     @Override
                     public void onClick(DialogInterface dialog, int which)
@@ -143,12 +148,12 @@ public class a_SplashScreenActivity extends Activity
                 });
         if (isContinue)
         {
-            alertDialog.setNegativeButton("Продолжить без", new DialogInterface.OnClickListener()
+            alertDialog.setNegativeButton(R.string.btn_text_continue, new DialogInterface.OnClickListener()
             {
                 @Override
                 public void onClick(DialogInterface dialog, int which)
                 {
-                    getSharedPreferences("eng_only", MODE_PRIVATE).edit().putBoolean("eng_only",false).apply();
+                    appSettings.setEnglishSpeechOnly(false);
                     Intent intent = new Intent(a_SplashScreenActivity.this, a_MainActivity.class);
                     a_SplashScreenActivity.this.startActivity(intent);
                     a_SplashScreenActivity.this.finish();
@@ -156,6 +161,7 @@ public class a_SplashScreenActivity extends Activity
             });
         }
         alertDialog.setMessage(message);
+        alertDialog.setCancelable(false);
         alertDialog.create();
         alertDialog.show();
     }
@@ -186,7 +192,16 @@ public class a_SplashScreenActivity extends Activity
             }
             if (id.equals(Locale.getDefault().getDisplayLanguage()))
             {
-                dialogErrorTTS(installTTSdata, getString(R.string.message_inst_tts_data_ru), true);
+                boolean englishSpeechOnly = appSettings.isEnglishSpeechOnly();
+                if (appSettings.isEnglishSpeechOnly())
+                {
+                    dialogErrorTTS(installTTSdata, getString(R.string.message_inst_tts_data_ru), true);
+                }
+                else
+                {
+                    a_SplashScreenActivity.this.startActivity(new Intent(a_SplashScreenActivity.this, a_MainActivity.class));
+                    a_SplashScreenActivity.this.finish();
+                }
             }
         }
     }

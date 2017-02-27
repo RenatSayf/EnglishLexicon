@@ -154,9 +154,11 @@
     <string name="play_list_set">play_list</string>
     <string name="key_play_list">play_list</string>
     <string name="play_list_items">play_list_items</string>
-    <string name="btn_text_ok">Ok</string>
+    <string name="btn_text_setup">Установить</string>
     <string name="start_speech_en">lets go</string>
     <string name="start_speech_ru">Поехали</string>
+    <string name="dialog_title_warning">Предупреждение:</string>
+    <string name="btn_text_continue">Продолжить без</string>
 
 
 </resources>
