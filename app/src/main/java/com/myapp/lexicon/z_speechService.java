@@ -9,6 +9,9 @@ import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.widget.Toast;
 
+import com.myapp.lexicon.settings.AppData;
+import com.myapp.lexicon.settings.AppSettings;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,9 +24,11 @@ public class z_speechService extends IntentService
     private static boolean stop = true;
     private ArrayList<String> playList;
     private DatabaseHelper databaseHelper;
+    private AppSettings appSettings;
     private String textEn;
     private String textRu;
     private String textDict;
+    private boolean isEngOnly = false;
 
     public static final String ACTION_UPDATE = "com.myapp.lexicon.UPDATE";
     public static final String EXTRA_KEY_UPDATE_EN = "EXTRA_UPDATE_EN";
@@ -45,6 +50,7 @@ public class z_speechService extends IntentService
             databaseHelper = new DatabaseHelper(getApplicationContext());
             databaseHelper.create_db();
         }
+        appSettings = new AppSettings(this);
     }
 
     @Override
@@ -56,6 +62,7 @@ public class z_speechService extends IntentService
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
+        isEngOnly = appSettings.isEnglishSpeechOnly();
         stop = false;
         try
         {
@@ -158,7 +165,7 @@ public class z_speechService extends IntentService
                                     repeat = 1;
                                 }
 
-                                if (a_MainActivity.settings.getBoolean(a_MainActivity.KEY_ENG_ONLY, true))
+                                if (isEngOnly)
                                 {
                                     for (int t = 0; t < repeat; t++)
                                     {
@@ -237,7 +244,7 @@ public class z_speechService extends IntentService
                                     repeat = 1;
                                 }
 
-                                if (a_MainActivity.settings.getBoolean(a_MainActivity.KEY_ENG_ONLY, true))
+                                if (isEngOnly)
                                 {
                                     for (int t = 0; t < repeat; t++)
                                     {

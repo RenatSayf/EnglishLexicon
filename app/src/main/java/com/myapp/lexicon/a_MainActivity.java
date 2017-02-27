@@ -34,6 +34,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
+import com.myapp.lexicon.settings.AppData;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;

@@ -11,6 +11,8 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Spinner;
 
+import com.myapp.lexicon.settings.AppSettings;
+
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
@@ -21,6 +23,7 @@ public class p_PlayList extends AppCompatActivity
     private p_ListViewAdapter lictViewAdapter;
     private ArrayList<String> playList = new ArrayList<>();
     private DatabaseHelper databaseHelper;
+    private AppSettings appSettings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -30,6 +33,8 @@ public class p_PlayList extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        appSettings = new AppSettings(p_PlayList.this);
 
         if (databaseHelper == null)
         {
@@ -151,14 +156,7 @@ public class p_PlayList extends AppCompatActivity
                         {
                             lictViewAdapter = new p_ListViewAdapter(playList, p_PlayList.this);
                             listViewDict.setAdapter(lictViewAdapter);
-                            String play_list_string = "";
-                            for (String item : playList)
-                            {
-                                play_list_string += item + " ";
-                            }
-                            play_list_string.trim();
-                            SharedPreferences sharedPreferences = p_PlayList.this.getSharedPreferences(getString(R.string.key_play_list), MODE_PRIVATE);
-                            sharedPreferences.edit().putString(getString(R.string.play_list_items), play_list_string).apply();
+                            appSettings.savePlayList(playList);
                         } catch (Exception e)
                         {
                             e.printStackTrace();

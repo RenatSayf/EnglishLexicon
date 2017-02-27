@@ -1,7 +1,9 @@
-package com.myapp.lexicon;
+package com.myapp.lexicon.settings;
 
 import android.app.Application;
 import android.widget.Button;
+
+import com.myapp.lexicon.t_MatchFragment;
 
 /**
  * Created by Ренат on 20.04.2016.

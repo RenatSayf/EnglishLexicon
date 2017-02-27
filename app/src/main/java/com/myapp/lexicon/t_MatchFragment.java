@@ -29,6 +29,8 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.myapp.lexicon.settings.AppData;
+
 import java.util.ArrayList;
 
 import static android.content.Context.MODE_PRIVATE;
