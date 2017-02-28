@@ -2,7 +2,6 @@ package com.myapp.lexicon;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -11,6 +10,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Spinner;
 
+import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.ArrayList;
@@ -95,14 +95,13 @@ public class p_PlayList extends AppCompatActivity
     protected void onPause()
     {
         super.onPause();
-        a_MainActivity.savePlayList(playList);
     }
 
     @Override
     protected void onDestroy()
     {
         super.onDestroy();
-        a_MainActivity.savePlayList(playList);
+        appSettings.savePlayList(playList);
     }
 
     private String[] dictArray;

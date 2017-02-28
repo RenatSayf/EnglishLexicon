@@ -6,6 +6,8 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
+import com.myapp.lexicon.settings.AppSettings;
+
 import java.util.ArrayList;
 
 /**
@@ -63,7 +65,8 @@ public class t_DialogChangePlayList extends android.support.v4.app.DialogFragmen
                     {
                         for (int i = 0; i < items.length; i++)
                         {
-                            a_MainActivity.removeItemPlayList(items[i]);
+                            new AppSettings(getContext()).removeItemFromPlayList(items[i]);
+                            //a_MainActivity.removeItemPlayList(items[i]);
                         }
                     }
                 })

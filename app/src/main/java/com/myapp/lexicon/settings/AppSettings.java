@@ -72,7 +72,7 @@ public class AppSettings
     }
 
     /**
-     * Remove one item of ArrayList and retain it state
+     * Remove one item of ArrayList and retain it state in the SharedPreferences
      * @param list ArrayList<String>
      * @param position  int
      */
@@ -88,6 +88,23 @@ public class AppSettings
             }
             String temp = play_list_string.trim();
             context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putString(KEY_PLAY_LIST_ITEMS, temp).apply();
+        }
+    }
+
+    /**
+     * Remove one item of ArrayList and retain it state in the SharedPreferences
+     * @param item  String
+     */
+    public void removeItemFromPlayList(String item)
+    {
+        if (item != null)
+        {
+            ArrayList<String> playList = getPlayList();
+            if (playList.contains(item))
+            {
+                playList.remove(item);
+                savePlayList(playList);
+            }
         }
     }
 

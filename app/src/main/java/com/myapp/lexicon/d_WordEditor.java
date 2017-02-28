@@ -34,6 +34,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
+import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.database.GetEntriesLoader;
 
 import java.sql.SQLException;

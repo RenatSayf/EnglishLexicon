@@ -34,6 +34,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
+import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
@@ -391,7 +392,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
                                     try
                                     {
                                         result = dataBaseQueries.deleteTableFromDbAsync(item);
-                                        removeItemPlayList(item);
+                                        appSettings.removeItemFromPlayList(item);
                                     } catch (Exception e)
                                     {
                                         e.printStackTrace();
@@ -470,16 +471,16 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             public void afterTextChanged(Editable s){}
         });
     }
-    public static void savePlayList(ArrayList<String> addDicts)
-    {
-        Set<String> existDicts = a_MainActivity.savedPlayList.getStringSet(KEY_PLAY_LIST, new HashSet<String>());
-        for (int i = 0; i < addDicts.size(); i++)
-        {
-            existDicts.add(addDicts.get(i));
-        }
-        savedPlayList.edit().remove(KEY_PLAY_LIST).commit();
-        savedPlayList.edit().putStringSet(KEY_PLAY_LIST, existDicts).commit();
-    }
+//    public static void savePlayList(ArrayList<String> addDicts)
+//    {
+//        Set<String> existDicts = a_MainActivity.savedPlayList.getStringSet(KEY_PLAY_LIST, new HashSet<String>());
+//        for (int i = 0; i < addDicts.size(); i++)
+//        {
+//            existDicts.add(addDicts.get(i));
+//        }
+//        savedPlayList.edit().remove(KEY_PLAY_LIST).commit();
+//        savedPlayList.edit().putStringSet(KEY_PLAY_LIST, existDicts).commit();
+//    }
     public ArrayList<String> getPlayList()
     {
         ArrayList<String> listDicts=new ArrayList<>();
@@ -496,18 +497,18 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
 
         return listDicts;
     }
-    public static boolean removeItemPlayList(String name)
-    {
-        Set<String> listKeptDict = savedPlayList.getStringSet(KEY_PLAY_LIST, new HashSet<String>());
-        if (listKeptDict.contains(name))
-        {
-            listKeptDict.remove(name);
-            savedPlayList.edit().remove(KEY_PLAY_LIST).commit();
-            savedPlayList.edit().putStringSet(KEY_PLAY_LIST, listKeptDict).commit();
-            return true;
-        }
-        return false;
-    }
+//    public static boolean removeItemPlayList(String name)
+//    {
+//        Set<String> listKeptDict = savedPlayList.getStringSet(KEY_PLAY_LIST, new HashSet<String>());
+//        if (listKeptDict.contains(name))
+//        {
+//            listKeptDict.remove(name);
+//            savedPlayList.edit().remove(KEY_PLAY_LIST).commit();
+//            savedPlayList.edit().putStringSet(KEY_PLAY_LIST, listKeptDict).commit();
+//            return true;
+//        }
+//        return false;
+//    }
 
     public void btnPlayClick(View view)
     {

@@ -5,10 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 
-import com.myapp.lexicon.DataBaseEntry;
-import com.myapp.lexicon.DatabaseHelper;
-import com.myapp.lexicon.z_Log;
-
 /**
  * Created by Renat on 28.02.2017.
  */

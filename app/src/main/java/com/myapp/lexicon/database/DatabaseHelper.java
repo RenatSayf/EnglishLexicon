@@ -1,4 +1,4 @@
-package com.myapp.lexicon;
+package com.myapp.lexicon.database;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

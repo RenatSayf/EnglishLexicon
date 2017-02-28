@@ -10,6 +10,8 @@ import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.myapp.lexicon.database.DatabaseHelper;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
