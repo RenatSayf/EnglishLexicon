@@ -66,17 +66,7 @@ public class p_PlayList extends AppCompatActivity
             public void onNothingSelected(AdapterView<?> parent) { }
         });
 
-        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.key_play_list), MODE_PRIVATE);
-        String play_list_items = sharedPreferences.getString(getString(R.string.play_list_items), null);
-
-        if (play_list_items != null && play_list_items.length() > 0)
-        {
-            String[] splitArray = play_list_items.split(" ");
-            for (int i = 0; i < splitArray.length; i++)
-            {
-                playList.add(i, splitArray[i]);
-            }
-        }
+        playList = appSettings.getPlayList();
 
         if (playList.size() > 0)
         {

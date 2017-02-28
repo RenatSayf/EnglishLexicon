@@ -10,6 +10,8 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
+import com.myapp.lexicon.settings.AppSettings;
+
 import java.util.ArrayList;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -21,10 +23,13 @@ public class p_ListViewAdapter extends BaseAdapter
 {
     private Context context;
     private ArrayList<String> list;
+    private AppSettings appSettings;
+
     public p_ListViewAdapter(ArrayList<String> list, Context context)
     {
         this.list = list;
         this.context = context;
+        appSettings = new AppSettings(this.context);
     }
     @Override
     public int getCount()
@@ -63,19 +68,13 @@ public class p_ListViewAdapter extends BaseAdapter
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
             {
-                SharedPreferences play_list = context.getSharedPreferences("play_list", MODE_PRIVATE);
-
-                list.remove(position);
-                String play_list_string = "";
-                for (String item : list)
+                if (!isChecked)
                 {
-                    play_list_string += item + " ";
+                    appSettings.removeItemFromPlayList(list, position);
                 }
-                play_list_string.trim();
-                SharedPreferences sharedPreferences = context.getSharedPreferences(context.getString(R.string.key_play_list), MODE_PRIVATE);
-                sharedPreferences.edit().putString(context.getString(R.string.play_list_items), play_list_string).apply();
             }
         });
         return dictView;
     }
+
 }

@@ -12,6 +12,7 @@ import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Created by Renat on 27.02.2017.
+ * Helper class for work with the SharedPreferences
  */
 
 public class AppSettings
@@ -51,15 +52,62 @@ public class AppSettings
         return context.getSharedPreferences(KEY_ENG_ONLY, MODE_PRIVATE).getBoolean(KEY_ENG_ONLY, false);
     }
 
+    /**
+     * Save the ArrayList<String>, converting it to the String
+     * @param list (ArrayList)
+     */
     public void savePlayList(ArrayList<String> list)
     {
-        String play_list_string = "";
-        for (String item : list)
+        if (list != null && list.size() > 0)
         {
-            play_list_string += item + " ";
+            String play_list_string = "";
+            for (String item : list)
+            {
+                play_list_string += item + " ";
+            }
+            play_list_string.trim();
+            context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putString(KEY_PLAY_LIST_ITEMS, play_list_string).apply();
         }
-        play_list_string.trim();
-        context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putString(KEY_PLAY_LIST_ITEMS, play_list_string).apply();
+    }
+
+    /**
+     * Remove one item of ArrayList and retain it state
+     * @param list ArrayList<String>
+     * @param position  int
+     */
+    public void removeItemFromPlayList(ArrayList<String> list, int position)
+    {
+        if (list != null && list.size() > 0 && position >= 0 && position < list.size() )
+        {
+            list.remove(position);
+            String play_list_string = "";
+            for (String item : list)
+            {
+                play_list_string += item + " ";
+            }
+            play_list_string.trim();
+            context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putString(KEY_PLAY_LIST_ITEMS, play_list_string).apply();
+        }
+    }
+
+    /**
+     * gets ArrayList from SharedPreferences
+     * @return  ArrayList(String)
+     */
+    public ArrayList<String> getPlayList()
+    {
+        ArrayList<String> list = new ArrayList<>();
+        String play_list_items = context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getString(KEY_PLAY_LIST_ITEMS, null);
+
+        if (play_list_items != null && play_list_items.length() > 0)
+        {
+            String[] splitArray = play_list_items.split(" ");
+            for (int i = 0; i < splitArray.length; i++)
+            {
+                list.add(i, splitArray[i]);
+            }
+        }
+        return list;
     }
 
 
