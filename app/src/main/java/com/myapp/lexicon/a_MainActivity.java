@@ -263,7 +263,6 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.edit_word)
         {
             if (wordEditorIntent == null)
@@ -271,13 +270,13 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
                 wordEditorIntent = new Intent(this, d_WordEditor.class);
             }
             speechServiceOnPause();
-            wordEditorIntent.putExtra("extra_eng_word", textViewEn.getText().toString());
-            wordEditorIntent.putExtra("extra_ru_word", textViewRu.getText().toString());
-            wordEditorIntent.putExtra("extra_count_repeat", countRepeat);
-            wordEditorIntent.putExtra("extra_num_dict", AppData.get_Ndict());
+            Bundle bundle = new Bundle();
+            bundle.putString("extra_num_dict", textViewDict.getText().toString());
+            bundle.putInt("extra_row_id", AppData.get_Nword());
+            wordEditorIntent.putExtras(bundle);
+
             startActivity(wordEditorIntent);
         }
-
         return super.onOptionsItemSelected(item);
     }
 

@@ -210,6 +210,19 @@ public class d_WordEditor extends AppCompatActivity
     }
 
     @Override
+    protected void onStart()
+    {
+        super.onStart();
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null)
+        {
+            String tableName = bundle.getString("extra_num_dict");
+            int rowId = bundle.getInt("extra_row_id");
+            switcher.showNext();
+        }
+    }
+
+    @Override
     protected void onPause()
     {
         super.onPause();
