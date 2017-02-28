@@ -2,14 +2,22 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <group >
+
         <item
-            android:id="@+id/nav_add_word"
-            android:icon="@drawable/ic_add_word"
-            android:title="@string/add_word"/>
+            android:id="@+id/nav_play_list"
+            android:icon="@drawable/ic_play_list"
+            android:title="@string/nav_play_list"/>
+
         <item
             android:id="@+id/nav_add_dict"
             android:icon="@drawable/ic_add_dict"
             android:title="@string/add_dict"/>
+
+        <item
+            android:id="@+id/nav_add_word"
+            android:icon="@drawable/ic_add_word"
+            android:title="@string/add_word"/>
+
         <item
             android:id="@+id/nav_delete_dict"
             android:icon="@drawable/icon_delete"
@@ -17,38 +25,17 @@
         <item
             android:id="@+id/nav_edit"
             android:icon="@drawable/ic_edit"
-            android:title="@string/edit_word"/>
+            android:title="@string/nav_words_editor"/>
         <item
             android:id="@+id/nav_check_your_self"
             android:icon="@drawable/ic_check_your_self"
             android:title="@string/check_your_self"/>
-        <item
-            android:id="@+id/nav_play_list"
-            android:icon="@drawable/ic_play_list"
-            android:title="@string/nav_play_list"/>
-        <!--<item android:title=""/>-->
-        <item
-            android:id="@+id/nav_exit"
-            android:icon="@drawable/ic_exit"
-            android:title="@string/exit"/>
+
     </group>
 
-    <!--<group>-->
-
-        <!--<item-->
-            <!--android:id="@+id/nav_exit"-->
-            <!--android:icon="@drawable/ic_exit"-->
-            <!--android:title="@string/exit"/>-->
-
-    <!--</group>-->
-
-    <!--<item android:title="">-->
-        <!--<menu>-->
-            <!--<item-->
-                <!--android:id="@+id/nav_exit"-->
-                <!--android:icon="@drawable/ic_exit"-->
-                <!--android:title="@string/exit"/>-->
-        <!--</menu>-->
-    <!--</item>-->
+    <item
+        android:id="@+id/nav_exit"
+        android:icon="@drawable/ic_exit"
+        android:title="@string/exit"/>
 
 </menu>

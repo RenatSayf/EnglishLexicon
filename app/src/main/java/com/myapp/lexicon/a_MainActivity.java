@@ -255,6 +255,9 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         return true;
     }
 
+    public static final String KEY_DICT_NAME = "key_name_dict";
+    public static final String KEY_ROW_ID = "key_row_id";
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
@@ -271,8 +274,8 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             }
             speechServiceOnPause();
             Bundle bundle = new Bundle();
-            bundle.putString("extra_num_dict", textViewDict.getText().toString());
-            bundle.putInt("extra_row_id", AppData.get_Nword());
+            bundle.putString(KEY_DICT_NAME, textViewDict.getText().toString());
+            bundle.putInt(KEY_ROW_ID, AppData.get_Nword());
             wordEditorIntent.putExtras(bundle);
 
             startActivity(wordEditorIntent);

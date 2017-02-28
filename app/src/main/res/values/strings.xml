@@ -159,6 +159,7 @@
     <string name="start_speech_ru">Поехали</string>
     <string name="dialog_title_warning">Предупреждение:</string>
     <string name="btn_text_continue">Продолжить без</string>
+    <string name="nav_words_editor">Редактор слов</string>
 
 
 </resources>

@@ -1,9 +1,11 @@
 package com.myapp.lexicon;
 
 import android.app.AlertDialog;
+import android.app.LoaderManager;
 import android.app.SearchManager;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.Loader;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -12,8 +14,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,10 +34,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
+import com.myapp.lexicon.database.GetEntriesLoader;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class d_WordEditor extends AppCompatActivity
+public class d_WordEditor extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>
 {
     private Spinner spinnerListDict;
     private int spinner_select_pos = -1;
@@ -174,6 +176,9 @@ public class d_WordEditor extends AppCompatActivity
             spinnerCountRepeat.setSelection(1);
         }
 
+        // TODO: AsyncTaskLoader - 3. инициализация
+        getLoaderManager().initLoader(LOADER_GET_ENTRIES, savedInstanceState, this);
+
         if (savedInstanceState != null)
         {
             if (searchIsVisible)
@@ -216,8 +221,19 @@ public class d_WordEditor extends AppCompatActivity
         Bundle bundle = getIntent().getExtras();
         if (bundle != null)
         {
-            String tableName = bundle.getString("extra_num_dict");
-            int rowId = bundle.getInt("extra_row_id");
+            String tableName = bundle.getString(a_MainActivity.KEY_DICT_NAME);
+            int rowId = bundle.getInt(a_MainActivity.KEY_ROW_ID);
+
+            // TODO: AsyncTaskLoader - 4. Передача параметров в AsyncTaskLoader
+            Bundle loaderBundle = new Bundle();
+            loaderBundle.putString(GetEntriesLoader.KEY_TABLE_NAME, tableName);
+            loaderBundle.putInt(GetEntriesLoader.KEY_START_ID, rowId);
+            loaderBundle.putInt(GetEntriesLoader.KEY_END_ID, rowId);
+
+            // TODO: AsyncTaskLoader - 5. Запуск загрузки данных
+            Loader<Cursor> cursorLoader = getLoaderManager().restartLoader(LOADER_GET_ENTRIES, loaderBundle, this);
+            cursorLoader.forceLoad();
+
             switcher.showNext();
         }
     }
@@ -260,7 +276,7 @@ public class d_WordEditor extends AppCompatActivity
                 public void run()
                 {
                     dataBaseEntries = getEntriesFromDB(spinnerListDict.getSelectedItem().toString());
-                    // TODO: 26.01.2017 ListView создание экземпляра адаптера
+                    // TODO: ListView создание экземпляра адаптера
                     listViewAdapter = new d_ListViewAdapter(dataBaseEntries, d_WordEditor.this, R.id.search_view);
                     try
                     {
@@ -277,7 +293,7 @@ public class d_WordEditor extends AppCompatActivity
                 @Override
                 public void handleMessage(Message msg)
                 {
-                    listView.setAdapter(listViewAdapter); // TODO: 26.01.2017 ListView setAdapter 
+                    listView.setAdapter(listViewAdapter); // TODO: ListView setAdapter
                     progressBar.setVisibility(View.GONE);
                 }
             };
@@ -619,4 +635,62 @@ public class d_WordEditor extends AppCompatActivity
             String search = intent.getStringExtra(SearchManager.QUERY);
         }
     }
+
+    private final int LOADER_GET_ENTRIES = 1;
+
+    // TODO: AsyncTaskLoader - 1. WordEditor реализует интерфейс LoaderManager.LoaderCallbacks
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle bundle)
+    {
+        Loader<Cursor> loader = null;
+        switch (id)
+        {
+            case LOADER_GET_ENTRIES:
+                loader = new GetEntriesLoader(this, bundle);
+                break;
+        }
+        return loader;
+    }
+
+    @Override   // TODO: AsyncTaskLoader - 2. Реализация интерфейса LoaderManager.LoaderCallbacks
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data)
+    {
+        if (loader.getId() == LOADER_GET_ENTRIES)
+        {
+            loadDbEntryHandler(data);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader)
+    {
+
+    }
+
+    private void loadDbEntryHandler(Cursor cursor)
+    {
+        try
+        {
+            if (cursor != null && cursor.getCount() == 1)
+            {
+                if (cursor.moveToFirst())
+                {
+                    while ( !cursor.isAfterLast() )
+                    {
+                        editTextEn.setText(cursor.getString(0));
+                        editTextRu.setText(cursor.getString(1));
+                        spinnerCountRepeat.setSelection(Integer.parseInt(cursor.getString(3)));
+                        cursor.moveToNext();
+                    }
+                }
+            }
+        } catch (Exception e)
+        {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+    }
+
+
+
 }
