@@ -7,7 +7,7 @@
     <string name="action_settings">Настройки</string>
     <string name="add_word">Добавить слово</string>
     <string name="add_dict">Добавить словарь</string>
-    <string name="edit_word">Редактировать слова</string>
+    <string name="edit_word">Изменить слово</string>
     <string name="check_your_self">Тесты</string>
     <string name="exit">Выход</string>
     <string name="title_activity_add_dict">Add or remove the dictionary</string>

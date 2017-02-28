@@ -35,6 +35,7 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.myapp.lexicon.settings.AppData;
+import com.myapp.lexicon.settings.AppSettings;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -51,13 +52,14 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     public static String KEY_ENG_ONLY = "eng_only";
     public DatabaseHelper databaseHelper;
 
-    private Intent addWord;
-    private Intent wordEditor;
-    private Intent checkSelf;
-    private Intent playList;
+    private Intent addWordIntent;
+    private Intent wordEditorIntent;
+    private Intent testsIntent;
+    private Intent playListIntent;
     private TextView textViewEn;
     private TextView textViewRu;
     private TextView textViewDict;
+    private int countRepeat;
     private Button btnPlay;
     private Button btnStop;
     private Button btnPause;
@@ -69,6 +71,8 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     private UpdateBroadcastReceiver mUpdateBroadcastReceiver;
     private z_BackgroundAnim backgroundAnim;
     private boolean isFirstTime = true;
+    private AppSettings appSettings;
+    private ArrayList<String> playList = new ArrayList<>();
 
     private String KEY_ENG_TEXT = "eng_text";
     private String KEY_RU_TEXT = "ru_text";
@@ -101,6 +105,8 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
 
         savedPlayList = getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE);
         settings = getSharedPreferences(KEY_ENG_ONLY, MODE_PRIVATE);
+        appSettings = new AppSettings(this);
+        playList = appSettings.getPlayList();
 
         initViews();
 
@@ -245,7 +251,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     public boolean onCreateOptionsMenu(Menu menu)
     {
         // Inflate the menu; this adds items to the action bar if it is present.
-        //getMenuInflater().inflate(R.menu.a_up_menu_main, menu);
+        getMenuInflater().inflate(R.menu.a_up_menu_main, menu);
         return true;
     }
 
@@ -258,9 +264,18 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings)
+        if (id == R.id.edit_word)
         {
-            return true;
+            if (wordEditorIntent == null)
+            {
+                wordEditorIntent = new Intent(this, d_WordEditor.class);
+            }
+            speechServiceOnPause();
+            wordEditorIntent.putExtra("extra_eng_word", textViewEn.getText().toString());
+            wordEditorIntent.putExtra("extra_ru_word", textViewRu.getText().toString());
+            wordEditorIntent.putExtra("extra_count_repeat", countRepeat);
+            wordEditorIntent.putExtra("extra_num_dict", AppData.get_Ndict());
+            startActivity(wordEditorIntent);
         }
 
         return super.onOptionsItemSelected(item);
@@ -275,11 +290,11 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         speechServiceOnPause();
         if (id == R.id.nav_add_word)
         {
-            if (addWord == null)
+            if (addWordIntent == null)
             {
-                addWord = new Intent(this,b_AddWordActivity.class);
+                addWordIntent = new Intent(this,b_AddWordActivity.class);
             }
-            startActivity(addWord);
+            startActivity(addWordIntent);
         }
         else if (id == R.id.nav_add_dict)
         {
@@ -297,27 +312,27 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         }
         else if (id == R.id.nav_edit)
         {
-            if (wordEditor == null)
+            if (wordEditorIntent == null)
             {
-                wordEditor = new Intent(this, d_WordEditor.class);
+                wordEditorIntent = new Intent(this, d_WordEditor.class);
             }
-            startActivity(wordEditor);
+            startActivity(wordEditorIntent);
         }
         else if (id == R.id.nav_check_your_self)
         {
-            if (checkSelf == null)
+            if (testsIntent == null)
             {
-                checkSelf = new Intent(this, t_Tests.class);
+                testsIntent = new Intent(this, t_Tests.class);
             }
             speechServiceOnPause();
-            startActivity(checkSelf);
+            startActivity(testsIntent);
         } else if (id == R.id.nav_play_list)
         {
-            if (playList == null)
+            if (playListIntent == null)
             {
-                playList = new Intent(this, p_PlayList.class);
+                playListIntent = new Intent(this, p_PlayList.class);
             }
-            startActivity(playList);
+            startActivity(playListIntent);
         } else if (id == R.id.nav_exit)
         {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
@@ -491,11 +506,10 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         }
         return false;
     }
-//    Thread thread;
-//    Runnable runnable;
+
     public void btnPlayClick(View view)
     {
-        if (getPlayList().size() > 0)
+        if (playList.size() > 0)
         {
             if (isFirstTime)
             {
@@ -505,9 +519,8 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             }
 
             speechIntentService = new Intent(this, z_speechService.class);
-            speechIntentService.putExtra(getString(R.string.key_play_order), 0);
+            speechIntentService.putExtra(getString(R.string.key_play_order), appSettings.getOrderPlay());
             speechIntentService.putExtra(getString(R.string.is_one_time), false);
-            speechServiceOnPause();
             startService(speechIntentService);
 
             btnPlay.setVisibility(View.GONE);
@@ -522,11 +535,11 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             Toast toast = Toast.makeText(this, R.string.no_playlist, Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER,0,0);
             toast.show();
-            if (playList == null)
+            if (playListIntent == null)
             {
-                playList = new Intent(this, p_PlayList.class);
+                playListIntent = new Intent(this, p_PlayList.class);
             }
-            startActivity(playList);
+            startActivity(playListIntent);
         }
         progressBar.setVisibility(View.VISIBLE);
 
@@ -547,7 +560,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     private void speechServiceOnStop()
     {
         AppData.set_Nword(0);
-        AppData.set_isPause(false);
+        AppData.setPause(false);
 
         if (speechIntentService != null)
         {
@@ -689,7 +702,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
 
     private void speechServiceOnPause()
     {
-        AppData.set_isPause(true);
+        AppData.setPause(true);
         if (speechIntentService != null)
         {
             stopService(speechIntentService);
@@ -759,9 +772,10 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         @Override
         public void onReceive(Context context, Intent intent)
         {
-            String updateEN = intent.getStringExtra(z_speechService.EXTRA_KEY_UPDATE_EN);
-            String updateRU = intent.getStringExtra(z_speechService.EXTRA_KEY_UPDATE_RU);
-            String updateDict = intent.getStringExtra(z_speechService.EXTRA_KEY_UPDATE_DICT);
+            String updateEN = intent.getStringExtra(z_speechService.EXTRA_KEY_EN);
+            String updateRU = intent.getStringExtra(z_speechService.EXTRA_KEY_RU);
+            String updateDict = intent.getStringExtra(z_speechService.EXTRA_KEY_DICT);
+            countRepeat = intent.getIntExtra(z_speechService.EXTRA_KEY_COUNT_REPEAT, 1);
             textViewEn.setText(updateEN);
             textViewRu.setText(updateRU);
             textViewDict.setText(updateDict);

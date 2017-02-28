@@ -44,6 +44,7 @@ public class p_PlayList extends AppCompatActivity
 
         listViewDict = (ListView) findViewById(R.id.listView_playList);
         spinneOrderPlay = (Spinner) findViewById(R.id.spinner_order_play);
+        spinneOrderPlay.setSelection(appSettings.getOrderPlay());
         spinneOrderPlay.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
         {
             @Override
@@ -52,10 +53,10 @@ public class p_PlayList extends AppCompatActivity
                 switch (position)
                 {
                     case 0:
-
+                        appSettings.setOrderPlay(0);
                         break;
                     case 1:
-
+                        appSettings.setOrderPlay(1);
                         break;
                     case 2:
 

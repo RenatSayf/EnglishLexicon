@@ -67,12 +67,12 @@ public class AppData extends Application
     }
 
     private static boolean isPause = false;
-    public static boolean get_isPause()
+    public static boolean isPause()
     {
         return isPause;
     }
 
-    public static void set_isPause(boolean isPause)
+    public static void setPause(boolean isPause)
     {
         AppData.isPause = isPause;
     }

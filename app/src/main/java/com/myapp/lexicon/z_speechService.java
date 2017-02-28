@@ -28,12 +28,14 @@ public class z_speechService extends IntentService
     private String textEn;
     private String textRu;
     private String textDict;
+    private int countRepeat;
     private boolean isEngOnly = false;
 
     public static final String ACTION_UPDATE = "com.myapp.lexicon.UPDATE";
-    public static final String EXTRA_KEY_UPDATE_EN = "EXTRA_UPDATE_EN";
-    public static final String EXTRA_KEY_UPDATE_RU = "EXTRA_UPDATE_RU";
-    public static final String EXTRA_KEY_UPDATE_DICT = "EXTRA_UPDATE_DICT";
+    public static final String EXTRA_KEY_EN = "EXTRA_UPDATE_EN";
+    public static final String EXTRA_KEY_RU = "EXTRA_UPDATE_RU";
+    public static final String EXTRA_KEY_DICT = "EXTRA_UPDATE_DICT";
+    public static final String EXTRA_KEY_COUNT_REPEAT = "extra_key_count_repeat";
 
     public z_speechService()
     {
@@ -126,17 +128,17 @@ public class z_speechService extends IntentService
         updateIntent.setAction(ACTION_UPDATE);
         updateIntent.addCategory(Intent.CATEGORY_DEFAULT);
 
-        playList = getPlayList();
+        playList = appSettings.getPlayList();
         if (playList.size() == 0) return;
 
         if (order == 0)
         {
             do
             {
-                playList = getPlayList();
+                playList = appSettings.getPlayList();
                 if (playList.size() > 0)
                 {
-                    if (!AppData.get_isPause()) AppData.set_Ndict(0);
+                    if (!AppData.isPause()) AppData.set_Ndict(0);
                     for (int i = AppData.get_Ndict(); i < playList.size(); i++)
                     {
                         String playListItem = playList.get(i);
@@ -146,7 +148,10 @@ public class z_speechService extends IntentService
                         int wordsCountInTable = getWordsCount(playListItem);
                         if (wordsCountInTable > 0)
                         {
-                            if (!AppData.get_isPause()) AppData.set_Nword(1);
+                            if (!AppData.isPause())
+                            {
+                                AppData.set_Nword(1);
+                            }
                             for (int j = AppData.get_Nword(); j <= wordsCountInTable; j++)
                             {
                                 AppData.set_Nword(j);
@@ -164,6 +169,7 @@ public class z_speechService extends IntentService
                                 {
                                     repeat = 1;
                                 }
+                                countRepeat = repeat;
 
                                 if (isEngOnly)
                                 {
@@ -199,7 +205,7 @@ public class z_speechService extends IntentService
                             break;
                         }
                         AppData.set_Ndict(i);
-                        AppData.set_isPause(false);
+                        AppData.setPause(false);
                     }
                 } else
                 {
@@ -212,20 +218,23 @@ public class z_speechService extends IntentService
         {
             do
             {
-                playList = getPlayList();
+                playList = appSettings.getPlayList();
                 if (playList.size() > 0)
                 {
-                    if (!AppData.get_isPause()) AppData.set_Ndict(0);
-                    for (int i = AppData.get_Ndict(); i >= 0; i--)
+                    if (!AppData.isPause()) AppData.set_Ndict(0);
+                    for (int i = AppData.get_Ndict(); i < playList.size(); i++)
                     {
                         String playListItem = playList.get(i);
                         textDict = playListItem;
-                        AppData.setCurrentDict(textDict);
+                        AppData.setCurrentDict(playListItem);
                         AppData.set_Ndict(i);
                         int wordsCountInTable = getWordsCount(playListItem);
                         if (wordsCountInTable > 0)
                         {
-                            if (!AppData.get_isPause()) AppData.set_Nword(1);
+                            if (!AppData.isPause())
+                            {
+                                AppData.set_Nword(wordsCountInTable);
+                            }
                             for (int j = AppData.get_Nword(); j >= 1; j--)
                             {
                                 AppData.set_Nword(j);
@@ -243,6 +252,7 @@ public class z_speechService extends IntentService
                                 {
                                     repeat = 1;
                                 }
+                                countRepeat = repeat;
 
                                 if (isEngOnly)
                                 {
@@ -278,7 +288,7 @@ public class z_speechService extends IntentService
                             break;
                         }
                         AppData.set_Ndict(i);
-                        AppData.set_isPause(false);
+                        AppData.setPause(false);
                     }
                 } else
                 {
@@ -301,9 +311,10 @@ public class z_speechService extends IntentService
                 {
                     textRu = entries.get_translate();
                 }
-                updateIntent.putExtra(EXTRA_KEY_UPDATE_EN, textEn);
-                updateIntent.putExtra(EXTRA_KEY_UPDATE_RU, textRu);
-                updateIntent.putExtra(EXTRA_KEY_UPDATE_DICT, textDict);
+                updateIntent.putExtra(EXTRA_KEY_EN, textEn);
+                updateIntent.putExtra(EXTRA_KEY_RU, textRu);
+                updateIntent.putExtra(EXTRA_KEY_DICT, textDict);
+                updateIntent.putExtra(EXTRA_KEY_COUNT_REPEAT, countRepeat);
                 sendBroadcast(updateIntent);
             }
 

@@ -22,6 +22,7 @@ public class AppSettings
     private String KEY_ENG_ONLY = "eng_only";
     private String KEY_PLAY_LIST = "play_list";
     private String KEY_PLAY_LIST_ITEMS = "play_list_items";
+    private String KEY_ORDER_PLAY = "order_play";
 
     public AppSettings(Context context)
     {
@@ -65,8 +66,8 @@ public class AppSettings
             {
                 play_list_string += item + " ";
             }
-            play_list_string.trim();
-            context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putString(KEY_PLAY_LIST_ITEMS, play_list_string).apply();
+            String temp = play_list_string.trim();
+            context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putString(KEY_PLAY_LIST_ITEMS, temp).apply();
         }
     }
 
@@ -85,8 +86,8 @@ public class AppSettings
             {
                 play_list_string += item + " ";
             }
-            play_list_string.trim();
-            context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putString(KEY_PLAY_LIST_ITEMS, play_list_string).apply();
+            String temp = play_list_string.trim();
+            context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putString(KEY_PLAY_LIST_ITEMS, temp).apply();
         }
     }
 
@@ -108,6 +109,20 @@ public class AppSettings
             }
         }
         return list;
+    }
+
+    /**
+     *
+     * @param order  int
+     */
+    public void setOrderPlay(int order)
+    {
+        context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putInt(KEY_ORDER_PLAY, order).apply();
+    }
+
+    public int getOrderPlay()
+    {
+        return context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getInt(KEY_ORDER_PLAY, 0);
     }
 
 
