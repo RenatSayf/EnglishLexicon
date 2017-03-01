@@ -257,6 +257,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     }
 
     public static final String KEY_DICT_NAME = "key_name_dict";
+    public static final String KEY_DICT_INDEX = "key_dict_index";
     public static final String KEY_ROW_ID = "key_row_id";
 
     @Override
@@ -276,6 +277,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             speechServiceOnPause();
             Bundle bundle = new Bundle();
             bundle.putString(KEY_DICT_NAME, textViewDict.getText().toString());
+            bundle.putInt(KEY_DICT_INDEX, AppData.get_Ndict());
             bundle.putInt(KEY_ROW_ID, AppData.get_Nword());
             wordEditorIntent.putExtras(bundle);
 
@@ -472,44 +474,6 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             public void afterTextChanged(Editable s){}
         });
     }
-//    public static void savePlayList(ArrayList<String> addDicts)
-//    {
-//        Set<String> existDicts = a_MainActivity.savedPlayList.getStringSet(KEY_PLAY_LIST, new HashSet<String>());
-//        for (int i = 0; i < addDicts.size(); i++)
-//        {
-//            existDicts.add(addDicts.get(i));
-//        }
-//        savedPlayList.edit().remove(KEY_PLAY_LIST).commit();
-//        savedPlayList.edit().putStringSet(KEY_PLAY_LIST, existDicts).commit();
-//    }
-    public ArrayList<String> getPlayList()
-    {
-        ArrayList<String> listDicts=new ArrayList<>();
-        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.key_play_list), MODE_PRIVATE);
-        String play_list_items = sharedPreferences.getString(getString(R.string.play_list_items), null);
-        if (play_list_items != null && play_list_items.length() > 0)
-        {
-            String[] splitArray = play_list_items.split(" ");
-            for (int i = 0; i < splitArray.length; i++)
-            {
-                listDicts.add(i, splitArray[i]);
-            }
-        }
-
-        return listDicts;
-    }
-//    public static boolean removeItemPlayList(String name)
-//    {
-//        Set<String> listKeptDict = savedPlayList.getStringSet(KEY_PLAY_LIST, new HashSet<String>());
-//        if (listKeptDict.contains(name))
-//        {
-//            listKeptDict.remove(name);
-//            savedPlayList.edit().remove(KEY_PLAY_LIST).commit();
-//            savedPlayList.edit().putStringSet(KEY_PLAY_LIST, listKeptDict).commit();
-//            return true;
-//        }
-//        return false;
-//    }
 
     public void btnPlayClick(View view)
     {
@@ -620,7 +584,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         int ndict = 0; int nword = 1;
         ArrayList<DataBaseEntry> list = null;
         dataBaseQueries = new DataBaseQueries(this);
-        ArrayList<String> playList = getPlayList();
+        //ArrayList<String> playList = appSettings.getPlayList();
         int wordsCount = dataBaseQueries.getEntriesCountAsync(playList.get(AppData.get_Ndict()));
         if (playList.size() > 0)
         {
@@ -664,7 +628,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         int ndict = 0; int nword = 1;
         ArrayList<DataBaseEntry> list = null;
         dataBaseQueries = new DataBaseQueries(this);
-        ArrayList<String> playList = getPlayList();
+        //ArrayList<String> playList = pla;
         String dict;
         if (playList.size() > 0 && AppData.get_Ndict() < playList.size())
         {

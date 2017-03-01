@@ -36,6 +36,7 @@ import android.widget.ViewSwitcher;
 
 import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.database.GetEntriesLoader;
+import com.myapp.lexicon.settings.AppData;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -211,7 +212,8 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
         }
         else
         {
-            dataBaseQueries.setListTableToSpinner(spinnerListDict,0);
+
+            dataBaseQueries.setListTableToSpinner(spinnerListDict, AppData.get_Ndict());
         }
     }
 
