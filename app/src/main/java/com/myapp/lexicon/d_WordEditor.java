@@ -36,6 +36,7 @@ import android.widget.ViewSwitcher;
 
 import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.database.GetEntriesLoader;
+import com.myapp.lexicon.database.GetTableListLoader;
 import com.myapp.lexicon.settings.AppData;
 
 import java.sql.SQLException;
@@ -61,7 +62,6 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
     private DatabaseHelper _databaseHelper;
     private DataBaseQueries dataBaseQueries;
     private ViewSwitcher switcher;
-    private Animation slide_in_left, slide_out_right;
     private z_LockOrientation lockOrientation;
 
     private static boolean searchIsVisible = false;
@@ -76,13 +76,19 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
     private String KEY_CHECK_COPY = "check-copy";
     private String KEY_CHECK_MOVE = "check-move";
 
+    private final int LOADER_GET_ENTRIES = 1;
+    private final int LOADER_GET_TABLE_LIST = 2;
+
 
     private void initViews()
     {
         spinnerListDict =(Spinner)findViewById(R.id.spinner);
 
         searchView = (SearchView) findViewById(R.id.search_view);
-        searchView.setVisibility(View.GONE);
+        if (searchView != null)
+        {
+            searchView.setVisibility(View.GONE);
+        }
         searchView_onListeners();
 
         listView=(ListView) findViewById(R.id.listView);
@@ -90,15 +96,18 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
         progressBar= (ProgressBar) findViewById(R.id.progressBar);
 
         switcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
-        slide_in_left = AnimationUtils.loadAnimation(this,
+        Animation slide_in_left = AnimationUtils.loadAnimation(this,
                 android.R.anim.slide_in_left);
-        slide_out_right = AnimationUtils.loadAnimation(this,
+        Animation slide_out_right = AnimationUtils.loadAnimation(this,
                 android.R.anim.slide_out_right);
         switcher.setInAnimation(slide_in_left);
         switcher.setOutAnimation(slide_out_right);
         
         buttonWrite = (ImageButton) findViewById(R.id.btn_write);
-        buttonWrite.setEnabled(true);
+        if (buttonWrite != null)
+        {
+            buttonWrite.setEnabled(true);
+        }
 
         buttonDelete = (ImageButton) findViewById(R.id.btn_delete);
 
@@ -114,7 +123,10 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
         checkMove = (CheckBox) findViewById(R.id.check_move);
 
         layoutSpinner = (LinearLayout) findViewById(R.id.lin_layout_spin);
-        layoutSpinner.setVisibility(View.GONE);
+        if (layoutSpinner != null)
+        {
+            layoutSpinner.setVisibility(View.GONE);
+        }
 
         spinner_OnItemSelected();
         listView_OnItemClick();
@@ -212,8 +224,7 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
         }
         else
         {
-
-            dataBaseQueries.setListTableToSpinner(spinnerListDict, AppData.get_Ndict());
+            getLoaderManager().restartLoader(LOADER_GET_TABLE_LIST, null, d_WordEditor.this).forceLoad();
         }
     }
 
@@ -639,8 +650,6 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
         }
     }
 
-    private final int LOADER_GET_ENTRIES = 1;
-
     // TODO: AsyncTaskLoader - 1. WordEditor реализует интерфейс LoaderManager.LoaderCallbacks
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle bundle)
@@ -650,6 +659,9 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
         {
             case LOADER_GET_ENTRIES:
                 loader = new GetEntriesLoader(this, bundle);
+                break;
+            case LOADER_GET_TABLE_LIST:
+                loader = new GetTableListLoader(this);
                 break;
         }
         return loader;
@@ -661,6 +673,10 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
         if (loader.getId() == LOADER_GET_ENTRIES)
         {
             loadDbEntryHandler(data);
+        }
+        if (loader.getId() == LOADER_GET_TABLE_LIST)
+        {
+            loadDbTableListHandler(data);
         }
     }
 
@@ -691,6 +707,49 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
         {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
             e.printStackTrace();
+        }
+        finally
+        {
+            cursor.close();
+        }
+    }
+
+    private void loadDbTableListHandler(Cursor cursor)
+    {
+        String nameNotDict;
+        ArrayList<String> list = new ArrayList<>();
+        try
+        {
+            if (cursor != null && cursor.getCount() > 0)
+            {
+                if (cursor.moveToFirst())
+                {
+                    while ( !cursor.isAfterLast() )
+                    {
+                        nameNotDict = cursor.getString( cursor.getColumnIndex("name"));
+                        if (!nameNotDict.equals("android_metadata") && !nameNotDict.equals("sqlite_sequence"))
+                        {
+                            list.add( cursor.getString( cursor.getColumnIndex("name")) );
+                        }
+                        cursor.moveToNext();
+                    }
+                }
+            }
+            if (list.size() > 0)
+            {
+                ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(this, R.layout.my_content_spinner_layout, list);
+                spinnerListDict.setAdapter(adapterSpinner);
+                spinnerListDict.setSelection(AppData.get_Ndict());
+                spinnerListDict2.setAdapter(adapterSpinner);
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            cursor.close();
         }
     }
 
