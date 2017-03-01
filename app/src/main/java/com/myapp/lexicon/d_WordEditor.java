@@ -2,19 +2,14 @@ package com.myapp.lexicon;
 
 import android.app.AlertDialog;
 import android.app.LoaderManager;
-import android.app.SearchManager;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.Loader;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -298,10 +293,10 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
     }
 
     private static long rowID;
-    private static String testTextEn;
-    private static String testTextRu;
-    private static String testCurrentDict;
-    private static int testCountRepeat;
+    private static String oldTextEn;
+    private static String oldTextRu;
+    private static String oldCurrentDict;
+    private static int oldCountRepeat;
     private void listView_OnItemClick()
     {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
@@ -311,22 +306,22 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
             {
                 rowID = position + 1;
                 TextView textViewEn = (TextView) view.findViewById(R.id.english);
-                //testTextEn = textViewEn.getText().toString();
+                oldTextEn = textViewEn.getText().toString();
                 editTextEn.setText(textViewEn.getText().toString());
 
                 TextView textViewRu = (TextView) view.findViewById(R.id.translate);
-                //testTextRu = textViewRu.getText().toString();
+                oldTextRu = textViewRu.getText().toString();
                 editTextRu.setText(textViewRu.getText().toString());
 
                 TextView textViewCounRepeat = (TextView) view.findViewById(R.id.count_repeat);
-                //testCountRepeat = Integer.parseInt(textViewCounRepeat.getText().toString());
-                spinnerCountRepeat.setSelection(Integer.parseInt(textViewCounRepeat.getText().toString()));
+                oldCountRepeat = Integer.parseInt(textViewCounRepeat.getText().toString());
+                spinnerCountRepeat.setSelection(oldCountRepeat);
 
                 String tableName = spinnerListDict.getSelectedItem().toString();
-                //testCurrentDict = spinnerListDict.getSelectedItem().toString();
+                oldCurrentDict = spinnerListDict.getSelectedItem().toString();
 //                try
 //                {
-//                    rowID = dataBaseQueries.getIdOfWord(tableName, testTextEn, testTextRu);
+//                    rowID = dataBaseQueries.getIdOfWord(tableName, oldTextEn, oldTextRu);
 //
 //                } catch (Exception e)
 //                {
@@ -418,7 +413,8 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
                 {
                     return;
                 }
-                if (editTextEn.getText().toString().equals(testTextEn) && editTextRu.getText().toString().equals(testTextRu) && Integer.parseInt(spinnerCountRepeat.getSelectedItem().toString()) == testCountRepeat && spinnerListDict2.getSelectedItem().toString().equals(testCurrentDict))
+
+                if (editTextEn.getText().toString().equals(oldTextEn) && editTextRu.getText().toString().equals(oldTextRu) && Integer.parseInt(spinnerCountRepeat.getSelectedItem().toString()) == oldCountRepeat && spinnerListDict2.getSelectedItem().toString().equals(oldCurrentDict))
                 {
                     return;
                 }
