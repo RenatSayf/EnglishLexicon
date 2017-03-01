@@ -220,7 +220,7 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
     {
         super.onStart();
         Bundle bundle = getIntent().getExtras();
-        if (bundle != null)
+        if (bundle != null && bundle.containsKey(a_MainActivity.KEY_ROW_ID))
         {
             String tableName = bundle.getString(a_MainActivity.KEY_DICT_NAME);
             int rowId = bundle.getInt(a_MainActivity.KEY_ROW_ID);

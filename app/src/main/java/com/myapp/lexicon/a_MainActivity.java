@@ -319,6 +319,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             {
                 wordEditorIntent = new Intent(this, d_WordEditor.class);
             }
+            wordEditorIntent.replaceExtras(new Bundle());
             startActivity(wordEditorIntent);
         }
         else if (id == R.id.nav_check_your_self)
@@ -327,7 +328,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             {
                 testsIntent = new Intent(this, t_Tests.class);
             }
-            speechServiceOnPause();
+            //speechServiceOnPause();
             startActivity(testsIntent);
         } else if (id == R.id.nav_play_list)
         {
