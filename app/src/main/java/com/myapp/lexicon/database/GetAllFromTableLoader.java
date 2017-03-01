@@ -6,22 +6,17 @@ import android.database.Cursor;
 import android.os.Bundle;
 
 /**
- * Created by Renat on 28.02.2017.
+ * Created by Renat on 01.03.2017.
  */
 
-public class GetEntriesLoader extends AsyncTaskLoader<Cursor>
+public class GetAllFromTableLoader extends AsyncTaskLoader<Cursor>
 {
     public static final String KEY_TABLE_NAME = "key_table_name";
-    public static final String KEY_START_ID = "key_start_id";
-    public static final String KEY_END_ID = "key_end_id";
-
-    private String command;
-    private String tableName;
-    private int startId, endId;
 
     private DatabaseHelper databaseHelper;
+    private String tableName;
 
-    public GetEntriesLoader(Context context, Bundle bundle)
+    public GetAllFromTableLoader(Context context, Bundle bundle)
     {
         super(context);
         databaseHelper = new DatabaseHelper(context);
@@ -29,19 +24,16 @@ public class GetEntriesLoader extends AsyncTaskLoader<Cursor>
         if (bundle != null)
         {
             tableName = bundle.getString(KEY_TABLE_NAME);
-            startId = bundle.getInt(KEY_START_ID);
-            endId = bundle.getInt(KEY_END_ID);
         }
-        return;
     }
 
     @Override
     public Cursor loadInBackground()
     {
-        return getEntriesFromDB(tableName, startId, endId);
+        return getAllFromDBTable(tableName);
     }
 
-    private Cursor getEntriesFromDB(String tableName, int startId, int endId)
+    private Cursor getAllFromDBTable(String tableName)
     {
         Cursor cursor = null;
         try
@@ -49,7 +41,7 @@ public class GetEntriesLoader extends AsyncTaskLoader<Cursor>
             databaseHelper.open();
             if (databaseHelper.database.isOpen())
             {
-               cursor = databaseHelper.database.rawQuery("SELECT * FROM " + tableName + " WHERE RowID BETWEEN " + startId +" AND " + endId, null);
+                cursor = databaseHelper.database.rawQuery("SELECT * FROM " + tableName, null);
             }
         }
         catch (Exception e)
@@ -59,8 +51,4 @@ public class GetEntriesLoader extends AsyncTaskLoader<Cursor>
 
         return cursor;
     }
-
-
-
-
 }

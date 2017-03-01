@@ -35,6 +35,7 @@ import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import com.myapp.lexicon.database.DatabaseHelper;
+import com.myapp.lexicon.database.GetAllFromTableLoader;
 import com.myapp.lexicon.database.GetEntriesLoader;
 import com.myapp.lexicon.database.GetTableListLoader;
 import com.myapp.lexicon.settings.AppData;
@@ -78,6 +79,7 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
 
     private final int LOADER_GET_ENTRIES = 1;
     private final int LOADER_GET_TABLE_LIST = 2;
+    private final int LOADER_GET_ALL_FROM_TABLE = 3;
 
 
     private void initViews()
@@ -284,33 +286,9 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
     {
         if (update)
         {
-            // TODO:  Handler() асинхронная загрузка данных в ListView
-            new Thread(new Runnable()
-            {
-                public void run()
-                {
-                    dataBaseEntries = getEntriesFromDB(spinnerListDict.getSelectedItem().toString());
-                    // TODO: ListView создание экземпляра адаптера
-                    listViewAdapter = new d_ListViewAdapter(dataBaseEntries, d_WordEditor.this, R.id.search_view);
-                    try
-                    {
-                        handler.sendEmptyMessage(0);
-                    } catch (Exception e)
-                    {
-                        e.printStackTrace();
-                    }
-                }
-            }).start();
-
-            handler=new Handler()
-            {
-                @Override
-                public void handleMessage(Message msg)
-                {
-                    listView.setAdapter(listViewAdapter); // TODO: ListView setAdapter
-                    progressBar.setVisibility(View.GONE);
-                }
-            };
+            Bundle bundle = new Bundle();
+            bundle.putString(GetAllFromTableLoader.KEY_TABLE_NAME, spinnerListDict.getSelectedItem().toString());
+            getLoaderManager().restartLoader(LOADER_GET_ALL_FROM_TABLE, bundle, d_WordEditor.this).forceLoad();
         }
         else
         {
@@ -331,28 +309,29 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
+                rowID = position + 1;
                 TextView textViewEn = (TextView) view.findViewById(R.id.english);
-                testTextEn = textViewEn.getText().toString();
+                //testTextEn = textViewEn.getText().toString();
                 editTextEn.setText(textViewEn.getText().toString());
 
                 TextView textViewRu = (TextView) view.findViewById(R.id.translate);
-                testTextRu = textViewRu.getText().toString();
+                //testTextRu = textViewRu.getText().toString();
                 editTextRu.setText(textViewRu.getText().toString());
 
                 TextView textViewCounRepeat = (TextView) view.findViewById(R.id.count_repeat);
-                testCountRepeat = Integer.parseInt(textViewCounRepeat.getText().toString());
-                spinnerCountRepeat.setSelection(testCountRepeat);
+                //testCountRepeat = Integer.parseInt(textViewCounRepeat.getText().toString());
+                spinnerCountRepeat.setSelection(Integer.parseInt(textViewCounRepeat.getText().toString()));
 
                 String tableName = spinnerListDict.getSelectedItem().toString();
-                testCurrentDict = spinnerListDict.getSelectedItem().toString();
-                try
-                {
-                    rowID = dataBaseQueries.getIdOfWord(tableName, testTextEn, testTextRu);
-
-                } catch (Exception e)
-                {
-                    Toast.makeText(d_WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
+                //testCurrentDict = spinnerListDict.getSelectedItem().toString();
+//                try
+//                {
+//                    rowID = dataBaseQueries.getIdOfWord(tableName, testTextEn, testTextRu);
+//
+//                } catch (Exception e)
+//                {
+//                    Toast.makeText(d_WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
+//                }
                 checkMove.setChecked(false);
                 layoutSpinner.setVisibility(View.GONE);
                 switcher.showNext();
@@ -363,7 +342,6 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id)
             {
-                //z_Log.v("Выбран долгим нажатием - "+position);
 
                 return false;
             }
@@ -392,7 +370,7 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
                 lockOrientation.lock();
                 final String tableName = spinnerListDict.getSelectedItem().toString();
 
-                new AlertDialog.Builder(d_WordEditor.this) // TODO: 26.01.2017 AlertDialog с макетом по умолчанию
+                new AlertDialog.Builder(d_WordEditor.this) // TODO: AlertDialog с макетом по умолчанию
                         .setTitle(R.string.dialog_title_confirm_action)
                         .setIcon(R.drawable.icon_warning)
                         .setMessage(getString(R.string.dialog_msg_delete_word) + tableName + "?")
@@ -520,15 +498,6 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
                 {
                     layoutSpinner.setVisibility(View.GONE);
                 }
-
-//                if (checkMove.isChecked() && !editTextEn.getText().equals(null) && !editTextRu.getText().equals(null))
-//                {
-//                    buttonWrite.setEnabled(true);
-//                }
-//                else
-//                {
-//                    buttonWrite.setEnabled(false);
-//                }
             }
         });
     }
@@ -542,36 +511,36 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
 
 
 
-    private ArrayList<DataBaseEntry> getEntriesFromDB(String tableName)
-    {
-        ArrayList<DataBaseEntry> entriesFromDB = new ArrayList<>();
-        try
-        {
-            _databaseHelper.open();
-            SQLiteDatabase database = _databaseHelper.database;
-            database.beginTransaction();
-            Cursor cursor = database.rawQuery("SELECT * FROM " + tableName, null);
-            database.setTransactionSuccessful();
-            database.endTransaction();
-            int count = cursor.getCount();
-            if (cursor.moveToFirst())
-            {
-                while (!cursor.isAfterLast())
-                {
-                    DataBaseEntry dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1), cursor.getString(3));
-                    entriesFromDB.add(dataBaseEntry);
-                    cursor.moveToNext();
-                }
-            }
-        } catch (Exception e)
-        {
-            Log.i("Lexicon", "Исключение в d_WordEditor.getEntriesFromDB() = " + e);
-        }finally
-        {
-            _databaseHelper.close();
-        }
-        return entriesFromDB;
-    }
+//    private ArrayList<DataBaseEntry> getEntriesFromDB(String tableName)
+//    {
+//        ArrayList<DataBaseEntry> entriesFromDB = new ArrayList<>();
+//        try
+//        {
+//            _databaseHelper.open();
+//            SQLiteDatabase database = _databaseHelper.database;
+//            database.beginTransaction();
+//            Cursor cursor = database.rawQuery("SELECT * FROM " + tableName, null);
+//            database.setTransactionSuccessful();
+//            database.endTransaction();
+//            int count = cursor.getCount();
+//            if (cursor.moveToFirst())
+//            {
+//                while (!cursor.isAfterLast())
+//                {
+//                    DataBaseEntry dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1), cursor.getString(3));
+//                    entriesFromDB.add(dataBaseEntry);
+//                    cursor.moveToNext();
+//                }
+//            }
+//        } catch (Exception e)
+//        {
+//            Log.i("Lexicon", "Исключение в d_WordEditor.getEntriesFromDB() = " + e);
+//        }finally
+//        {
+//            _databaseHelper.close();
+//        }
+//        return entriesFromDB;
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
@@ -629,7 +598,7 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
                 try
                 {
                     //// TODO: 19.01.2017 Фильтрация ListView, вызов
-                    d_WordEditor.this.listViewAdapter.getFilter().filter(newText);
+                    listViewAdapter.getFilter().filter(newText);
                 } catch (Exception e)
                 {
                     e.printStackTrace();
@@ -640,15 +609,15 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
     }
 
 
-    @Override
-    protected void onNewIntent(Intent intent)
-    {
-        if (Intent.ACTION_SEARCH.equals(intent.getAction()))
-        {
-            // Здесь будет храниться то, что пользователь ввёл в поисковой строке
-            String search = intent.getStringExtra(SearchManager.QUERY);
-        }
-    }
+//    @Override
+//    protected void onNewIntent(Intent intent)
+//    {
+//        if (Intent.ACTION_SEARCH.equals(intent.getAction()))
+//        {
+//            // Здесь будет храниться то, что пользователь ввёл в поисковой строке
+//            String search = intent.getStringExtra(SearchManager.QUERY);
+//        }
+//    }
 
     // TODO: AsyncTaskLoader - 1. WordEditor реализует интерфейс LoaderManager.LoaderCallbacks
     @Override
@@ -662,6 +631,9 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
                 break;
             case LOADER_GET_TABLE_LIST:
                 loader = new GetTableListLoader(this);
+                break;
+            case LOADER_GET_ALL_FROM_TABLE:
+                loader = new GetAllFromTableLoader(this, bundle);
                 break;
         }
         return loader;
@@ -678,12 +650,51 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
         {
             loadDbTableListHandler(data);
         }
+        if (loader.getId() == LOADER_GET_ALL_FROM_TABLE)
+        {
+            loadDbAllHandler(data);
+        }
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader)
     {
 
+    }
+
+    private void loadDbAllHandler(Cursor cursor)
+    {
+        ArrayList<DataBaseEntry> entriesFromDB = new ArrayList<>();
+        try
+        {
+            if (cursor != null && cursor.getCount() > 0)
+            {
+                if (cursor.moveToFirst())
+                {
+                    while (!cursor.isAfterLast())
+                    {
+                        DataBaseEntry dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1), cursor.getString(3));
+                        entriesFromDB.add(dataBaseEntry);
+                        cursor.moveToNext();
+                    }
+                }
+                listViewAdapter = new d_ListViewAdapter(entriesFromDB, d_WordEditor.this, R.id.search_view);
+                listView.setAdapter(listViewAdapter); // TODO: ListView setAdapter
+                progressBar.setVisibility(View.GONE);
+            }
+        }
+        catch (Exception e)
+        {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+        finally
+        {
+            if (cursor != null)
+            {
+                cursor.close();
+            }
+        }
     }
 
     private void loadDbEntryHandler(Cursor cursor)
@@ -710,7 +721,10 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
         }
         finally
         {
-            cursor.close();
+            if (cursor != null)
+            {
+                cursor.close();
+            }
         }
     }
 
@@ -749,7 +763,10 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
         }
         finally
         {
-            cursor.close();
+            if (cursor != null)
+            {
+                cursor.close();
+            }
         }
     }
 
