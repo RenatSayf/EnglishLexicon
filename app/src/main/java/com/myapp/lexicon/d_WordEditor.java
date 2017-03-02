@@ -1,20 +1,15 @@
 package com.myapp.lexicon;
 
 import android.app.AlertDialog;
-import android.app.SearchManager;
+import android.app.LoaderManager;
 import android.content.DialogInterface;
-import android.content.Intent;
+import android.content.Loader;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,10 +29,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
+import com.myapp.lexicon.database.DatabaseHelper;
+import com.myapp.lexicon.database.GetAllFromTableLoader;
+import com.myapp.lexicon.database.GetEntriesLoader;
+import com.myapp.lexicon.database.GetTableListLoader;
+import com.myapp.lexicon.settings.AppData;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class d_WordEditor extends AppCompatActivity
+public class d_WordEditor extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>
 {
     private Spinner spinnerListDict;
     private int spinner_select_pos = -1;
@@ -57,7 +58,6 @@ public class d_WordEditor extends AppCompatActivity
     private DatabaseHelper _databaseHelper;
     private DataBaseQueries dataBaseQueries;
     private ViewSwitcher switcher;
-    private Animation slide_in_left, slide_out_right;
     private z_LockOrientation lockOrientation;
 
     private static boolean searchIsVisible = false;
@@ -72,13 +72,20 @@ public class d_WordEditor extends AppCompatActivity
     private String KEY_CHECK_COPY = "check-copy";
     private String KEY_CHECK_MOVE = "check-move";
 
+    private final int LOADER_GET_ENTRIES = 1;
+    private final int LOADER_GET_TABLE_LIST = 2;
+    private final int LOADER_GET_ALL_FROM_TABLE = 3;
+
 
     private void initViews()
     {
         spinnerListDict =(Spinner)findViewById(R.id.spinner);
 
         searchView = (SearchView) findViewById(R.id.search_view);
-        searchView.setVisibility(View.GONE);
+        if (searchView != null)
+        {
+            searchView.setVisibility(View.GONE);
+        }
         searchView_onListeners();
 
         listView=(ListView) findViewById(R.id.listView);
@@ -86,15 +93,18 @@ public class d_WordEditor extends AppCompatActivity
         progressBar= (ProgressBar) findViewById(R.id.progressBar);
 
         switcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
-        slide_in_left = AnimationUtils.loadAnimation(this,
+        Animation slide_in_left = AnimationUtils.loadAnimation(this,
                 android.R.anim.slide_in_left);
-        slide_out_right = AnimationUtils.loadAnimation(this,
+        Animation slide_out_right = AnimationUtils.loadAnimation(this,
                 android.R.anim.slide_out_right);
         switcher.setInAnimation(slide_in_left);
         switcher.setOutAnimation(slide_out_right);
         
         buttonWrite = (ImageButton) findViewById(R.id.btn_write);
-        buttonWrite.setEnabled(true);
+        if (buttonWrite != null)
+        {
+            buttonWrite.setEnabled(true);
+        }
 
         buttonDelete = (ImageButton) findViewById(R.id.btn_delete);
 
@@ -110,7 +120,10 @@ public class d_WordEditor extends AppCompatActivity
         checkMove = (CheckBox) findViewById(R.id.check_move);
 
         layoutSpinner = (LinearLayout) findViewById(R.id.lin_layout_spin);
-        layoutSpinner.setVisibility(View.GONE);
+        if (layoutSpinner != null)
+        {
+            layoutSpinner.setVisibility(View.GONE);
+        }
 
         spinner_OnItemSelected();
         listView_OnItemClick();
@@ -174,6 +187,9 @@ public class d_WordEditor extends AppCompatActivity
             spinnerCountRepeat.setSelection(1);
         }
 
+        // TODO: AsyncTaskLoader - 3. инициализация
+        getLoaderManager().initLoader(LOADER_GET_ENTRIES, savedInstanceState, this);
+
         if (savedInstanceState != null)
         {
             if (searchIsVisible)
@@ -205,7 +221,31 @@ public class d_WordEditor extends AppCompatActivity
         }
         else
         {
-            dataBaseQueries.setListTableToSpinner(spinnerListDict,0);
+            getLoaderManager().restartLoader(LOADER_GET_TABLE_LIST, null, d_WordEditor.this).forceLoad();
+        }
+    }
+
+    @Override
+    protected void onStart()
+    {
+        super.onStart();
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null && bundle.containsKey(a_MainActivity.KEY_ROW_ID))
+        {
+            String tableName = bundle.getString(a_MainActivity.KEY_DICT_NAME);
+            int rowId = bundle.getInt(a_MainActivity.KEY_ROW_ID);
+
+            // TODO: AsyncTaskLoader - 4. Передача параметров в AsyncTaskLoader
+            Bundle loaderBundle = new Bundle();
+            loaderBundle.putString(GetEntriesLoader.KEY_TABLE_NAME, tableName);
+            loaderBundle.putInt(GetEntriesLoader.KEY_START_ID, rowId);
+            loaderBundle.putInt(GetEntriesLoader.KEY_END_ID, rowId);
+
+            // TODO: AsyncTaskLoader - 5. Запуск загрузки данных
+            Loader<Cursor> cursorLoader = getLoaderManager().restartLoader(LOADER_GET_ENTRIES, loaderBundle, this);
+            cursorLoader.forceLoad();
+
+            switcher.showNext();
         }
     }
 
@@ -241,33 +281,9 @@ public class d_WordEditor extends AppCompatActivity
     {
         if (update)
         {
-            // TODO:  Handler() асинхронная загрузка данных в ListView
-            new Thread(new Runnable()
-            {
-                public void run()
-                {
-                    dataBaseEntries = getEntriesFromDB(spinnerListDict.getSelectedItem().toString());
-                    // TODO: 26.01.2017 ListView создание экземпляра адаптера
-                    listViewAdapter = new d_ListViewAdapter(dataBaseEntries, d_WordEditor.this, R.id.search_view);
-                    try
-                    {
-                        handler.sendEmptyMessage(0);
-                    } catch (Exception e)
-                    {
-                        e.printStackTrace();
-                    }
-                }
-            }).start();
-
-            handler=new Handler()
-            {
-                @Override
-                public void handleMessage(Message msg)
-                {
-                    listView.setAdapter(listViewAdapter); // TODO: 26.01.2017 ListView setAdapter 
-                    progressBar.setVisibility(View.GONE);
-                }
-            };
+            Bundle bundle = new Bundle();
+            bundle.putString(GetAllFromTableLoader.KEY_TABLE_NAME, spinnerListDict.getSelectedItem().toString());
+            getLoaderManager().restartLoader(LOADER_GET_ALL_FROM_TABLE, bundle, d_WordEditor.this).forceLoad();
         }
         else
         {
@@ -277,10 +293,10 @@ public class d_WordEditor extends AppCompatActivity
     }
 
     private static long rowID;
-    private static String testTextEn;
-    private static String testTextRu;
-    private static String testCurrentDict;
-    private static int testCountRepeat;
+    private static String oldTextEn;
+    private static String oldTextRu;
+    private static String oldCurrentDict;
+    private static int oldCountRepeat;
     private void listView_OnItemClick()
     {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
@@ -288,28 +304,29 @@ public class d_WordEditor extends AppCompatActivity
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
+                rowID = position + 1;
                 TextView textViewEn = (TextView) view.findViewById(R.id.english);
-                testTextEn = textViewEn.getText().toString();
+                oldTextEn = textViewEn.getText().toString();
                 editTextEn.setText(textViewEn.getText().toString());
 
                 TextView textViewRu = (TextView) view.findViewById(R.id.translate);
-                testTextRu = textViewRu.getText().toString();
+                oldTextRu = textViewRu.getText().toString();
                 editTextRu.setText(textViewRu.getText().toString());
 
                 TextView textViewCounRepeat = (TextView) view.findViewById(R.id.count_repeat);
-                testCountRepeat = Integer.parseInt(textViewCounRepeat.getText().toString());
-                spinnerCountRepeat.setSelection(testCountRepeat);
+                oldCountRepeat = Integer.parseInt(textViewCounRepeat.getText().toString());
+                spinnerCountRepeat.setSelection(oldCountRepeat);
 
                 String tableName = spinnerListDict.getSelectedItem().toString();
-                testCurrentDict = spinnerListDict.getSelectedItem().toString();
-                try
-                {
-                    rowID = dataBaseQueries.getIdOfWord(tableName, testTextEn, testTextRu);
-
-                } catch (Exception e)
-                {
-                    Toast.makeText(d_WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
+                oldCurrentDict = spinnerListDict.getSelectedItem().toString();
+//                try
+//                {
+//                    rowID = dataBaseQueries.getIdOfWord(tableName, oldTextEn, oldTextRu);
+//
+//                } catch (Exception e)
+//                {
+//                    Toast.makeText(d_WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
+//                }
                 checkMove.setChecked(false);
                 layoutSpinner.setVisibility(View.GONE);
                 switcher.showNext();
@@ -320,7 +337,6 @@ public class d_WordEditor extends AppCompatActivity
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id)
             {
-                //z_Log.v("Выбран долгим нажатием - "+position);
 
                 return false;
             }
@@ -349,7 +365,7 @@ public class d_WordEditor extends AppCompatActivity
                 lockOrientation.lock();
                 final String tableName = spinnerListDict.getSelectedItem().toString();
 
-                new AlertDialog.Builder(d_WordEditor.this) // TODO: 26.01.2017 AlertDialog с макетом по умолчанию
+                new AlertDialog.Builder(d_WordEditor.this) // TODO: AlertDialog с макетом по умолчанию
                         .setTitle(R.string.dialog_title_confirm_action)
                         .setIcon(R.drawable.icon_warning)
                         .setMessage(getString(R.string.dialog_msg_delete_word) + tableName + "?")
@@ -397,7 +413,8 @@ public class d_WordEditor extends AppCompatActivity
                 {
                     return;
                 }
-                if (editTextEn.getText().toString().equals(testTextEn) && editTextRu.getText().toString().equals(testTextRu) && Integer.parseInt(spinnerCountRepeat.getSelectedItem().toString()) == testCountRepeat && spinnerListDict2.getSelectedItem().toString().equals(testCurrentDict))
+
+                if (editTextEn.getText().toString().equals(oldTextEn) && editTextRu.getText().toString().equals(oldTextRu) && Integer.parseInt(spinnerCountRepeat.getSelectedItem().toString()) == oldCountRepeat && spinnerListDict2.getSelectedItem().toString().equals(oldCurrentDict))
                 {
                     return;
                 }
@@ -477,15 +494,6 @@ public class d_WordEditor extends AppCompatActivity
                 {
                     layoutSpinner.setVisibility(View.GONE);
                 }
-
-//                if (checkMove.isChecked() && !editTextEn.getText().equals(null) && !editTextRu.getText().equals(null))
-//                {
-//                    buttonWrite.setEnabled(true);
-//                }
-//                else
-//                {
-//                    buttonWrite.setEnabled(false);
-//                }
             }
         });
     }
@@ -499,36 +507,36 @@ public class d_WordEditor extends AppCompatActivity
 
 
 
-    private ArrayList<DataBaseEntry> getEntriesFromDB(String tableName)
-    {
-        ArrayList<DataBaseEntry> entriesFromDB = new ArrayList<>();
-        try
-        {
-            _databaseHelper.open();
-            SQLiteDatabase database = _databaseHelper.database;
-            database.beginTransaction();
-            Cursor cursor = database.rawQuery("SELECT * FROM " + tableName, null);
-            database.setTransactionSuccessful();
-            database.endTransaction();
-            int count = cursor.getCount();
-            if (cursor.moveToFirst())
-            {
-                while (!cursor.isAfterLast())
-                {
-                    DataBaseEntry dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1), cursor.getString(3));
-                    entriesFromDB.add(dataBaseEntry);
-                    cursor.moveToNext();
-                }
-            }
-        } catch (Exception e)
-        {
-            Log.i("Lexicon", "Исключение в d_WordEditor.getEntriesFromDB() = " + e);
-        }finally
-        {
-            _databaseHelper.close();
-        }
-        return entriesFromDB;
-    }
+//    private ArrayList<DataBaseEntry> getEntriesFromDB(String tableName)
+//    {
+//        ArrayList<DataBaseEntry> entriesFromDB = new ArrayList<>();
+//        try
+//        {
+//            _databaseHelper.open();
+//            SQLiteDatabase database = _databaseHelper.database;
+//            database.beginTransaction();
+//            Cursor cursor = database.rawQuery("SELECT * FROM " + tableName, null);
+//            database.setTransactionSuccessful();
+//            database.endTransaction();
+//            int count = cursor.getCount();
+//            if (cursor.moveToFirst())
+//            {
+//                while (!cursor.isAfterLast())
+//                {
+//                    DataBaseEntry dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1), cursor.getString(3));
+//                    entriesFromDB.add(dataBaseEntry);
+//                    cursor.moveToNext();
+//                }
+//            }
+//        } catch (Exception e)
+//        {
+//            Log.i("Lexicon", "Исключение в d_WordEditor.getEntriesFromDB() = " + e);
+//        }finally
+//        {
+//            _databaseHelper.close();
+//        }
+//        return entriesFromDB;
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
@@ -586,7 +594,7 @@ public class d_WordEditor extends AppCompatActivity
                 try
                 {
                     //// TODO: 19.01.2017 Фильтрация ListView, вызов
-                    d_WordEditor.this.listViewAdapter.getFilter().filter(newText);
+                    listViewAdapter.getFilter().filter(newText);
                 } catch (Exception e)
                 {
                     e.printStackTrace();
@@ -597,13 +605,167 @@ public class d_WordEditor extends AppCompatActivity
     }
 
 
+//    @Override
+//    protected void onNewIntent(Intent intent)
+//    {
+//        if (Intent.ACTION_SEARCH.equals(intent.getAction()))
+//        {
+//            // Здесь будет храниться то, что пользователь ввёл в поисковой строке
+//            String search = intent.getStringExtra(SearchManager.QUERY);
+//        }
+//    }
+
+    // TODO: AsyncTaskLoader - 1. WordEditor реализует интерфейс LoaderManager.LoaderCallbacks
     @Override
-    protected void onNewIntent(Intent intent)
+    public Loader<Cursor> onCreateLoader(int id, Bundle bundle)
     {
-        if (Intent.ACTION_SEARCH.equals(intent.getAction()))
+        Loader<Cursor> loader = null;
+        switch (id)
         {
-            // Здесь будет храниться то, что пользователь ввёл в поисковой строке
-            String search = intent.getStringExtra(SearchManager.QUERY);
+            case LOADER_GET_ENTRIES:
+                loader = new GetEntriesLoader(this, bundle);
+                break;
+            case LOADER_GET_TABLE_LIST:
+                loader = new GetTableListLoader(this);
+                break;
+            case LOADER_GET_ALL_FROM_TABLE:
+                loader = new GetAllFromTableLoader(this, bundle);
+                break;
+        }
+        return loader;
+    }
+
+    @Override   // TODO: AsyncTaskLoader - 2. Реализация интерфейса LoaderManager.LoaderCallbacks
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data)
+    {
+        if (loader.getId() == LOADER_GET_ENTRIES)
+        {
+            loadDbEntryHandler(data);
+        }
+        if (loader.getId() == LOADER_GET_TABLE_LIST)
+        {
+            loadDbTableListHandler(data);
+        }
+        if (loader.getId() == LOADER_GET_ALL_FROM_TABLE)
+        {
+            loadDbAllHandler(data);
         }
     }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader)
+    {
+
+    }
+
+    private void loadDbAllHandler(Cursor cursor)
+    {
+        ArrayList<DataBaseEntry> entriesFromDB = new ArrayList<>();
+        try
+        {
+            if (cursor != null && cursor.getCount() > 0)
+            {
+                if (cursor.moveToFirst())
+                {
+                    while (!cursor.isAfterLast())
+                    {
+                        DataBaseEntry dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1), cursor.getString(3));
+                        entriesFromDB.add(dataBaseEntry);
+                        cursor.moveToNext();
+                    }
+                }
+                listViewAdapter = new d_ListViewAdapter(entriesFromDB, d_WordEditor.this, R.id.search_view);
+                listView.setAdapter(listViewAdapter); // TODO: ListView setAdapter
+                progressBar.setVisibility(View.GONE);
+            }
+        }
+        catch (Exception e)
+        {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+        finally
+        {
+            if (cursor != null)
+            {
+                cursor.close();
+            }
+        }
+    }
+
+    private void loadDbEntryHandler(Cursor cursor)
+    {
+        try
+        {
+            if (cursor != null && cursor.getCount() == 1)
+            {
+                if (cursor.moveToFirst())
+                {
+                    while ( !cursor.isAfterLast() )
+                    {
+                        editTextEn.setText(cursor.getString(0));
+                        editTextRu.setText(cursor.getString(1));
+                        spinnerCountRepeat.setSelection(Integer.parseInt(cursor.getString(3)));
+                        cursor.moveToNext();
+                    }
+                }
+            }
+        } catch (Exception e)
+        {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+        finally
+        {
+            if (cursor != null)
+            {
+                cursor.close();
+            }
+        }
+    }
+
+    private void loadDbTableListHandler(Cursor cursor)
+    {
+        String nameNotDict;
+        ArrayList<String> list = new ArrayList<>();
+        try
+        {
+            if (cursor != null && cursor.getCount() > 0)
+            {
+                if (cursor.moveToFirst())
+                {
+                    while ( !cursor.isAfterLast() )
+                    {
+                        nameNotDict = cursor.getString( cursor.getColumnIndex("name"));
+                        if (!nameNotDict.equals("android_metadata") && !nameNotDict.equals("sqlite_sequence"))
+                        {
+                            list.add( cursor.getString( cursor.getColumnIndex("name")) );
+                        }
+                        cursor.moveToNext();
+                    }
+                }
+            }
+            if (list.size() > 0)
+            {
+                ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(this, R.layout.my_content_spinner_layout, list);
+                spinnerListDict.setAdapter(adapterSpinner);
+                spinnerListDict.setSelection(AppData.get_Ndict());
+                spinnerListDict2.setAdapter(adapterSpinner);
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            if (cursor != null)
+            {
+                cursor.close();
+            }
+        }
+    }
+
+
+
 }

@@ -2,11 +2,16 @@ package com.myapp.lexicon;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.IBinder;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.widget.Toast;
+
+import com.myapp.lexicon.database.DatabaseHelper;
+import com.myapp.lexicon.settings.AppData;
+import com.myapp.lexicon.settings.AppSettings;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -18,16 +23,20 @@ import java.util.concurrent.TimeUnit;
 public class z_speechService extends IntentService
 {
     private static boolean stop = true;
-    private ArrayList<p_ItemListDict> playList;
+    private ArrayList<String> playList;
     private DatabaseHelper databaseHelper;
+    private AppSettings appSettings;
     private String textEn;
     private String textRu;
     private String textDict;
+    private int countRepeat;
+    private boolean isEngOnly = false;
 
     public static final String ACTION_UPDATE = "com.myapp.lexicon.UPDATE";
-    public static final String EXTRA_KEY_UPDATE_EN = "EXTRA_UPDATE_EN";
-    public static final String EXTRA_KEY_UPDATE_RU = "EXTRA_UPDATE_RU";
-    public static final String EXTRA_KEY_UPDATE_DICT = "EXTRA_UPDATE_DICT";
+    public static final String EXTRA_KEY_EN = "EXTRA_UPDATE_EN";
+    public static final String EXTRA_KEY_RU = "EXTRA_UPDATE_RU";
+    public static final String EXTRA_KEY_DICT = "EXTRA_UPDATE_DICT";
+    public static final String EXTRA_KEY_COUNT_REPEAT = "extra_key_count_repeat";
 
     public z_speechService()
     {
@@ -44,6 +53,7 @@ public class z_speechService extends IntentService
             databaseHelper = new DatabaseHelper(getApplicationContext());
             databaseHelper.create_db();
         }
+        appSettings = new AppSettings(this);
     }
 
     @Override
@@ -55,6 +65,7 @@ public class z_speechService extends IntentService
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
+        isEngOnly = appSettings.isEnglishSpeechOnly();
         stop = false;
         try
         {
@@ -71,7 +82,13 @@ public class z_speechService extends IntentService
     {
         super.onDestroy();
         stop = true;
-        databaseHelper.close();
+        try
+        {
+            databaseHelper.close();
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     public static void stopIntentService()
@@ -85,6 +102,23 @@ public class z_speechService extends IntentService
 //        wordIndex = 1;
     }
 
+    public ArrayList<String> getPlayList()
+    {
+        ArrayList<String> listDicts=new ArrayList<>();
+        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.key_play_list), MODE_PRIVATE);
+        String play_list_items = sharedPreferences.getString(getString(R.string.play_list_items), null);
+        if (play_list_items != null && play_list_items.length() > 0)
+        {
+            String[] splitArray = play_list_items.split(" ");
+            for (int i = 0; i < splitArray.length; i++)
+            {
+                listDicts.add(i, splitArray[i]);
+            }
+        }
+
+        return listDicts;
+    }
+
     private Intent updateIntent;
     @Override
     protected void onHandleIntent(Intent intent)
@@ -95,37 +129,34 @@ public class z_speechService extends IntentService
         updateIntent.setAction(ACTION_UPDATE);
         updateIntent.addCategory(Intent.CATEGORY_DEFAULT);
 
-        playList = a_MainActivity.getPlayList();
+        playList = appSettings.getPlayList();
         if (playList.size() == 0) return;
 
         if (order == 0)
         {
             do
             {
-                playList = a_MainActivity.getPlayList();
+                playList = appSettings.getPlayList();
                 if (playList.size() > 0)
                 {
-                    if (!AppData.get_isPause()) AppData.set_Ndict(0);
+                    if (!AppData.isPause()) AppData.set_Ndict(0);
                     for (int i = AppData.get_Ndict(); i < playList.size(); i++)
                     {
-                        p_ItemListDict playListItem = playList.get(i);
-                        textDict = playListItem.get_dictName();
+                        String playListItem = playList.get(i);
+                        textDict = playListItem;
                         AppData.setCurrentDict(textDict);
                         AppData.set_Ndict(i);
-                        int wordsCountInTable = getWordsCount(playListItem.get_dictName());
+                        int wordsCountInTable = getWordsCount(playListItem);
                         if (wordsCountInTable > 0)
                         {
-                            if (!AppData.get_isPause()) AppData.set_Nword(1);
+                            if (!AppData.isPause())
+                            {
+                                AppData.set_Nword(1);
+                            }
                             for (int j = AppData.get_Nword(); j <= wordsCountInTable; j++)
                             {
                                 AppData.set_Nword(j);
-
-//                                if (stop)
-//                                {
-//                                    a_SplashScreenActivity.speech.stop();
-//                                    break;
-//                                }
-                                ArrayList<DataBaseEntry> list = getEntriesFromDB(playListItem.get_dictName(), j, j);
+                                ArrayList<DataBaseEntry> list = getEntriesFromDB(playListItem, j, j);
                                 if (list.size() == 0)
                                 {
                                     continue;
@@ -139,8 +170,9 @@ public class z_speechService extends IntentService
                                 {
                                     repeat = 1;
                                 }
+                                countRepeat = repeat;
 
-                                if (a_MainActivity.settings.getBoolean(a_MainActivity.KEY_ENG_ONLY, true))
+                                if (isEngOnly)
                                 {
                                     for (int t = 0; t < repeat; t++)
                                     {
@@ -153,12 +185,6 @@ public class z_speechService extends IntentService
                                             e.printStackTrace();
                                             break;
                                         }
-
-//                                        if (stop)
-//                                        {
-//                                            a_SplashScreenActivity.speech.stop();
-//                                            break;
-//                                        }
                                     }
                                 } else
                                 {
@@ -173,25 +199,97 @@ public class z_speechService extends IntentService
                                         e.printStackTrace();
                                     }
                                 }
-
-//                                if (stop)
-//                                {
-//                                    a_SplashScreenActivity.speech.stop();
-//                                    break;
-//                                }
                                 AppData.set_Nword(j);
                             }
                         } else
                         {
                             break;
                         }
-//                        if (stop)
-//                        {
-//                            a_SplashScreenActivity.speech.stop();
-//                            break;
-//                        }
                         AppData.set_Ndict(i);
-                        AppData.set_isPause(false);
+                        AppData.setPause(false);
+                    }
+                } else
+                {
+                    break;
+                }
+            } while (!stop);
+        }
+
+        if (order == 1)
+        {
+            do
+            {
+                playList = appSettings.getPlayList();
+                if (playList.size() > 0)
+                {
+                    if (!AppData.isPause()) AppData.set_Ndict(0);
+                    for (int i = AppData.get_Ndict(); i < playList.size(); i++)
+                    {
+                        String playListItem = playList.get(i);
+                        textDict = playListItem;
+                        AppData.setCurrentDict(playListItem);
+                        AppData.set_Ndict(i);
+                        int wordsCountInTable = getWordsCount(playListItem);
+                        if (wordsCountInTable > 0)
+                        {
+                            if (!AppData.isPause())
+                            {
+                                AppData.set_Nword(wordsCountInTable);
+                            }
+                            for (int j = AppData.get_Nword(); j >= 1; j--)
+                            {
+                                AppData.set_Nword(j);
+                                ArrayList<DataBaseEntry> list = getEntriesFromDB(playListItem, j, j);
+                                if (list.size() == 0)
+                                {
+                                    continue;
+                                }
+
+                                int repeat = 0;
+                                try
+                                {
+                                    repeat = Integer.parseInt(list.get(0).get_count_repeat());
+                                } catch (NumberFormatException e)
+                                {
+                                    repeat = 1;
+                                }
+                                countRepeat = repeat;
+
+                                if (isEngOnly)
+                                {
+                                    for (int t = 0; t < repeat; t++)
+                                    {
+                                        try
+                                        {
+                                            speakWord(list.get(0), false);
+                                        } catch (InterruptedException e)
+                                        {
+                                            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                                            e.printStackTrace();
+                                            break;
+                                        }
+                                    }
+                                } else
+                                {
+                                    try
+                                    {
+                                        for (int t = 0; t < repeat; t++)
+                                        {
+                                            speakWord(list.get(0), true);
+                                        }
+                                    } catch (InterruptedException e)
+                                    {
+                                        e.printStackTrace();
+                                    }
+                                }
+                                AppData.set_Nword(j);
+                            }
+                        } else
+                        {
+                            break;
+                        }
+                        AppData.set_Ndict(i);
+                        AppData.setPause(false);
                     }
                 } else
                 {
@@ -214,9 +312,10 @@ public class z_speechService extends IntentService
                 {
                     textRu = entries.get_translate();
                 }
-                updateIntent.putExtra(EXTRA_KEY_UPDATE_EN, textEn);
-                updateIntent.putExtra(EXTRA_KEY_UPDATE_RU, textRu);
-                updateIntent.putExtra(EXTRA_KEY_UPDATE_DICT, textDict);
+                updateIntent.putExtra(EXTRA_KEY_EN, textEn);
+                updateIntent.putExtra(EXTRA_KEY_RU, textRu);
+                updateIntent.putExtra(EXTRA_KEY_DICT, textDict);
+                updateIntent.putExtra(EXTRA_KEY_COUNT_REPEAT, countRepeat);
                 sendBroadcast(updateIntent);
             }
 

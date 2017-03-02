@@ -7,7 +7,7 @@
     <string name="action_settings">Настройки</string>
     <string name="add_word">Добавить слово</string>
     <string name="add_dict">Добавить словарь</string>
-    <string name="edit_word">Редактировать слова</string>
+    <string name="edit_word">Изменить слово</string>
     <string name="check_your_self">Тесты</string>
     <string name="exit">Выход</string>
     <string name="title_activity_add_dict">Add or remove the dictionary</string>
@@ -88,8 +88,8 @@
     <string name="title_activity_dict_set">Настройки словаря</string>
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="delete_dict">Удалить словарь</string>
-    <string name="spinner_order_play_header">Порядок воспроизведения</string>
-    <string name="play_list_header">Список воспроизведения</string>
+    <string name="spinner_order_play_header">Порядок воспроизведения:</string>
+    <string name="play_list_header">Список воспроизведения:</string>
     <string name="add">Добавить</string>
     <string name="access_dict">Доступные словари</string>
     <string name="select_dict">Выбран словарь</string>
@@ -132,6 +132,7 @@
     <string name="text_bad">Плохо</string>
     <string name="text_out_of">" из "</string>
     <string name="message_inst_tts_data">На Вашем устройстве отсутствует поддержка английского(США) языка. Что бы исправить это необходимо установить голосовые функции для английского(США) языка</string>
+    <string name="message_inst_tts_data_ru">На Вашем устройстве отсутствует поддержка русского(РФ) языка. Что бы исправить это необходимо установить голосовые функции для русского(РФ) языка</string>
     <string name="message_inst_tts_engine">На Вашем устройстве отсутствует поддержка синтеза речи. Необходимо перейти в Google Play и установить "Синтезатор речи Google"</string>
     <string name="url_google_tts"><![CDATA[https://play.google.com/store/apps/details?id=com.google.android.tts&hl=ru]]></string>
     <string name="title_new_dictionary">Новый словарь</string>
@@ -147,6 +148,18 @@
     <string name="text_msg_not_match_lang">Текст не соответствует языку</string>
     <string name="speech_error">Error of speech synthesis</string>
     <string name="is_one_time">is_one_time</string>
+    <string name="text_ru_off">Ru Выкл</string>
+    <string name="text_ru_on">Ru Вкл</string>
+    <string name="text_added_new_dict">"Добавлен новый словарь: "</string>
+    <string name="play_list_set">play_list</string>
+    <string name="key_play_list">play_list</string>
+    <string name="play_list_items">play_list_items</string>
+    <string name="btn_text_setup">Установить</string>
+    <string name="start_speech_en">lets go</string>
+    <string name="start_speech_ru">Поехали</string>
+    <string name="dialog_title_warning">Предупреждение:</string>
+    <string name="btn_text_continue">Продолжить без</string>
+    <string name="nav_words_editor">Редактор слов</string>
 
 
 </resources>

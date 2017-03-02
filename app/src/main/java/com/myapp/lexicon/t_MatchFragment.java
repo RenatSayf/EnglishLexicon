@@ -2,6 +2,7 @@ package com.myapp.lexicon;
 
 import android.animation.Animator;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -28,7 +29,11 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.myapp.lexicon.settings.AppData;
+
 import java.util.ArrayList;
+
+import static android.content.Context.MODE_PRIVATE;
 
 
 /**
@@ -696,12 +701,29 @@ public class t_MatchFragment extends Fragment implements t_DialogTestComplete.ID
 
     }
 
+    public ArrayList<String> getPlayList()
+    {
+        ArrayList<String> listDicts=new ArrayList<>();
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(getString(R.string.key_play_list), MODE_PRIVATE);
+        String play_list_items = sharedPreferences.getString(getString(R.string.play_list_items), null);
+        if (play_list_items != null && play_list_items.length() > 0)
+        {
+            String[] splitArray = play_list_items.split(" ");
+            for (int i = 0; i < splitArray.length; i++)
+            {
+                listDicts.add(i, splitArray[i]);
+            }
+        }
+
+        return listDicts;
+    }
+
     private void addToStudiedList()
     {
         boolean containsInPlayList = false;
-        for (p_ItemListDict item : a_MainActivity.getPlayList())
+        for (String item : getPlayList())
         {
-            if (item.get_dictName().equals(spinnListDict.getSelectedItem()))
+            if (item.equals(spinnListDict.getSelectedItem()))
             {
                 containsInPlayList = true; break;
             }

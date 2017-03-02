@@ -6,6 +6,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.myapp.lexicon.database.DatabaseHelper;
+
 import java.util.ArrayList;
 
 /**
