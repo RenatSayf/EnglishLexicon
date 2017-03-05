@@ -82,6 +82,8 @@ public class z_speechService extends IntentService
     {
         super.onDestroy();
         stop = true;
+        appSettings.setDictNumber(dictCounter);
+        appSettings.setWordNumber(wordCounter);
         try
         {
             databaseHelper.close();
@@ -120,6 +122,8 @@ public class z_speechService extends IntentService
     }
 
     private Intent updateIntent;
+    int dictCounter = 0;  // counter dict
+    int wordCounter = 1;  // counter word
     @Override
     protected void onHandleIntent(Intent intent)
     {
@@ -226,24 +230,37 @@ public class z_speechService extends IntentService
                 playList = appSettings.getPlayList();
                 if (playList.size() > 0)
                 {
-                    if (!AppData.isPause()) AppData.set_Ndict(0);
-                    for (int i = AppData.get_Ndict(); i < playList.size(); i++)
+                    //if (!AppData.isPause()) AppData.set_Ndict(0);
+                    if (dictNumber > playList.size()-1)
                     {
-                        String playListItem = playList.get(i);
+                        dictNumber = 0;
+                    }
+
+                    for (dictCounter = dictNumber; dictCounter < playList.size(); dictCounter++)
+                    {
+                        dictNumber = 0;
+                        wordNumber = 0;
+                        String playListItem = playList.get(dictCounter);
                         textDict = playListItem;
-                        AppData.setCurrentDict(playListItem);
-                        AppData.set_Ndict(i);
+                        currentDict = playListItem;
+                        //AppData.setCurrentDict(playListItem);
+                        //AppData.set_Ndict(i);
                         int wordsCountInTable = getWordsCount(playListItem);
                         if (wordsCountInTable > 0)
                         {
-                            if (!AppData.isPause())
+//                            if (!AppData.isPause())
+//                            {
+//                                AppData.set_Nword(wordsCountInTable);
+//                            }
+                            if (wordNumber < 1)
                             {
-                                AppData.set_Nword(wordsCountInTable);
+                                wordNumber = wordsCountInTable;
                             }
-                            for (int j = AppData.get_Nword(); j >= 1; j--)
+                            for (wordCounter = wordNumber; wordCounter >= 1; wordCounter--)
                             {
-                                AppData.set_Nword(j);
-                                ArrayList<DataBaseEntry> list = getEntriesFromDB(playListItem, j, j);
+                                //AppData.set_Nword(j);
+                                //wordNumber = wordsCountInTable;
+                                ArrayList<DataBaseEntry> list = getEntriesFromDB(playListItem, wordCounter, wordCounter);
                                 if (list.size() == 0)
                                 {
                                     continue;
@@ -286,14 +303,14 @@ public class z_speechService extends IntentService
                                         e.printStackTrace();
                                     }
                                 }
-                                AppData.set_Nword(j);
+                                //AppData.set_Nword(j);
                             }
                         } else
                         {
                             break;
                         }
-                        AppData.set_Ndict(i);
-                        AppData.setPause(false);
+                        //AppData.set_Ndict(i);
+                        //AppData.setPause(false);
                     }
                 } else
                 {
@@ -301,11 +318,6 @@ public class z_speechService extends IntentService
                 }
             } while (!stop);
         }
-
-        appSettings.setCurrentDict(currentDict);
-        appSettings.setDictNumber(dictNumber);
-        appSettings.setWordNumber(wordNumber);
-
     }
 
     private void speakWord(final DataBaseEntry entries, boolean engOnly) throws InterruptedException

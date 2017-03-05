@@ -517,7 +517,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         Toast toast = Toast.makeText(this, R.string.message_about_pause,Toast.LENGTH_SHORT);
         toast.show();
         speechServiceOnPause();
-
+        stopService(speechIntentService);
     }
 
     public void btnStopClick(View view)
@@ -544,6 +544,8 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         btnNext.setVisibility(View.GONE);
         btnPrevious.setVisibility(View.GONE);
         textViewDict.setVisibility(View.INVISIBLE);
+        appSettings.setWordNumber(0);
+        appSettings.setDictNumber(0);
     }
 
     private DataBaseQueries dataBaseQueries;
