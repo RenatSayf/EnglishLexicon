@@ -7,6 +7,7 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.p_PlayList;
 
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -23,6 +24,9 @@ public class AppSettings
     private String KEY_PLAY_LIST = "play_list";
     private String KEY_PLAY_LIST_ITEMS = "play_list_items";
     private String KEY_ORDER_PLAY = "order_play";
+    private String KEY_N_DICT = "N_dict";
+    private String KEY_N_WORD = "N_word";
+    private String KEY_CURRENT_DICT = "current_dict";
 
     public AppSettings(Context context)
     {
@@ -140,6 +144,36 @@ public class AppSettings
     public int getOrderPlay()
     {
         return context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getInt(KEY_ORDER_PLAY, 0);
+    }
+
+    public void setWordNumber(int number)
+    {
+        context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putInt(KEY_N_WORD, number);
+    }
+
+    public int getWordNumber()
+    {
+        return context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getInt(KEY_N_WORD, 1);
+    }
+
+    public void setDictNumber(int number)
+    {
+        context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putInt(KEY_N_DICT, number);
+    }
+
+    public int getDictNumber()
+    {
+        return context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getInt(KEY_N_DICT, 0);
+    }
+
+    public void setCurrentDict(String name)
+    {
+        context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putString(KEY_CURRENT_DICT, name);
+    }
+
+    public String getCurrentDict()
+    {
+        return context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getString(KEY_CURRENT_DICT, null);
     }
 
 

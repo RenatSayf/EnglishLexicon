@@ -130,6 +130,10 @@ public class z_speechService extends IntentService
         updateIntent.addCategory(Intent.CATEGORY_DEFAULT);
 
         playList = appSettings.getPlayList();
+        String currentDict = appSettings.getCurrentDict();
+        int dictNumber = appSettings.getDictNumber();
+        int wordNumber = appSettings.getWordNumber();
+
         if (playList.size() == 0) return;
 
         if (order == 0)
@@ -297,6 +301,10 @@ public class z_speechService extends IntentService
                 }
             } while (!stop);
         }
+
+        appSettings.setCurrentDict(currentDict);
+        appSettings.setDictNumber(dictNumber);
+        appSettings.setWordNumber(wordNumber);
 
     }
 

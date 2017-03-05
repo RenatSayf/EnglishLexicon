@@ -199,9 +199,17 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
             }
 
             switcher.setDisplayedChild(savedInstanceState.getInt(KEY_SWITCHER_DISPLAYED_CHILD));
-            ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(this, R.layout.my_content_spinner_layout, savedInstanceState.getStringArrayList(KEY_SPINNER_ITEMS));
-            spinnerListDict.setAdapter(adapterSpinner);
-            spinnerListDict.setSelection(savedInstanceState.getInt(KEY_SPINNER_SELECT_INDEX));
+            ArrayList<String> arrayList = savedInstanceState.getStringArrayList(KEY_SPINNER_ITEMS);
+            if (arrayList != null)
+            {
+                ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(this, R.layout.my_content_spinner_layout, arrayList);
+                spinnerListDict.setAdapter(adapterSpinner);
+                int index = savedInstanceState.getInt(KEY_SPINNER_SELECT_INDEX);
+                if (index < adapterSpinner.getCount())
+                {
+                    spinnerListDict.setSelection(savedInstanceState.getInt(KEY_SPINNER_SELECT_INDEX));
+                }
+            }
             spinnerCountRepeat.setSelection(savedInstanceState.getInt(KEY_SPINNER_COUNT_REPEAT_SELECT_INDEX));
             spinner_select_pos = spinnerListDict.getSelectedItemPosition();
             listViewSetSource(false);
