@@ -27,6 +27,7 @@ public class AppSettings
     private String KEY_N_DICT = "N_dict";
     private String KEY_N_WORD = "N_word";
     private String KEY_CURRENT_DICT = "current_dict";
+    private String KEY_IS_PAUSE = "is_pause";
 
     public AppSettings(Context context)
     {
@@ -153,7 +154,7 @@ public class AppSettings
 
     public int getWordNumber()
     {
-        return context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getInt(KEY_N_WORD, 0);
+        return context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getInt(KEY_N_WORD, 1);
     }
 
     public void setDictNumber(int number)
@@ -174,6 +175,16 @@ public class AppSettings
     public String getCurrentDict()
     {
         return context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getString(KEY_CURRENT_DICT, null);
+    }
+
+    public void setPause(boolean param)
+    {
+        context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putBoolean(KEY_IS_PAUSE, param).apply();
+    }
+
+    public boolean isPause()
+    {
+        return context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getBoolean(KEY_IS_PAUSE, false);
     }
 
 

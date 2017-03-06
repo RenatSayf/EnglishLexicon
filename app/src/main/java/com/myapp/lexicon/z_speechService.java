@@ -82,8 +82,6 @@ public class z_speechService extends IntentService
     {
         super.onDestroy();
         stop = true;
-        appSettings.setDictNumber(dictCounter);
-        appSettings.setWordNumber(wordCounter);
         try
         {
             databaseHelper.close();
@@ -104,26 +102,13 @@ public class z_speechService extends IntentService
 //        wordIndex = 1;
     }
 
-    public ArrayList<String> getPlayList()
+    @Override
+    public boolean stopService(Intent name)
     {
-        ArrayList<String> listDicts=new ArrayList<>();
-        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.key_play_list), MODE_PRIVATE);
-        String play_list_items = sharedPreferences.getString(getString(R.string.play_list_items), null);
-        if (play_list_items != null && play_list_items.length() > 0)
-        {
-            String[] splitArray = play_list_items.split(" ");
-            for (int i = 0; i < splitArray.length; i++)
-            {
-                listDicts.add(i, splitArray[i]);
-            }
-        }
-
-        return listDicts;
+        return super.stopService(name);
     }
 
     private Intent updateIntent;
-    int dictCounter = 0;  // counter dict
-    int wordCounter = 1;  // counter word
     @Override
     protected void onHandleIntent(Intent intent)
     {
@@ -230,37 +215,24 @@ public class z_speechService extends IntentService
                 playList = appSettings.getPlayList();
                 if (playList.size() > 0)
                 {
-                    //if (!AppData.isPause()) AppData.set_Ndict(0);
-                    if (dictNumber > playList.size()-1)
+                    if (!AppData.isPause()) AppData.set_Ndict(0);
+                    for (int i = AppData.get_Ndict(); i < playList.size(); i++)
                     {
-                        dictNumber = 0;
-                    }
-
-                    for (dictCounter = dictNumber; dictCounter < playList.size(); dictCounter++)
-                    {
-                        dictNumber = 0;
-                        wordNumber = 0;
-                        String playListItem = playList.get(dictCounter);
+                        String playListItem = playList.get(i);
                         textDict = playListItem;
-                        currentDict = playListItem;
-                        //AppData.setCurrentDict(playListItem);
-                        //AppData.set_Ndict(i);
+                        AppData.setCurrentDict(playListItem);
+                        AppData.set_Ndict(i);
                         int wordsCountInTable = getWordsCount(playListItem);
                         if (wordsCountInTable > 0)
                         {
-//                            if (!AppData.isPause())
-//                            {
-//                                AppData.set_Nword(wordsCountInTable);
-//                            }
-                            if (wordNumber < 1)
+                            if (!AppData.isPause())
                             {
-                                wordNumber = wordsCountInTable;
+                                AppData.set_Nword(wordsCountInTable);
                             }
-                            for (wordCounter = wordNumber; wordCounter >= 1; wordCounter--)
+                            for (int j = AppData.get_Nword(); j >= 1; j--)
                             {
-                                //AppData.set_Nword(j);
-                                //wordNumber = wordsCountInTable;
-                                ArrayList<DataBaseEntry> list = getEntriesFromDB(playListItem, wordCounter, wordCounter);
+                                AppData.set_Nword(j);
+                                ArrayList<DataBaseEntry> list = getEntriesFromDB(playListItem, j, j);
                                 if (list.size() == 0)
                                 {
                                     continue;
@@ -282,7 +254,7 @@ public class z_speechService extends IntentService
                                     {
                                         try
                                         {
-                                            speakWord(list.get(0), false);
+                                            speakWord(list.get(0), true);
                                         } catch (InterruptedException e)
                                         {
                                             Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -296,21 +268,21 @@ public class z_speechService extends IntentService
                                     {
                                         for (int t = 0; t < repeat; t++)
                                         {
-                                            speakWord(list.get(0), true);
+                                            speakWord(list.get(0), false);
                                         }
                                     } catch (InterruptedException e)
                                     {
                                         e.printStackTrace();
                                     }
                                 }
-                                //AppData.set_Nword(j);
+                                AppData.set_Nword(j);
                             }
                         } else
                         {
                             break;
                         }
-                        //AppData.set_Ndict(i);
-                        //AppData.setPause(false);
+                        AppData.set_Ndict(i);
+                        AppData.setPause(false);
                     }
                 } else
                 {
@@ -370,7 +342,7 @@ public class z_speechService extends IntentService
         });
 
         HashMap<String,String> mapEn = new HashMap<>();
-        if (!engOnly)
+        if (engOnly)
         {
             mapEn.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "en");
         }

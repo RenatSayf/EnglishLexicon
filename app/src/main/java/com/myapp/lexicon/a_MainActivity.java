@@ -487,6 +487,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             }
 
             speechIntentService = new Intent(this, z_speechService.class);
+            stopService(speechIntentService);
             speechIntentService.putExtra(getString(R.string.key_play_order), appSettings.getOrderPlay());
             speechIntentService.putExtra(getString(R.string.is_one_time), false);
             startService(speechIntentService);
@@ -517,7 +518,19 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         Toast toast = Toast.makeText(this, R.string.message_about_pause,Toast.LENGTH_SHORT);
         toast.show();
         speechServiceOnPause();
-        stopService(speechIntentService);
+
+    }
+
+    private void speechServiceOnPause()
+    {
+        AppData.setPause(true);
+        if (speechIntentService != null)
+        {
+            stopService(speechIntentService);
+        }
+        btnPause.setVisibility(View.GONE);
+        btnPlay.setVisibility(View.VISIBLE);
+        textViewRu.setText(null);
     }
 
     public void btnStopClick(View view)
@@ -534,8 +547,6 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         {
             stopService(speechIntentService);
         }
-        z_speechService.stopIntentService();
-
         textViewEn.setText(null);
         textViewRu.setText(null);
         btnPlay.setVisibility(View.VISIBLE);
@@ -544,8 +555,6 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         btnNext.setVisibility(View.GONE);
         btnPrevious.setVisibility(View.GONE);
         textViewDict.setVisibility(View.INVISIBLE);
-        appSettings.setWordNumber(0);
-        appSettings.setDictNumber(0);
     }
 
     private DataBaseQueries dataBaseQueries;
@@ -571,10 +580,8 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             textViewEn.setText(list.get(0).get_english());
             textViewRu.setText(list.get(0).get_translate());
             textViewDict.setText(AppData.getCurrentDict());
-            if (speechIntentService == null)
-            {
-                speechIntentService = new Intent(this, z_speechService.class);
-            }
+
+            speechIntentService = new Intent(this, z_speechService.class);
             speechIntentService.putExtra(getString(R.string.key_play_order), order_play);
             speechIntentService.putExtra(getString(R.string.is_one_time), true);
             startService(speechIntentService);
@@ -630,7 +637,6 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         int ndict = 0; int nword = 1;
         ArrayList<DataBaseEntry> list = null;
         dataBaseQueries = new DataBaseQueries(this);
-        //ArrayList<String> playList = pla;
         String dict;
         if (playList.size() > 0 && AppData.get_Ndict() < playList.size())
         {
@@ -668,19 +674,6 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             list.add(new DataBaseEntry(null,null,null));
         }
         return list;
-    }
-
-    private void speechServiceOnPause()
-    {
-        AppData.setPause(true);
-        if (speechIntentService != null)
-        {
-            stopService(speechIntentService);
-        }
-        z_speechService.stopIntentService();
-        btnPause.setVisibility(View.GONE);
-        btnPlay.setVisibility(View.VISIBLE);
-        textViewRu.setText(null);
     }
 
     public void switchRuSound_OnCheckedChange()
