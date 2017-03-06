@@ -546,6 +546,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         if (speechIntentService != null)
         {
             stopService(speechIntentService);
+            //z_speechService.resetCounter();
         }
         textViewEn.setText(null);
         textViewRu.setText(null);

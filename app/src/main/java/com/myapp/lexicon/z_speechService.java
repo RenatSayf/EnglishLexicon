@@ -89,6 +89,17 @@ public class z_speechService extends IntentService
         {
             e.printStackTrace();
         }
+        if (!isReset)
+        {
+            appSettings.setDictNumber(dictIndex);
+            appSettings.setWordNumber(wordIndex);
+            appSettings.setCurrentDict(playList.get(dictIndex));
+        } else
+        {
+            appSettings.setDictNumber(0);
+            appSettings.setWordNumber(1);
+            appSettings.setCurrentDict(playList.get(dictIndex));
+        }
     }
 
     public static void stopIntentService()
@@ -96,10 +107,11 @@ public class z_speechService extends IntentService
         stop = true;
     }
 
-    public static void resetCount()
+    private static boolean isReset = false;
+
+    public static void resetCounter()
     {
-//        dictIndex = 0; // Сброс индексов списков и элементов
-//        wordIndex = 1;
+        isReset = true;
     }
 
     @Override
@@ -108,7 +120,16 @@ public class z_speechService extends IntentService
         return super.stopService(name);
     }
 
+    @Override
+    public boolean onUnbind(Intent intent)
+    {
+        return super.onUnbind(intent);
+    }
+
     private Intent updateIntent;
+    int dictIndex;
+    int wordIndex;
+    String currentDict;
     @Override
     protected void onHandleIntent(Intent intent)
     {
@@ -119,9 +140,10 @@ public class z_speechService extends IntentService
         updateIntent.addCategory(Intent.CATEGORY_DEFAULT);
 
         playList = appSettings.getPlayList();
-        String currentDict = appSettings.getCurrentDict();
-        int dictNumber = appSettings.getDictNumber();
-        int wordNumber = appSettings.getWordNumber();
+
+        currentDict = appSettings.getCurrentDict();
+        dictIndex = appSettings.getDictNumber();
+        wordIndex = appSettings.getWordNumber();
 
         if (playList.size() == 0) return;
 
@@ -132,7 +154,12 @@ public class z_speechService extends IntentService
                 playList = appSettings.getPlayList();
                 if (playList.size() > 0)
                 {
-                    if (!AppData.isPause()) AppData.set_Ndict(0);
+                    //if (!AppData.isPause()) AppData.set_Ndict(0);
+                    if (!appSettings.isPause())
+                    {
+                        //AppData.set_Ndict(0);
+                        dictIndex = 0;
+                    }
                     for (int i = AppData.get_Ndict(); i < playList.size(); i++)
                     {
                         String playListItem = playList.get(i);
