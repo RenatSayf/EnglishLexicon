@@ -11,6 +11,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.speech.tts.TextToSpeech;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -40,6 +41,7 @@ import com.myapp.lexicon.settings.AppSettings;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -171,7 +173,8 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         btnNext.setVisibility(View.GONE);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         switchRuSound = (Switch) findViewById(R.id.switch_ru_sound);
-        switchRuSound.setChecked(settings.getBoolean(KEY_ENG_ONLY, true));
+        boolean englishSpeechOnly = appSettings.isEnglishSpeechOnly();
+        switchRuSound.setChecked(appSettings.isEnglishSpeechOnly());
         switchRuSound_OnCheckedChange();
     }
 
@@ -546,7 +549,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         if (speechIntentService != null)
         {
             stopService(speechIntentService);
-            //z_speechService.resetCounter();
+            z_speechService.resetCounter(false);
         }
         textViewEn.setText(null);
         textViewRu.setText(null);
@@ -563,18 +566,15 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     public void btnNextBackClick(View view) throws SQLException, ExecutionException, InterruptedException
     {
         speechServiceOnPause();
-        int order_play = -1;
         int id = view.getId();
         ArrayList<DataBaseEntry> list = new ArrayList<>();
         if (id == R.id.btn_previous)
         {
             list = getPrevious();
-            order_play = 1;
         }
         if (id == R.id.btn_next)
         {
             list = getNext();
-            order_play = 0;
         }
         if (list.size() > 0)
         {
@@ -582,10 +582,9 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             textViewRu.setText(list.get(0).get_translate());
             textViewDict.setText(AppData.getCurrentDict());
 
-            speechIntentService = new Intent(this, z_speechService.class);
-            speechIntentService.putExtra(getString(R.string.key_play_order), order_play);
-            speechIntentService.putExtra(getString(R.string.is_one_time), true);
-            startService(speechIntentService);
+            HashMap<String, String> hashMap = new HashMap<>();
+            hashMap.put("KEY_XXX", "xxx");
+            a_SplashScreenActivity.speech.speak(list.get(0).get_english(), TextToSpeech.QUEUE_ADD, hashMap);
         }
     }
 
@@ -686,7 +685,9 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             {
                 if (isChecked)
                 {
-                    settings.edit().putBoolean(KEY_ENG_ONLY,true).apply();
+                    //settings.edit().putBoolean(KEY_ENG_ONLY,true).apply();
+                    appSettings.setEnglishSpeechOnly(true);
+                    z_speechService.setEnglishOnly(appSettings.isEnglishSpeechOnly());
                     Toast toast = Toast.makeText(a_MainActivity.this,"Русскоязычное озвучивание включено",Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.TOP, 0, 0);
                     toast.show();
@@ -694,7 +695,9 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
                 }
                 else
                 {
-                    settings.edit().putBoolean(KEY_ENG_ONLY,false).apply();
+                    //settings.edit().putBoolean(KEY_ENG_ONLY,false).apply();
+                    appSettings.setEnglishSpeechOnly(false);
+                    z_speechService.setEnglishOnly(appSettings.isEnglishSpeechOnly());
                     Toast toast = Toast.makeText(a_MainActivity.this,"Русскоязычное озвучивание отключено",Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.TOP, 0, 0);
                     toast.show();

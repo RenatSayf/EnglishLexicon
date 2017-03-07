@@ -2,7 +2,6 @@ package com.myapp.lexicon;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.IBinder;
 import android.speech.tts.TextToSpeech;
@@ -30,7 +29,7 @@ public class z_speechService extends IntentService
     private String textRu;
     private String textDict;
     private int countRepeat;
-    private boolean isEngOnly = false;
+    private static boolean isEngOnly = false;
 
     public static final String ACTION_UPDATE = "com.myapp.lexicon.UPDATE";
     public static final String EXTRA_KEY_EN = "EXTRA_UPDATE_EN";
@@ -89,16 +88,11 @@ public class z_speechService extends IntentService
         {
             e.printStackTrace();
         }
-        if (!isReset)
+        if (isReset)
         {
-            appSettings.setDictNumber(dictIndex);
-            appSettings.setWordNumber(wordIndex);
-            appSettings.setCurrentDict(playList.get(dictIndex));
-        } else
-        {
-            appSettings.setDictNumber(0);
-            appSettings.setWordNumber(1);
-            appSettings.setCurrentDict(playList.get(dictIndex));
+            AppData.set_Ndict(0);
+            AppData.set_Nword(1);
+            AppData.setCurrentDict(playList.get(AppData.get_Ndict()));
         }
     }
 
@@ -109,9 +103,14 @@ public class z_speechService extends IntentService
 
     private static boolean isReset = false;
 
-    public static void resetCounter()
+    public static void resetCounter(boolean param)
     {
-        isReset = true;
+        isReset = param;
+    }
+
+    public static void setEnglishOnly(boolean param)
+    {
+        isEngOnly = param;
     }
 
     @Override
@@ -127,39 +126,29 @@ public class z_speechService extends IntentService
     }
 
     private Intent updateIntent;
-    int dictIndex;
-    int wordIndex;
-    String currentDict;
+
     @Override
     protected void onHandleIntent(Intent intent)
     {
         int order = intent.getIntExtra(getString(R.string.key_play_order), 0);
         stop = intent.getBooleanExtra(getString(R.string.is_one_time), true);
+
         updateIntent = new Intent();
         updateIntent.setAction(ACTION_UPDATE);
         updateIntent.addCategory(Intent.CATEGORY_DEFAULT);
 
         playList = appSettings.getPlayList();
 
-        currentDict = appSettings.getCurrentDict();
-        dictIndex = appSettings.getDictNumber();
-        wordIndex = appSettings.getWordNumber();
-
         if (playList.size() == 0) return;
 
         if (order == 0)
         {
-            do
+            while (!stop)
             {
                 playList = appSettings.getPlayList();
                 if (playList.size() > 0)
                 {
-                    //if (!AppData.isPause()) AppData.set_Ndict(0);
-                    if (!appSettings.isPause())
-                    {
-                        //AppData.set_Ndict(0);
-                        dictIndex = 0;
-                    }
+                    if (!AppData.isPause()) AppData.set_Ndict(0);
                     for (int i = AppData.get_Ndict(); i < playList.size(); i++)
                     {
                         String playListItem = playList.get(i);
@@ -198,7 +187,7 @@ public class z_speechService extends IntentService
                                     {
                                         try
                                         {
-                                            speakWord(list.get(0), false);
+                                            speakWord(list.get(0), true);
                                         } catch (InterruptedException e)
                                         {
                                             Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -212,7 +201,7 @@ public class z_speechService extends IntentService
                                     {
                                         for (int t = 0; t < repeat; t++)
                                         {
-                                            speakWord(list.get(0), true);
+                                            speakWord(list.get(0), false);
                                         }
                                     } catch (InterruptedException e)
                                     {
@@ -232,12 +221,12 @@ public class z_speechService extends IntentService
                 {
                     break;
                 }
-            } while (!stop);
+            }
         }
 
         if (order == 1)
         {
-            do
+            while (!stop)
             {
                 playList = appSettings.getPlayList();
                 if (playList.size() > 0)
@@ -315,7 +304,7 @@ public class z_speechService extends IntentService
                 {
                     break;
                 }
-            } while (!stop);
+            }
         }
     }
 
