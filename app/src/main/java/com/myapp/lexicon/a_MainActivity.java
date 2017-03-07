@@ -136,6 +136,8 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         {
             databaseHelper = new DatabaseHelper(this);
             databaseHelper.create_db();
+            new AppData(this);
+            AppData.initAllSettings();
         }
 
         if (savedInstanceState != null)
@@ -198,7 +200,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     protected void onPause()
     {
         super.onPause();
-
+        AppData.saveAllSettings();
         if (!isActivityOnTop())
         {
             speechServiceOnPause();
@@ -229,6 +231,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         super.onDestroy();
         unregisterReceiver(mUpdateBroadcastReceiver);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
+
         if (!isActivityOnTop())
         {
             speechServiceOnPause();
@@ -241,6 +244,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
         backgroundAnim.onDestroy();
         speechServiceOnPause();
+        AppData.saveAllSettings();
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START))
         {
@@ -346,7 +350,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
             backgroundAnim.onDestroy();
-            speechServiceOnStop();
+            //speechServiceOnStop();
             wakeLock.release();
             this.finish();
         }
@@ -580,7 +584,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         {
             textViewEn.setText(list.get(0).get_english());
             textViewRu.setText(list.get(0).get_translate());
-            textViewDict.setText(AppData.getCurrentDict());
+            textViewDict.setText(playList.get(AppData.get_Ndict()));
 
             HashMap<String, String> hashMap = new HashMap<>();
             hashMap.put("KEY_XXX", "xxx");
@@ -622,7 +626,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             }
             AppData.set_Nword(nword);
             AppData.set_Ndict(ndict);
-            AppData.setCurrentDict(playList.get(ndict));
+            //AppData.setCurrentDict(playList.get(ndict));
             list = dataBaseQueries.getEntriesFromDBAsync(playList.get(AppData.get_Ndict()), AppData.get_Nword(), AppData.get_Nword());
         }
         else
@@ -666,7 +670,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
 
             AppData.set_Nword(nword);
             AppData.set_Ndict(ndict);
-            AppData.setCurrentDict(playList.get(ndict));
+            //AppData.setCurrentDict(playList.get(ndict));
             list = dataBaseQueries.getEntriesFromDBAsync(playList.get(AppData.get_Ndict()), AppData.get_Nword(), AppData.get_Nword());
         }
         else
@@ -746,9 +750,9 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             textViewEn.setText(updateEN);
             textViewRu.setText(updateRU);
             textViewDict.setText(updateDict);
-            AppData.setEnText(updateEN);
-            AppData.setRuText(updateRU);
-            AppData.setCurrentDict(updateDict);
+//            AppData.setEnText(updateEN);
+//            AppData.setRuText(updateRU);
+//            AppData.setCurrentDict(updateDict);
             if (!textViewEn.getText().equals(null))
             {
                 progressBar.setVisibility(View.GONE);

@@ -92,7 +92,10 @@ public class z_speechService extends IntentService
         {
             AppData.set_Ndict(0);
             AppData.set_Nword(1);
-            AppData.setCurrentDict(playList.get(AppData.get_Ndict()));
+        }
+        else
+        {
+            AppData.setPause(true);
         }
     }
 
@@ -153,7 +156,7 @@ public class z_speechService extends IntentService
                     {
                         String playListItem = playList.get(i);
                         textDict = playListItem;
-                        AppData.setCurrentDict(textDict);
+                        //AppData.setCurrentDict(textDict);
                         AppData.set_Ndict(i);
                         int wordsCountInTable = getWordsCount(playListItem);
                         if (wordsCountInTable > 0)
@@ -236,7 +239,7 @@ public class z_speechService extends IntentService
                     {
                         String playListItem = playList.get(i);
                         textDict = playListItem;
-                        AppData.setCurrentDict(playListItem);
+                        //AppData.setCurrentDict(playListItem);
                         AppData.set_Ndict(i);
                         int wordsCountInTable = getWordsCount(playListItem);
                         if (wordsCountInTable > 0)
