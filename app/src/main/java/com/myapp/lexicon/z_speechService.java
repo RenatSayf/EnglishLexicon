@@ -9,7 +9,7 @@ import android.speech.tts.UtteranceProgressListener;
 import android.widget.Toast;
 
 import com.myapp.lexicon.database.DatabaseHelper;
-import com.myapp.lexicon.settings.AppData;
+import com.myapp.lexicon.settings.AppData2;
 import com.myapp.lexicon.settings.AppSettings;
 
 import java.sql.SQLException;
@@ -25,6 +25,7 @@ public class z_speechService extends IntentService
     private ArrayList<String> playList;
     private DatabaseHelper databaseHelper;
     private AppSettings appSettings;
+    private AppData2 appData2;
     private String textEn;
     private String textRu;
     private String textDict;
@@ -53,6 +54,7 @@ public class z_speechService extends IntentService
             databaseHelper.create_db();
         }
         appSettings = new AppSettings(this);
+        appData2 = AppData2.getInstance();
     }
 
     @Override
@@ -90,12 +92,12 @@ public class z_speechService extends IntentService
         }
         if (isReset)
         {
-            AppData.set_Ndict(0);
-            AppData.set_Nword(1);
+            appData2.setNdict(0);
+            appData2.setNword(1);
         }
         else
         {
-            AppData.setPause(true);
+            appData2.setPause(true);
         }
     }
 
@@ -151,23 +153,23 @@ public class z_speechService extends IntentService
                 playList = appSettings.getPlayList();
                 if (playList.size() > 0)
                 {
-                    if (!AppData.isPause()) AppData.set_Ndict(0);
-                    for (int i = AppData.get_Ndict(); i < playList.size(); i++)
+                    if (!appData2.isPause()) appData2.setNdict(0);
+                    for (int i = appData2.getNdict(); i < playList.size(); i++)
                     {
                         String playListItem = playList.get(i);
                         textDict = playListItem;
                         //AppData.setCurrentDict(textDict);
-                        AppData.set_Ndict(i);
+                        appData2.setNdict(i);
                         int wordsCountInTable = getWordsCount(playListItem);
                         if (wordsCountInTable > 0)
                         {
-                            if (!AppData.isPause())
+                            if (!appData2.isPause())
                             {
-                                AppData.set_Nword(1);
+                                appData2.setNword(1);
                             }
-                            for (int j = AppData.get_Nword(); j <= wordsCountInTable; j++)
+                            for (int j = appData2.getNword(); j <= wordsCountInTable; j++)
                             {
-                                AppData.set_Nword(j);
+                                appData2.setNword(j);
                                 ArrayList<DataBaseEntry> list = getEntriesFromDB(playListItem, j, j);
                                 if (list.size() == 0)
                                 {
@@ -211,14 +213,14 @@ public class z_speechService extends IntentService
                                         e.printStackTrace();
                                     }
                                 }
-                                AppData.set_Nword(j);
+                                appData2.setNword(j);
                             }
                         } else
                         {
                             break;
                         }
-                        AppData.set_Ndict(i);
-                        AppData.setPause(false);
+                        appData2.setNdict(i);
+                        appData2.setPause(false);
                     }
                 } else
                 {
@@ -234,23 +236,23 @@ public class z_speechService extends IntentService
                 playList = appSettings.getPlayList();
                 if (playList.size() > 0)
                 {
-                    if (!AppData.isPause()) AppData.set_Ndict(0);
-                    for (int i = AppData.get_Ndict(); i < playList.size(); i++)
+                    if (!appData2.isPause()) appData2.setNdict(0);
+                    for (int i = appData2.getNdict(); i < playList.size(); i++)
                     {
                         String playListItem = playList.get(i);
                         textDict = playListItem;
                         //AppData.setCurrentDict(playListItem);
-                        AppData.set_Ndict(i);
+                        appData2.setNdict(i);
                         int wordsCountInTable = getWordsCount(playListItem);
                         if (wordsCountInTable > 0)
                         {
-                            if (!AppData.isPause())
+                            if (!appData2.isPause())
                             {
-                                AppData.set_Nword(wordsCountInTable);
+                                appData2.setNword(wordsCountInTable);
                             }
-                            for (int j = AppData.get_Nword(); j >= 1; j--)
+                            for (int j = appData2.getNword(); j >= 1; j--)
                             {
-                                AppData.set_Nword(j);
+                                appData2.setNword(j);
                                 ArrayList<DataBaseEntry> list = getEntriesFromDB(playListItem, j, j);
                                 if (list.size() == 0)
                                 {
@@ -294,14 +296,14 @@ public class z_speechService extends IntentService
                                         e.printStackTrace();
                                     }
                                 }
-                                AppData.set_Nword(j);
+                                appData2.setNword(j);
                             }
                         } else
                         {
                             break;
                         }
-                        AppData.set_Ndict(i);
-                        AppData.setPause(false);
+                        appData2.setNdict(i);
+                        appData2.setPause(false);
                     }
                 } else
                 {

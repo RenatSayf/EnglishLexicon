@@ -33,7 +33,7 @@ import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.database.GetAllFromTableLoader;
 import com.myapp.lexicon.database.GetEntriesLoader;
 import com.myapp.lexicon.database.GetTableListLoader;
-import com.myapp.lexicon.settings.AppData;
+import com.myapp.lexicon.settings.AppData2;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -59,6 +59,7 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
     private DataBaseQueries dataBaseQueries;
     private ViewSwitcher switcher;
     private z_LockOrientation lockOrientation;
+    private AppData2 appData2;
 
     private static boolean searchIsVisible = false;
 
@@ -162,6 +163,8 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        appData2 = AppData2.getInstance();
+
         lockOrientation = new z_LockOrientation(this);
 
         try
@@ -233,6 +236,8 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
         }
     }
 
+    private String spinnerDictSelectItem;
+
     @Override
     protected void onStart()
     {
@@ -248,6 +253,7 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
             loaderBundle.putString(GetEntriesLoader.KEY_TABLE_NAME, tableName);
             loaderBundle.putInt(GetEntriesLoader.KEY_START_ID, rowId);
             loaderBundle.putInt(GetEntriesLoader.KEY_END_ID, rowId);
+            spinnerDictSelectItem = tableName;
 
             // TODO: AsyncTaskLoader - 5. Запуск загрузки данных
             Loader<Cursor> cursorLoader = getLoaderManager().restartLoader(LOADER_GET_ENTRIES, loaderBundle, this);
@@ -755,9 +761,10 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
             }
             if (list.size() > 0)
             {
+
                 ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(this, R.layout.my_content_spinner_layout, list);
                 spinnerListDict.setAdapter(adapterSpinner);
-                spinnerListDict.setSelection(AppData.get_Ndict());
+                spinnerListDict.setSelection(adapterSpinner.getPosition(spinnerDictSelectItem));
                 spinnerListDict2.setAdapter(adapterSpinner);
             }
         }

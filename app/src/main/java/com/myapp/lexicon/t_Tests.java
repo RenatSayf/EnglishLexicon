@@ -1,7 +1,6 @@
 package com.myapp.lexicon;
 
-//import android.app.Fragment;
-//import android.app.FragmentTransaction;
+
 import android.speech.tts.TextToSpeech;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -17,24 +16,15 @@ import android.widget.Toast;
 import java.sql.SQLException;
 import java.util.Locale;
 
-public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFragmentInteractionListener
+public class t_Tests extends AppCompatActivity
 {
-    private ImageButton buttonFindPair, buttonMatchTest, buttonSelectWordTest, buttonTest3, buttonOneOfFive;
-
-    private t_MatchFragment matchFragment;
-    private static String MATCH_FRAGMENT = "matchFragment";
+    private ImageButton buttonFindPair, buttonListenEndClick, buttonOneOfFive;
 
     private t_FindPairFragment findPairFragment;
-    private String FIND_PAIR_FRAGMENT = "find_pair_fragment";
 
     private t_ListenEndClickFragment listenEndClickFragment;
-    private String LISTEN_END_CLICK_FRAGMENT = "listenEndClickFragment";
-
-    private t_WriteWordFragment correctFragment2;
-    private String CORRECT_FRAGMENT2 = "correctFragment2";
 
     private t_OneOfFiveTest oneOfFiveTest;
-    private static String ONE_OF_FIVE_FRAGMENT = "one_of_five";
 
     private FragmentTransaction transaction;
     private DataBaseQueries baseQueries;
@@ -42,10 +32,6 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
     public static Bundle bundleOneOfFiveTest;
     public static Bundle bundleListenTest;
     public static Bundle bundleFindPair;
-
-
-    private TextToSpeech speech;
-    public static t_DialogTestComplete dialogTestComplete = new t_DialogTestComplete();
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -58,17 +44,6 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         initViews();
-
-        String language = a_SplashScreenActivity.speech.getLanguage().getDisplayLanguage();
-        String languageENG = Locale.US.getDisplayLanguage();
-        if (language != languageENG)
-        {
-            while (!language.equals(languageENG))
-            {
-                a_SplashScreenActivity.speech.setLanguage(Locale.US);
-                language = a_SplashScreenActivity.speech.getLanguage().getDisplayLanguage();
-            }
-        }
     }
 
     private void initViews()
@@ -83,19 +58,13 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
             this.finish();
         }
 
-        buttonMatchTest = (ImageButton) findViewById(R.id.btn_match_test);
         buttonFindPair = (ImageButton) findViewById(R.id.btn_find_pair);
-        buttonSelectWordTest = (ImageButton) findViewById(R.id.btn_select_word_test);
-        buttonTest3 = (ImageButton) findViewById(R.id.btn_test_3);
+        buttonListenEndClick = (ImageButton) findViewById(R.id.btn_select_word_test);
         buttonOneOfFive = (ImageButton) findViewById(R.id.btn_test_1of5);
 
         FragmentManager manager = getSupportFragmentManager();
-        matchFragment = (t_MatchFragment) manager.findFragmentByTag(MATCH_FRAGMENT);
-        if (matchFragment == null)
-        {
-            matchFragment = t_MatchFragment.newInstance(null,null);
-        }
 
+        String FIND_PAIR_FRAGMENT = "find_pair_fragment";
         findPairFragment = (t_FindPairFragment) manager.findFragmentByTag(FIND_PAIR_FRAGMENT);
         if (findPairFragment == null)
         {
@@ -103,6 +72,7 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
             bundleFindPair = new Bundle();
         }
 
+        String LISTEN_END_CLICK_FRAGMENT = "listenEndClickFragment";
         listenEndClickFragment = (t_ListenEndClickFragment) manager.findFragmentByTag(LISTEN_END_CLICK_FRAGMENT);
         if (listenEndClickFragment == null)
         {
@@ -110,12 +80,7 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
             bundleListenTest = new Bundle();
         }
 
-        correctFragment2 = (t_WriteWordFragment) manager.findFragmentByTag(CORRECT_FRAGMENT2);
-        if (correctFragment2 == null)
-        {
-            correctFragment2 = new t_WriteWordFragment();
-        }
-
+        String ONE_OF_FIVE_FRAGMENT = "one_of_five";
         oneOfFiveTest = (t_OneOfFiveTest) manager.findFragmentByTag(ONE_OF_FIVE_FRAGMENT);
         if (oneOfFiveTest == null)
         {
@@ -128,21 +93,6 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
 
     private void button_OnClick()
     {
-        buttonMatchTest.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                transaction = getSupportFragmentManager().beginTransaction();
-                //transaction = getFragmentManager().beginTransaction();
-                transaction.replace(R.id.match_fragment, matchFragment);
-                transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
-                //transaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right);
-                transaction.addToBackStack(null);
-                transaction.commit();
-            }
-        });
-
         buttonFindPair.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -156,7 +106,7 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
             }
         });
 
-        buttonSelectWordTest.setOnClickListener(new View.OnClickListener()
+        buttonListenEndClick.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
@@ -164,21 +114,6 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
                 transaction = getSupportFragmentManager().beginTransaction();
                 //transaction = getFragmentManager().beginTransaction();
                 transaction.replace(R.id.listen_end_click_fragment, listenEndClickFragment);
-                transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
-                //transaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right);
-                transaction.addToBackStack(null);
-                transaction.commit();
-            }
-        });
-
-        buttonTest3.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                transaction = getSupportFragmentManager().beginTransaction();
-                //transaction = getFragmentManager().beginTransaction();
-                transaction.replace(R.id.write_word_fragment, correctFragment2);
                 transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
                 //transaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right);
                 transaction.addToBackStack(null);
@@ -232,13 +167,6 @@ public class t_Tests extends AppCompatActivity implements t_MatchFragment.OnFrag
         }
         return true;
     }
-
-    @Override
-    public void onFragmentInteraction(Uri uri)
-    {
-
-    }
-
 
     public void onBackPressed()
     {
