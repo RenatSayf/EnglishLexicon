@@ -47,12 +47,7 @@ import java.util.concurrent.ExecutionException;
 
 public class a_MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
-    public static SharedPreferences savedPlayList;
-    public static SharedPreferences settings;
-    public static String KEY_PLAY_LIST = "play_list";
-    public static String KEY_ENG_ONLY = "eng_only";
     public DatabaseHelper databaseHelper;
-
     private Intent addWordIntent;
     private Intent wordEditorIntent;
     private Intent testsIntent;
@@ -60,7 +55,6 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     private TextView textViewEn;
     private TextView textViewRu;
     private TextView textViewDict;
-    private int countRepeat;
     private Button btnPlay;
     private Button btnStop;
     private Button btnPause;
@@ -86,8 +80,6 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     private String KEY_BTN_BACK_VISIBLE = "btn_back_visible";
     private String KEY_PROG_BAR_VISIBLE = "prog_bar_visible";
 
-    private static int btnPlayVisible = View.VISIBLE;
-
     protected PowerManager.WakeLock wakeLock;
 
     @Override
@@ -105,10 +97,11 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        savedPlayList = getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE);
-        settings = getSharedPreferences(KEY_ENG_ONLY, MODE_PRIVATE);
         appSettings = new AppSettings(this);
         playList = appSettings.getPlayList();
+        appData2 = AppData2.getInstance();
+        appData2.setContext(this);
+        appData2.initAllSettings();
 
         initViews();
 
@@ -131,17 +124,10 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-
-        appData2 = AppData2.getInstance();
-        appData2.setContext(this);
-        appData2.initAllSettings();
         if (savedInstanceState == null && databaseHelper == null)
         {
             databaseHelper = new DatabaseHelper(this);
             databaseHelper.create_db();
-//            new AppData(this);
-//            AppData.initAllSettings();
-
         }
 
         if (savedInstanceState != null)
@@ -204,7 +190,6 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     protected void onPause()
     {
         super.onPause();
-        //AppData.saveAllSettings();
         appData2.saveAllSettings();
         if (!isActivityOnTop())
         {
@@ -249,7 +234,6 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
         backgroundAnim.onDestroy();
         speechServiceOnPause();
-        //AppData.saveAllSettings();
         appData2.saveAllSettings();
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START))
@@ -343,7 +327,6 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             {
                 testsIntent = new Intent(this, t_Tests.class);
             }
-            //speechServiceOnPause();
             startActivity(testsIntent);
         } else if (id == R.id.nav_play_list)
         {
@@ -356,7 +339,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
             backgroundAnim.onDestroy();
-            speechServiceOnStop();
+            //speechServiceOnStop();
             wakeLock.release();
             this.finish();
         }
@@ -553,9 +536,6 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
 
     private void speechServiceOnStop()
     {
-//        appData2.setNword(0);
-//        appData2.setPause(false);
-
         if (speechIntentService != null)
         {
             stopService(speechIntentService);
@@ -603,7 +583,6 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         int ndict = 0; int nword = 1;
         ArrayList<DataBaseEntry> list = null;
         dataBaseQueries = new DataBaseQueries(this);
-        //ArrayList<String> playList = appSettings.getPlayList();
         int wordsCount = dataBaseQueries.getEntriesCountAsync(playList.get(appData2.getNdict()));
         if (playList.size() > 0)
         {
@@ -632,7 +611,6 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             }
             appData2.setNword(nword);
             appData2.setNdict(ndict);
-            //AppData.setCurrentDict(playList.get(ndict));
             list = dataBaseQueries.getEntriesFromDBAsync(playList.get(appData2.getNdict()), appData2.getNword(), appData2.getNword());
         }
         else
@@ -676,7 +654,6 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
 
             appData2.setNword(nword);
             appData2.setNdict(ndict);
-            //AppData.setCurrentDict(playList.get(ndict));
             list = dataBaseQueries.getEntriesFromDBAsync(playList.get(appData2.getNdict()), appData2.getNword(), appData2.getNword());
         }
         else
@@ -695,7 +672,6 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             {
                 if (isChecked)
                 {
-                    //settings.edit().putBoolean(KEY_ENG_ONLY,true).apply();
                     appSettings.setEnglishSpeechOnly(true);
                     z_speechService.setEnglishOnly(appSettings.isEnglishSpeechOnly());
                     Toast toast = Toast.makeText(a_MainActivity.this,"Русскоязычное озвучивание включено",Toast.LENGTH_SHORT);
@@ -705,7 +681,6 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
                 }
                 else
                 {
-                    //settings.edit().putBoolean(KEY_ENG_ONLY,false).apply();
                     appSettings.setEnglishSpeechOnly(false);
                     z_speechService.setEnglishOnly(appSettings.isEnglishSpeechOnly());
                     Toast toast = Toast.makeText(a_MainActivity.this,"Русскоязычное озвучивание отключено",Toast.LENGTH_SHORT);
@@ -752,13 +727,9 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             String updateEN = intent.getStringExtra(z_speechService.EXTRA_KEY_EN);
             String updateRU = intent.getStringExtra(z_speechService.EXTRA_KEY_RU);
             String updateDict = intent.getStringExtra(z_speechService.EXTRA_KEY_DICT);
-            countRepeat = intent.getIntExtra(z_speechService.EXTRA_KEY_COUNT_REPEAT, 1);
             textViewEn.setText(updateEN);
             textViewRu.setText(updateRU);
             textViewDict.setText(updateDict);
-//            AppData.setEnText(updateEN);
-//            AppData.setRuText(updateRU);
-//            AppData.setCurrentDict(updateDict);
             if (!textViewEn.getText().equals(null))
             {
                 progressBar.setVisibility(View.GONE);

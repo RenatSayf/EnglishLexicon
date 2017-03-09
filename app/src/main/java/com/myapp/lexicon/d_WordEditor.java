@@ -131,7 +131,6 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
         buttonWrite_OnClick();
         buttonDelete_OnClick();
         buttonCancel_OnClick();
-        checkCopy_OnClick();
         checkMove_OnClick();
     }
 
@@ -333,14 +332,7 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
 
                 String tableName = spinnerListDict.getSelectedItem().toString();
                 oldCurrentDict = spinnerListDict.getSelectedItem().toString();
-//                try
-//                {
-//                    rowID = dataBaseQueries.getIdOfWord(tableName, oldTextEn, oldTextRu);
-//
-//                } catch (Exception e)
-//                {
-//                    Toast.makeText(d_WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
-//                }
+
                 checkMove.setChecked(false);
                 layoutSpinner.setVisibility(View.GONE);
                 switcher.showNext();
@@ -512,57 +504,11 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
         });
     }
 
-    private void checkCopy_OnClick()
-    {
-
-    }
-
-
-
-
-
-//    private ArrayList<DataBaseEntry> getEntriesFromDB(String tableName)
-//    {
-//        ArrayList<DataBaseEntry> entriesFromDB = new ArrayList<>();
-//        try
-//        {
-//            _databaseHelper.open();
-//            SQLiteDatabase database = _databaseHelper.database;
-//            database.beginTransaction();
-//            Cursor cursor = database.rawQuery("SELECT * FROM " + tableName, null);
-//            database.setTransactionSuccessful();
-//            database.endTransaction();
-//            int count = cursor.getCount();
-//            if (cursor.moveToFirst())
-//            {
-//                while (!cursor.isAfterLast())
-//                {
-//                    DataBaseEntry dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1), cursor.getString(3));
-//                    entriesFromDB.add(dataBaseEntry);
-//                    cursor.moveToNext();
-//                }
-//            }
-//        } catch (Exception e)
-//        {
-//            Log.i("Lexicon", "Исключение в d_WordEditor.getEntriesFromDB() = " + e);
-//        }finally
-//        {
-//            _databaseHelper.close();
-//        }
-//        return entriesFromDB;
-//    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
         // Inflate the menu; this adds items to the action bar if it is present.
-
         getMenuInflater().inflate(R.menu.d_word_editor_menu, menu);
-
-//        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-//        SearchView searchView = (SearchView) menu.findItem(R.id.word_search).getActionView();
-//        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-
         return true;
     }
     @Override
