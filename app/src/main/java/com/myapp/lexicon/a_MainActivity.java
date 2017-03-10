@@ -562,7 +562,8 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         ArrayList<DataBaseEntry> list = new ArrayList<>();
         if (id == R.id.btn_previous)
         {
-            list = getPrevious();
+            //list = getPrevious();
+            getPrevious2();
         }
         if (id == R.id.btn_next)
         {
@@ -725,6 +726,64 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             list.add(new DataBaseEntry(null,null,null));
         }
         return list;
+    }
+
+    private void getPrevious2()
+    {
+        GetWordsCountAsync asyncTask = new GetWordsCountAsync(this, new GetWordsCountAsync.AsyncTaskListener()
+        {
+            int ndict = 0; int nword = 1;
+            @Override
+            public void onTaskComplete(int result)
+            {
+                int wordsCount = result;
+                if (playList.size() > 0 && appData2.getNdict() < playList.size())
+                {
+                    if (appData2.getNdict() == 0 && appData2.getNword() == 1 && playList.size() > 1)
+                    {
+                        ndict = playList.size() - 1;
+                        nword = wordsCount;
+                    }
+                    else if (appData2.getNdict() == 0 && appData2.getNword() == 1 && playList.size() == 1)
+                    {
+                        ndict = appData2.getNdict();
+                        nword = wordsCount;
+                    }
+                    else if (appData2.getNword() > 1)
+                    {
+                        ndict = appData2.getNdict();
+                        nword = appData2.getNword() - 1;
+                    }
+                    else if (playList.size()>1 && appData2.getNdict()>0 && appData2.getNword()==1)
+                    {
+                        ndict = appData2.getNdict() - 1;
+                        nword = wordsCount;
+                    }
+
+                    appData2.setNword(nword);
+                    appData2.setNdict(ndict);
+                    GetEntriesAsync asyncTask2 = new GetEntriesAsync(a_MainActivity.this, new GetEntriesAsync.AsyncTaskListener()
+                    {
+                        @Override
+                        public void onTaskComplete(ArrayList<DataBaseEntry> entries)
+                        {
+                            if (entries != null && entries.size() > 0)
+                            {
+                                textViewEn.setText(entries.get(0).get_english());
+                                textViewRu.setText(entries.get(0).get_translate());
+                                textViewDict.setText(playList.get(appData2.getNdict()));
+
+                                HashMap<String, String> hashMap = new HashMap<>();
+                                hashMap.put("KEY_XXX", "xxx");
+                                a_SplashScreenActivity.speech.speak(entries.get(0).get_english(), TextToSpeech.QUEUE_ADD, hashMap);
+                            }
+                        }
+                    });
+                    asyncTask2.execute(playList.get(ndict), String.valueOf(nword), String.valueOf(nword));
+                }
+            }
+        });
+        asyncTask.execute(playList.get(appData2.getNdict()));
     }
 
     public void switchRuSound_OnCheckedChange()
