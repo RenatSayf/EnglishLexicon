@@ -10,52 +10,57 @@ import android.content.res.Configuration;
  */
 public class z_LockOrientation
 {
-    Activity act;
-    public z_LockOrientation(Activity act)
+    private Activity activity;
+    public z_LockOrientation(Activity activity)
     {
-        this.act = act;
+        this.activity = activity;
     }
     @SuppressLint("InlinedApi")
     public void lock()
     {
-        switch (act.getResources().getConfiguration().orientation)
+        switch (activity.getResources().getConfiguration().orientation)
         {
             case Configuration.ORIENTATION_PORTRAIT:
                 if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.FROYO)
                 {
-                    act.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
                 }
                 else
                 {
-                    int rotation = act.getWindowManager().getDefaultDisplay().getRotation();
+                    int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
                     if (rotation == android.view.Surface.ROTATION_90 || rotation == android.view.Surface.ROTATION_180)
                     {
-                        act.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
+                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
                     }
                     else
                     {
-                        act.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
                     }
                 }
                 break;
             case Configuration.ORIENTATION_LANDSCAPE:
                 if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.FROYO)
                 {
-                    act.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
                 }
                 else
                 {
-                    int rotation = act.getWindowManager().getDefaultDisplay().getRotation();
+                    int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
                     if (rotation == android.view.Surface.ROTATION_0 || rotation == android.view.Surface.ROTATION_90)
                     {
-                        act.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
                     }
                     else
                     {
-                        act.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
+                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
                     }
                 }
                 break;
         }
+    }
+
+    public void unLock()
+    {
+        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
     }
 }
