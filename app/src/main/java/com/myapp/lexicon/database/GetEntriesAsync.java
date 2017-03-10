@@ -56,6 +56,9 @@ public class GetEntriesAsync extends AsyncTask<String, Void, Cursor>
             databaseHelper.open();
             if (databaseHelper.database.isOpen())
             {
+                cursor = databaseHelper.database.rawQuery("SELECT max(RowId) FROM " + params[0], null);
+                cursor.moveToFirst();
+                long rowId = cursor.getLong(0);
                 cursor = databaseHelper.database.rawQuery("SELECT * FROM " + params[0] + " WHERE RowID BETWEEN " + params[1] +" AND " + params[2], null);
             }
         }

@@ -12,6 +12,8 @@ import android.os.Bundle;
 import android.os.PowerManager;
 import android.speech.tts.TextToSpeech;
 import android.support.design.widget.NavigationView;
+import android.app.LoaderManager;
+import android.content.Loader;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -35,6 +37,7 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.myapp.lexicon.database.DatabaseHelper;
+import com.myapp.lexicon.database.GetDbEntriesLoader;
 import com.myapp.lexicon.database.GetEntriesAsync;
 import com.myapp.lexicon.database.GetWordsCountAsync;
 import com.myapp.lexicon.settings.AppData2;
@@ -46,7 +49,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-public class a_MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
+public class a_MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, LoaderManager.LoaderCallbacks
 {
     public DatabaseHelper databaseHelper;
     private Intent addWordIntent;
@@ -145,6 +148,9 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             btnPrevious.setVisibility(savedInstanceState.getInt(KEY_BTN_BACK_VISIBLE));
             progressBar.setVisibility(savedInstanceState.getInt(KEY_PROG_BAR_VISIBLE));
         }
+
+        // TODO: AsyncTaskLoader - 3. инициализация
+        getLoaderManager().initLoader(LOADER_GET_PREVIOUS, savedInstanceState, this);
 
     }
     private void initViews()
@@ -559,17 +565,30 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         speechServiceOnPause();
         int id = view.getId();
         ArrayList<DataBaseEntry> list = new ArrayList<>();
+
+        // TODO: AsyncTaskLoader - 4. Передача параметров в AsyncTaskLoader
+        Bundle loaderBundle = new Bundle();
+        loaderBundle.putString(GetDbEntriesLoader.KEY_TABLE_NAME, playList.get(appData2.getNdict()));
+        loaderBundle.putInt(GetDbEntriesLoader.KEY_START_ID, appData2.getNword());
+        loaderBundle.putInt(GetDbEntriesLoader.KEY_END_ID, appData2.getNword());
+
         if (id == R.id.btn_previous)
         {
             //list = getPrevious();
-            getPrevious2();
+            //getPrevious2();
+            // TODO: AsyncTaskLoader - 5. Запуск загрузки данных
+            Loader<ArrayList<DataBaseEntry>> dbLoader = getLoaderManager().restartLoader(LOADER_GET_PREVIOUS, loaderBundle, this);
+            dbLoader.forceLoad();
         }
         if (id == R.id.btn_next)
         {
             //list = getNext();
-            getNext2();
+            //getNext2();
+            // TODO: AsyncTaskLoader - 5. Запуск загрузки данных
+            Loader<ArrayList<DataBaseEntry>> dbLoader = getLoaderManager().restartLoader(LOADER_GET_NEXT, loaderBundle, this);
+            dbLoader.forceLoad();
         }
-        if (list.size() > 0)
+        if (list.size() > 10)
         {
             textViewEn.setText(list.get(0).get_english());
             textViewRu.setText(list.get(0).get_translate());
@@ -728,33 +747,37 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
 
     private void getPrevious2()
     {
+        // TODO: AsyncTaskLoader - 4. Передача параметров в AsyncTaskLoader
+        Bundle loaderBundle = new Bundle();
+        loaderBundle.putString(GetDbEntriesLoader.KEY_TABLE_NAME, playList.get(appData2.getNdict()));
+        loaderBundle.putInt(GetDbEntriesLoader.KEY_START_ID, appData2.getNword());
+        loaderBundle.putInt(GetDbEntriesLoader.KEY_END_ID, appData2.getNword());
+
+
+        // TODO: AsyncTaskLoader - 5. Запуск загрузки данных
+        Loader<ArrayList<DataBaseEntry>> dbLoader = getLoaderManager().restartLoader(LOADER_GET_PREVIOUS, loaderBundle, this);
+        dbLoader.forceLoad();
+
         GetWordsCountAsync asyncTask = new GetWordsCountAsync(this, new GetWordsCountAsync.AsyncTaskListener()
         {
             int ndict = 0; int nword = 1;
             @Override
             public void onTaskComplete(int wordsCount)
             {
-                if (playList.size() > 0 && appData2.getNdict() < playList.size())
+                if (playList.size() > 0)
                 {
-                    if (appData2.getNdict() == 0 && appData2.getNword() == 1 && playList.size() > 1)
+                    if (appData2.getNdict() == 0 && appData2.getNword() == 1)
                     {
-                        ndict = playList.size() - 1;
-                        nword = wordsCount;
-                    }
-                    else if (appData2.getNdict() == 0 && appData2.getNword() == 1 && playList.size() == 1)
-                    {
-                        ndict = appData2.getNdict();
-                        nword = wordsCount;
-                    }
-                    else if (appData2.getNword() > 1)
-                    {
-                        ndict = appData2.getNdict();
-                        nword = appData2.getNword() - 1;
-                    }
-                    else if (playList.size()>1 && appData2.getNdict()>0 && appData2.getNword()==1)
-                    {
-                        ndict = appData2.getNdict() - 1;
-                        nword = wordsCount;
+                        if (playList.size() > 1)
+                        {
+                            ndict = playList.size() - 1;
+                            nword = 1;
+                        }
+                        else if(playList.size() == 1)
+                        {
+                            ndict = appData2.getNdict();
+                            nword = 1;
+                        }
                     }
 
                     appData2.setNword(nword);
@@ -837,6 +860,87 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             }
         }
         return false;
+    }
+
+    // TODO: AsyncTaskLoader - 1. MainActivity реализует интерфейс LoaderManager.LoaderCallbacks
+    private final int LOADER_GET_PREVIOUS = 1;
+    private final int LOADER_GET_NEXT = 2;
+    @Override
+    public Loader onCreateLoader(int id, Bundle bundle)
+    {
+        Loader<ArrayList<DataBaseEntry>> loader = null;
+        switch (id)
+        {
+            case LOADER_GET_PREVIOUS:
+                loader = new GetDbEntriesLoader(this, bundle);
+                break;
+            case LOADER_GET_NEXT:
+                loader = new GetDbEntriesLoader(this, bundle);
+            default:
+                break;
+        }
+        return loader;
+    }
+
+    ArrayList<DataBaseEntry> dbEntries;
+
+    @Override   // TODO: AsyncTaskLoader - 2. Реализация интерфейса LoaderManager.LoaderCallbacks
+    public void onLoadFinished(Loader loader, Object data)
+    {
+        if (loader.getId() == LOADER_GET_NEXT)
+        {
+            try
+            {
+                dbEntries = (ArrayList<DataBaseEntry>) data;
+                int maxRowId = Integer.parseInt(dbEntries.get(0).get_count_repeat());
+                if (appData2.getNword() >= maxRowId)
+                {
+                    appData2.setNword(1);
+                    if (appData2.getNdict() >= playList.size()-1)
+                    {
+                        appData2.setNdict(0);
+                    }
+                    else
+                    {
+                        appData2.setNdict(appData2.getNdict()+1);
+                    }
+                }
+                else if (appData2.getNword() < maxRowId)
+                {
+                    appData2.setNword(appData2.getNword()+1);
+                }
+            } catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+        if (loader.getId() == LOADER_GET_PREVIOUS)
+        {
+            try
+            {
+                dbEntries = (ArrayList<DataBaseEntry>) data;
+            } catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+        if (dbEntries != null && dbEntries.size() > 0)
+        {
+            textViewEn.setText(dbEntries.get(0).get_english());
+            textViewRu.setText(dbEntries.get(0).get_translate());
+            //textViewDict.setText(playList.get(appData2.getNdict()));
+
+            HashMap<String, String> hashMap = new HashMap<>();
+            hashMap.put("KEY_XXX", "xxx");
+            a_SplashScreenActivity.speech.speak(dbEntries.get(0).get_english(), TextToSpeech.QUEUE_ADD, hashMap);
+            dbEntries.clear();
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader loader)
+    {
+
     }
 
     public class UpdateBroadcastReceiver extends BroadcastReceiver
