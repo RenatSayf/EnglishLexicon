@@ -919,6 +919,23 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
             try
             {
                 dbEntries = (ArrayList<DataBaseEntry>) data;
+                int maxRowId = Integer.parseInt(dbEntries.get(0).get_count_repeat());
+                if (appData2.getNword() <= 1)
+                {
+                    appData2.setNword(maxRowId);
+                    if (appData2.getNdict() <= 0)
+                    {
+                        appData2.setNdict(playList.size()-1);
+                    }
+                    else
+                    {
+                        appData2.setNdict(appData2.getNdict()-1);
+                    }
+                }
+                else
+                {
+                    appData2.setNword(appData2.getNword()-1);
+                }
             } catch (Exception e)
             {
                 e.printStackTrace();
