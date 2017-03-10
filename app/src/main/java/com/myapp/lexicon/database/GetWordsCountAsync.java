@@ -30,7 +30,7 @@ public class GetWordsCountAsync extends AsyncTask<String, Void, Integer>
 
     public interface AsyncTaskListener
     {
-        void onTaskComplete(int result);
+        void onTaskComplete(int wordsCount);
     }
 
     private void setTaskCompleteListener(AsyncTaskListener listener)
@@ -83,6 +83,13 @@ public class GetWordsCountAsync extends AsyncTask<String, Void, Integer>
         {
             listener.onTaskComplete(count);
         }
+        lockOrientation.unLock();
+    }
+
+    @Override
+    protected void onCancelled()
+    {
+        super.onCancelled();
         lockOrientation.unLock();
     }
 }

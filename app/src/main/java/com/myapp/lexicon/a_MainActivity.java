@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.speech.tts.TextToSpeech;
@@ -631,9 +630,8 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         {
             int ndict = 0; int nword = 1;
             @Override
-            public void onTaskComplete(int result)
+            public void onTaskComplete(int wordsCount)
             {
-                int wordsCount = result;
                 if (playList.size() > 0)
                 {
                     if (appData2.getNdict() == playList.size()-1 && appData2.getNword() == wordsCount)
@@ -734,9 +732,8 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         {
             int ndict = 0; int nword = 1;
             @Override
-            public void onTaskComplete(int result)
+            public void onTaskComplete(int wordsCount)
             {
-                int wordsCount = result;
                 if (playList.size() > 0 && appData2.getNdict() < playList.size())
                 {
                     if (appData2.getNdict() == 0 && appData2.getNword() == 1 && playList.size() > 1)
