@@ -38,8 +38,6 @@ import android.widget.ViewFlipper;
 
 import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.database.GetDbEntriesLoader;
-import com.myapp.lexicon.database.GetEntriesAsync;
-import com.myapp.lexicon.database.GetWordsCountAsync;
 import com.myapp.lexicon.settings.AppData2;
 import com.myapp.lexicon.settings.AppSettings;
 
@@ -150,7 +148,7 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
         }
 
         // TODO: AsyncTaskLoader - 3. инициализация
-        getLoaderManager().initLoader(LOADER_GET_PREVIOUS, savedInstanceState, this);
+        getLoaderManager().initLoader(LOADER_GET_ENTRIES, savedInstanceState, this);
 
     }
     private void initViews()
@@ -564,239 +562,94 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     {
         speechServiceOnPause();
         int id = view.getId();
-        ArrayList<DataBaseEntry> list = new ArrayList<>();
-
-        // TODO: AsyncTaskLoader - 4. Передача параметров в AsyncTaskLoader
-        Bundle loaderBundle = new Bundle();
-        loaderBundle.putString(GetDbEntriesLoader.KEY_TABLE_NAME, playList.get(appData2.getNdict()));
-        loaderBundle.putInt(GetDbEntriesLoader.KEY_START_ID, appData2.getNword());
-        loaderBundle.putInt(GetDbEntriesLoader.KEY_END_ID, appData2.getNword());
+        if (id == R.id.btn_next)
+        {
+            getNext();
+        }
 
         if (id == R.id.btn_previous)
         {
-            //list = getPrevious();
-            //getPrevious2();
-            // TODO: AsyncTaskLoader - 5. Запуск загрузки данных
-            Loader<ArrayList<DataBaseEntry>> dbLoader = getLoaderManager().restartLoader(LOADER_GET_PREVIOUS, loaderBundle, this);
-            dbLoader.forceLoad();
+            getPrevious();
         }
-        if (id == R.id.btn_next)
-        {
-            //list = getNext();
-            //getNext2();
-
-            // TODO: AsyncTaskLoader - 5. Запуск загрузки данных
-            Loader<ArrayList<DataBaseEntry>> dbLoader = getLoaderManager().restartLoader(LOADER_GET_NEXT, loaderBundle, this);
-            dbLoader.forceLoad();
-        }
-
-
     }
 
-    private ArrayList<DataBaseEntry> getNext() throws SQLException, ExecutionException, InterruptedException
+    private void getNext() throws SQLException, ExecutionException, InterruptedException
     {
-        int ndict = 0; int nword = 1;
-        ArrayList<DataBaseEntry> list = null;
         dataBaseQueries = new DataBaseQueries(this);
         int wordsCount = dataBaseQueries.getEntriesCountAsync(playList.get(appData2.getNdict()));
-        if (playList.size() > 0)
+        appData2.setNword(appData2.getNword()+1);
+        if (playList.size() > 1)
         {
-            if (appData2.getNdict() == playList.size()-1 && appData2.getNword() == wordsCount)
+            if (appData2.getNword() > wordsCount)
             {
-                if (playList.size() > 1)
+                appData2.setNword(1);
+                appData2.setNdict(appData2.getNdict()+1);
+                if (appData2.getNdict() > playList.size()-1)
                 {
-                    ndict = 0;
-                    nword = 1;
-                }
-                else if(playList.size() == 1)
-                {
-                    ndict = appData2.getNdict();
-                    nword = 1;
+                    appData2.setNdict(0);
                 }
             }
-            else if (appData2.getNword() < wordsCount)
-            {
-                ndict = appData2.getNdict();
-                nword = appData2.getNword() + 1;
-            }
-            else if (playList.size()>1 && appData2.getNdict()<playList.size()-1 && appData2.getNword() == wordsCount)
-            {
-                ndict = appData2.getNdict() + 1;
-                nword = 1;
-            }
-            appData2.setNword(nword);
-            appData2.setNdict(ndict);
-            list = dataBaseQueries.getEntriesFromDBAsync(playList.get(appData2.getNdict()), appData2.getNword(), appData2.getNword());
         }
-        else
+        else if (playList.size() == 1)
         {
-            list.add(new DataBaseEntry(null,null,null));
+            if (appData2.getNword() > wordsCount)
+            {
+                appData2.setNword(1);
+            }
         }
-        return list;
-    }
 
-
-    public void getNext2()
-    {
-        GetWordsCountAsync asyncTask = new GetWordsCountAsync(this, new GetWordsCountAsync.AsyncTaskListener()
-        {
-            int ndict = 0; int nword = 1;
-            @Override
-            public void onTaskComplete(int wordsCount)
-            {
-                if (playList.size() > 0)
-                {
-                    if (appData2.getNdict() == playList.size()-1 && appData2.getNword() == wordsCount)
-                    {
-                        if (playList.size() > 1)
-                        {
-                            ndict = 0;
-                            nword = 1;
-                        }
-                        else if(playList.size() == 1)
-                        {
-                            ndict = appData2.getNdict();
-                            nword = 1;
-                        }
-                    }
-                    else if (appData2.getNword() < wordsCount)
-                    {
-                        ndict = appData2.getNdict();
-                        nword = appData2.getNword() + 1;
-                    }
-                    else if (playList.size()>1 && appData2.getNdict()<playList.size()-1 && appData2.getNword() == wordsCount)
-                    {
-                        ndict = appData2.getNdict() + 1;
-                        nword = 1;
-                    }
-                    appData2.setNword(nword);
-                    appData2.setNdict(ndict);
-                    GetEntriesAsync asyncTask2 = new GetEntriesAsync(a_MainActivity.this, new GetEntriesAsync.AsyncTaskListener()
-                    {
-                        @Override
-                        public void onTaskComplete(ArrayList<DataBaseEntry> entries)
-                        {
-                            if (entries != null && entries.size() > 0)
-                            {
-                                textViewEn.setText(entries.get(0).get_english());
-                                textViewRu.setText(entries.get(0).get_translate());
-                                textViewDict.setText(playList.get(appData2.getNdict()));
-
-                                HashMap<String, String> hashMap = new HashMap<>();
-                                hashMap.put("KEY_XXX", "xxx");
-                                a_SplashScreenActivity.speech.speak(entries.get(0).get_english(), TextToSpeech.QUEUE_ADD, hashMap);
-                            }
-                        }
-                    });
-                    asyncTask2.execute(playList.get(ndict), String.valueOf(nword), String.valueOf(nword));
-                }
-            }
-        });
-        asyncTask.execute(playList.get(appData2.getNdict()));
-    }
-
-    private ArrayList<DataBaseEntry> getPrevious() throws SQLException, ExecutionException, InterruptedException
-    {
-        int ndict = 0; int nword = 1;
-        ArrayList<DataBaseEntry> list = null;
-        dataBaseQueries = new DataBaseQueries(this);
-        String dict;
-        if (playList.size() > 0 && appData2.getNdict() < playList.size())
-        {
-            dict = playList.get(appData2.getNdict());
-            int wordsCount = dataBaseQueries.getEntriesCountAsync(dict);
-
-            if (appData2.getNdict() == 0 && appData2.getNword() == 1 && playList.size() > 1)
-            {
-                ndict = playList.size() - 1;
-                nword = dataBaseQueries.getEntriesCountAsync(playList.get(ndict));
-            }
-            else if (appData2.getNdict() == 0 && appData2.getNword() == 1 && playList.size() == 1)
-            {
-                ndict = appData2.getNdict();
-                nword = dataBaseQueries.getEntriesCountAsync(playList.get(ndict));
-            }
-            else if (appData2.getNword() > 1)
-            {
-                ndict = appData2.getNdict();
-                nword = appData2.getNword() - 1;
-            }
-            else if (playList.size()>1 && appData2.getNdict()>0 && appData2.getNword()==1)
-            {
-                ndict = appData2.getNdict() - 1;
-                nword = dataBaseQueries.getEntriesCountAsync(playList.get(ndict));
-            }
-
-            appData2.setNword(nword);
-            appData2.setNdict(ndict);
-            list = dataBaseQueries.getEntriesFromDBAsync(playList.get(appData2.getNdict()), appData2.getNword(), appData2.getNword());
-        }
-        else
-        {
-            list.add(new DataBaseEntry(null,null,null));
-        }
-        return list;
-    }
-
-    private void getPrevious2()
-    {
         // TODO: AsyncTaskLoader - 4. Передача параметров в AsyncTaskLoader
         Bundle loaderBundle = new Bundle();
         loaderBundle.putString(GetDbEntriesLoader.KEY_TABLE_NAME, playList.get(appData2.getNdict()));
         loaderBundle.putInt(GetDbEntriesLoader.KEY_START_ID, appData2.getNword());
         loaderBundle.putInt(GetDbEntriesLoader.KEY_END_ID, appData2.getNword());
 
+        // TODO: AsyncTaskLoader - 5. Запуск загрузки данных
+        Loader<ArrayList<DataBaseEntry>> dbLoader = getLoaderManager().restartLoader(LOADER_GET_ENTRIES, loaderBundle, this);
+        dbLoader.forceLoad();
+    }
+
+    private void getPrevious() throws SQLException, ExecutionException, InterruptedException
+    {
+        dataBaseQueries = new DataBaseQueries(this);
+        playList = appSettings.getPlayList();
+
+        if (playList.size() > 1)
+        {
+            appData2.setNword(appData2.getNword()-1);
+            if (appData2.getNword() < 1)
+            {
+                appData2.setNdict(appData2.getNdict()-1);
+                if (appData2.getNdict() < 0)
+                {
+                    appData2.setNdict(playList.size()-1);
+                }
+                int wordsCount = dataBaseQueries.getEntriesCountAsync(playList.get(appData2.getNdict()));
+                appData2.setNword(wordsCount);
+            }
+        }
+        if (playList.size() == 1)
+        {
+            if (appData2.getNword() <= 1)
+            {
+                int wordsCount = dataBaseQueries.getEntriesCountAsync(playList.get(appData2.getNdict()));
+                appData2.setNword(wordsCount);
+            }
+            else
+            {
+                appData2.setNword(appData2.getNword()-1);
+            }
+        }
+
+        // TODO: AsyncTaskLoader - 4. Передача параметров в AsyncTaskLoader
+        Bundle loaderBundle = new Bundle();
+        loaderBundle.putString(GetDbEntriesLoader.KEY_TABLE_NAME, playList.get(appData2.getNdict()));
+        loaderBundle.putInt(GetDbEntriesLoader.KEY_START_ID, appData2.getNword());
+        loaderBundle.putInt(GetDbEntriesLoader.KEY_END_ID, appData2.getNword());
 
         // TODO: AsyncTaskLoader - 5. Запуск загрузки данных
-        Loader<ArrayList<DataBaseEntry>> dbLoader = getLoaderManager().restartLoader(LOADER_GET_PREVIOUS, loaderBundle, this);
+        Loader<ArrayList<DataBaseEntry>> dbLoader = getLoaderManager().restartLoader(LOADER_GET_ENTRIES, loaderBundle, this);
         dbLoader.forceLoad();
-
-        GetWordsCountAsync asyncTask = new GetWordsCountAsync(this, new GetWordsCountAsync.AsyncTaskListener()
-        {
-            int ndict = 0; int nword = 1;
-            @Override
-            public void onTaskComplete(int wordsCount)
-            {
-                if (playList.size() > 0)
-                {
-                    if (appData2.getNdict() == 0 && appData2.getNword() == 1)
-                    {
-                        if (playList.size() > 1)
-                        {
-                            ndict = playList.size() - 1;
-                            nword = 1;
-                        }
-                        else if(playList.size() == 1)
-                        {
-                            ndict = appData2.getNdict();
-                            nword = 1;
-                        }
-                    }
-
-                    appData2.setNword(nword);
-                    appData2.setNdict(ndict);
-                    GetEntriesAsync asyncTask2 = new GetEntriesAsync(a_MainActivity.this, new GetEntriesAsync.AsyncTaskListener()
-                    {
-                        @Override
-                        public void onTaskComplete(ArrayList<DataBaseEntry> entries)
-                        {
-                            if (entries != null && entries.size() > 0)
-                            {
-                                textViewEn.setText(entries.get(0).get_english());
-                                textViewRu.setText(entries.get(0).get_translate());
-                                textViewDict.setText(playList.get(appData2.getNdict()));
-
-                                HashMap<String, String> hashMap = new HashMap<>();
-                                hashMap.put("KEY_XXX", "xxx");
-                                a_SplashScreenActivity.speech.speak(entries.get(0).get_english(), TextToSpeech.QUEUE_ADD, hashMap);
-                            }
-                        }
-                    });
-                    asyncTask2.execute(playList.get(ndict), String.valueOf(nword), String.valueOf(nword));
-                }
-            }
-        });
-        asyncTask.execute(playList.get(appData2.getNdict()));
     }
 
     public void switchRuSound_OnCheckedChange()
@@ -856,18 +709,14 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     }
 
     // TODO: AsyncTaskLoader - 1. MainActivity реализует интерфейс LoaderManager.LoaderCallbacks
-    private final int LOADER_GET_PREVIOUS = 1;
-    private final int LOADER_GET_NEXT = 2;
+    private final int LOADER_GET_ENTRIES = 113336564;
     @Override
     public Loader onCreateLoader(int id, Bundle bundle)
     {
         Loader<ArrayList<DataBaseEntry>> loader = null;
         switch (id)
         {
-            case LOADER_GET_PREVIOUS:
-                loader = new GetDbEntriesLoader(this, bundle);
-                break;
-            case LOADER_GET_NEXT:
+            case LOADER_GET_ENTRIES:
                 loader = new GetDbEntriesLoader(this, bundle);
             default:
                 break;
@@ -880,67 +729,13 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     @Override   // TODO: AsyncTaskLoader - 2. Реализация интерфейса LoaderManager.LoaderCallbacks
     public void onLoadFinished(Loader loader, Object data)
     {
-        if (loader.getId() == LOADER_GET_NEXT)
-        {
-            try
-            {
-                dbEntries = (ArrayList<DataBaseEntry>) data;
-                int maxRowId = Integer.parseInt(dbEntries.get(0).get_count_repeat());
-                if (appData2.getNword() >= maxRowId)
-                {
-                    appData2.setNword(1);
-                    if (appData2.getNdict() >= playList.size()-1)
-                    {
-                        appData2.setNdict(0);
-                    }
-                    else
-                    {
-                        appData2.setNdict(appData2.getNdict()+1);
-                    }
-                }
-                else if (appData2.getNword() < maxRowId)
-                {
-                    appData2.setNword(appData2.getNword()+1);
-                }
-            } catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-        }
-        if (loader.getId() == LOADER_GET_PREVIOUS)
-        {
-            try
-            {
-                dbEntries = (ArrayList<DataBaseEntry>) data;
-                int maxRowId = Integer.parseInt(dbEntries.get(0).get_count_repeat());
-                //appData2.setNword(appData2.getNword()-1);
+        dbEntries = (ArrayList<DataBaseEntry>) data;
 
-                if (appData2.getNword() <= 1)
-                {
-                    appData2.setNword(100000);
-                    if (appData2.getNdict() <= 0)
-                    {
-                        appData2.setNdict(playList.size()-1);
-                    }
-                    else if (appData2.getNdict() > 0)
-                    {
-                        appData2.setNdict(appData2.getNdict()-1);
-                    }
-                }
-                else if (appData2.getNword() > 1)
-                {
-                    appData2.setNword(appData2.getNword()-1);
-                }
-            } catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-        }
         if (dbEntries != null && dbEntries.size() > 0)
         {
             textViewEn.setText(dbEntries.get(0).get_english());
             textViewRu.setText(dbEntries.get(0).get_translate());
-            //textViewDict.setText(playList.get(appData2.getNdict()));
+            textViewDict.setText(playList.get(appData2.getNdict()));
 
             HashMap<String, String> hashMap = new HashMap<>();
             hashMap.put("KEY_XXX", "xxx");

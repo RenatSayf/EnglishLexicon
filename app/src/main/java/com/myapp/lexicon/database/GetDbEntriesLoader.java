@@ -60,15 +60,6 @@ public class GetDbEntriesLoader extends AsyncTaskLoader<ArrayList<DataBaseEntry>
                 cursor.moveToFirst();
                 int maxRowId = (int)cursor.getLong(0);
 
-                if (startId > maxRowId)
-                {
-                    startId = maxRowId;
-                    appData2.setNword(maxRowId);
-                }
-                if (endId > maxRowId)
-                {
-                    endId = maxRowId;
-                }
                 cursor = databaseHelper.database.rawQuery("SELECT * FROM " + tableName + " WHERE RowID BETWEEN " + startId +" AND " + endId, null);
                 if (cursor != null && cursor.getCount() > 0)
                 {
