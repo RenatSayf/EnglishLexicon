@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.speech.tts.TextToSpeech;
@@ -37,7 +38,8 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.myapp.lexicon.database.DatabaseHelper;
-import com.myapp.lexicon.database.GetDbEntriesLoader;
+//import com.myapp.lexicon.database.GetDbEntriesLoader;
+import com.myapp.lexicon.database.GetEntriesLoader;
 import com.myapp.lexicon.settings.AppData2;
 import com.myapp.lexicon.settings.AppSettings;
 
@@ -47,7 +49,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-public class a_MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, LoaderManager.LoaderCallbacks
+public class a_MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, LoaderManager.LoaderCallbacks<Cursor>
 {
     public DatabaseHelper databaseHelper;
     private Intent addWordIntent;
@@ -600,12 +602,12 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
 
         // TODO: AsyncTaskLoader - 4. Передача параметров в AsyncTaskLoader
         Bundle loaderBundle = new Bundle();
-        loaderBundle.putString(GetDbEntriesLoader.KEY_TABLE_NAME, playList.get(appData2.getNdict()));
-        loaderBundle.putInt(GetDbEntriesLoader.KEY_START_ID, appData2.getNword());
-        loaderBundle.putInt(GetDbEntriesLoader.KEY_END_ID, appData2.getNword());
+        loaderBundle.putString(GetEntriesLoader.KEY_TABLE_NAME, playList.get(appData2.getNdict()));
+        loaderBundle.putInt(GetEntriesLoader.KEY_START_ID, appData2.getNword());
+        loaderBundle.putInt(GetEntriesLoader.KEY_END_ID, appData2.getNword());
 
         // TODO: AsyncTaskLoader - 5. Запуск загрузки данных
-        Loader<ArrayList<DataBaseEntry>> dbLoader = getLoaderManager().restartLoader(LOADER_GET_ENTRIES, loaderBundle, this);
+        Loader<Cursor> dbLoader = getLoaderManager().restartLoader(LOADER_GET_ENTRIES, loaderBundle, this);
         dbLoader.forceLoad();
     }
 
@@ -643,12 +645,12 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
 
         // TODO: AsyncTaskLoader - 4. Передача параметров в AsyncTaskLoader
         Bundle loaderBundle = new Bundle();
-        loaderBundle.putString(GetDbEntriesLoader.KEY_TABLE_NAME, playList.get(appData2.getNdict()));
-        loaderBundle.putInt(GetDbEntriesLoader.KEY_START_ID, appData2.getNword());
-        loaderBundle.putInt(GetDbEntriesLoader.KEY_END_ID, appData2.getNword());
+        loaderBundle.putString(GetEntriesLoader.KEY_TABLE_NAME, playList.get(appData2.getNdict()));
+        loaderBundle.putInt(GetEntriesLoader.KEY_START_ID, appData2.getNword());
+        loaderBundle.putInt(GetEntriesLoader.KEY_END_ID, appData2.getNword());
 
         // TODO: AsyncTaskLoader - 5. Запуск загрузки данных
-        Loader<ArrayList<DataBaseEntry>> dbLoader = getLoaderManager().restartLoader(LOADER_GET_ENTRIES, loaderBundle, this);
+        Loader<Cursor> dbLoader = getLoaderManager().restartLoader(LOADER_GET_ENTRIES, loaderBundle, this);
         dbLoader.forceLoad();
     }
 
@@ -713,34 +715,51 @@ public class a_MainActivity extends AppCompatActivity implements NavigationView.
     @Override
     public Loader onCreateLoader(int id, Bundle bundle)
     {
-        Loader<ArrayList<DataBaseEntry>> loader = null;
+        Loader<Cursor> loader = null;
         switch (id)
         {
             case LOADER_GET_ENTRIES:
-                loader = new GetDbEntriesLoader(this, bundle);
+                loader = new GetEntriesLoader(this, bundle);
             default:
                 break;
         }
         return loader;
     }
 
-    ArrayList<DataBaseEntry> dbEntries;
-
     @Override   // TODO: AsyncTaskLoader - 2. Реализация интерфейса LoaderManager.LoaderCallbacks
-    public void onLoadFinished(Loader loader, Object data)
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor)
     {
-        dbEntries = (ArrayList<DataBaseEntry>) data;
-
-        if (dbEntries != null && dbEntries.size() > 0)
+        DataBaseEntry dataBaseEntry = null;
+        try
         {
-            textViewEn.setText(dbEntries.get(0).get_english());
-            textViewRu.setText(dbEntries.get(0).get_translate());
+            if (cursor != null && cursor.getCount() > 0)
+            {
+                cursor.moveToFirst();
+                dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1), cursor.getString(3));
+            }
+        }
+        catch (Exception e)
+        {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+        finally
+        {
+            if (cursor != null)
+            {
+                cursor.close();
+            }
+        }
+
+        if (dataBaseEntry != null)
+        {
+            textViewEn.setText(dataBaseEntry.get_english());
+            textViewRu.setText(dataBaseEntry.get_translate());
             textViewDict.setText(playList.get(appData2.getNdict()));
 
             HashMap<String, String> hashMap = new HashMap<>();
             hashMap.put("KEY_XXX", "xxx");
-            a_SplashScreenActivity.speech.speak(dbEntries.get(0).get_english(), TextToSpeech.QUEUE_ADD, hashMap);
-            dbEntries.clear();
+            a_SplashScreenActivity.speech.speak(dataBaseEntry.get_english(), TextToSpeech.QUEUE_ADD, hashMap);
         }
     }
 
