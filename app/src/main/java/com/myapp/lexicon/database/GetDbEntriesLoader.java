@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 
 import com.myapp.lexicon.DataBaseEntry;
+import com.myapp.lexicon.settings.AppData2;
 
 import java.util.ArrayList;
 
@@ -24,6 +25,7 @@ public class GetDbEntriesLoader extends AsyncTaskLoader<ArrayList<DataBaseEntry>
     private int startId, endId;
 
     private DatabaseHelper databaseHelper;
+    private AppData2 appData2;
 
     public GetDbEntriesLoader(Context context, Bundle bundle)
     {
@@ -36,6 +38,7 @@ public class GetDbEntriesLoader extends AsyncTaskLoader<ArrayList<DataBaseEntry>
             startId = bundle.getInt(KEY_START_ID);
             endId = bundle.getInt(KEY_END_ID);
         }
+        appData2 = AppData2.getInstance();
     }
 
     @Override
@@ -60,6 +63,7 @@ public class GetDbEntriesLoader extends AsyncTaskLoader<ArrayList<DataBaseEntry>
                 if (startId > maxRowId)
                 {
                     startId = maxRowId;
+                    appData2.setNword(maxRowId);
                 }
                 if (endId > maxRowId)
                 {
