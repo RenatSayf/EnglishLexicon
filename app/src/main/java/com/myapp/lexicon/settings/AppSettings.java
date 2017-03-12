@@ -116,10 +116,21 @@ public class AppSettings
         if (item != null)
         {
             ArrayList<String> playList = getPlayList();
+            int indexOf = playList.indexOf(item);
             if (playList.contains(item))
             {
                 playList.remove(item);
                 savePlayList(playList);
+            }
+            AppData2 appData2 = AppData2.getInstance();
+            if (appData2.getNdict() == indexOf)
+            {
+                appData2.setNdict(appData2.getNdict()-1);
+                if (appData2.getNdict() < 0)
+                {
+                    appData2.setNdict(0);
+                }
+                appData2.setNword(1);
             }
         }
     }
