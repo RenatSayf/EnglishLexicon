@@ -1,14 +1,18 @@
-package com.myapp.lexicon;
+package com.myapp.lexicon.main;
 
 import android.app.IntentService;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Handler;
 import android.os.IBinder;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.widget.Toast;
 
+import com.myapp.lexicon.R;
+import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DatabaseHelper;
+import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.settings.AppData2;
 import com.myapp.lexicon.settings.AppSettings;
 
@@ -18,11 +22,11 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
+
 // TODO:  IntentService class
-public class z_speechService extends IntentService
+public class SpeechService extends IntentService
 {
     private static boolean stop = true;
-    private ArrayList<String> playList;
     private DatabaseHelper databaseHelper;
     private AppSettings appSettings;
     private AppData2 appData2;
@@ -30,6 +34,7 @@ public class z_speechService extends IntentService
     private String textRu;
     private String textDict;
     private int countRepeat;
+    private Handler toastHandler;
     private static boolean isEngOnly = false;
 
     public static final String ACTION_UPDATE = "com.myapp.lexicon.UPDATE";
@@ -38,7 +43,7 @@ public class z_speechService extends IntentService
     public static final String EXTRA_KEY_DICT = "EXTRA_UPDATE_DICT";
     public static final String EXTRA_KEY_COUNT_REPEAT = "extra_key_count_repeat";
 
-    public z_speechService()
+    public SpeechService()
     {
         super("LexiconSpeechService");
     }
@@ -75,6 +80,7 @@ public class z_speechService extends IntentService
         {
             e.printStackTrace();
         }
+        toastHandler = new Handler();   // TODO: IntentService - создание Handler для показа Toast
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -142,7 +148,7 @@ public class z_speechService extends IntentService
         updateIntent.setAction(ACTION_UPDATE);
         updateIntent.addCategory(Intent.CATEGORY_DEFAULT);
 
-        playList = appSettings.getPlayList();
+        ArrayList<String> playList = appSettings.getPlayList();
 
         if (playList.size() == 0) return;
 
@@ -158,7 +164,6 @@ public class z_speechService extends IntentService
                     {
                         String playListItem = playList.get(i);
                         textDict = playListItem;
-                        //AppData.setCurrentDict(textDict);
                         appData2.setNdict(i);
                         int wordsCountInTable = getWordsCount(playListItem);
                         if (wordsCountInTable > 0)
@@ -176,7 +181,7 @@ public class z_speechService extends IntentService
                                     continue;
                                 }
 
-                                int repeat = 0;
+                                int repeat;
                                 try
                                 {
                                     repeat = Integer.parseInt(list.get(0).get_count_repeat());
@@ -241,7 +246,6 @@ public class z_speechService extends IntentService
                     {
                         String playListItem = playList.get(i);
                         textDict = playListItem;
-                        //AppData.setCurrentDict(playListItem);
                         appData2.setNdict(i);
                         int wordsCountInTable = getWordsCount(playListItem);
                         if (wordsCountInTable > 0)
@@ -259,7 +263,7 @@ public class z_speechService extends IntentService
                                     continue;
                                 }
 
-                                int repeat = 0;
+                                int repeat;
                                 try
                                 {
                                     repeat = Integer.parseInt(list.get(0).get_count_repeat());
@@ -316,7 +320,7 @@ public class z_speechService extends IntentService
     private void speakWord(final DataBaseEntry entries, boolean engOnly) throws InterruptedException
     {
         final boolean[] speek_done = {false};
-        a_SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+        SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
         {
             @Override
             public void onStart(String utteranceId)
@@ -337,7 +341,7 @@ public class z_speechService extends IntentService
             {
                 if (stop)
                 {
-                    a_SplashScreenActivity.speech.stop();
+                    SplashScreenActivity.speech.stop();
                     return;
                 }
                 if (utteranceId.equals("en"))
@@ -345,8 +349,8 @@ public class z_speechService extends IntentService
                     textRu = entries.get_translate();
                     HashMap<String,String> mapRu = new HashMap<>();
                     mapRu.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "ru");
-                    a_SplashScreenActivity.speech.setLanguage(Locale.getDefault());
-                    a_SplashScreenActivity.speech.speak(textRu, TextToSpeech.QUEUE_ADD, mapRu);
+                    SplashScreenActivity.speech.setLanguage(Locale.getDefault());
+                    SplashScreenActivity.speech.speak(textRu, TextToSpeech.QUEUE_ADD, mapRu);
                 }
                 if (utteranceId.equals("ru"))
                 {
@@ -357,7 +361,15 @@ public class z_speechService extends IntentService
             @Override
             public void onError(String utteranceId)
             {
-                Toast.makeText(getApplicationContext(), R.string.speech_error, Toast.LENGTH_SHORT).show();
+                // TODO: IntentService - Показать Toast
+                toastHandler.post(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        Toast.makeText(getApplicationContext(), R.string.speech_error, Toast.LENGTH_SHORT).show();
+                    }
+                });
                 speek_done[0] = true;
             }
         });
@@ -373,8 +385,8 @@ public class z_speechService extends IntentService
         }
         textEn = entries.get_english();
         textRu = "";
-        a_SplashScreenActivity.speech.setLanguage(Locale.US);
-        a_SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, mapEn);
+        SplashScreenActivity.speech.setLanguage(Locale.US);
+        SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, mapEn);
 
         while (!speek_done[0])
         {
@@ -386,8 +398,6 @@ public class z_speechService extends IntentService
                 e.printStackTrace();
             }
         }
-
-        return;
     }
 
     private int getWordsCount(String dictName)

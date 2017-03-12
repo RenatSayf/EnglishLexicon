@@ -1,4 +1,4 @@
-package com.myapp.lexicon;
+package com.myapp.lexicon.database;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -11,7 +11,10 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.myapp.lexicon.R;
+import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DatabaseHelper;
+import com.myapp.lexicon.z_Log;
 
 import java.sql.SQLException;
 import java.util.ArrayList;

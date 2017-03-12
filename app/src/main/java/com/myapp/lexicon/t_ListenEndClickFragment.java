@@ -9,14 +9,12 @@ import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.support.v4.app.Fragment;
-import android.support.v4.util.TimeUtils;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewPropertyAnimator;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -31,9 +29,11 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import java.sql.Time;
+import com.myapp.lexicon.database.DataBaseEntry;
+import com.myapp.lexicon.database.DataBaseQueries;
+import com.myapp.lexicon.main.SplashScreenActivity;
+
 import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -230,8 +230,8 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
             public void onClick(View v)
             {
                 topPanelVisible(1, 0, isOpen);
-                a_SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, a_SplashScreenActivity.map);
-                a_SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+                SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, SplashScreenActivity.map);
+                SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
                 {
                     @Override
                     public void onStart(String utteranceId)
@@ -420,8 +420,8 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
                         tempButton.setBackgroundResource(R.drawable.text_btn_for_test_green);
                     }
 
-                    a_SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, a_SplashScreenActivity.map);
-                    a_SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+                    SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, SplashScreenActivity.map);
+                    SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
                     {
                         @Override
                         public void onStart(String utteranceId)
@@ -573,8 +573,8 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
                     @Override
                     public void onAnimationEnd(Animator animation)
                     {
-                        a_SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, a_SplashScreenActivity.map);
-                        a_SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+                        SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, SplashScreenActivity.map);
+                        SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
                         {
                             @Override
                             public void onStart(String utteranceId)

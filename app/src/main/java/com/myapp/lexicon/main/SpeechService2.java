@@ -1,4 +1,4 @@
-package com.myapp.lexicon;
+package com.myapp.lexicon.main;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -10,7 +10,11 @@ import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.myapp.lexicon.R;
+import com.myapp.lexicon.database.DataBaseEntry;
+import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.DatabaseHelper;
+import com.myapp.lexicon.z_RandomNumberGenerator;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -23,7 +27,7 @@ import java.util.concurrent.TimeUnit;
  * Created by Ренат on 13.02.2017.
  */
 
-public class z_speechService2 extends IntentService
+public class SpeechService2 extends IntentService
 {
     public static final String ACTION_UPDATE = "com.myapp.lexicon";
     public static final String EXTRA_KEY_UPDATE_EN = "EXTRA_UPDATE_EN";
@@ -56,7 +60,7 @@ public class z_speechService2 extends IntentService
         void onStopSpeechService();
     }
 
-    public z_speechService2()
+    public SpeechService2()
     {
         super("com.myapp.lexicon");
     }

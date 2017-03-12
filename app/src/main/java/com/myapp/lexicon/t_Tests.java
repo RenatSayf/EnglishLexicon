@@ -1,10 +1,8 @@
 package com.myapp.lexicon;
 
 
-import android.speech.tts.TextToSpeech;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -13,8 +11,9 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.myapp.lexicon.database.DataBaseQueries;
+
 import java.sql.SQLException;
-import java.util.Locale;
 
 public class t_Tests extends AppCompatActivity
 {

@@ -31,6 +31,10 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.myapp.lexicon.database.DataBaseEntry;
+import com.myapp.lexicon.database.DataBaseQueries;
+import com.myapp.lexicon.main.SplashScreenActivity;
+
 import java.util.ArrayList;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -472,8 +476,8 @@ public class t_FindPairFragment extends Fragment implements t_DialogTestComplete
                         progressBar.setProgress(progressBar.getProgress()+1);
                         tempButtonLeft.setBackgroundResource(R.drawable.text_btn_for_test_green);
                         tempButtonRight.setBackgroundResource(R.drawable.text_btn_for_test_green);
-                        a_SplashScreenActivity.speech.speak(enword, TextToSpeech.QUEUE_ADD, a_SplashScreenActivity.map);
-                        a_SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+                        SplashScreenActivity.speech.speak(enword, TextToSpeech.QUEUE_ADD, SplashScreenActivity.map);
+                        SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
                         {
                             @Override
                             public void onStart(String utteranceId)

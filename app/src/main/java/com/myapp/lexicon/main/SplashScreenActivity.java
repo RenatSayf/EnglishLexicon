@@ -1,4 +1,4 @@
-package com.myapp.lexicon;
+package com.myapp.lexicon.main;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 
+import com.myapp.lexicon.R;
 import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.HashMap;
@@ -20,7 +21,7 @@ import java.util.Locale;
 /**
  * Created by Ренат on 15.09.2016.
  */
-public class a_SplashScreenActivity extends Activity
+public class SplashScreenActivity extends Activity
 {
     public static TextToSpeech speech;
     public static HashMap<String, String> map = new HashMap<String, String>();
@@ -29,7 +30,7 @@ public class a_SplashScreenActivity extends Activity
     private Intent messageErrorIntent;  // TODO: UpdateBroadcastReceiver. 2 - объявление экземпляра Intent
     public String EXTRA_KEY_ERROR_MSG = "key_error_message";    // TODO: UpdateBroadcastReceiver. 3 - определение ключа для приемника
     public String EXTRA_KEY_MSG_ID = "key_msg_id";              // TODO: UpdateBroadcastReceiver. 3 - определение ключа для приемника
-    public String ACTION_UPDATE = "com.myapp.lexicon.a_SplashScreenActivity";   // TODO: UpdateBroadcastReceiver. 4 - определения действия
+    public String ACTION_UPDATE = "com.myapp.lexicon.main.a_SplashScreenActivity";   // TODO: UpdateBroadcastReceiver. 4 - определения действия
 
     private AppSettings appSettings;
 
@@ -89,9 +90,9 @@ public class a_SplashScreenActivity extends Activity
             {
                 if (utteranceId.equals(Locale.getDefault().getDisplayLanguage()))
                 {
-                    Intent intent = new Intent(a_SplashScreenActivity.this, a_MainActivity.class);
-                    a_SplashScreenActivity.this.startActivity(intent);
-                    a_SplashScreenActivity.this.finish();
+                    Intent intent = new Intent(SplashScreenActivity.this, MainActivity.class);
+                    SplashScreenActivity.this.startActivity(intent);
+                    SplashScreenActivity.this.finish();
                 }
             }
 
@@ -130,7 +131,7 @@ public class a_SplashScreenActivity extends Activity
     }
 
     {
-        appSettings = new AppSettings(a_SplashScreenActivity.this);
+        appSettings = new AppSettings(SplashScreenActivity.this);
     }
 
     private void dialogErrorTTS(final Intent intent, String message, boolean isContinue)
@@ -143,7 +144,7 @@ public class a_SplashScreenActivity extends Activity
                     public void onClick(DialogInterface dialog, int which)
                     {
                         startActivity(intent);
-                        a_SplashScreenActivity.this.finish();
+                        SplashScreenActivity.this.finish();
                     }
                 });
         if (isContinue)
@@ -154,9 +155,9 @@ public class a_SplashScreenActivity extends Activity
                 public void onClick(DialogInterface dialog, int which)
                 {
                     appSettings.setEnglishSpeechOnly(false);
-                    Intent intent = new Intent(a_SplashScreenActivity.this, a_MainActivity.class);
-                    a_SplashScreenActivity.this.startActivity(intent);
-                    a_SplashScreenActivity.this.finish();
+                    Intent intent = new Intent(SplashScreenActivity.this, MainActivity.class);
+                    SplashScreenActivity.this.startActivity(intent);
+                    SplashScreenActivity.this.finish();
                 }
             });
         }
@@ -199,8 +200,8 @@ public class a_SplashScreenActivity extends Activity
                 }
                 else
                 {
-                    a_SplashScreenActivity.this.startActivity(new Intent(a_SplashScreenActivity.this, a_MainActivity.class));
-                    a_SplashScreenActivity.this.finish();
+                    SplashScreenActivity.this.startActivity(new Intent(SplashScreenActivity.this, MainActivity.class));
+                    SplashScreenActivity.this.finish();
                 }
             }
         }

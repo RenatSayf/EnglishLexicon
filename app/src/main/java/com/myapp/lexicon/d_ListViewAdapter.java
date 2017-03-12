@@ -1,20 +1,17 @@
 package com.myapp.lexicon;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import com.myapp.lexicon.database.DataBaseEntry;
 
-import static android.R.attr.entries;
-import static android.R.attr.resource;
+import java.util.ArrayList;
 
 /**
  * Created by Ренат on 29.03.2016.

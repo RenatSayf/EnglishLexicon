@@ -31,6 +31,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.myapp.lexicon.database.DataBaseEntry;
+import com.myapp.lexicon.database.DataBaseQueries;
+import com.myapp.lexicon.main.SplashScreenActivity;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -444,8 +448,8 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
                     {
                         listFromDB = list;
                         progressBar.setProgress(progressBar.getProgress()+1);
-                        a_SplashScreenActivity.speech.speak(textView.getText().toString(), TextToSpeech.QUEUE_ADD, a_SplashScreenActivity.map);
-                        a_SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+                        SplashScreenActivity.speech.speak(textView.getText().toString(), TextToSpeech.QUEUE_ADD, SplashScreenActivity.map);
+                        SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
                         {
                             @Override
                             public void onStart(String utteranceId)

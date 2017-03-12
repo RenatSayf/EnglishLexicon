@@ -1,4 +1,4 @@
-package com.myapp.lexicon;
+package com.myapp.lexicon.playlist;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,11 +6,11 @@ import java.util.List;
 /**
  * Created by Ренат on 05.04.2016.
  */
-public class p_ItemListDict
+public class ItemListDict
 {
     private String _dictName;
     private Boolean _is_selected;
-    public p_ItemListDict(String dictName, Boolean is_selected)
+    public ItemListDict(String dictName, Boolean is_selected)
     {
         _dictName = dictName;
         _is_selected = is_selected;

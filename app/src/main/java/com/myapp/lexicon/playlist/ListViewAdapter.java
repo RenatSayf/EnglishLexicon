@@ -1,4 +1,4 @@
-package com.myapp.lexicon;
+package com.myapp.lexicon.playlist;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -10,6 +10,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
+import com.myapp.lexicon.R;
 import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.ArrayList;
@@ -19,13 +20,13 @@ import static android.content.Context.MODE_PRIVATE;
 /**
  * Created by Ренат on 05.04.2016.
  */
-public class p_ListViewAdapter extends BaseAdapter
+public class ListViewAdapter extends BaseAdapter
 {
     private Context context;
     private ArrayList<String> list;
     private AppSettings appSettings;
 
-    public p_ListViewAdapter(ArrayList<String> list, Context context)
+    public ListViewAdapter(ArrayList<String> list, Context context)
     {
         this.list = list;
         this.context = context;

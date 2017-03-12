@@ -29,10 +29,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
+import com.myapp.lexicon.database.DataBaseEntry;
+import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.database.GetAllFromTableLoader;
 import com.myapp.lexicon.database.GetEntriesLoader;
 import com.myapp.lexicon.database.GetTableListLoader;
+import com.myapp.lexicon.main.MainActivity;
 import com.myapp.lexicon.settings.AppData2;
 
 import java.sql.SQLException;
@@ -242,10 +245,10 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
     {
         super.onStart();
         Bundle bundle = getIntent().getExtras();
-        if (bundle != null && bundle.containsKey(a_MainActivity.KEY_ROW_ID))
+        if (bundle != null && bundle.containsKey(MainActivity.KEY_ROW_ID))
         {
-            String tableName = bundle.getString(a_MainActivity.KEY_DICT_NAME);
-            int rowId = bundle.getInt(a_MainActivity.KEY_ROW_ID);
+            String tableName = bundle.getString(MainActivity.KEY_DICT_NAME);
+            int rowId = bundle.getInt(MainActivity.KEY_ROW_ID);
 
             // TODO: AsyncTaskLoader - 4. Передача параметров в AsyncTaskLoader
             Bundle loaderBundle = new Bundle();
@@ -553,7 +556,7 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
             {
                 try
                 {
-                    //// TODO: 19.01.2017 Фильтрация ListView, вызов
+                    //// TODO: Фильтрация ListView, вызов
                     listViewAdapter.getFilter().filter(newText);
                 } catch (Exception e)
                 {

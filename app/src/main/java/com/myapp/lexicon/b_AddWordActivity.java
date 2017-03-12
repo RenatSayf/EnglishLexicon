@@ -29,6 +29,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.myapp.lexicon.database.DataBaseEntry;
+import com.myapp.lexicon.database.DataBaseQueries;
+import com.myapp.lexicon.main.SplashScreenActivity;
+
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Locale;
@@ -510,14 +514,14 @@ public class b_AddWordActivity extends AppCompatActivity
                 if (speech_able_en && !text2.equals("") && getLangOfText(text2).equals("en"))
                 {
                     progressBarRu.setVisibility(View.VISIBLE);
-                    a_SplashScreenActivity.speech.setLanguage(Locale.US);
-                    a_SplashScreenActivity.speech.speak(text2, TextToSpeech.QUEUE_ADD, a_SplashScreenActivity.map);
+                    SplashScreenActivity.speech.setLanguage(Locale.US);
+                    SplashScreenActivity.speech.speak(text2, TextToSpeech.QUEUE_ADD, SplashScreenActivity.map);
                 }
                 if (speech_able_ru && !text2.equals("") && getLangOfText(text2).equals("ru"))
                 {
                     progressBarRu.setVisibility(View.VISIBLE);
-                    a_SplashScreenActivity.speech.setLanguage(Locale.getDefault());
-                    a_SplashScreenActivity.speech.speak(text2, TextToSpeech.QUEUE_ADD, a_SplashScreenActivity.map);
+                    SplashScreenActivity.speech.setLanguage(Locale.getDefault());
+                    SplashScreenActivity.speech.speak(text2, TextToSpeech.QUEUE_ADD, SplashScreenActivity.map);
                 }
             }
         });

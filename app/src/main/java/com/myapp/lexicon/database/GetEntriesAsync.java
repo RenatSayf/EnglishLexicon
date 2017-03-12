@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.database.Cursor;
 import android.os.AsyncTask;
 
-import com.myapp.lexicon.DataBaseEntry;
 import com.myapp.lexicon.z_LockOrientation;
 
 import java.lang.ref.WeakReference;

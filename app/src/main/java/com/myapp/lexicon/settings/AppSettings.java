@@ -1,13 +1,8 @@
 package com.myapp.lexicon.settings;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-
-import com.myapp.lexicon.R;
-import com.myapp.lexicon.p_PlayList;
 
 import java.util.ArrayList;
-import java.util.StringTokenizer;
 
 import static android.content.Context.MODE_PRIVATE;
 
