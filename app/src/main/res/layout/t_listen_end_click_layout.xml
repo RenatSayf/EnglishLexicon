@@ -6,7 +6,7 @@
                 android:layout_height="match_parent"
                 android:background="@color/pape_background_blue"
                 android:orientation="vertical"
-                tools:context="com.myapp.lexicon.t_ListenEndClickFragment"
+                tools:context="com.myapp.lexicon.wordstests.ListenEndClickFragment"
     >
 
 

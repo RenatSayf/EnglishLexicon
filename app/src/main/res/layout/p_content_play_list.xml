@@ -12,7 +12,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.myapp.lexicon.p_PlayList"
+    tools:context="com.myapp.lexicon.playlist.PlayList"
     tools:showIn="@layout/p_layout_play_list">
 
     <TextView
