@@ -8,7 +8,7 @@
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:showIn="@layout/d_layout_word_editor"
-    tools:context="com.myapp.lexicon.d_WordEditor"
+    tools:context="com.myapp.lexicon.wordeditor.WordEditor"
     android:background="@drawable/side_nav_bar">
 
     <ViewSwitcher

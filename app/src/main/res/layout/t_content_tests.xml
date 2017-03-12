@@ -7,12 +7,12 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:showIn="@layout/t_layout_tests"
-    tools:context=".t_Tests"
-    android:background="#6bfd5e">
+    tools:context=".wordstests.Tests"
+    android:background="@drawable/side_nav_bar">
 
 
-    <ScrollView android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    <!--<ScrollView android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent">-->
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -23,43 +23,21 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Выберите тест"
+                android:text="@string/text_choice_test"
+                android:textColor="@color/colorWhite"
                 android:layout_marginTop="10dp"
                 android:layout_gravity="center_horizontal"/>
 
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
                 >
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_weight="1"
-                    android:visibility="gone">
-
-                    <ImageButton
-                        android:layout_width="74dp"
-                        android:layout_height="74dp"
-                        android:layout_gravity="center_horizontal"
-                        android:id="@+id/btn_match_test"
-                        android:src="@drawable/icon_match"
-                        android:background="@android:color/transparent"/>
-
-                    <TextView
-                        android:layout_width="74dp"
-                        android:layout_height="wrap_content"
-                        android:textAppearance="?android:attr/textAppearanceSmall"
-                        android:layout_gravity="center_horizontal"
-                        android:text="Соответствие"
-                        android:id="@+id/textView2"
-                        android:textAlignment="center"/>
-                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -80,7 +58,8 @@
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceSmall"
                         android:layout_gravity="center_horizontal"
-                        android:text="Нади пару"
+                        android:text="@string/text_find_pair"
+                        android:textColor="@color/colorWhite"
                         android:id="@+id/textView_find_pair"
                         android:textAlignment="center"/>
 
@@ -105,7 +84,8 @@
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceSmall"
                         android:layout_gravity="center_horizontal"
-                        android:text="1 из 5"
+                        android:text="@string/text_one_of_five"
+                        android:textColor="@color/colorWhite"
                         android:textAlignment="center"/>
                 </LinearLayout>
 
@@ -128,57 +108,17 @@
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceSmall"
                         android:layout_gravity="center_horizontal"
-                        android:text="Послушай и кликни"
+                        android:text="@string/text_listen_and_click"
+                        android:textColor="@color/colorWhite"
                         android:textAlignment="center"/>
 
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="30dp"
-                android:visibility="gone"
-                >
-
-
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_weight="1">
-
-                    <ImageButton
-                        android:layout_width="74dp"
-                        android:layout_height="74dp"
-                        android:layout_gravity="center_horizontal"
-                        android:id="@+id/btn_test_3"
-                        android:src="@drawable/icon_match"
-                        android:background="@android:color/transparent"/>
-
-                    <TextView
-                        android:layout_width="74dp"
-                        android:layout_height="wrap_content"
-                        android:textAppearance="?android:attr/textAppearanceSmall"
-                        android:layout_gravity="center_horizontal"
-                        android:text="Напиши слово"
-                        android:textAlignment="center"/>
                 </LinearLayout>
 
             </LinearLayout>
 
         </LinearLayout>
-    </ScrollView>
+    <!--</ScrollView>-->
 
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/match_fragment"
-        />
 
     <FrameLayout
         android:layout_width="match_parent"

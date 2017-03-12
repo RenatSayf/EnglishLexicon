@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".a_MainActivity"
+    tools:context=".main.MainActivity"
     tools:showIn="@layout/a_layout_main">
 
 
@@ -56,10 +56,8 @@
                         android:layout_gravity="end"
                         android:checked="false"
                         android:showText="false"
-                        android:singleLine="false"
-                        android:splitTrack="false"
-                        android:textOff="Ru Выкл"
-                        android:textOn="Ru Вкл"
+                        android:textOff="@string/text_ru_off"
+                        android:textOn="@string/text_ru_on"
                         android:typeface="sans"
                         />
 
@@ -138,19 +136,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:drawableLeft="@drawable/btn_previous"
-                    android:onClick="btnBackClick"
+                    android:onClick="btnNextBackClick"
                     android:visibility="visible"
                     android:gravity="center_horizontal"
                     />
-
-                <!--<Button-->
-                <!--style="?android:attr/buttonStyleSmall"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="match_parent"-->
-                <!--android:id="@+id/btn_play"-->
-                <!--android:drawableLeft="@drawable/btn_play2"-->
-                <!--android:onClick="btnPlayClick"-->
-                <!--/>-->
 
                 <Button
                     android:id="@+id/btn_pause"
@@ -180,7 +169,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:drawableLeft="@drawable/btn_next"
-                    android:onClick="btnNextClick"
+                    android:onClick="btnNextBackClick"
                     android:visibility="visible"
                     />
 

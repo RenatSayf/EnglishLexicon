@@ -11,7 +11,7 @@
         >
 
         <activity
-            android:name=".a_SplashScreenActivity"
+            android:name=".main.SplashScreenActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -20,10 +20,10 @@
         </activity>
 
         <activity
-            android:name=".a_MainActivity"
+            android:name=".main.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar"
-            android:parentActivityName=".a_SplashScreenActivity">
+            android:parentActivityName=".main.SplashScreenActivity">
             <!--<intent-filter>-->
                 <!--<action android:name="android.intent.action.MAIN"/>-->
 
@@ -31,47 +31,50 @@
             <!--</intent-filter>-->
         </activity>
         <activity
-            android:name=".b_AddWordActivity"
+            android:name=".addword.AddWordActivity"
             android:label="@string/title_activity_add_word"
-            android:parentActivityName=".a_MainActivity"
+            android:parentActivityName=".main.MainActivity"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden"> <!--прячем клавиатуру при запуске активити-->
+            android:windowSoftInputMode="stateHidden"> <!-- TODO КЛАВИАТУРА. Прячем клавиатуру при запуске активити-->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".a_MainActivity"/>
+                android:value=".main.MainActivity"/>
         </activity>
         <activity
-            android:name=".d_WordEditor"
+            android:name=".wordeditor.WordEditor"
             android:label="@string/title_activity_word_editor"
-            android:parentActivityName=".a_MainActivity"
+            android:parentActivityName=".main.MainActivity"
             android:screenOrientation="unspecified"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden">
             <!--<intent-filter>-->
                 <!--<action android:name="android.intent.action.SEARCH" />-->
             <!--</intent-filter>-->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".a_MainActivity"
+                android:value=".main.MainActivity"
                 />  <!--android:resource="@xml/searchable"-->
         </activity>
         <activity
-            android:name=".t_Tests"
+            android:name=".wordstests.Tests"
             android:label="@string/title_activity_check_self"
-            android:parentActivityName=".a_MainActivity"
+            android:parentActivityName=".main.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".a_MainActivity"/>
+                android:value=".main.MainActivity"/>
         </activity>
         <activity
-            android:name=".p_PlayList"
+            android:name=".playlist.PlayList"
             android:label="@string/title_activity_play_list"
-            android:parentActivityName=".a_MainActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:parentActivityName=".main.MainActivity"
+            android:screenOrientation="unspecified"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="keyboardHidden|orientation"
+            >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".a_MainActivity"/>
+                android:value=".main.MainActivity"/>
         </activity>
 
         <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -84,7 +87,7 @@
             android:value="@integer/google_play_services_version"/>
 
         <service
-            android:name=".z_speechService"
+            android:name=".main.SpeechService"
             android:enabled="true"
             android:exported="false">
         </service>
