@@ -1,4 +1,4 @@
-package com.myapp.lexicon;
+package com.myapp.lexicon.wordeditor;
 
 import android.app.AlertDialog;
 import android.app.LoaderManager;
@@ -29,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
+import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.DatabaseHelper;
@@ -37,11 +38,13 @@ import com.myapp.lexicon.database.GetEntriesLoader;
 import com.myapp.lexicon.database.GetTableListLoader;
 import com.myapp.lexicon.main.MainActivity;
 import com.myapp.lexicon.settings.AppData2;
+import com.myapp.lexicon.helpers.LockOrientation;
+import com.myapp.lexicon.helpers.StringOperations;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class d_WordEditor extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>
+public class WordEditor extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>
 {
     private Spinner spinnerListDict;
     private int spinner_select_pos = -1;
@@ -54,14 +57,14 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
     private Spinner spinnerCountRepeat, spinnerListDict2;
     private CheckBox checkCopy, checkMove;
     private LinearLayout layoutSpinner;
-    private static d_ListViewAdapter listViewAdapter;
+    private static ListViewAdapter listViewAdapter;
     private ArrayList<DataBaseEntry> dataBaseEntries;
     private Handler handler;
     private ProgressBar progressBar;
     private DatabaseHelper _databaseHelper;
     private DataBaseQueries dataBaseQueries;
     private ViewSwitcher switcher;
-    private z_LockOrientation lockOrientation;
+    private LockOrientation lockOrientation;
     private AppData2 appData2;
 
     private static boolean searchIsVisible = false;
@@ -167,7 +170,7 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
 
         appData2 = AppData2.getInstance();
 
-        lockOrientation = new z_LockOrientation(this);
+        lockOrientation = new LockOrientation(this);
 
         try
         {
@@ -234,7 +237,7 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
         }
         else
         {
-            getLoaderManager().restartLoader(LOADER_GET_TABLE_LIST, null, d_WordEditor.this).forceLoad();
+            getLoaderManager().restartLoader(LOADER_GET_TABLE_LIST, null, WordEditor.this).forceLoad();
         }
     }
 
@@ -299,7 +302,7 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
         {
             Bundle bundle = new Bundle();
             bundle.putString(GetAllFromTableLoader.KEY_TABLE_NAME, spinnerListDict.getSelectedItem().toString());
-            getLoaderManager().restartLoader(LOADER_GET_ALL_FROM_TABLE, bundle, d_WordEditor.this).forceLoad();
+            getLoaderManager().restartLoader(LOADER_GET_ALL_FROM_TABLE, bundle, WordEditor.this).forceLoad();
         }
         else
         {
@@ -374,7 +377,7 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
                 lockOrientation.lock();
                 final String tableName = spinnerListDict.getSelectedItem().toString();
 
-                new AlertDialog.Builder(d_WordEditor.this) // TODO: AlertDialog с макетом по умолчанию
+                new AlertDialog.Builder(WordEditor.this) // TODO: AlertDialog с макетом по умолчанию
                         .setTitle(R.string.dialog_title_confirm_action)
                         .setIcon(R.drawable.icon_warning)
                         .setMessage(getString(R.string.dialog_msg_delete_word) + tableName + "?")
@@ -389,12 +392,12 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
                                     dataBaseQueries.dataBaseVacuum(tableName);
                                 } catch (Exception e)
                                 {
-                                    Toast.makeText(d_WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
-                                    d_WordEditor.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+                                    Toast.makeText(WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    WordEditor.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
                                 }
                                 listViewSetSource(true);
                                 switcher.showPrevious();
-                                d_WordEditor.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+                                WordEditor.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
                             }
                         })
                         .setNegativeButton(R.string.button_text_no, new DialogInterface.OnClickListener()
@@ -402,7 +405,7 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
                             @Override
                             public void onClick(DialogInterface dialog, int which)
                             {
-                                d_WordEditor.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+                                WordEditor.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
                                 return;
                             }
                         })
@@ -428,7 +431,7 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
                     return;
                 }
 
-                z_StringOperations stringOperations = z_StringOperations.getInstance();
+                StringOperations stringOperations = StringOperations.getInstance();
                 if (stringOperations.getLangOfText(editTextEn.getText().toString())[1].equals("en") &&
                         stringOperations.getLangOfText(editTextRu.getText().toString())[1].equals("ru"))
                 {
@@ -442,7 +445,7 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
                             dataBaseQueries.updateWordInTable(tableName, rowID, baseEntry);
                         } catch (Exception e)
                         {
-                            Toast.makeText(d_WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     }
                     else if (checkMove.isChecked() && !checkCopy.isChecked())
@@ -453,7 +456,7 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
                             dataBaseQueries.dataBaseVacuum(tableName);
                         } catch (Exception e)
                         {
-                            Toast.makeText(d_WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                         dataBaseQueries.insertWordInTable(new_table_name, baseEntry);
                     }
@@ -464,7 +467,7 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
                             dataBaseQueries.updateWordInTable(tableName, rowID, baseEntry);
                         } catch (Exception e)
                         {
-                            Toast.makeText(d_WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                         dataBaseQueries.insertWordInTable(new_table_name, baseEntry);
                     }
@@ -473,7 +476,7 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
                 }
                 else
                 {
-                    new AlertDialog.Builder(d_WordEditor.this)
+                    new AlertDialog.Builder(WordEditor.this)
                             .setMessage(R.string.msg_wrong_text)
                             .setPositiveButton("Ok", new DialogInterface.OnClickListener()
                     {
@@ -637,7 +640,7 @@ public class d_WordEditor extends AppCompatActivity implements LoaderManager.Loa
                         cursor.moveToNext();
                     }
                 }
-                listViewAdapter = new d_ListViewAdapter(entriesFromDB, d_WordEditor.this, R.id.search_view);
+                listViewAdapter = new ListViewAdapter(entriesFromDB, WordEditor.this, R.id.search_view);
                 listView.setAdapter(listViewAdapter); // TODO: ListView setAdapter
                 progressBar.setVisibility(View.GONE);
             }

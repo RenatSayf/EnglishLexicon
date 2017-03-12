@@ -22,7 +22,6 @@ import java.util.ArrayList;
 
 public class PlayList extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>
 {
-    private Spinner spinneOrderPlay;
     private ListView listViewDict;
     private ListViewAdapter lictViewAdapter;
     private ArrayList<String> playList = new ArrayList<>();
@@ -38,7 +37,11 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
         setContentView(R.layout.p_layout_play_list);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        if (getSupportActionBar() != null)
+        {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         appSettings = new AppSettings(PlayList.this);
 
@@ -49,29 +52,36 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
         }
 
         listViewDict = (ListView) findViewById(R.id.listView_playList);
-        spinneOrderPlay = (Spinner) findViewById(R.id.spinner_order_play);
-        spinneOrderPlay.setSelection(appSettings.getOrderPlay());
-        spinneOrderPlay.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
+        Spinner spinneOrderPlay = (Spinner) findViewById(R.id.spinner_order_play);
+        if (spinneOrderPlay != null)
         {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
-            {
-                switch (position)
-                {
-                    case 0:
-                        appSettings.setOrderPlay(0);
-                        break;
-                    case 1:
-                        appSettings.setOrderPlay(1);
-                        break;
-                    case 2:
+            spinneOrderPlay.setSelection(appSettings.getOrderPlay());
 
-                        break;
+            spinneOrderPlay.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
+            {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+                {
+                    switch (position)
+                    {
+                        case 0:
+                            appSettings.setOrderPlay(0);
+                            break;
+                        case 1:
+                            appSettings.setOrderPlay(1);
+                            break;
+                        case 2:
+
+                            break;
+                    }
                 }
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) { }
-        });
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent)
+                {
+                }
+            });
+        }
 
         playList = appSettings.getPlayList();
 

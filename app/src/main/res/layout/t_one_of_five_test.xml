@@ -4,7 +4,7 @@
                 android:layout_height="match_parent"
                 android:background="@drawable/one_of_five_background"
                 android:orientation="vertical"
-                tools:context="com.myapp.lexicon.t_OneOfFiveTest">
+                tools:context="com.myapp.lexicon.wordstests.OneOfFiveTest">
 
     <LinearLayout
         android:layout_width="match_parent"

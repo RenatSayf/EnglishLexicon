@@ -1,28 +1,21 @@
-package com.myapp.lexicon;
+package com.myapp.lexicon.wordstests;
 
-import android.animation.Animator;
 import android.util.DisplayMetrics;
-import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
-import android.view.animation.AnticipateInterpolator;
 import android.view.animation.AnticipateOvershootInterpolator;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import java.util.ArrayList;
-import java.util.HashSet;
 
 /**
  * Created by Ренат on 12.10.2016.
  */
 
-public class t_Animator
+public class Animator
 {
-    public  static t_Animator instance = new t_Animator();
+    public  static Animator instance = new Animator();
 
     public ITextViewToLeftListener iTextViewToLeftListener;
     public ITextViewToRightListener iTextViewToRightListener;
@@ -32,12 +25,12 @@ public class t_Animator
     private long duration = 1000;
     private int delta = 60;
 
-    public t_Animator()
+    public Animator()
     {
 
     }
 
-    public static t_Animator getInstance()
+    public static Animator getInstance()
     {
         return instance;
     }
@@ -74,16 +67,16 @@ public class t_Animator
                 .setDuration(duration)
                 .setInterpolator(new AccelerateDecelerateInterpolator())
                 .setStartDelay(0)
-                .setListener(new Animator.AnimatorListener()
+                .setListener(new android.animation.Animator.AnimatorListener()
                 {
                     @Override
-                    public void onAnimationStart(Animator animation)
+                    public void onAnimationStart(android.animation.Animator animation)
                     {
 
                     }
 
                     @Override
-                    public void onAnimationEnd(Animator animation)
+                    public void onAnimationEnd(android.animation.Animator animation)
                     {
                         if (iTextViewToLeftListener != null)
                         {
@@ -92,7 +85,7 @@ public class t_Animator
                     }
 
                     @Override
-                    public void onAnimationCancel(Animator animation)
+                    public void onAnimationCancel(android.animation.Animator animation)
                     {
                         if (iTextViewToLeftListener != null)
                         {
@@ -101,7 +94,7 @@ public class t_Animator
                     }
 
                     @Override
-                    public void onAnimationRepeat(Animator animation)
+                    public void onAnimationRepeat(android.animation.Animator animation)
                     {
 
                     }
@@ -132,29 +125,29 @@ public class t_Animator
                     .setDuration(duration)
                     .setStartDelay(0)
                     .setInterpolator(new AccelerateDecelerateInterpolator())
-                    .setListener(new Animator.AnimatorListener()
+                    .setListener(new android.animation.Animator.AnimatorListener()
                     {
                         @Override
-                        public void onAnimationStart(Animator animation)
+                        public void onAnimationStart(android.animation.Animator animation)
                         {
 
                         }
 
                         @Override
-                        public void onAnimationEnd(Animator animation)
+                        public void onAnimationEnd(android.animation.Animator animation)
                         {
                             int id = getButtonId();
                             buttonToTop();
                         }
 
                         @Override
-                        public void onAnimationCancel(Animator animation)
+                        public void onAnimationCancel(android.animation.Animator animation)
                         {
 
                         }
 
                         @Override
-                        public void onAnimationRepeat(Animator animation)
+                        public void onAnimationRepeat(android.animation.Animator animation)
                         {
 
                         }
@@ -204,28 +197,28 @@ public class t_Animator
                 if (!isListener)
                 {
                     isListener = true;
-                    animToDown.setListener(new Animator.AnimatorListener()
+                    animToDown.setListener(new android.animation.Animator.AnimatorListener()
                     {
                         @Override
-                        public void onAnimationStart(Animator animation)
+                        public void onAnimationStart(android.animation.Animator animation)
                         {
 
                         }
 
                         @Override
-                        public void onAnimationEnd(Animator animation)
+                        public void onAnimationEnd(android.animation.Animator animation)
                         {
                             textViewToRight();
                         }
 
                         @Override
-                        public void onAnimationCancel(Animator animation)
+                        public void onAnimationCancel(android.animation.Animator animation)
                         {
 
                         }
 
                         @Override
-                        public void onAnimationRepeat(Animator animation)
+                        public void onAnimationRepeat(android.animation.Animator animation)
                         {
 
                         }
@@ -243,28 +236,28 @@ public class t_Animator
         button.animate().translationYBy(-button.getY()+topMargin)
                 .setDuration(10)
                 .setStartDelay(0)
-                .setListener(new Animator.AnimatorListener()
+                .setListener(new android.animation.Animator.AnimatorListener()
                 {
                     @Override
-                    public void onAnimationStart(Animator animation)
+                    public void onAnimationStart(android.animation.Animator animation)
                     {
 
                     }
 
                     @Override
-                    public void onAnimationEnd(Animator animation)
+                    public void onAnimationEnd(android.animation.Animator animation)
                     {
 
                     }
 
                     @Override
-                    public void onAnimationCancel(Animator animation)
+                    public void onAnimationCancel(android.animation.Animator animation)
                     {
 
                     }
 
                     @Override
-                    public void onAnimationRepeat(Animator animation)
+                    public void onAnimationRepeat(android.animation.Animator animation)
                     {
 
                     }
@@ -288,28 +281,28 @@ public class t_Animator
         button.animate().translationXBy(-button.getWidth() - delta)
                 .setDuration(duration)
                 .setInterpolator(new AccelerateDecelerateInterpolator())
-                .setListener(new Animator.AnimatorListener()
+                .setListener(new android.animation.Animator.AnimatorListener()
                 {
                     @Override
-                    public void onAnimationStart(Animator animation)
+                    public void onAnimationStart(android.animation.Animator animation)
                     {
                         textViewToRight();
                     }
 
                     @Override
-                    public void onAnimationEnd(Animator animation)
+                    public void onAnimationEnd(android.animation.Animator animation)
                     {
 
                     }
 
                     @Override
-                    public void onAnimationCancel(Animator animation)
+                    public void onAnimationCancel(android.animation.Animator animation)
                     {
 
                     }
 
                     @Override
-                    public void onAnimationRepeat(Animator animation)
+                    public void onAnimationRepeat(android.animation.Animator animation)
                     {
 
                     }
@@ -323,16 +316,16 @@ public class t_Animator
                 .setDuration(duration)
                 .setStartDelay(0)
                 .setInterpolator(new AnticipateOvershootInterpolator())
-                .setListener(new Animator.AnimatorListener()
+                .setListener(new android.animation.Animator.AnimatorListener()
                 {
                     @Override
-                    public void onAnimationStart(Animator animation)
+                    public void onAnimationStart(android.animation.Animator animation)
                     {
                         buttonToLeft();
                     }
 
                     @Override
-                    public void onAnimationEnd(Animator animation)
+                    public void onAnimationEnd(android.animation.Animator animation)
                     {
                         if (iTextViewToRightListener != null)
                         {
@@ -341,7 +334,7 @@ public class t_Animator
                     }
 
                     @Override
-                    public void onAnimationCancel(Animator animation)
+                    public void onAnimationCancel(android.animation.Animator animation)
                     {
                         if (iTextViewToRightListener != null)
                         {
@@ -350,7 +343,7 @@ public class t_Animator
                     }
 
                     @Override
-                    public void onAnimationRepeat(Animator animation)
+                    public void onAnimationRepeat(android.animation.Animator animation)
                     {
 
                     }

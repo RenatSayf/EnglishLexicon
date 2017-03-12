@@ -1,4 +1,4 @@
-package com.myapp.lexicon;
+package com.myapp.lexicon.wordstests;
 
 
 import android.animation.Animator;
@@ -29,9 +29,12 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.main.SplashScreenActivity;
+import com.myapp.lexicon.helpers.LockOrientation;
+import com.myapp.lexicon.helpers.RandomNumberGenerator;
 
 import java.util.ArrayList;
 
@@ -41,14 +44,14 @@ import static android.content.Context.MODE_PRIVATE;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class t_ListenEndClickFragment extends Fragment implements t_DialogTestComplete.IDialogComplete_Result
+public class ListenEndClickFragment extends Fragment implements DialogTestComplete.IDialogComplete_Result
 {
     public static final int ROWS = 5;
 
     private static RelativeLayout.LayoutParams saveTopPanelParams;
     private static boolean isOpen = false;
     private static ArrayList<String> storedListDict = new ArrayList<>();
-    private static z_RandomNumberGenerator randomGenerator;
+    private static RandomNumberGenerator randomGenerator;
     private static ArrayList<DataBaseEntry> controlList;
     private static ArrayList<DataBaseEntry> additionalList;
     private static ArrayList<String> textArray = new ArrayList<>();
@@ -73,14 +76,14 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
     private Button topPanelButtonOK;
     private Button topPanelButtonFinish;
     private int controlListSize = 0;
-    private z_LockOrientation lockOrientation;
+    private LockOrientation lockOrientation;
     private long duration = 1000;
     private int wordIndex = 1;
     private String spinnSelectedItem;
     private int wordsCount;
-    private t_DialogTestComplete dialogTestComplete;
+    private DialogTestComplete dialogTestComplete;
     private ArrayList<String> arrStudiedDict = new ArrayList<>();
-    private t_TestResults testResults;
+    private TestResults testResults;
     private int range = 4;
     private DisplayMetrics displayMetrics;
 
@@ -93,7 +96,7 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
     private String KEY_WORD_INDEX = "key_word_index";
 
 
-    public t_ListenEndClickFragment()
+    public ListenEndClickFragment()
     {
         // Required empty public constructor
     }
@@ -130,16 +133,16 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
                              Bundle savedInstanceState)
     {
         // Inflate the layout for this fragment
-        if (savedInstanceState == null && t_Tests.bundleListenTest.containsKey(KEY_WORD_INDEX))
+        if (savedInstanceState == null && Tests.bundleListenTest.containsKey(KEY_WORD_INDEX))
         {
-            savedInstanceState = t_Tests.bundleListenTest;
+            savedInstanceState = Tests.bundleListenTest;
         }
 
         Display display = getActivity().getWindowManager().getDefaultDisplay();
         displayMetrics = new DisplayMetrics();
         display.getMetrics(displayMetrics);
 
-        lockOrientation = new z_LockOrientation(getActivity());
+        lockOrientation = new LockOrientation(getActivity());
         View fragment_view = inflater.inflate(R.layout.t_listen_end_click_layout, container, false);
         //relLayout = (RelativeLayout) fragment_view.findViewById(R.id.rel_layout);
         topPanel = (LinearLayout) fragment_view.findViewById(R.id.top_panel);
@@ -154,10 +157,10 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
         topPanelButtonFinish = (Button) fragment_view.findViewById(R.id.btn_complete);
         topPanelButtons_OnClick();
 
-        testResults = new t_TestResults(getActivity());
+        testResults = new TestResults(getActivity());
         //dialogTestComplete = t_DialogTestComplete.getInstance();
-        dialogTestComplete = new t_DialogTestComplete();
-        dialogTestComplete.setIDialogCompleteResult(t_ListenEndClickFragment.this);
+        dialogTestComplete = new DialogTestComplete();
+        dialogTestComplete.setIDialogCompleteResult(ListenEndClickFragment.this);
 
         spinnListDict_OnItemSelectedListener();
         setItemsToSpinnListDict();
@@ -359,7 +362,7 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
                     btnLeft_OnClick(button);
                     wordIndex++;
                 }
-                randomGenerator = new z_RandomNumberGenerator(controlListSize, range);
+                randomGenerator = new RandomNumberGenerator(controlListSize, range);
                 int randIndex = randomGenerator.generate();
                 textEn = list.get(randIndex).get_english();
                 getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
@@ -507,13 +510,13 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
                             button.setText(listFromDB.get(0).get_translate());
                             if (controlListSize != controlList.size())
                             {
-                                randomGenerator = new z_RandomNumberGenerator(controlList.size(), range);
+                                randomGenerator = new RandomNumberGenerator(controlList.size(), range);
                                 controlListSize = controlList.size();
                             }
                             int randomNumber = randomGenerator.generate();
                             if (randomNumber < 0)
                             {
-                                randomGenerator = new z_RandomNumberGenerator(controlListSize, range);
+                                randomGenerator = new RandomNumberGenerator(controlListSize, range);
                                 randomNumber = randomGenerator.generate();
                             }
                             String english = controlList.get(randomNumber).get_english();
@@ -529,7 +532,7 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
                                 textEn = "";
                                 if (controlList.size() > 0)
                                 {
-                                    randomGenerator = new z_RandomNumberGenerator(controlList.size(), range);
+                                    randomGenerator = new RandomNumberGenerator(controlList.size(), range);
                                     int randomNumber = randomGenerator.generate();
                                     textEn = controlList.get(randomNumber).get_english();
                                 }
@@ -657,7 +660,7 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
             getActivity().onBackPressed();
             if (arrStudiedDict.size() > 0)
             {
-                t_DialogChangePlayList dialogChangePlayList = new t_DialogChangePlayList();
+                DialogChangePlayList dialogChangePlayList = new DialogChangePlayList();
                 Bundle bundle = new Bundle();
                 bundle.putStringArrayList(dialogChangePlayList.KEY_LIST_DICT, arrStudiedDict);
                 dialogChangePlayList.setArguments(bundle);
@@ -717,7 +720,7 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
                 @Override
                 public void onAnimationEnd(Animator animator)
                 {
-                    t_ListenEndClickFragment.isOpen = true;
+                    ListenEndClickFragment.isOpen = true;
                 }
 
                 @Override
@@ -746,7 +749,7 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
                 @Override
                 public void onAnimationEnd(Animator animator)
                 {
-                    t_ListenEndClickFragment.isOpen = false;
+                    ListenEndClickFragment.isOpen = false;
                 }
 
                 @Override
@@ -804,8 +807,8 @@ public class t_ListenEndClickFragment extends Fragment implements t_DialogTestCo
     public void onPause()
     {
         super.onPause();
-        t_Tests.bundleListenTest = new Bundle();
-        onSaveInstanceState(t_Tests.bundleListenTest);
+        Tests.bundleListenTest = new Bundle();
+        onSaveInstanceState(Tests.bundleListenTest);
     }
 
 

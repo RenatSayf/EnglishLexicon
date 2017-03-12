@@ -14,7 +14,7 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.DatabaseHelper;
-import com.myapp.lexicon.z_RandomNumberGenerator;
+import com.myapp.lexicon.helpers.RandomNumberGenerator;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ public class SpeechService2 extends IntentService
     private String textRu;
     private HashMap<String,String> hashMap = new HashMap<>();
     private TextToSpeech speech;
-    private static z_RandomNumberGenerator wordIndexGen;
+    private static RandomNumberGenerator wordIndexGen;
     private DatabaseHelper databaseHelper;
     private DataBaseQueries dataBaseQueries;
     private ArrayList<String> playList;
@@ -157,7 +157,7 @@ public class SpeechService2 extends IntentService
                 wordsQuantity += playList.size();
             }
             Date date = new Date();
-            wordIndexGen = new z_RandomNumberGenerator(wordsQuantity, (int) date.getTime());
+            wordIndexGen = new RandomNumberGenerator(wordsQuantity, (int) date.getTime());
             wordIndex = wordIndexGen.generate();
         }
 
@@ -224,7 +224,7 @@ public class SpeechService2 extends IntentService
                 Date date = new Date();
                 if (wordIndex < 1)
                 {
-                    wordIndexGen = new z_RandomNumberGenerator(wordsQuantity, (int) date.getTime());
+                    wordIndexGen = new RandomNumberGenerator(wordsQuantity, (int) date.getTime());
                     wordIndex = wordIndexGen.generate();
                 }
 

@@ -1,7 +1,6 @@
-package com.myapp.lexicon;
+package com.myapp.lexicon.wordstests;
 
 
-import android.animation.Animator;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
@@ -31,9 +30,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.main.SplashScreenActivity;
+import com.myapp.lexicon.helpers.LockOrientation;
+import com.myapp.lexicon.helpers.RandomNumberGenerator;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -48,7 +50,7 @@ import static android.content.Context.MODE_PRIVATE;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToLeftListener, t_Animator.ITextViewToRightListener, t_DialogTestComplete.IDialogComplete_Result
+public class OneOfFiveTest extends Fragment implements Animator.ITextViewToLeftListener, Animator.ITextViewToRightListener, DialogTestComplete.IDialogComplete_Result
 {
     public static final int ROWS = 5;
 
@@ -71,7 +73,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
     private static int wordIndex = 1;
     private static float buttonY;
     private static float buttonX;
-    private static z_RandomNumberGenerator randomGenerator;
+    private static RandomNumberGenerator randomGenerator;
     private static ArrayList<DataBaseEntry> listFromDB;
     private static int indexEn = -1;
     private static int indexRu = -1;
@@ -88,11 +90,11 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
     private int controlListSize = 0;
     private Button tempButton;
     private int tempButtonId;
-    private t_Animator animator;
-    private z_LockOrientation lockOrientation;
+    private Animator animator;
+    private LockOrientation lockOrientation;
     private static int counterRightAnswer = 0;
-    private t_TestResults testResults;
-    private t_DialogTestComplete dialogTestComplete;
+    private TestResults testResults;
+    private DialogTestComplete dialogTestComplete;
     private ArrayList<String> arrStudiedDict = new ArrayList<>();
 
     private String KEY_BUTTON_ID = "key_button_id";
@@ -107,7 +109,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
 
     static FragmentActivity activity;
     static FragmentManager fragmentManager;
-    public t_OneOfFiveTest()
+    public OneOfFiveTest()
     {
         // Required empty public constructor
     }
@@ -174,14 +176,14 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
                              Bundle savedInstanceState)
     {
         // Inflate the layout for this fragment
-        if (savedInstanceState == null && t_Tests.bundleOneOfFiveTest.containsKey(KEY_TEXT))
+        if (savedInstanceState == null && Tests.bundleOneOfFiveTest.containsKey(KEY_TEXT))
         {
-            savedInstanceState = t_Tests.bundleOneOfFiveTest;
+            savedInstanceState = Tests.bundleOneOfFiveTest;
         }
         activity = getActivity();
         fragmentManager = getFragmentManager();
-        lockOrientation = new z_LockOrientation(activity);
-        testResults = new t_TestResults(activity);
+        lockOrientation = new LockOrientation(activity);
+        testResults = new TestResults(activity);
 
         Display display = getActivity().getWindowManager().getDefaultDisplay();
         displayMetrics = new DisplayMetrics();
@@ -201,10 +203,10 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
         buttonsLayout = (LinearLayout) fragment_view.findViewById(R.id.layout_1of5);
         textView = (TextView) fragment_view.findViewById(R.id.text_view_1of5);
         progressBar = (ProgressBar) fragment_view.findViewById(R.id.progress_test1of5);
-        animator = t_Animator.getInstance();
-        dialogTestComplete = new t_DialogTestComplete();
+        animator = Animator.getInstance();
+        dialogTestComplete = new DialogTestComplete();
         //dialogTestComplete = t_DialogTestComplete.getInstance();
-        dialogTestComplete.setIDialogCompleteResult(t_OneOfFiveTest.this);
+        dialogTestComplete.setIDialogCompleteResult(OneOfFiveTest.this);
 
         if (savedInstanceState == null)
         {
@@ -282,8 +284,8 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
             button.setVisibility(View.GONE);
         }
         animator.setLayout(buttonsLayout, textView);
-        animator.setTextViewToLeftListener(t_OneOfFiveTest.this);
-        animator.setTextViewToRightListener(t_OneOfFiveTest.this);
+        animator.setTextViewToLeftListener(OneOfFiveTest.this);
+        animator.setTextViewToRightListener(OneOfFiveTest.this);
     }
 
     private void setItemsToSpinnListDict()
@@ -377,7 +379,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
                     additionalList.add(entry);
                 }
                 controlListSize = controlList.size();
-                randomGenerator = new z_RandomNumberGenerator(controlListSize, 133);
+                randomGenerator = new RandomNumberGenerator(controlListSize, 133);
                 long start_delay = 0;
                 for (int i = 0; i < controlList.size(); i++)
                 {
@@ -523,13 +525,13 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
             button.setBackgroundResource(R.drawable.text_button_for_test);
             if (controlListSize != controlList.size())
             {
-                randomGenerator = new z_RandomNumberGenerator(controlList.size(), range);
+                randomGenerator = new RandomNumberGenerator(controlList.size(), range);
                 controlListSize = controlList.size();
             }
             int randomNumber = randomGenerator.generate();
             if (randomNumber < 0)
             {
-                randomGenerator = new z_RandomNumberGenerator(controlListSize, range);
+                randomGenerator = new RandomNumberGenerator(controlListSize, range);
                 randomNumber = randomGenerator.generate();
             }
             String english = controlList.get(randomNumber).get_english();
@@ -546,7 +548,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
                 textView.setText("");
                 if (controlList.size() > 0)
                 {
-                    randomGenerator = new z_RandomNumberGenerator(controlList.size(), range);
+                    randomGenerator = new RandomNumberGenerator(controlList.size(), range);
                     int randomNumber = randomGenerator.generate();
                     textView.setText(controlList.get(randomNumber).get_english());
                 }
@@ -618,7 +620,7 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
             getActivity().onBackPressed();
             if (arrStudiedDict.size() > 0)
             {
-                t_DialogChangePlayList dialogChangePlayList = new t_DialogChangePlayList();
+                DialogChangePlayList dialogChangePlayList = new DialogChangePlayList();
                 Bundle bundle = new Bundle();
                 bundle.putStringArrayList(dialogChangePlayList.KEY_LIST_DICT, arrStudiedDict);
                 dialogChangePlayList.setArguments(bundle);
@@ -667,36 +669,36 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
     public void onPause()
     {
         super.onPause();
-        t_Tests.bundleOneOfFiveTest = new Bundle();
-        onSaveInstanceState(t_Tests.bundleOneOfFiveTest);
+        Tests.bundleOneOfFiveTest = new Bundle();
+        onSaveInstanceState(Tests.bundleOneOfFiveTest);
     }
 
     private void topPanelVisible(float touchDown, float touchUp, boolean isOpen)
     {
         if (touchDown < touchUp && !isOpen)
         {
-            topPanel.animate().y(topPanelParams.bottomMargin).setDuration(1000).setInterpolator(new AccelerateDecelerateInterpolator()).setListener(new Animator.AnimatorListener()
+            topPanel.animate().y(topPanelParams.bottomMargin).setDuration(1000).setInterpolator(new AccelerateDecelerateInterpolator()).setListener(new android.animation.Animator.AnimatorListener()
             {
                 @Override
-                public void onAnimationStart(Animator animator)
+                public void onAnimationStart(android.animation.Animator animator)
                 {
 
                 }
 
                 @Override
-                public void onAnimationEnd(Animator animator)
+                public void onAnimationEnd(android.animation.Animator animator)
                 {
-                    t_OneOfFiveTest.isOpen = true;
+                    OneOfFiveTest.isOpen = true;
                 }
 
                 @Override
-                public void onAnimationCancel(Animator animator)
+                public void onAnimationCancel(android.animation.Animator animator)
                 {
 
                 }
 
                 @Override
-                public void onAnimationRepeat(Animator animator)
+                public void onAnimationRepeat(android.animation.Animator animator)
                 {
 
                 }
@@ -704,28 +706,28 @@ public class t_OneOfFiveTest extends Fragment implements t_Animator.ITextViewToL
         }
         else if (touchDown > touchUp && isOpen)
         {
-            topPanel.animate().y(topPanelParams.topMargin).setDuration(1000).setListener(new Animator.AnimatorListener()
+            topPanel.animate().y(topPanelParams.topMargin).setDuration(1000).setListener(new android.animation.Animator.AnimatorListener()
             {
                 @Override
-                public void onAnimationStart(Animator animator)
+                public void onAnimationStart(android.animation.Animator animator)
                 {
 
                 }
 
                 @Override
-                public void onAnimationEnd(Animator animator)
+                public void onAnimationEnd(android.animation.Animator animator)
                 {
-                    t_OneOfFiveTest.isOpen = false;
+                    OneOfFiveTest.isOpen = false;
                 }
 
                 @Override
-                public void onAnimationCancel(Animator animator)
+                public void onAnimationCancel(android.animation.Animator animator)
                 {
 
                 }
 
                 @Override
-                public void onAnimationRepeat(Animator animator)
+                public void onAnimationRepeat(android.animation.Animator animator)
                 {
 
                 }

@@ -1,9 +1,11 @@
-package com.myapp.lexicon;
+package com.myapp.lexicon.addword;
 
 import android.os.AsyncTask;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import com.myapp.lexicon.helpers.MyLog;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,7 +22,7 @@ import java.util.ArrayList;
 /**
  * Created by Ренат on 16.06.2016.
  */
-public class b_OnlineTranslatorApi
+public class OnlineTranslatorApi
 {
     private String keyApi = "trnsl.1.1.20160607T122324Z.85a9ab6b9e12baac.f5b66628231eb6175c5cf1393d1601c2cfb5d553";
     private TextView textView;
@@ -28,7 +30,7 @@ public class b_OnlineTranslatorApi
     private String langSystem;
     private String undefined = "{\"text\":[\"неопределено\"]}";
 
-    public b_OnlineTranslatorApi(TextView textView, ProgressBar progressBar)
+    public OnlineTranslatorApi(TextView textView, ProgressBar progressBar)
     {
         this.textView = textView;
         this.progressBar = progressBar;
@@ -54,7 +56,7 @@ public class b_OnlineTranslatorApi
                 } catch (Exception e)
                 {
                     e.printStackTrace();
-                    z_Log.v("Исключение - " + e.getMessage());
+                    MyLog.v("Исключение - " + e.getMessage());
                 }
                 return _content;
             }
@@ -68,7 +70,7 @@ public class b_OnlineTranslatorApi
                 {
                     textView.setText(list.get(0));
                 }
-                z_Log.v("str = "+list.get(0));
+                MyLog.v("str = "+list.get(0));
 
             }
         };
@@ -82,7 +84,7 @@ public class b_OnlineTranslatorApi
         {
             return undefined;
         }
-        z_Log.v("lang = " + lang + "    ui = " + ui);
+        MyLog.v("lang = " + lang + "    ui = " + ui);
 
         String text_encode = null;
         try
@@ -90,7 +92,7 @@ public class b_OnlineTranslatorApi
             text_encode = URLEncoder.encode(text,"utf-8");
         } catch (UnsupportedEncodingException e)
         {
-            z_Log.v("Исключение = " + e.getMessage());
+            MyLog.v("Исключение = " + e.getMessage());
         }
 
         String format = "plain";
@@ -122,7 +124,7 @@ public class b_OnlineTranslatorApi
         catch (Exception e)
         {
             e.printStackTrace();
-            z_Log.v("Исключение - " + e.getMessage());
+            MyLog.v("Исключение - " + e.getMessage());
             return undefined;
         }
         finally
@@ -134,7 +136,7 @@ public class b_OnlineTranslatorApi
                     reader.close();
                 } catch (Exception e)
                 {
-                    z_Log.v("Иключение - " + e.getMessage());
+                    MyLog.v("Иключение - " + e.getMessage());
                 }
             }
         }
@@ -185,7 +187,7 @@ public class b_OnlineTranslatorApi
             }
         } catch (JSONException e)
         {
-            z_Log.v("Исключени - "+e.getMessage());
+            MyLog.v("Исключени - "+e.getMessage());
         }
 
         return list;

@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.database.Cursor;
 import android.os.AsyncTask;
 
-import com.myapp.lexicon.z_LockOrientation;
+import com.myapp.lexicon.helpers.LockOrientation;
 
 import java.lang.ref.WeakReference;
 
@@ -15,14 +15,14 @@ import java.lang.ref.WeakReference;
 public class GetWordsCountAsync extends AsyncTask<String, Void, Integer>
 {
     private WeakReference<AsyncTaskListener> listener;
-    private z_LockOrientation lockOrientation;
+    private LockOrientation lockOrientation;
     private Activity activity;
     private DatabaseHelper databaseHelper;
 
     public GetWordsCountAsync(Activity activity, AsyncTaskListener listener)
     {
         this.activity = activity;
-        lockOrientation = new z_LockOrientation(activity);
+        lockOrientation = new LockOrientation(activity);
         setTaskCompleteListener(listener);
         databaseHelper = new DatabaseHelper(activity.getApplicationContext());
         databaseHelper.create_db();

@@ -1,7 +1,6 @@
-package com.myapp.lexicon;
+package com.myapp.lexicon.wordstests;
 
 
-import android.animation.Animator;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
@@ -31,9 +30,12 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.main.SplashScreenActivity;
+import com.myapp.lexicon.helpers.LockOrientation;
+import com.myapp.lexicon.helpers.RandomNumberGenerator;
 
 import java.util.ArrayList;
 
@@ -43,7 +45,7 @@ import static android.content.Context.MODE_PRIVATE;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class t_FindPairFragment extends Fragment implements t_DialogTestComplete.IDialogComplete_Result
+public class FindPairFragment extends Fragment implements DialogTestComplete.IDialogComplete_Result
 {
     public static int ROWS = 5;
 
@@ -68,7 +70,7 @@ public class t_FindPairFragment extends Fragment implements t_DialogTestComplete
 
     private ProgressBar progressBar;
 
-    private z_LockOrientation lockOrientation;
+    private LockOrientation lockOrientation;
     private int wordIndex = 1;
     private int wordsCount;
     private static int counterRightAnswer = 0;
@@ -87,10 +89,10 @@ public class t_FindPairFragment extends Fragment implements t_DialogTestComplete
     private Button tempButtonLeft;
     private Button tempButtonRight;
     private Button btnNoRight;
-    private t_Animator animator;
+    private Animator animator;
 
-    private t_DialogTestComplete dialogTestComplete;
-    private t_TestResults testResults;
+    private DialogTestComplete dialogTestComplete;
+    private TestResults testResults;
     private static FragmentManager fragmentManager;
 
     private String KEY_CONTROL_LIST_SIZE = "key_control_list_size";
@@ -103,7 +105,7 @@ public class t_FindPairFragment extends Fragment implements t_DialogTestComplete
     private String KEY_NEXT_INDEX = "key_next_index";
 
 
-    public t_FindPairFragment()
+    public FindPairFragment()
     {
         // Required empty public constructor
     }
@@ -160,8 +162,8 @@ public class t_FindPairFragment extends Fragment implements t_DialogTestComplete
     public void onPause()
     {
         super.onPause();
-        t_Tests.bundleFindPair = new Bundle();
-        onSaveInstanceState(t_Tests.bundleFindPair);
+        Tests.bundleFindPair = new Bundle();
+        onSaveInstanceState(Tests.bundleFindPair);
     }
 
     @Override
@@ -169,13 +171,13 @@ public class t_FindPairFragment extends Fragment implements t_DialogTestComplete
                              Bundle savedInstanceState)
     {
         // Inflate the layout for this fragment
-        if (savedInstanceState == null && t_Tests.bundleFindPair.containsKey(KEY_WORD_INDEX))
+        if (savedInstanceState == null && Tests.bundleFindPair.containsKey(KEY_WORD_INDEX))
         {
-            savedInstanceState = t_Tests.bundleFindPair;
+            savedInstanceState = Tests.bundleFindPair;
         }
 
         fragmentManager = getFragmentManager();
-        lockOrientation = new z_LockOrientation(getActivity());
+        lockOrientation = new LockOrientation(getActivity());
         Display display = getActivity().getWindowManager().getDefaultDisplay();
         metrics = new DisplayMetrics();
         display.getMetrics(metrics);
@@ -281,7 +283,7 @@ public class t_FindPairFragment extends Fragment implements t_DialogTestComplete
             }
         }
 
-        testResults = new t_TestResults(getActivity());
+        testResults = new TestResults(getActivity());
         //dialogTestComplete = t_DialogTestComplete.getInstance();
         //dialogTestComplete.setIDialogCompleteResult(t_FindPairFragment.this);
 
@@ -380,7 +382,7 @@ public class t_FindPairFragment extends Fragment implements t_DialogTestComplete
                     additionalList.add(entry);
                 }
                 controlListSize = controlList.size();
-                z_RandomNumberGenerator randGenRight = new z_RandomNumberGenerator(controlListSize, rangeRight);
+                RandomNumberGenerator randGenRight = new RandomNumberGenerator(controlListSize, rangeRight);
                 long delay = 0;
                 for (int i = 0; i < controlList.size(); i++)
                 {
@@ -545,16 +547,16 @@ public class t_FindPairFragment extends Fragment implements t_DialogTestComplete
     private void animScale_Listener(ViewPropertyAnimator animScale)
     {
         if (animScale == null) return;
-        animScale.setListener(new Animator.AnimatorListener()
+        animScale.setListener(new android.animation.Animator.AnimatorListener()
         {
             @Override
-            public void onAnimationStart(Animator animation)
+            public void onAnimationStart(android.animation.Animator animation)
             {
 
             }
 
             @Override
-            public void onAnimationEnd(Animator animation)
+            public void onAnimationEnd(android.animation.Animator animation)
             {
                 if (tempButtonLeft != null && tempButtonRight != null)
                 {
@@ -603,13 +605,13 @@ public class t_FindPairFragment extends Fragment implements t_DialogTestComplete
             }
 
             @Override
-            public void onAnimationCancel(Animator animation)
+            public void onAnimationCancel(android.animation.Animator animation)
             {
 
             }
 
             @Override
-            public void onAnimationRepeat(Animator animation)
+            public void onAnimationRepeat(android.animation.Animator animation)
             {
 
             }
@@ -635,16 +637,16 @@ public class t_FindPairFragment extends Fragment implements t_DialogTestComplete
                         .setInterpolator(new AccelerateInterpolator()).setListener(null);
                 if (i == 0 && isListen)
                 {
-                    animator.setListener(new Animator.AnimatorListener()
+                    animator.setListener(new android.animation.Animator.AnimatorListener()
                     {
                         @Override
-                        public void onAnimationStart(Animator animation)
+                        public void onAnimationStart(android.animation.Animator animation)
                         {
 
                         }
 
                         @Override
-                        public void onAnimationEnd(Animator animation)
+                        public void onAnimationEnd(android.animation.Animator animation)
                         {
                             getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
                             boolean isFill = true;
@@ -670,8 +672,8 @@ public class t_FindPairFragment extends Fragment implements t_DialogTestComplete
                                 list.add(counterRightAnswer + getActivity().getString(R.string.text_out_of) + wordsCount);
                                 if (dialogTestComplete == null)
                                 {
-                                    dialogTestComplete = new t_DialogTestComplete();
-                                    dialogTestComplete.setIDialogCompleteResult(t_FindPairFragment.this);
+                                    dialogTestComplete = new DialogTestComplete();
+                                    dialogTestComplete.setIDialogCompleteResult(FindPairFragment.this);
                                 }
                                 if (dialogTestComplete != null)
                                 {
@@ -697,13 +699,13 @@ public class t_FindPairFragment extends Fragment implements t_DialogTestComplete
                         }
 
                         @Override
-                        public void onAnimationCancel(Animator animation)
+                        public void onAnimationCancel(android.animation.Animator animation)
                         {
 
                         }
 
                         @Override
-                        public void onAnimationRepeat(Animator animation)
+                        public void onAnimationRepeat(android.animation.Animator animation)
                         {
 
                         }
@@ -747,7 +749,7 @@ public class t_FindPairFragment extends Fragment implements t_DialogTestComplete
             getActivity().onBackPressed();
             if (arrStudiedDict.size() > 0)
             {
-                t_DialogChangePlayList dialogChangePlayList = new t_DialogChangePlayList();
+                DialogChangePlayList dialogChangePlayList = new DialogChangePlayList();
                 Bundle bundle = new Bundle();
                 bundle.putStringArrayList(dialogChangePlayList.KEY_LIST_DICT, arrStudiedDict);
                 dialogChangePlayList.setArguments(bundle);
@@ -809,28 +811,28 @@ public class t_FindPairFragment extends Fragment implements t_DialogTestComplete
     {
         if (touchDown < touchUp && !isOpen)
         {
-            topPanel.animate().y(topPanelParams.bottomMargin).setDuration(1000).setInterpolator(new AccelerateDecelerateInterpolator()).setListener(new Animator.AnimatorListener()
+            topPanel.animate().y(topPanelParams.bottomMargin).setDuration(1000).setInterpolator(new AccelerateDecelerateInterpolator()).setListener(new android.animation.Animator.AnimatorListener()
             {
                 @Override
-                public void onAnimationStart(Animator animator)
+                public void onAnimationStart(android.animation.Animator animator)
                 {
 
                 }
 
                 @Override
-                public void onAnimationEnd(Animator animator)
+                public void onAnimationEnd(android.animation.Animator animator)
                 {
-                    t_FindPairFragment.isOpen = true;
+                    FindPairFragment.isOpen = true;
                 }
 
                 @Override
-                public void onAnimationCancel(Animator animator)
+                public void onAnimationCancel(android.animation.Animator animator)
                 {
 
                 }
 
                 @Override
-                public void onAnimationRepeat(Animator animator)
+                public void onAnimationRepeat(android.animation.Animator animator)
                 {
 
                 }
@@ -838,28 +840,28 @@ public class t_FindPairFragment extends Fragment implements t_DialogTestComplete
         }
         else if (touchDown > touchUp && isOpen)
         {
-            topPanel.animate().y(topPanelParams.topMargin).setDuration(1000).setListener(new Animator.AnimatorListener()
+            topPanel.animate().y(topPanelParams.topMargin).setDuration(1000).setListener(new android.animation.Animator.AnimatorListener()
             {
                 @Override
-                public void onAnimationStart(Animator animator)
+                public void onAnimationStart(android.animation.Animator animator)
                 {
 
                 }
 
                 @Override
-                public void onAnimationEnd(Animator animator)
+                public void onAnimationEnd(android.animation.Animator animator)
                 {
-                    t_FindPairFragment.isOpen = false;
+                    FindPairFragment.isOpen = false;
                 }
 
                 @Override
-                public void onAnimationCancel(Animator animator)
+                public void onAnimationCancel(android.animation.Animator animator)
                 {
 
                 }
 
                 @Override
-                public void onAnimationRepeat(Animator animator)
+                public void onAnimationRepeat(android.animation.Animator animator)
                 {
 
                 }

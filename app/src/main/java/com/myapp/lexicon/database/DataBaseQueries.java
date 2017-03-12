@@ -12,9 +12,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.database.DataBaseEntry;
-import com.myapp.lexicon.database.DatabaseHelper;
-import com.myapp.lexicon.z_Log;
+import com.myapp.lexicon.helpers.MyLog;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -94,7 +92,7 @@ public class DataBaseQueries
         }
         catch (Exception e)
         {
-            z_Log.v("Возникло исключение - "+e.getMessage());
+            MyLog.v("Возникло исключение - "+e.getMessage());
             entriesFromDB.add(new DataBaseEntry(null,null, null));
         }
         finally
@@ -106,7 +104,7 @@ public class DataBaseQueries
 
     public ArrayList<DataBaseEntry> getEntriesFromDB(String tableName, int startId, int endId)
     {
-        z_Log.v("tableName = " + tableName + "  startId = " + startId + "   endId = " + endId);
+        MyLog.v("tableName = " + tableName + "  startId = " + startId + "   endId = " + endId);
         ArrayList<DataBaseEntry> entriesFromDB = new ArrayList<>();
         try
         {
@@ -144,7 +142,7 @@ public class DataBaseQueries
 
     public ArrayList<DataBaseEntry> getEntriesFromDBAsync(final String tableName, final int startId, final int endId) throws SQLException, ExecutionException, InterruptedException
     {
-        z_Log.v("tableName = " + tableName + "  startId = " + startId + "   endId = " + endId);
+        MyLog.v("tableName = " + tableName + "  startId = " + startId + "   endId = " + endId);
         ArrayList<DataBaseEntry> entriesFromDB = new ArrayList<>();
         AsyncTask asyncTask = new AsyncTask()
         {
@@ -155,7 +153,7 @@ public class DataBaseQueries
                 try
                 {
                     databaseHelper.open();
-                    z_Log.v("databaseHelper.database.isOpen() = " + databaseHelper.database.isOpen());
+                    MyLog.v("databaseHelper.database.isOpen() = " + databaseHelper.database.isOpen());
                     if (databaseHelper.database.isOpen())
                     {
                         Cursor cursor = databaseHelper.database.rawQuery("SELECT * FROM " + tableName + " WHERE RowID BETWEEN " + startId +" AND " + endId + ";", null);
@@ -171,12 +169,12 @@ public class DataBaseQueries
                         }
                     } else
                     {
-                        z_Log.v("  DataBaseQueries.getEntriesFromDBAsync() databaseHelper.database.isOpen() = " + databaseHelper.database.isOpen());
+                        MyLog.v("  DataBaseQueries.getEntriesFromDBAsync() databaseHelper.database.isOpen() = " + databaseHelper.database.isOpen());
                     }
                 }
                 catch (Exception e)
                 {
-                    z_Log.v("  Исключение в DataBaseQueries.getEntriesFromDBAsync() = " + e);
+                    MyLog.v("  Исключение в DataBaseQueries.getEntriesFromDBAsync() = " + e);
                     entries.add(new DataBaseEntry(null,null,null));
                 }
                 finally
@@ -206,16 +204,16 @@ public class DataBaseQueries
                 {
                     Cursor cursor=databaseHelper.database.query(params[0], null, null, null, null, null, null);
                     count = cursor.getCount();
-                    z_Log.v("GetWordsCountAsync - " + count);
+                    MyLog.v("GetWordsCountAsync - " + count);
                 } else
                 {
-                    z_Log.v("GetWordsCountAsync database.isOpen() = " + databaseHelper.database.isOpen());
+                    MyLog.v("GetWordsCountAsync database.isOpen() = " + databaseHelper.database.isOpen());
                     count = 0;
                 }
             }
             catch (Exception e)
             {
-                z_Log.v("ИСКЛЮЧЕНИЕ - " + e.getMessage());
+                MyLog.v("ИСКЛЮЧЕНИЕ - " + e.getMessage());
                 count = 0;
             }finally
             {
@@ -240,16 +238,16 @@ public class DataBaseQueries
             {
                 Cursor cursor=databaseHelper.database.query(dictName, null, null, null, null, null, null);
                 count = cursor.getCount();
-                z_Log.v("getWordsCount() - " + count);
+                MyLog.v("getWordsCount() - " + count);
             } else
             {
-                z_Log.v("getWordsCount _database.isOpen() = " + databaseHelper.database.isOpen());
+                MyLog.v("getWordsCount _database.isOpen() = " + databaseHelper.database.isOpen());
                 count = 0;
             }
         }
         catch (Exception e)
         {
-            z_Log.v("ИСКЛЮЧЕНИЕ .getWordsCount() - " + e);
+            MyLog.v("ИСКЛЮЧЕНИЕ .getWordsCount() - " + e);
             count = 0;
         }finally
         {
@@ -273,16 +271,16 @@ public class DataBaseQueries
                     {
                         Cursor cursor=databaseHelper.database.query(tableName, null, null, null, null, null, null);
                         count = cursor.getCount();
-                        z_Log.v("getEntriesCountAsync() - " + count);
+                        MyLog.v("getEntriesCountAsync() - " + count);
                     } else
                     {
-                        z_Log.v("getEntriesCountAsync databaseHelper.database.isOpen() = " + databaseHelper.database.isOpen());
+                        MyLog.v("getEntriesCountAsync databaseHelper.database.isOpen() = " + databaseHelper.database.isOpen());
                         count = 0;
                     }
                 }
                 catch (Exception e)
                 {
-                    z_Log.v("ИСКЛЮЧЕНИЕ .getEntriesCountAsync() - " + e);
+                    MyLog.v("ИСКЛЮЧЕНИЕ .getEntriesCountAsync() - " + e);
                     count = 0;
                 }finally
                 {
@@ -323,7 +321,7 @@ public class DataBaseQueries
                 }
                 catch (Exception e)
                 {
-                    z_Log.v("ИСКЛЮЧЕНИЕ - "+e);
+                    MyLog.v("ИСКЛЮЧЕНИЕ - "+e);
                     result = false;
                 }
                 finally
@@ -363,7 +361,7 @@ public class DataBaseQueries
                     }
                 } catch (SQLException e)
                 {
-                    z_Log.v("ИСКЛЮЧЕНИЕ - "+e);
+                    MyLog.v("ИСКЛЮЧЕНИЕ - "+e);
                     result = false;
                     e.printStackTrace();
                 }
@@ -420,7 +418,7 @@ public class DataBaseQueries
                     }
                 } catch (SQLException e)
                 {
-                    z_Log.v("ИСКЛЮЧЕНИЕ - "+e);
+                    MyLog.v("ИСКЛЮЧЕНИЕ - "+e);
                     e.printStackTrace();
                 }
                 finally
@@ -465,7 +463,7 @@ public class DataBaseQueries
                 }
             } catch (SQLException e)
             {
-                z_Log.v("ИСКЛЮЧЕНИЕ - "+e.getMessage());
+                MyLog.v("ИСКЛЮЧЕНИЕ - "+e.getMessage());
                 e.printStackTrace();
             }
             finally
@@ -512,7 +510,7 @@ public class DataBaseQueries
                     }
                 } catch (SQLException e)
                 {
-                    z_Log.v("ИСКЛЮЧЕНИЕ - "+e);
+                    MyLog.v("ИСКЛЮЧЕНИЕ - "+e);
                     e.printStackTrace();
                 }
                 finally
@@ -557,7 +555,7 @@ public class DataBaseQueries
             }
         } catch (SQLException e)
         {
-            z_Log.v("ИСКЛЮЧЕНИЕ - "+e);
+            MyLog.v("ИСКЛЮЧЕНИЕ - "+e);
             e.printStackTrace();
         }
         finally
@@ -593,7 +591,7 @@ public class DataBaseQueries
                     }
                 } catch (Exception e)
                 {
-                    z_Log.v("ИСКЛЮЧЕНИЕ - "+e);
+                    MyLog.v("ИСКЛЮЧЕНИЕ - "+e);
                     e.printStackTrace();
                 }
                 finally
@@ -611,12 +609,12 @@ public class DataBaseQueries
                 if (_id != -1)
                 {
                     Toast.makeText(context,"Словарь успешно обновлен",Toast.LENGTH_SHORT).show();
-                    z_Log.v("_id = "+_id);
+                    MyLog.v("_id = "+_id);
                 }
                 else
                 {
                     Toast.makeText(context,"Ошибка записи",Toast.LENGTH_SHORT).show();
-                    z_Log.v("_id = "+_id);
+                    MyLog.v("_id = "+_id);
                 }
             }
         };
@@ -652,7 +650,7 @@ public class DataBaseQueries
                     }
                 } catch (Exception e)
                 {
-                    z_Log.v("ИСКЛЮЧЕНИЕ - "+e);
+                    MyLog.v("ИСКЛЮЧЕНИЕ - "+e);
                     e.printStackTrace();
                 }
                 finally
@@ -670,12 +668,12 @@ public class DataBaseQueries
                 if (_id != -1)
                 {
                     Toast.makeText(context,"Словарь успешно обновлен",Toast.LENGTH_SHORT).show();
-                    z_Log.v("_id = "+_id);
+                    MyLog.v("_id = "+_id);
                 }
                 else
                 {
                     Toast.makeText(context,"Ошибка записи",Toast.LENGTH_SHORT).show();
-                    z_Log.v("_id = "+_id);
+                    MyLog.v("_id = "+_id);
                 }
             }
         };
@@ -706,7 +704,7 @@ public class DataBaseQueries
                     }
                 } catch (Exception e)
                 {
-                    z_Log.v("ИСКЛЮЧЕНИЕ - "+e);
+                    MyLog.v("ИСКЛЮЧЕНИЕ - "+e);
                     e.printStackTrace();
                 }
                 finally
@@ -724,12 +722,12 @@ public class DataBaseQueries
                 if (_id != -1)
                 {
                     Toast.makeText(context,"Словарь успешно обновлен",Toast.LENGTH_SHORT).show();
-                    z_Log.v("_id = "+_id);
+                    MyLog.v("_id = "+_id);
                 }
                 else
                 {
                     Toast.makeText(context,"Ошибка записи",Toast.LENGTH_SHORT).show();
-                    z_Log.v("_id = "+_id);
+                    MyLog.v("_id = "+_id);
                 }
             }
         };
@@ -753,7 +751,7 @@ public class DataBaseQueries
                     }
                 } catch (Exception e)
                 {
-                    z_Log.v("ИСКЛЮЧЕНИЕ - "+e);
+                    MyLog.v("ИСКЛЮЧЕНИЕ - "+e);
                     e.printStackTrace();
                 }
                 finally
@@ -791,7 +789,7 @@ public class DataBaseQueries
                 e.printStackTrace();
             } catch (InterruptedException e)
             {
-                z_Log.v("Возникло исключение - "+e.getMessage());
+                MyLog.v("Возникло исключение - "+e.getMessage());
                 e.printStackTrace();
             }
 
@@ -830,7 +828,7 @@ public class DataBaseQueries
             }
         } catch (SQLException e)
         {
-            z_Log.v("ИСКЛЮЧЕНИЕ - "+e);
+            MyLog.v("ИСКЛЮЧЕНИЕ - "+e);
             e.printStackTrace();
         }
         finally

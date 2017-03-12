@@ -1,11 +1,11 @@
-package com.myapp.lexicon;
+package com.myapp.lexicon.helpers;
 
 import android.text.TextUtils;
 
 /**
  * Created by Ренат on 28.04.2016.
  */
-public class z_Log
+public class MyLog
 {
     private static final String TAG = "Lexicon";
 
@@ -16,7 +16,7 @@ public class z_Log
 
     private static String getLocation()
     {
-        final String className = z_Log.class.getName();
+        final String className = MyLog.class.getName();
         final StackTraceElement[] traces = Thread.currentThread().getStackTrace();
         boolean found = false;
 

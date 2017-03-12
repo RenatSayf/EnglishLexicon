@@ -1,4 +1,4 @@
-package com.myapp.lexicon;
+package com.myapp.lexicon.helpers;
 
 import java.util.BitSet;
 import java.util.Random;
@@ -6,14 +6,14 @@ import java.util.Random;
 /**
  * Created by Ренат on 08.08.2016.
  */
-public class z_RandomNumberGenerator
+public class RandomNumberGenerator
 {
     private final BitSet input;
     private final Random rnd;
     private final int Count;
     private int genCount=0;
     private int start = 0;
-    public z_RandomNumberGenerator(int in, int seed)
+    public RandomNumberGenerator(int in, int seed)
     {
         Count=in;
         rnd=new Random(in);
@@ -21,7 +21,7 @@ public class z_RandomNumberGenerator
         input = new BitSet(in);
     }
 
-    public z_RandomNumberGenerator(int start, int in, int seed)
+    public RandomNumberGenerator(int start, int in, int seed)
     {
         this.start = start;
         Count=in;

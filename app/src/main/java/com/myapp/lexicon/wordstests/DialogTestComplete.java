@@ -1,4 +1,4 @@
-package com.myapp.lexicon;
+package com.myapp.lexicon.wordstests;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -8,12 +8,14 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.myapp.lexicon.R;
+
 
 /**
  * Created by Ренат on 28.09.2016.
  */
 
-public class t_DialogTestComplete extends android.support.v4.app.DialogFragment
+public class DialogTestComplete extends android.support.v4.app.DialogFragment
 {
     //private static t_DialogTestComplete instance = new t_DialogTestComplete();
     public String KEY_RESULT = "result";
@@ -26,7 +28,7 @@ public class t_DialogTestComplete extends android.support.v4.app.DialogFragment
     private ImageButton buttonRepeat;
     private ImageButton buttonComplete;
 
-    public t_DialogTestComplete()
+    public DialogTestComplete()
     {
 
     }

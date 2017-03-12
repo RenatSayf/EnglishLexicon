@@ -1,4 +1,4 @@
-package com.myapp.lexicon;
+package com.myapp.lexicon.wordstests;
 
 
 import android.support.v4.app.FragmentManager;
@@ -11,19 +11,20 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseQueries;
 
 import java.sql.SQLException;
 
-public class t_Tests extends AppCompatActivity
+public class Tests extends AppCompatActivity
 {
     private ImageButton buttonFindPair, buttonListenEndClick, buttonOneOfFive;
 
-    private t_FindPairFragment findPairFragment;
+    private FindPairFragment findPairFragment;
 
-    private t_ListenEndClickFragment listenEndClickFragment;
+    private ListenEndClickFragment listenEndClickFragment;
 
-    private t_OneOfFiveTest oneOfFiveTest;
+    private OneOfFiveTest oneOfFiveTest;
 
     private FragmentTransaction transaction;
     private DataBaseQueries baseQueries;
@@ -64,26 +65,26 @@ public class t_Tests extends AppCompatActivity
         FragmentManager manager = getSupportFragmentManager();
 
         String FIND_PAIR_FRAGMENT = "find_pair_fragment";
-        findPairFragment = (t_FindPairFragment) manager.findFragmentByTag(FIND_PAIR_FRAGMENT);
+        findPairFragment = (FindPairFragment) manager.findFragmentByTag(FIND_PAIR_FRAGMENT);
         if (findPairFragment == null)
         {
-            findPairFragment = new t_FindPairFragment();
+            findPairFragment = new FindPairFragment();
             bundleFindPair = new Bundle();
         }
 
         String LISTEN_END_CLICK_FRAGMENT = "listenEndClickFragment";
-        listenEndClickFragment = (t_ListenEndClickFragment) manager.findFragmentByTag(LISTEN_END_CLICK_FRAGMENT);
+        listenEndClickFragment = (ListenEndClickFragment) manager.findFragmentByTag(LISTEN_END_CLICK_FRAGMENT);
         if (listenEndClickFragment == null)
         {
-            listenEndClickFragment = new t_ListenEndClickFragment();
+            listenEndClickFragment = new ListenEndClickFragment();
             bundleListenTest = new Bundle();
         }
 
         String ONE_OF_FIVE_FRAGMENT = "one_of_five";
-        oneOfFiveTest = (t_OneOfFiveTest) manager.findFragmentByTag(ONE_OF_FIVE_FRAGMENT);
+        oneOfFiveTest = (OneOfFiveTest) manager.findFragmentByTag(ONE_OF_FIVE_FRAGMENT);
         if (oneOfFiveTest == null)
         {
-            oneOfFiveTest = new t_OneOfFiveTest();
+            oneOfFiveTest = new OneOfFiveTest();
             bundleOneOfFiveTest = new Bundle();
         }
 

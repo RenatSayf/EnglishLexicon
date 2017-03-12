@@ -1,4 +1,4 @@
-package com.myapp.lexicon;
+package com.myapp.lexicon.addword;
 
 import android.content.Context;
 import android.content.Intent;
@@ -29,9 +29,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.main.SplashScreenActivity;
+import com.myapp.lexicon.helpers.MyLog;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -39,7 +41,7 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class b_AddWordActivity extends AppCompatActivity
+public class AddWordActivity extends AppCompatActivity
 {
     private EditText textViewEnter;
     private LinearLayout layoutLinkYa;
@@ -108,7 +110,7 @@ public class b_AddWordActivity extends AppCompatActivity
 
     private void initTTS()
     {
-        speechText = new TextToSpeech(b_AddWordActivity.this, new TextToSpeech.OnInitListener()
+        speechText = new TextToSpeech(AddWordActivity.this, new TextToSpeech.OnInitListener()
         {
             @Override
             public void onInit(int status)
@@ -131,7 +133,7 @@ public class b_AddWordActivity extends AppCompatActivity
                     speech_able_en = false;
                     speech_able_ru = false;
                 }
-                z_Log.v("status = "+status+"   speech_able_en = "+speech_able_en+"      speech_able_ru = "+speech_able_ru);
+                MyLog.v("status = "+status+"   speech_able_en = "+speech_able_en+"      speech_able_ru = "+speech_able_ru);
 
                 speechText.setOnUtteranceProgressListener(new UtteranceProgressListener()
                 {
@@ -152,7 +154,7 @@ public class b_AddWordActivity extends AppCompatActivity
                     @Override
                     public void onError(String utteranceId)
                     {
-                        z_Log.v("Ошибка синтеза");
+                        MyLog.v("Ошибка синтеза");
                     }
                 });
             }
@@ -284,7 +286,7 @@ public class b_AddWordActivity extends AppCompatActivity
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count)
             {
-                if (!textViewEnter.getText().toString().equals("") && isOnline(b_AddWordActivity.this))
+                if (!textViewEnter.getText().toString().equals("") && isOnline(AddWordActivity.this))
                 {
                     buttonTrans.setEnabled(true);
 
@@ -319,7 +321,7 @@ public class b_AddWordActivity extends AppCompatActivity
             public void onClick(View v)
             {
                 flag_btn_trans_click = true;
-                b_OnlineTranslatorApi translatorApi = new b_OnlineTranslatorApi(textViewResult, progressBar);
+                OnlineTranslatorApi translatorApi = new OnlineTranslatorApi(textViewResult, progressBar);
                 translatorApi.getTranslateAsync(textViewEnter.getText().toString());
                 transCounter++;
             }
@@ -338,7 +340,7 @@ public class b_AddWordActivity extends AppCompatActivity
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count)
             {
-                if (isOnline(b_AddWordActivity.this) && flag_btn_trans_click)
+                if (isOnline(AddWordActivity.this) && flag_btn_trans_click)
                 {
                     //textViewLinkYandex.setVisibility(View.VISIBLE);
                     layoutLinkYa.setVisibility(View.VISIBLE);
@@ -417,7 +419,7 @@ public class b_AddWordActivity extends AppCompatActivity
                 }
                 if (id != -1)
                 {
-                    Toast toast = Toast.makeText(b_AddWordActivity.this, getString(R.string.in_dictionary)+selectDict+getString(R.string.new_word_is_added), Toast.LENGTH_SHORT);
+                    Toast toast = Toast.makeText(AddWordActivity.this, getString(R.string.in_dictionary)+selectDict+getString(R.string.new_word_is_added), Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER,0,0);
                     toast.show();
                     textViewEnter.setText("");

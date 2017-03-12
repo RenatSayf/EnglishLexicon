@@ -1,18 +1,18 @@
-package com.myapp.lexicon;
+package com.myapp.lexicon.helpers;
 
 /**
  * Created by Ренат on 11.07.2016.
  */
-public class z_StringOperations
+public class StringOperations
 {
-    private static z_StringOperations ourInstance = new z_StringOperations();
+    private static StringOperations ourInstance = new StringOperations();
 
-    public static z_StringOperations getInstance()
+    public static StringOperations getInstance()
     {
         return ourInstance;
     }
 
-    private z_StringOperations()
+    private StringOperations()
     {
     }
     public String[] getLangOfText(String text)

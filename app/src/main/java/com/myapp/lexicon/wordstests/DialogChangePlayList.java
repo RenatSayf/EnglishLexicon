@@ -1,4 +1,4 @@
-package com.myapp.lexicon;
+package com.myapp.lexicon.wordstests;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -14,7 +14,7 @@ import java.util.ArrayList;
  * Created by Ренат on 03.10.2016.
  */
 
-public class t_DialogChangePlayList extends android.support.v4.app.DialogFragment
+public class DialogChangePlayList extends android.support.v4.app.DialogFragment
 {
     public final String KEY_LIST_DICT = "listdict";
     public IChangePlayList changePlayList;

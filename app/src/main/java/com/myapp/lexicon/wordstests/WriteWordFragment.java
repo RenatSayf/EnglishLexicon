@@ -1,4 +1,4 @@
-package com.myapp.lexicon;
+package com.myapp.lexicon.wordstests;
 
 
 import android.os.AsyncTask;
@@ -15,8 +15,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
+import com.myapp.lexicon.helpers.RandomNumberGenerator;
 
 import java.util.ArrayList;
 
@@ -24,7 +26,7 @@ import java.util.ArrayList;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class t_WriteWordFragment extends Fragment
+public class WriteWordFragment extends Fragment
 {
     public static final int ROWS = 5;
     private static Button[] buttonsArray;
@@ -43,7 +45,7 @@ public class t_WriteWordFragment extends Fragment
     private static int wordsResidue;
 
 
-    public t_WriteWordFragment()
+    public WriteWordFragment()
     {
         // Required empty public constructor
     }
@@ -174,7 +176,7 @@ public class t_WriteWordFragment extends Fragment
         }
         buttonsArray = new Button[count];
 
-        final z_RandomNumberGenerator generator = new z_RandomNumberGenerator(count, 100);
+        final RandomNumberGenerator generator = new RandomNumberGenerator(count, 100);
         final int finalCount = count;
         AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
         {
@@ -183,7 +185,7 @@ public class t_WriteWordFragment extends Fragment
             {
                 controlList = list;
                 controlListSize = controlList.size();
-                randomGenerator = new z_RandomNumberGenerator(controlListSize, 133);
+                randomGenerator = new RandomNumberGenerator(controlListSize, 133);
                 for (int i = 0; i < controlList.size(); i++)
                 {
                     buttonsArray[i].setText(controlList.get(i).get_translate());
@@ -224,7 +226,7 @@ public class t_WriteWordFragment extends Fragment
         });
     }
 
-    private static z_RandomNumberGenerator randomGenerator;
+    private static RandomNumberGenerator randomGenerator;
     private int range = 127;
     private void compareWords(String tableName, String enword, String ruword)
     {
@@ -259,13 +261,13 @@ public class t_WriteWordFragment extends Fragment
                             buttonsArray[btn_position].setText(list.get(0).get_translate());
                             if (controlListSize != controlList.size())
                             {
-                                randomGenerator = new z_RandomNumberGenerator(controlList.size(), range);
+                                randomGenerator = new RandomNumberGenerator(controlList.size(), range);
                                 controlListSize = controlList.size();
                             }
                             int randomNumber = randomGenerator.generate();
                             if (randomNumber < 0)
                             {
-                                randomGenerator = new z_RandomNumberGenerator(controlListSize, range);
+                                randomGenerator = new RandomNumberGenerator(controlListSize, range);
                                 randomNumber = randomGenerator.generate();
                             }
                             textView.setText(controlList.get(randomNumber).get_english());
@@ -277,7 +279,7 @@ public class t_WriteWordFragment extends Fragment
                             textView.setText("");
                             if (controlList.size() > 0)
                             {
-                                randomGenerator = new z_RandomNumberGenerator(controlList.size(), range);
+                                randomGenerator = new RandomNumberGenerator(controlList.size(), range);
                                 int randomNumber = randomGenerator.generate();
                                 textView.setText(controlList.get(randomNumber).get_english());
                             }

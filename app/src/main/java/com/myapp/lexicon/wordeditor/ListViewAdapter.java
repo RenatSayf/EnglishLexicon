@@ -1,4 +1,4 @@
-package com.myapp.lexicon;
+package com.myapp.lexicon.wordeditor;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -9,6 +9,7 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
 
+import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 
 import java.util.ArrayList;
@@ -17,13 +18,13 @@ import java.util.ArrayList;
  * Created by Ренат on 29.03.2016.
  */
 // TODO: 26.01.2017 ListView adapter class
-public class d_ListViewAdapter extends ArrayAdapter implements Filterable
+public class ListViewAdapter extends ArrayAdapter implements Filterable
 {
     private ArrayList<DataBaseEntry> entries;
     private ArrayList<DataBaseEntry> tempEntries;
     private Context context;
 
-    public d_ListViewAdapter(ArrayList<DataBaseEntry> entries, Context context, int resource)
+    public ListViewAdapter(ArrayList<DataBaseEntry> entries, Context context, int resource)
     {
         super(context, resource);
         this.entries = entries;
@@ -31,7 +32,7 @@ public class d_ListViewAdapter extends ArrayAdapter implements Filterable
         this.tempEntries = new ArrayList<>(entries);
     }
 
-    public d_ListViewAdapter(Context context, int resource)
+    public ListViewAdapter(Context context, int resource)
     {
         super(context, resource);
     }

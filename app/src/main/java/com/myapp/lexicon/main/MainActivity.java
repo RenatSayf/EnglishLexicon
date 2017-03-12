@@ -38,8 +38,8 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.b_AddWordActivity;
-import com.myapp.lexicon.d_WordEditor;
+import com.myapp.lexicon.addword.AddWordActivity;
+import com.myapp.lexicon.wordeditor.WordEditor;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.DatabaseHelper;
@@ -48,8 +48,8 @@ import com.myapp.lexicon.database.GetEntriesLoader;
 import com.myapp.lexicon.playlist.PlayList;
 import com.myapp.lexicon.settings.AppData2;
 import com.myapp.lexicon.settings.AppSettings;
-import com.myapp.lexicon.t_Tests;
-import com.myapp.lexicon.z_Log;
+import com.myapp.lexicon.wordstests.Tests;
+import com.myapp.lexicon.helpers.MyLog;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             registerReceiver(mUpdateBroadcastReceiver, updateIntentFilter);
         } catch (Exception e)
         {
-            z_Log.v(e.getMessage());
+            MyLog.v(e.getMessage());
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -304,7 +304,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             if (wordEditorIntent == null)
             {
-                wordEditorIntent = new Intent(this, d_WordEditor.class);
+                wordEditorIntent = new Intent(this, WordEditor.class);
             }
             speechServiceOnPause();
             Bundle bundle = new Bundle();
@@ -329,7 +329,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             if (addWordIntent == null)
             {
-                addWordIntent = new Intent(this,b_AddWordActivity.class);
+                addWordIntent = new Intent(this,AddWordActivity.class);
             }
             startActivity(addWordIntent);
         }
@@ -351,7 +351,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             if (wordEditorIntent == null)
             {
-                wordEditorIntent = new Intent(this, d_WordEditor.class);
+                wordEditorIntent = new Intent(this, WordEditor.class);
             }
             wordEditorIntent.replaceExtras(new Bundle());
             startActivity(wordEditorIntent);
@@ -360,7 +360,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             if (testsIntent == null)
             {
-                testsIntent = new Intent(this, t_Tests.class);
+                testsIntent = new Intent(this, Tests.class);
             }
             startActivity(testsIntent);
         } else if (id == R.id.nav_play_list)

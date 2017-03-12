@@ -1,4 +1,4 @@
-package com.myapp.lexicon;
+package com.myapp.lexicon.helpers;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -8,10 +8,10 @@ import android.content.res.Configuration;
 /**
  * Created by Ренат on 05.08.2016.
  */
-public class z_LockOrientation
+public class LockOrientation
 {
     private Activity activity;
-    public z_LockOrientation(Activity activity)
+    public LockOrientation(Activity activity)
     {
         this.activity = activity;
     }

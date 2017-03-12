@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto"
       xmlns:tools="http://schemas.android.com/tools"
-      tools:context=".t_Tests">
+      tools:context=".wordstests.Tests">
 
     <item android:id="@+id/action_item1"
           android:title="Add Word"
