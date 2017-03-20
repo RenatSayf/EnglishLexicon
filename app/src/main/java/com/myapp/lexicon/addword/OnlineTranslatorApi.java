@@ -1,6 +1,9 @@
 package com.myapp.lexicon.addword;
 
+import android.app.LoaderManager;
+import android.content.Loader;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -110,10 +113,10 @@ public class OnlineTranslatorApi
             connection.connect();
             reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             StringBuilder buf=new StringBuilder();
-            String line=null;
+            String line;
             while ((line=reader.readLine()) != null)
             {
-                buf.append(line + "\n");
+                buf.append(line).append("\n");
             }
             return(buf.toString());
         }
@@ -186,4 +189,7 @@ public class OnlineTranslatorApi
 
         return list;
     }
+
+
+
 }

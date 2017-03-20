@@ -2,10 +2,6 @@ package com.myapp.lexicon.database;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
-
-import com.myapp.lexicon.R;
 
 import java.util.ArrayList;
 
