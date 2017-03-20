@@ -37,6 +37,7 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.GetTableListLoader;
+import com.myapp.lexicon.database.LoaderHandler;
 import com.myapp.lexicon.main.SplashScreenActivity;
 
 import java.sql.SQLException;
@@ -624,7 +625,10 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
     {
         if (loader.getId() == LOADER_GET_TABLE_LIST)
         {
-            loadDbTableListHandler(cursor);
+            LoaderHandler loaderHandler = new LoaderHandler(this);
+            ArrayList<String> list = loaderHandler.getTableArrayList(cursor);
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.my_content_spinner_layout, list);
+            spinnerListDict.setAdapter(adapter);
         }
     }
 
@@ -633,49 +637,6 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
     {
 
     }
-
-    private void loadDbTableListHandler(Cursor cursor)
-    {
-        String nameNotDict;
-        ArrayList<String> list = new ArrayList<>();
-        try
-        {
-            if (cursor != null && cursor.getCount() > 0)
-            {
-                if (cursor.moveToFirst())
-                {
-                    while ( !cursor.isAfterLast() )
-                    {
-                        nameNotDict = cursor.getString( cursor.getColumnIndex("name"));
-                        if (!nameNotDict.equals("android_metadata") && !nameNotDict.equals("sqlite_sequence"))
-                        {
-                            list.add( cursor.getString( cursor.getColumnIndex("name")) );
-                        }
-                        cursor.moveToNext();
-                    }
-                }
-            }
-            if (list.size() > 0)
-            {
-
-                ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(this, R.layout.my_content_spinner_layout, list);
-                spinnerListDict.setAdapter(adapterSpinner);
-                spinnerListDict.setSelection(0);
-            }
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        finally
-        {
-            if (cursor != null)
-            {
-                cursor.close();
-            }
-        }
-    }
-
 
 
 
