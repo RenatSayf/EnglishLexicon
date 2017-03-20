@@ -56,7 +56,6 @@ public class OnlineTranslatorApi
                 } catch (Exception e)
                 {
                     e.printStackTrace();
-                    MyLog.v("Исключение - " + e.getMessage());
                 }
                 return _content;
             }
@@ -70,8 +69,6 @@ public class OnlineTranslatorApi
                 {
                     textView.setText(list.get(0));
                 }
-                MyLog.v("str = "+list.get(0));
-
             }
         };
         asyncTask.execute();
@@ -84,7 +81,6 @@ public class OnlineTranslatorApi
         {
             return undefined;
         }
-        MyLog.v("lang = " + lang + "    ui = " + ui);
 
         String text_encode = null;
         try
@@ -92,7 +88,7 @@ public class OnlineTranslatorApi
             text_encode = URLEncoder.encode(text,"utf-8");
         } catch (UnsupportedEncodingException e)
         {
-            MyLog.v("Исключение = " + e.getMessage());
+            e.printStackTrace();
         }
 
         String format = "plain";
@@ -124,7 +120,6 @@ public class OnlineTranslatorApi
         catch (Exception e)
         {
             e.printStackTrace();
-            MyLog.v("Исключение - " + e.getMessage());
             return undefined;
         }
         finally
@@ -136,7 +131,7 @@ public class OnlineTranslatorApi
                     reader.close();
                 } catch (Exception e)
                 {
-                    MyLog.v("Иключение - " + e.getMessage());
+                    e.printStackTrace();
                 }
             }
         }
@@ -144,21 +139,20 @@ public class OnlineTranslatorApi
 
     private String[] getLangTranslate(String text)
     {
-        String str = text;
         String[] lang = new String[2];
-        for (int i = 0; i < str.length(); i++)
+        for (int i = 0; i < text.length(); i++)
         {
-            int char_first = str.codePointAt(0);
-            if ((char_first >= 33 && char_first <= 64) || (str.codePointAt(i) >= 91 && str.codePointAt(i) <= 96) || (str.codePointAt(i) >= 123 && str.codePointAt(i) <= 126))
+            int char_first = text.codePointAt(0);
+            if ((char_first >= 33 && char_first <= 64) || (text.codePointAt(i) >= 91 && text.codePointAt(i) <= 96) || (text.codePointAt(i) >= 123 && text.codePointAt(i) <= 126))
             {
                 continue;
             }
-            if (str.codePointAt(i) >= 1025 && str.codePointAt(i) <= 1105)
+            if (text.codePointAt(i) >= 1025 && text.codePointAt(i) <= 1105)
             {
                 lang[0] = "ru-en";
                 lang[1] = "ru";
             }
-            else if (str.codePointAt(i) >= 65 && str.codePointAt(i) <= 122)
+            else if (text.codePointAt(i) >= 65 && text.codePointAt(i) <= 122)
             {
                 lang[0] = "en-ru";
                 lang[1] = "en";
@@ -187,7 +181,7 @@ public class OnlineTranslatorApi
             }
         } catch (JSONException e)
         {
-            MyLog.v("Исключени - "+e.getMessage());
+            e.printStackTrace();
         }
 
         return list;

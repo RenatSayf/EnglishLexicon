@@ -1,7 +1,10 @@
 package com.myapp.lexicon.addword;
 
+import android.app.LoaderManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.Loader;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -20,6 +23,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -32,71 +36,85 @@ import android.widget.Toast;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
+import com.myapp.lexicon.database.GetTableListLoader;
 import com.myapp.lexicon.main.SplashScreenActivity;
-import com.myapp.lexicon.helpers.MyLog;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class AddWordActivity extends AppCompatActivity
+import static android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE;
+
+public class AddWordActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>
 {
     private EditText textViewEnter;
     private LinearLayout layoutLinkYa;
     private TextView textViewLinkYandex;
     private EditText textViewResult;
-    private ImageButton buttonEdit;
     private Button buttonTrans;
     private ProgressBar progressBar;
     private ProgressBar progressBarEn;
     private ProgressBar progressBarRu;
     private Spinner spinnerListDict;
+    private ArrayList<String> spinnerItems = new ArrayList<>();
     private Button buttonAddWord;
-    private String langSystem;
     private ImageButton button_sound1;
     private ImageButton button_sound2;
     private ImageButton button_swap;
     private ImageButton buttonClean1, buttonClean2;
-    private DataBaseQueries dataBaseQueries;
-    private TextToSpeech speechText;
-    private boolean speech_able_en = true;
-    private boolean speech_able_ru = true;
     private HashMap<String, String> utterance_Id = new HashMap<>();
     private boolean flag_btn_trans_click = false;
 
-    private Intent tests_activity;
-    private Intent play_list_activity;
-    private Intent word_editor_activity;
+    private final int LOADER_GET_TABLE_LIST = 11;
+
+    private String KEY_SELECT_SPINNER_INDEX = "key_spinner";
+    private String KEY_SPINNER_ITEMS = "key_spinner_items";
 
     private static int transCounter = 0;
 
-    private void initViews() throws SQLException
+    private void initViews()
     {
         textViewEnter = (EditText) findViewById(R.id.textViewEnter);
         textViewEnter_onChange();
         layoutLinkYa = (LinearLayout) findViewById(R.id.lin_layout_link_ya);
-        layoutLinkYa.setVisibility(View.GONE);
+        if (layoutLinkYa != null)
+        {
+            layoutLinkYa.setVisibility(View.GONE);
+        }
         textViewLinkYandex = (TextView) findViewById(R.id.textViewLinkYandex);
         textViewLinkYandex.setText(Html.fromHtml(getResources().getString(R.string.link_to_yandex_trans)));
         textViewResult = (EditText) findViewById(R.id.textViewResult);
-        textViewResult.setRawInputType(0x00000000);
+        if (textViewResult != null)
+        {
+            textViewResult.setRawInputType(TYPE_TEXT_FLAG_MULTI_LINE);
+        }
         textViewResult_onChange();
-        buttonEdit = (ImageButton) findViewById(R.id.buttonEdit);
+        //ImageButton buttonEdit = (ImageButton) findViewById(R.id.buttonEdit);
         buttonTrans = (Button) findViewById(R.id.button_trans);
         buttonTrans_onClick();
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        progressBar.setVisibility(View.GONE);
+        if (progressBar != null)
+        {
+            progressBar.setVisibility(View.GONE);
+        }
         progressBarEn = (ProgressBar) findViewById(R.id.progressEn);
-        progressBarEn.setVisibility(View.GONE);
+        if (progressBarEn != null)
+        {
+            progressBarEn.setVisibility(View.GONE);
+        }
         progressBarRu = (ProgressBar) findViewById(R.id.progressRu);
-        progressBarRu.setVisibility(View.GONE);
+        if (progressBarRu != null)
+        {
+            progressBarRu.setVisibility(View.GONE);
+        }
         spinnerListDict = (Spinner) findViewById(R.id.spinn_dict_to);
         spinnerListDict_onItemSelected();
         buttonAddWord = (Button) findViewById(R.id.button_add);
         buttonAddWord_onClick();
-        langSystem = getApplicationContext().getResources().getConfiguration().locale.getLanguage();
+        //String langSystem = getApplicationContext().getResources().getConfiguration().locale.getLanguage();
         button_sound1 = (ImageButton) findViewById(R.id.btn_speech);
         button_sound2 = (ImageButton) findViewById(R.id.btn_sound2);
         button_sound1_onClick();
@@ -108,58 +126,6 @@ public class AddWordActivity extends AppCompatActivity
         buttonClean_onClick();
     }
 
-    private void initTTS()
-    {
-        speechText = new TextToSpeech(AddWordActivity.this, new TextToSpeech.OnInitListener()
-        {
-            @Override
-            public void onInit(int status)
-            {
-                utterance_Id.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "text_id");
-                if (status == TextToSpeech.SUCCESS)
-                {
-                    int resultRu = speechText.isLanguageAvailable(Locale.getDefault());
-                    if (resultRu == TextToSpeech.LANG_MISSING_DATA || resultRu == TextToSpeech.LANG_NOT_SUPPORTED)
-                    {
-                        speech_able_ru = false;
-                    }
-                    int resultEn = speechText.isLanguageAvailable(Locale.UK);
-                    if (resultEn == TextToSpeech.LANG_MISSING_DATA || resultEn == TextToSpeech.LANG_NOT_SUPPORTED)
-                    {
-                        speech_able_en = false;
-                    }
-                }else
-                {
-                    speech_able_en = false;
-                    speech_able_ru = false;
-                }
-                MyLog.v("status = "+status+"   speech_able_en = "+speech_able_en+"      speech_able_ru = "+speech_able_ru);
-
-                speechText.setOnUtteranceProgressListener(new UtteranceProgressListener()
-                {
-                    @Override
-                    public void onStart(String utteranceId)
-                    {
-                        progressBarEn.setVisibility(View.GONE);
-                        progressBarRu.setVisibility(View.GONE);
-                    }
-
-                    @Override
-                    public void onDone(String utteranceId)
-                    {
-                        progressBarEn.setVisibility(View.GONE);
-                        progressBarRu.setVisibility(View.GONE);
-                    }
-
-                    @Override
-                    public void onError(String utteranceId)
-                    {
-                        MyLog.v("Ошибка синтеза");
-                    }
-                });
-            }
-        });
-    }
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -169,17 +135,7 @@ public class AddWordActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        try
-        {
-            initViews();
-            dataBaseQueries = new DataBaseQueries(this);
-            dataBaseQueries.setListTableToSpinner(spinnerListDict, 0);
-        } catch (SQLException e)
-        {
-            e.printStackTrace();
-        }
-
-        initTTS();
+        initViews();
 
         if (!isOnline(this) && savedInstanceState == null)
         {
@@ -195,36 +151,39 @@ public class AddWordActivity extends AppCompatActivity
             }
         }
 
-
+        if (savedInstanceState != null)
+        {
+            ArrayList<String> list = savedInstanceState.getStringArrayList(KEY_SPINNER_ITEMS);
+            if (list != null  && list.size() > 0)
+            {
+                ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(this, R.layout.my_content_spinner_layout, list);
+                spinnerListDict.setAdapter(adapterSpinner);
+                spinnerListDict.setSelection(savedInstanceState.getInt(KEY_SELECT_SPINNER_INDEX));
+            }
+        }
+        else
+        {
+            getLoaderManager().restartLoader(LOADER_GET_TABLE_LIST, null, AddWordActivity.this).forceLoad();
+        }
+        getLoaderManager().initLoader(LOADER_GET_TABLE_LIST, savedInstanceState, this);
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState)
     {
         super.onSaveInstanceState(outState);
-
+        for (int i = 0; i < spinnerListDict.getAdapter().getCount(); i++)
+        {
+            spinnerItems.add(spinnerListDict.getAdapter().getItem(i).toString());
+        }
+        outState.putStringArrayList(KEY_SPINNER_ITEMS, spinnerItems);
+        outState.putInt(KEY_SELECT_SPINNER_INDEX, spinnerListDict.getSelectedItemPosition());
     }
 
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState)
-    {
-        super.onRestoreInstanceState(savedInstanceState);
-
-    }
-    @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
         // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.b_add_word_menu, menu);
-//        tests_activity = new Intent();
-//        tests_activity.setClass(this, t_Tests.class);
-//
-//        play_list_activity = new Intent();
-//        play_list_activity.setClass(this, p_PlayList.class);
-//
-//        word_editor_activity = new Intent();
-//        word_editor_activity.setClass(this, d_WordEditor.class);
-        return true;
+        return false;
     }
 
     @Override
@@ -233,20 +192,6 @@ public class AddWordActivity extends AppCompatActivity
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        switch (id)
-        {
-            case R.id.menu_tests:
-                startActivity(tests_activity);
-                break;
-            case R.id.menu_play_list:
-                startActivity(play_list_activity);
-                break;
-            case R.id.menu_word_editor:
-                startActivity(word_editor_activity);
-                break;
-        }
         return super.onOptionsItemSelected(item);
     }
     public void textViewLinkYandex_onClick(View view)
@@ -259,11 +204,7 @@ public class AddWordActivity extends AppCompatActivity
     {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        if (netInfo != null && netInfo.isConnectedOrConnecting())
-        {
-            return true;
-        }
-        return false;
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
     public void buttonEdit_onClick(View view)
     {
@@ -293,13 +234,11 @@ public class AddWordActivity extends AppCompatActivity
                 }else
                 {
                     buttonTrans.setEnabled(false);
-
                 }
 
                 if (textViewResult.getText().toString().equals("") || textViewEnter.getText().toString().equals(""))
                 {
                     buttonAddWord.setEnabled(false);
-                    //textViewLinkYandex.setVisibility(View.GONE);
                 }else
                 {
                     buttonAddWord.setEnabled(true);
@@ -342,7 +281,6 @@ public class AddWordActivity extends AppCompatActivity
             {
                 if (isOnline(AddWordActivity.this) && flag_btn_trans_click)
                 {
-                    //textViewLinkYandex.setVisibility(View.VISIBLE);
                     layoutLinkYa.setVisibility(View.VISIBLE);
                     flag_btn_trans_click = false;
                 }
@@ -353,7 +291,6 @@ public class AddWordActivity extends AppCompatActivity
                 }else
                 {
                     buttonAddWord.setEnabled(false);
-                    //textViewLinkYandex.setVisibility(View.GONE);
                 }
             }
 
@@ -395,7 +332,7 @@ public class AddWordActivity extends AppCompatActivity
         }
         return 0;
     }
-    private void buttonAddWord_onClick() throws SQLException
+    private void buttonAddWord_onClick()
     {
         buttonAddWord.setOnClickListener(new View.OnClickListener()
         {
@@ -403,19 +340,27 @@ public class AddWordActivity extends AppCompatActivity
             public void onClick(View v)
             {
                 long id = -1;
+                DataBaseQueries dataBaseQueries = null;
+                try
+                {
+                    dataBaseQueries = new DataBaseQueries(AddWordActivity.this);
+                } catch (SQLException e)
+                {
+                    e.printStackTrace();
+                }
                 DataBaseEntry entry = new DataBaseEntry(null, null, null);
                 int res = checkText(textViewEnter.getText().toString(), textViewResult.getText().toString());
                 if (res == 1)
                 {
                     entry.set_english(textViewEnter.getText().toString());
                     entry.set_translate(textViewResult.getText().toString());
-                    id = dataBaseQueries.insertWordInTable(selectDict, entry);
+                    id = dataBaseQueries != null ? dataBaseQueries.insertWordInTable(selectDict, entry) : -1;
                 }
                 if (res == -1)
                 {
                     entry.set_english(textViewResult.getText().toString());
                     entry.set_translate(textViewEnter.getText().toString());
-                    id = dataBaseQueries.insertWordInTable(selectDict, entry);
+                    id = dataBaseQueries != null ? dataBaseQueries.insertWordInTable(selectDict, entry) : -1;
                 }
                 if (id != -1)
                 {
@@ -487,19 +432,61 @@ public class AddWordActivity extends AppCompatActivity
             public void onClick(View v)
             {
                 String text1 = textViewEnter.getText().toString();
-                if (speech_able_en && !text1.equals("") && getLangOfText(text1).equals("en"))
+                if (!text1.equals("") && getLangOfText(text1).equals("en"))
                 {
                     progressBarEn.setVisibility(View.VISIBLE);
-                    utterance_Id.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "En");
-                    speechText.setLanguage(Locale.US);
-                    speechText.speak(text1, TextToSpeech.QUEUE_ADD, utterance_Id);
+                    SplashScreenActivity.speech.setLanguage(Locale.US);
+                    utterance_Id.clear();
+                    utterance_Id.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "add_word_us");
+                    SplashScreenActivity.speech.speak(text1, TextToSpeech.QUEUE_ADD, utterance_Id);
+                    SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+                    {
+                        @Override
+                        public void onStart(String utteranceId)
+                        {
+                            speechComplete(utteranceId, utterance_Id, progressBarEn);
+                        }
+
+                        @Override
+                        public void onDone(String utteranceId)
+                        {
+                            speechComplete(utteranceId, utterance_Id, progressBarEn);
+                        }
+
+                        @Override
+                        public void onError(String utteranceId)
+                        {
+                            speechComplete(utteranceId, utterance_Id, progressBarEn);
+                        }
+                    });
                 }
-                if (speech_able_ru && !text1.equals("") && getLangOfText(text1).equals("ru"))
+                if (!text1.equals("") && getLangOfText(text1).equals("ru"))
                 {
                     progressBarEn.setVisibility(View.VISIBLE);
-                    utterance_Id.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "Ru");
-                    speechText.setLanguage(Locale.getDefault());
-                    speechText.speak(text1, TextToSpeech.QUEUE_ADD, utterance_Id);
+                    SplashScreenActivity.speech.setLanguage(Locale.getDefault());
+                    utterance_Id.clear();
+                    utterance_Id.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "add_word_ru");
+                    SplashScreenActivity.speech.speak(text1, TextToSpeech.QUEUE_ADD, utterance_Id);
+                    SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+                    {
+                        @Override
+                        public void onStart(String utteranceId)
+                        {
+                            speechComplete(utteranceId, utterance_Id, progressBarEn);
+                        }
+
+                        @Override
+                        public void onDone(String utteranceId)
+                        {
+                            speechComplete(utteranceId, utterance_Id, progressBarEn);
+                        }
+
+                        @Override
+                        public void onError(String utteranceId)
+                        {
+                            speechComplete(utteranceId, utterance_Id, progressBarEn);
+                        }
+                    });
                 }
             }
         });
@@ -513,20 +500,72 @@ public class AddWordActivity extends AppCompatActivity
             public void onClick(View v)
             {
                 String text2 = textViewResult.getText().toString();
-                if (speech_able_en && !text2.equals("") && getLangOfText(text2).equals("en"))
+                if (!text2.equals("") && getLangOfText(text2).equals("en"))
                 {
                     progressBarRu.setVisibility(View.VISIBLE);
                     SplashScreenActivity.speech.setLanguage(Locale.US);
-                    SplashScreenActivity.speech.speak(text2, TextToSpeech.QUEUE_ADD, SplashScreenActivity.map);
+                    utterance_Id.clear();
+                    utterance_Id.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "add_word_us");
+                    SplashScreenActivity.speech.speak(text2, TextToSpeech.QUEUE_ADD, utterance_Id);
+                    SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+                    {
+                        @Override
+                        public void onStart(String utteranceId)
+                        {
+                            speechComplete(utteranceId, utterance_Id, progressBarRu);
+                        }
+
+                        @Override
+                        public void onDone(String utteranceId)
+                        {
+                            speechComplete(utteranceId, utterance_Id, progressBarRu);
+                        }
+
+                        @Override
+                        public void onError(String utteranceId)
+                        {
+                            speechComplete(utteranceId, utterance_Id, progressBarRu);
+                        }
+                    });
                 }
-                if (speech_able_ru && !text2.equals("") && getLangOfText(text2).equals("ru"))
+                if (!text2.equals("") && getLangOfText(text2).equals("ru"))
                 {
                     progressBarRu.setVisibility(View.VISIBLE);
                     SplashScreenActivity.speech.setLanguage(Locale.getDefault());
-                    SplashScreenActivity.speech.speak(text2, TextToSpeech.QUEUE_ADD, SplashScreenActivity.map);
+                    utterance_Id.clear();
+                    utterance_Id.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "add_word_ru");
+                    SplashScreenActivity.speech.speak(text2, TextToSpeech.QUEUE_ADD, utterance_Id);
+                    SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+                    {
+                        @Override
+                        public void onStart(String utteranceId)
+                        {
+                            speechComplete(utteranceId, utterance_Id, progressBarRu);
+                        }
+
+                        @Override
+                        public void onDone(String utteranceId)
+                        {
+                            speechComplete(utteranceId, utterance_Id, progressBarRu);
+                        }
+
+                        @Override
+                        public void onError(String utteranceId)
+                        {
+                            speechComplete(utteranceId, utterance_Id, progressBarRu);
+                        }
+                    });
                 }
             }
         });
+    }
+
+    private void speechComplete(String utteranceId, HashMap utteranceId2, ProgressBar progressBar)
+    {
+        if (utteranceId.equals(utteranceId2.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID)))
+        {
+            progressBar.setVisibility(View.GONE);
+        }
     }
 
     private void buttonSwap_onClick()
@@ -563,6 +602,80 @@ public class AddWordActivity extends AppCompatActivity
             }
         });
     }
+
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args)
+    {
+        Loader<Cursor> loader = null;
+        switch (id)
+        {
+            case LOADER_GET_TABLE_LIST:
+                loader = new GetTableListLoader(this);
+                break;
+            default:
+                break;
+        }
+        return loader;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor)
+    {
+        if (loader.getId() == LOADER_GET_TABLE_LIST)
+        {
+            loadDbTableListHandler(cursor);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader)
+    {
+
+    }
+
+    private void loadDbTableListHandler(Cursor cursor)
+    {
+        String nameNotDict;
+        ArrayList<String> list = new ArrayList<>();
+        try
+        {
+            if (cursor != null && cursor.getCount() > 0)
+            {
+                if (cursor.moveToFirst())
+                {
+                    while ( !cursor.isAfterLast() )
+                    {
+                        nameNotDict = cursor.getString( cursor.getColumnIndex("name"));
+                        if (!nameNotDict.equals("android_metadata") && !nameNotDict.equals("sqlite_sequence"))
+                        {
+                            list.add( cursor.getString( cursor.getColumnIndex("name")) );
+                        }
+                        cursor.moveToNext();
+                    }
+                }
+            }
+            if (list.size() > 0)
+            {
+
+                ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(this, R.layout.my_content_spinner_layout, list);
+                spinnerListDict.setAdapter(adapterSpinner);
+                spinnerListDict.setSelection(0);
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            if (cursor != null)
+            {
+                cursor.close();
+            }
+        }
+    }
+
 
 
 
