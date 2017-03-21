@@ -1,5 +1,6 @@
 package com.myapp.lexicon.database;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -12,6 +13,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.MyLog;
 
 import java.sql.SQLException;
@@ -27,6 +29,7 @@ public class DataBaseQueries
     private static DatabaseHelper databaseHelper;
     private Handler handler;
     private Context context;
+    private LockOrientation lockOrientation;
     public DataBaseQueries(SQLiteDatabase database)
     {
 
@@ -806,16 +809,17 @@ public class DataBaseQueries
     public static long getIdOfWord(final String tableName, final String english, final String translate) throws ExecutionException, InterruptedException
     {
         final long[] id = {-1};
-
+        Cursor cursor = null;
         try
         {
             databaseHelper.open();
             if (databaseHelper.database.isOpen())
             {
                 databaseHelper.database.beginTransaction();
-                Cursor cursor = databaseHelper.database.rawQuery(
+
+                cursor = databaseHelper.database.rawQuery(
                         "SELECT RowID FROM '"+tableName+
-                                "' Where "+DatabaseHelper.COLUMN_ENGLISH+
+                                "' Where "+ DatabaseHelper.COLUMN_ENGLISH+
                                 " = '"+english+
                                 "' AND "+DatabaseHelper.COLUMN_TRANS+
                                 " = '"+translate+"'", null);
@@ -828,11 +832,14 @@ public class DataBaseQueries
             }
         } catch (SQLException e)
         {
-            MyLog.v("ИСКЛЮЧЕНИЕ - "+e);
             e.printStackTrace();
         }
         finally
         {
+            if (cursor != null)
+            {
+                cursor.close();
+            }
             databaseHelper.close();
         }
         return id[0];

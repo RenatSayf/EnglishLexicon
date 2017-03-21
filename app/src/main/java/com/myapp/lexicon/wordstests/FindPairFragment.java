@@ -1,14 +1,11 @@
 package com.myapp.lexicon.wordstests;
 
 
-import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
-import android.speech.tts.UtteranceProgressListener;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -33,13 +30,14 @@ import android.widget.TextView;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
-import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
+import com.myapp.lexicon.main.SplashScreenActivity;
+import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.ArrayList;
-
-import static android.content.Context.MODE_PRIVATE;
+import java.util.Date;
+import java.util.HashMap;
 
 
 /**
@@ -47,17 +45,15 @@ import static android.content.Context.MODE_PRIVATE;
  */
 public class FindPairFragment extends Fragment implements DialogTestComplete.IDialogComplete_Result
 {
-    public static int ROWS = 5;
+    public final int ROWS = 5;
 
     private static RelativeLayout.LayoutParams saveTopPanelParams;
 
-    private LinearLayout linLayout;
     private LinearLayout topPanel;
     private RelativeLayout.LayoutParams topPanelParams;
     private float touchDown = 0, touchUp = 0;
     private Button topPanelButtonOK;
     private Button topPanelButtonFinish;
-    private TextView headerTopPanel;
     private long duration = 1000;
     private static boolean isOpen = false;
 
@@ -79,21 +75,16 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     private ArrayList<String> arrStudiedDict = new ArrayList<>();
     private static ArrayList<DataBaseEntry> controlList;
     private static ArrayList<DataBaseEntry> additionalList;
-    private static int additonalCount = 0;
     private int controlListSize = 0;
-    private int rangeRight = -1;
     private DisplayMetrics metrics;
-    private static ArrayList<DataBaseEntry> listFromDB;
     private String enWord = null;
     private String ruWord = null;
     private Button tempButtonLeft;
     private Button tempButtonRight;
     private Button btnNoRight;
-    private Animator animator;
 
     private DialogTestComplete dialogTestComplete;
     private TestResults testResults;
-    private static FragmentManager fragmentManager;
 
     private String KEY_CONTROL_LIST_SIZE = "key_control_list_size";
     private String KEY_WORDS_COUNT = "key_words_count";
@@ -102,7 +93,6 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     private String KEY_PROGRESS = "key_progress";
     private String KEY_PROGRESS_MAX = "key_progress_max";
     private String KEY_WORD_INDEX = "key_word_index";
-    private String KEY_NEXT_INDEX = "key_next_index";
 
 
     public FindPairFragment()
@@ -113,6 +103,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     @Override
     public void onSaveInstanceState(Bundle outState)
     {
+        super.onSaveInstanceState(outState);
         outState.putString(KEY_SPINN_SELECT_ITEM, spinnSelectedItem);
         outState.putInt(KEY_SPINN_SELECT_INDEX, spinnSelectedIndex);
         outState.putInt(KEY_PROGRESS, progressBar.getProgress());
@@ -127,15 +118,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             saveTopPanelParams.setMargins(topPanelParams.leftMargin, (int) topPanel.getY(), topPanelParams.rightMargin, topPanelParams.height);
         }
 
-//        for (int i = 0; i < btnLayoutLeft.getChildCount(); i++)
-//        {
-//            Button btnLeft = (Button) btnLayoutLeft.getChildAt(i);
-//            Button btnRight = (Button) btnLayoutRight.getChildAt(i);
-//            textArrayleft.set(i, btnLeft.getText().toString());
-//            textArrayRight.set(i, btnRight.getText().toString());
-//        }
         saveButtonsLayoutState();
-        super.onSaveInstanceState(outState);
     }
 
     private void saveButtonsLayoutState()
@@ -155,7 +138,6 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                 textArrayRight.add(buttonRight.getText().toString());
             }
         }
-        return;
     }
 
     @Override
@@ -176,7 +158,6 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             savedInstanceState = Tests.bundleFindPair;
         }
 
-        fragmentManager = getFragmentManager();
         lockOrientation = new LockOrientation(getActivity());
         Display display = getActivity().getWindowManager().getDefaultDisplay();
         metrics = new DisplayMetrics();
@@ -185,9 +166,9 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         View fragment_view = inflater.inflate(R.layout.t_find_pair_fragment, container, false);
         topPanel = (LinearLayout) fragment_view.findViewById(R.id.top_panel);
         topPanelParams = (RelativeLayout.LayoutParams) topPanel.getLayoutParams();
-        linLayout = (LinearLayout) fragment_view.findViewById(R.id.lin_layout_find_pair);
-        headerTopPanel = (TextView) fragment_view.findViewById(R.id.header_top_panel);
-        headerTopPanel.setText("Найди парные слова");
+        LinearLayout linLayout = (LinearLayout) fragment_view.findViewById(R.id.lin_layout_find_pair);
+        TextView headerTopPanel = (TextView) fragment_view.findViewById(R.id.header_top_panel);
+        headerTopPanel.setText(R.string.text_find_pair_words);
         topPanelButtonOK = (Button) fragment_view.findViewById(R.id.btn_ok);
         topPanelButtonFinish = (Button) fragment_view.findViewById(R.id.btn_complete);
         topPanelButtons_OnClick();
@@ -284,8 +265,6 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         }
 
         testResults = new TestResults(getActivity());
-        //dialogTestComplete = t_DialogTestComplete.getInstance();
-        //dialogTestComplete.setIDialogCompleteResult(t_FindPairFragment.this);
 
         return fragment_view;
     }
@@ -319,6 +298,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             return;
         }
 
+        lockOrientation.lock();
         new DataBaseQueries.GetLictTableAsync()
         {
             @Override
@@ -332,15 +312,16 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                 {
                     storedListDict.add(spinnListDict.getAdapter().getItem(i).toString());
                 }
+                lockOrientation.unLock();
             }
         }.execute();
     }
 
     private void startTest(final int position)
     {
-        lockOrientation.lock();
         wordIndex = 0;
         spinnSelectedItem = spinnListDict.getSelectedItem().toString();
+        lockOrientation.lock();
         DataBaseQueries.GetWordsCountAsync getWordsCount = new DataBaseQueries.GetWordsCountAsync()
         {
             @Override
@@ -361,14 +342,15 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                 {
                     fillButtonsLayout(spinnSelectedItem, wordIndex, ROWS);
                 }
+                lockOrientation.unLock();
             }
         };
         getWordsCount.execute(spinnSelectedItem);
     }
 
-    private static int buttonMaxHeigt;
     private void fillButtonsLayout(String dictName, int start, int end)
     {
+        lockOrientation.lock();
         AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
         {
             @Override
@@ -376,13 +358,13 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             {
                 controlList = list;
                 additionalList = new ArrayList<>();
-                additonalCount = 0;
                 for (DataBaseEntry entry : list)
                 {
                     additionalList.add(entry);
                 }
                 controlListSize = controlList.size();
-                RandomNumberGenerator randGenRight = new RandomNumberGenerator(controlListSize, rangeRight);
+                Date date = new Date();
+                RandomNumberGenerator randGenRight = new RandomNumberGenerator(controlListSize, (int) date.getTime());
                 long delay = 0;
                 for (int i = 0; i < controlList.size(); i++)
                 {
@@ -417,11 +399,10 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                         textArrayRight.add(buttonRight.getText().toString());
                     }
                 }
-                getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+                lockOrientation.unLock();
             }
         };
         asyncTask.execute(dictName, start, end);
-        asyncTask = null;
     }
 
     private void btnRight_OnClick(final Button button)
@@ -431,7 +412,6 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             @Override
             public void onClick(View view)
             {
-                //Toast.makeText(getActivity(), button.getText(), Toast.LENGTH_SHORT).show();
                 int requestedOrientation = getActivity().getRequestedOrientation();
                 if (requestedOrientation != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) return;
                 tempButtonRight = (Button) view;
@@ -449,7 +429,6 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             @Override
             public void onClick(View view)
             {
-                //Toast.makeText(getActivity(), button.getText(), Toast.LENGTH_SHORT).show();
                 int requestedOrientation = getActivity().getRequestedOrientation();
                 if (requestedOrientation != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) return;
                 tempButtonLeft = (Button) view;
@@ -464,86 +443,65 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     {
         if (enword == null || ruword == null)   return;
 
-        if (enword != null && ruword != null)
+        lockOrientation.lock();
+        DataBaseQueries.GetRowIdOfWordAsync asyncTask = new DataBaseQueries.GetRowIdOfWordAsync()
         {
-            lockOrientation.lock();
-            DataBaseQueries.GetRowIdOfWordAsync asyncTask = new DataBaseQueries.GetRowIdOfWordAsync()
+            @Override
+            public void resultAsyncTask(Integer id)
             {
-                @Override
-                public void resultAsyncTask(Integer id)
+                lockOrientation.unLock();
+                if (id > 0)
                 {
-                    if (id > 0)
+                    wordIndex++;
+                    progressBar.setProgress(progressBar.getProgress()+1);
+                    tempButtonLeft.setBackgroundResource(R.drawable.text_btn_for_test_green);
+                    tempButtonRight.setBackgroundResource(R.drawable.text_btn_for_test_green);
+                    HashMap<String, String> hashMap = new HashMap<>();
+                    hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "find_pair_fragm");
+                    SplashScreenActivity.speech.speak(enword, TextToSpeech.QUEUE_ADD, hashMap);
+
+                    ViewPropertyAnimator animScale = tempButtonLeft.animate().scaleX(0).scaleY(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setStartDelay(0);
+                    animScale_Listener(animScale);
+                    tempButtonRight.animate().scaleX(0).scaleY(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setStartDelay(0);
+
+                    counterRightAnswer++;
+                }
+                if (id < 0)
+                {
+                    counterRightAnswer--;
+                    Animation animNotRight = AnimationUtils.loadAnimation(getActivity().getApplicationContext(), R.anim.anim_not_right);
+                    animNotRight.setAnimationListener(new Animation.AnimationListener()
                     {
-                        wordIndex++;
-                        progressBar.setProgress(progressBar.getProgress()+1);
-                        tempButtonLeft.setBackgroundResource(R.drawable.text_btn_for_test_green);
-                        tempButtonRight.setBackgroundResource(R.drawable.text_btn_for_test_green);
-                        SplashScreenActivity.speech.speak(enword, TextToSpeech.QUEUE_ADD, SplashScreenActivity.map);
-                        SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+                        @Override
+                        public void onAnimationStart(Animation animation)
                         {
-                            @Override
-                            public void onStart(String utteranceId)
-                            {
-
-                            }
-
-                            @Override
-                            public void onDone(String utteranceId)
-                            {
-
-                            }
-
-                            @Override
-                            public void onError(String utteranceId)
-                            {
-
-                            }
-                        });
-                        ViewPropertyAnimator animScale = tempButtonLeft.animate().scaleX(0).scaleY(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setStartDelay(0);
-                        animScale_Listener(animScale);
-                        tempButtonRight.animate().scaleX(0).scaleY(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setStartDelay(0);
-
-                        counterRightAnswer++;
-                    }
-                    if (id < 0)
-                    {
-                        //Toast.makeText(getActivity(), "Неправильно", Toast.LENGTH_SHORT).show();
-                        counterRightAnswer--;
-                        Animation animNotRight = AnimationUtils.loadAnimation(getActivity().getApplicationContext(), R.anim.anim_not_right);
-                        animNotRight.setAnimationListener(new Animation.AnimationListener()
-                        {
-                            @Override
-                            public void onAnimationStart(Animation animation)
-                            {
-
-                            }
-
-                            @Override
-                            public void onAnimationEnd(Animation animation)
-                            {
-                                btnNoRight.setBackgroundResource(R.drawable.text_button_for_test);
-                                getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-                            }
-
-                            @Override
-                            public void onAnimationRepeat(Animation animation)
-                            {
-
-                            }
-                        });
-                        if (btnNoRight != null)
-                        {
-                            btnNoRight.setBackgroundResource(R.drawable.text_btn_for_test_red);
-                            btnNoRight.startAnimation(animNotRight);
+                            lockOrientation.lock();
                         }
+
+                        @Override
+                        public void onAnimationEnd(Animation animation)
+                        {
+                            btnNoRight.setBackgroundResource(R.drawable.text_button_for_test);
+                            lockOrientation.unLock();
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animation animation)
+                        {
+
+                        }
+                    });
+                    if (btnNoRight != null)
+                    {
+                        btnNoRight.setBackgroundResource(R.drawable.text_btn_for_test_red);
+                        btnNoRight.startAnimation(animNotRight);
                     }
                 }
-            };
-            asyncTask.execute(tableName, enword, ruword);
-        }
+            }
+        };
+        asyncTask.execute(tableName, enword, ruword);
     }
 
-    private int t = 1;
     private void animScale_Listener(ViewPropertyAnimator animScale)
     {
         if (animScale == null) return;
@@ -552,7 +510,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             @Override
             public void onAnimationStart(android.animation.Animator animation)
             {
-
+                lockOrientation.lock();
             }
 
             @Override
@@ -560,7 +518,6 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             {
                 if (tempButtonLeft != null && tempButtonRight != null)
                 {
-                    //getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
                     tempButtonLeft.setBackgroundResource(R.drawable.text_button_for_test);
                     tempButtonRight.setBackgroundResource(R.drawable.text_button_for_test);
                     enWord = null;
@@ -572,42 +529,14 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
 
                     buttonsToDown(btnLayoutLeft, tempButtonLeft.getX(), tempButtonLeft.getY(), false);
                     buttonsToDown(btnLayoutRight, tempButtonRight.getX(), tempButtonRight.getY(), true);
-
-//                    boolean isFill = true;
-//                    for (int i = 0; i < btnLayoutLeft.getChildCount(); i++)
-//                    {
-//                        Button button = (Button) btnLayoutLeft.getChildAt(i);
-//                        if (!button.getText().equals(""))
-//                        {
-//                            isFill = false;
-//                            break;
-//                        }
-//                    }
-//                    if (isFill)
-//                    {
-//                        fillButtonsLayout(spinnSelectedItem, wordIndex + 1, wordIndex + ROWS);
-//                    }
-//
-//                    if (wordIndex == wordsCount)
-//                    {
-//                        //Toast.makeText(getActivity(),"Завершено",Toast.LENGTH_SHORT).show();
-//                        ArrayList<String> list = new ArrayList<String>();
-//                        list.add(testResults.getOverallResult(counterRightAnswer, wordsCount));
-//                        list.add(counterRightAnswer + getActivity().getString(R.string.text_out_of) + wordsCount);
-//                        Bundle bundle = new Bundle();
-//                        bundle.putString(dialogTestComplete.KEY_RESULT, list.get(0));
-//                        bundle.putString(dialogTestComplete.KEY_ERRORS, list.get(1));
-//                        dialogTestComplete.setArguments(bundle);
-//                        dialogTestComplete.setCancelable(false);
-//                        dialogTestComplete.show(getFragmentManager(), "dialog_complete_lexicon");
-//                    }
+                    lockOrientation.unLock();
                 }
             }
 
             @Override
             public void onAnimationCancel(android.animation.Animator animation)
             {
-
+                lockOrientation.unLock();
             }
 
             @Override
@@ -642,13 +571,13 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                         @Override
                         public void onAnimationStart(android.animation.Animator animation)
                         {
-
+                            lockOrientation.lock();
                         }
 
                         @Override
                         public void onAnimationEnd(android.animation.Animator animation)
                         {
-                            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+                            lockOrientation.unLock();
                             boolean isFill = true;
                             for (int i = 0; i < btnLayoutLeft.getChildCount(); i++)
                             {
@@ -666,8 +595,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
 
                             if (wordIndex == wordsCount)
                             {
-                                //Toast.makeText(getActivity(),"Завершено",Toast.LENGTH_SHORT).show();
-                                ArrayList<String> list = new ArrayList<String>();
+                                ArrayList<String> list = new ArrayList<>();
                                 list.add(testResults.getOverallResult(counterRightAnswer, wordsCount));
                                 list.add(counterRightAnswer + getActivity().getString(R.string.text_out_of) + wordsCount);
                                 if (dialogTestComplete == null)
@@ -692,7 +620,6 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                                     } catch (IllegalStateException e)
                                     {
                                         dialogTestComplete = null;
-                                        return;
                                     }
                                 }
                             }
@@ -701,7 +628,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                         @Override
                         public void onAnimationCancel(android.animation.Animator animation)
                         {
-
+                            lockOrientation.unLock();
                         }
 
                         @Override
@@ -759,27 +686,12 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         }
     }
 
-    public ArrayList<String> getPlayList()
-    {
-        ArrayList<String> listDicts=new ArrayList<>();
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(getString(R.string.key_play_list), MODE_PRIVATE);
-        String play_list_items = sharedPreferences.getString(getString(R.string.play_list_items), null);
-        if (play_list_items != null && play_list_items.length() > 0)
-        {
-            String[] splitArray = play_list_items.split(" ");
-            for (int i = 0; i < splitArray.length; i++)
-            {
-                listDicts.add(i, splitArray[i]);
-            }
-        }
-
-        return listDicts;
-    }
-
     private void addToStudiedList()
     {
         boolean containsInPlayList = false;
-        for (String item : getPlayList())
+        AppSettings appSettings = new AppSettings(getActivity());
+        ArrayList<String> playList = appSettings.getPlayList();
+        for (String item : playList)
         {
             if (item.equals(spinnListDict.getSelectedItem()))
             {
