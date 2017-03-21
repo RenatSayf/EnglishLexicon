@@ -563,7 +563,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
         });
     }
 
-    private void speechComplete(String utteranceId, HashMap utteranceId2, ProgressBar progressBar)
+    private void speechComplete(String utteranceId, HashMap<String, String> utteranceId2, ProgressBar progressBar)
     {
         if (utteranceId.equals(utteranceId2.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID)))
         {
