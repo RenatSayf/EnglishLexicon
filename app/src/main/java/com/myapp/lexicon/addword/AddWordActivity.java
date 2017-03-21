@@ -4,7 +4,6 @@ import android.app.LoaderManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
-import android.database.Cursor;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -36,8 +35,8 @@ import android.widget.Toast;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
-import com.myapp.lexicon.database.GetTableListLoader;
-import com.myapp.lexicon.database.LoaderHandler;
+import com.myapp.lexicon.database.GetTableListLoader2;
+import com.myapp.lexicon.database.GetTranslateLoader;
 import com.myapp.lexicon.main.SplashScreenActivity;
 
 import java.sql.SQLException;
@@ -49,7 +48,7 @@ import java.util.regex.Pattern;
 
 import static android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE;
 
-public class AddWordActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>
+public class AddWordActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks
 {
     private EditText textViewEnter;
     private LinearLayout layoutLinkYa;
@@ -70,6 +69,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
     private boolean flag_btn_trans_click = false;
 
     private final int LOADER_GET_TABLE_LIST = 11;
+    private final int LOADER_GET_TRANSLATE = 12;
 
     private String KEY_SELECT_SPINNER_INDEX = "key_spinner";
     private String KEY_SPINNER_ITEMS = "key_spinner_items";
@@ -115,7 +115,6 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
         spinnerListDict_onItemSelected();
         buttonAddWord = (Button) findViewById(R.id.button_add);
         buttonAddWord_onClick();
-        //String langSystem = getApplicationContext().getResources().getConfiguration().locale.getLanguage();
         button_sound1 = (ImageButton) findViewById(R.id.btn_speech);
         button_sound2 = (ImageButton) findViewById(R.id.btn_sound2);
         button_sound1_onClick();
@@ -167,6 +166,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
             getLoaderManager().restartLoader(LOADER_GET_TABLE_LIST, null, AddWordActivity.this).forceLoad();
         }
         getLoaderManager().initLoader(LOADER_GET_TABLE_LIST, savedInstanceState, this);
+        getLoaderManager().initLoader(LOADER_GET_TRANSLATE, savedInstanceState, this);
     }
 
     @Override
@@ -261,8 +261,10 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
             public void onClick(View v)
             {
                 flag_btn_trans_click = true;
-                OnlineTranslatorApi translatorApi = new OnlineTranslatorApi(textViewResult, progressBar);
-                translatorApi.getTranslateAsync(textViewEnter.getText().toString());
+                progressBar.setVisibility(View.VISIBLE);
+                Bundle bundle = new Bundle();
+                bundle.putString(GetTranslateLoader.KEY_TEXT_ENTERED, textViewEnter.getText().toString());
+                getLoaderManager().restartLoader(LOADER_GET_TRANSLATE, bundle, AddWordActivity.this).forceLoad();
                 transCounter++;
             }
         });
@@ -606,13 +608,16 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
 
 
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args)
+    public Loader onCreateLoader(int id, Bundle bundle)
     {
-        Loader<Cursor> loader = null;
+        Loader loader = null;
         switch (id)
         {
             case LOADER_GET_TABLE_LIST:
-                loader = new GetTableListLoader(this);
+                loader = new GetTableListLoader2(this);
+                break;
+            case LOADER_GET_TRANSLATE:
+                loader = new GetTranslateLoader(this, bundle);
                 break;
             default:
                 break;
@@ -621,19 +626,27 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor)
+    public void onLoadFinished(Loader loader, Object data)
     {
         if (loader.getId() == LOADER_GET_TABLE_LIST)
         {
-            LoaderHandler loaderHandler = new LoaderHandler(this);
-            ArrayList<String> list = loaderHandler.getTableArrayList(cursor);
+            ArrayList<String> list = (ArrayList<String>) data;
             ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.my_content_spinner_layout, list);
             spinnerListDict.setAdapter(adapter);
         }
+        if (loader.getId() == LOADER_GET_TRANSLATE)
+        {
+            ArrayList<String> list = (ArrayList<String>) data;
+            if (list.size() > 0)
+            {
+                textViewResult.setText(list.get(0));
+            }
+        }
+        progressBar.setVisibility(View.GONE);
     }
 
     @Override
-    public void onLoaderReset(Loader<Cursor> loader)
+    public void onLoaderReset(Loader loader)
     {
 
     }
