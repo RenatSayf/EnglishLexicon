@@ -42,6 +42,7 @@ import com.myapp.lexicon.settings.AppSettings;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -390,7 +391,7 @@ public class OneOfFiveTest extends Fragment implements Animator.ITextViewToLeftL
                     additionalList.add(entry);
                 }
                 controlListSize = controlList.size();
-                randomGenerator = new RandomNumberGenerator(controlListSize, 133);
+                randomGenerator = new RandomNumberGenerator(controlListSize, (int) new Date().getTime());
                 long start_delay = 0;
                 for (int i = 0; i < controlList.size(); i++)
                 {
@@ -401,11 +402,11 @@ public class OneOfFiveTest extends Fragment implements Animator.ITextViewToLeftL
                     button.animate().translationX(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null).setStartDelay(start_delay);
                     start_delay += 70;
                     btnLeft_OnClick(i, button);
-                    button.setText(controlList.get(i).get_translate());
+                    button.setText(controlList.get(randomGenerator.generate()).get_translate());
                     wordIndex++;
                 }
-                int randIndex = randomGenerator.generate();
-                textView.setText(list.get(randIndex).get_english());
+                randomGenerator = new RandomNumberGenerator(list.size(), (int) new Date().getTime());
+                textView.setText(list.get(randomGenerator.generate()).get_english());
                 textView.setTranslationX(-displayMetrics.widthPixels);
                 textView.setTranslationY(0);
                 textView.animate().translationX(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null).setStartDelay(start_delay);
@@ -511,13 +512,13 @@ public class OneOfFiveTest extends Fragment implements Animator.ITextViewToLeftL
             button.setBackgroundResource(R.drawable.text_button_for_test);
             if (controlListSize != controlList.size())
             {
-                randomGenerator = new RandomNumberGenerator(controlList.size(), range);
+                randomGenerator = new RandomNumberGenerator(controlList.size(), (int) new Date().getTime());
                 controlListSize = controlList.size();
             }
             int randomNumber = randomGenerator.generate();
             if (randomNumber < 0)
             {
-                randomGenerator = new RandomNumberGenerator(controlListSize, range);
+                randomGenerator = new RandomNumberGenerator(controlListSize, (int) new Date().getTime());
                 randomNumber = randomGenerator.generate();
             }
             String english = controlList.get(randomNumber).get_english();
@@ -534,7 +535,7 @@ public class OneOfFiveTest extends Fragment implements Animator.ITextViewToLeftL
                 textView.setText("");
                 if (controlList.size() > 0)
                 {
-                    randomGenerator = new RandomNumberGenerator(controlList.size(), range);
+                    randomGenerator = new RandomNumberGenerator(controlList.size(), (int) new Date().getTime());
                     int randomNumber = randomGenerator.generate();
                     textView.setText(controlList.get(randomNumber).get_english());
                 }
