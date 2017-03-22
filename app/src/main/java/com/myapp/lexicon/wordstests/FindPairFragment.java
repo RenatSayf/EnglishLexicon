@@ -1,11 +1,11 @@
 package com.myapp.lexicon.wordstests;
 
 
-import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -83,8 +83,10 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     private Button tempButtonRight;
     private Button btnNoRight;
 
+    private static boolean isAnimStart = false;
     private DialogTestComplete dialogTestComplete;
     private TestResults testResults;
+    private FragmentManager fragmentManager;
 
     private String KEY_CONTROL_LIST_SIZE = "key_control_list_size";
     private String KEY_WORDS_COUNT = "key_words_count";
@@ -264,7 +266,11 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             }
         }
 
+        appSettings = new AppSettings(getActivity());
         testResults = new TestResults(getActivity());
+        dialogTestComplete = new DialogTestComplete();
+        dialogTestComplete.setIDialogCompleteResult(this);
+        fragmentManager = getFragmentManager();
 
         return fragment_view;
     }
@@ -412,12 +418,14 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             @Override
             public void onClick(View view)
             {
-                int requestedOrientation = getActivity().getRequestedOrientation();
-                if (requestedOrientation != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) return;
+                if (isAnimStart)
+                {
+                    return;
+                }
                 tempButtonRight = (Button) view;
-                ruWord = button.getText().toString();
+                ruWord = tempButtonRight.getText().toString();
                 compareWords(spinnSelectedItem, enWord, ruWord);
-                btnNoRight = (Button) view;
+                btnNoRight = tempButtonRight;
             }
         });
     }
@@ -429,12 +437,14 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             @Override
             public void onClick(View view)
             {
-                int requestedOrientation = getActivity().getRequestedOrientation();
-                if (requestedOrientation != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) return;
+                if (isAnimStart)
+                {
+                    return;
+                }
                 tempButtonLeft = (Button) view;
-                enWord = button.getText().toString();
+                enWord = tempButtonLeft.getText().toString();
                 compareWords(spinnSelectedItem, enWord, ruWord);
-                btnNoRight = (Button) view;
+                btnNoRight = tempButtonLeft;
             }
         });
     }
@@ -475,7 +485,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                         @Override
                         public void onAnimationStart(Animation animation)
                         {
-                            lockOrientation.lock();
+
                         }
 
                         @Override
@@ -502,6 +512,26 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         asyncTask.execute(tableName, enword, ruword);
     }
 
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+        boolean isFill = true;
+        for (int i = 0; i < btnLayoutLeft.getChildCount(); i++)
+        {
+            Button button = (Button) btnLayoutLeft.getChildAt(i);
+            if (!button.getText().equals(""))
+            {
+                isFill = false;
+                break;
+            }
+        }
+        if (isFill)
+        {
+            fillButtonsLayout(spinnSelectedItem, wordIndex + 1, wordIndex + ROWS);
+        }
+    }
+
     private void animScale_Listener(ViewPropertyAnimator animScale)
     {
         if (animScale == null) return;
@@ -510,6 +540,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             @Override
             public void onAnimationStart(android.animation.Animator animation)
             {
+                isAnimStart = true;
                 lockOrientation.lock();
             }
 
@@ -529,14 +560,15 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
 
                     buttonsToDown(btnLayoutLeft, tempButtonLeft.getX(), tempButtonLeft.getY(), false);
                     buttonsToDown(btnLayoutRight, tempButtonRight.getX(), tempButtonRight.getY(), true);
-                    lockOrientation.unLock();
                 }
+                isAnimStart = false;
+                lockOrientation.unLock();
             }
 
             @Override
             public void onAnimationCancel(android.animation.Animator animation)
             {
-                lockOrientation.unLock();
+                //lockOrientation.unLock();
             }
 
             @Override
@@ -571,13 +603,13 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                         @Override
                         public void onAnimationStart(android.animation.Animator animation)
                         {
-                            lockOrientation.lock();
+                            //lockOrientation.lock();
+                            isAnimStart = true;
                         }
 
                         @Override
                         public void onAnimationEnd(android.animation.Animator animation)
                         {
-                            lockOrientation.unLock();
                             boolean isFill = true;
                             for (int i = 0; i < btnLayoutLeft.getChildCount(); i++)
                             {
@@ -597,12 +629,8 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                             {
                                 ArrayList<String> list = new ArrayList<>();
                                 list.add(testResults.getOverallResult(counterRightAnswer, wordsCount));
-                                list.add(counterRightAnswer + getActivity().getString(R.string.text_out_of) + wordsCount);
-                                if (dialogTestComplete == null)
-                                {
-                                    dialogTestComplete = new DialogTestComplete();
-                                    dialogTestComplete.setIDialogCompleteResult(FindPairFragment.this);
-                                }
+                                //list.add(counterRightAnswer + getActivity().getString(R.string.text_out_of) + wordsCount);
+                                list.add(counterRightAnswer + " из " + wordsCount);
                                 if (dialogTestComplete != null)
                                 {
                                     try
@@ -614,7 +642,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                                             bundle.putString(dialogTestComplete.KEY_ERRORS, list.get(1));
                                             dialogTestComplete.setArguments(bundle);
                                             dialogTestComplete.setCancelable(false);
-                                            dialogTestComplete.show(getFragmentManager(), "dialog_complete_find_pair");
+                                            dialogTestComplete.show(fragmentManager, "dialog_complete_find_pair");
                                         }
 
                                     } catch (IllegalStateException e)
@@ -623,12 +651,14 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                                     }
                                 }
                             }
+                            isAnimStart = false;
+                            lockOrientation.unLock();
                         }
 
                         @Override
                         public void onAnimationCancel(android.animation.Animator animation)
                         {
-                            lockOrientation.unLock();
+                            //lockOrientation.unLock();
                         }
 
                         @Override
@@ -686,10 +716,12 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         }
     }
 
+    AppSettings appSettings;
     private void addToStudiedList()
     {
         boolean containsInPlayList = false;
-        AppSettings appSettings = new AppSettings(getActivity());
+
+
         ArrayList<String> playList = appSettings.getPlayList();
         for (String item : playList)
         {
