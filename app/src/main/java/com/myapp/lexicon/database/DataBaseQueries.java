@@ -754,7 +754,6 @@ public class DataBaseQueries
                     }
                 } catch (Exception e)
                 {
-                    MyLog.v("ИСКЛЮЧЕНИЕ - "+e);
                     e.printStackTrace();
                 }
                 finally

@@ -36,6 +36,8 @@ import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
+import com.myapp.lexicon.settings.AppData2;
+import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -96,6 +98,8 @@ public class OneOfFiveTest extends Fragment implements Animator.ITextViewToLeftL
     private TestResults testResults;
     private DialogTestComplete dialogTestComplete;
     private ArrayList<String> arrStudiedDict = new ArrayList<>();
+    private AppSettings appSettings;
+    private AppData2 appData;
 
     private String KEY_BUTTON_ID = "key_button_id";
     private String KEY_TEXT = "key_text";
@@ -184,6 +188,8 @@ public class OneOfFiveTest extends Fragment implements Animator.ITextViewToLeftL
         fragmentManager = getFragmentManager();
         lockOrientation = new LockOrientation(activity);
         testResults = new TestResults(activity);
+        appSettings = new AppSettings(getActivity());
+        appData = AppData2.getInstance();
 
         Display display = getActivity().getWindowManager().getDefaultDisplay();
         displayMetrics = new DisplayMetrics();
@@ -205,7 +211,6 @@ public class OneOfFiveTest extends Fragment implements Animator.ITextViewToLeftL
         progressBar = (ProgressBar) fragment_view.findViewById(R.id.progress_test1of5);
         animator = Animator.getInstance();
         dialogTestComplete = new DialogTestComplete();
-        //dialogTestComplete = t_DialogTestComplete.getInstance();
         dialogTestComplete.setIDialogCompleteResult(OneOfFiveTest.this);
 
         if (savedInstanceState == null)
@@ -297,6 +302,7 @@ public class OneOfFiveTest extends Fragment implements Animator.ITextViewToLeftL
             return;
         }
 
+        lockOrientation.lock();
         new DataBaseQueries.GetLictTableAsync()
         {
             @Override
@@ -310,6 +316,7 @@ public class OneOfFiveTest extends Fragment implements Animator.ITextViewToLeftL
                 {
                     storedListDict.add(spinnListDict.getAdapter().getItem(i).toString());
                 }
+                lockOrientation.unLock();
             }
         }.execute();
     }
@@ -339,6 +346,7 @@ public class OneOfFiveTest extends Fragment implements Animator.ITextViewToLeftL
     {
         wordIndex = 1;
         spinnSelectedItem = spinnListDict.getSelectedItem().toString();
+        lockOrientation.lock();
         DataBaseQueries.GetWordsCountAsync getWordsCount = new DataBaseQueries.GetWordsCountAsync()
         {
             @Override
@@ -350,7 +358,8 @@ public class OneOfFiveTest extends Fragment implements Animator.ITextViewToLeftL
                 progressBar.setMax(wordsCount);
                 progressBar.setProgress(0);
                 counterRightAnswer = 0;
-                topPanelVisible(0, 1, isOpen);
+                //topPanelVisible(0, 1, isOpen);
+                lockOrientation.unLock();
             }
         };
         getWordsCount.execute(spinnSelectedItem);
@@ -366,11 +375,13 @@ public class OneOfFiveTest extends Fragment implements Animator.ITextViewToLeftL
             count = ROWS;
         }
 
+        lockOrientation.lock();
         AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
         {
             @Override
             public void resultAsyncTask(ArrayList<DataBaseEntry> list)
             {
+                lockOrientation.unLock();
                 controlList = list;
                 additionalList = new ArrayList<>();
                 additonalCount = 0;
@@ -401,10 +412,8 @@ public class OneOfFiveTest extends Fragment implements Animator.ITextViewToLeftL
             }
         };
         asyncTask.execute(spinnSelectedItem, wordIndex, count);
-        asyncTask = null;
     }
 
-    private int btnIndex;
     private void btnLeft_OnClick(final int index, final View view)
     {
         view.setOnClickListener(new View.OnClickListener()
@@ -414,7 +423,6 @@ public class OneOfFiveTest extends Fragment implements Animator.ITextViewToLeftL
             {
                 tempButton = (Button) view;
                 tempButtonId = tempButton.getId();
-                btnIndex = index;
                 buttonY = tempButton.getY();
                 buttonX = tempButton.getX();
                 compareWords(spinnSelectedItem,textView.getText().toString(), tempButton.getText().toString());
@@ -426,90 +434,68 @@ public class OneOfFiveTest extends Fragment implements Animator.ITextViewToLeftL
     {
         if (enword == null || ruword == null)   return;
 
-        if (enword != null && ruword != null)
+        for (int i = 0; i < controlList.size(); i++)
         {
-            lockOrientation.lock();
-            for (int i = 0; i < controlList.size(); i++)
+            if (controlList.get(i).get_english().equals(enword))
             {
-                if (controlList.get(i).get_english().equals(enword))
-                {
-                    indexEn = i;
-                }
-                if (controlList.get(i).get_translate().equals(ruword))
-                {
-                    indexRu = i;
-                }
+                indexEn = i;
             }
-
-            if (indexEn == indexRu && indexEn != -1 && indexRu != -1)
+            if (controlList.get(i).get_translate().equals(ruword))
             {
-                AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
-                {
-                    @Override
-                    public void resultAsyncTask(ArrayList<DataBaseEntry> list)
-                    {
-                        listFromDB = list;
-                        progressBar.setProgress(progressBar.getProgress()+1);
-                        SplashScreenActivity.speech.speak(textView.getText().toString(), TextToSpeech.QUEUE_ADD, SplashScreenActivity.map);
-                        SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
-                        {
-                            @Override
-                            public void onStart(String utteranceId)
-                            {
-
-                            }
-
-                            @Override
-                            public void onDone(String utteranceId)
-                            {
-
-                            }
-
-                            @Override
-                            public void onError(String utteranceId)
-                            {
-
-                            }
-                        });
-
-                        animator.textViewToLeft(displayMetrics);
-                        animator.buttonToRight(buttonsLayout, tempButtonId, displayMetrics);
-                        tempButton.setBackgroundResource(R.drawable.text_btn_for_test_green);
-                        counterRightAnswer++;
-                    }
-                };
-                asyncTask.execute(tableName, wordIndex, wordIndex);
+                indexRu = i;
             }
-            else
+        }
+
+        if (indexEn == indexRu && indexEn != -1 && indexRu != -1)
+        {
+            AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
             {
-                //Toast.makeText(getActivity(), "Неправильно", Toast.LENGTH_SHORT).show();
-                counterRightAnswer--;
-                Animation animNotRight = AnimationUtils.loadAnimation(getActivity().getApplicationContext(), R.anim.anim_not_right);
-                animNotRight.setAnimationListener(new Animation.AnimationListener()
+                @Override
+                public void resultAsyncTask(ArrayList<DataBaseEntry> list)
                 {
-                    @Override
-                    public void onAnimationStart(Animation animation)
-                    {
+                    listFromDB = list;
+                    progressBar.setProgress(progressBar.getProgress()+1);
+                    HashMap<String, String> hashMap = new HashMap<>();
+                    hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "one_of_five_fragm");
+                    SplashScreenActivity.speech.speak(textView.getText().toString(), TextToSpeech.QUEUE_ADD, hashMap);
 
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animation animation)
-                    {
-                        tempButton.setBackgroundResource(R.drawable.text_button_for_test);
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animation animation)
-                    {
-
-                    }
-                });
-                if (tempButton != null)
-                {
-                    tempButton.setBackgroundResource(R.drawable.text_btn_for_test_red);
-                    tempButton.startAnimation(animNotRight);
+                    animator.textViewToLeft(displayMetrics);
+                    animator.buttonToRight(buttonsLayout, tempButtonId, displayMetrics);
+                    tempButton.setBackgroundResource(R.drawable.text_btn_for_test_green);
+                    counterRightAnswer++;
                 }
+            };
+            asyncTask.execute(tableName, wordIndex, wordIndex);
+        }
+        else
+        {
+            //Toast.makeText(getActivity(), "Неправильно", Toast.LENGTH_SHORT).show();
+            counterRightAnswer--;
+            Animation animNotRight = AnimationUtils.loadAnimation(getActivity().getApplicationContext(), R.anim.anim_not_right);
+            animNotRight.setAnimationListener(new Animation.AnimationListener()
+            {
+                @Override
+                public void onAnimationStart(Animation animation)
+                {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation)
+                {
+                    tempButton.setBackgroundResource(R.drawable.text_button_for_test);
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation)
+                {
+
+                }
+            });
+            if (tempButton != null)
+            {
+                tempButton.setBackgroundResource(R.drawable.text_btn_for_test_red);
+                tempButton.startAnimation(animNotRight);
             }
         }
     }

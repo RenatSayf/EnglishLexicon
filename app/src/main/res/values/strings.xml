@@ -165,6 +165,10 @@
     <string name="text_find_pair">Нади пару</string>
     <string name="text_choice_test">Выберите тест</string>
     <string name="text_find_pair_words">Найди парные слова</string>
+    <string name="text_recognize_words_by_sight">Распознай слова на слух</string>
+    <string name="text_dictionary">Словарь:</string>
+    <string name="text_ok">Ok</string>
+    <string name="text_complete">Завершить</string>
 
 
 </resources>

@@ -33,6 +33,7 @@ import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
 import com.myapp.lexicon.main.SplashScreenActivity;
+import com.myapp.lexicon.settings.AppData2;
 import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.ArrayList;
@@ -87,6 +88,8 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     private DialogTestComplete dialogTestComplete;
     private TestResults testResults;
     private FragmentManager fragmentManager;
+    private AppSettings appSettings;
+    private AppData2 appData;
 
     private String KEY_CONTROL_LIST_SIZE = "key_control_list_size";
     private String KEY_WORDS_COUNT = "key_words_count";
@@ -160,6 +163,8 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             savedInstanceState = Tests.bundleFindPair;
         }
 
+        appSettings = new AppSettings(getActivity());
+        appData = AppData2.getInstance();
         lockOrientation = new LockOrientation(getActivity());
         Display display = getActivity().getWindowManager().getDefaultDisplay();
         metrics = new DisplayMetrics();
@@ -266,7 +271,6 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             }
         }
 
-        appSettings = new AppSettings(getActivity());
         testResults = new TestResults(getActivity());
         dialogTestComplete = new DialogTestComplete();
         dialogTestComplete.setIDialogCompleteResult(this);
@@ -312,7 +316,18 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             {
                 ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(getActivity().getApplicationContext(), R.layout.my_content_spinner_layout, list);
                 spinnListDict.setAdapter(adapterSpinner);
-                spinnListDict.setSelection(spinnSelectedIndex);
+                ArrayList<String> playList = appSettings.getPlayList();
+                String currentDict = playList.get(appData.getNdict());
+                if (list.contains(currentDict))
+                {
+                    int indexOf = list.indexOf(currentDict);
+                    spinnListDict.setSelection(indexOf);
+                }
+                else
+                {
+                    spinnListDict.setSelection(0);
+                }
+                //spinnListDict.setSelection(spinnSelectedIndex);
                 spinnListDict_OnItemSelectedListener();
                 for (int i = 0; i < spinnListDict.getAdapter().getCount(); i++)
                 {
@@ -338,7 +353,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                 progressBar.setMax(res);
                 progressBar.setProgress(0);
                 counterRightAnswer = 0;
-                topPanelVisible(0, 1, isOpen);
+                //topPanelVisible(0, 1, isOpen);
                 hideWordButtons();
                 if (wordsCount < ROWS)
                 {
@@ -716,7 +731,6 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         }
     }
 
-    AppSettings appSettings;
     private void addToStudiedList()
     {
         boolean containsInPlayList = false;
