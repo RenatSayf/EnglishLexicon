@@ -56,7 +56,6 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
 
     private static RelativeLayout.LayoutParams saveTopPanelParams;
 
-    private LinearLayout linLayout;
     private LinearLayout topPanel;
     private RelativeLayout.LayoutParams topPanelParams;
     private float touchDown = 0, touchUp = 0;
@@ -108,7 +107,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     private String KEY_SPINN_SELECT_INDEX = "key_spinn_select_index";
     private String KEY_PROGRESS = "key_progress";
     private String KEY_PROGRESS_MAX = "key_progress_max";
-    private String KEY_COUNTER_RIGHT_ANSWER = "key_counter_right";
+    //private String KEY_COUNTER_RIGHT_ANSWER = "key_counter_right";
 
     static FragmentManager fragmentManager;
     public OneOfFiveTest()
@@ -302,7 +301,18 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
             {
                 ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(getActivity().getApplicationContext(), R.layout.my_content_spinner_layout, list);
                 spinnListDict.setAdapter(adapterSpinner);
-                spinnListDict.setSelection(spinnSelectedIndex);
+                ArrayList<String> playList = appSettings.getPlayList();
+                String currentDict = playList.get(appData.getNdict());
+                if (list.contains(currentDict))
+                {
+                    int indexOf = list.indexOf(currentDict);
+                    spinnListDict.setSelection(indexOf);
+                }
+                else
+                {
+                    spinnListDict.setSelection(0);
+                }
+                //spinnListDict.setSelection(spinnSelectedIndex);
                 spinnListDict_OnItemSelectedListener();
                 for (int i = 0; i < spinnListDict.getAdapter().getCount(); i++)
                 {
@@ -641,7 +651,6 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                     {
                         if (tempButton != null)
                         {
-                            LinearLayout.LayoutParams layoutParams =(LinearLayout.LayoutParams) tempButton.getLayoutParams();
                             tempButton.setY(0);
                             tempButton.animate().translationXBy(-tempButton.getWidth()-delta)
                                     .setDuration(duration)

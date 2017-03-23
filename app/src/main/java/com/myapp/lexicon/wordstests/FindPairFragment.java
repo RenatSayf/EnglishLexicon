@@ -1,6 +1,7 @@
 package com.myapp.lexicon.wordstests;
 
 
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;

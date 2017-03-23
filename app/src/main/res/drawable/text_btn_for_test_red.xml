@@ -20,6 +20,8 @@
                 android:bottom="2dp" />
         </shape>
 
+        <color android:color="@color/colorWhite"/>
+
     </item>
 
     <item>
@@ -38,6 +40,8 @@
                 android:bottom="2dp" />
 
         </shape>
+
+        <color android:color="@color/colorWhite"/>
 
     </item>
 

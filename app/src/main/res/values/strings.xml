@@ -170,6 +170,7 @@
     <string name="text_ok">Ok</string>
     <string name="text_complete">Завершить</string>
     <string name="text_choose_correctly">Выбери правильно</string>
+    <string name="description_sound_button">sound_button</string>
 
 
 </resources>
