@@ -15,7 +15,9 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewPropertyAnimator;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.AnticipateOvershootInterpolator;
@@ -61,6 +63,8 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
     private static ArrayList<DataBaseEntry> listFromDB;
     private static int counterRightAnswer = 0;
     private static int additonalCount = 0;
+    private static float buttonY;
+    private static float buttonX;
 
     private RelativeLayout relLayout;
     private LinearLayout linLayout;
@@ -75,6 +79,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
     private ProgressBar progressBar;
     private Button topPanelButtonOK;
     private Button topPanelButtonFinish;
+    private ImageButton topPanelButtonThreePoints;
     private int controlListSize = 0;
     private LockOrientation lockOrientation;
     private long duration = 1000;
@@ -94,6 +99,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
     private String KEY_PROGRESS = "key_progress";
     private String KEY_PROGRESS_MAX = "key_progress_max";
     private String KEY_WORD_INDEX = "key_word_index";
+
 
 
     public ListenEndClickFragment()
@@ -155,6 +161,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
         progressBar = (ProgressBar) fragment_view.findViewById(R.id.prog_bar_listen);
         topPanelButtonOK = (Button) fragment_view.findViewById(R.id.btn_ok);
         topPanelButtonFinish = (Button) fragment_view.findViewById(R.id.btn_complete);
+        topPanelButtonThreePoints = (ImageButton) fragment_view.findViewById(R.id.btn_more_horiz);
         topPanelButtons_OnClick();
 
         testResults = new TestResults(getActivity());
@@ -379,13 +386,9 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
             @Override
             public void onClick(View view)
             {
-                int requestedOrientation = getActivity().getRequestedOrientation();
-                if (requestedOrientation != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
-                {
-                    return;
-                }
-                lockOrientation.lock();
                 tempButton = (Button) view;
+                buttonY = tempButton.getY();
+                buttonX = tempButton.getX();
                 compareWords(spinnSelectedItem, textEn, tempButton.getText().toString());
             }
         });
@@ -482,6 +485,58 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
         }
     }
 
+    public void buttonsToDownAnimation(float x, float y)
+    {
+        ViewPropertyAnimator animToDown;
+        boolean isListener = false;
+        for (int i = 0; i < buttonsLayout.getChildCount(); i++)
+        {
+            Button button = (Button) buttonsLayout.getChildAt(i);
+            LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) button.getLayoutParams();
+
+            float X = button.getX();
+            float Y = button.getY();
+            if (Y < y && x == X)
+            {
+                animToDown = button.animate()
+                        .translationYBy(button.getHeight()+layoutParams.bottomMargin)
+                        .setDuration(300)
+                        .setStartDelay(0)
+                        .setInterpolator(new AccelerateInterpolator());
+//                if (!isListener)
+//                {
+//                    isListener = true;
+//                    animToDown.setListener(new android.animation.Animator.AnimatorListener()
+//                    {
+//                        @Override
+//                        public void onAnimationStart(android.animation.Animator animation)
+//                        {
+//
+//                        }
+//
+//                        @Override
+//                        public void onAnimationEnd(android.animation.Animator animation)
+//                        {
+//
+//                        }
+//
+//                        @Override
+//                        public void onAnimationCancel(android.animation.Animator animation)
+//                        {
+//
+//                        }
+//
+//                        @Override
+//                        public void onAnimationRepeat(android.animation.Animator animation)
+//                        {
+//
+//                        }
+//                    });
+//                }
+            }
+        }
+    }
+
     private void animButtonToLeft(final Button button)
     {
         if (button == null) return;
@@ -499,6 +554,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                     @Override
                     public void onAnimationEnd(Animator animation)
                     {
+                        tempButton.setY(0);
                         Display display = getActivity().getWindowManager().getDefaultDisplay();
                         DisplayMetrics metrics = new DisplayMetrics();
                         display.getMetrics(metrics);
@@ -521,6 +577,10 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                             }
                             String english = controlList.get(randomNumber).get_english();
                             textEn = controlList.get(randomNumber).get_english();
+                            if (buttonY > 0)
+                            {
+                                buttonsToDownAnimation(buttonX, buttonY);
+                            }
                         }
                         else if (listFromDB.size() == 0 && controlList.size() <= ROWS)
                         {
@@ -598,9 +658,9 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                             }
                         });
                         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-                        if (textEn == "")
+                        if (textEn.equals(""))
                         {
-                            ArrayList<String> list = new ArrayList<String>();
+                            ArrayList<String> list = new ArrayList<>();
                             list.add(testResults.getOverallResult(counterRightAnswer, wordsCount));
                             list.add(counterRightAnswer + getActivity().getString(R.string.text_out_of) + wordsCount);
                             Bundle bundle = new Bundle();
@@ -799,6 +859,14 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                 spinnListDict.setSelection(-1);
                 spinnSelectedIndex = -1;
                 getActivity().onBackPressed();
+            }
+        });
+        topPanelButtonThreePoints.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                topPanelVisible(0, 1, isOpen);
             }
         });
     }
