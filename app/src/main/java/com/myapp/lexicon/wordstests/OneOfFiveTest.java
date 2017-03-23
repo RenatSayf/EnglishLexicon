@@ -1,12 +1,9 @@
 package com.myapp.lexicon.wordstests;
 
 
-import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
-import android.speech.tts.UtteranceProgressListener;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -16,10 +13,13 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewPropertyAnimator;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.AnticipateOvershootInterpolator;
+import android.view.animation.LayoutAnimationController;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -47,13 +47,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static android.content.Context.MODE_PRIVATE;
-
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class OneOfFiveTest extends Fragment implements Animator.ITextViewToLeftListener, Animator.ITextViewToRightListener, DialogTestComplete.IDialogComplete_Result
+public class OneOfFiveTest extends Fragment implements /*Animator.ITextViewToLeftListener, Animator.ITextViewToRightListener,*/ DialogTestComplete.IDialogComplete_Result
 {
     public static final int ROWS = 5;
 
@@ -82,6 +80,7 @@ public class OneOfFiveTest extends Fragment implements Animator.ITextViewToLeftL
     private static int indexRu = -1;
     private static ArrayList<String> textArray = new ArrayList<>();
     private DisplayMetrics displayMetrics;
+    private int delta = 60;
 
     private TextView textView;
     private LinearLayout buttonsLayout;
@@ -290,8 +289,8 @@ public class OneOfFiveTest extends Fragment implements Animator.ITextViewToLeftL
             button.setVisibility(View.GONE);
         }
         animator.setLayout(buttonsLayout, textView);
-        animator.setTextViewToLeftListener(OneOfFiveTest.this);
-        animator.setTextViewToRightListener(OneOfFiveTest.this);
+//        animator.setTextViewToLeftListener(OneOfFiveTest.this);
+//        animator.setTextViewToRightListener(OneOfFiveTest.this);
     }
 
     private void setItemsToSpinnListDict()
@@ -460,8 +459,8 @@ public class OneOfFiveTest extends Fragment implements Animator.ITextViewToLeftL
                     hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "one_of_five_fragm");
                     SplashScreenActivity.speech.speak(textView.getText().toString(), TextToSpeech.QUEUE_ADD, hashMap);
 
-                    animator.textViewToLeft(displayMetrics);
-                    animator.buttonToRight(buttonsLayout, tempButtonId, displayMetrics);
+                    textViewToLeftAnimatoin();
+                    buttonToRightAnimation(tempButton);
                     tempButton.setBackgroundResource(R.drawable.text_btn_for_test_green);
                     counterRightAnswer++;
                 }
@@ -501,78 +500,314 @@ public class OneOfFiveTest extends Fragment implements Animator.ITextViewToLeftL
         }
     }
 
-    @Override
-    public void textViewToLeftListener(int result, TextView textView, Button button)
+    public void textViewToLeftAnimatoin()
     {
-        int range = 127;
-        if (listFromDB.size() > 0)
-        {
-            controlList.set(indexEn, listFromDB.get(0));
-            button.setText(listFromDB.get(0).get_translate());
-            button.setBackgroundResource(R.drawable.text_button_for_test);
-            if (controlListSize != controlList.size())
-            {
-                randomGenerator = new RandomNumberGenerator(controlList.size(), (int) new Date().getTime());
-                controlListSize = controlList.size();
-            }
-            int randomNumber = randomGenerator.generate();
-            if (randomNumber < 0)
-            {
-                randomGenerator = new RandomNumberGenerator(controlListSize, (int) new Date().getTime());
-                randomNumber = randomGenerator.generate();
-            }
-            String english = controlList.get(randomNumber).get_english();
-            textView.setText(controlList.get(randomNumber).get_english());
-        }
-        else if (listFromDB.size() == 0 && controlList.size() <= ROWS)
-        {
-            button.setBackgroundResource(R.drawable.text_button_for_test);
-            try
-            {
-                controlList.remove(indexEn);
-                button.setText(additionalList.get(additonalCount).get_translate());
-                additonalCount++;
-                textView.setText("");
-                if (controlList.size() > 0)
+        textView.animate().x(-(displayMetrics.widthPixels + delta))
+                .setDuration(duration)
+                .setInterpolator(new AccelerateDecelerateInterpolator())
+                .setStartDelay(0)
+                .setListener(new android.animation.Animator.AnimatorListener()
                 {
-                    randomGenerator = new RandomNumberGenerator(controlList.size(), (int) new Date().getTime());
-                    int randomNumber = randomGenerator.generate();
-                    textView.setText(controlList.get(randomNumber).get_english());
-                }
-            } catch (Exception e)
+                    @Override
+                    public void onAnimationStart(android.animation.Animator animation)
+                    {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(android.animation.Animator animation)
+                    {
+                        if (listFromDB.size() > 0)
+                        {
+                            controlList.set(indexEn, listFromDB.get(0));
+                            tempButton.setText(listFromDB.get(0).get_translate());
+                            tempButton.setBackgroundResource(R.drawable.text_button_for_test);
+                            if (controlListSize != controlList.size())
+                            {
+                                randomGenerator = new RandomNumberGenerator(controlList.size(), (int) new Date().getTime());
+                                controlListSize = controlList.size();
+                            }
+                            int randomNumber = randomGenerator.generate();
+                            if (randomNumber < 0)
+                            {
+                                randomGenerator = new RandomNumberGenerator(controlListSize, (int) new Date().getTime());
+                                randomNumber = randomGenerator.generate();
+                            }
+                            String english = controlList.get(randomNumber).get_english();
+                            textView.setText(controlList.get(randomNumber).get_english());
+                        }
+                        else if (listFromDB.size() == 0 && controlList.size() <= ROWS)
+                        {
+                            tempButton.setBackgroundResource(R.drawable.text_button_for_test);
+                            try
+                            {
+                                controlList.remove(indexEn);
+                                tempButton.setText(additionalList.get(additonalCount).get_translate());
+                                additonalCount++;
+                                textView.setText("");
+                                if (controlList.size() > 0)
+                                {
+                                    randomGenerator = new RandomNumberGenerator(controlList.size(), (int) new Date().getTime());
+                                    int randomNumber = randomGenerator.generate();
+                                    textView.setText(controlList.get(randomNumber).get_english());
+                                }
+                            } catch (Exception e)
+                            {
+                                Toast.makeText(getActivity(), "Ошибка - "+e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        if (buttonY > 0)
+                        {
+                            buttonsToDown(buttonX, buttonY);
+                        } else
+                        {
+                            textViewToRightAnimation();
+                        }
+                        wordIndex++;
+                    }
+
+                    @Override
+                    public void onAnimationCancel(android.animation.Animator animation)
+                    {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(android.animation.Animator animation)
+                    {
+
+                    }
+                });
+    }
+
+    public void buttonsToDown(float x, float y)
+    {
+        ViewPropertyAnimator animToDown;
+        boolean isListener = false;
+        int topMargin = getMinMarginTop();
+        for (int i = 0; i < buttonsLayout.getChildCount(); i++)
+        {
+            Button button = (Button) buttonsLayout.getChildAt(i);
+            LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) button.getLayoutParams();
+            float X = button.getX();
+            float Y = button.getY();
+            if (Y < y && x == X)
             {
-                Toast.makeText(getActivity(), "Ошибка - "+e.getMessage(), Toast.LENGTH_SHORT).show();
+                animToDown = button.animate()
+                        .translationYBy(button.getHeight()+layoutParams.topMargin)
+                        .setDuration(300)
+                        .setStartDelay(0)
+                        .setInterpolator(new AccelerateInterpolator());
+                if (!isListener)
+                {
+                    isListener = true;
+                    animToDown.setListener(new android.animation.Animator.AnimatorListener()
+                    {
+                        @Override
+                        public void onAnimationStart(android.animation.Animator animation)
+                        {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(android.animation.Animator animation)
+                        {
+                            textViewToRightAnimation();
+                        }
+
+                        @Override
+                        public void onAnimationCancel(android.animation.Animator animation)
+                        {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(android.animation.Animator animation)
+                        {
+
+                        }
+                    });
+                }
             }
         }
-        if (buttonY > 0)
-        {
-            animator.buttonsToDown(buttonX, buttonY);
-        } else
-        {
-            animator.textViewToRight();
-        }
-        wordIndex++;
     }
 
-    @Override
-    public void textViewToRightListener(int result, TextView textView)
+    public void textViewToRightAnimation()
     {
-        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-        if (textView.getText().toString() == "")
+        textView.animate().translationX(0)
+                .setDuration(duration)
+                .setStartDelay(0)
+                .setInterpolator(new AnticipateOvershootInterpolator())
+                .setListener(new android.animation.Animator.AnimatorListener()
+                {
+                    @Override
+                    public void onAnimationStart(android.animation.Animator animation)
+                    {
+                        if (tempButton != null)
+                        {
+                            LinearLayout.LayoutParams layoutParams =(LinearLayout.LayoutParams) tempButton.getLayoutParams();
+                            int topMargin = layoutParams.topMargin;
+
+                            tempButton.setY(layoutParams.topMargin);
+                            tempButton.animate().translationXBy(-tempButton.getWidth()-delta)
+                                    .setDuration(duration)
+                                    .setStartDelay(0)
+                                    .setInterpolator(new AnticipateOvershootInterpolator());
+                        }
+                    }
+
+                    @Override
+                    public void onAnimationEnd(android.animation.Animator animation)
+                    {
+
+                    }
+
+                    @Override
+                    public void onAnimationCancel(android.animation.Animator animation)
+                    {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(android.animation.Animator animation)
+                    {
+
+                    }
+                });
+    }
+
+    private int getMinMarginTop()
+    {
+        int topMargin = 0;
+        try
         {
-            //Toast.makeText(activity,"Тест завершен",Toast.LENGTH_SHORT).show();
-            ArrayList<String> list = new ArrayList<String>();
-            list.add(testResults.getOverallResult(counterRightAnswer, wordsCount));
-            list.add(counterRightAnswer + activity.getString(R.string.text_out_of) + wordsCount);
-            Bundle bundle = new Bundle();
-            bundle.putString(dialogTestComplete.KEY_RESULT, list.get(0));
-            bundle.putString(dialogTestComplete.KEY_ERRORS, list.get(1));
-            dialogTestComplete.setArguments(bundle);
-            dialogTestComplete.setCancelable(false);
-            dialogTestComplete.show(fragmentManager, "dialog_complete_lexicon");
+            LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) buttonsLayout.getChildAt(0).getLayoutParams();
+            topMargin = layoutParams.topMargin;
+            for (int i = 0; i < buttonsLayout.getChildCount(); i++)
+            {
+                layoutParams = (LinearLayout.LayoutParams) buttonsLayout.getChildAt(i).getLayoutParams();
+                if (layoutParams.topMargin < topMargin)
+                {
+                    topMargin = layoutParams.topMargin;
+                }
+            }
+        } catch (Exception e)
+        {
+            return 0;
+        }
+        return topMargin;
+    }
+
+    public void buttonToRightAnimation(View view)
+    {
+        Button button = (Button) view;
+        if (button != null)
+        {
+            button.animate().translationXBy((button.getWidth()+delta))
+                    .setDuration(duration)
+                    .setStartDelay(0)
+                    .setInterpolator(new AccelerateDecelerateInterpolator())
+                    .setListener(new android.animation.Animator.AnimatorListener()
+                    {
+                        @Override
+                        public void onAnimationStart(android.animation.Animator animation)
+                        {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(android.animation.Animator animation)
+                        {
+
+                        }
+
+                        @Override
+                        public void onAnimationCancel(android.animation.Animator animation)
+                        {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(android.animation.Animator animation)
+                        {
+
+                        }
+                    });
         }
     }
 
+//    @Override
+//    public void textViewToLeftListener(int result, TextView textView, Button button)
+//    {
+//        int range = 127;
+//        if (listFromDB.size() > 0)
+//        {
+//            controlList.set(indexEn, listFromDB.get(0));
+//            button.setText(listFromDB.get(0).get_translate());
+//            button.setBackgroundResource(R.drawable.text_button_for_test);
+//            if (controlListSize != controlList.size())
+//            {
+//                randomGenerator = new RandomNumberGenerator(controlList.size(), (int) new Date().getTime());
+//                controlListSize = controlList.size();
+//            }
+//            int randomNumber = randomGenerator.generate();
+//            if (randomNumber < 0)
+//            {
+//                randomGenerator = new RandomNumberGenerator(controlListSize, (int) new Date().getTime());
+//                randomNumber = randomGenerator.generate();
+//            }
+//            String english = controlList.get(randomNumber).get_english();
+//            textView.setText(controlList.get(randomNumber).get_english());
+//        }
+//        else if (listFromDB.size() == 0 && controlList.size() <= ROWS)
+//        {
+//            button.setBackgroundResource(R.drawable.text_button_for_test);
+//            try
+//            {
+//                controlList.remove(indexEn);
+//                button.setText(additionalList.get(additonalCount).get_translate());
+//                additonalCount++;
+//                textView.setText("");
+//                if (controlList.size() > 0)
+//                {
+//                    randomGenerator = new RandomNumberGenerator(controlList.size(), (int) new Date().getTime());
+//                    int randomNumber = randomGenerator.generate();
+//                    textView.setText(controlList.get(randomNumber).get_english());
+//                }
+//            } catch (Exception e)
+//            {
+//                Toast.makeText(getActivity(), "Ошибка - "+e.getMessage(), Toast.LENGTH_SHORT).show();
+//            }
+//        }
+//        if (buttonY > 0)
+//        {
+//            buttonsToDown(buttonX, buttonY);
+//        } else
+//        {
+//            animator.textViewToRightAnimation();
+//        }
+//        wordIndex++;
+//    }
+//
+//    @Override
+//    public void textViewToRightListener(int result, TextView textView)
+//    {
+//        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+//        if (textView.getText().toString() == "")
+//        {
+//            //Toast.makeText(activity,"Тест завершен",Toast.LENGTH_SHORT).show();
+//            ArrayList<String> list = new ArrayList<String>();
+//            list.add(testResults.getOverallResult(counterRightAnswer, wordsCount));
+//            list.add(counterRightAnswer + activity.getString(R.string.text_out_of) + wordsCount);
+//            Bundle bundle = new Bundle();
+//            bundle.putString(dialogTestComplete.KEY_RESULT, list.get(0));
+//            bundle.putString(dialogTestComplete.KEY_ERRORS, list.get(1));
+//            dialogTestComplete.setArguments(bundle);
+//            dialogTestComplete.setCancelable(false);
+//            dialogTestComplete.show(fragmentManager, "dialog_complete_lexicon");
+//        }
+//    }
+//
     @Override
     public void dialogCompleteResult(int res)
     {
@@ -617,27 +852,10 @@ public class OneOfFiveTest extends Fragment implements Animator.ITextViewToLeftL
         }
     }
 
-    public ArrayList<String> getPlayList()
-    {
-        ArrayList<String> listDicts=new ArrayList<>();
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(getString(R.string.key_play_list), MODE_PRIVATE);
-        String play_list_items = sharedPreferences.getString(getString(R.string.play_list_items), null);
-        if (play_list_items != null && play_list_items.length() > 0)
-        {
-            String[] splitArray = play_list_items.split(" ");
-            for (int i = 0; i < splitArray.length; i++)
-            {
-                listDicts.add(i, splitArray[i]);
-            }
-        }
-
-        return listDicts;
-    }
-
     private void addToStudiedList()
     {
         boolean containsInPlayList = false;
-        for (String item : getPlayList())
+        for (String item : appSettings.getPlayList())
         {
             if (item.equals(spinnListDict.getSelectedItem()))
             {
