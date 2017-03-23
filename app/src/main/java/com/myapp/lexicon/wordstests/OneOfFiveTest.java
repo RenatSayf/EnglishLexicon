@@ -589,12 +589,13 @@ public class OneOfFiveTest extends Fragment implements /*Animator.ITextViewToLef
         {
             Button button = (Button) buttonsLayout.getChildAt(i);
             LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) button.getLayoutParams();
+
             float X = button.getX();
             float Y = button.getY();
             if (Y < y && x == X)
             {
                 animToDown = button.animate()
-                        .translationYBy(button.getHeight()+layoutParams.topMargin)
+                        .translationYBy(button.getHeight()+layoutParams.bottomMargin)
                         .setDuration(300)
                         .setStartDelay(0)
                         .setInterpolator(new AccelerateInterpolator());
@@ -646,9 +647,7 @@ public class OneOfFiveTest extends Fragment implements /*Animator.ITextViewToLef
                         if (tempButton != null)
                         {
                             LinearLayout.LayoutParams layoutParams =(LinearLayout.LayoutParams) tempButton.getLayoutParams();
-                            int topMargin = layoutParams.topMargin;
-
-                            tempButton.setY(layoutParams.topMargin);
+                            tempButton.setY(0);
                             tempButton.animate().translationXBy(-tempButton.getWidth()-delta)
                                     .setDuration(duration)
                                     .setStartDelay(0)
@@ -700,7 +699,7 @@ public class OneOfFiveTest extends Fragment implements /*Animator.ITextViewToLef
 
     public void buttonToRightAnimation(View view)
     {
-        Button button = (Button) view;
+        final Button button = (Button) view;
         if (button != null)
         {
             button.animate().translationXBy((button.getWidth()+delta))
