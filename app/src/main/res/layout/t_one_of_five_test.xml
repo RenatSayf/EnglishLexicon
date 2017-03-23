@@ -2,7 +2,7 @@
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/colorGreen"
+                android:background="@color/colorLightPurple"
                 android:orientation="vertical"
                 tools:context="com.myapp.lexicon.wordstests.OneOfFiveTest">
 
@@ -95,7 +95,8 @@
             android:layout_marginBottom="5dp"
             android:layout_weight="1"
             android:background="@drawable/text_button_for_test"
-            android:textColor="@color/trans_text_color"
+            android:textColor="@drawable/text_color_green_to_white"
+            android:textStyle="bold"
             />
 
         <Button
@@ -107,7 +108,8 @@
             android:layout_marginBottom="5dp"
             android:layout_weight="1"
             android:background="@drawable/text_button_for_test"
-            android:textColor="@color/trans_text_color"
+            android:textColor="@drawable/text_color_green_to_white"
+            android:textStyle="bold"
             />
 
         <Button
@@ -119,7 +121,8 @@
             android:layout_marginBottom="5dp"
             android:layout_weight="1"
             android:background="@drawable/text_button_for_test"
-            android:textColor="@color/trans_text_color"
+            android:textColor="@drawable/text_color_green_to_white"
+            android:textStyle="bold"
             />
 
         <Button
@@ -131,7 +134,8 @@
             android:layout_marginBottom="5dp"
             android:layout_weight="1"
             android:background="@drawable/text_button_for_test"
-            android:textColor="@color/trans_text_color"
+            android:textColor="@drawable/text_color_green_to_white"
+            android:textStyle="bold"
             />
 
         <Button
@@ -143,7 +147,8 @@
             android:layout_marginBottom="5dp"
             android:layout_weight="1"
             android:background="@drawable/text_button_for_test"
-            android:textColor="@color/trans_text_color"
+            android:textColor="@drawable/text_color_green_to_white"
+            android:textStyle="bold"
             />
 
     </LinearLayout>
@@ -152,7 +157,7 @@
         android:id="@+id/top_panel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="-158dp">
+        android:layout_marginTop="-164dp">
 
         <include
             layout="@layout/t_top_panel"

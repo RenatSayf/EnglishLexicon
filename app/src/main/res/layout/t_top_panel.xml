@@ -50,7 +50,9 @@
             android:id="@+id/btn_ok"
             android:layout_weight="3"
             android:background="@drawable/text_btn_for_test_green"
-            android:minHeight="32dp"/>
+            android:minHeight="42dp"
+            android:textColor="@color/colorWhite"
+            android:textStyle="bold"/>
 
         <Button
             android:text="@string/text_complete"
@@ -59,15 +61,19 @@
             android:id="@+id/btn_complete"
             android:layout_weight="1"
             android:background="@drawable/text_btn_for_test_red"
-            android:minHeight="32dp"/>
+            android:minHeight="42dp"
+            android:textColor="@color/colorWhite"
+            android:textStyle="bold"/>
 
     </LinearLayout>
 
-    <ImageView
+    <ImageButton
+        android:id="@+id/btn_more_horiz"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="30dp"
         android:layout_gravity="bottom|center_horizontal"
         android:layout_marginBottom="-5dp"
-        android:src="@drawable/ic_more_horiz_white"/>
+        android:src="@drawable/ic_more_horiz_white"
+        android:background="@color/colorTransparent"/>
 
 </LinearLayout>

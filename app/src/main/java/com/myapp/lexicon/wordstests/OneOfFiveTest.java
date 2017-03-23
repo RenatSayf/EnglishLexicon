@@ -21,6 +21,7 @@ import android.view.animation.AnticipateOvershootInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -61,6 +62,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     private float touchDown = 0, touchUp = 0;
     private Button topPanelButtonOK;
     private Button topPanelButtonFinish;
+    private ImageButton topPanelButtonThreePoints;
     private long duration = 1000;
     private static boolean isOpen = false;
 
@@ -197,6 +199,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
         headerTopPanel.setText(R.string.text_choose_correctly);
         topPanelButtonOK = (Button) fragment_view.findViewById(R.id.btn_ok);
         topPanelButtonFinish = (Button) fragment_view.findViewById(R.id.btn_complete);
+        topPanelButtonThreePoints = (ImageButton) fragment_view.findViewById(R.id.btn_more_horiz);
         topPanelButtons_OnClick();
 
         spinnListDict= (Spinner) fragment_view.findViewById(R.id.spinner_dict);
@@ -869,6 +872,14 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                 spinnListDict.setSelection(-1);
                 spinnSelectedIndex = -1;
                 getActivity().onBackPressed();
+            }
+        });
+        topPanelButtonThreePoints.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                topPanelVisible(0, 1, isOpen);
             }
         });
     }
