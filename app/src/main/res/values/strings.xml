@@ -169,6 +169,7 @@
     <string name="text_dictionary">Словарь:</string>
     <string name="text_ok">Ok</string>
     <string name="text_complete">Завершить</string>
+    <string name="text_choose_correctly">Выбери правильно</string>
 
 
 </resources>

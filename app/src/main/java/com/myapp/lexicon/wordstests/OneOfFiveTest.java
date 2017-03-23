@@ -5,7 +5,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.util.DisplayMetrics;
 import android.view.Display;
@@ -19,7 +18,6 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.AnticipateOvershootInterpolator;
-import android.view.animation.LayoutAnimationController;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -51,7 +49,7 @@ import java.util.TreeMap;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class OneOfFiveTest extends Fragment implements /*Animator.ITextViewToLeftListener, Animator.ITextViewToRightListener,*/ DialogTestComplete.IDialogComplete_Result
+public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialogComplete_Result
 {
     public static final int ROWS = 5;
 
@@ -63,7 +61,6 @@ public class OneOfFiveTest extends Fragment implements /*Animator.ITextViewToLef
     private float touchDown = 0, touchUp = 0;
     private Button topPanelButtonOK;
     private Button topPanelButtonFinish;
-    private TextView headerTopPanel;
     private long duration = 1000;
     private static boolean isOpen = false;
 
@@ -81,6 +78,7 @@ public class OneOfFiveTest extends Fragment implements /*Animator.ITextViewToLef
     private static ArrayList<String> textArray = new ArrayList<>();
     private DisplayMetrics displayMetrics;
     private int delta = 60;
+    private static boolean isStartAnim = false;
 
     private TextView textView;
     private LinearLayout buttonsLayout;
@@ -92,7 +90,6 @@ public class OneOfFiveTest extends Fragment implements /*Animator.ITextViewToLef
     private int controlListSize = 0;
     private Button tempButton;
     private int tempButtonId;
-    private Animator animator;
     private LockOrientation lockOrientation;
     private static int counterRightAnswer = 0;
     private TestResults testResults;
@@ -111,7 +108,6 @@ public class OneOfFiveTest extends Fragment implements /*Animator.ITextViewToLef
     private String KEY_PROGRESS_MAX = "key_progress_max";
     private String KEY_COUNTER_RIGHT_ANSWER = "key_counter_right";
 
-    static FragmentActivity activity;
     static FragmentManager fragmentManager;
     public OneOfFiveTest()
     {
@@ -166,7 +162,6 @@ public class OneOfFiveTest extends Fragment implements /*Animator.ITextViewToLef
         {
             textArray.add(item);
         }
-        return;
     }
 
     @Override
@@ -184,10 +179,9 @@ public class OneOfFiveTest extends Fragment implements /*Animator.ITextViewToLef
         {
             savedInstanceState = Tests.bundleOneOfFiveTest;
         }
-        activity = getActivity();
         fragmentManager = getFragmentManager();
-        lockOrientation = new LockOrientation(activity);
-        testResults = new TestResults(activity);
+        lockOrientation = new LockOrientation(getActivity());
+        testResults = new TestResults(getActivity());
         appSettings = new AppSettings(getActivity());
         appData = AppData2.getInstance();
 
@@ -199,8 +193,8 @@ public class OneOfFiveTest extends Fragment implements /*Animator.ITextViewToLef
 
         topPanel = (LinearLayout) fragment_view.findViewById(R.id.top_panel);
         topPanelParams = (RelativeLayout.LayoutParams) topPanel.getLayoutParams();
-        headerTopPanel = (TextView) fragment_view.findViewById(R.id.header_top_panel);
-        headerTopPanel.setText("Выбери правильно");
+        TextView headerTopPanel = (TextView) fragment_view.findViewById(R.id.header_top_panel);
+        headerTopPanel.setText(R.string.text_choose_correctly);
         topPanelButtonOK = (Button) fragment_view.findViewById(R.id.btn_ok);
         topPanelButtonFinish = (Button) fragment_view.findViewById(R.id.btn_complete);
         topPanelButtons_OnClick();
@@ -209,7 +203,6 @@ public class OneOfFiveTest extends Fragment implements /*Animator.ITextViewToLef
         buttonsLayout = (LinearLayout) fragment_view.findViewById(R.id.layout_1of5);
         textView = (TextView) fragment_view.findViewById(R.id.text_view_1of5);
         progressBar = (ProgressBar) fragment_view.findViewById(R.id.progress_test1of5);
-        animator = Animator.getInstance();
         dialogTestComplete = new DialogTestComplete();
         dialogTestComplete.setIDialogCompleteResult(OneOfFiveTest.this);
 
@@ -243,9 +236,8 @@ public class OneOfFiveTest extends Fragment implements /*Animator.ITextViewToLef
                 {
                     button.setVisibility(View.GONE);
                 }
-                btnLeft_OnClick(i, button);
+                btn_OnClick(button);
             }
-            animator.setLayout(buttonsLayout, textView);
         }
 
         spinnListDict_OnItemSelectedListener();
@@ -288,16 +280,13 @@ public class OneOfFiveTest extends Fragment implements /*Animator.ITextViewToLef
             button.setText(null);
             button.setVisibility(View.GONE);
         }
-        animator.setLayout(buttonsLayout, textView);
-//        animator.setTextViewToLeftListener(OneOfFiveTest.this);
-//        animator.setTextViewToRightListener(OneOfFiveTest.this);
     }
 
     private void setItemsToSpinnListDict()
     {
         if (storedListDict.size() > 0)
         {
-            ArrayAdapter<String> spinnAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), R.layout.my_content_spinner_layout, storedListDict);
+            ArrayAdapter<String> spinnAdapter = new ArrayAdapter<>(getActivity().getApplicationContext(), R.layout.my_content_spinner_layout, storedListDict);
             spinnListDict.setAdapter(spinnAdapter);
             return;
         }
@@ -400,7 +389,7 @@ public class OneOfFiveTest extends Fragment implements /*Animator.ITextViewToLef
                     button.setVisibility(View.VISIBLE);
                     button.animate().translationX(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null).setStartDelay(start_delay);
                     start_delay += 70;
-                    btnLeft_OnClick(i, button);
+                    btn_OnClick(button);
                     button.setText(controlList.get(randomGenerator.generate()).get_translate());
                     wordIndex++;
                 }
@@ -414,13 +403,17 @@ public class OneOfFiveTest extends Fragment implements /*Animator.ITextViewToLef
         asyncTask.execute(spinnSelectedItem, wordIndex, count);
     }
 
-    private void btnLeft_OnClick(final int index, final View view)
+    private void btn_OnClick(final View view)
     {
         view.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View view)
             {
+                if (isStartAnim)
+                {
+                    return;
+                }
                 tempButton = (Button) view;
                 tempButtonId = tempButton.getId();
                 buttonY = tempButton.getY();
@@ -511,7 +504,8 @@ public class OneOfFiveTest extends Fragment implements /*Animator.ITextViewToLef
                     @Override
                     public void onAnimationStart(android.animation.Animator animation)
                     {
-
+                        lockOrientation.lock();
+                        isStartAnim = true;
                     }
 
                     @Override
@@ -533,7 +527,6 @@ public class OneOfFiveTest extends Fragment implements /*Animator.ITextViewToLef
                                 randomGenerator = new RandomNumberGenerator(controlListSize, (int) new Date().getTime());
                                 randomNumber = randomGenerator.generate();
                             }
-                            String english = controlList.get(randomNumber).get_english();
                             textView.setText(controlList.get(randomNumber).get_english());
                         }
                         else if (listFromDB.size() == 0 && controlList.size() <= ROWS)
@@ -558,7 +551,7 @@ public class OneOfFiveTest extends Fragment implements /*Animator.ITextViewToLef
                         }
                         if (buttonY > 0)
                         {
-                            buttonsToDown(buttonX, buttonY);
+                            buttonsToDownAnimation(buttonX, buttonY);
                         } else
                         {
                             textViewToRightAnimation();
@@ -580,11 +573,10 @@ public class OneOfFiveTest extends Fragment implements /*Animator.ITextViewToLef
                 });
     }
 
-    public void buttonsToDown(float x, float y)
+    public void buttonsToDownAnimation(float x, float y)
     {
         ViewPropertyAnimator animToDown;
         boolean isListener = false;
-        int topMargin = getMinMarginTop();
         for (int i = 0; i < buttonsLayout.getChildCount(); i++)
         {
             Button button = (Button) buttonsLayout.getChildAt(i);
@@ -658,7 +650,21 @@ public class OneOfFiveTest extends Fragment implements /*Animator.ITextViewToLef
                     @Override
                     public void onAnimationEnd(android.animation.Animator animation)
                     {
-
+                        lockOrientation.unLock();
+                        isStartAnim = false;
+                        if (textView.getText().toString().equals(""))
+                        {
+                            //Toast.makeText(activity,"Тест завершен",Toast.LENGTH_SHORT).show();
+                            ArrayList<String> list = new ArrayList<>();
+                            list.add(testResults.getOverallResult(counterRightAnswer, wordsCount));
+                            list.add(counterRightAnswer + getActivity().getString(R.string.text_out_of) + wordsCount);
+                            Bundle bundle = new Bundle();
+                            bundle.putString(dialogTestComplete.KEY_RESULT, list.get(0));
+                            bundle.putString(dialogTestComplete.KEY_ERRORS, list.get(1));
+                            dialogTestComplete.setArguments(bundle);
+                            dialogTestComplete.setCancelable(false);
+                            dialogTestComplete.show(fragmentManager, "dialog_complete_lexicon");
+                        }
                     }
 
                     @Override
@@ -673,28 +679,6 @@ public class OneOfFiveTest extends Fragment implements /*Animator.ITextViewToLef
 
                     }
                 });
-    }
-
-    private int getMinMarginTop()
-    {
-        int topMargin = 0;
-        try
-        {
-            LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) buttonsLayout.getChildAt(0).getLayoutParams();
-            topMargin = layoutParams.topMargin;
-            for (int i = 0; i < buttonsLayout.getChildCount(); i++)
-            {
-                layoutParams = (LinearLayout.LayoutParams) buttonsLayout.getChildAt(i).getLayoutParams();
-                if (layoutParams.topMargin < topMargin)
-                {
-                    topMargin = layoutParams.topMargin;
-                }
-            }
-        } catch (Exception e)
-        {
-            return 0;
-        }
-        return topMargin;
     }
 
     public void buttonToRightAnimation(View view)
@@ -735,78 +719,6 @@ public class OneOfFiveTest extends Fragment implements /*Animator.ITextViewToLef
         }
     }
 
-//    @Override
-//    public void textViewToLeftListener(int result, TextView textView, Button button)
-//    {
-//        int range = 127;
-//        if (listFromDB.size() > 0)
-//        {
-//            controlList.set(indexEn, listFromDB.get(0));
-//            button.setText(listFromDB.get(0).get_translate());
-//            button.setBackgroundResource(R.drawable.text_button_for_test);
-//            if (controlListSize != controlList.size())
-//            {
-//                randomGenerator = new RandomNumberGenerator(controlList.size(), (int) new Date().getTime());
-//                controlListSize = controlList.size();
-//            }
-//            int randomNumber = randomGenerator.generate();
-//            if (randomNumber < 0)
-//            {
-//                randomGenerator = new RandomNumberGenerator(controlListSize, (int) new Date().getTime());
-//                randomNumber = randomGenerator.generate();
-//            }
-//            String english = controlList.get(randomNumber).get_english();
-//            textView.setText(controlList.get(randomNumber).get_english());
-//        }
-//        else if (listFromDB.size() == 0 && controlList.size() <= ROWS)
-//        {
-//            button.setBackgroundResource(R.drawable.text_button_for_test);
-//            try
-//            {
-//                controlList.remove(indexEn);
-//                button.setText(additionalList.get(additonalCount).get_translate());
-//                additonalCount++;
-//                textView.setText("");
-//                if (controlList.size() > 0)
-//                {
-//                    randomGenerator = new RandomNumberGenerator(controlList.size(), (int) new Date().getTime());
-//                    int randomNumber = randomGenerator.generate();
-//                    textView.setText(controlList.get(randomNumber).get_english());
-//                }
-//            } catch (Exception e)
-//            {
-//                Toast.makeText(getActivity(), "Ошибка - "+e.getMessage(), Toast.LENGTH_SHORT).show();
-//            }
-//        }
-//        if (buttonY > 0)
-//        {
-//            buttonsToDown(buttonX, buttonY);
-//        } else
-//        {
-//            animator.textViewToRightAnimation();
-//        }
-//        wordIndex++;
-//    }
-//
-//    @Override
-//    public void textViewToRightListener(int result, TextView textView)
-//    {
-//        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-//        if (textView.getText().toString() == "")
-//        {
-//            //Toast.makeText(activity,"Тест завершен",Toast.LENGTH_SHORT).show();
-//            ArrayList<String> list = new ArrayList<String>();
-//            list.add(testResults.getOverallResult(counterRightAnswer, wordsCount));
-//            list.add(counterRightAnswer + activity.getString(R.string.text_out_of) + wordsCount);
-//            Bundle bundle = new Bundle();
-//            bundle.putString(dialogTestComplete.KEY_RESULT, list.get(0));
-//            bundle.putString(dialogTestComplete.KEY_ERRORS, list.get(1));
-//            dialogTestComplete.setArguments(bundle);
-//            dialogTestComplete.setCancelable(false);
-//            dialogTestComplete.show(fragmentManager, "dialog_complete_lexicon");
-//        }
-//    }
-//
     @Override
     public void dialogCompleteResult(int res)
     {
