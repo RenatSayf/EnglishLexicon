@@ -118,6 +118,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     @Override
     public void onSaveInstanceState(Bundle outState)
     {
+        super.onSaveInstanceState(outState);
         outState.putInt(KEY_BUTTON_ID, tempButtonId);
         outState.putString(KEY_TEXT, textView.getText().toString());
         outState.putInt(KEY_CONTROL_LIST_SIZE, controlListSize);
@@ -135,7 +136,6 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
         }
 
         saveButtonsLayoutState();
-        super.onSaveInstanceState(outState);
     }
 
     private void saveButtonsLayoutState()
