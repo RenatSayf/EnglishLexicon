@@ -39,6 +39,7 @@ import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -240,27 +241,29 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
             public void onClick(View v)
             {
                 topPanelVisible(1, 0, isOpen);
-                SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, SplashScreenActivity.map);
-                SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
-                {
-                    @Override
-                    public void onStart(String utteranceId)
-                    {
-
-                    }
-
-                    @Override
-                    public void onDone(String utteranceId)
-                    {
-
-                    }
-
-                    @Override
-                    public void onError(String utteranceId)
-                    {
-
-                    }
-                });
+                HashMap<String, String> hashMap = new HashMap<>();
+                hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "btn_speech");
+                SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, hashMap);
+//                SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+//                {
+//                    @Override
+//                    public void onStart(String utteranceId)
+//                    {
+//
+//                    }
+//
+//                    @Override
+//                    public void onDone(String utteranceId)
+//                    {
+//
+//                    }
+//
+//                    @Override
+//                    public void onError(String utteranceId)
+//                    {
+//
+//                    }
+//                });
             }
         });
     }
@@ -425,8 +428,9 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                         tempButton.setText(textEn);
                         tempButton.setBackgroundResource(R.drawable.text_btn_for_test_green);
                     }
-
-                    SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, SplashScreenActivity.map);
+                    final HashMap<String, String> hashMap = new HashMap<>();
+                    hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "compare_words");
+                    SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, hashMap);
                     SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
                     {
                         @Override
@@ -438,7 +442,10 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                         @Override
                         public void onDone(String utteranceId)
                         {
-                            animButtonToLeft(tempButton);
+                            if (utteranceId.equals("compare_words"))
+                            {
+                                animButtonToLeft(tempButton);
+                            }
                         }
 
                         @Override
@@ -485,8 +492,10 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
         }
     }
 
+    private int count = 0;
     public void buttonsToDownAnimation(float x, float y)
     {
+        count = 0;
         ViewPropertyAnimator animToDown;
         boolean isListener = false;
         for (int i = 0; i < buttonsLayout.getChildCount(); i++)
@@ -503,36 +512,42 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                         .setDuration(300)
                         .setStartDelay(0)
                         .setInterpolator(new AccelerateInterpolator());
-//                if (!isListener)
-//                {
-//                    isListener = true;
-//                    animToDown.setListener(new android.animation.Animator.AnimatorListener()
-//                    {
-//                        @Override
-//                        public void onAnimationStart(android.animation.Animator animation)
-//                        {
-//
-//                        }
-//
-//                        @Override
-//                        public void onAnimationEnd(android.animation.Animator animation)
-//                        {
-//
-//                        }
-//
-//                        @Override
-//                        public void onAnimationCancel(android.animation.Animator animation)
-//                        {
-//
-//                        }
-//
-//                        @Override
-//                        public void onAnimationRepeat(android.animation.Animator animation)
-//                        {
-//
-//                        }
-//                    });
-//                }
+                if (!isListener)
+                {
+                    isListener = true;
+                    animToDown.setListener(new android.animation.Animator.AnimatorListener()
+                    {
+
+                        @Override
+                        public void onAnimationStart(android.animation.Animator animation)
+                        {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(android.animation.Animator animation)
+                        {
+                            if (count == 0)
+                            {
+                                count++;
+                                animButtonFromRigth(tempButton);
+                            }
+
+                        }
+
+                        @Override
+                        public void onAnimationCancel(android.animation.Animator animation)
+                        {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(android.animation.Animator animation)
+                        {
+
+                        }
+                    });
+                }
             }
         }
     }
@@ -580,6 +595,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                             if (buttonY > 0)
                             {
                                 buttonsToDownAnimation(buttonX, buttonY);
+                                //animButtonFromRigth(tempButton);
                             }
                         }
                         else if (listFromDB.size() == 0 && controlList.size() <= ROWS)
@@ -600,9 +616,10 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                             {
                                 Toast.makeText(getActivity(), "Ошибка - "+e.getMessage(), Toast.LENGTH_SHORT).show();
                             }
+                            buttonsToDownAnimation(buttonX, buttonY);
                         }
                         wordIndex++;
-                        animButtonFromRigth(button);
+
                     }
 
                     @Override
@@ -622,68 +639,71 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
     private void animButtonFromRigth(Button button)
     {
         if (button == null) return;
-        button.animate().translationX(0)
+        final ViewPropertyAnimator _animator = button.animate().translationX(0)
                 .setDuration(duration)
-                .setInterpolator(new AnticipateOvershootInterpolator())
-                .setListener(new Animator.AnimatorListener()
+                .setStartDelay(0)
+                .setInterpolator(new AnticipateOvershootInterpolator());
+        _animator.setListener(new Animator.AnimatorListener()
+        {
+            @Override
+            public void onAnimationStart(Animator animation)
+            {
+                tempButton.setBackgroundResource(R.drawable.text_button_for_test);
+            }
+
+            @Override
+            public void onAnimationEnd(final Animator animation)
+            {
+                HashMap<String, String> hashMap = new HashMap<>();
+                hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "btn_from_rigth_anim");
+                SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, hashMap);
+                SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
                 {
                     @Override
-                    public void onAnimationStart(Animator animation)
-                    {
-                        tempButton.setBackgroundResource(R.drawable.text_button_for_test);
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animator animation)
-                    {
-                        SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, SplashScreenActivity.map);
-                        SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
-                        {
-                            @Override
-                            public void onStart(String utteranceId)
-                            {
-
-                            }
-
-                            @Override
-                            public void onDone(String utteranceId)
-                            {
-
-                            }
-
-                            @Override
-                            public void onError(String utteranceId)
-                            {
-
-                            }
-                        });
-                        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-                        if (textEn.equals(""))
-                        {
-                            ArrayList<String> list = new ArrayList<>();
-                            list.add(testResults.getOverallResult(counterRightAnswer, wordsCount));
-                            list.add(counterRightAnswer + getActivity().getString(R.string.text_out_of) + wordsCount);
-                            Bundle bundle = new Bundle();
-                            bundle.putString(dialogTestComplete.KEY_RESULT, list.get(0));
-                            bundle.putString(dialogTestComplete.KEY_ERRORS, list.get(1));
-                            dialogTestComplete.setArguments(bundle);
-                            dialogTestComplete.setCancelable(false);
-                            dialogTestComplete.show(getFragmentManager(), "dialog_complete_lexicon");
-                        }
-                    }
-
-                    @Override
-                    public void onAnimationCancel(Animator animation)
+                    public void onStart(String utteranceId)
                     {
 
                     }
 
                     @Override
-                    public void onAnimationRepeat(Animator animation)
+                    public void onDone(String utteranceId)
+                    {
+                        _animator.setListener(null);
+                    }
+
+                    @Override
+                    public void onError(String utteranceId)
                     {
 
                     }
                 });
+                getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+                if (textEn.equals(""))
+                {
+                    ArrayList<String> list = new ArrayList<>();
+                    list.add(testResults.getOverallResult(counterRightAnswer, wordsCount));
+                    list.add(counterRightAnswer + getActivity().getString(R.string.text_out_of) + wordsCount);
+                    Bundle bundle = new Bundle();
+                    bundle.putString(dialogTestComplete.KEY_RESULT, list.get(0));
+                    bundle.putString(dialogTestComplete.KEY_ERRORS, list.get(1));
+                    dialogTestComplete.setArguments(bundle);
+                    dialogTestComplete.setCancelable(false);
+                    dialogTestComplete.show(getFragmentManager(), "dialog_complete_lexicon");
+                }
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation)
+            {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation)
+            {
+
+            }
+        });
     }
 
     @Override
