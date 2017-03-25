@@ -171,6 +171,11 @@
     <string name="text_complete">Завершить</string>
     <string name="text_choose_correctly">Выбери правильно</string>
     <string name="description_sound_button">sound_button</string>
+    <string name="text_finish">Завершить</string>
+    <string name="text_repeat">Повтор</string>
+    <string name="text_next">Следующий</string>
+    <string name="text_50_50">50 из 50</string>
+    <string name="text_correctly">Верно:</string>
 
 
 </resources>

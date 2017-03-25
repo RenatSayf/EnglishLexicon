@@ -100,6 +100,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
     private DisplayMetrics displayMetrics;
     private AppSettings appSettings;
     private AppData2 appData;
+    private static boolean isStartAnim = false;
 
     private String KEY_CONTROL_LIST_SIZE = "key_control_list_size";
     private String KEY_WORDS_COUNT = "key_words_count";
@@ -421,6 +422,10 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
             @Override
             public void onClick(View view)
             {
+                if (isStartAnim)
+                {
+                    return;
+                }
                 tempButton = (Button) view;
                 buttonY = tempButton.getY();
                 buttonX = tempButton.getX();
@@ -590,6 +595,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                     public void onAnimationStart(Animator animation)
                     {
                         lockOrientation.lock();
+                        isStartAnim = true;
                     }
 
                     @Override
@@ -712,6 +718,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                     }
                 });
                 lockOrientation.unLock();
+                isStartAnim = false;
                 if (textEn.equals(""))
                 {
                     ArrayList<String> list = new ArrayList<>();

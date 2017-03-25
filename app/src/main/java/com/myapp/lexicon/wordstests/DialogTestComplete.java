@@ -43,7 +43,7 @@ public class DialogTestComplete extends android.support.v4.app.DialogFragment
 
         final View dialogView = getActivity().getLayoutInflater().inflate(R.layout.t_dialog_complete_test, null);
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
-                .setTitle("Завершено")
+                .setTitle(getResources().getString(R.string.text_finish))
                 .setView(dialogView);
 
         TextView textViewResult = (TextView) dialogView.findViewById(R.id.txt_view_result);
