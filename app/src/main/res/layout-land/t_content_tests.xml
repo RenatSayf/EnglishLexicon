@@ -26,7 +26,7 @@
             android:text="@string/text_choice_test"
             android:textColor="@color/colorWhite"
             android:layout_marginTop="10dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="40dp"
             android:layout_gravity="center_horizontal"/>
 
 
@@ -44,15 +44,15 @@
                 android:layout_weight="1">
 
                 <ImageButton
-                    android:layout_width="74dp"
-                    android:layout_height="74dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:id="@+id/btn_find_pair"
-                    android:src="@drawable/icon_find_pairs"
+                    android:src="@drawable/icon_match"
                     android:background="@android:color/transparent"/>
 
                 <TextView
-                    android:layout_width="74dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:layout_gravity="center_horizontal"
@@ -70,15 +70,15 @@
                 android:layout_weight="1">
 
                 <ImageButton
-                    android:layout_width="74dp"
-                    android:layout_height="74dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:id="@+id/btn_test_1of5"
-                    android:src="@drawable/icon_find_pairs"
+                    android:src="@drawable/icon_test_1_of_5"
                     android:background="@android:color/transparent"/>
 
                 <TextView
-                    android:layout_width="74dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:layout_gravity="center_horizontal"
@@ -94,8 +94,8 @@
                 android:layout_weight="1">
 
                 <ImageButton
-                    android:layout_width="74dp"
-                    android:layout_height="74dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:src="@drawable/icon_find_pairs"
                     android:background="@android:color/transparent"
