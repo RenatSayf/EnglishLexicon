@@ -3,7 +3,6 @@ package com.myapp.lexicon.wordstests;
 
 import android.animation.Animator;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
@@ -34,9 +33,9 @@ import android.widget.Toast;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
-import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
+import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.settings.AppData2;
 import com.myapp.lexicon.settings.AppSettings;
 
@@ -60,8 +59,23 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
 
     private static RelativeLayout.LayoutParams saveTopPanelParams;
     private static boolean isOpen = false;
+    private LinearLayout topPanel;
+    private RelativeLayout.LayoutParams topPanelParams;
+    private float touchDown = 0, touchUp = 0;
+    private Button topPanelButtonOK;
+    private Button topPanelButtonFinish;
+    private ImageButton topPanelButtonThreePoints;
+
+    private Button tempButton;
+    private LinearLayout buttonsLayout;
+    private Spinner spinnListDict;
+    private int spinnSelectedIndex = -1;
+    private ImageButton buttonSpeech;
+    private ProgressBar progressBar;
+
+    private int controlListSize = 0;
     private static ArrayList<String> storedListDict = new ArrayList<>();
-    private static RandomNumberGenerator randomGenerator;
+
     private static ArrayList<DataBaseEntry> controlList;
     private static ArrayList<DataBaseEntry> additionalList;
     private static ArrayList<String> textArray = new ArrayList<>();
@@ -73,33 +87,19 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
     private static int additonalCount = 0;
     private static float buttonY;
     private static float buttonX;
-
-    private LinearLayout linLayout;
-    private LinearLayout topPanel;
-    private RelativeLayout.LayoutParams topPanelParams;
-    private float touchDown = 0, touchUp = 0;
-    private Button tempButton;
-    private LinearLayout buttonsLayout;
-    private Spinner spinnListDict;
-    private int spinnSelectedIndex = -1;
-    private ImageButton buttonSpeech;
-    private ProgressBar progressBar;
-    private Button topPanelButtonOK;
-    private Button topPanelButtonFinish;
-    private ImageButton topPanelButtonThreePoints;
-    private int controlListSize = 0;
-    private LockOrientation lockOrientation;
-    private long duration = 1000;
     private int wordIndex = 1;
     private String spinnSelectedItem;
     private int wordsCount;
+
+    private static RandomNumberGenerator randomGenerator;
+    private LockOrientation lockOrientation;
+    private long duration = 1000;
     private DialogTestComplete dialogTestComplete;
     private ArrayList<String> arrStudiedDict = new ArrayList<>();
     private TestResults testResults;
     private DisplayMetrics displayMetrics;
     private AppSettings appSettings;
     private AppData2 appData;
-
 
     private String KEY_CONTROL_LIST_SIZE = "key_control_list_size";
     private String KEY_WORDS_COUNT = "key_words_count";
@@ -194,7 +194,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
         View fragment_view = inflater.inflate(R.layout.t_listen_end_click_layout, container, false);
         topPanel = (LinearLayout) fragment_view.findViewById(R.id.top_panel);
         topPanelParams = (RelativeLayout.LayoutParams) topPanel.getLayoutParams();
-        linLayout = (LinearLayout) fragment_view.findViewById(R.id.linear_layout);
+        LinearLayout linLayout = (LinearLayout) fragment_view.findViewById(R.id.linear_layout);
         spinnListDict = (Spinner) fragment_view.findViewById(R.id.spinner_dict);
         buttonsLayout = (LinearLayout) fragment_view.findViewById(R.id.buttons_layout);
         buttonSpeech = (ImageButton) fragment_view.findViewById(R.id.btn_speech);
@@ -600,7 +600,6 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                         DisplayMetrics metrics = new DisplayMetrics();
                         display.getMetrics(metrics);
                         button.setX(metrics.widthPixels+10);
-                        int range = 4;
                         if (listFromDB.size() > 0)
                         {
                             controlList.set(indexEn, listFromDB.get(0));
@@ -613,10 +612,9 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                             int randomNumber = randomGenerator.generate();
                             if (randomNumber < 0)
                             {
-                                randomGenerator = new RandomNumberGenerator(controlListSize, range);
+                                randomGenerator = new RandomNumberGenerator(controlListSize, (int) new Date().getTime());
                                 randomNumber = randomGenerator.generate();
                             }
-                            String english = controlList.get(randomNumber).get_english();
                             textEn = controlList.get(randomNumber).get_english();
                             if (buttonY > 0)
                             {

@@ -95,7 +95,7 @@
             android:layout_width="36dp"
             android:layout_height="36dp"
             android:layout_marginBottom="10dp"
-            android:src="@drawable/sound_btn_foreground"
+            android:src="@drawable/sound_btn_foreground2"
             android:background="@android:color/transparent"
             android:layout_gravity="center_horizontal"
             android:contentDescription="@string/description_sound_button"

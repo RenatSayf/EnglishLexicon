@@ -144,7 +144,10 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
         for (int i = 0; i < buttonsLayout.getChildCount(); i++)
         {
             Button button = (Button) buttonsLayout.getChildAt(i);
-            stringMap.put(button.getY(), button.getText().toString());
+            if (!button.getText().toString().equals(""))
+            {
+                stringMap.put(button.getY(), button.getText().toString());
+            }
         }
 
         Map<Float, String> sortBtnsLayout = new TreeMap<>(new Comparator<Float>()

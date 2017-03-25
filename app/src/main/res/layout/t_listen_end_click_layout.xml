@@ -44,6 +44,8 @@
                 android:layout_marginBottom="5dp"
                 android:layout_weight="1"
                 android:background="@drawable/text_button_for_test"
+                android:textColor="@color/trans_text_color"
+                android:textStyle="bold"
                 />
 
             <Button
@@ -55,6 +57,8 @@
                 android:layout_marginBottom="5dp"
                 android:layout_weight="1"
                 android:background="@drawable/text_button_for_test"
+                android:textColor="@color/trans_text_color"
+                android:textStyle="bold"
                 />
 
             <Button
@@ -66,6 +70,8 @@
                 android:layout_marginBottom="5dp"
                 android:layout_weight="1"
                 android:background="@drawable/text_button_for_test"
+                android:textColor="@color/trans_text_color"
+                android:textStyle="bold"
                 />
 
             <Button
@@ -77,6 +83,8 @@
                 android:layout_marginBottom="5dp"
                 android:layout_weight="1"
                 android:background="@drawable/text_button_for_test"
+                android:textColor="@color/trans_text_color"
+                android:textStyle="bold"
                 />
 
             <Button
@@ -88,16 +96,18 @@
                 android:layout_marginBottom="5dp"
                 android:layout_weight="1"
                 android:background="@drawable/text_button_for_test"
+                android:textColor="@color/trans_text_color"
+                android:textStyle="bold"
                 />
 
         </LinearLayout>
 
         <ImageButton
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:layout_marginBottom="30dp"
-            android:src="@drawable/sound_btn_foreground"
-            android:background="@android:color/transparent"
+            android:src="@drawable/sound_btn_foreground2"
+            android:background="@drawable/circle_press_background"
             android:layout_gravity="center_horizontal"
             android:contentDescription="@string/description_sound_button"
             android:id="@+id/btn_speech"/>
