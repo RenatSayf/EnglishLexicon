@@ -46,12 +46,13 @@
                     android:layout_weight="1">
 
                     <ImageButton
-                        android:layout_width="74dp"
-                        android:layout_height="74dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
                         android:id="@+id/btn_find_pair"
                         android:src="@drawable/icon_match"
-                        android:background="@android:color/transparent"/>
+                        android:background="@android:color/transparent"
+                        android:contentDescription="@string/description_sound_button"/>
 
                     <TextView
                         android:layout_width="74dp"
@@ -72,11 +73,11 @@
                     android:layout_weight="1">
 
                     <ImageButton
-                        android:layout_width="74dp"
-                        android:layout_height="74dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
                         android:id="@+id/btn_test_1of5"
-                        android:src="@drawable/icon_match"
+                        android:src="@drawable/icon_test_1_of_5"
                         android:background="@android:color/transparent"/>
 
                     <TextView
@@ -96,15 +97,15 @@
                     android:layout_weight="1">
 
                     <ImageButton
-                        android:layout_width="74dp"
-                        android:layout_height="74dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
                         android:src="@drawable/icon_match"
                         android:background="@android:color/transparent"
                         android:id="@+id/btn_select_word_test"/>
 
                     <TextView
-                        android:layout_width="74dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceSmall"
                         android:layout_gravity="center_horizontal"
