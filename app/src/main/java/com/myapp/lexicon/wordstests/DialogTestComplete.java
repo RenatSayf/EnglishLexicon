@@ -43,8 +43,21 @@ public class DialogTestComplete extends android.support.v4.app.DialogFragment
 
         final View dialogView = getActivity().getLayoutInflater().inflate(R.layout.t_dialog_complete_test, null);
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
-                .setTitle(getResources().getString(R.string.text_finish))
+                .setTitle(getResources().getString(R.string.text_test_is_finish))
                 .setView(dialogView);
+
+        if (getArguments().get(KEY_RESULT) == getString(R.string.text_excellent))
+        {
+            builder.setIcon(getResources().getDrawable(R.drawable.icon_smiling_face));
+        }
+        if (getArguments().get(KEY_RESULT) == getString(R.string.text_good))
+        {
+            builder.setIcon(getResources().getDrawable(R.drawable.icon_calm_face));
+        }
+        if (getArguments().get(KEY_RESULT) == getString(R.string.text_bad))
+        {
+            builder.setIcon(getResources().getDrawable(R.drawable.icon_sad_face));
+        }
 
         TextView textViewResult = (TextView) dialogView.findViewById(R.id.txt_view_result);
         textViewResult.setText(getArguments().getString(KEY_RESULT, ""));
