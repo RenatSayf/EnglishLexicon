@@ -35,7 +35,7 @@
 
     <item
         android:id="@+id/nav_exit"
-        android:icon="@drawable/ic_exit"
+        android:icon="@drawable/icon_power"
         android:title="@string/exit"/>
 
 </menu>

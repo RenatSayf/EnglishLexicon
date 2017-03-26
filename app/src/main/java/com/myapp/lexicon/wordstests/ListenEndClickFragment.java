@@ -791,27 +791,11 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
         }
     }
 
-    public ArrayList<String> getPlayList()
-    {
-        ArrayList<String> listDicts=new ArrayList<>();
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(getString(R.string.key_play_list), MODE_PRIVATE);
-        String play_list_items = sharedPreferences.getString(getString(R.string.play_list_items), null);
-        if (play_list_items != null && play_list_items.length() > 0)
-        {
-            String[] splitArray = play_list_items.split(" ");
-            for (int i = 0; i < splitArray.length; i++)
-            {
-                listDicts.add(i, splitArray[i]);
-            }
-        }
-
-        return listDicts;
-    }
-
     private void addToStudiedList()
     {
         boolean containsInPlayList = false;
-        for (String item : getPlayList())
+        ArrayList<String> playList = appSettings.getPlayList();
+        for (String item : playList)
         {
             if (item.equals(spinnListDict.getSelectedItem()))
             {
