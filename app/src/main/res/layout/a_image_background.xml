@@ -17,8 +17,9 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:alpha="0.9"
-            android:scaleType="center"
+            android:scaleType="centerCrop"
             android:src="@drawable/img_uk"
+            android:contentDescription="@string/descript_image_background"
             />
 
         <ImageView
@@ -26,45 +27,90 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:alpha="0.9"
-            android:scaleType="center"
+            android:scaleType="centerCrop"
             android:src="@drawable/img_uk2"
+            android:contentDescription="@string/descript_image_background"
             />
 
-        <!--<ImageView-->
-            <!--android:id="@+id/imageView3"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:alpha="0.9"-->
-            <!--android:scaleType="center"-->
-            <!--android:src="@drawable/angliya3"-->
-            <!--/>-->
+        <ImageView
+            android:id="@+id/imageView3"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:alpha="0.9"
+            android:scaleType="centerCrop"
+            android:src="@drawable/img_uk4"
+            android:contentDescription="@string/descript_image_background"
+            />
 
-        <!--<ImageView-->
-            <!--android:id="@+id/imageView4"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:alpha="0.9"-->
-            <!--android:scaleType="center"-->
-            <!--android:src="@drawable/angliya4"-->
-            <!--/>-->
+        <ImageView
+            android:id="@+id/imageView4"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:alpha="0.9"
+            android:scaleType="centerCrop"
+            android:src="@drawable/img_uk3"
+            android:contentDescription="@string/descript_image_background"
+            />
 
-        <!--<ImageView-->
-            <!--android:id="@+id/imageView5"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:alpha="0.9"-->
-            <!--android:scaleType="center"-->
-            <!--android:src="@drawable/angliya5"-->
-            <!--/>-->
+        <ImageView
+            android:id="@+id/imageView5"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:alpha="0.9"
+            android:scaleType="centerCrop"
+            android:src="@drawable/img_uk6"
+            android:contentDescription="@string/descript_image_background"
+            />
 
         <ImageView
             android:id="@+id/imageView6"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:alpha="0.9"
-            android:scaleType="center"
+            android:scaleType="centerCrop"
             android:src="@drawable/img_uk7"
+            android:contentDescription="@string/descript_image_background"
             />
+
+        <ImageView
+            android:id="@+id/imageView7"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:alpha="0.9"
+            android:scaleType="centerCrop"
+            android:src="@drawable/img_uk8"
+            android:contentDescription="@string/descript_image_background"
+            />
+
+        <ImageView
+            android:id="@+id/imageView8"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:alpha="0.9"
+            android:scaleType="centerCrop"
+            android:src="@drawable/img_usa1"
+            android:contentDescription="@string/descript_image_background"
+            />
+
+        <ImageView
+            android:id="@+id/imageView9"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:alpha="0.9"
+            android:scaleType="centerCrop"
+            android:src="@drawable/img_usa2"
+            android:contentDescription="@string/descript_image_background"
+            />
+
+        <!--<ImageView-->
+            <!--android:id="@+id/imageView10"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:alpha="0.9"-->
+            <!--android:scaleType="centerCrop"-->
+            <!--android:src="@drawable/img_usa4"-->
+            <!--android:contentDescription="@string/descript_image_background"-->
+            <!--/>-->
 
     </ViewFlipper>
 

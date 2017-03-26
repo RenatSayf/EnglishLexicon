@@ -70,6 +70,7 @@ public class BackgroundAnim extends AppCompatActivity
     @Override
     protected void onDestroy()
     {
+        super.onDestroy();
         flipper.stopFlipping();
         displayedChild = 0;
         index = 0;

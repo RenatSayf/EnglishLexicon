@@ -177,6 +177,7 @@
     <string name="text_50_50">50 из 50</string>
     <string name="text_correctly">Верно:</string>
     <string name="text_test_is_finish">Тест завершен</string>
+    <string name="descript_image_background">image_background</string>
 
 
 </resources>
