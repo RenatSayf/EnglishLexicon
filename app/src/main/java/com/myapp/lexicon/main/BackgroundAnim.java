@@ -55,9 +55,9 @@ public class BackgroundAnim extends AppCompatActivity
 
         flipper.setInAnimation(animationFlipIn);
         flipper.setOutAnimation(animationFlipOut);
-
+        
         flipper.startFlipping();
-        BackgroundAnim.index = -1;
+        index = -1;
         return -1;
     }
 

@@ -31,6 +31,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -76,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Switch switchRuSound;
     private static Intent speechIntentService;
     private UpdateBroadcastReceiver mUpdateBroadcastReceiver;
-    private BackgroundAnim backgroundAnim;
+    //private BackgroundAnim backgroundAnim;
     private boolean isFirstTime = true;
     private AppSettings appSettings;
     private AppData2 appData2;
@@ -164,10 +165,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getLoaderManager().initLoader(LOADER_GET_ENTRIES, savedInstanceState, this);
 
     }
+
+    BackgroundAnim2 backgroundAnim2;
     private void initViews()
     {
-        backgroundAnim = new BackgroundAnim(this, (ViewFlipper) findViewById(R.id.view_flipper));
-        backgroundAnim.startAnimByRandom();
+//        backgroundAnim = new BackgroundAnim(this, (ViewFlipper) findViewById(R.id.view_flipper));
+//        backgroundAnim.startAnimByRandom();
+
+        backgroundAnim2 = new BackgroundAnim2((ImageView) findViewById(R.id.imageView1), (ImageView) findViewById(R.id.imageView2));
+        backgroundAnim2.startAnimBackground();
+
         textViewEn = (TextView) findViewById(R.id.enTextView);
         textViewRu = (TextView) findViewById(R.id.ruTextView);
         textViewDict = (TextView) findViewById(R.id.textViewDict);
@@ -206,7 +213,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onSaveInstanceState(Bundle outState)
     {
         super.onSaveInstanceState(outState);
-        backgroundAnim.onSaveInstanceState(null);
+        backgroundAnim2.on_Destroy();
+        //backgroundAnim.onSaveInstanceState(null);
         outState.putString(KEY_ENG_TEXT, textViewEn.getText().toString());
         outState.putString(KEY_RU_TEXT, textViewRu.getText().toString());
         outState.putString(KEY_CURRENT_DICT, textViewDict.getText().toString());
@@ -264,7 +272,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onBackPressed()
     {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
-        backgroundAnim.onDestroy();
+        //backgroundAnim.onDestroy();
         speechServiceOnPause();
         appData2.saveAllSettings();
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -373,7 +381,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.nav_exit)
         {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
-            backgroundAnim.onDestroy();
+            //backgroundAnim.onDestroy();
             //speechServiceOnStop();
             wakeLock.release();
             this.finish();
