@@ -36,7 +36,6 @@ import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ViewFlipper;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.addword.AddWordActivity;
@@ -213,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onSaveInstanceState(Bundle outState)
     {
         super.onSaveInstanceState(outState);
-        backgroundAnim2.on_Destroy();
+        backgroundAnim2.saveState();
         //backgroundAnim.onSaveInstanceState(null);
         outState.putString(KEY_ENG_TEXT, textViewEn.getText().toString());
         outState.putString(KEY_RU_TEXT, textViewRu.getText().toString());

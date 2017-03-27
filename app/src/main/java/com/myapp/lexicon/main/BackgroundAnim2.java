@@ -3,6 +3,7 @@ package com.myapp.lexicon.main;
 import android.animation.Animator;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.ViewPropertyAnimator;
 import android.widget.ImageView;
@@ -10,7 +11,6 @@ import android.widget.ImageView;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -22,45 +22,48 @@ import java.util.TimerTask;
 public class BackgroundAnim2 extends AppCompatActivity
 {
     private static RandomNumberGenerator generator;
-
+    private static Drawable drawable1, drawable2;
     private ImageView imageView1, imageView2;
     private Timer timer;
-    private ArrayList<Integer> imagesArrayList;
+    private int[] imagesId = new int[]
+            {
+                    R.drawable.img_uk,
+                    R.drawable.img_uk2,
+                    R.drawable.img_uk5,
+                    R.drawable.img_uk4,
+                    R.drawable.img_uk7,
+                    R.drawable.img_usa4
+            };
     private ViewPropertyAnimator imageView1Animator, imageView2Animator;
     private long duration = 4000;
     private static int index = 0;
     private static int index2 = 1;
-    private static float alpha1 = 1f;
-    private static float alpha2 = 0f;
 
     public BackgroundAnim2(ImageView imageView1, ImageView imageView2)
     {
-        imagesArrayList = new ArrayList<>();
-        imagesArrayList.add(R.drawable.img_uk);
-        imagesArrayList.add(R.drawable.img_uk2);
-        imagesArrayList.add(R.drawable.img_uk5);
-        imagesArrayList.add(R.drawable.img_uk4);
-        imagesArrayList.add(R.drawable.img_uk6);
-        imagesArrayList.add(R.drawable.img_uk7);
-        imagesArrayList.add(R.drawable.img_uk8);
-        imagesArrayList.add(R.drawable.img_usa2);
-        imagesArrayList.add(R.drawable.img_usa3);
-        imagesArrayList.add(R.drawable.img_usa4);
-
         this.imageView1 = imageView1;
-        imageView1.setAlpha(alpha1);
         this.imageView2 = imageView2;
-        imageView2.setAlpha(alpha2);
         timer = new Timer();
         if (generator == null)
         {
-            generator = new RandomNumberGenerator(imagesArrayList.size(), (int) new Date().getTime());
-            index = getRandomNumber(imagesArrayList.size());
-            index2 = getRandomNumber(imagesArrayList.size());
+            generator = new RandomNumberGenerator(imagesId.length, (int) new Date().getTime());
+            index = getRandomNumber(imagesId.length);
+            index2 = getRandomNumber(imagesId.length);
         }
-        imageView1.setImageResource(imagesArrayList.get(index));
 
-        imageView2.setImageResource(imagesArrayList.get(index2));
+        if (drawable1 != null)
+        {
+            imageView1.setImageDrawable(drawable1);
+            imageView2.setImageDrawable(drawable2);
+            drawable1 = null;
+            drawable2 = null;
+        }
+        else
+        {
+            imageView1.setImageResource(imagesId[index]);
+            imageView2.setImageResource(imagesId[index2]);
+        }
+
     }
 
     public void startAnimBackground()
@@ -119,23 +122,23 @@ public class BackgroundAnim2 extends AppCompatActivity
            {
                if (imageView1.getAlpha() == 0f && imageView2.getAlpha() == 1f)
                {
-                   index = getRandomNumber(imagesArrayList.size());
-                   clearImageView(imageView1);
                    imageView1.setImageBitmap(null);
+                   imageView1.destroyDrawingCache();
+                   index = getRandomNumber(imagesId.length);
+                   clearImageView(imageView1);
                    System.gc();
-                   imageView1.setImageResource(imagesArrayList.get(index));
+                   imageView1.setImageResource(imagesId[index]);
                }
 
-               if (imageView2.getAlpha() == 0f && imageView1.getAlpha() == 1f)
+               if (imageView1.getAlpha() == 1f && imageView2.getAlpha() == 0f)
                {
-                   index2 = getRandomNumber(imagesArrayList.size());
-                   clearImageView(imageView2);
                    imageView2.setImageBitmap(null);
+                   imageView2.destroyDrawingCache();
+                   index2 = getRandomNumber(imagesId.length);
+                   clearImageView(imageView2);
                    System.gc();
-                   imageView2.setImageResource(imagesArrayList.get(index2));
+                   imageView2.setImageResource(imagesId[index2]);
                }
-               alpha1 = imageView1.getAlpha();
-               alpha2 = imageView2.getAlpha();
            }
 
            @Override
@@ -178,8 +181,17 @@ public class BackgroundAnim2 extends AppCompatActivity
         imageView.setImageBitmap(null);
     }
 
-    protected void on_Destroy()
+    protected void saveState()
     {
-
+        if (imageView1.getAlpha() > imageView2.getAlpha())
+        {
+            drawable1 = imageView1.getDrawable();
+            drawable2 = imageView2.getDrawable();
+        }
+        else
+        {
+            drawable1 = imageView2.getDrawable();
+            drawable2 = imageView1.getDrawable();
+        }
     }
 }
