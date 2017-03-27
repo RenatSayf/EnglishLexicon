@@ -23,6 +23,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -34,6 +35,7 @@ import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
+import com.myapp.lexicon.main.BackgroundAnim2;
 import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.settings.AppData2;
 import com.myapp.lexicon.settings.AppSettings;
@@ -93,6 +95,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     private FragmentManager fragmentManager;
     private AppSettings appSettings;
     private AppData2 appData;
+    private BackgroundAnim2 backgroundAnim2;
 
     private String KEY_CONTROL_LIST_SIZE = "key_control_list_size";
     private String KEY_WORDS_COUNT = "key_words_count";
@@ -127,6 +130,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         }
 
         saveButtonsLayoutState();
+        backgroundAnim2.saveState();
     }
 
     private void saveButtonsLayoutState()
@@ -174,6 +178,9 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         display.getMetrics(metrics);
 
         View fragment_view = inflater.inflate(R.layout.t_find_pair_fragment, container, false);
+
+        backgroundAnim2 = new BackgroundAnim2((ImageView) fragment_view.findViewById(R.id.imageView1), (ImageView) fragment_view.findViewById(R.id.imageView2));
+        backgroundAnim2.startAnimBackground();
         topPanel = (LinearLayout) fragment_view.findViewById(R.id.top_panel);
         topPanelParams = (RelativeLayout.LayoutParams) topPanel.getLayoutParams();
         LinearLayout linLayout = (LinearLayout) fragment_view.findViewById(R.id.lin_layout_find_pair);

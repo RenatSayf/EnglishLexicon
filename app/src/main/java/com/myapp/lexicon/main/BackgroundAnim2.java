@@ -181,7 +181,7 @@ public class BackgroundAnim2 extends AppCompatActivity
         imageView.setImageBitmap(null);
     }
 
-    protected void saveState()
+    public void saveState()
     {
         if (imageView1.getAlpha() > imageView2.getAlpha())
         {
