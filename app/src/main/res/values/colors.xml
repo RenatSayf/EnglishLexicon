@@ -4,6 +4,7 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="colorWhite">#ffffff</color>
+    <color name="colorWhiteOpacity">#dcffffff</color>
     <color name="colorBlack">#FF000000</color>
     <color name="testMatchPageColor">#42ed8a</color>
     <color name="colorOrange">#e6a612</color>
