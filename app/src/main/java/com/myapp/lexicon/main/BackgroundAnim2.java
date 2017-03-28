@@ -4,6 +4,8 @@ import android.animation.Animator;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.view.ViewPropertyAnimator;
 import android.widget.ImageView;
@@ -14,6 +16,7 @@ import com.myapp.lexicon.helpers.RandomNumberGenerator;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
+
 
 /**
  * Background animation class
@@ -35,6 +38,7 @@ public class BackgroundAnim2 extends AppCompatActivity
                     R.drawable.img_usa4
             };
     private ViewPropertyAnimator imageView1Animator, imageView2Animator;
+    private Handler handler;
     private long duration = 4000;
     private static int index = 0;
     private static int index2 = 1;
@@ -73,7 +77,6 @@ public class BackgroundAnim2 extends AppCompatActivity
             @Override
             public void run()
             {
-
                 runOnUiThread(new Runnable()
                 {
                     @Override
@@ -122,22 +125,52 @@ public class BackgroundAnim2 extends AppCompatActivity
            {
                if (imageView1.getAlpha() == 0f && imageView2.getAlpha() == 1f)
                {
-                   imageView1.setImageBitmap(null);
-                   imageView1.destroyDrawingCache();
-                   index = getRandomNumber(imagesId.length);
-                   clearImageView(imageView1);
-                   System.gc();
-                   imageView1.setImageResource(imagesId[index]);
+                   Thread thread = new Thread(new Runnable()
+                   {
+                       @Override
+                       public void run()
+                       {
+                            handler.sendEmptyMessage(0);
+                       }
+                   });
+                   handler = new Handler()
+                   {
+                       public void handleMessage(Message msg)
+                       {
+                           imageView1.setImageBitmap(null);
+                           imageView1.destroyDrawingCache();
+                           index = getRandomNumber(imagesId.length);
+                           clearImageView(imageView1);
+                           System.gc();
+                           imageView1.setImageResource(imagesId[index]);
+                       }
+                   };
+                   thread.start();
                }
 
                if (imageView1.getAlpha() == 1f && imageView2.getAlpha() == 0f)
                {
-                   imageView2.setImageBitmap(null);
-                   imageView2.destroyDrawingCache();
-                   index2 = getRandomNumber(imagesId.length);
-                   clearImageView(imageView2);
-                   System.gc();
-                   imageView2.setImageResource(imagesId[index2]);
+                   Thread thread = new Thread(new Runnable()
+                   {
+                       @Override
+                       public void run()
+                       {
+                           handler.sendEmptyMessage(0);
+                       }
+                   });
+                   handler = new Handler()
+                   {
+                       public void handleMessage(Message msg)
+                       {
+                           imageView2.setImageBitmap(null);
+                           imageView2.destroyDrawingCache();
+                           index2 = getRandomNumber(imagesId.length);
+                           clearImageView(imageView2);
+                           System.gc();
+                           imageView2.setImageResource(imagesId[index2]);
+                       }
+                   };
+                   thread.start();
                }
            }
 
