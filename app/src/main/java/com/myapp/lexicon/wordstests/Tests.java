@@ -13,21 +13,22 @@ import android.widget.Toast;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseQueries;
+import com.myapp.lexicon.main.BackgroundAnim2;
 
 import java.sql.SQLException;
 
 public class Tests extends AppCompatActivity
 {
     private ImageButton buttonFindPair, buttonListenEndClick, buttonOneOfFive;
-
     private FindPairFragment findPairFragment;
-
     private ListenEndClickFragment listenEndClickFragment;
-
     private OneOfFiveTest oneOfFiveTest;
-
     private FragmentTransaction transaction;
     private DataBaseQueries baseQueries;
+
+    public static String FIND_PAIR_FRAGMENT = "find_pair_fragment";
+    public static String LISTEN_END_CLICK_FRAGMENT = "listen_and_click_fragment";
+    public static String ONE_OF_FIVE_FRAGMENT = "one_of_five_fragment";
 
     public static Bundle bundleOneOfFiveTest;
     public static Bundle bundleListenTest;
@@ -64,7 +65,6 @@ public class Tests extends AppCompatActivity
 
         FragmentManager manager = getSupportFragmentManager();
 
-        String FIND_PAIR_FRAGMENT = "find_pair_fragment";
         findPairFragment = (FindPairFragment) manager.findFragmentByTag(FIND_PAIR_FRAGMENT);
         if (findPairFragment == null)
         {
@@ -72,7 +72,6 @@ public class Tests extends AppCompatActivity
             bundleFindPair = new Bundle();
         }
 
-        String LISTEN_END_CLICK_FRAGMENT = "listenEndClickFragment";
         listenEndClickFragment = (ListenEndClickFragment) manager.findFragmentByTag(LISTEN_END_CLICK_FRAGMENT);
         if (listenEndClickFragment == null)
         {
@@ -80,7 +79,6 @@ public class Tests extends AppCompatActivity
             bundleListenTest = new Bundle();
         }
 
-        String ONE_OF_FIVE_FRAGMENT = "one_of_five";
         oneOfFiveTest = (OneOfFiveTest) manager.findFragmentByTag(ONE_OF_FIVE_FRAGMENT);
         if (oneOfFiveTest == null)
         {

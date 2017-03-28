@@ -1,7 +1,6 @@
 package com.myapp.lexicon.wordstests;
 
 
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
@@ -71,6 +70,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     private static ArrayList<String> storedListDict = new ArrayList<>();
 
     private ProgressBar progressBar;
+    private ImageView backImageView;
 
     private LockOrientation lockOrientation;
     private int wordIndex = 1;
@@ -95,7 +95,6 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     private FragmentManager fragmentManager;
     private AppSettings appSettings;
     private AppData2 appData;
-    private BackgroundAnim2 backgroundAnim2;
 
     private String KEY_CONTROL_LIST_SIZE = "key_control_list_size";
     private String KEY_WORDS_COUNT = "key_words_count";
@@ -130,7 +129,6 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         }
 
         saveButtonsLayoutState();
-        backgroundAnim2.saveState();
     }
 
     private void saveButtonsLayoutState()
@@ -179,8 +177,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
 
         View fragment_view = inflater.inflate(R.layout.t_find_pair_fragment, container, false);
 
-        backgroundAnim2 = new BackgroundAnim2((ImageView) fragment_view.findViewById(R.id.imageView1), (ImageView) fragment_view.findViewById(R.id.imageView2));
-        backgroundAnim2.startAnimBackground();
+        backImageView = (ImageView) fragment_view.findViewById(R.id.back_image_view1);
         topPanel = (LinearLayout) fragment_view.findViewById(R.id.top_panel);
         topPanelParams = (RelativeLayout.LayoutParams) topPanel.getLayoutParams();
         LinearLayout linLayout = (LinearLayout) fragment_view.findViewById(R.id.lin_layout_find_pair);
@@ -556,6 +553,9 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         {
             fillButtonsLayout(spinnSelectedItem, wordIndex + 1, wordIndex + ROWS);
         }
+        RandomNumberGenerator generator = new RandomNumberGenerator(BackgroundAnim2.imagesId.length, (int) new Date().getTime());
+        backImageView.setImageResource(BackgroundAnim2.imagesId[generator.generate()]);
+
     }
 
     private void animScale_Listener(ViewPropertyAnimator animScale)
@@ -868,5 +868,31 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         });
     }
 
-
+//    @Override
+//    public void onDetach()
+//    {
+//        super.onDetach();
+//        boolean onTop = isActivityOnTop();
+//        if (!isActivityOnTop())
+//        {
+//            backgroundAnim2.timerCancel();
+//        }
+//    }
+//
+//    // TODO: ActivityManager.RunningAppProcessInfo Проверка, что активити находится на верху стека
+//    public boolean isActivityOnTop()
+//    {
+//        boolean isTop = false;
+//        android.app.FragmentManager fragmentManager = getActivity().getFragmentManager();
+//        android.app.Fragment fragment = fragmentManager.findFragmentByTag(Tests.FIND_PAIR_FRAGMENT);
+//        if (fragment != null && fragment.isInLayout())
+//        {
+//            isTop = true;
+//        } else
+//        {
+//            isTop = false;
+//        }
+//
+//        return isTop;
+//    }
 }

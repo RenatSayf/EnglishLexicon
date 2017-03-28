@@ -81,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private AppSettings appSettings;
     private AppData2 appData2;
     private ArrayList<String> playList = new ArrayList<>();
+    private BackgroundAnim2 backgroundAnim2;
 
     private String KEY_ENG_TEXT = "eng_text";
     private String KEY_RU_TEXT = "ru_text";
@@ -165,14 +166,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    BackgroundAnim2 backgroundAnim2;
+
     private void initViews()
     {
 //        backgroundAnim = new BackgroundAnim(this, (ViewFlipper) findViewById(R.id.view_flipper));
 //        backgroundAnim.startAnimByRandom();
-
-        backgroundAnim2 = new BackgroundAnim2((ImageView) findViewById(R.id.imageView1), (ImageView) findViewById(R.id.imageView2));
-        backgroundAnim2.startAnimBackground();
 
         textViewEn = (TextView) findViewById(R.id.enTextView);
         textViewRu = (TextView) findViewById(R.id.ruTextView);
@@ -252,6 +250,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onResume()
     {
         super.onResume();
+        backgroundAnim2 = new BackgroundAnim2((ImageView) findViewById(R.id.back_image_view1), (ImageView) findViewById(R.id.back_image_view2));
+        backgroundAnim2.startAnimBackground();
     }
 
     @Override

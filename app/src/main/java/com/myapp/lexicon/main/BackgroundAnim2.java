@@ -11,6 +11,7 @@ import android.view.ViewPropertyAnimator;
 import android.widget.ImageView;
 
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.helpers.MyLog;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
 
 import java.util.Date;
@@ -28,7 +29,7 @@ public class BackgroundAnim2 extends AppCompatActivity
     private static Drawable drawable1, drawable2;
     private ImageView imageView1, imageView2;
     private Timer timer;
-    private int[] imagesId = new int[]
+    public static int[] imagesId = new int[]
             {
                     R.drawable.img_uk,
                     R.drawable.img_uk2,
@@ -100,7 +101,7 @@ public class BackgroundAnim2 extends AppCompatActivity
                             imageView2Animator = imageView2.animate().alpha(0).setDuration(duration);
                             animationListener(imageView2Animator);
                         }
-
+                        MyLog.v("Таймер запущен");
                     }
                 });
             }

@@ -25,29 +25,35 @@ import java.util.concurrent.ExecutionException;
  */
 public class DataBaseQueries
 {
-    private SQLiteDatabase _database;
+    //private SQLiteDatabase _database;
     private static DatabaseHelper databaseHelper;
-    private Handler handler;
+    //private Handler handler;
     private Context context;
     private LockOrientation lockOrientation;
-    public DataBaseQueries(SQLiteDatabase database)
-    {
-
-        if (database != null)
-        {
-            this._database = database;
-        } else
-        {
-            Log.i("Lexicon", "DataBaseQueries Конструктор database = " + database);
-        }
-    }
+//    public DataBaseQueries(SQLiteDatabase database)
+//    {
+//
+//        if (database != null)
+//        {
+//            this._database = database;
+//        } else
+//        {
+//            Log.i("Lexicon", "DataBaseQueries Конструктор database = " + database);
+//        }
+//    }
     public DataBaseQueries(Context context) throws SQLException
     {
         this.context = context;
         databaseHelper = new DatabaseHelper(context);
         databaseHelper.create_db();
-        databaseHelper.open();
+        //databaseHelper.open();
     }
+
+
+
+
+
+
 
     public abstract static class GetWordsFromDBAsync extends AsyncTask<Object,Void,ArrayList<DataBaseEntry>>
     {
@@ -56,8 +62,7 @@ public class DataBaseQueries
         @Override
         protected ArrayList<DataBaseEntry> doInBackground(Object... params)
         {
-            ArrayList<DataBaseEntry> entriesFromDB = getWordsFromDB((String) params[0], (int)params[1], (int)params[2]);
-            return entriesFromDB;
+            return getWordsFromDB((String) params[0], (int)params[1], (int)params[2]);
         }
 
         @Override
@@ -67,17 +72,18 @@ public class DataBaseQueries
         }
     }
 
-
-    public static ArrayList<DataBaseEntry> getWordsFromDB(String tableName, int startId, int endId)
+    private static ArrayList<DataBaseEntry> getWordsFromDB(String tableName, int startId, int endId)
     {
         ArrayList<DataBaseEntry> entriesFromDB = new ArrayList<>();
         DataBaseEntry dataBaseEntry;
+        Cursor cursor = null;
         try
         {
             databaseHelper.open();
             if (databaseHelper.database.isOpen())
             {
-                Cursor cursor = databaseHelper.database.rawQuery("SELECT * FROM " + tableName + " WHERE RowID BETWEEN " + startId +" AND " + endId, null);
+
+                cursor = databaseHelper.database.rawQuery("SELECT * FROM " + tableName + " WHERE RowID BETWEEN " + startId +" AND " + endId, null);
                 int count = cursor.getCount();
                 if (cursor.moveToFirst())
                 {
@@ -100,6 +106,10 @@ public class DataBaseQueries
         }
         finally
         {
+            if (cursor != null)
+            {
+                cursor.close();
+            }
             databaseHelper.database.close();
         }
         return entriesFromDB;
@@ -109,14 +119,13 @@ public class DataBaseQueries
     {
         MyLog.v("tableName = " + tableName + "  startId = " + startId + "   endId = " + endId);
         ArrayList<DataBaseEntry> entriesFromDB = new ArrayList<>();
+        Cursor cursor = null;
         try
         {
             databaseHelper.open();
             if (databaseHelper.database.isOpen())
             {
-                Cursor cursor = databaseHelper.database.rawQuery("SELECT * FROM " + tableName + " WHERE RowID BETWEEN " + startId +" AND " + endId, null);
-                //Cursor cursor = databaseHelper.database.rawQuery("SELECT * FROM " + tableName + " WHERE RowId = " + startId + " AND " + DatabaseHelper.COLUMN_ENGLISH + " NOTNULL", null);
-                int count = cursor.getCount();
+                cursor = databaseHelper.database.rawQuery("SELECT * FROM " + tableName + " WHERE RowID BETWEEN " + startId +" AND " + endId, null);
                 if (cursor.moveToFirst())
                 {
                     while (!cursor.isAfterLast())
@@ -126,9 +135,6 @@ public class DataBaseQueries
                         cursor.moveToNext();
                     }
                 }
-            } else
-            {
-                Log.i("Lexicon", "DataBaseQueries.getEntriesFromDB() _database.isOpen() = " + _database.isOpen());
             }
         }
         catch (Exception e)
@@ -138,60 +144,64 @@ public class DataBaseQueries
         }
         finally
         {
+            if (cursor != null)
+            {
+                cursor.close();
+            }
             databaseHelper.database.close();
         }
         return entriesFromDB;
     }
 
-    public ArrayList<DataBaseEntry> getEntriesFromDBAsync(final String tableName, final int startId, final int endId) throws SQLException, ExecutionException, InterruptedException
-    {
-        MyLog.v("tableName = " + tableName + "  startId = " + startId + "   endId = " + endId);
-        ArrayList<DataBaseEntry> entriesFromDB = new ArrayList<>();
-        AsyncTask asyncTask = new AsyncTask()
-        {
-            @Override
-            protected ArrayList<DataBaseEntry> doInBackground(Object[] params)
-            {
-                ArrayList<DataBaseEntry> entries = new ArrayList<>();
-                try
-                {
-                    databaseHelper.open();
-                    MyLog.v("databaseHelper.database.isOpen() = " + databaseHelper.database.isOpen());
-                    if (databaseHelper.database.isOpen())
-                    {
-                        Cursor cursor = databaseHelper.database.rawQuery("SELECT * FROM " + tableName + " WHERE RowID BETWEEN " + startId +" AND " + endId + ";", null);
-                        int count = cursor.getCount();
-                        if (cursor.moveToFirst())
-                        {
-                            while (!cursor.isAfterLast())
-                            {
-                                DataBaseEntry dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1), cursor.getString(3));
-                                entries.add(dataBaseEntry);
-                                cursor.moveToNext();
-                            }
-                        }
-                    } else
-                    {
-                        MyLog.v("  DataBaseQueries.getEntriesFromDBAsync() databaseHelper.database.isOpen() = " + databaseHelper.database.isOpen());
-                    }
-                }
-                catch (Exception e)
-                {
-                    MyLog.v("  Исключение в DataBaseQueries.getEntriesFromDBAsync() = " + e);
-                    entries.add(new DataBaseEntry(null,null,null));
-                }
-                finally
-                {
-                    databaseHelper.close();
-                }
-                return entries;
-            }
-        };
-        asyncTask.execute();
-        entriesFromDB = (ArrayList<DataBaseEntry>) asyncTask.get();
-
-        return entriesFromDB;
-    }
+//    public ArrayList<DataBaseEntry> getEntriesFromDBAsync(final String tableName, final int startId, final int endId) throws SQLException, ExecutionException, InterruptedException
+//    {
+//        MyLog.v("tableName = " + tableName + "  startId = " + startId + "   endId = " + endId);
+//        ArrayList<DataBaseEntry> entriesFromDB = new ArrayList<>();
+//        AsyncTask asyncTask = new AsyncTask()
+//        {
+//            @Override
+//            protected ArrayList<DataBaseEntry> doInBackground(Object[] params)
+//            {
+//                ArrayList<DataBaseEntry> entries = new ArrayList<>();
+//                try
+//                {
+//                    databaseHelper.open();
+//                    MyLog.v("databaseHelper.database.isOpen() = " + databaseHelper.database.isOpen());
+//                    if (databaseHelper.database.isOpen())
+//                    {
+//                        Cursor cursor = databaseHelper.database.rawQuery("SELECT * FROM " + tableName + " WHERE RowID BETWEEN " + startId +" AND " + endId + ";", null);
+//                        int count = cursor.getCount();
+//                        if (cursor.moveToFirst())
+//                        {
+//                            while (!cursor.isAfterLast())
+//                            {
+//                                DataBaseEntry dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1), cursor.getString(3));
+//                                entries.add(dataBaseEntry);
+//                                cursor.moveToNext();
+//                            }
+//                        }
+//                    } else
+//                    {
+//                        MyLog.v("  DataBaseQueries.getEntriesFromDBAsync() databaseHelper.database.isOpen() = " + databaseHelper.database.isOpen());
+//                    }
+//                }
+//                catch (Exception e)
+//                {
+//                    MyLog.v("  Исключение в DataBaseQueries.getEntriesFromDBAsync() = " + e);
+//                    entries.add(new DataBaseEntry(null,null,null));
+//                }
+//                finally
+//                {
+//                    databaseHelper.close();
+//                }
+//                return entries;
+//            }
+//        };
+//        asyncTask.execute();
+//        entriesFromDB = (ArrayList<DataBaseEntry>) asyncTask.get();
+//
+//        return entriesFromDB;
+//    }
 
     public abstract static class GetWordsCountAsync extends AsyncTask<String, Void, Integer>
     {
@@ -231,33 +241,33 @@ public class DataBaseQueries
             resultAsyncTask(integer);
         }
     }
-    public int getWordsCount(String dictName)
-    {
-        int count;
-        try
-        {
-            databaseHelper.open();
-            if (databaseHelper.database.isOpen())
-            {
-                Cursor cursor=databaseHelper.database.query(dictName, null, null, null, null, null, null);
-                count = cursor.getCount();
-                MyLog.v("getWordsCount() - " + count);
-            } else
-            {
-                MyLog.v("getWordsCount _database.isOpen() = " + databaseHelper.database.isOpen());
-                count = 0;
-            }
-        }
-        catch (Exception e)
-        {
-            MyLog.v("ИСКЛЮЧЕНИЕ .getWordsCount() - " + e);
-            count = 0;
-        }finally
-        {
-            databaseHelper.close();
-        }
-        return count;
-    }
+//    public int getWordsCount(String dictName)
+//    {
+//        int count;
+//        try
+//        {
+//            databaseHelper.open();
+//            if (databaseHelper.database.isOpen())
+//            {
+//                Cursor cursor=databaseHelper.database.query(dictName, null, null, null, null, null, null);
+//                count = cursor.getCount();
+//                MyLog.v("getWordsCount() - " + count);
+//            } else
+//            {
+//                MyLog.v("getWordsCount _database.isOpen() = " + databaseHelper.database.isOpen());
+//                count = 0;
+//            }
+//        }
+//        catch (Exception e)
+//        {
+//            MyLog.v("ИСКЛЮЧЕНИЕ .getWordsCount() - " + e);
+//            count = 0;
+//        }finally
+//        {
+//            databaseHelper.close();
+//        }
+//        return count;
+//    }
     public int getEntriesCountAsync(final String tableName) throws ExecutionException, InterruptedException, SQLException
     {
         int countEntries = 0;

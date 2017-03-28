@@ -5,7 +5,7 @@
     >
 
     <ImageView
-        android:id="@+id/imageView1"
+        android:id="@+id/back_image_view1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:alpha="1.0"
@@ -15,7 +15,7 @@
         />
 
     <ImageView
-        android:id="@+id/imageView2"
+        android:id="@+id/back_image_view2"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:alpha="0.0"
