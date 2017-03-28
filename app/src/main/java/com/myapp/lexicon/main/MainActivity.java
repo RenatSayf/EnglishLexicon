@@ -332,6 +332,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         speechServiceOnPause();
+        backgroundAnim2.timerCancel();
+
         if (id == R.id.nav_add_word)
         {
             if (addWordIntent == null)

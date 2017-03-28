@@ -190,6 +190,7 @@ public class BackgroundAnim2 extends AppCompatActivity
 
     private static int getRandomNumber(int range)
     {
+        if(generator == null) return 0;
         int number = generator.generate();
         if (number < 0)
         {
@@ -226,5 +227,13 @@ public class BackgroundAnim2 extends AppCompatActivity
             drawable1 = imageView2.getDrawable();
             drawable2 = imageView1.getDrawable();
         }
+    }
+
+    public void timerCancel()
+    {
+        generator = null;
+        drawable1 = null;
+        drawable2 = null;
+        timer.cancel();
     }
 }
