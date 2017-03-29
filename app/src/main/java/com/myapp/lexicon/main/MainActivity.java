@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.speech.tts.TextToSpeech;
@@ -39,6 +40,7 @@ import android.widget.Toast;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.addword.AddWordActivity;
+import com.myapp.lexicon.database.GetTableListAsync;
 import com.myapp.lexicon.wordeditor.WordEditor;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
@@ -396,62 +398,69 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    private String[] items = new  String[0];
+    //private String[] items = new  String[0];
 
     private void dialogDeleteDict() throws SQLException
     {
-        final ArrayList<String> delete_items = new ArrayList<>();
-        final DataBaseQueries dataBaseQueries = new DataBaseQueries(this);
-        try
-        {
-            items = dataBaseQueries.setListTableToSpinner();
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            return;
-        }
-        boolean[]choice = new boolean[items.length];
-        new AlertDialog.Builder(this).setTitle(R.string.title_del_dict)
-                .setMultiChoiceItems(items, choice, new DialogInterface.OnMultiChoiceClickListener()
-                {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which, boolean isChecked)
-                    {
-                        delete_items.add(items[which]);
-                        //Toast.makeText(a_MainActivity.this, "Добавлен элемент - " + delete_items.get(delete_items.size()-1), Toast.LENGTH_SHORT).show();
-                    }
-                }).setPositiveButton(R.string.button_text_delete, new DialogInterface.OnClickListener()
+        GetTableListAsync getTableListAsync = new GetTableListAsync(this, new GetTableListAsync.GetTableListListener()
         {
             @Override
-            public void onClick(DialogInterface dialog, int which)
+            public void getTableListListener(ArrayList<String> arrayList)
             {
-                if(delete_items.size() <= 0)    return;
-                new AlertDialog.Builder(MainActivity.this).setTitle(R.string.dialog_are_you_sure)
-                        .setPositiveButton(R.string.button_text_yes, new DialogInterface.OnClickListener()
+                final ArrayList<String> delete_items = new ArrayList<>();
+                final String[] items = new  String[arrayList.size()];
+                for (int i = 0; i < arrayList.size(); i++)
+                {
+                    items[i] = arrayList.get(i);
+                }
+                boolean[]choice = new boolean[items.length];
+                new AlertDialog.Builder(MainActivity.this).setTitle(R.string.title_del_dict)
+                        .setMultiChoiceItems(items, choice, new DialogInterface.OnMultiChoiceClickListener()
                         {
                             @Override
-                            public void onClick(DialogInterface dialog, int which)
+                            public void onClick(DialogInterface dialog, int which, boolean isChecked)
                             {
-                                boolean result = false;
-                                for (String item : delete_items)
-                                {
-                                    try
-                                    {
-                                        result = dataBaseQueries.deleteTableFromDbAsync(item);
-                                        appSettings.removeItemFromPlayList(item);
-                                    } catch (Exception e)
-                                    {
-                                        e.printStackTrace();
-                                    }
-                                }
-                                if (result)
-                                {
-                                    Toast.makeText(MainActivity.this, R.string.msg_selected_dict_removed, Toast.LENGTH_LONG).show();
-                                }
+                                delete_items.add(items[which]);
+                                //Toast.makeText(a_MainActivity.this, "Добавлен элемент - " + delete_items.get(delete_items.size()-1), Toast.LENGTH_SHORT).show();
                             }
-                        }).setNegativeButton(R.string.button_text_no, null).create().show();
+                        }).setPositiveButton(R.string.button_text_delete, new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        if(delete_items.size() <= 0)    return;
+                        new AlertDialog.Builder(MainActivity.this).setTitle(R.string.dialog_are_you_sure)
+                                .setPositiveButton(R.string.button_text_yes, new DialogInterface.OnClickListener()
+                                {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which)
+                                    {
+                                        boolean result = false;
+                                        for (String item : delete_items)
+                                        {
+                                            try
+                                            {
+                                                result = dataBaseQueries.deleteTableFromDbAsync(item);
+                                                appSettings.removeItemFromPlayList(item);
+                                            } catch (Exception e)
+                                            {
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                        if (result)
+                                        {
+                                            Toast.makeText(MainActivity.this, R.string.msg_selected_dict_removed, Toast.LENGTH_LONG).show();
+                                        }
+                                    }
+                                }).setNegativeButton(R.string.button_text_no, null).create().show();
+                    }
+                }).setNegativeButton(R.string.button_text_cancel,null).create().show();
             }
-        }).setNegativeButton(R.string.button_text_cancel,null).create().show();
+        });
+        if (getTableListAsync.getStatus() != AsyncTask.Status.RUNNING)
+        {
+            getTableListAsync.execute();
+        }
     }
 
     private void dialogAddDict()
