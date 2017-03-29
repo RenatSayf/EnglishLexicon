@@ -20,18 +20,20 @@ public class DataBaseEntry
         this._image=image;
         this._count_repeat=count_repeat;
     }
-//    public DataBaseEntry(String id, String english, String translate)
-//    {
-//        this._id=id;
-//        this._english=english;
-//        this._translate=translate;
-//    }
+
+    public DataBaseEntry(String english, String translate)
+    {
+        this._english=english;
+        this._translate=translate;
+    }
+
     public DataBaseEntry(String english, String translate, String count_repeat)
     {
         this._english=english;
         this._translate=translate;
         this._count_repeat=count_repeat;
     }
+
     public String get_id()
     {
         return _id;

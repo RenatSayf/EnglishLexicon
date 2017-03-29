@@ -15,15 +15,17 @@ import java.util.ArrayList;
 
 public class GetTableListAsync extends AsyncTask<Void, Void, ArrayList<String>>
 {
-    private WeakReference<GetTableListListener> listener;
+    private Activity activity;
+    private GetTableListListener listener;
     private LockOrientation lockOrientation;
     private DatabaseHelper databaseHelper;
 
     public GetTableListAsync(Activity activity, GetTableListListener listener)
     {
-        lockOrientation = new LockOrientation(activity);
         setListener(listener);
-        databaseHelper = new DatabaseHelper(activity);
+        this.activity = activity;
+        lockOrientation = new LockOrientation(this.activity);
+        databaseHelper = new DatabaseHelper(this.activity);
         databaseHelper.create_db();
     }
 
@@ -34,14 +36,17 @@ public class GetTableListAsync extends AsyncTask<Void, Void, ArrayList<String>>
 
     private void setListener(GetTableListListener listener)
     {
-        this.listener = new WeakReference<>(listener);
+        this.listener = listener;
     }
 
     @Override
     protected void onPreExecute()
     {
         super.onPreExecute();
-        lockOrientation.lock();
+        if (activity != null)
+        {
+            lockOrientation.lock();
+        }
     }
 
     @Override
@@ -92,18 +97,24 @@ public class GetTableListAsync extends AsyncTask<Void, Void, ArrayList<String>>
     protected void onPostExecute(ArrayList<String> list)
     {
         super.onPostExecute(list);
-        GetTableListListener listener = this.listener.get();
+        //GetTableListListener listener = this.listener.get();
         if (listener != null)
         {
             listener.getTableListListener(list);
         }
-        lockOrientation.unLock();
+        if (activity != null)
+        {
+            lockOrientation.unLock();
+        }
     }
 
     @Override
     protected void onCancelled()
     {
         super.onCancelled();
-        lockOrientation.unLock();
+        if (activity != null)
+        {
+            lockOrientation.unLock();
+        }
     }
 }

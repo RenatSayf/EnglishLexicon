@@ -4,6 +4,7 @@ package com.myapp.lexicon.wordstests;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.util.DisplayMetrics;
@@ -319,35 +320,6 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             return;
         }
 
-//        lockOrientation.lock();
-//        new DataBaseQueries.GetLictTableAsync()
-//        {
-//            @Override
-//            public void resultAsyncTask(ArrayList<String> list)
-//            {
-//                ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(getActivity().getApplicationContext(), R.layout.my_content_spinner_layout, list);
-//                spinnListDict.setAdapter(adapterSpinner);
-//                ArrayList<String> playList = appSettings.getPlayList();
-//                String currentDict = playList.get(appData.getNdict());
-//                if (list.contains(currentDict))
-//                {
-//                    int indexOf = list.indexOf(currentDict);
-//                    spinnListDict.setSelection(indexOf);
-//                }
-//                else
-//                {
-//                    spinnListDict.setSelection(0);
-//                }
-//                //spinnListDict.setSelection(spinnSelectedIndex);
-//                spinnListDict_OnItemSelectedListener();
-//                for (int i = 0; i < spinnListDict.getAdapter().getCount(); i++)
-//                {
-//                    storedListDict.add(spinnListDict.getAdapter().getItem(i).toString());
-//                }
-//                lockOrientation.unLock();
-//            }
-//        }.execute();
-
         GetTableListAsync getTableListAsync = new GetTableListAsync(getActivity(), new GetTableListAsync.GetTableListListener()
         {
             @Override
@@ -381,33 +353,8 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
 
     private void startTest(final int position)
     {
-        wordIndex = 1;
+        wordIndex = 0;
         spinnSelectedItem = spinnListDict.getSelectedItem().toString();
-//        lockOrientation.lock();
-//        DataBaseQueries.GetWordsCountAsync getWordsCount = new DataBaseQueries.GetWordsCountAsync()
-//        {
-//            @Override
-//            public void resultAsyncTask(int res)
-//            {
-//                wordsCount = res;
-//                spinnSelectedIndex = position;
-//                progressBar.setMax(res);
-//                progressBar.setProgress(0);
-//                counterRightAnswer = 0;
-//                //topPanelVisible(0, 1, isOpen);
-//                hideWordButtons();
-//                if (wordsCount < ROWS)
-//                {
-//                    fillButtonsLayout(spinnSelectedItem, wordIndex, wordsCount);
-//                }
-//                else
-//                {
-//                    fillButtonsLayout(spinnSelectedItem, wordIndex, ROWS);
-//                }
-//                lockOrientation.unLock();
-//            }
-//        };
-//        getWordsCount.execute(spinnSelectedItem);
 
         GetCountWordsAsync getCountWordsAsync = new GetCountWordsAsync(getActivity(), spinnSelectedItem, new GetCountWordsAsync.GetCountListener()
         {
@@ -438,60 +385,6 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
 
     private void fillButtonsLayout(String dictName, int start, int end)
     {
-//        lockOrientation.lock();
-//        AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
-//        {
-//            @Override
-//            public void resultAsyncTask(ArrayList<DataBaseEntry> list)
-//            {
-//                controlList = list;
-//                additionalList = new ArrayList<>();
-//                for (DataBaseEntry entry : list)
-//                {
-//                    additionalList.add(entry);
-//                }
-//                controlListSize = controlList.size();
-//                Date date = new Date();
-//                RandomNumberGenerator randGenRight = new RandomNumberGenerator(controlListSize, (int) date.getTime());
-//                long delay = 0;
-//                for (int i = 0; i < controlList.size(); i++)
-//                {
-//                    Button btnLeft = (Button) btnLayoutLeft.getChildAt(i);
-//                    Button btnRight = (Button) btnLayoutRight.getChildAt(i);
-//
-//                    btnLeft.setScaleX(1.0f);
-//                    btnLeft.setScaleY(1.0f);
-//                    btnRight.setScaleX(1.0f);
-//                    btnRight.setScaleY(1.0f);
-//                    btnLeft.setText(controlList.get(i).get_english());
-//                    btnRight.setText(controlList.get(randGenRight.generate()).get_translate());
-//                    btnLeft.setX(-metrics.widthPixels);
-//                    btnLeft.setTranslationY(0);
-//                    btnRight.setX(metrics.widthPixels);
-//                    btnRight.setTranslationY(0);
-//                    btnLeft.setVisibility(View.VISIBLE);
-//                    btnRight.setVisibility(View.VISIBLE);
-//                    btnLeft.animate().translationX(0).translationY(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null).setStartDelay(delay);
-//                    btnRight.animate().translationX(0).translationY(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null).setStartDelay(delay);
-//                    delay += 70;
-//                    btnLeft_OnClick(btnLeft);
-//                    btnRight_OnClick(btnRight);
-//                }
-//                if (textArrayleft.size() == 0 && textArrayRight.size() == 0)
-//                {
-//                    for (int i = 0; i < btnLayoutLeft.getChildCount() && i < btnLayoutRight.getChildCount(); i++)
-//                    {
-//                        Button buttonLeft = (Button) btnLayoutLeft.getChildAt(i);
-//                        textArrayleft.add(buttonLeft.getText().toString());
-//                        Button buttonRight = (Button) btnLayoutRight.getChildAt(i);
-//                        textArrayRight.add(buttonRight.getText().toString());
-//                    }
-//                }
-//                lockOrientation.unLock();
-//            }
-//        };
-//        asyncTask.execute(dictName, start, end);
-
         GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), dictName, start, end, new GetEntriesFromDbAsync.GetEntriesListener()
         {
             @Override
@@ -590,63 +483,71 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     {
         if (enword == null || ruword == null)   return;
 
-        lockOrientation.lock();
-        DataBaseQueries.GetRowIdOfWordAsync asyncTask = new DataBaseQueries.GetRowIdOfWordAsync()
+        boolean isFind = false;
+        for (int i = 0; i < controlList.size(); i++)
         {
-            @Override
-            public void resultAsyncTask(Integer id)
+            if (controlList.get(i).get_english().equals(enword) && controlList.get(i).get_translate().equals(ruword))
             {
-                lockOrientation.unLock();
-                if (id > 0)
-                {
-                    wordIndex++;
-                    progressBar.setProgress(progressBar.getProgress()+1);
-                    tempButtonLeft.setBackgroundResource(R.drawable.text_btn_for_test_green);
-                    tempButtonRight.setBackgroundResource(R.drawable.text_btn_for_test_green);
-                    HashMap<String, String> hashMap = new HashMap<>();
-                    hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "find_pair_fragm");
-                    SplashScreenActivity.speech.speak(enword, TextToSpeech.QUEUE_ADD, hashMap);
-
-                    ViewPropertyAnimator animScale = tempButtonLeft.animate().scaleX(0).scaleY(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setStartDelay(0);
-                    animScale_Listener(animScale);
-                    tempButtonRight.animate().scaleX(0).scaleY(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setStartDelay(0);
-
-                    counterRightAnswer++;
-                }
-                if (id < 0)
-                {
-                    counterRightAnswer--;
-                    Animation animNotRight = AnimationUtils.loadAnimation(getActivity().getApplicationContext(), R.anim.anim_not_right);
-                    animNotRight.setAnimationListener(new Animation.AnimationListener()
-                    {
-                        @Override
-                        public void onAnimationStart(Animation animation)
-                        {
-
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animation animation)
-                        {
-                            btnNoRight.setBackgroundResource(R.drawable.text_button_for_test);
-                            lockOrientation.unLock();
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animation animation)
-                        {
-
-                        }
-                    });
-                    if (btnNoRight != null)
-                    {
-                        btnNoRight.setBackgroundResource(R.drawable.text_btn_for_test_red);
-                        btnNoRight.startAnimation(animNotRight);
-                    }
-                }
+                isFind = true;
+                break;
             }
-        };
-        asyncTask.execute(tableName, enword, ruword);
+        }
+
+        if (isFind)
+        {
+            wordIndex++;
+            progressBar.setProgress(progressBar.getProgress()+1);
+            tempButtonLeft.setBackgroundResource(R.drawable.text_btn_for_test_green);
+            tempButtonRight.setBackgroundResource(R.drawable.text_btn_for_test_green);
+            HashMap<String, String> hashMap = new HashMap<>();
+            hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "find_pair_fragm");
+            SplashScreenActivity.speech.speak(enword, TextToSpeech.QUEUE_ADD, hashMap);
+
+            ViewPropertyAnimator animScale = tempButtonLeft.animate().scaleX(0).scaleY(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setStartDelay(0);
+            animScale_Listener(animScale);
+            tempButtonRight.animate().scaleX(0).scaleY(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setStartDelay(0);
+
+            counterRightAnswer++;
+        }
+        else
+        {
+            counterRightAnswer--;
+            Animation animNotRight = AnimationUtils.loadAnimation(getActivity().getApplicationContext(), R.anim.anim_not_right);
+            animNotRight.setAnimationListener(new Animation.AnimationListener()
+            {
+                @Override
+                public void onAnimationStart(Animation animation)
+                {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation)
+                {
+                    btnNoRight.setBackgroundResource(R.drawable.text_button_for_test);
+                    lockOrientation.unLock();
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation)
+                {
+
+                }
+            });
+            if (btnNoRight != null)
+            {
+                btnNoRight.setBackgroundResource(R.drawable.text_btn_for_test_red);
+                btnNoRight.startAnimation(animNotRight);
+            }
+        }
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState)
+    {
+        super.onActivityCreated(savedInstanceState);
+        RandomNumberGenerator generator = new RandomNumberGenerator(BackgroundAnim2.imagesId.length, (int) new Date().getTime());
+        backImageView.setImageResource(BackgroundAnim2.imagesId[generator.generate()]);
     }
 
     @Override
@@ -663,13 +564,10 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                 break;
             }
         }
-        if (isFill)
+        if (isFill && spinnSelectedItem != null)
         {
             fillButtonsLayout(spinnSelectedItem, wordIndex + 1, wordIndex + ROWS);
         }
-        RandomNumberGenerator generator = new RandomNumberGenerator(BackgroundAnim2.imagesId.length, (int) new Date().getTime());
-        backImageView.setImageResource(BackgroundAnim2.imagesId[generator.generate()]);
-
     }
 
     private void animScale_Listener(ViewPropertyAnimator animScale)
@@ -687,6 +585,8 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             @Override
             public void onAnimationEnd(android.animation.Animator animation)
             {
+                isAnimStart = false;
+                lockOrientation.unLock();
                 if (tempButtonLeft != null && tempButtonRight != null)
                 {
                     tempButtonLeft.setBackgroundResource(R.drawable.text_button_for_test);
@@ -698,11 +598,52 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                     tempButtonLeft.setVisibility(View.INVISIBLE);
                     tempButtonRight.setVisibility(View.INVISIBLE);
 
-                    buttonsToDown(btnLayoutLeft, tempButtonLeft.getX(), tempButtonLeft.getY(), false);
-                    buttonsToDown(btnLayoutRight, tempButtonRight.getX(), tempButtonRight.getY(), true);
+                    if (wordIndex < wordsCount)
+                    {
+                        boolean isFill = true;
+                        for (int i = 0; i < btnLayoutLeft.getChildCount(); i++)
+                        {
+                            Button button = (Button) btnLayoutLeft.getChildAt(i);
+                            if (!button.getText().equals(""))
+                            {
+                                isFill = false;
+                                break;
+                            }
+                        }
+                        if (isFill)
+                        {
+                            fillButtonsLayout(spinnSelectedItem, wordIndex + 1, wordIndex + ROWS);
+                            return;
+                        }
+                        buttonsToDown(btnLayoutLeft, tempButtonLeft.getX(), tempButtonLeft.getY(), false);
+                        buttonsToDown(btnLayoutRight, tempButtonRight.getX(), tempButtonRight.getY(), true);
+                    }
+                    if (wordIndex == wordsCount)
+                    {
+                        ArrayList<String> list = new ArrayList<>();
+                        list.add(testResults.getOverallResult(counterRightAnswer, wordsCount));
+                        list.add(counterRightAnswer + " из " + wordsCount);
+                        if (dialogTestComplete != null)
+                        {
+                            try
+                            {
+                                if (!dialogTestComplete.isAdded())
+                                {
+                                    Bundle bundle = new Bundle();
+                                    bundle.putString(dialogTestComplete.KEY_RESULT, list.get(0));
+                                    bundle.putString(dialogTestComplete.KEY_ERRORS, list.get(1));
+                                    dialogTestComplete.setArguments(bundle);
+                                    dialogTestComplete.setCancelable(false);
+                                    dialogTestComplete.show(fragmentManager, "dialog_complete_find_pair");
+                                }
+
+                            } catch (IllegalStateException e)
+                            {
+                                dialogTestComplete = null;
+                            }
+                        }
+                    }
                 }
-                isAnimStart = false;
-                lockOrientation.unLock();
             }
 
             @Override
@@ -750,26 +691,30 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                         @Override
                         public void onAnimationEnd(android.animation.Animator animation)
                         {
-                            boolean isFill = true;
-                            for (int i = 0; i < btnLayoutLeft.getChildCount(); i++)
+                            isAnimStart = false;
+                            lockOrientation.unLock();
+                            if (wordIndex < wordsCount)
                             {
-                                Button button = (Button) btnLayoutLeft.getChildAt(i);
-                                if (!button.getText().equals(""))
+                                boolean isFill = true;
+                                for (int i = 0; i < btnLayoutLeft.getChildCount(); i++)
                                 {
-                                    isFill = false;
-                                    break;
+                                    Button button = (Button) btnLayoutLeft.getChildAt(i);
+                                    if (!button.getText().equals(""))
+                                    {
+                                        isFill = false;
+                                        break;
+                                    }
                                 }
-                            }
-                            if (isFill)
-                            {
-                                fillButtonsLayout(spinnSelectedItem, wordIndex + 1, wordIndex + ROWS);
+                                if (isFill)
+                                {
+                                    fillButtonsLayout(spinnSelectedItem, wordIndex + 1, wordIndex + ROWS);
+                                }
                             }
 
                             if (wordIndex == wordsCount)
                             {
                                 ArrayList<String> list = new ArrayList<>();
                                 list.add(testResults.getOverallResult(counterRightAnswer, wordsCount));
-                                //list.add(counterRightAnswer + getActivity().getString(R.string.text_out_of) + wordsCount);
                                 list.add(counterRightAnswer + " из " + wordsCount);
                                 if (dialogTestComplete != null)
                                 {
@@ -791,8 +736,6 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                                     }
                                 }
                             }
-                            isAnimStart = false;
-                            lockOrientation.unLock();
                         }
 
                         @Override

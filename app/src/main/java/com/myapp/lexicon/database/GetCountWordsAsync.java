@@ -14,6 +14,7 @@ import java.lang.ref.WeakReference;
 
 public class GetCountWordsAsync extends AsyncTask<String, Void, Integer>
 {
+    private Activity activity;
     private WeakReference<GetCountListener> listener;
     private LockOrientation lockOrientation;
     private DatabaseHelper databaseHelper;
@@ -22,8 +23,9 @@ public class GetCountWordsAsync extends AsyncTask<String, Void, Integer>
     public GetCountWordsAsync(Activity activity, String tableName, GetCountListener listener)
     {
         setTaskCompleteListener(listener);
-        lockOrientation = new LockOrientation(activity);
-        databaseHelper = new DatabaseHelper(activity.getApplicationContext());
+        this.activity = activity;
+        lockOrientation = new LockOrientation(this.activity);
+        databaseHelper = new DatabaseHelper(this.activity);
         databaseHelper.create_db();
         this.tableName = tableName;
     }
@@ -42,7 +44,10 @@ public class GetCountWordsAsync extends AsyncTask<String, Void, Integer>
     protected void onPreExecute()
     {
         super.onPreExecute();
-        lockOrientation.lock();
+        if (activity != null)
+        {
+            lockOrientation.lock();
+        }
     }
 
     @Override
@@ -83,13 +88,19 @@ public class GetCountWordsAsync extends AsyncTask<String, Void, Integer>
         {
             listener.onTaskComplete(count);
         }
-        lockOrientation.unLock();
+        if (activity != null)
+        {
+            lockOrientation.unLock();
+        }
     }
 
     @Override
     protected void onCancelled()
     {
         super.onCancelled();
-        lockOrientation.unLock();
+        if (activity != null)
+        {
+            lockOrientation.unLock();
+        }
     }
 }

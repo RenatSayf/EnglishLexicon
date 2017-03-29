@@ -15,6 +15,7 @@ import java.util.ArrayList;
 
 public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<DataBaseEntry>>
 {
+    private Activity activity;
     private WeakReference<GetEntriesListener> listener;
     private LockOrientation lockOrientation;
     private DatabaseHelper databaseHelper;
@@ -25,8 +26,9 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
     public GetEntriesFromDbAsync(Activity activity, String tableName, int startId, int endId, GetEntriesListener listener)
     {
         setListener(listener);
-        lockOrientation = new LockOrientation(activity);
-        databaseHelper = new DatabaseHelper(activity);
+        this.activity = activity;
+        lockOrientation = new LockOrientation(this.activity);
+        databaseHelper = new DatabaseHelper(this.activity);
         databaseHelper.create_db();
         this.tableName = tableName;
         this.startId = startId;
@@ -47,7 +49,10 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
     protected void onPreExecute()
     {
         super.onPreExecute();
-        lockOrientation.lock();
+        if (activity != null)
+        {
+            lockOrientation.lock();
+        }
     }
 
     @Override
@@ -66,19 +71,19 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
                 {
                     while (!cursor.isAfterLast())
                     {
-                        dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1), cursor.getString(3));
+                        dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1));
                         entriesFromDB.add(dataBaseEntry);
                         cursor.moveToNext();
                     }
                 }
             } else
             {
-                entriesFromDB.add(new DataBaseEntry(null,null, null));
+                entriesFromDB.add(new DataBaseEntry(null,null));
             }
         }
         catch (Exception e)
         {
-            entriesFromDB.add(new DataBaseEntry(null,null, null));
+            entriesFromDB.add(new DataBaseEntry(null,null));
         }
         finally
         {
@@ -100,13 +105,19 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
         {
             listener.getEntriesListener(entries);
         }
-        lockOrientation.unLock();
+        if (activity != null)
+        {
+            lockOrientation.unLock();
+        }
     }
 
     @Override
     protected void onCancelled()
     {
         super.onCancelled();
-        lockOrientation.unLock();
+        if (activity != null)
+        {
+            lockOrientation.unLock();
+        }
     }
 }

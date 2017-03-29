@@ -299,35 +299,6 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
             return;
         }
 
-//        lockOrientation.lock();
-//        new DataBaseQueries.GetLictTableAsync()
-//        {
-//            @Override
-//            public void resultAsyncTask(ArrayList<String> list)
-//            {
-//                ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(getActivity().getApplicationContext(), R.layout.my_content_spinner_layout, list);
-//                spinnListDict.setAdapter(adapterSpinner);
-//                ArrayList<String> playList = appSettings.getPlayList();
-//                String currentDict = playList.get(appData.getNdict());
-//                if (list.contains(currentDict))
-//                {
-//                    int indexOf = list.indexOf(currentDict);
-//                    spinnListDict.setSelection(indexOf);
-//                }
-//                else
-//                {
-//                    spinnListDict.setSelection(0);
-//                }
-//                //spinnListDict.setSelection(spinnSelectedIndex);
-//                spinnListDict_OnItemSelectedListener();
-//                for (int i = 0; i < spinnListDict.getAdapter().getCount(); i++)
-//                {
-//                    storedListDict.add(spinnListDict.getAdapter().getItem(i).toString());
-//                }
-//                lockOrientation.unLock();
-//            }
-//        }.execute();
-
         GetTableListAsync getTableListAsync = new GetTableListAsync(getActivity(), new GetTableListAsync.GetTableListListener()
         {
             @Override
@@ -384,23 +355,6 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     {
         wordIndex = 1;
         spinnSelectedItem = spinnListDict.getSelectedItem().toString();
-//        lockOrientation.lock();
-//        DataBaseQueries.GetWordsCountAsync getWordsCount = new DataBaseQueries.GetWordsCountAsync()
-//        {
-//            @Override
-//            public void resultAsyncTask(int res)
-//            {
-//                wordsCount = res;
-//                fillLayoutLeft(wordsCount);
-//                spinnSelectedIndex = position;
-//                progressBar.setMax(wordsCount);
-//                progressBar.setProgress(0);
-//                counterRightAnswer = 0;
-//                //topPanelVisible(0, 1, isOpen);
-//                lockOrientation.unLock();
-//            }
-//        };
-//        getWordsCount.execute(spinnSelectedItem);
 
         GetCountWordsAsync getCountWordsAsync = new GetCountWordsAsync(getActivity(), spinnSelectedItem, new GetCountWordsAsync.GetCountListener()
         {
@@ -430,44 +384,6 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
         {
             count = ROWS;
         }
-
-//        lockOrientation.lock();
-//        AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
-//        {
-//            @Override
-//            public void resultAsyncTask(ArrayList<DataBaseEntry> list)
-//            {
-//                lockOrientation.unLock();
-//                controlList = list;
-//                additionalList = new ArrayList<>();
-//                additonalCount = 0;
-//                for (DataBaseEntry entry : list)
-//                {
-//                    additionalList.add(entry);
-//                }
-//                controlListSize = controlList.size();
-//                randomGenerator = new RandomNumberGenerator(controlListSize, (int) new Date().getTime());
-//                long start_delay = 0;
-//                for (int i = 0; i < controlList.size(); i++)
-//                {
-//                    Button button = (Button) buttonsLayout.getChildAt(i);
-//                    button.setTranslationX(displayMetrics.widthPixels);
-//                    button.setTranslationY(0);
-//                    button.setVisibility(View.VISIBLE);
-//                    button.animate().translationX(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null).setStartDelay(start_delay);
-//                    start_delay += 70;
-//                    btn_OnClick(button);
-//                    button.setText(controlList.get(randomGenerator.generate()).get_translate());
-//                    wordIndex++;
-//                }
-//                randomGenerator = new RandomNumberGenerator(list.size(), (int) new Date().getTime());
-//                textView.setText(list.get(randomGenerator.generate()).get_english());
-//                textView.setTranslationX(-displayMetrics.widthPixels);
-//                textView.setTranslationY(0);
-//                textView.animate().translationX(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null).setStartDelay(start_delay);
-//            }
-//        };
-//        asyncTask.execute(spinnSelectedItem, wordIndex, count);
 
         GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), spinnSelectedItem, wordIndex, count, new GetEntriesFromDbAsync.GetEntriesListener()
         {
@@ -547,25 +463,6 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
 
         if (indexEn == indexRu && indexEn != -1 && indexRu != -1)
         {
-//            AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
-//            {
-//                @Override
-//                public void resultAsyncTask(ArrayList<DataBaseEntry> list)
-//                {
-//                    listFromDB = list;
-//                    progressBar.setProgress(progressBar.getProgress()+1);
-//                    HashMap<String, String> hashMap = new HashMap<>();
-//                    hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "one_of_five_fragm");
-//                    SplashScreenActivity.speech.speak(textView.getText().toString(), TextToSpeech.QUEUE_ADD, hashMap);
-//
-//                    textViewToLeftAnimatoin();
-//                    buttonToRightAnimation(tempButton);
-//                    tempButton.setBackgroundResource(R.drawable.text_btn_for_test_green);
-//                    counterRightAnswer++;
-//                }
-//            };
-//            asyncTask.execute(tableName, wordIndex, wordIndex);
-
             GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), tableName, wordIndex, wordIndex, new GetEntriesFromDbAsync.GetEntriesListener()
             {
                 @Override
