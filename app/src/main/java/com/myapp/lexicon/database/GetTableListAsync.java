@@ -10,7 +10,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 /**
- * Created by Renat on 29.03.2017.
+ * Get list of all table from database asynchronously
  */
 
 public class GetTableListAsync extends AsyncTask<Void, Void, ArrayList<String>>
@@ -21,7 +21,6 @@ public class GetTableListAsync extends AsyncTask<Void, Void, ArrayList<String>>
 
     public GetTableListAsync(Activity activity, GetTableListListener listener)
     {
-        //Activity activity1 = activity;
         lockOrientation = new LockOrientation(activity);
         setListener(listener);
         databaseHelper = new DatabaseHelper(activity);
