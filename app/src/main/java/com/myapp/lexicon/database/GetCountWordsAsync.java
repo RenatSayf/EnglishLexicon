@@ -9,31 +9,31 @@ import com.myapp.lexicon.helpers.LockOrientation;
 import java.lang.ref.WeakReference;
 
 /**
- * Created by Renat on 09.03.2017.
+ * Get the number of records from table of database
  */
 
-public class GetWordsCountAsync extends AsyncTask<String, Void, Integer>
+public class GetCountWordsAsync extends AsyncTask<String, Void, Integer>
 {
-    private WeakReference<AsyncTaskListener> listener;
+    private WeakReference<GetCountListener> listener;
     private LockOrientation lockOrientation;
-    private Activity activity;
     private DatabaseHelper databaseHelper;
+    private String tableName;
 
-    public GetWordsCountAsync(Activity activity, AsyncTaskListener listener)
+    public GetCountWordsAsync(Activity activity, String tableName, GetCountListener listener)
     {
-        this.activity = activity;
-        lockOrientation = new LockOrientation(activity);
         setTaskCompleteListener(listener);
+        lockOrientation = new LockOrientation(activity);
         databaseHelper = new DatabaseHelper(activity.getApplicationContext());
         databaseHelper.create_db();
+        this.tableName = tableName;
     }
 
-    public interface AsyncTaskListener
+    public interface GetCountListener
     {
-        void onTaskComplete(int wordsCount);
+        void onTaskComplete(int count);
     }
 
-    private void setTaskCompleteListener(AsyncTaskListener listener)
+    private void setTaskCompleteListener(GetCountListener listener)
     {
         this.listener = new WeakReference<>(listener);
     }
@@ -55,7 +55,7 @@ public class GetWordsCountAsync extends AsyncTask<String, Void, Integer>
             databaseHelper.open();
             if (databaseHelper.database.isOpen())
             {
-                cursor=databaseHelper.database.query(params[0], null, null, null, null, null, null);
+                cursor=databaseHelper.database.query(tableName, null, null, null, null, null, null);
                 count = cursor.getCount();
             }
         }
@@ -78,7 +78,7 @@ public class GetWordsCountAsync extends AsyncTask<String, Void, Integer>
     protected void onPostExecute(Integer count)
     {
         super.onPostExecute(count);
-        AsyncTaskListener listener = this.listener.get();
+        GetCountListener listener = this.listener.get();
         if (listener != null)
         {
             listener.onTaskComplete(count);

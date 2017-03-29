@@ -33,6 +33,8 @@ import android.widget.Toast;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
+import com.myapp.lexicon.database.GetCountWordsAsync;
+import com.myapp.lexicon.database.GetEntriesFromDbAsync;
 import com.myapp.lexicon.database.GetTableListAsync;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
@@ -380,25 +382,43 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
 
     private void startTest(final int position)
     {
-        lockOrientation.lock();
+        //lockOrientation.lock();
         wordIndex = 1;
         spinnSelectedItem = spinnListDict.getSelectedItem().toString();
-        DataBaseQueries.GetWordsCountAsync getWordsCount = new DataBaseQueries.GetWordsCountAsync()
+//        DataBaseQueries.GetWordsCountAsync getWordsCount = new DataBaseQueries.GetWordsCountAsync()
+//        {
+//            @Override
+//            public void resultAsyncTask(int res)
+//            {
+//                wordsCount = res;
+//                fillLayoutLeft();
+//                spinnSelectedIndex = position;
+//                progressBar.setMax(res);
+//                progressBar.setProgress(0);
+//                counterRightAnswer = 0;
+//                lockOrientation.unLock();
+//                //topPanelVisible(0, 1, isOpen);
+//            }
+//        };
+//        getWordsCount.execute(spinnSelectedItem);
+
+        GetCountWordsAsync getCountWordsAsync = new GetCountWordsAsync(getActivity(), spinnSelectedItem, new GetCountWordsAsync.GetCountListener()
         {
             @Override
-            public void resultAsyncTask(int res)
+            public void onTaskComplete(int count)
             {
-                wordsCount = res;
+                wordsCount = count;
                 fillLayoutLeft();
                 spinnSelectedIndex = position;
-                progressBar.setMax(res);
+                progressBar.setMax(count);
                 progressBar.setProgress(0);
                 counterRightAnswer = 0;
-                lockOrientation.unLock();
-                //topPanelVisible(0, 1, isOpen);
             }
-        };
-        getWordsCount.execute(spinnSelectedItem);
+        });
+        if (getCountWordsAsync.getStatus() != AsyncTask.Status.RUNNING)
+        {
+            getCountWordsAsync.execute();
+        }
     }
 
     private void fillLayoutLeft()
@@ -409,16 +429,51 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
             button.setText("");
             button.setVisibility(View.GONE);
         }
-        lockOrientation.lock();
-        AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
+//        lockOrientation.lock();
+//        AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
+//        {
+//            @Override
+//            public void resultAsyncTask(ArrayList<DataBaseEntry> list)
+//            {
+//                controlList = list;
+//                additionalList = new ArrayList<>();
+//                additonalCount = 0;
+//                for (DataBaseEntry entry : list)
+//                {
+//                    additionalList.add(entry);
+//                }
+//                controlListSize = controlList.size();
+//                randomGenerator = new RandomNumberGenerator(controlListSize, (int) new Date().getTime());
+//                long start_delay = 0;
+//                for (int i = 0; i < controlList.size(); i++)
+//                {
+//                    Button button = (Button) buttonsLayout.getChildAt(i);
+//                    button.setText(controlList.get(randomGenerator.generate()).get_translate());
+//                    button.setTranslationX(displayMetrics.widthPixels);
+//                    button.setTranslationY(0);
+//                    button.setVisibility(View.VISIBLE);
+//                    button.animate().translationX(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null).setStartDelay(start_delay);
+//                    start_delay += 70;
+//                    btnLeft_OnClick(button);
+//                    wordIndex++;
+//                }
+//                randomGenerator = new RandomNumberGenerator(controlListSize, (int) new Date().getTime());
+//                int randIndex = randomGenerator.generate();
+//                textEn = list.get(randIndex).get_english();
+//                lockOrientation.unLock();
+//            }
+//        };
+//        asyncTask.execute(spinnSelectedItem, wordIndex, ROWS);
+
+        GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), spinnSelectedItem, wordIndex, ROWS, new GetEntriesFromDbAsync.GetEntriesListener()
         {
             @Override
-            public void resultAsyncTask(ArrayList<DataBaseEntry> list)
+            public void getEntriesListener(ArrayList<DataBaseEntry> entries)
             {
-                controlList = list;
+                controlList = entries;
                 additionalList = new ArrayList<>();
                 additonalCount = 0;
-                for (DataBaseEntry entry : list)
+                for (DataBaseEntry entry : entries)
                 {
                     additionalList.add(entry);
                 }
@@ -439,11 +494,13 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                 }
                 randomGenerator = new RandomNumberGenerator(controlListSize, (int) new Date().getTime());
                 int randIndex = randomGenerator.generate();
-                textEn = list.get(randIndex).get_english();
-                lockOrientation.unLock();
+                textEn = entries.get(randIndex).get_english();
             }
-        };
-        asyncTask.execute(spinnSelectedItem, wordIndex, ROWS);
+        });
+        if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
+        {
+            getEntriesFromDbAsync.execute();
+        }
     }
 
     private void btnLeft_OnClick(final View view)
@@ -483,14 +540,57 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
 
         if (indexEn == indexRu && indexEn != -1 && indexRu != -1)
         {
-            lockOrientation.lock();
-            AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
+//            lockOrientation.lock();
+//            AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
+//            {
+//                @Override
+//                public void resultAsyncTask(ArrayList<DataBaseEntry> list)
+//                {
+//                    lockOrientation.unLock();
+//                    listFromDB = list;
+//                    progressBar.setProgress(progressBar.getProgress()+1);
+//                    if (tempButton != null)
+//                    {
+//                        tempButton.setText(textEn);
+//                        tempButton.setBackgroundResource(R.drawable.text_btn_for_test_green);
+//                    }
+//                    final HashMap<String, String> hashMap = new HashMap<>();
+//                    hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "compare_words");
+//                    SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, hashMap);
+//                    SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+//                    {
+//                        @Override
+//                        public void onStart(String utteranceId)
+//                        {
+//
+//                        }
+//
+//                        @Override
+//                        public void onDone(String utteranceId)
+//                        {
+//                            if (utteranceId.equals("compare_words"))
+//                            {
+//                                animButtonToLeft(tempButton);
+//                            }
+//                        }
+//
+//                        @Override
+//                        public void onError(String utteranceId)
+//                        {
+//
+//                        }
+//                    });
+//                    counterRightAnswer++;
+//                }
+//            };
+//            asyncTask.execute(tableName, wordIndex, wordIndex);
+
+            GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), tableName, wordIndex, wordIndex, new GetEntriesFromDbAsync.GetEntriesListener()
             {
                 @Override
-                public void resultAsyncTask(ArrayList<DataBaseEntry> list)
+                public void getEntriesListener(ArrayList<DataBaseEntry> entries)
                 {
-                    lockOrientation.unLock();
-                    listFromDB = list;
+                    listFromDB = entries;
                     progressBar.setProgress(progressBar.getProgress()+1);
                     if (tempButton != null)
                     {
@@ -525,8 +625,11 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                     });
                     counterRightAnswer++;
                 }
-            };
-            asyncTask.execute(tableName, wordIndex, wordIndex);
+            });
+            if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
+            {
+                getEntriesFromDbAsync.execute();
+            }
         }
         else
         {

@@ -32,6 +32,8 @@ import android.widget.TextView;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
+import com.myapp.lexicon.database.GetCountWordsAsync;
+import com.myapp.lexicon.database.GetEntriesFromDbAsync;
 import com.myapp.lexicon.database.GetTableListAsync;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
@@ -379,20 +381,44 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
 
     private void startTest(final int position)
     {
-        wordIndex = 0;
+        wordIndex = 1;
         spinnSelectedItem = spinnListDict.getSelectedItem().toString();
-        lockOrientation.lock();
-        DataBaseQueries.GetWordsCountAsync getWordsCount = new DataBaseQueries.GetWordsCountAsync()
+//        lockOrientation.lock();
+//        DataBaseQueries.GetWordsCountAsync getWordsCount = new DataBaseQueries.GetWordsCountAsync()
+//        {
+//            @Override
+//            public void resultAsyncTask(int res)
+//            {
+//                wordsCount = res;
+//                spinnSelectedIndex = position;
+//                progressBar.setMax(res);
+//                progressBar.setProgress(0);
+//                counterRightAnswer = 0;
+//                //topPanelVisible(0, 1, isOpen);
+//                hideWordButtons();
+//                if (wordsCount < ROWS)
+//                {
+//                    fillButtonsLayout(spinnSelectedItem, wordIndex, wordsCount);
+//                }
+//                else
+//                {
+//                    fillButtonsLayout(spinnSelectedItem, wordIndex, ROWS);
+//                }
+//                lockOrientation.unLock();
+//            }
+//        };
+//        getWordsCount.execute(spinnSelectedItem);
+
+        GetCountWordsAsync getCountWordsAsync = new GetCountWordsAsync(getActivity(), spinnSelectedItem, new GetCountWordsAsync.GetCountListener()
         {
             @Override
-            public void resultAsyncTask(int res)
+            public void onTaskComplete(int count)
             {
-                wordsCount = res;
+                wordsCount = count;
                 spinnSelectedIndex = position;
-                progressBar.setMax(res);
+                progressBar.setMax(count);
                 progressBar.setProgress(0);
                 counterRightAnswer = 0;
-                //topPanelVisible(0, 1, isOpen);
                 hideWordButtons();
                 if (wordsCount < ROWS)
                 {
@@ -402,23 +428,78 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                 {
                     fillButtonsLayout(spinnSelectedItem, wordIndex, ROWS);
                 }
-                lockOrientation.unLock();
             }
-        };
-        getWordsCount.execute(spinnSelectedItem);
+        });
+        if (getCountWordsAsync.getStatus() != AsyncTask.Status.RUNNING)
+        {
+            getCountWordsAsync.execute();
+        }
     }
 
     private void fillButtonsLayout(String dictName, int start, int end)
     {
-        lockOrientation.lock();
-        AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
+//        lockOrientation.lock();
+//        AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
+//        {
+//            @Override
+//            public void resultAsyncTask(ArrayList<DataBaseEntry> list)
+//            {
+//                controlList = list;
+//                additionalList = new ArrayList<>();
+//                for (DataBaseEntry entry : list)
+//                {
+//                    additionalList.add(entry);
+//                }
+//                controlListSize = controlList.size();
+//                Date date = new Date();
+//                RandomNumberGenerator randGenRight = new RandomNumberGenerator(controlListSize, (int) date.getTime());
+//                long delay = 0;
+//                for (int i = 0; i < controlList.size(); i++)
+//                {
+//                    Button btnLeft = (Button) btnLayoutLeft.getChildAt(i);
+//                    Button btnRight = (Button) btnLayoutRight.getChildAt(i);
+//
+//                    btnLeft.setScaleX(1.0f);
+//                    btnLeft.setScaleY(1.0f);
+//                    btnRight.setScaleX(1.0f);
+//                    btnRight.setScaleY(1.0f);
+//                    btnLeft.setText(controlList.get(i).get_english());
+//                    btnRight.setText(controlList.get(randGenRight.generate()).get_translate());
+//                    btnLeft.setX(-metrics.widthPixels);
+//                    btnLeft.setTranslationY(0);
+//                    btnRight.setX(metrics.widthPixels);
+//                    btnRight.setTranslationY(0);
+//                    btnLeft.setVisibility(View.VISIBLE);
+//                    btnRight.setVisibility(View.VISIBLE);
+//                    btnLeft.animate().translationX(0).translationY(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null).setStartDelay(delay);
+//                    btnRight.animate().translationX(0).translationY(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null).setStartDelay(delay);
+//                    delay += 70;
+//                    btnLeft_OnClick(btnLeft);
+//                    btnRight_OnClick(btnRight);
+//                }
+//                if (textArrayleft.size() == 0 && textArrayRight.size() == 0)
+//                {
+//                    for (int i = 0; i < btnLayoutLeft.getChildCount() && i < btnLayoutRight.getChildCount(); i++)
+//                    {
+//                        Button buttonLeft = (Button) btnLayoutLeft.getChildAt(i);
+//                        textArrayleft.add(buttonLeft.getText().toString());
+//                        Button buttonRight = (Button) btnLayoutRight.getChildAt(i);
+//                        textArrayRight.add(buttonRight.getText().toString());
+//                    }
+//                }
+//                lockOrientation.unLock();
+//            }
+//        };
+//        asyncTask.execute(dictName, start, end);
+
+        GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), dictName, start, end, new GetEntriesFromDbAsync.GetEntriesListener()
         {
             @Override
-            public void resultAsyncTask(ArrayList<DataBaseEntry> list)
+            public void getEntriesListener(ArrayList<DataBaseEntry> entries)
             {
-                controlList = list;
+                controlList = entries;
                 additionalList = new ArrayList<>();
-                for (DataBaseEntry entry : list)
+                for (DataBaseEntry entry : entries)
                 {
                     additionalList.add(entry);
                 }
@@ -459,10 +540,12 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                         textArrayRight.add(buttonRight.getText().toString());
                     }
                 }
-                lockOrientation.unLock();
             }
-        };
-        asyncTask.execute(dictName, start, end);
+        });
+        if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
+        {
+            getEntriesFromDbAsync.execute();
+        }
     }
 
     private void btnRight_OnClick(final Button button)

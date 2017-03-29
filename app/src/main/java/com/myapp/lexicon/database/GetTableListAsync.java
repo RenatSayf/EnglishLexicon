@@ -99,4 +99,11 @@ public class GetTableListAsync extends AsyncTask<Void, Void, ArrayList<String>>
         }
         lockOrientation.unLock();
     }
+
+    @Override
+    protected void onCancelled()
+    {
+        super.onCancelled();
+        lockOrientation.unLock();
+    }
 }

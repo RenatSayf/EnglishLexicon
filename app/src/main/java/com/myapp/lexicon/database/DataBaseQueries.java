@@ -55,103 +55,109 @@ public class DataBaseQueries
 
 
 
-    public abstract static class GetWordsFromDBAsync extends AsyncTask<Object,Void,ArrayList<DataBaseEntry>>
-    {
-        public abstract void resultAsyncTask(ArrayList<DataBaseEntry> list);
+//    public abstract static class GetWordsFromDBAsync extends AsyncTask<Object,Void,ArrayList<DataBaseEntry>>
+//        {
+//            public abstract void resultAsyncTask(ArrayList<DataBaseEntry> list);
+//
+//            @Override
+//            protected ArrayList<DataBaseEntry> doInBackground(Object... params)
+//            {
+//                return getWordsFromDB((String) params[0], (int)params[1], (int)params[2]);
+//            }
+//
+//            @Override
+//            protected void onPostExecute(ArrayList<DataBaseEntry> list)
+//            {
+//                resultAsyncTask(list);
+//            }
+//        }
+//
+//            private static ArrayList<DataBaseEntry> getWordsFromDB(String tableName, int startId, int endId)
+//            {
+//                ArrayList<DataBaseEntry> entriesFromDB = new ArrayList<>();
+//                DataBaseEntry dataBaseEntry;
+//                Cursor cursor = null;
+//                try
+//                {
+//                    databaseHelper.open();
+//                    if (databaseHelper.database.isOpen())
+//                    {
+//
+//                        cursor = databaseHelper.database.rawQuery("SELECT * FROM " + tableName + " WHERE RowID BETWEEN " + startId +" AND " + endId, null);
+//                        int count = cursor.getCount();
+//                        if (cursor.moveToFirst())
+//                        {
+//                            while (!cursor.isAfterLast())
+//                            {
+//                                dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1), cursor.getString(3));
+//                                entriesFromDB.add(dataBaseEntry);
+//                                cursor.moveToNext();
+//                            }
+//                        }
+//                    } else
+//            {
+//                dataBaseEntry = new DataBaseEntry(null, null, null);
+//            }
+//        }
+//        catch (Exception e)
+//        {
+//            MyLog.v("Возникло исключение - "+e.getMessage());
+//            entriesFromDB.add(new DataBaseEntry(null,null, null));
+//        }
+//        finally
+//        {
+//            if (cursor != null)
+//            {
+//                cursor.close();
+//            }
+//            databaseHelper.database.close();
+//        }
+//        return entriesFromDB;
+//    }
 
-        @Override
-        protected ArrayList<DataBaseEntry> doInBackground(Object... params)
-        {
-            return getWordsFromDB((String) params[0], (int)params[1], (int)params[2]);
-        }
 
-        @Override
-        protected void onPostExecute(ArrayList<DataBaseEntry> list)
-        {
-            resultAsyncTask(list);
-        }
-    }
 
-    private static ArrayList<DataBaseEntry> getWordsFromDB(String tableName, int startId, int endId)
-    {
-        ArrayList<DataBaseEntry> entriesFromDB = new ArrayList<>();
-        DataBaseEntry dataBaseEntry;
-        Cursor cursor = null;
-        try
-        {
-            databaseHelper.open();
-            if (databaseHelper.database.isOpen())
-            {
 
-                cursor = databaseHelper.database.rawQuery("SELECT * FROM " + tableName + " WHERE RowID BETWEEN " + startId +" AND " + endId, null);
-                int count = cursor.getCount();
-                if (cursor.moveToFirst())
-                {
-                    while (!cursor.isAfterLast())
-                    {
-                        dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1), cursor.getString(3));
-                        entriesFromDB.add(dataBaseEntry);
-                        cursor.moveToNext();
-                    }
-                }
-            } else
-            {
-                dataBaseEntry = new DataBaseEntry(null, null, null);
-            }
-        }
-        catch (Exception e)
-        {
-            MyLog.v("Возникло исключение - "+e.getMessage());
-            entriesFromDB.add(new DataBaseEntry(null,null, null));
-        }
-        finally
-        {
-            if (cursor != null)
-            {
-                cursor.close();
-            }
-            databaseHelper.database.close();
-        }
-        return entriesFromDB;
-    }
 
-    public ArrayList<DataBaseEntry> getEntriesFromDB(String tableName, int startId, int endId)
-    {
-        MyLog.v("tableName = " + tableName + "  startId = " + startId + "   endId = " + endId);
-        ArrayList<DataBaseEntry> entriesFromDB = new ArrayList<>();
-        Cursor cursor = null;
-        try
-        {
-            databaseHelper.open();
-            if (databaseHelper.database.isOpen())
-            {
-                cursor = databaseHelper.database.rawQuery("SELECT * FROM " + tableName + " WHERE RowID BETWEEN " + startId +" AND " + endId, null);
-                if (cursor.moveToFirst())
-                {
-                    while (!cursor.isAfterLast())
-                    {
-                        DataBaseEntry dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1), cursor.getString(3));
-                        entriesFromDB.add(dataBaseEntry);
-                        cursor.moveToNext();
-                    }
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            Log.i("Lexicon", "Исключение в DataBaseQueries.getEntriesFromDB() = " + e);
-            entriesFromDB.add(new DataBaseEntry(null,null, null));
-        }
-        finally
-        {
-            if (cursor != null)
-            {
-                cursor.close();
-            }
-            databaseHelper.database.close();
-        }
-        return entriesFromDB;
-    }
+
+
+//    public ArrayList<DataBaseEntry> getEntriesFromDB(String tableName, int startId, int endId)
+//    {
+//        MyLog.v("tableName = " + tableName + "  startId = " + startId + "   endId = " + endId);
+//        ArrayList<DataBaseEntry> entriesFromDB = new ArrayList<>();
+//        Cursor cursor = null;
+//        try
+//        {
+//            databaseHelper.open();
+//            if (databaseHelper.database.isOpen())
+//            {
+//                cursor = databaseHelper.database.rawQuery("SELECT * FROM " + tableName + " WHERE RowID BETWEEN " + startId +" AND " + endId, null);
+//                if (cursor.moveToFirst())
+//                {
+//                    while (!cursor.isAfterLast())
+//                    {
+//                        DataBaseEntry dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1), cursor.getString(3));
+//                        entriesFromDB.add(dataBaseEntry);
+//                        cursor.moveToNext();
+//                    }
+//                }
+//            }
+//        }
+//        catch (Exception e)
+//        {
+//            Log.i("Lexicon", "Исключение в DataBaseQueries.getEntriesFromDB() = " + e);
+//            entriesFromDB.add(new DataBaseEntry(null,null, null));
+//        }
+//        finally
+//        {
+//            if (cursor != null)
+//            {
+//                cursor.close();
+//            }
+//            databaseHelper.database.close();
+//        }
+//        return entriesFromDB;
+//    }
 
 //    public ArrayList<DataBaseEntry> getEntriesFromDBAsync(final String tableName, final int startId, final int endId) throws SQLException, ExecutionException, InterruptedException
 //    {
@@ -203,44 +209,44 @@ public class DataBaseQueries
 //        return entriesFromDB;
 //    }
 
-    public abstract static class GetWordsCountAsync extends AsyncTask<String, Void, Integer>
-    {
-        public abstract void resultAsyncTask(int res);
-        @Override
-        protected Integer doInBackground(String... params)
-        {
-            int count;
-            try
-            {
-                databaseHelper.open();
-                if (databaseHelper.database.isOpen())
-                {
-                    Cursor cursor=databaseHelper.database.query(params[0], null, null, null, null, null, null);
-                    count = cursor.getCount();
-                    MyLog.v("GetWordsCountAsync - " + count);
-                } else
-                {
-                    MyLog.v("GetWordsCountAsync database.isOpen() = " + databaseHelper.database.isOpen());
-                    count = 0;
-                }
-            }
-            catch (Exception e)
-            {
-                MyLog.v("ИСКЛЮЧЕНИЕ - " + e.getMessage());
-                count = 0;
-            }finally
-            {
-                databaseHelper.close();
-            }
-            return count;
-        }
-
-        @Override
-        protected void onPostExecute(Integer integer)
-        {
-            resultAsyncTask(integer);
-        }
-    }
+//    public abstract static class GetWordsCountAsync extends AsyncTask<String, Void, Integer>
+//    {
+//        public abstract void resultAsyncTask(int res);
+//        @Override
+//        protected Integer doInBackground(String... params)
+//        {
+//            int count;
+//            try
+//            {
+//                databaseHelper.open();
+//                if (databaseHelper.database.isOpen())
+//                {
+//                    Cursor cursor=databaseHelper.database.query(params[0], null, null, null, null, null, null);
+//                    count = cursor.getCount();
+//                    MyLog.v("GetWordsCountAsync - " + count);
+//                } else
+//                {
+//                    MyLog.v("GetWordsCountAsync database.isOpen() = " + databaseHelper.database.isOpen());
+//                    count = 0;
+//                }
+//            }
+//            catch (Exception e)
+//            {
+//                MyLog.v("ИСКЛЮЧЕНИЕ - " + e.getMessage());
+//                count = 0;
+//            }finally
+//            {
+//                databaseHelper.close();
+//            }
+//            return count;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(Integer integer)
+//        {
+//            resultAsyncTask(integer);
+//        }
+//    }
 //    public int getWordsCount(String dictName)
 //    {
 //        int count;

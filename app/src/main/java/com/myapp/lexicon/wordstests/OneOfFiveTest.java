@@ -32,6 +32,8 @@ import android.widget.Toast;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
+import com.myapp.lexicon.database.GetCountWordsAsync;
+import com.myapp.lexicon.database.GetEntriesFromDbAsync;
 import com.myapp.lexicon.database.GetTableListAsync;
 import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.helpers.LockOrientation;
@@ -382,23 +384,41 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     {
         wordIndex = 1;
         spinnSelectedItem = spinnListDict.getSelectedItem().toString();
-        lockOrientation.lock();
-        DataBaseQueries.GetWordsCountAsync getWordsCount = new DataBaseQueries.GetWordsCountAsync()
+//        lockOrientation.lock();
+//        DataBaseQueries.GetWordsCountAsync getWordsCount = new DataBaseQueries.GetWordsCountAsync()
+//        {
+//            @Override
+//            public void resultAsyncTask(int res)
+//            {
+//                wordsCount = res;
+//                fillLayoutLeft(wordsCount);
+//                spinnSelectedIndex = position;
+//                progressBar.setMax(wordsCount);
+//                progressBar.setProgress(0);
+//                counterRightAnswer = 0;
+//                //topPanelVisible(0, 1, isOpen);
+//                lockOrientation.unLock();
+//            }
+//        };
+//        getWordsCount.execute(spinnSelectedItem);
+
+        GetCountWordsAsync getCountWordsAsync = new GetCountWordsAsync(getActivity(), spinnSelectedItem, new GetCountWordsAsync.GetCountListener()
         {
             @Override
-            public void resultAsyncTask(int res)
+            public void onTaskComplete(int count)
             {
-                wordsCount = res;
+                wordsCount = count;
                 fillLayoutLeft(wordsCount);
                 spinnSelectedIndex = position;
                 progressBar.setMax(wordsCount);
                 progressBar.setProgress(0);
                 counterRightAnswer = 0;
-                //topPanelVisible(0, 1, isOpen);
-                lockOrientation.unLock();
             }
-        };
-        getWordsCount.execute(spinnSelectedItem);
+        });
+        if (getCountWordsAsync.getStatus() != AsyncTask.Status.RUNNING)
+        {
+            getCountWordsAsync.execute();
+        }
     }
 
     private void fillLayoutLeft(final int rowsCount)
@@ -411,17 +431,53 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
             count = ROWS;
         }
 
-        lockOrientation.lock();
-        AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
+//        lockOrientation.lock();
+//        AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
+//        {
+//            @Override
+//            public void resultAsyncTask(ArrayList<DataBaseEntry> list)
+//            {
+//                lockOrientation.unLock();
+//                controlList = list;
+//                additionalList = new ArrayList<>();
+//                additonalCount = 0;
+//                for (DataBaseEntry entry : list)
+//                {
+//                    additionalList.add(entry);
+//                }
+//                controlListSize = controlList.size();
+//                randomGenerator = new RandomNumberGenerator(controlListSize, (int) new Date().getTime());
+//                long start_delay = 0;
+//                for (int i = 0; i < controlList.size(); i++)
+//                {
+//                    Button button = (Button) buttonsLayout.getChildAt(i);
+//                    button.setTranslationX(displayMetrics.widthPixels);
+//                    button.setTranslationY(0);
+//                    button.setVisibility(View.VISIBLE);
+//                    button.animate().translationX(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null).setStartDelay(start_delay);
+//                    start_delay += 70;
+//                    btn_OnClick(button);
+//                    button.setText(controlList.get(randomGenerator.generate()).get_translate());
+//                    wordIndex++;
+//                }
+//                randomGenerator = new RandomNumberGenerator(list.size(), (int) new Date().getTime());
+//                textView.setText(list.get(randomGenerator.generate()).get_english());
+//                textView.setTranslationX(-displayMetrics.widthPixels);
+//                textView.setTranslationY(0);
+//                textView.animate().translationX(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null).setStartDelay(start_delay);
+//            }
+//        };
+//        asyncTask.execute(spinnSelectedItem, wordIndex, count);
+
+        GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), spinnSelectedItem, wordIndex, count, new GetEntriesFromDbAsync.GetEntriesListener()
         {
             @Override
-            public void resultAsyncTask(ArrayList<DataBaseEntry> list)
+            public void getEntriesListener(ArrayList<DataBaseEntry> entries)
             {
-                lockOrientation.unLock();
-                controlList = list;
+                controlList = entries;
                 additionalList = new ArrayList<>();
                 additonalCount = 0;
-                for (DataBaseEntry entry : list)
+                for (DataBaseEntry entry : entries)
                 {
                     additionalList.add(entry);
                 }
@@ -440,14 +496,17 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                     button.setText(controlList.get(randomGenerator.generate()).get_translate());
                     wordIndex++;
                 }
-                randomGenerator = new RandomNumberGenerator(list.size(), (int) new Date().getTime());
-                textView.setText(list.get(randomGenerator.generate()).get_english());
+                randomGenerator = new RandomNumberGenerator(entries.size(), (int) new Date().getTime());
+                textView.setText(entries.get(randomGenerator.generate()).get_english());
                 textView.setTranslationX(-displayMetrics.widthPixels);
                 textView.setTranslationY(0);
                 textView.animate().translationX(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null).setStartDelay(start_delay);
             }
-        };
-        asyncTask.execute(spinnSelectedItem, wordIndex, count);
+        });
+        if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
+        {
+            getEntriesFromDbAsync.execute();
+        }
     }
 
     private void btn_OnClick(final View view)
@@ -488,12 +547,31 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
 
         if (indexEn == indexRu && indexEn != -1 && indexRu != -1)
         {
-            AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
+//            AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
+//            {
+//                @Override
+//                public void resultAsyncTask(ArrayList<DataBaseEntry> list)
+//                {
+//                    listFromDB = list;
+//                    progressBar.setProgress(progressBar.getProgress()+1);
+//                    HashMap<String, String> hashMap = new HashMap<>();
+//                    hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "one_of_five_fragm");
+//                    SplashScreenActivity.speech.speak(textView.getText().toString(), TextToSpeech.QUEUE_ADD, hashMap);
+//
+//                    textViewToLeftAnimatoin();
+//                    buttonToRightAnimation(tempButton);
+//                    tempButton.setBackgroundResource(R.drawable.text_btn_for_test_green);
+//                    counterRightAnswer++;
+//                }
+//            };
+//            asyncTask.execute(tableName, wordIndex, wordIndex);
+
+            GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), tableName, wordIndex, wordIndex, new GetEntriesFromDbAsync.GetEntriesListener()
             {
                 @Override
-                public void resultAsyncTask(ArrayList<DataBaseEntry> list)
+                public void getEntriesListener(ArrayList<DataBaseEntry> entries)
                 {
-                    listFromDB = list;
+                    listFromDB = entries;
                     progressBar.setProgress(progressBar.getProgress()+1);
                     HashMap<String, String> hashMap = new HashMap<>();
                     hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "one_of_five_fragm");
@@ -504,8 +582,11 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                     tempButton.setBackgroundResource(R.drawable.text_btn_for_test_green);
                     counterRightAnswer++;
                 }
-            };
-            asyncTask.execute(tableName, wordIndex, wordIndex);
+            });
+            if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
+            {
+                getEntriesFromDbAsync.execute();
+            }
         }
         else
         {
