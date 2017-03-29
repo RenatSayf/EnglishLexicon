@@ -32,6 +32,7 @@ import android.widget.TextView;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
+import com.myapp.lexicon.database.GetTableListAsync;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
 import com.myapp.lexicon.main.BackgroundAnim2;
@@ -316,34 +317,64 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             return;
         }
 
-        lockOrientation.lock();
-        new DataBaseQueries.GetLictTableAsync()
+//        lockOrientation.lock();
+//        new DataBaseQueries.GetLictTableAsync()
+//        {
+//            @Override
+//            public void resultAsyncTask(ArrayList<String> list)
+//            {
+//                ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(getActivity().getApplicationContext(), R.layout.my_content_spinner_layout, list);
+//                spinnListDict.setAdapter(adapterSpinner);
+//                ArrayList<String> playList = appSettings.getPlayList();
+//                String currentDict = playList.get(appData.getNdict());
+//                if (list.contains(currentDict))
+//                {
+//                    int indexOf = list.indexOf(currentDict);
+//                    spinnListDict.setSelection(indexOf);
+//                }
+//                else
+//                {
+//                    spinnListDict.setSelection(0);
+//                }
+//                //spinnListDict.setSelection(spinnSelectedIndex);
+//                spinnListDict_OnItemSelectedListener();
+//                for (int i = 0; i < spinnListDict.getAdapter().getCount(); i++)
+//                {
+//                    storedListDict.add(spinnListDict.getAdapter().getItem(i).toString());
+//                }
+//                lockOrientation.unLock();
+//            }
+//        }.execute();
+
+        GetTableListAsync getTableListAsync = new GetTableListAsync(getActivity(), new GetTableListAsync.GetTableListListener()
         {
             @Override
-            public void resultAsyncTask(ArrayList<String> list)
+            public void getTableListListener(ArrayList<String> arrayList)
             {
-                ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(getActivity().getApplicationContext(), R.layout.my_content_spinner_layout, list);
+                ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(getActivity().getApplicationContext(), R.layout.my_content_spinner_layout, arrayList);
                 spinnListDict.setAdapter(adapterSpinner);
                 ArrayList<String> playList = appSettings.getPlayList();
                 String currentDict = playList.get(appData.getNdict());
-                if (list.contains(currentDict))
+                if (arrayList.contains(currentDict))
                 {
-                    int indexOf = list.indexOf(currentDict);
+                    int indexOf = arrayList.indexOf(currentDict);
                     spinnListDict.setSelection(indexOf);
                 }
                 else
                 {
                     spinnListDict.setSelection(0);
                 }
-                //spinnListDict.setSelection(spinnSelectedIndex);
                 spinnListDict_OnItemSelectedListener();
                 for (int i = 0; i < spinnListDict.getAdapter().getCount(); i++)
                 {
                     storedListDict.add(spinnListDict.getAdapter().getItem(i).toString());
                 }
-                lockOrientation.unLock();
             }
-        }.execute();
+        });
+        if (getTableListAsync.getStatus() != AsyncTask.Status.RUNNING)
+        {
+            getTableListAsync.execute();
+        }
     }
 
     private void startTest(final int position)
