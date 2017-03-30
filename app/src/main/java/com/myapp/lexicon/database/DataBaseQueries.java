@@ -60,7 +60,6 @@ public class DataBaseQueries
 
     public boolean addTableToDbSync(final String tableName) throws ExecutionException, InterruptedException
     {
-        //String table_name = checkTableName(tableName);
         String table_name = StringOperations.getInstance().spaceToUnderscore(tableName);
         String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + table_name +
                 "(" +
@@ -90,16 +89,9 @@ public class DataBaseQueries
         return result;
     }
 
-    private String checkTableName(String tableName)
-    {
-        String name = tableName.trim();
-        return name.replace(' ','_');
-    }
-
     public boolean deleteTableFromDbSync(final String tableName)
     {
         boolean result = true;
-        //String table_name = checkTableName(tableName);
         String table_name = StringOperations.getInstance().spaceToUnderscore(tableName);
         String DELETE_TABLE = "Drop Table If Exists " + table_name;
         try

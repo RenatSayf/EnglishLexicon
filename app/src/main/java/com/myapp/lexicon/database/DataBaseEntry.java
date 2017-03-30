@@ -1,10 +1,6 @@
 package com.myapp.lexicon.database;
 
 
-import android.widget.BaseAdapter;
-
-import java.util.HashMap;
-
 public class DataBaseEntry
 {
     private String _id;

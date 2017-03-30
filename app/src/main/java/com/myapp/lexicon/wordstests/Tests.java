@@ -1,21 +1,16 @@
 package com.myapp.lexicon.wordstests;
 
 
+import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.database.DataBaseQueries;
-import com.myapp.lexicon.main.BackgroundAnim2;
-
-import java.sql.SQLException;
 
 public class Tests extends AppCompatActivity
 {

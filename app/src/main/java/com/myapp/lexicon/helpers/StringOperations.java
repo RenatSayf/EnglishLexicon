@@ -47,13 +47,25 @@ public class StringOperations
 
     public String spaceToUnderscore(String text)
     {
-        String name = text.trim();
-        return name.replace(' ','_');
+        if (!text.equals(""))
+        {
+            String name = text.trim();
+            return name.replace(' ','_');
+        } else
+        {
+            return "";
+        }
     }
 
     public String underscoreToSpace(String text)
     {
-        String name = text.trim();
-        return name.replace('_',' ');
+        if (!text.equals(""))
+        {
+            String name = text.trim();
+            return name.replace('_',' ');
+        } else
+        {
+            return "";
+        }
     }
 }

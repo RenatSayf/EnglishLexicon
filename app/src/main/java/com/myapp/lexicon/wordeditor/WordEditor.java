@@ -58,14 +58,10 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
     private CheckBox checkCopy, checkMove;
     private LinearLayout layoutSpinner;
     private static ListViewAdapter listViewAdapter;
-    private ArrayList<DataBaseEntry> dataBaseEntries;
-    private Handler handler;
     private ProgressBar progressBar;
-    private DatabaseHelper _databaseHelper;
     private DataBaseQueries dataBaseQueries;
     private ViewSwitcher switcher;
     private LockOrientation lockOrientation;
-    private AppData2 appData2;
 
     private static boolean searchIsVisible = false;
 
@@ -157,6 +153,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
         outState.putString(KEY_EDITTEXT_RU, editTextRu.getText().toString());
         outState.putBoolean(KEY_CHECK_COPY, checkCopy.isChecked());
         outState.putBoolean(KEY_CHECK_MOVE, checkMove.isChecked());
+
     }
 
     @Override
@@ -168,16 +165,8 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        appData2 = AppData2.getInstance();
-
         lockOrientation = new LockOrientation(this);
-
         dataBaseQueries = new DataBaseQueries(this);
-        if (_databaseHelper == null)
-        {
-            _databaseHelper = new DatabaseHelper(this);
-            _databaseHelper.create_db();
-        }
 
         initViews();
 
@@ -327,7 +316,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                 oldCountRepeat = Integer.parseInt(textViewCounRepeat.getText().toString());
                 spinnerCountRepeat.setSelection(oldCountRepeat);
 
-                String tableName = spinnerListDict.getSelectedItem().toString();
+                //String tableName = spinnerListDict.getSelectedItem().toString();
                 oldCurrentDict = spinnerListDict.getSelectedItem().toString();
 
                 checkMove.setChecked(false);
@@ -388,7 +377,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                                 }
                                 listViewSetSource(true);
                                 switcher.showPrevious();
-                                WordEditor.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+                                lockOrientation.unLock();
                             }
                         })
                         .setNegativeButton(R.string.button_text_no, new DialogInterface.OnClickListener()
@@ -396,8 +385,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                             @Override
                             public void onClick(DialogInterface dialog, int which)
                             {
-                                WordEditor.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-                                return;
+                                lockOrientation.unLock();
                             }
                         })
                         .create().show();

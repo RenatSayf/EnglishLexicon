@@ -178,6 +178,7 @@
     <string name="text_correctly">Верно:</string>
     <string name="text_test_is_finish">Тест завершен</string>
     <string name="descript_image_background">image_background</string>
+    <string name="msg_error_creating_database">Не удалось создать базу данных</string>
 
 
 </resources>

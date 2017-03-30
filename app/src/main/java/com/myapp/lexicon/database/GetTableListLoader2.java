@@ -9,7 +9,7 @@ import com.myapp.lexicon.helpers.StringOperations;
 import java.util.ArrayList;
 
 /**
- * Created by Renat on 21.03.2017.
+ * Return table list from database as object
  */
 
 public class GetTableListLoader2 extends AsyncTaskLoader
