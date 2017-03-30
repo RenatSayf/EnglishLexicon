@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.widget.Toast;
 
 import com.myapp.lexicon.helpers.MyLog;
+import com.myapp.lexicon.helpers.StringOperations;
 
 import java.sql.SQLException;
 import java.util.concurrent.ExecutionException;
@@ -27,6 +28,7 @@ public class DataBaseQueries
 
     public int getCountEntriesSync(final String tableName)
     {
+        String table_name = StringOperations.getInstance().spaceToUnderscore(tableName);
         int countEntries = 0;
         Cursor cursor = null;
         try
@@ -34,7 +36,7 @@ public class DataBaseQueries
             databaseHelper.open();
             if (databaseHelper.database.isOpen())
             {
-                cursor = databaseHelper.database.rawQuery("SELECT count(RowId) FROM " + tableName, null);
+                cursor = databaseHelper.database.rawQuery("SELECT count(RowId) FROM " + table_name, null);
                 cursor.moveToFirst();
                 countEntries = cursor.getInt(0);
             } else
@@ -58,8 +60,9 @@ public class DataBaseQueries
 
     public boolean addTableToDbSync(final String tableName) throws ExecutionException, InterruptedException
     {
-        String name = checkTableName(tableName);
-        String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + name +
+        //String table_name = checkTableName(tableName);
+        String table_name = StringOperations.getInstance().spaceToUnderscore(tableName);
+        String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + table_name +
                 "(" +
                 //DatabaseHelper.COLUMN_ID+" INTEGER PRIMARY KEY ASC, "+
                 DatabaseHelper.COLUMN_ENGLISH + " VARCHAR NOT NULL, " +
@@ -96,8 +99,9 @@ public class DataBaseQueries
     public boolean deleteTableFromDbSync(final String tableName)
     {
         boolean result = true;
-        String name = checkTableName(tableName);
-        String DELETE_TABLE = "Drop Table If Exists " + name;
+        //String table_name = checkTableName(tableName);
+        String table_name = StringOperations.getInstance().spaceToUnderscore(tableName);
+        String DELETE_TABLE = "Drop Table If Exists " + table_name;
         try
         {
             databaseHelper.open();
@@ -119,6 +123,7 @@ public class DataBaseQueries
 
     public long insertWordInTableSync(String tableName, DataBaseEntry entry)
     {
+        String table_name = StringOperations.getInstance().spaceToUnderscore(tableName);
         long id = -1;
         ContentValues values = new ContentValues();
         values.put(DatabaseHelper.COLUMN_ENGLISH, entry.get_english());
@@ -130,7 +135,7 @@ public class DataBaseQueries
             databaseHelper.open();
             if (databaseHelper.database.isOpen())
             {
-                id = databaseHelper.database.insert(tableName, null, values);
+                id = databaseHelper.database.insert(table_name, null, values);
             }
         } catch (SQLException e)
         {
@@ -146,6 +151,7 @@ public class DataBaseQueries
 
     public long updateWordInTableSync(String tableName, long rowId, DataBaseEntry entry) throws Exception
     {
+        String table_name = StringOperations.getInstance().spaceToUnderscore(tableName);
         long id = -1;
         final ContentValues values = new ContentValues();
         values.put(DatabaseHelper.COLUMN_ENGLISH, entry.get_english());
@@ -159,7 +165,7 @@ public class DataBaseQueries
             if (databaseHelper.database.isOpen())
             {
                 databaseHelper.database.beginTransaction();
-                id = databaseHelper.database.update(tableName, values, "RowID = "+rowId, null);
+                id = databaseHelper.database.update(table_name, values, "RowID = "+rowId, null);
                 databaseHelper.database.setTransactionSuccessful();
                 databaseHelper.database.endTransaction();
             }
@@ -186,6 +192,7 @@ public class DataBaseQueries
 
     public long deleteWordInTableSync(final String tableName, final long rowId)
     {
+        String table_name = StringOperations.getInstance().spaceToUnderscore(tableName);
         long id = -1;
         try
         {
@@ -193,7 +200,7 @@ public class DataBaseQueries
             if (databaseHelper.database.isOpen())
             {
                 databaseHelper.database.beginTransaction();
-                id = databaseHelper.database.delete(tableName, "RowId = " + rowId, null);
+                id = databaseHelper.database.delete(table_name, "RowId = " + rowId, null);
 
                 databaseHelper.database.setTransactionSuccessful();
                 databaseHelper.database.endTransaction();
@@ -219,12 +226,13 @@ public class DataBaseQueries
 
     public void dataBaseVacuum(final String tableName)
     {
+        String table_name = StringOperations.getInstance().spaceToUnderscore(tableName);
         try
         {
             databaseHelper.open();
             if (databaseHelper.database.isOpen())
             {
-                databaseHelper.database.execSQL("VACUUM "+tableName);
+                databaseHelper.database.execSQL("VACUUM "+table_name);
             }
         } catch (Exception e)
         {

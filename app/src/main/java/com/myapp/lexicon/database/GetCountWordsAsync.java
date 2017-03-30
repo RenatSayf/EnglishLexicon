@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 
 import com.myapp.lexicon.helpers.LockOrientation;
+import com.myapp.lexicon.helpers.StringOperations;
 
 /**
  * Get the number of records from table of database
@@ -25,7 +26,7 @@ public class GetCountWordsAsync extends AsyncTask<String, Void, Integer>
         lockOrientation = new LockOrientation(this.activity);
         databaseHelper = new DatabaseHelper(this.activity);
         databaseHelper.create_db();
-        this.tableName = tableName;
+        this.tableName = StringOperations.getInstance().spaceToUnderscore(tableName);
     }
 
     public interface GetCountListener

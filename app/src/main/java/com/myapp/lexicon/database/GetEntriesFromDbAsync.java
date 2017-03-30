@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 
 import com.myapp.lexicon.helpers.LockOrientation;
+import com.myapp.lexicon.helpers.StringOperations;
 
 import java.util.ArrayList;
 
@@ -29,7 +30,7 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
         lockOrientation = new LockOrientation(this.activity);
         databaseHelper = new DatabaseHelper(this.activity);
         databaseHelper.create_db();
-        this.tableName = tableName;
+        this.tableName = StringOperations.getInstance().spaceToUnderscore(tableName);
         this.startId = startId;
         this.endId = endId;
     }

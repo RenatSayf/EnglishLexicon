@@ -1,7 +1,7 @@
 package com.myapp.lexicon.helpers;
 
 /**
- * Created by Ренат on 11.07.2016.
+ * Performs various operations on strings
  */
 public class StringOperations
 {
@@ -17,22 +17,21 @@ public class StringOperations
     }
     public String[] getLangOfText(String text)
     {
-        String str = text;
         String[] lang = new String[2];
         int char_first;
-        for (int i = 0; i < str.length(); i++)
+        for (int i = 0; i < text.length(); i++)
         {
-            char_first = str.codePointAt(i);
-            if ((char_first >= 33 && char_first <= 64) || (str.codePointAt(i) >= 91 && str.codePointAt(i) <= 96) || (str.codePointAt(i) >= 123 && str.codePointAt(i) <= 126))
+            char_first = text.codePointAt(i);
+            if ((char_first >= 33 && char_first <= 64) || (text.codePointAt(i) >= 91 && text.codePointAt(i) <= 96) || (text.codePointAt(i) >= 123 && text.codePointAt(i) <= 126))
             {
                 continue;
             }
-            if (str.codePointAt(i) >= 1025 && str.codePointAt(i) <= 1105)
+            if (text.codePointAt(i) >= 1025 && text.codePointAt(i) <= 1105)
             {
                 lang[0] = "ru-en";
                 lang[1] = "ru";
             }
-            else if (str.codePointAt(i) >= 65 && str.codePointAt(i) <= 122)
+            else if (text.codePointAt(i) >= 65 && text.codePointAt(i) <= 122)
             {
                 lang[0] = "en-ru";
                 lang[1] = "en";
@@ -44,5 +43,17 @@ public class StringOperations
             }
         }
         return lang;
+    }
+
+    public String spaceToUnderscore(String text)
+    {
+        String name = text.trim();
+        return name.replace(' ','_');
+    }
+
+    public String underscoreToSpace(String text)
+    {
+        String name = text.trim();
+        return name.replace('_',' ');
     }
 }

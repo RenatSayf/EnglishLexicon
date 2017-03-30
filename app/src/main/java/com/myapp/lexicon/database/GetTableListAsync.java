@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 
 import com.myapp.lexicon.helpers.LockOrientation;
+import com.myapp.lexicon.helpers.StringOperations;
 
 import java.util.ArrayList;
 
@@ -71,7 +72,9 @@ public class GetTableListAsync extends AsyncTask<Void, Void, ArrayList<String>>
                         nameNotDict = cursor.getString( cursor.getColumnIndex("name"));
                         if (!nameNotDict.equals("android_metadata") && !nameNotDict.equals("sqlite_sequence"))
                         {
-                            list.add( cursor.getString( cursor.getColumnIndex("name")) );
+                            String table_name = cursor.getString(cursor.getColumnIndex("name"));
+                            table_name = StringOperations.getInstance().underscoreToSpace(table_name);
+                            list.add(table_name);
                         }
                         cursor.moveToNext();
                     }
