@@ -6,7 +6,6 @@ import android.os.AsyncTask;
 
 import com.myapp.lexicon.helpers.LockOrientation;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 /**
@@ -16,7 +15,7 @@ import java.util.ArrayList;
 public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<DataBaseEntry>>
 {
     private Activity activity;
-    private WeakReference<GetEntriesListener> listener;
+    private GetEntriesListener listener;
     private LockOrientation lockOrientation;
     private DatabaseHelper databaseHelper;
     private String tableName;
@@ -42,7 +41,7 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
 
     private void setListener(GetEntriesListener listener)
     {
-        this.listener = new WeakReference<>(listener);
+        this.listener = listener;
     }
 
     @Override
@@ -100,7 +99,6 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
     protected void onPostExecute(ArrayList<DataBaseEntry> entries)
     {
         super.onPostExecute(entries);
-        GetEntriesListener listener = this.listener.get();
         if (listener != null)
         {
             listener.getEntriesListener(entries);

@@ -172,14 +172,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
 
         lockOrientation = new LockOrientation(this);
 
-        try
-        {
-            dataBaseQueries = new DataBaseQueries(this);
-        } catch (SQLException e)
-        {
-            Toast.makeText(this,getString(R.string.msg_data_base_error)+e.getMessage(),Toast.LENGTH_SHORT).show();
-            this.finish();
-        }
+        dataBaseQueries = new DataBaseQueries(this);
         if (_databaseHelper == null)
         {
             _databaseHelper = new DatabaseHelper(this);
@@ -187,8 +180,6 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
         }
 
         initViews();
-
-        dataBaseQueries.setListTableToSpinner(spinnerListDict2,0);
 
         if (savedInstanceState == null)
         {
@@ -388,7 +379,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                             {
                                 try
                                 {
-                                    dataBaseQueries.deleteWordInTable(tableName, rowID);
+                                    dataBaseQueries.deleteWordInTableSync(tableName, rowID);
                                     dataBaseQueries.dataBaseVacuum(tableName);
                                 } catch (Exception e)
                                 {
@@ -442,7 +433,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                     {
                         try
                         {
-                            dataBaseQueries.updateWordInTable(tableName, rowID, baseEntry);
+                            dataBaseQueries.updateWordInTableSync(tableName, rowID, baseEntry);
                         } catch (Exception e)
                         {
                             Toast.makeText(WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -452,24 +443,24 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                     {
                         try
                         {
-                            dataBaseQueries.deleteWordInTable(tableName, rowID);
+                            dataBaseQueries.deleteWordInTableSync(tableName, rowID);
                             dataBaseQueries.dataBaseVacuum(tableName);
                         } catch (Exception e)
                         {
                             Toast.makeText(WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
-                        dataBaseQueries.insertWordInTable(new_table_name, baseEntry);
+                        dataBaseQueries.insertWordInTableSync(new_table_name, baseEntry);
                     }
                     else if (checkMove.isChecked() && checkCopy.isChecked())
                     {
                         try
                         {
-                            dataBaseQueries.updateWordInTable(tableName, rowID, baseEntry);
+                            dataBaseQueries.updateWordInTableSync(tableName, rowID, baseEntry);
                         } catch (Exception e)
                         {
                             Toast.makeText(WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
-                        dataBaseQueries.insertWordInTable(new_table_name, baseEntry);
+                        dataBaseQueries.insertWordInTableSync(new_table_name, baseEntry);
                     }
                     listViewSetSource(true);
                     switcher.showPrevious();

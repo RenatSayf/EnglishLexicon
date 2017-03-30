@@ -24,7 +24,6 @@ public class Tests extends AppCompatActivity
     private ListenEndClickFragment listenEndClickFragment;
     private OneOfFiveTest oneOfFiveTest;
     private FragmentTransaction transaction;
-    private DataBaseQueries baseQueries;
 
     public static String FIND_PAIR_FRAGMENT = "find_pair_fragment";
     public static String LISTEN_END_CLICK_FRAGMENT = "listen_and_click_fragment";
@@ -49,16 +48,6 @@ public class Tests extends AppCompatActivity
 
     private void initViews()
     {
-        try
-        {
-            baseQueries = new DataBaseQueries(this);
-        } catch (SQLException e)
-        {
-            e.printStackTrace();
-            Toast.makeText(this,"Error - "+e.getMessage(),Toast.LENGTH_SHORT).show();
-            this.finish();
-        }
-
         buttonFindPair = (ImageButton) findViewById(R.id.btn_find_pair);
         buttonListenEndClick = (ImageButton) findViewById(R.id.btn_select_word_test);
         buttonOneOfFive = (ImageButton) findViewById(R.id.btn_test_1of5);

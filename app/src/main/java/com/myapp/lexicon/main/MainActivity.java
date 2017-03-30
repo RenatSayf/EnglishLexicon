@@ -440,7 +440,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                         {
                                             try
                                             {
-                                                result = dataBaseQueries.deleteTableFromDbAsync(item);
+                                                result = dataBaseQueries.deleteTableFromDbSync(item);
                                                 appSettings.removeItemFromPlayList(item);
                                             } catch (Exception e)
                                             {
@@ -481,7 +481,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             try
                             {
                                 dataBaseQueries = new DataBaseQueries(MainActivity.this);
-                                dataBaseQueries.addTableToDbAsync(dictName);
+                                dataBaseQueries.addTableToDbSync(dictName);
                             } catch (Exception e)
                             {
                                 e.printStackTrace();
@@ -627,7 +627,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void getNext() throws SQLException, ExecutionException, InterruptedException
     {
         dataBaseQueries = new DataBaseQueries(this);
-        int wordsCount = dataBaseQueries.getEntriesCountAsync(playList.get(appData2.getNdict()));
+        int wordsCount = dataBaseQueries.getCountEntriesSync(playList.get(appData2.getNdict()));
         appData2.setNword(appData2.getNword()+1);
         if (playList.size() > 1)
         {
@@ -675,7 +675,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 {
                     appData2.setNdict(playList.size()-1);
                 }
-                int wordsCount = dataBaseQueries.getEntriesCountAsync(playList.get(appData2.getNdict()));
+                int wordsCount = dataBaseQueries.getCountEntriesSync(playList.get(appData2.getNdict()));
                 appData2.setNword(wordsCount);
             }
         }
@@ -683,7 +683,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             if (appData2.getNword() <= 1)
             {
-                int wordsCount = dataBaseQueries.getEntriesCountAsync(playList.get(appData2.getNdict()));
+                int wordsCount = dataBaseQueries.getCountEntriesSync(playList.get(appData2.getNdict()));
                 appData2.setNword(wordsCount);
             }
             else

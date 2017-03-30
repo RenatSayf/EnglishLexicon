@@ -6,8 +6,6 @@ import android.os.AsyncTask;
 
 import com.myapp.lexicon.helpers.LockOrientation;
 
-import java.lang.ref.WeakReference;
-
 /**
  * Get the number of records from table of database
  */
@@ -15,7 +13,7 @@ import java.lang.ref.WeakReference;
 public class GetCountWordsAsync extends AsyncTask<String, Void, Integer>
 {
     private Activity activity;
-    private WeakReference<GetCountListener> listener;
+    private GetCountListener listener;
     private LockOrientation lockOrientation;
     private DatabaseHelper databaseHelper;
     private String tableName;
@@ -37,7 +35,7 @@ public class GetCountWordsAsync extends AsyncTask<String, Void, Integer>
 
     private void setTaskCompleteListener(GetCountListener listener)
     {
-        this.listener = new WeakReference<>(listener);
+        this.listener = listener;
     }
 
     @Override
@@ -83,7 +81,6 @@ public class GetCountWordsAsync extends AsyncTask<String, Void, Integer>
     protected void onPostExecute(Integer count)
     {
         super.onPostExecute(count);
-        GetCountListener listener = this.listener.get();
         if (listener != null)
         {
             listener.onTaskComplete(count);

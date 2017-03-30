@@ -6,7 +6,6 @@ import android.os.AsyncTask;
 
 import com.myapp.lexicon.helpers.LockOrientation;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 /**
@@ -97,7 +96,6 @@ public class GetTableListAsync extends AsyncTask<Void, Void, ArrayList<String>>
     protected void onPostExecute(ArrayList<String> list)
     {
         super.onPostExecute(list);
-        //GetTableListListener listener = this.listener.get();
         if (listener != null)
         {
             listener.getTableListListener(list);

@@ -344,26 +344,20 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
             {
                 long id = -1;
                 DataBaseQueries dataBaseQueries = null;
-                try
-                {
-                    dataBaseQueries = new DataBaseQueries(AddWordActivity.this);
-                } catch (SQLException e)
-                {
-                    e.printStackTrace();
-                }
+                dataBaseQueries = new DataBaseQueries(AddWordActivity.this);
                 DataBaseEntry entry = new DataBaseEntry(null, null, null);
                 int res = checkText(textViewEnter.getText().toString(), textViewResult.getText().toString());
                 if (res == 1)
                 {
                     entry.set_english(textViewEnter.getText().toString());
                     entry.set_translate(textViewResult.getText().toString());
-                    id = dataBaseQueries != null ? dataBaseQueries.insertWordInTable(selectDict, entry) : -1;
+                    id = dataBaseQueries != null ? dataBaseQueries.insertWordInTableSync(selectDict, entry) : -1;
                 }
                 if (res == -1)
                 {
                     entry.set_english(textViewResult.getText().toString());
                     entry.set_translate(textViewEnter.getText().toString());
-                    id = dataBaseQueries != null ? dataBaseQueries.insertWordInTable(selectDict, entry) : -1;
+                    id = dataBaseQueries != null ? dataBaseQueries.insertWordInTableSync(selectDict, entry) : -1;
                 }
                 if (id != -1)
                 {
