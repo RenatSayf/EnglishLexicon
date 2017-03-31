@@ -621,6 +621,11 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                 listView.setAdapter(listViewAdapter); // TODO: ListView setAdapter
                 progressBar.setVisibility(View.GONE);
             }
+            else
+            {
+                listView.setAdapter(null);
+                progressBar.setVisibility(View.GONE);
+            }
         }
         catch (Exception e)
         {

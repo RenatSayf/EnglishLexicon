@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import static android.content.Context.MODE_PRIVATE;
 
 /**
- * Created by Renat on 27.02.2017.
+ *
  * Helper class for work with the SharedPreferences
  */
 

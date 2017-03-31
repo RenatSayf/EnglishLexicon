@@ -1,6 +1,7 @@
 package com.myapp.lexicon.wordeditor;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,11 +33,6 @@ public class ListViewAdapter extends ArrayAdapter implements Filterable
         this.tempEntries = new ArrayList<>(entries);
     }
 
-    public ListViewAdapter(Context context, int resource)
-    {
-        super(context, resource);
-    }
-
     @Override
     public int getCount()
     {
@@ -55,8 +51,9 @@ public class ListViewAdapter extends ArrayAdapter implements Filterable
         return position;
     }
 
+    @NonNull
     @Override
-    public View getView(int position, View convertView, ViewGroup viewGroup)
+    public View getView(int position, View convertView, @NonNull ViewGroup viewGroup)
     {
         View wordView=convertView;
         if (wordView == null)
@@ -78,6 +75,7 @@ public class ListViewAdapter extends ArrayAdapter implements Filterable
         return wordView;
     }
 
+    @NonNull
     @Override
     public Filter getFilter() //// TODO: 19.01.2017 Фильтрацтя ListView
     {
