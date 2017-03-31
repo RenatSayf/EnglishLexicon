@@ -7,7 +7,6 @@ import android.content.Loader;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -32,16 +31,14 @@ import android.widget.ViewSwitcher;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
-import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.database.GetAllFromTableLoader;
 import com.myapp.lexicon.database.GetEntriesLoader;
 import com.myapp.lexicon.database.GetTableListLoader;
-import com.myapp.lexicon.main.MainActivity;
-import com.myapp.lexicon.settings.AppData2;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.StringOperations;
+import com.myapp.lexicon.main.MainActivity;
+import com.myapp.lexicon.settings.AppData2;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class WordEditor extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>
@@ -57,7 +54,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
     private Spinner spinnerCountRepeat, spinnerListDict2;
     private CheckBox checkCopy, checkMove;
     private LinearLayout layoutSpinner;
-    private static ListViewAdapter listViewAdapter;
+    private ListViewAdapter listViewAdapter;
     private ProgressBar progressBar;
     private DataBaseQueries dataBaseQueries;
     private ViewSwitcher switcher;
@@ -153,7 +150,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
         outState.putString(KEY_EDITTEXT_RU, editTextRu.getText().toString());
         outState.putBoolean(KEY_CHECK_COPY, checkCopy.isChecked());
         outState.putBoolean(KEY_CHECK_MOVE, checkMove.isChecked());
-
+        AppData2.getInstance().setListViewAdapter((ListViewAdapter) listView.getAdapter());
     }
 
     @Override
@@ -286,7 +283,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
         }
         else
         {
-            listView.setAdapter(listViewAdapter);
+            listView.setAdapter(AppData2.getInstance().getListViewAdapter());
             progressBar.setVisibility(View.GONE);
         }
     }
@@ -539,6 +536,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                 try
                 {
                     //// TODO: Фильтрация ListView, вызов
+                    listViewAdapter = (ListViewAdapter) listView.getAdapter();
                     listViewAdapter.getFilter().filter(newText);
                 } catch (Exception e)
                 {

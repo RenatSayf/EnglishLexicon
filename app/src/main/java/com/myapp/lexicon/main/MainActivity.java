@@ -115,8 +115,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         appSettings = new AppSettings(this);
         playList = appSettings.getPlayList();
         appData2 = AppData2.getInstance();
-        appData2.setContext(this);
-        appData2.initAllSettings();
+        appData2.initAllSettings(this);
 
         initViews();
 
@@ -229,7 +228,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onPause()
     {
         super.onPause();
-        appData2.saveAllSettings();
+        appData2.saveAllSettings(this);
         if (!isActivityOnTop())
         {
             speechServiceOnPause();
@@ -275,7 +274,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
         //backgroundAnim.onDestroy();
         speechServiceOnPause();
-        appData2.saveAllSettings();
+        appData2.saveAllSettings(this);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer != null)
         {
