@@ -31,7 +31,6 @@ import android.widget.Toast;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
-import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.GetCountWordsAsync;
 import com.myapp.lexicon.database.GetEntriesFromDbAsync;
 import com.myapp.lexicon.database.GetTableListAsync;
@@ -409,11 +408,11 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                     button.animate().translationX(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null).setStartDelay(start_delay);
                     start_delay += 70;
                     btn_OnClick(button);
-                    button.setText(controlList.get(randomGenerator.generate()).get_translate());
+                    button.setText(controlList.get(randomGenerator.generate()).getTranslate());
                     wordIndex++;
                 }
                 randomGenerator = new RandomNumberGenerator(entries.size(), (int) new Date().getTime());
-                textView.setText(entries.get(randomGenerator.generate()).get_english());
+                textView.setText(entries.get(randomGenerator.generate()).getEnglish());
                 textView.setTranslationX(-displayMetrics.widthPixels);
                 textView.setTranslationY(0);
                 textView.animate().translationX(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null).setStartDelay(start_delay);
@@ -451,11 +450,11 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
 
         for (int i = 0; i < controlList.size(); i++)
         {
-            if (controlList.get(i).get_english().equals(enword))
+            if (controlList.get(i).getEnglish().equals(enword))
             {
                 indexEn = i;
             }
-            if (controlList.get(i).get_translate().equals(ruword))
+            if (controlList.get(i).getTranslate().equals(ruword))
             {
                 indexRu = i;
             }
@@ -539,7 +538,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                         if (listFromDB.size() > 0)
                         {
                             controlList.set(indexEn, listFromDB.get(0));
-                            tempButton.setText(listFromDB.get(0).get_translate());
+                            tempButton.setText(listFromDB.get(0).getTranslate());
                             tempButton.setBackgroundResource(R.drawable.text_button_for_test);
                             if (controlListSize != controlList.size())
                             {
@@ -552,7 +551,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                                 randomGenerator = new RandomNumberGenerator(controlListSize, (int) new Date().getTime());
                                 randomNumber = randomGenerator.generate();
                             }
-                            textView.setText(controlList.get(randomNumber).get_english());
+                            textView.setText(controlList.get(randomNumber).getEnglish());
                         }
                         else if (listFromDB.size() == 0 && controlList.size() <= ROWS)
                         {
@@ -560,14 +559,14 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                             try
                             {
                                 controlList.remove(indexEn);
-                                tempButton.setText(additionalList.get(additonalCount).get_translate());
+                                tempButton.setText(additionalList.get(additonalCount).getTranslate());
                                 additonalCount++;
                                 textView.setText("");
                                 if (controlList.size() > 0)
                                 {
                                     randomGenerator = new RandomNumberGenerator(controlList.size(), (int) new Date().getTime());
                                     int randomNumber = randomGenerator.generate();
-                                    textView.setText(controlList.get(randomNumber).get_english());
+                                    textView.setText(controlList.get(randomNumber).getEnglish());
                                 }
                             } catch (Exception e)
                             {

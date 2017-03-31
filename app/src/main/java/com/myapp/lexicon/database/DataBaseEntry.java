@@ -3,80 +3,46 @@ package com.myapp.lexicon.database;
 
 public class DataBaseEntry
 {
-    private String _id;
-    private String _english;
-    private String _translate;
-    private String _image;
-    private String _count_repeat;
-
-    public DataBaseEntry(String english, String translate, String image, String count_repeat)
-    {
-        this._english=english;
-        this._translate=translate;
-        this._image=image;
-        this._count_repeat=count_repeat;
-    }
+    private String english;
+    private String translate;
+    private String countRepeat;
 
     public DataBaseEntry(String english, String translate)
     {
-        this._english=english;
-        this._translate=translate;
+        this.english =english;
+        this.translate =translate;
     }
 
     public DataBaseEntry(String english, String translate, String count_repeat)
     {
-        this._english=english;
-        this._translate=translate;
-        this._count_repeat=count_repeat;
+        this.english =english;
+        this.translate =translate;
+        this.countRepeat =count_repeat;
     }
 
-    public String get_id()
+    public String getEnglish()
     {
-        return _id;
+        return english;
     }
 
-    public void set_id(String _id)
+    public void setEnglish(String english)
     {
-        this._id = _id;
+        this.english = english;
     }
 
-    public String get_english()
+    public String getTranslate()
     {
-        return _english;
+        return translate;
     }
 
-    public void set_english(String _english)
+    public void setTranslate(String translate)
     {
-        this._english = _english;
+        this.translate = translate;
     }
 
-    public String get_translate()
+    public String getCountRepeat()
     {
-        return _translate;
+        return countRepeat;
     }
 
-    public void set_translate(String _translate)
-    {
-        this._translate = _translate;
-    }
-
-    public String get_image()
-    {
-        return _image;
-    }
-
-    public void set_image(String _image)
-    {
-        this._image = _image;
-    }
-
-    public String get_count_repeat()
-    {
-        return _count_repeat;
-    }
-
-    public void set_count_repeat(String _count_repeat)
-    {
-        this._count_repeat = _count_repeat;
-    }
 }

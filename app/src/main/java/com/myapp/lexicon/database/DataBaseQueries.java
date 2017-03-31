@@ -118,8 +118,8 @@ public class DataBaseQueries
         String table_name = StringOperations.getInstance().spaceToUnderscore(tableName);
         long id = -1;
         ContentValues values = new ContentValues();
-        values.put(DatabaseHelper.COLUMN_ENGLISH, entry.get_english());
-        values.put(DatabaseHelper.COLUMN_TRANS, entry.get_translate());
+        values.put(DatabaseHelper.COLUMN_ENGLISH, entry.getEnglish());
+        values.put(DatabaseHelper.COLUMN_TRANS, entry.getTranslate());
         values.put(DatabaseHelper.COLUMN_IMAGE, "");
         values.put(DatabaseHelper.COLUMN_Count_REPEAT, 1);
         try
@@ -146,10 +146,10 @@ public class DataBaseQueries
         String table_name = StringOperations.getInstance().spaceToUnderscore(tableName);
         long id = -1;
         final ContentValues values = new ContentValues();
-        values.put(DatabaseHelper.COLUMN_ENGLISH, entry.get_english());
-        values.put(DatabaseHelper.COLUMN_TRANS, entry.get_translate());
+        values.put(DatabaseHelper.COLUMN_ENGLISH, entry.getEnglish());
+        values.put(DatabaseHelper.COLUMN_TRANS, entry.getTranslate());
         values.put(DatabaseHelper.COLUMN_IMAGE, "");
-        values.put(DatabaseHelper.COLUMN_Count_REPEAT, entry.get_count_repeat());
+        values.put(DatabaseHelper.COLUMN_Count_REPEAT, entry.getCountRepeat());
 
         try
         {

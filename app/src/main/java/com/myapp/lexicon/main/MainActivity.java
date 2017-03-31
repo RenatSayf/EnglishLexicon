@@ -800,13 +800,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (dataBaseEntry != null)
         {
-            textViewEn.setText(dataBaseEntry.get_english());
-            textViewRu.setText(dataBaseEntry.get_translate());
+            textViewEn.setText(dataBaseEntry.getEnglish());
+            textViewRu.setText(dataBaseEntry.getTranslate());
             textViewDict.setText(playList.get(appData2.getNdict()));
 
             HashMap<String, String> hashMap = new HashMap<>();
             hashMap.put("KEY_XXX", "xxx");
-            SplashScreenActivity.speech.speak(dataBaseEntry.get_english(), TextToSpeech.QUEUE_ADD, hashMap);
+            SplashScreenActivity.speech.speak(dataBaseEntry.getEnglish(), TextToSpeech.QUEUE_ADD, hashMap);
         }
     }
 

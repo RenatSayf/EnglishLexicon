@@ -39,7 +39,6 @@ import com.myapp.lexicon.database.GetTableListLoader2;
 import com.myapp.lexicon.database.GetTranslateLoader;
 import com.myapp.lexicon.main.SplashScreenActivity;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
@@ -349,14 +348,14 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
                 int res = checkText(textViewEnter.getText().toString(), textViewResult.getText().toString());
                 if (res == 1)
                 {
-                    entry.set_english(textViewEnter.getText().toString());
-                    entry.set_translate(textViewResult.getText().toString());
+                    entry.setEnglish(textViewEnter.getText().toString());
+                    entry.setTranslate(textViewResult.getText().toString());
                     id = dataBaseQueries != null ? dataBaseQueries.insertWordInTableSync(selectDict, entry) : -1;
                 }
                 if (res == -1)
                 {
-                    entry.set_english(textViewResult.getText().toString());
-                    entry.set_translate(textViewEnter.getText().toString());
+                    entry.setEnglish(textViewResult.getText().toString());
+                    entry.setTranslate(textViewEnter.getText().toString());
                     id = dataBaseQueries != null ? dataBaseQueries.insertWordInTableSync(selectDict, entry) : -1;
                 }
                 if (id != -1)

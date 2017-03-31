@@ -64,13 +64,13 @@ public class ListViewAdapter extends ArrayAdapter implements Filterable
         DataBaseEntry dataBaseEntry = entries.get(position);
 
         TextView textEnglish = (TextView) wordView.findViewById(R.id.english);
-        textEnglish.setText(dataBaseEntry.get_english());
+        textEnglish.setText(dataBaseEntry.getEnglish());
 
         TextView textTranslate = (TextView) wordView.findViewById(R.id.translate);
-        textTranslate.setText(dataBaseEntry.get_translate());
+        textTranslate.setText(dataBaseEntry.getTranslate());
 
         TextView textCountRepeat = (TextView) wordView.findViewById(R.id.count_repeat);
-        textCountRepeat.setText(dataBaseEntry.get_count_repeat());
+        textCountRepeat.setText(dataBaseEntry.getCountRepeat());
 
         return wordView;
     }
@@ -95,7 +95,7 @@ public class ListViewAdapter extends ArrayAdapter implements Filterable
                     ArrayList<DataBaseEntry> filteredEntries = new ArrayList<>();
                     for (DataBaseEntry entry : tempEntries)
                     {
-                        if (entry.get_english().contains(constraint) || entry.get_translate().contains(constraint))
+                        if (entry.getEnglish().contains(constraint) || entry.getTranslate().contains(constraint))
                         {
                             filteredEntries.add(entry);
                         }

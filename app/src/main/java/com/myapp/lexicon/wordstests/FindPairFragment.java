@@ -32,7 +32,6 @@ import android.widget.TextView;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
-import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.GetCountWordsAsync;
 import com.myapp.lexicon.database.GetEntriesFromDbAsync;
 import com.myapp.lexicon.database.GetTableListAsync;
@@ -409,8 +408,8 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                     btnLeft.setScaleY(1.0f);
                     btnRight.setScaleX(1.0f);
                     btnRight.setScaleY(1.0f);
-                    btnLeft.setText(controlList.get(i).get_english());
-                    btnRight.setText(controlList.get(randGenRight.generate()).get_translate());
+                    btnLeft.setText(controlList.get(i).getEnglish());
+                    btnRight.setText(controlList.get(randGenRight.generate()).getTranslate());
                     btnLeft.setX(-metrics.widthPixels);
                     btnLeft.setTranslationY(0);
                     btnRight.setX(metrics.widthPixels);
@@ -486,7 +485,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         boolean isFind = false;
         for (int i = 0; i < controlList.size(); i++)
         {
-            if (controlList.get(i).get_english().equals(enword) && controlList.get(i).get_translate().equals(ruword))
+            if (controlList.get(i).getEnglish().equals(enword) && controlList.get(i).getTranslate().equals(ruword))
             {
                 isFind = true;
                 break;

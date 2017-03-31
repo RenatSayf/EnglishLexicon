@@ -12,7 +12,6 @@ import android.widget.Toast;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DatabaseHelper;
-import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.settings.AppData2;
 import com.myapp.lexicon.settings.AppSettings;
 
@@ -184,7 +183,7 @@ public class SpeechService extends IntentService
                                 int repeat;
                                 try
                                 {
-                                    repeat = Integer.parseInt(list.get(0).get_count_repeat());
+                                    repeat = Integer.parseInt(list.get(0).getCountRepeat());
                                 } catch (NumberFormatException e)
                                 {
                                     repeat = 1;
@@ -266,7 +265,7 @@ public class SpeechService extends IntentService
                                 int repeat;
                                 try
                                 {
-                                    repeat = Integer.parseInt(list.get(0).get_count_repeat());
+                                    repeat = Integer.parseInt(list.get(0).getCountRepeat());
                                 } catch (NumberFormatException e)
                                 {
                                     repeat = 1;
@@ -327,7 +326,7 @@ public class SpeechService extends IntentService
             {
                 if (utteranceId.equals("ru"))
                 {
-                    textRu = entries.get_translate();
+                    textRu = entries.getTranslate();
                 }
                 updateIntent.putExtra(EXTRA_KEY_EN, textEn);
                 updateIntent.putExtra(EXTRA_KEY_RU, textRu);
@@ -346,7 +345,7 @@ public class SpeechService extends IntentService
                 }
                 if (utteranceId.equals("en"))
                 {
-                    textRu = entries.get_translate();
+                    textRu = entries.getTranslate();
                     HashMap<String,String> mapRu = new HashMap<>();
                     mapRu.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "ru");
                     SplashScreenActivity.speech.setLanguage(Locale.getDefault());
@@ -383,7 +382,7 @@ public class SpeechService extends IntentService
         {
             mapEn.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "ru");
         }
-        textEn = entries.get_english();
+        textEn = entries.getEnglish();
         textRu = "";
         SplashScreenActivity.speech.setLanguage(Locale.US);
         SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, mapEn);

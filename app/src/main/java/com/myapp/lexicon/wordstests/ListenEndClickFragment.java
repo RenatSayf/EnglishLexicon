@@ -2,7 +2,6 @@ package com.myapp.lexicon.wordstests;
 
 
 import android.animation.Animator;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
@@ -32,7 +31,6 @@ import android.widget.Toast;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
-import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.GetCountWordsAsync;
 import com.myapp.lexicon.database.GetEntriesFromDbAsync;
 import com.myapp.lexicon.database.GetTableListAsync;
@@ -49,8 +47,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
-
-import static android.content.Context.MODE_PRIVATE;
 
 
 /**
@@ -403,7 +399,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                 for (int i = 0; i < controlList.size(); i++)
                 {
                     Button button = (Button) buttonsLayout.getChildAt(i);
-                    button.setText(controlList.get(randomGenerator.generate()).get_translate());
+                    button.setText(controlList.get(randomGenerator.generate()).getTranslate());
                     button.setTranslationX(displayMetrics.widthPixels);
                     button.setTranslationY(0);
                     button.setVisibility(View.VISIBLE);
@@ -414,7 +410,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                 }
                 randomGenerator = new RandomNumberGenerator(controlListSize, (int) new Date().getTime());
                 int randIndex = randomGenerator.generate();
-                textEn = entries.get(randIndex).get_english();
+                textEn = entries.get(randIndex).getEnglish();
             }
         });
         if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
@@ -448,11 +444,11 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
 
         for (int i = 0; i < controlList.size(); i++)
         {
-            if (controlList.get(i).get_english().equals(enword))
+            if (controlList.get(i).getEnglish().equals(enword))
             {
                 indexEn = i;
             }
-            if (controlList.get(i).get_translate().equals(ruword))
+            if (controlList.get(i).getTranslate().equals(ruword))
             {
                 indexRu = i;
             }
@@ -619,7 +615,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                         if (listFromDB.size() > 0)
                         {
                             controlList.set(indexEn, listFromDB.get(0));
-                            button.setText(listFromDB.get(0).get_translate());
+                            button.setText(listFromDB.get(0).getTranslate());
                             if (controlListSize != controlList.size())
                             {
                                 randomGenerator = new RandomNumberGenerator(controlList.size(), (int) new Date().getTime());
@@ -631,7 +627,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                                 randomGenerator = new RandomNumberGenerator(controlListSize, (int) new Date().getTime());
                                 randomNumber = randomGenerator.generate();
                             }
-                            textEn = controlList.get(randomNumber).get_english();
+                            textEn = controlList.get(randomNumber).getEnglish();
                             if (buttonY > 0)
                             {
                                 animButtonsToDown(buttonX, buttonY);
@@ -646,14 +642,14 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                             try
                             {
                                 controlList.remove(indexEn);
-                                button.setText(additionalList.get(additonalCount).get_translate());
+                                button.setText(additionalList.get(additonalCount).getTranslate());
                                 additonalCount++;
                                 textEn = "";
                                 if (controlList.size() > 0)
                                 {
                                     randomGenerator = new RandomNumberGenerator(controlList.size(), (int) new Date().getTime());
                                     int randomNumber = randomGenerator.generate();
-                                    textEn = controlList.get(randomNumber).get_english();
+                                    textEn = controlList.get(randomNumber).getEnglish();
                                 }
                             } catch (Exception e)
                             {

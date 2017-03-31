@@ -413,7 +413,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                 {
                     String tableName = spinnerListDict.getSelectedItem().toString();
                     String new_table_name = spinnerListDict2.getSelectedItem().toString();
-                    DataBaseEntry baseEntry = new DataBaseEntry(editTextEn.getText().toString(), editTextRu.getText().toString(), null, spinnerCountRepeat.getSelectedItem().toString());
+                    DataBaseEntry baseEntry = new DataBaseEntry(editTextEn.getText().toString(), editTextRu.getText().toString(), spinnerCountRepeat.getSelectedItem().toString());
                     if (!checkMove.isChecked())
                     {
                         try
