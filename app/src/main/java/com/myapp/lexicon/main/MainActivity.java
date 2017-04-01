@@ -16,6 +16,7 @@ import android.speech.tts.TextToSpeech;
 import android.support.design.widget.NavigationView;
 import android.app.LoaderManager;
 import android.content.Loader;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -41,6 +42,7 @@ import android.widget.Toast;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.addword.AddWordActivity;
 import com.myapp.lexicon.database.GetTableListAsync;
+import com.myapp.lexicon.database.GetTableListFragm;
 import com.myapp.lexicon.wordeditor.WordEditor;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
@@ -59,7 +61,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, LoaderManager.LoaderCallbacks<Cursor>
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
+        LoaderManager.LoaderCallbacks<Cursor>,
+        GetTableListFragm.OnTableListListener
 {
     public DatabaseHelper databaseHelper;
     private Intent addWordIntent;
@@ -97,11 +101,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     protected PowerManager.WakeLock wakeLock;
 
+    private GetTableListFragm getTableListFragm;
+    private FragmentManager fragmentManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a_navig_main);
+
+        fragmentManager = getSupportFragmentManager();
 
         final PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
         this.wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"my_tag");
@@ -349,13 +358,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         else if (id == R.id.nav_delete_dict)
         {
-            try
-            {
-                dialogDeleteDict();
-            } catch (SQLException e)
-            {
-                e.printStackTrace();
-            }
+            getTableListFragm = new GetTableListFragm();
+            fragmentManager.beginTransaction().add(getTableListFragm, "get_table_list").commit();
         }
         else if (id == R.id.nav_edit)
         {
@@ -383,8 +387,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.nav_exit)
         {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
-            //backgroundAnim.onDestroy();
-            //speechServiceOnStop();
             wakeLock.release();
             this.finish();
         }
@@ -397,69 +399,63 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    //private String[] items = new  String[0];
-
-    private void dialogDeleteDict() throws SQLException
+    @Override
+    public void onGetTableListListener(Object object)
     {
-        GetTableListAsync getTableListAsync = new GetTableListAsync(this, new GetTableListAsync.GetTableListListener()
+        getTableListFragm = (GetTableListFragm) fragmentManager.findFragmentByTag("get_table_list");
+        if (getTableListFragm != null)
         {
-            @Override
-            public void getTableListListener(ArrayList<String> arrayList)
-            {
-                final ArrayList<String> delete_items = new ArrayList<>();
-                final String[] items = new  String[arrayList.size()];
-                for (int i = 0; i < arrayList.size(); i++)
-                {
-                    items[i] = arrayList.get(i);
-                }
-                boolean[]choice = new boolean[items.length];
-                new AlertDialog.Builder(MainActivity.this).setTitle(R.string.title_del_dict)
-                        .setMultiChoiceItems(items, choice, new DialogInterface.OnMultiChoiceClickListener()
-                        {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which, boolean isChecked)
-                            {
-                                delete_items.add(items[which]);
-                                //Toast.makeText(a_MainActivity.this, "Добавлен элемент - " + delete_items.get(delete_items.size()-1), Toast.LENGTH_SHORT).show();
-                            }
-                        }).setPositiveButton(R.string.button_text_delete, new DialogInterface.OnClickListener()
+            fragmentManager.beginTransaction().remove(getTableListFragm).commit();
+        }
+        ArrayList<String> arrayList = (ArrayList<String>) object;
+        final ArrayList<String> delete_items = new ArrayList<>();
+        final String[] items = new  String[arrayList.size()];
+        for (int i = 0; i < arrayList.size(); i++)
+        {
+            items[i] = arrayList.get(i);
+        }
+        boolean[]choice = new boolean[items.length];
+        new AlertDialog.Builder(MainActivity.this).setTitle(R.string.title_del_dict)
+                .setMultiChoiceItems(items, choice, new DialogInterface.OnMultiChoiceClickListener()
                 {
                     @Override
-                    public void onClick(DialogInterface dialog, int which)
+                    public void onClick(DialogInterface dialog, int which, boolean isChecked)
                     {
-                        if(delete_items.size() <= 0)    return;
-                        new AlertDialog.Builder(MainActivity.this).setTitle(R.string.dialog_are_you_sure)
-                                .setPositiveButton(R.string.button_text_yes, new DialogInterface.OnClickListener()
-                                {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which)
-                                    {
-                                        boolean result = false;
-                                        for (String item : delete_items)
-                                        {
-                                            try
-                                            {
-                                                result = dataBaseQueries.deleteTableFromDbSync(item);
-                                                appSettings.removeItemFromPlayList(item);
-                                            } catch (Exception e)
-                                            {
-                                                e.printStackTrace();
-                                            }
-                                        }
-                                        if (result)
-                                        {
-                                            Toast.makeText(MainActivity.this, R.string.msg_selected_dict_removed, Toast.LENGTH_LONG).show();
-                                        }
-                                    }
-                                }).setNegativeButton(R.string.button_text_no, null).create().show();
+                        delete_items.add(items[which]);
+                        //Toast.makeText(a_MainActivity.this, "Добавлен элемент - " + delete_items.get(delete_items.size()-1), Toast.LENGTH_SHORT).show();
                     }
-                }).setNegativeButton(R.string.button_text_cancel,null).create().show();
-            }
-        });
-        if (getTableListAsync.getStatus() != AsyncTask.Status.RUNNING)
+                }).setPositiveButton(R.string.button_text_delete, new DialogInterface.OnClickListener()
         {
-            getTableListAsync.execute();
-        }
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                if(delete_items.size() <= 0)    return;
+                new AlertDialog.Builder(MainActivity.this).setTitle(R.string.dialog_are_you_sure)
+                        .setPositiveButton(R.string.button_text_yes, new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                boolean result = false;
+                                for (String item : delete_items)
+                                {
+                                    try
+                                    {
+                                        result = dataBaseQueries.deleteTableFromDbSync(item);
+                                        appSettings.removeItemFromPlayList(item);
+                                    } catch (Exception e)
+                                    {
+                                        e.printStackTrace();
+                                    }
+                                }
+                                if (result)
+                                {
+                                    Toast.makeText(MainActivity.this, R.string.msg_selected_dict_removed, Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        }).setNegativeButton(R.string.button_text_no, null).create().show();
+            }
+        }).setNegativeButton(R.string.button_text_cancel,null).create().show();
     }
 
     private void dialogAddDict()
@@ -815,6 +811,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
 
     }
+
+
 
     public class UpdateBroadcastReceiver extends BroadcastReceiver
     {
