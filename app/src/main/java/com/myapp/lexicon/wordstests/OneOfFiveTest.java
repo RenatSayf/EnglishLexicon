@@ -4,6 +4,7 @@ package com.myapp.lexicon.wordstests;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.util.DisplayMetrics;
@@ -22,6 +23,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -34,6 +36,7 @@ import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.GetCountWordsAsync;
 import com.myapp.lexicon.database.GetEntriesFromDbAsync;
 import com.myapp.lexicon.database.GetTableListAsync;
+import com.myapp.lexicon.main.BackgroundAnim2;
 import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
@@ -57,6 +60,8 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     public static final int ROWS = 5;
 
     private static RelativeLayout.LayoutParams saveTopPanelParams;
+
+    private ImageView imageBack;
 
     private LinearLayout topPanel;
     private RelativeLayout.LayoutParams topPanelParams;
@@ -196,6 +201,8 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
         display.getMetrics(displayMetrics);
 
         View fragment_view = inflater.inflate(R.layout.t_one_of_five_test, container, false);
+
+        imageBack = (ImageView) fragment_view.findViewById(R.id.img_back_1of5_layout);
 
         topPanel = (LinearLayout) fragment_view.findViewById(R.id.top_panel);
         topPanelParams = (RelativeLayout.LayoutParams) topPanel.getLayoutParams();
@@ -810,6 +817,14 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
         super.onPause();
         Tests.bundleOneOfFiveTest = new Bundle();
         onSaveInstanceState(Tests.bundleOneOfFiveTest);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState)
+    {
+        super.onActivityCreated(savedInstanceState);
+        RandomNumberGenerator generator = new RandomNumberGenerator(BackgroundAnim2.imagesId.length, (int) new Date().getTime());
+        imageBack.setImageResource(BackgroundAnim2.imagesId[generator.generate()]);
     }
 
     private void topPanelVisible(float touchDown, float touchUp, boolean isOpen)

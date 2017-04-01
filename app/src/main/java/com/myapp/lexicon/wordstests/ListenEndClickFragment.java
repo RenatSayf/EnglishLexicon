@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
 import android.view.Display;
@@ -23,6 +24,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -36,6 +38,7 @@ import com.myapp.lexicon.database.GetEntriesFromDbAsync;
 import com.myapp.lexicon.database.GetTableListAsync;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
+import com.myapp.lexicon.main.BackgroundAnim2;
 import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.settings.AppData2;
 import com.myapp.lexicon.settings.AppSettings;
@@ -55,6 +58,8 @@ import java.util.TreeMap;
 public class ListenEndClickFragment extends Fragment implements DialogTestComplete.IDialogComplete_Result
 {
     public static final int ROWS = 5;
+
+    private ImageView imageBack;
 
     private static RelativeLayout.LayoutParams saveTopPanelParams;
     private static boolean isOpen = false;
@@ -192,6 +197,8 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
         appData = AppData2.getInstance();
 
         View fragment_view = inflater.inflate(R.layout.t_listen_end_click_layout, container, false);
+
+        imageBack = (ImageView) fragment_view.findViewById(R.id.img_back_listen_layout);
         topPanel = (LinearLayout) fragment_view.findViewById(R.id.top_panel);
         topPanelParams = (RelativeLayout.LayoutParams) topPanel.getLayoutParams();
         LinearLayout linLayout = (LinearLayout) fragment_view.findViewById(R.id.linear_layout);
@@ -928,6 +935,14 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
         super.onPause();
         Tests.bundleListenTest = new Bundle();
         onSaveInstanceState(Tests.bundleListenTest);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState)
+    {
+        super.onActivityCreated(savedInstanceState);
+        RandomNumberGenerator generator = new RandomNumberGenerator(BackgroundAnim2.imagesId.length, (int) new Date().getTime());
+        imageBack.setImageResource(BackgroundAnim2.imagesId[generator.generate()]);
     }
 
 

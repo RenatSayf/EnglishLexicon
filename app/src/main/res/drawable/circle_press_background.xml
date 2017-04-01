@@ -9,7 +9,7 @@
 
     <item>
         <shape android:shape="oval">
-            <solid android:color="@color/colorTransparent"/>
+            <solid android:color="@color/colorWhite"/>
         </shape>
     </item>
 

@@ -6,12 +6,19 @@
                 android:orientation="vertical"
                 tools:context="com.myapp.lexicon.wordstests.OneOfFiveTest">
 
+    <ImageView
+        android:id="@+id/img_back_1of5_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/img_uk4"
+        android:scaleType="centerCrop"
+        android:contentDescription="@string/descript_image_background"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
-        android:layout_weight="0"
         android:orientation="vertical"
         android:visibility="gone">
 
@@ -39,7 +46,6 @@
         android:id="@+id/up_lin_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
         android:orientation="vertical">
 
         <FrameLayout
@@ -83,7 +89,6 @@
         android:layout_below="@id/up_lin_layout"
         android:layout_marginBottom="10dp"
         android:layout_marginTop="10dp"
-        android:layout_weight="1"
         android:orientation="vertical">
 
         <Button
