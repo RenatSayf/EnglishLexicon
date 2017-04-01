@@ -2,6 +2,7 @@ package com.myapp.lexicon.wordstests;
 
 
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.Nullable;
@@ -290,9 +291,15 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         }
 
         testResults = new TestResults(getActivity());
+
+        fragmentManager = getFragmentManager();
+        dialogTestComplete = (DialogTestComplete) fragmentManager.findFragmentByTag("dialog_complete_find_pair");
+        if (dialogTestComplete != null)
+        {
+            fragmentManager.beginTransaction().remove(dialogTestComplete).commit();
+        }
         dialogTestComplete = new DialogTestComplete();
         dialogTestComplete.setIDialogCompleteResult(this);
-        fragmentManager = getFragmentManager();
 
         return fragment_view;
     }
@@ -508,6 +515,14 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             HashMap<String, String> hashMap = new HashMap<>();
             hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "find_pair_fragm");
             SplashScreenActivity.speech.speak(enword, TextToSpeech.QUEUE_ADD, hashMap);
+//            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP)
+//            {
+//                SplashScreenActivity.speech.speak(enword, TextToSpeech.QUEUE_ADD, null, "find_pair_fragm");
+//            }
+//            else
+//            {
+//                SplashScreenActivity.speech.speak(enword, TextToSpeech.QUEUE_ADD, hashMap);
+//            }
 
             ViewPropertyAnimator animScale = tempButtonLeft.animate().scaleX(0).scaleY(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setStartDelay(0);
             animScale_Listener(animScale);
@@ -629,6 +644,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                         ArrayList<String> list = new ArrayList<>();
                         list.add(testResults.getOverallResult(counterRightAnswer, wordsCount));
                         list.add(counterRightAnswer + " из " + wordsCount);
+
                         if (dialogTestComplete != null)
                         {
                             try
@@ -722,6 +738,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                                 ArrayList<String> list = new ArrayList<>();
                                 list.add(testResults.getOverallResult(counterRightAnswer, wordsCount));
                                 list.add(counterRightAnswer + " из " + wordsCount);
+
                                 if (dialogTestComplete != null)
                                 {
                                     try
