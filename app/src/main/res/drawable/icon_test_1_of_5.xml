@@ -3,6 +3,6 @@
 
     <item android:drawable="@drawable/icon_1_of_5_dark" android:state_pressed="true"/>
 
-    <item android:drawable="@drawable/icon_1_of_5"/>
+    <item android:drawable="@drawable/icon_1_of_5_light"/>
 
 </selector>
