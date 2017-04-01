@@ -179,6 +179,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
     }
 
     @Override

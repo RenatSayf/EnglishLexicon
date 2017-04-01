@@ -460,8 +460,8 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                 }
                 tempButtonRight = (Button) view;
                 ruWord = tempButtonRight.getText().toString();
-                compareWords(enWord, ruWord);
                 btnNoRight = tempButtonRight;
+                compareWords(enWord, ruWord);
             }
         });
     }
@@ -479,8 +479,8 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                 }
                 tempButtonLeft = (Button) view;
                 enWord = tempButtonLeft.getText().toString();
-                compareWords(enWord, ruWord);
                 btnNoRight = tempButtonLeft;
+                compareWords(enWord, ruWord);
             }
         });
     }
