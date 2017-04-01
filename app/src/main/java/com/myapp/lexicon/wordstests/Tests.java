@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.ImageButton;
 
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.database.GetTableListFragm;
 
 public class Tests extends AppCompatActivity
 {
@@ -163,5 +164,6 @@ public class Tests extends AppCompatActivity
             finish();
         }
     }
+
 
 }

@@ -47,7 +47,7 @@ public class StringOperations
 
     public String spaceToUnderscore(String text)
     {
-        if (!text.equals(""))
+        if (text != null)
         {
             String name = text.trim();
             return name.replace(' ','_');
@@ -59,7 +59,7 @@ public class StringOperations
 
     public String underscoreToSpace(String text)
     {
-        if (!text.equals(""))
+        if (text != null)
         {
             String name = text.trim();
             return name.replace('_',' ');

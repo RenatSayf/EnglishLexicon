@@ -114,6 +114,13 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     }
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
+
+    @Override
     public void onSaveInstanceState(Bundle outState)
     {
         super.onSaveInstanceState(outState);
@@ -453,7 +460,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                 }
                 tempButtonRight = (Button) view;
                 ruWord = tempButtonRight.getText().toString();
-                compareWords(spinnSelectedItem, enWord, ruWord);
+                compareWords(enWord, ruWord);
                 btnNoRight = tempButtonRight;
             }
         });
@@ -472,13 +479,13 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                 }
                 tempButtonLeft = (Button) view;
                 enWord = tempButtonLeft.getText().toString();
-                compareWords(spinnSelectedItem, enWord, ruWord);
+                compareWords(enWord, ruWord);
                 btnNoRight = tempButtonLeft;
             }
         });
     }
 
-    private void compareWords(final String tableName, final String enword, String ruword)
+    private void compareWords(final String enword, String ruword)
     {
         if (enword == null || ruword == null)   return;
 
