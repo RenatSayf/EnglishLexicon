@@ -293,11 +293,6 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         testResults = new TestResults(getActivity());
 
         fragmentManager = getFragmentManager();
-        dialogTestComplete = (DialogTestComplete) fragmentManager.findFragmentByTag("dialog_complete_find_pair");
-        if (dialogTestComplete != null)
-        {
-            fragmentManager.beginTransaction().remove(dialogTestComplete).commit();
-        }
         dialogTestComplete = new DialogTestComplete();
         dialogTestComplete.setIDialogCompleteResult(this);
 
@@ -514,15 +509,14 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             tempButtonRight.setBackgroundResource(R.drawable.text_btn_for_test_green);
             HashMap<String, String> hashMap = new HashMap<>();
             hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "find_pair_fragm");
-            SplashScreenActivity.speech.speak(enword, TextToSpeech.QUEUE_ADD, hashMap);
-//            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP)
-//            {
-//                SplashScreenActivity.speech.speak(enword, TextToSpeech.QUEUE_ADD, null, "find_pair_fragm");
-//            }
-//            else
-//            {
-//                SplashScreenActivity.speech.speak(enword, TextToSpeech.QUEUE_ADD, hashMap);
-//            }
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP)
+            {
+                SplashScreenActivity.speech.speak(enword, TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+            }
+            else
+            {
+                SplashScreenActivity.speech.speak(enword, TextToSpeech.QUEUE_ADD, hashMap);
+            }
 
             ViewPropertyAnimator animScale = tempButtonLeft.animate().scaleX(0).scaleY(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setStartDelay(0);
             animScale_Listener(animScale);
@@ -645,25 +639,32 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                         list.add(testResults.getOverallResult(counterRightAnswer, wordsCount));
                         list.add(counterRightAnswer + " из " + wordsCount);
 
-                        if (dialogTestComplete != null)
-                        {
-                            try
-                            {
-                                if (!dialogTestComplete.isAdded())
-                                {
-                                    Bundle bundle = new Bundle();
-                                    bundle.putString(dialogTestComplete.KEY_RESULT, list.get(0));
-                                    bundle.putString(dialogTestComplete.KEY_ERRORS, list.get(1));
-                                    dialogTestComplete.setArguments(bundle);
-                                    dialogTestComplete.setCancelable(false);
-                                    dialogTestComplete.show(fragmentManager, "dialog_complete_find_pair");
-                                }
+                        Bundle bundle = new Bundle();
+                        bundle.putString(dialogTestComplete.KEY_RESULT, list.get(0));
+                        bundle.putString(dialogTestComplete.KEY_ERRORS, list.get(1));
+                        dialogTestComplete.setArguments(bundle);
+                        dialogTestComplete.setCancelable(false);
+                        dialogTestComplete.show(fragmentManager, "dialog_complete_find_pair");
 
-                            } catch (IllegalStateException e)
-                            {
-                                dialogTestComplete = null;
-                            }
-                        }
+//                        if (dialogTestComplete != null)
+//                        {
+//                            try
+//                            {
+//                                if (!dialogTestComplete.isAdded())
+//                                {
+//                                    Bundle bundle = new Bundle();
+//                                    bundle.putString(dialogTestComplete.KEY_RESULT, list.get(0));
+//                                    bundle.putString(dialogTestComplete.KEY_ERRORS, list.get(1));
+//                                    dialogTestComplete.setArguments(bundle);
+//                                    dialogTestComplete.setCancelable(false);
+//                                    dialogTestComplete.show(fragmentManager, "dialog_complete_find_pair");
+//                                }
+//
+//                            } catch (IllegalStateException e)
+//                            {
+//                                dialogTestComplete = null;
+//                            }
+//                        }
                     }
                 }
             }
@@ -730,33 +731,6 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                                 if (isFill)
                                 {
                                     fillButtonsLayout(spinnSelectedItem, wordIndex + 1, wordIndex + ROWS);
-                                }
-                            }
-
-                            if (wordIndex == wordsCount)
-                            {
-                                ArrayList<String> list = new ArrayList<>();
-                                list.add(testResults.getOverallResult(counterRightAnswer, wordsCount));
-                                list.add(counterRightAnswer + " из " + wordsCount);
-
-                                if (dialogTestComplete != null)
-                                {
-                                    try
-                                    {
-                                        if (!dialogTestComplete.isAdded())
-                                        {
-                                            Bundle bundle = new Bundle();
-                                            bundle.putString(dialogTestComplete.KEY_RESULT, list.get(0));
-                                            bundle.putString(dialogTestComplete.KEY_ERRORS, list.get(1));
-                                            dialogTestComplete.setArguments(bundle);
-                                            dialogTestComplete.setCancelable(false);
-                                            dialogTestComplete.show(fragmentManager, "dialog_complete_find_pair");
-                                        }
-
-                                    } catch (IllegalStateException e)
-                                    {
-                                        dialogTestComplete = null;
-                                    }
                                 }
                             }
                         }
@@ -835,7 +809,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                 containsInPlayList = true; break;
             }
         }
-        boolean contains = arrStudiedDict.contains(spinnListDict.getSelectedItem());
+        boolean contains = arrStudiedDict.contains(spinnListDict.getSelectedItem().toString());
         if (counterRightAnswer == wordsCount && !contains && containsInPlayList)
         {
             arrStudiedDict.add(spinnListDict.getSelectedItem().toString());
@@ -948,31 +922,5 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         });
     }
 
-//    @Override
-//    public void onDetach()
-//    {
-//        super.onDetach();
-//        boolean onTop = isActivityOnTop();
-//        if (!isActivityOnTop())
-//        {
-//            backgroundAnim2.timerCancel();
-//        }
-//    }
-//
-//    // TODO: ActivityManager.RunningAppProcessInfo Проверка, что активити находится на верху стека
-//    public boolean isActivityOnTop()
-//    {
-//        boolean isTop = false;
-//        android.app.FragmentManager fragmentManager = getActivity().getFragmentManager();
-//        android.app.Fragment fragment = fragmentManager.findFragmentByTag(Tests.FIND_PAIR_FRAGMENT);
-//        if (fragment != null && fragment.isInLayout())
-//        {
-//            isTop = true;
-//        } else
-//        {
-//            isTop = false;
-//        }
-//
-//        return isTop;
-//    }
+
 }
