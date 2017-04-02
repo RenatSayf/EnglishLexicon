@@ -3,6 +3,7 @@ package com.myapp.lexicon.wordstests;
 
 import android.animation.Animator;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
@@ -296,7 +297,13 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                 topPanelVisible(1, 0, isOpen);
                 HashMap<String, String> hashMap = new HashMap<>();
                 hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "btn_speech");
-                SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, hashMap);
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP)
+                {
+                    SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+                } else
+                {
+                    SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, hashMap);
+                }
             }
         });
     }
@@ -485,7 +492,13 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                     }
                     final HashMap<String, String> hashMap = new HashMap<>();
                     hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "compare_words");
-                    SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, hashMap);
+                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP)
+                    {
+                        SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+                    } else
+                    {
+                        SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, hashMap);
+                    }
                     SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
                     {
                         @Override
@@ -716,7 +729,13 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
             {
                 HashMap<String, String> hashMap = new HashMap<>();
                 hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "btn_from_rigth_anim");
-                SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, hashMap);
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP)
+                {
+                    SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+                } else
+                {
+                    SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, hashMap);
+                }
                 SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
                 {
                     @Override

@@ -2,6 +2,7 @@ package com.myapp.lexicon.wordstests;
 
 
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.Nullable;
@@ -479,7 +480,13 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                     progressBar.setProgress(progressBar.getProgress()+1);
                     HashMap<String, String> hashMap = new HashMap<>();
                     hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "one_of_five_fragm");
-                    SplashScreenActivity.speech.speak(textView.getText().toString(), TextToSpeech.QUEUE_ADD, hashMap);
+                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP)
+                    {
+                        SplashScreenActivity.speech.speak(textView.getText().toString(), TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+                    } else
+                    {
+                        SplashScreenActivity.speech.speak(textView.getText().toString(), TextToSpeech.QUEUE_ADD, hashMap);
+                    }
 
                     textViewToLeftAnimatoin();
                     buttonToRightAnimation(tempButton);
@@ -804,7 +811,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                 containsInPlayList = true; break;
             }
         }
-        boolean contains = arrStudiedDict.contains(spinnListDict.getSelectedItem());
+        boolean contains = arrStudiedDict.contains(spinnListDict.getSelectedItem().toString());
         if (counterRightAnswer == wordsCount && !contains && containsInPlayList)
         {
             arrStudiedDict.add(spinnListDict.getSelectedItem().toString());
