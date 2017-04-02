@@ -697,10 +697,14 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
             }
             if (list.size() > 0)
             {
-                ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(this, R.layout.my_content_spinner_layout, list);
+                ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(this, R.layout.my_content_spinner_layout, list);
                 spinnerListDict.setAdapter(adapterSpinner);
-                spinnerListDict.setSelection(adapterSpinner.getPosition(spinnerDictSelectItem));
-                spinnerListDict2.setAdapter(adapterSpinner);
+                spinnerListDict.setSelection(AppData2.getInstance().getNdict());
+
+                ArrayList<String> list2 = (ArrayList<String>) list.clone();
+                list2.remove(AppData2.getInstance().getNdict());
+                ArrayAdapter<String> adapterSpinner2 = new ArrayAdapter<>(this, R.layout.my_content_spinner_layout, list2);
+                spinnerListDict2.setAdapter(adapterSpinner2);
             }
         }
         catch (Exception e)
