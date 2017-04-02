@@ -36,7 +36,9 @@ public class BackgroundAnim2 extends AppCompatActivity
                     R.drawable.img_uk5,
                     R.drawable.img_uk4,
                     R.drawable.img_uk7,
-                    R.drawable.img_usa4
+                    R.drawable.img_uk9,
+                    R.drawable.img_uk10,
+                    R.drawable.img_uk11
             };
     private ViewPropertyAnimator imageView1Animator, imageView2Animator;
     private Handler handler;
