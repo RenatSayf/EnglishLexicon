@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
@@ -72,6 +73,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
 
     private String KEY_SELECT_SPINNER_INDEX = "key_spinner";
     private String KEY_SPINNER_ITEMS = "key_spinner_items";
+    private String KEY_TEXT_RESULT_ENABLED = "key_text_result_enabled";
 
     private static int transCounter = 0;
 
@@ -85,14 +87,20 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
             layoutLinkYa.setVisibility(View.GONE);
         }
         textViewLinkYandex = (TextView) findViewById(R.id.textViewLinkYandex);
-        textViewLinkYandex.setText(Html.fromHtml(getResources().getString(R.string.link_to_yandex_trans)));
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N)
+        {
+            textViewLinkYandex.setText(Html.fromHtml(getResources().getString(R.string.link_to_yandex_trans), Html.FROM_HTML_MODE_COMPACT));
+        } else
+        {
+            textViewLinkYandex.setText(Html.fromHtml(getResources().getString(R.string.link_to_yandex_trans)));
+        }
         textViewResult = (EditText) findViewById(R.id.textViewResult);
+        textViewResult.setEnabled(false);
         if (textViewResult != null)
         {
             textViewResult.setRawInputType(TYPE_TEXT_FLAG_MULTI_LINE);
         }
         textViewResult_onChange();
-        //ImageButton buttonEdit = (ImageButton) findViewById(R.id.buttonEdit);
         buttonTrans = (Button) findViewById(R.id.button_trans);
         buttonTrans_onClick();
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
@@ -159,6 +167,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
                 spinnerListDict.setAdapter(adapterSpinner);
                 spinnerListDict.setSelection(savedInstanceState.getInt(KEY_SELECT_SPINNER_INDEX));
             }
+            textViewResult.setEnabled(savedInstanceState.getBoolean(KEY_TEXT_RESULT_ENABLED));
         }
         else
         {
@@ -178,6 +187,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
         }
         outState.putStringArrayList(KEY_SPINNER_ITEMS, spinnerItems);
         outState.putInt(KEY_SELECT_SPINNER_INDEX, spinnerListDict.getSelectedItemPosition());
+        outState.putBoolean(KEY_TEXT_RESULT_ENABLED, textViewResult.isEnabled());
     }
 
     public boolean onCreateOptionsMenu(Menu menu)
@@ -208,6 +218,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
     }
     public void buttonEdit_onClick(View view)
     {
+        textViewResult.setEnabled(true);
         textViewResult.setRawInputType(InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
         if (!textViewResult.isFocused())
         {
@@ -267,6 +278,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
                 transCounter++;
             }
         });
+
     }
     private void textViewResult_onChange()
     {
@@ -342,21 +354,20 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
             public void onClick(View v)
             {
                 long id = -1;
-                DataBaseQueries dataBaseQueries = null;
-                dataBaseQueries = new DataBaseQueries(AddWordActivity.this);
+                DataBaseQueries dataBaseQueries = new DataBaseQueries(AddWordActivity.this);
                 DataBaseEntry entry = new DataBaseEntry(null, null, null);
                 int res = checkText(textViewEnter.getText().toString(), textViewResult.getText().toString());
                 if (res == 1)
                 {
                     entry.setEnglish(textViewEnter.getText().toString());
                     entry.setTranslate(textViewResult.getText().toString());
-                    id = dataBaseQueries != null ? dataBaseQueries.insertWordInTableSync(selectDict, entry) : -1;
+                    id = dataBaseQueries.insertWordInTableSync(selectDict, entry);
                 }
                 if (res == -1)
                 {
                     entry.setEnglish(textViewResult.getText().toString());
                     entry.setTranslate(textViewEnter.getText().toString());
-                    id = dataBaseQueries != null ? dataBaseQueries.insertWordInTableSync(selectDict, entry) : -1;
+                    id = dataBaseQueries.insertWordInTableSync(selectDict, entry);
                 }
                 if (id != -1)
                 {
@@ -434,7 +445,13 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
                     SplashScreenActivity.speech.setLanguage(Locale.US);
                     utterance_Id.clear();
                     utterance_Id.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "add_word_us");
-                    SplashScreenActivity.speech.speak(text1, TextToSpeech.QUEUE_ADD, utterance_Id);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                    {
+                        SplashScreenActivity.speech.speak(text1, TextToSpeech.QUEUE_ADD, null, utterance_Id.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+                    } else
+                    {
+                        SplashScreenActivity.speech.speak(text1, TextToSpeech.QUEUE_ADD, utterance_Id);
+                    }
                     SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
                     {
                         @Override
@@ -462,7 +479,13 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
                     SplashScreenActivity.speech.setLanguage(Locale.getDefault());
                     utterance_Id.clear();
                     utterance_Id.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "add_word_ru");
-                    SplashScreenActivity.speech.speak(text1, TextToSpeech.QUEUE_ADD, utterance_Id);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                    {
+                        SplashScreenActivity.speech.speak(text1, TextToSpeech.QUEUE_ADD, null, utterance_Id.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+                    } else
+                    {
+                        SplashScreenActivity.speech.speak(text1, TextToSpeech.QUEUE_ADD, utterance_Id);
+                    }
                     SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
                     {
                         @Override
@@ -502,7 +525,13 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
                     SplashScreenActivity.speech.setLanguage(Locale.US);
                     utterance_Id.clear();
                     utterance_Id.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "add_word_us");
-                    SplashScreenActivity.speech.speak(text2, TextToSpeech.QUEUE_ADD, utterance_Id);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                    {
+                        SplashScreenActivity.speech.speak(text2, TextToSpeech.QUEUE_ADD, null, utterance_Id.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+                    } else
+                    {
+                        SplashScreenActivity.speech.speak(text2, TextToSpeech.QUEUE_ADD, utterance_Id);
+                    }
                     SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
                     {
                         @Override
@@ -530,7 +559,13 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
                     SplashScreenActivity.speech.setLanguage(Locale.getDefault());
                     utterance_Id.clear();
                     utterance_Id.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "add_word_ru");
-                    SplashScreenActivity.speech.speak(text2, TextToSpeech.QUEUE_ADD, utterance_Id);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                    {
+                        SplashScreenActivity.speech.speak(text2, TextToSpeech.QUEUE_ADD, null, utterance_Id.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+                    } else
+                    {
+                        SplashScreenActivity.speech.speak(text2, TextToSpeech.QUEUE_ADD, utterance_Id);
+                    }
                     SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
                     {
                         @Override
