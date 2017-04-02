@@ -10,7 +10,7 @@
         android:layout_height="match_parent"
         android:alpha="1.0"
         android:scaleType="centerCrop"
-        android:src="@drawable/img_uk"
+        android:src="@drawable/img_usa3"
         android:contentDescription="@string/descript_image_background"
         />
 
