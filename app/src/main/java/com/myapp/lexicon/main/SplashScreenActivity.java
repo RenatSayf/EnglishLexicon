@@ -25,7 +25,7 @@ import java.util.Locale;
 public class SplashScreenActivity extends Activity
 {
     public static TextToSpeech speech;
-    public static HashMap<String, String> map = new HashMap<>();
+    public HashMap<String, String> map = new HashMap<>();
 
     private UpdateBroadcastReceiver broadcastReceiver; // TODO: UpdateBroadcastReceiver. 1 - объявление экземпляра UpdateBroadcastReceiver
     private Intent messageErrorIntent;  // TODO: UpdateBroadcastReceiver. 2 - объявление экземпляра Intent

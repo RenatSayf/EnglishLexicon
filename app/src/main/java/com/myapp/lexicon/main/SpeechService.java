@@ -3,6 +3,7 @@ package com.myapp.lexicon.main;
 import android.app.IntentService;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.speech.tts.TextToSpeech;
@@ -349,7 +350,13 @@ public class SpeechService extends IntentService
                     HashMap<String,String> mapRu = new HashMap<>();
                     mapRu.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "ru");
                     SplashScreenActivity.speech.setLanguage(Locale.getDefault());
-                    SplashScreenActivity.speech.speak(textRu, TextToSpeech.QUEUE_ADD, mapRu);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                    {
+                        SplashScreenActivity.speech.speak(textRu, TextToSpeech.QUEUE_ADD, null, mapRu.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+                    } else
+                    {
+                        SplashScreenActivity.speech.speak(textRu, TextToSpeech.QUEUE_ADD, mapRu);
+                    }
                 }
                 if (utteranceId.equals("ru"))
                 {
@@ -385,7 +392,13 @@ public class SpeechService extends IntentService
         textEn = entries.getEnglish();
         textRu = "";
         SplashScreenActivity.speech.setLanguage(Locale.US);
-        SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, mapEn);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+        {
+            SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, null, mapEn.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+        } else
+        {
+            SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, mapEn);
+        }
 
         while (!speek_done[0])
         {

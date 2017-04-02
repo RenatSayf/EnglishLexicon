@@ -803,6 +803,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             HashMap<String, String> hashMap = new HashMap<>();
             hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "main_activity");
+            SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
             {
                 SplashScreenActivity.speech.speak(dataBaseEntry.getEnglish(), TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
