@@ -297,7 +297,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                 topPanelVisible(1, 0, isOpen);
                 HashMap<String, String> hashMap = new HashMap<>();
                 hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "btn_speech");
-                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                 {
                     SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
                 } else
@@ -492,7 +492,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                     }
                     final HashMap<String, String> hashMap = new HashMap<>();
                     hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "compare_words");
-                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                     {
                         SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
                     } else
@@ -729,7 +729,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
             {
                 HashMap<String, String> hashMap = new HashMap<>();
                 hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "btn_from_rigth_anim");
-                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                 {
                     SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
                 } else
@@ -841,7 +841,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                 containsInPlayList = true; break;
             }
         }
-        boolean contains = arrStudiedDict.contains(spinnListDict.getSelectedItem());
+        boolean contains = arrStudiedDict.contains(spinnListDict.getSelectedItem().toString());
         if (counterRightAnswer == wordsCount && !contains && containsInPlayList)
         {
             arrStudiedDict.add(spinnListDict.getSelectedItem().toString());

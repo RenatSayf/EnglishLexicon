@@ -480,7 +480,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                     progressBar.setProgress(progressBar.getProgress()+1);
                     HashMap<String, String> hashMap = new HashMap<>();
                     hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "one_of_five_fragm");
-                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                     {
                         SplashScreenActivity.speech.speak(textView.getText().toString(), TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
                     } else
