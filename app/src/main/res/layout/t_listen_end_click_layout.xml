@@ -114,7 +114,7 @@
         <ImageButton
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:layout_marginBottom="30dp"
+            android:layout_marginBottom="10dp"
             android:src="@drawable/sound_btn_foreground2"
             android:background="@drawable/circle_press_background"
             android:layout_gravity="center_horizontal"

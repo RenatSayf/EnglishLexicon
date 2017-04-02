@@ -17,4 +17,6 @@
     <color name="colorGrey">#aaafd7</color>
     <color name="eng_text_color">#132ef7</color>
     <color name="trans_text_color">#0b9404</color>
+    <color name="colorLightBlue">#a6fbff</color>
+    <color name="colorLightGreen">#90fd75</color>
 </resources>
