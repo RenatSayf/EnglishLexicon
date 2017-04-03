@@ -33,8 +33,10 @@ public class BackgroundAnim2 extends AppCompatActivity
             {
                     R.drawable.img_uk,
                     R.drawable.img_uk2,
+                    R.drawable.img_uk3,
                     R.drawable.img_uk5,
                     R.drawable.img_uk4,
+                    R.drawable.img_uk6,
                     R.drawable.img_uk7,
                     R.drawable.img_uk8,
                     R.drawable.img_uk9,
@@ -111,12 +113,12 @@ public class BackgroundAnim2 extends AppCompatActivity
                             imageView2Animator = imageView2.animate().alpha(0).setDuration(duration);
                             animationListener(imageView2Animator);
                         }
-                        MyLog.v("Таймер запущен");
+                        //MyLog.v("Таймер запущен");
                     }
                 });
             }
         };
-        long timerPeriod = 10000;
+        long timerPeriod = 30000;
         long timerStart = 10000;
         timer.schedule(timerTask, timerStart, timerPeriod);
     }
@@ -211,7 +213,7 @@ public class BackgroundAnim2 extends AppCompatActivity
         return number;
     }
 
-    public static void clearImageView(ImageView imageView)
+    private static void clearImageView(ImageView imageView)
     {
         if (imageView.getDrawable() instanceof BitmapDrawable)
         {
@@ -224,6 +226,7 @@ public class BackgroundAnim2 extends AppCompatActivity
         }
         imageView.setImageDrawable(null);
         imageView.setImageBitmap(null);
+        imageView.destroyDrawingCache();
     }
 
     public void saveState()
