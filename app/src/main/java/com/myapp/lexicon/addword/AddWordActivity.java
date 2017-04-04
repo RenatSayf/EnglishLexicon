@@ -37,7 +37,6 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.GetTableListLoader2;
-import com.myapp.lexicon.database.GetTranslateLoader;
 import com.myapp.lexicon.main.SplashScreenActivity;
 
 import java.util.ArrayList;
@@ -665,9 +664,9 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
         if (loader.getId() == LOADER_GET_TRANSLATE)
         {
             ArrayList<String> list = (ArrayList<String>) data;
-            if (list.size() > 0)
+            if (list.size() > 1)
             {
-                textViewResult.setText(list.get(0));
+                textViewResult.setText(list.get(1));
             }
         }
         progressBar.setVisibility(View.GONE);

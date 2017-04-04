@@ -1,14 +1,8 @@
 package com.myapp.lexicon.addword;
 
-import android.app.LoaderManager;
-import android.content.Loader;
-import android.os.AsyncTask;
+import android.content.AsyncTaskLoader;
+import android.content.Context;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-
-import com.myapp.lexicon.helpers.MyLog;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,63 +17,39 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 /**
- * Created by Ренат on 16.06.2016.
+ * Created by Renat on 20.03.2017.
  */
-public class OnlineTranslatorApi
+
+public class GetTranslateLoader extends AsyncTaskLoader
 {
-    private String keyApi = "trnsl.1.1.20160607T122324Z.85a9ab6b9e12baac.f5b66628231eb6175c5cf1393d1601c2cfb5d553";
-    private TextView textView;
-    private ProgressBar progressBar;
+    public static final String KEY_TEXT_ENTERED = "text_entered";
+
+    //private Context context;
     private String langSystem;
-    private String undefined = "{\"text\":[\"неопределено\"]}";
+    private String textEntered;
 
-    public OnlineTranslatorApi(TextView textView, ProgressBar progressBar)
+    public GetTranslateLoader(Context context, Bundle bundle)
     {
-        this.textView = textView;
-        this.progressBar = progressBar;
-    }
-
-    public void getTranslateAsync(final String text)
-    {
-        AsyncTask asyncTask = new AsyncTask()
+        super(context);
+        //this.context = context;
+        if (bundle != null)
         {
-            @Override
-            protected void onPreExecute()
-            {
-                progressBar.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            protected Object doInBackground(Object[] params)
-            {
-                String _content = null;
-                try
-                {
-                    _content = getContentFromTranslator(text);
-                } catch (Exception e)
-                {
-                    e.printStackTrace();
-                }
-                return _content;
-            }
-
-            @Override
-            protected void onPostExecute(Object o)
-            {
-                progressBar.setVisibility(View.GONE);
-                ArrayList<String> list = getWord(o.toString());
-                if (list.size() > 0)
-                {
-                    textView.setText(list.get(0));
-                }
-            }
-        };
-        asyncTask.execute();
+            textEntered = bundle.getString(KEY_TEXT_ENTERED);
+        }
     }
+
+    @Override
+    public Object loadInBackground()
+    {
+        String result = getContentFromTranslator(textEntered);
+        return getWordFromJson(result);
+    }
+
     private String getContentFromTranslator(String text)
     {
         String lang = getLangTranslate(text)[0];
         String ui = getLangTranslate(text)[1];
+        String undefined = "{\"text\":[\"неопределено\"]}";
         if (lang == null || ui == null)
         {
             return undefined;
@@ -95,6 +65,7 @@ public class OnlineTranslatorApi
         }
 
         String format = "plain";
+        String keyApi = "trnsl.1.1.20160607T122324Z.85a9ab6b9e12baac.f5b66628231eb6175c5cf1393d1601c2cfb5d553";
         String link = "https://translate.yandex.net/api/v1.5/tr.json/translate?key=" + keyApi + "&text=" + text_encode + "&lang=" + lang + "&[format=" + format + "]&[options=1]";
 
         BufferedReader reader = null;
@@ -168,7 +139,7 @@ public class OnlineTranslatorApi
         }
         return lang;
     }
-    private ArrayList<String> getWord(String json_str)
+    private ArrayList<String> getWordFromJson(String json_str)
     {
         ArrayList<String> list = new ArrayList<>();
         JSONObject jsonObject;
@@ -177,19 +148,18 @@ public class OnlineTranslatorApi
         {
             jsonObject = new JSONObject(json_str);
             text = jsonObject.getJSONArray("text");
+            String code = jsonObject.getString("code");
             for (int i = 0; i < text.length(); i++)
             {
                 String str = text.getString(i);
                 list.add(str);
             }
+            list.add(0, code);
         } catch (JSONException e)
         {
             e.printStackTrace();
         }
-
         return list;
     }
-
-
 
 }
