@@ -39,7 +39,7 @@ import com.myapp.lexicon.database.GetEntriesFromDbAsync;
 import com.myapp.lexicon.database.GetTableListAsync;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
-import com.myapp.lexicon.main.BackgroundAnim2;
+import com.myapp.lexicon.main.BackgroundFragm;
 import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.settings.AppData2;
 import com.myapp.lexicon.settings.AppSettings;
@@ -967,8 +967,8 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
     public void onActivityCreated(@Nullable Bundle savedInstanceState)
     {
         super.onActivityCreated(savedInstanceState);
-        RandomNumberGenerator generator = new RandomNumberGenerator(BackgroundAnim2.imagesId.length, (int) new Date().getTime());
-        imageBack.setImageResource(BackgroundAnim2.imagesId[generator.generate()]);
+        RandomNumberGenerator generator = new RandomNumberGenerator(BackgroundFragm.imagesId.length, (int) new Date().getTime());
+        imageBack.setImageResource(BackgroundFragm.imagesId[generator.generate()]);
     }
 
 

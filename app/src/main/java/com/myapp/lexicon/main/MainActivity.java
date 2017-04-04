@@ -2,21 +2,20 @@ package com.myapp.lexicon.main;
 
 import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.app.LoaderManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.Loader;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.speech.tts.TextToSpeech;
 import android.support.design.widget.NavigationView;
-import android.app.LoaderManager;
-import android.content.Loader;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -34,7 +33,6 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -42,25 +40,25 @@ import android.widget.Toast;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.addword.AddWordActivity;
-import com.myapp.lexicon.database.GetTableListAsync;
-import com.myapp.lexicon.database.GetTableListFragm;
-import com.myapp.lexicon.wordeditor.WordEditor;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.DatabaseHelper;
-//import com.myapp.lexicon.database.GetDbEntriesLoader;
 import com.myapp.lexicon.database.GetEntriesLoader;
+import com.myapp.lexicon.database.GetTableListFragm;
+import com.myapp.lexicon.helpers.MyLog;
 import com.myapp.lexicon.playlist.PlayList;
 import com.myapp.lexicon.settings.AppData2;
 import com.myapp.lexicon.settings.AppSettings;
+import com.myapp.lexicon.wordeditor.WordEditor;
 import com.myapp.lexicon.wordstests.Tests;
-import com.myapp.lexicon.helpers.MyLog;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+//import com.myapp.lexicon.database.GetDbEntriesLoader;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         LoaderManager.LoaderCallbacks<Cursor>,
@@ -83,12 +81,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Switch switchRuSound;
     private static Intent speechIntentService;
     private UpdateBroadcastReceiver mUpdateBroadcastReceiver;
-    //private BackgroundAnim backgroundAnim;
     private boolean isFirstTime = true;
     private AppSettings appSettings;
     private AppData2 appData2;
     private ArrayList<String> playList = new ArrayList<>();
-    private BackgroundAnim2 backgroundAnim2;
+    private BackgroundFragm backgroundFragm;
 
     private String KEY_ENG_TEXT = "eng_text";
     private String KEY_RU_TEXT = "ru_text";
@@ -112,6 +109,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.a_navig_main);
 
         fragmentManager = getSupportFragmentManager();
+
+        if (savedInstanceState == null)
+        {
+            backgroundFragm = new BackgroundFragm();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_layout, backgroundFragm).addToBackStack(null).commit();
+        }
 
         final PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
         this.wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"my_tag");
@@ -180,9 +183,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void initViews()
     {
-//        backgroundAnim = new BackgroundAnim(this, (ViewFlipper) findViewById(R.id.view_flipper));
-//        backgroundAnim.startAnimByRandom();
-
         textViewEn = (TextView) findViewById(R.id.enTextView);
         textViewRu = (TextView) findViewById(R.id.ruTextView);
         textViewDict = (TextView) findViewById(R.id.textViewDict);
@@ -221,8 +221,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onSaveInstanceState(Bundle outState)
     {
         super.onSaveInstanceState(outState);
-        backgroundAnim2.saveState();
-        //backgroundAnim.onSaveInstanceState(null);
         outState.putString(KEY_ENG_TEXT, textViewEn.getText().toString());
         outState.putString(KEY_RU_TEXT, textViewRu.getText().toString());
         outState.putString(KEY_CURRENT_DICT, textViewDict.getText().toString());
@@ -261,8 +259,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onResume()
     {
         super.onResume();
-        backgroundAnim2 = new BackgroundAnim2((ImageView) findViewById(R.id.back_image_view1), (ImageView) findViewById(R.id.back_image_view2));
-        backgroundAnim2.startAnimBackground();
     }
 
     @Override
@@ -282,7 +278,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onBackPressed()
     {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
-        //backgroundAnim.onDestroy();
         speechServiceOnPause();
         appData2.saveAllSettings(this);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -343,7 +338,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         speechServiceOnPause();
-        backgroundAnim2.timerCancel();
 
         if (id == R.id.nav_add_word)
         {
