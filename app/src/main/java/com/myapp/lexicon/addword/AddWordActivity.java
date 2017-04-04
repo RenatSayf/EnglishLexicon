@@ -678,6 +678,37 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
 
     }
 
+    private void httpErrorHandler(String error)
+    {
+        if (error != null && error.equals("200"))
+        {
+            return;
+        }
+        if (error != null && error.equals("401"))
+        {
+
+        }
+        if (error != null && error.equals("402"))
+        {
+
+        }
+        if (error != null && error.equals("404"))
+        {
+
+        }
+        if (error != null && error.equals("413"))
+        {
+
+        }
+        if (error != null && error.equals("422"))
+        {
+
+        }
+        if (error != null && error.equals("501"))
+        {
+
+        }
+    }
 
 
 }
