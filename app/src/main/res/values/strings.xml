@@ -189,6 +189,7 @@
     <string name="menu_text_api_key">Ввести API ключ</string>
     <string name="dialog_error_text_0">Если у Вас есть API-ключ введите его в поле ниже или нажмите кнопку \"Вставить\" если он скопирован, затем нажмите \"Сохранить\".</string>
     <string name="dialog_option_text_0">Если у Вас нет ключа, Вы можете получить бесплатный API-ключ нажав кнопку \"Получить\".</string>
+    <string name="tech.yandex.ru_translate">https://tech.yandex.ru/translate/</string>
 
 
 </resources>
