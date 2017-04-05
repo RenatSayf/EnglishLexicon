@@ -645,26 +645,6 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                         dialogTestComplete.setArguments(bundle);
                         dialogTestComplete.setCancelable(false);
                         dialogTestComplete.show(fragmentManager, "dialog_complete_find_pair");
-
-//                        if (dialogTestComplete != null)
-//                        {
-//                            try
-//                            {
-//                                if (!dialogTestComplete.isAdded())
-//                                {
-//                                    Bundle bundle = new Bundle();
-//                                    bundle.putString(dialogTestComplete.KEY_RESULT, list.get(0));
-//                                    bundle.putString(dialogTestComplete.KEY_ERRORS, list.get(1));
-//                                    dialogTestComplete.setArguments(bundle);
-//                                    dialogTestComplete.setCancelable(false);
-//                                    dialogTestComplete.show(fragmentManager, "dialog_complete_find_pair");
-//                                }
-//
-//                            } catch (IllegalStateException e)
-//                            {
-//                                dialogTestComplete = null;
-//                            }
-//                        }
                     }
                 }
             }

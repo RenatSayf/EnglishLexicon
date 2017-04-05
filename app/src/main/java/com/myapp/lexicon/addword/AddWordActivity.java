@@ -66,6 +66,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
     private ImageButton buttonClean1, buttonClean2;
     private HashMap<String, String> utterance_Id = new HashMap<>();
     private boolean flag_btn_trans_click = false;
+    private ErrorHandlerDialog errorHandlerDialog;
 
     private final int LOADER_GET_TABLE_LIST = 11;
     private final int LOADER_GET_TRANSLATE = 12;
@@ -191,30 +192,42 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
 
     public boolean onCreateOptionsMenu(Menu menu)
     {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        return false;
+        getMenuInflater().inflate(R.menu.b_add_word_menu, menu);
+        return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+        if (item.getItemId() == R.id.enter_key)
+        {
+            errorHandlerDialog = new ErrorHandlerDialog();
+            Bundle bundle = new Bundle();
+            String error = getString(R.string.dialog_error_text_0);
+            bundle.putString(ErrorHandlerDialog.KEY_ERROR_MESSAGE, error);
+            String option = getString(R.string.dialog_option_text_0);
+            bundle.putString(ErrorHandlerDialog.KEY_OPTION_MESSAGE, option);
+            errorHandlerDialog.setArguments(bundle);
+            errorHandlerDialog.setCancelable(false);
+            errorHandlerDialog.show(getSupportFragmentManager(), ErrorHandlerDialog.DIALOG_TAG);
+        }
         return super.onOptionsItemSelected(item);
     }
+
     public void textViewLinkYandex_onClick(View view)
     {
         textViewLinkYandex.setTextColor(Color.RED);
         Intent browser = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.translate_yandex_ru)));
         startActivity(browser);
     }
+
     private boolean isOnline(Context context)
     {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
+
     public void buttonEdit_onClick(View view)
     {
         textViewResult.setEnabled(true);
@@ -224,6 +237,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
             textViewResult.requestFocus();
         }
     }
+
     public void textViewEnter_onChange()
     {
         textViewEnter.addTextChangedListener(new TextWatcher()
@@ -262,6 +276,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
             }
         });
     }
+
     private void buttonTrans_onClick()
     {
         buttonTrans.setOnClickListener(new View.OnClickListener()
@@ -279,6 +294,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
         });
 
     }
+
     private void textViewResult_onChange()
     {
         textViewResult.addTextChangedListener(new TextWatcher()
@@ -314,6 +330,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
             }
         });
     }
+
     private int checkText(String text1, String text2)
     {
         Pattern patternEn = Pattern.compile(
@@ -345,6 +362,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
         }
         return 0;
     }
+
     private void buttonAddWord_onClick()
     {
         buttonAddWord.setOnClickListener(new View.OnClickListener()
@@ -379,7 +397,9 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
             }
         });
     }
+
     private String selectDict;
+
     private void spinnerListDict_onItemSelected()
     {
         spinnerListDict.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
@@ -397,6 +417,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
             }
         });
     }
+
     private String getLangOfText(String text)
     {
         String lang = null;
@@ -430,6 +451,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
         }
         return lang;
     }
+
     private void button_sound1_onClick()
     {
         button_sound1.setOnClickListener(new View.OnClickListener()
@@ -686,17 +708,34 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
         {
             return;
         }
+
+        errorHandlerDialog = new ErrorHandlerDialog();
+        errorHandlerDialog.setCancelable(false);
+        Bundle bundle = new Bundle();
+
         if (error != null && error.equals("401"))
         {
             message = getString(R.string.http_error_401);
+            bundle.putString(ErrorHandlerDialog.KEY_ERROR_MESSAGE, message);
+            bundle.putString(ErrorHandlerDialog.KEY_OPTION_MESSAGE, getString(R.string.dialog_option_text_0));
+            errorHandlerDialog.setArguments(bundle);
+            errorHandlerDialog.show(getSupportFragmentManager(), ErrorHandlerDialog.DIALOG_TAG);
         }
         if (error != null && error.equals("402"))
         {
             message = getString(R.string.http_error_402);
+            bundle.putString(ErrorHandlerDialog.KEY_ERROR_MESSAGE, message);
+            bundle.putString(ErrorHandlerDialog.KEY_OPTION_MESSAGE, getString(R.string.dialog_option_text_0));
+            errorHandlerDialog.setArguments(bundle);
+            errorHandlerDialog.show(getSupportFragmentManager(), ErrorHandlerDialog.DIALOG_TAG);
         }
         if (error != null && error.equals("404"))
         {
             message = getString(R.string.http_error_404);
+            bundle.putString(ErrorHandlerDialog.KEY_ERROR_MESSAGE, message);
+            bundle.putString(ErrorHandlerDialog.KEY_OPTION_MESSAGE, getString(R.string.dialog_option_text_0));
+            errorHandlerDialog.setArguments(bundle);
+            errorHandlerDialog.show(getSupportFragmentManager(), ErrorHandlerDialog.DIALOG_TAG);
         }
         if (error != null && error.equals("413"))
         {

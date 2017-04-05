@@ -185,6 +185,10 @@
     <string name="http_error_401">Неправильный API-ключ</string>
     <string name="http_error_402">API-ключ заблокирован</string>
     <string name="http_error_404">Превышено суточное ограничение на объем переведенного текста</string>
+    <string name="title_yandex_translate">Яндекс.Переводчик:</string>
+    <string name="menu_text_api_key">Ввести API ключ</string>
+    <string name="dialog_error_text_0">Если у Вас есть API-ключ введите его в поле ниже или нажмите кнопку \"Вставить\" если он скопирован, затем нажмите \"Сохранить\".</string>
+    <string name="dialog_option_text_0">Если у Вас нет ключа, Вы можете получить бесплатный API-ключ нажав кнопку \"Получить\".</string>
 
 
 </resources>
