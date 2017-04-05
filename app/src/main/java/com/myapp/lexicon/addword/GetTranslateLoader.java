@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.Random;
 
 /**
- * Created by Renat on 20.03.2017.
+ * Онлайн переводчик (API Яндекс.Переводчик.)
  */
 
 public class GetTranslateLoader extends AsyncTaskLoader
