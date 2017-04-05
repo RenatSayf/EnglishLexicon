@@ -4,6 +4,9 @@ import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.os.Bundle;
 
+import com.myapp.lexicon.database.DataBaseQueries;
+import com.myapp.lexicon.helpers.RandomNumberGenerator;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,6 +18,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Random;
 
 /**
  * Created by Renat on 20.03.2017.
@@ -27,6 +32,14 @@ public class GetTranslateLoader extends AsyncTaskLoader
     //private Context context;
     private String langSystem;
     private String textEntered;
+    private DataBaseQueries dataBaseQueries;
+    private String[] apiKeys = new String[]
+            {
+                    "trnsl.1.1.20160128T151725Z.d4bbd1b06137bfde.2e1323688363a820f730629556d68f2b9f0a1a19",
+                    "trnsl.1.1.20160607T122324Z.85a9ab6b9e12baac.f5b66628231eb6175c5cf1393d1601c2cfb5d553",
+                    "trnsl.1.1.20170126T141135Z.59c382f4c439bbaf.3226485ac0b3691894625bddb3c48c74f5067706"
+            };
+    private Random generator;
 
     public GetTranslateLoader(Context context, Bundle bundle)
     {
@@ -36,6 +49,8 @@ public class GetTranslateLoader extends AsyncTaskLoader
         {
             textEntered = bundle.getString(KEY_TEXT_ENTERED);
         }
+        dataBaseQueries = new DataBaseQueries(context);
+        generator = new Random(new Date().getTime());
     }
 
     @Override
@@ -49,7 +64,7 @@ public class GetTranslateLoader extends AsyncTaskLoader
     {
         String lang = getLangTranslate(text)[0];
         String ui = getLangTranslate(text)[1];
-        String undefined = "{\"text\":[\"неопределено\"]}";
+        String undefined = "{\"text\":[\"undefined\"]}";
         if (lang == null || ui == null)
         {
             return undefined;
@@ -65,8 +80,13 @@ public class GetTranslateLoader extends AsyncTaskLoader
         }
 
         String format = "plain";
-        String keyApi = "trnsl.1.1.20160607T122324Z.85a9ab6b9e12baac.f5b66628231eb6175c5cf1393d1601c2cfb5d553";
-        String link = "https://translate.yandex.net/api/v1.5/tr.json/translate?key=" + keyApi + "&text=" + text_encode + "&lang=" + lang + "&[format=" + format + "]&[options=1]";
+        //String keyApi = "trnsl.1.1.20160607T122324Z.85a9ab6b9e12baac.f5b66628231eb6175c5cf1393d1601c2cfb5d553";
+        String apiKey = dataBaseQueries.getApiKey();
+        if (apiKey.equals(""))
+        {
+            apiKey = apiKeys[generator.nextInt(apiKeys.length)];
+        }
+        String link = "https://translate.yandex.net/api/v1.5/tr.json/translate?key=" + apiKey + "&text=" + text_encode + "&lang=" + lang + "&[format=" + format + "]&[options=1]";
 
         BufferedReader reader = null;
         try
