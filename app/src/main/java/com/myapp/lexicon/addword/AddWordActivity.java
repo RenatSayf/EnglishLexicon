@@ -667,6 +667,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
             if (list.size() > 1)
             {
                 textViewResult.setText(list.get(1));
+                httpErrorHandler(list.get(0));
             }
         }
         progressBar.setVisibility(View.GONE);
@@ -680,33 +681,34 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
 
     private void httpErrorHandler(String error)
     {
+        String message = "";
         if (error != null && error.equals("200"))
         {
             return;
         }
         if (error != null && error.equals("401"))
         {
-
+            message = getString(R.string.http_error_401);
         }
         if (error != null && error.equals("402"))
         {
-
+            message = getString(R.string.http_error_402);
         }
         if (error != null && error.equals("404"))
         {
-
+            message = getString(R.string.http_error_404);
         }
         if (error != null && error.equals("413"))
         {
-
+            Toast.makeText(this, R.string.http_error_413, Toast.LENGTH_LONG).show();
         }
         if (error != null && error.equals("422"))
         {
-
+            Toast.makeText(this, R.string.http_error_422, Toast.LENGTH_LONG).show();
         }
         if (error != null && error.equals("501"))
         {
-
+            Toast.makeText(this, R.string.http_error_501, Toast.LENGTH_LONG).show();
         }
     }
 
