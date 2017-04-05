@@ -247,6 +247,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onStop()
     {
         super.onStop();
+        progressBar.setVisibility(View.GONE);
     }
 
     @Override
@@ -259,6 +260,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onResume()
     {
         super.onResume();
+        appSettings = new AppSettings(this);
+        playList = appSettings.getPlayList();
+        appData2 = AppData2.getInstance();
+        appData2.initAllSettings(this);
     }
 
     @Override

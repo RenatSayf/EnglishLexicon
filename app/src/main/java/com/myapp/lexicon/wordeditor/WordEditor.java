@@ -685,7 +685,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                     while ( !cursor.isAfterLast() )
                     {
                         nameNotDict = cursor.getString( cursor.getColumnIndex("name"));
-                        if (!nameNotDict.equals("android_metadata") && !nameNotDict.equals("sqlite_sequence"))
+                        if (!nameNotDict.equals("android_metadata") && !nameNotDict.equals("sqlite_sequence") && !nameNotDict.equals("com_myapp_lexicon_api_keys"))
                         {
                             String table_name = cursor.getString(cursor.getColumnIndex("name"));
                             table_name = StringOperations.getInstance().underscoreToSpace(table_name);

@@ -19,7 +19,7 @@ import java.sql.SQLException;
 
 public class DatabaseHelper extends SQLiteOpenHelper
 {
-    private static final String DB_PATH = "/data/com.myapp.lexicon/databases/";  //"/data/data/com.myapp.lexicon/databases/";
+    private static final String DB_PATH = "/data/com.myapp.lexicon/databases/";
     private static final String DB_NAME = "lexiconDB"; // название бд
     private static final int version = 1; // версия базы данных
 
@@ -29,6 +29,9 @@ public class DatabaseHelper extends SQLiteOpenHelper
     public static final String COLUMN_TRANS = "Translate";
     public static final String COLUMN_IMAGE = "Image";
     public static final String COLUMN_Count_REPEAT = "CountRepeat";
+    public static final String COLUMN_API_KEY = "com_myapp_lexicon_api_keys";
+    public static final String COLUMN_METADATA = "android_metadata";
+    public static final String COLUMN_SEQUENCE = "sqlite_sequence";
 
     public SQLiteDatabase database;
     private Context context;

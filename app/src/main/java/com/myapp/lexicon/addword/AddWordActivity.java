@@ -675,7 +675,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
     @Override
     public void onLoaderReset(Loader loader)
     {
-
+        progressBar.setVisibility(View.GONE);
     }
 
     private void httpErrorHandler(String error)
