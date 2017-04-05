@@ -70,7 +70,7 @@ public class GetTableListAsync extends AsyncTask<Void, Void, ArrayList<String>>
                     while ( !cursor.isAfterLast() )
                     {
                         nameNotDict = cursor.getString( cursor.getColumnIndex("name"));
-                        if (!nameNotDict.equals(DatabaseHelper.COLUMN_METADATA) && !nameNotDict.equals(DatabaseHelper.COLUMN_SEQUENCE) && !nameNotDict.equals(DatabaseHelper.COLUMN_API_KEY))
+                        if (!nameNotDict.equals(DatabaseHelper.TABLE_METADATA) && !nameNotDict.equals(DatabaseHelper.TABLE_SEQUENCE) && !nameNotDict.equals(DatabaseHelper.TABLE_API_KEY))
                         {
                             String table_name = cursor.getString(cursor.getColumnIndex("name"));
                             table_name = StringOperations.getInstance().underscoreToSpace(table_name);

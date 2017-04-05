@@ -9,6 +9,7 @@ import com.myapp.lexicon.helpers.MyLog;
 import com.myapp.lexicon.helpers.StringOperations;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -234,6 +235,44 @@ public class DataBaseQueries
         {
             databaseHelper.close();
         }
+    }
+
+    public ArrayList<String> getApiKeys()
+    {
+        ArrayList<String> list = new ArrayList<>();
+        Cursor cursor = null;
+        try
+        {
+            databaseHelper.open();
+            if (databaseHelper.database.isOpen())
+            {
+                cursor = databaseHelper.database.rawQuery("SELECT * FROM " + DatabaseHelper.TABLE_API_KEY, null);
+            }
+            if (cursor != null && cursor.getCount() > 0)
+            {
+                if (cursor.moveToFirst())
+                {
+                    while ( !cursor.isAfterLast() )
+                    {
+                        list.add(cursor.getString(1));
+                        cursor.moveToNext();
+                    }
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            if (cursor != null)
+            {
+                cursor.close();
+            }
+            databaseHelper.close();
+        }
+        return list;
     }
 
 }

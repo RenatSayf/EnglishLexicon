@@ -29,9 +29,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
     public static final String COLUMN_TRANS = "Translate";
     public static final String COLUMN_IMAGE = "Image";
     public static final String COLUMN_Count_REPEAT = "CountRepeat";
-    public static final String COLUMN_API_KEY = "com_myapp_lexicon_api_keys";
-    public static final String COLUMN_METADATA = "android_metadata";
-    public static final String COLUMN_SEQUENCE = "sqlite_sequence";
+    // имена служебных таблиц
+    public static final String TABLE_API_KEY = "com_myapp_lexicon_api_keys";
+    public static final String TABLE_METADATA = "android_metadata";
+    public static final String TABLE_SEQUENCE = "sqlite_sequence";
 
     public SQLiteDatabase database;
     private Context context;
