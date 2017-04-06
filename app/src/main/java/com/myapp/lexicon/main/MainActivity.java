@@ -85,7 +85,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private AppSettings appSettings;
     private AppData2 appData2;
     private ArrayList<String> playList = new ArrayList<>();
-    private BackgroundFragm backgroundFragm;
 
     private String KEY_ENG_TEXT = "eng_text";
     private String KEY_RU_TEXT = "ru_text";
@@ -112,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (savedInstanceState == null)
         {
-            backgroundFragm = new BackgroundFragm();
+            BackgroundFragm backgroundFragm = new BackgroundFragm();
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_layout, backgroundFragm).addToBackStack(null).commit();
         }
 
@@ -301,21 +300,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.a_up_menu_main, menu);
         return true;
     }
 
-    public static final String KEY_DICT_NAME = "key_name_dict";
-    public static final String KEY_DICT_INDEX = "key_dict_index";
-    public static final String KEY_ROW_ID = "key_row_id";
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
         if (id == R.id.edit_word)
@@ -326,10 +317,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
             speechServiceOnPause();
             Bundle bundle = new Bundle();
-            bundle.putString(KEY_DICT_NAME, textViewDict.getText().toString());
-            bundle.putInt(KEY_DICT_INDEX, appData2.getNdict());
-            bundle.putInt(KEY_ROW_ID, appData2.getNword());
-            wordEditorIntent.putExtras(bundle);
+            bundle.putString(WordEditor.KEY_EXTRA_DICT_NAME, playList.get(AppData2.getInstance().getNdict()));
+            bundle.putInt(WordEditor.KEY_ROW_ID, appData2.getNword());
+            wordEditorIntent.replaceExtras(bundle);
 
             startActivity(wordEditorIntent);
         }
@@ -367,7 +357,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             {
                 wordEditorIntent = new Intent(this, WordEditor.class);
             }
-            wordEditorIntent.replaceExtras(new Bundle());
+            Bundle bundle = new Bundle();
+            bundle.putString(WordEditor.KEY_EXTRA_DICT_NAME, playList.get(AppData2.getInstance().getNdict()));
+            wordEditorIntent.replaceExtras(bundle);
             startActivity(wordEditorIntent);
         }
         else if (id == R.id.nav_check_your_self)

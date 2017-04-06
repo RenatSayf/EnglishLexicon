@@ -40,7 +40,7 @@ public class ListViewAdapter extends ArrayAdapter implements Filterable
     }
 
     @Override
-    public Object getItem(int position)
+    public DataBaseEntry getItem(int position)
     {
         return entries.get(position);
     }
