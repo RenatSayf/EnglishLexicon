@@ -699,10 +699,11 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
             {
                 ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(this, R.layout.my_content_spinner_layout, list);
                 spinnerListDict.setAdapter(adapterSpinner);
-                spinnerListDict.setSelection(AppData2.getInstance().getNdict());
+                int position = adapterSpinner.getPosition(spinnerDictSelectItem);
+                spinnerListDict.setSelection(position);
 
                 ArrayList<String> list2 = (ArrayList<String>) list.clone();
-                list2.remove(AppData2.getInstance().getNdict());
+                list2.remove(position);
                 ArrayAdapter<String> adapterSpinner2 = new ArrayAdapter<>(this, R.layout.my_content_spinner_layout, list2);
                 spinnerListDict2.setAdapter(adapterSpinner2);
             }
