@@ -24,12 +24,8 @@
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar"
             android:parentActivityName=".main.SplashScreenActivity">
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.MAIN"/>-->
+         </activity>
 
-                <!--<category android:name="android.intent.category.LAUNCHER"/>-->
-            <!--</intent-filter>-->
-        </activity>
         <activity
             android:name=".addword.AddWordActivity"
             android:label="@string/title_activity_add_word"
@@ -40,6 +36,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".main.MainActivity"/>
         </activity>
+
         <activity
             android:name=".wordeditor.WordEditor"
             android:label="@string/title_activity_word_editor"
@@ -47,14 +44,12 @@
             android:screenOrientation="unspecified"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden">
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.SEARCH" />-->
-            <!--</intent-filter>-->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".main.MainActivity"
-                />  <!--android:resource="@xml/searchable"-->
+                />
         </activity>
+
         <activity
             android:name=".wordstests.Tests"
             android:label="@string/title_activity_check_self"
@@ -64,6 +59,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".main.MainActivity"/>
         </activity>
+
         <activity
             android:name=".playlist.PlayList"
             android:label="@string/title_activity_play_list"
@@ -91,11 +87,7 @@
             android:enabled="true"
             android:exported="false">
         </service>
-        <!--<service-->
-            <!--android:name=".z_speechService2"-->
-            <!--android:enabled="true"-->
-            <!--android:exported="false">-->
-        <!--</service>-->
+
     </application>
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
