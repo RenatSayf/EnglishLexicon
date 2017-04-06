@@ -23,6 +23,7 @@ import com.myapp.lexicon.database.DataBaseQueries;
 
 public class ErrorHandlerDialog extends DialogFragment
 {
+    public static final String KEY_IS_SAD_FACE = "sad_face";
     public static final String KEY_ERROR_MESSAGE = "error_msg";
     public static final String KEY_OPTION_MESSAGE = "option_msg";
     public static final String DIALOG_TAG = "error_handler_dialog";
@@ -31,14 +32,22 @@ public class ErrorHandlerDialog extends DialogFragment
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
+        boolean isSad = getArguments().getBoolean(KEY_IS_SAD_FACE);
         String error = getArguments().getString(KEY_ERROR_MESSAGE);
         String option = getArguments().getString(KEY_OPTION_MESSAGE);
 
         final View dialogView = getActivity().getLayoutInflater().inflate(R.layout.b_api_key_dialog, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
                 .setTitle(getString(R.string.title_yandex_translate))
-                .setView(dialogView)
-                .setIcon(getResources().getDrawable(R.drawable.icon_sad_face));
+                .setView(dialogView);
+        if (isSad)
+        {
+            builder.setIcon(getResources().getDrawable(R.drawable.icon_sad_face));
+        }
+        else
+        {
+            builder.setIcon(getResources().getDrawable(R.drawable.icon_calm_face));
+        }
 
         TextView textViewError = (TextView) dialogView.findViewById(R.id.text_view_error_msg);
         textViewError.setText(error);

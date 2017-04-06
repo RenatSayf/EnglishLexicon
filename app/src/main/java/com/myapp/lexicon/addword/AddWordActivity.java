@@ -203,6 +203,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
         {
             errorHandlerDialog = new ErrorHandlerDialog();
             Bundle bundle = new Bundle();
+            bundle.putBoolean(ErrorHandlerDialog.KEY_IS_SAD_FACE, false);
             String error = getString(R.string.dialog_error_text_0);
             bundle.putString(ErrorHandlerDialog.KEY_ERROR_MESSAGE, error);
             String option = getString(R.string.dialog_option_text_0);
@@ -716,6 +717,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
         if (error != null && error.equals("401"))
         {
             message = getString(R.string.http_error_401);
+            bundle.putBoolean(ErrorHandlerDialog.KEY_IS_SAD_FACE, true);
             bundle.putString(ErrorHandlerDialog.KEY_ERROR_MESSAGE, message);
             bundle.putString(ErrorHandlerDialog.KEY_OPTION_MESSAGE, getString(R.string.dialog_option_text_0));
             errorHandlerDialog.setArguments(bundle);
@@ -724,6 +726,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
         if (error != null && error.equals("402"))
         {
             message = getString(R.string.http_error_402);
+            bundle.putBoolean(ErrorHandlerDialog.KEY_IS_SAD_FACE, true);
             bundle.putString(ErrorHandlerDialog.KEY_ERROR_MESSAGE, message);
             bundle.putString(ErrorHandlerDialog.KEY_OPTION_MESSAGE, getString(R.string.dialog_option_text_0));
             errorHandlerDialog.setArguments(bundle);
@@ -732,6 +735,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
         if (error != null && error.equals("404"))
         {
             message = getString(R.string.http_error_404);
+            bundle.putBoolean(ErrorHandlerDialog.KEY_IS_SAD_FACE, true);
             bundle.putString(ErrorHandlerDialog.KEY_ERROR_MESSAGE, message);
             bundle.putString(ErrorHandlerDialog.KEY_OPTION_MESSAGE, getString(R.string.dialog_option_text_0));
             errorHandlerDialog.setArguments(bundle);
