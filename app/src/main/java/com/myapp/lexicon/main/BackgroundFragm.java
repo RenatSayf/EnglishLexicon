@@ -18,7 +18,6 @@ import com.myapp.lexicon.R;
 public class BackgroundFragm extends Fragment
 {
     View fragmentView = null;
-    Chronometer chronometer;
 
     // картинки для фона
     public static int[] imagesId = new int[]
