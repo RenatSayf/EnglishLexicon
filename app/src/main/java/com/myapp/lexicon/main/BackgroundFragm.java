@@ -38,7 +38,6 @@ public class BackgroundFragm extends Fragment
                     R.drawable.img_uk13,
                     R.drawable.img_uk14,
                     R.drawable.img_uk15,
-                    R.drawable.img_usa2,
                     R.drawable.img_usa3,
                     R.drawable.img_usa4
             };
