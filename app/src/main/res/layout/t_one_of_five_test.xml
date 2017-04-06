@@ -53,7 +53,8 @@
             android:layout_height="36dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="30dp"
+            android:background="@drawable/semitransparent_back_white"
             >
 
             <TextView
@@ -102,6 +103,8 @@
             android:background="@drawable/text_button_for_test"
             android:textColor="@drawable/text_color_green_to_white"
             android:textStyle="bold"
+            style="@style/Base.Widget.AppCompat.ButtonBar"
+            android:textSize="18sp"
             />
 
         <Button
@@ -115,6 +118,8 @@
             android:background="@drawable/text_button_for_test"
             android:textColor="@drawable/text_color_green_to_white"
             android:textStyle="bold"
+            style="@style/Base.Widget.AppCompat.ButtonBar"
+            android:textSize="18sp"
             />
 
         <Button
@@ -128,6 +133,8 @@
             android:background="@drawable/text_button_for_test"
             android:textColor="@drawable/text_color_green_to_white"
             android:textStyle="bold"
+            style="@style/Base.Widget.AppCompat.ButtonBar"
+            android:textSize="18sp"
             />
 
         <Button
@@ -141,6 +148,8 @@
             android:background="@drawable/text_button_for_test"
             android:textColor="@drawable/text_color_green_to_white"
             android:textStyle="bold"
+            style="@style/Base.Widget.AppCompat.ButtonBar"
+            android:textSize="18sp"
             />
 
         <Button
@@ -154,6 +163,8 @@
             android:background="@drawable/text_button_for_test"
             android:textColor="@drawable/text_color_green_to_white"
             android:textStyle="bold"
+            style="@style/Base.Widget.AppCompat.ButtonBar"
+            android:textSize="18sp"
             />
 
     </LinearLayout>

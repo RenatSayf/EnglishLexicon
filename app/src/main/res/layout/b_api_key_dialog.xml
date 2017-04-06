@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-    android:orientation="vertical">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
 
     <LinearLayout android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
 
         <TextView
@@ -43,7 +42,7 @@
                 android:layout_gravity="start|center_vertical"
                 android:paddingEnd="15dp"
                 android:paddingStart="15dp"
-                android:text="API ключ:"
+                android:text="@string/text_api_key"
                 />
 
             <Button
@@ -52,8 +51,8 @@
                 android:layout_gravity="center_vertical|end"
                 android:layout_marginLeft="25dp"
                 android:id="@+id/btn_paste"
-                android:drawableLeft="@drawable/btn_repeat_action"
-                android:text="Вставить"
+                android:drawableLeft="@drawable/btn_paste_action"
+                android:text="@string/text_paste"
                 android:background="@drawable/transparent_background"
                 style="@style/Base.Widget.AppCompat.ButtonBar"
                 />
@@ -72,6 +71,7 @@
             android:inputType="textMultiLine"
             android:background="@drawable/text_button_for_test"
             android:minHeight="60dp"
+            android:paddingLeft="5dp"
             />
 
         <LinearLayout
@@ -88,7 +88,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Сохранить"
+                android:text="@string/text_save"
                 android:textColor="@color/colorWhite"
                 android:textStyle="bold"
                 android:background="@drawable/text_btn_for_test_green"
@@ -101,7 +101,7 @@
                 android:layout_marginLeft="5dp"
                 android:layout_marginRight="5dp"
                 android:layout_weight="1"
-                android:text="Получить"
+                android:text="@string/text_get"
                 android:textColor="@color/colorWhite"
                 android:textStyle="bold"
                 android:background="@drawable/btn_back_yellow"
@@ -109,14 +109,15 @@
 
             <Button
                 android:id="@+id/btn_cancel"
+                style="@style/Base.Widget.AppCompat.ButtonBar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Отмена"
+                android:background="@drawable/text_btn_for_test_red"
+                android:text="@string/text_cancel"
                 android:textColor="@color/colorWhite"
                 android:textStyle="bold"
-                android:background="@drawable/text_btn_for_test_red"
-                style="@style/Base.Widget.AppCompat.ButtonBar"/>
+                />
         </LinearLayout>
     </LinearLayout>
 
