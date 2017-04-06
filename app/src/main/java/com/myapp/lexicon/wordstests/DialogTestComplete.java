@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -65,7 +66,7 @@ public class DialogTestComplete extends android.support.v4.app.DialogFragment
         TextView textViewErrors = (TextView) dialogView.findViewById(R.id.txt_view_errors);
         textViewErrors.setText(getArguments().getString(KEY_ERRORS, ""));
 
-        ImageButton buttonNext = (ImageButton) dialogView.findViewById(R.id.btn_next);
+        Button buttonNext = (Button) dialogView.findViewById(R.id.btn_next);
         buttonNext.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -79,7 +80,7 @@ public class DialogTestComplete extends android.support.v4.app.DialogFragment
             }
         });
 
-        ImageButton buttonRepeat = (ImageButton) dialogView.findViewById(R.id.btn_repeat);
+        Button buttonRepeat = (Button) dialogView.findViewById(R.id.btn_repeat);
         buttonRepeat.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -93,7 +94,7 @@ public class DialogTestComplete extends android.support.v4.app.DialogFragment
             }
         });
 
-        ImageButton buttonComplete = (ImageButton) dialogView.findViewById(R.id.btn_complete);
+        Button buttonComplete = (Button) dialogView.findViewById(R.id.btn_complete);
         buttonComplete.setOnClickListener(new View.OnClickListener()
         {
             @Override
