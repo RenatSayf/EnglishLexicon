@@ -77,7 +77,7 @@
                 android:value=".main.MainActivity"/>
         </activity>
 
-        <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
         <!--
              ATTENTION: This was auto-generated to add Google Play services to your project for
              App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -97,7 +97,9 @@
             <!--android:exported="false">-->
         <!--</service>-->
     </application>
+
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 </manifest>

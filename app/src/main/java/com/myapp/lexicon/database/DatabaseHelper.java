@@ -101,7 +101,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
         File pathToDB;
         try
         {
-            if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
+            if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
             {
                 pathToDB = context.getExternalCacheDir();
                 if (pathToDB != null)
@@ -123,7 +123,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
     public void open() throws SQLException
     {
-        String path = Environment.getDataDirectory().toString() + DB_PATH + DB_NAME;
+        String path = actualPathDb;
         try
         {
             database = SQLiteDatabase.openDatabase(actualPathDb, null, SQLiteDatabase.NO_LOCALIZED_COLLATORS);
