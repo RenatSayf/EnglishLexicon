@@ -18,7 +18,7 @@ import java.util.ArrayList;
 /**
  * Created by Ренат on 29.03.2016.
  */
-// TODO: 26.01.2017 ListView adapter class
+// TODO: ListView adapter class
 public class ListViewAdapter extends ArrayAdapter implements Filterable
 {
     private ArrayList<DataBaseEntry> entries;
@@ -77,7 +77,7 @@ public class ListViewAdapter extends ArrayAdapter implements Filterable
 
     @NonNull
     @Override
-    public Filter getFilter() //// TODO: 19.01.2017 Фильтрацтя ListView
+    public Filter getFilter() //// TODO: ListView Фильтрацтя
     {
         Filter filter = new Filter()
         {

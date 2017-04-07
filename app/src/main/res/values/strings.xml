@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Lexicon</string>
+    <string name="app_link">https://play.google.com/store</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -195,6 +196,12 @@
     <string name="text_save">Сохранить</string>
     <string name="text_get">Получить</string>
     <string name="text_cancel">Отмена</string>
+    <string name="text_evaluate_app">Оценить приложение</string>
+    <string name="text_about_app">О программе</string>
+    <string name="content_describt">image_view</string>
+    <string name="text_developer_name">Разработка: Ренат Сайфутдинов</string>
+    <string name="text_developer_email">E-mail: renatsayf@gmail.com</string>
+    <string name="text_evaluate">Оценить</string>
 
 
 </resources>

@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.Loader;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
@@ -39,6 +40,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.AddWordActivity;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
@@ -369,14 +371,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 testsIntent = new Intent(this, Tests.class);
             }
             startActivity(testsIntent);
-        } else if (id == R.id.nav_play_list)
+        }
+        else if (id == R.id.nav_play_list)
         {
             if (playListIntent == null)
             {
                 playListIntent = new Intent(this, PlayList.class);
             }
             startActivity(playListIntent);
-        } else if (id == R.id.nav_exit)
+        }
+        else if (id == R.id.nav_evaluate_app)
+        {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse(getString(R.string.app_link)));
+            startActivity(intent);
+        }
+        else if (id == R.id.nav_about_app)
+        {
+            AboutAppFragment aboutAppFragment = new AboutAppFragment();
+            fragmentManager.beginTransaction().replace(R.id.about_app_fragment, aboutAppFragment).addToBackStack(null).commit();
+        }
+        else if (id == R.id.nav_exit)
         {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
             wakeLock.release();
