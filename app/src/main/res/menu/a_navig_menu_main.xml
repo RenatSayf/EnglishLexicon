@@ -31,11 +31,22 @@
             android:icon="@drawable/ic_check_your_self"
             android:title="@string/check_your_self"/>
 
+        <item
+            android:id="@+id/nav_evaluate_app"
+            android:icon="@drawable/icon_star_blue"
+            android:title="@string/text_evaluate_app"/>
+
+        <item
+            android:id="@+id/nav_about_app"
+            android:icon="@drawable/icon_info_blue"
+            android:title="@string/text_about_app"
+            />
+
     </group>
 
     <item
         android:id="@+id/nav_exit"
-        android:icon="@drawable/ic_exit"
+        android:icon="@drawable/icon_power"
         android:title="@string/exit"/>
 
 </menu>

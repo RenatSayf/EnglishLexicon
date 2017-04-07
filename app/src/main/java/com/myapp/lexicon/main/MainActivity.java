@@ -2,19 +2,22 @@ package com.myapp.lexicon.main;
 
 import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.app.LoaderManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.Loader;
 import android.database.Cursor;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.speech.tts.TextToSpeech;
 import android.support.design.widget.NavigationView;
-import android.app.LoaderManager;
-import android.content.Loader;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -35,21 +38,21 @@ import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ViewFlipper;
 
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.AddWordActivity;
-import com.myapp.lexicon.wordeditor.WordEditor;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.DatabaseHelper;
-//import com.myapp.lexicon.database.GetDbEntriesLoader;
 import com.myapp.lexicon.database.GetEntriesLoader;
+import com.myapp.lexicon.database.GetTableListFragm;
+import com.myapp.lexicon.helpers.MyLog;
 import com.myapp.lexicon.playlist.PlayList;
 import com.myapp.lexicon.settings.AppData2;
 import com.myapp.lexicon.settings.AppSettings;
+import com.myapp.lexicon.wordeditor.WordEditor;
 import com.myapp.lexicon.wordstests.Tests;
-import com.myapp.lexicon.helpers.MyLog;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -57,7 +60,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, LoaderManager.LoaderCallbacks<Cursor>
+//import com.myapp.lexicon.database.GetDbEntriesLoader;
+
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
+        LoaderManager.LoaderCallbacks<Cursor>,
+        GetTableListFragm.OnTableListListener
 {
     public DatabaseHelper databaseHelper;
     private Intent addWordIntent;
@@ -76,7 +83,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Switch switchRuSound;
     private static Intent speechIntentService;
     private UpdateBroadcastReceiver mUpdateBroadcastReceiver;
-    private BackgroundAnim backgroundAnim;
     private boolean isFirstTime = true;
     private AppSettings appSettings;
     private AppData2 appData2;
@@ -94,11 +100,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     protected PowerManager.WakeLock wakeLock;
 
+    private GetTableListFragm getTableListFragm;
+    private FragmentManager fragmentManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a_navig_main);
+
+        fragmentManager = getSupportFragmentManager();
+
+        if (savedInstanceState == null)
+        {
+            BackgroundFragm backgroundFragm = new BackgroundFragm();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_layout, backgroundFragm).addToBackStack(null).commit();
+        }
 
         final PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
         this.wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"my_tag");
@@ -112,8 +129,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         appSettings = new AppSettings(this);
         playList = appSettings.getPlayList();
         appData2 = AppData2.getInstance();
-        appData2.setContext(this);
-        appData2.initAllSettings();
+        appData2.initAllSettings(this);
 
         initViews();
 
@@ -164,10 +180,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getLoaderManager().initLoader(LOADER_GET_ENTRIES, savedInstanceState, this);
 
     }
+
+
     private void initViews()
     {
-        backgroundAnim = new BackgroundAnim(this, (ViewFlipper) findViewById(R.id.view_flipper));
-        backgroundAnim.startAnimByRandom();
         textViewEn = (TextView) findViewById(R.id.enTextView);
         textViewRu = (TextView) findViewById(R.id.ruTextView);
         textViewDict = (TextView) findViewById(R.id.textViewDict);
@@ -206,7 +222,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onSaveInstanceState(Bundle outState)
     {
         super.onSaveInstanceState(outState);
-        backgroundAnim.onSaveInstanceState(null);
         outState.putString(KEY_ENG_TEXT, textViewEn.getText().toString());
         outState.putString(KEY_RU_TEXT, textViewRu.getText().toString());
         outState.putString(KEY_CURRENT_DICT, textViewDict.getText().toString());
@@ -222,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onPause()
     {
         super.onPause();
-        appData2.saveAllSettings();
+        appData2.saveAllSettings(this);
         if (!isActivityOnTop())
         {
             speechServiceOnPause();
@@ -233,6 +248,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onStop()
     {
         super.onStop();
+        progressBar.setVisibility(View.GONE);
     }
 
     @Override
@@ -245,6 +261,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onResume()
     {
         super.onResume();
+        appSettings = new AppSettings(this);
+        playList = appSettings.getPlayList();
+        appData2 = AppData2.getInstance();
+        appData2.initAllSettings(this);
     }
 
     @Override
@@ -264,9 +284,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onBackPressed()
     {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
-        backgroundAnim.onDestroy();
         speechServiceOnPause();
-        appData2.saveAllSettings();
+        appData2.saveAllSettings(this);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer != null)
         {
@@ -283,21 +302,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.a_up_menu_main, menu);
         return true;
     }
 
-    public static final String KEY_DICT_NAME = "key_name_dict";
-    public static final String KEY_DICT_INDEX = "key_dict_index";
-    public static final String KEY_ROW_ID = "key_row_id";
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
         if (id == R.id.edit_word)
@@ -308,10 +319,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
             speechServiceOnPause();
             Bundle bundle = new Bundle();
-            bundle.putString(KEY_DICT_NAME, textViewDict.getText().toString());
-            bundle.putInt(KEY_DICT_INDEX, appData2.getNdict());
-            bundle.putInt(KEY_ROW_ID, appData2.getNword());
-            wordEditorIntent.putExtras(bundle);
+            bundle.putString(WordEditor.KEY_EXTRA_DICT_NAME, playList.get(AppData2.getInstance().getNdict()));
+            bundle.putInt(WordEditor.KEY_ROW_ID, appData2.getNword());
+            wordEditorIntent.replaceExtras(bundle);
 
             startActivity(wordEditorIntent);
         }
@@ -325,6 +335,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         speechServiceOnPause();
+
         if (id == R.id.nav_add_word)
         {
             if (addWordIntent == null)
@@ -339,13 +350,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         else if (id == R.id.nav_delete_dict)
         {
-            try
-            {
-                dialogDeleteDict();
-            } catch (SQLException e)
-            {
-                e.printStackTrace();
-            }
+            getTableListFragm = new GetTableListFragm();
+            fragmentManager.beginTransaction().add(getTableListFragm, "get_table_list").commit();
         }
         else if (id == R.id.nav_edit)
         {
@@ -353,7 +359,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             {
                 wordEditorIntent = new Intent(this, WordEditor.class);
             }
-            wordEditorIntent.replaceExtras(new Bundle());
+            Bundle bundle = new Bundle();
+            bundle.putString(WordEditor.KEY_EXTRA_DICT_NAME, playList.get(AppData2.getInstance().getNdict()));
+            wordEditorIntent.replaceExtras(bundle);
             startActivity(wordEditorIntent);
         }
         else if (id == R.id.nav_check_your_self)
@@ -363,18 +371,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 testsIntent = new Intent(this, Tests.class);
             }
             startActivity(testsIntent);
-        } else if (id == R.id.nav_play_list)
+        }
+        else if (id == R.id.nav_play_list)
         {
             if (playListIntent == null)
             {
                 playListIntent = new Intent(this, PlayList.class);
             }
             startActivity(playListIntent);
-        } else if (id == R.id.nav_exit)
+        }
+        else if (id == R.id.nav_evaluate_app)
+        {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse(getString(R.string.app_link)));
+            startActivity(intent);
+        }
+        else if (id == R.id.nav_about_app)
+        {
+            AboutAppFragment aboutAppFragment = new AboutAppFragment();
+            fragmentManager.beginTransaction().replace(R.id.about_app_fragment, aboutAppFragment).addToBackStack(null).commit();
+        }
+        else if (id == R.id.nav_exit)
         {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
-            backgroundAnim.onDestroy();
-            //speechServiceOnStop();
             wakeLock.release();
             this.finish();
         }
@@ -387,22 +406,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    private String[] items = new  String[0];
-
-    private void dialogDeleteDict() throws SQLException
+    @Override
+    public void onGetTableListListener(Object object)
     {
+        getTableListFragm = (GetTableListFragm) fragmentManager.findFragmentByTag("get_table_list");
+        if (getTableListFragm != null)
+        {
+            fragmentManager.beginTransaction().remove(getTableListFragm).commit();
+        }
+        ArrayList<String> arrayList = (ArrayList<String>) object;
         final ArrayList<String> delete_items = new ArrayList<>();
-        final DataBaseQueries dataBaseQueries = new DataBaseQueries(this);
-        try
+        final String[] items = new  String[arrayList.size()];
+        for (int i = 0; i < arrayList.size(); i++)
         {
-            items = dataBaseQueries.setListTableToSpinner();
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            return;
+            items[i] = arrayList.get(i);
         }
         boolean[]choice = new boolean[items.length];
-        new AlertDialog.Builder(this).setTitle(R.string.title_del_dict)
+        new AlertDialog.Builder(MainActivity.this).setTitle(R.string.title_del_dict)
                 .setMultiChoiceItems(items, choice, new DialogInterface.OnMultiChoiceClickListener()
                 {
                     @Override
@@ -428,7 +448,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 {
                                     try
                                     {
-                                        result = dataBaseQueries.deleteTableFromDbAsync(item);
+                                        result = dataBaseQueries.deleteTableFromDbSync(item);
                                         appSettings.removeItemFromPlayList(item);
                                     } catch (Exception e)
                                     {
@@ -463,7 +483,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             try
                             {
                                 dataBaseQueries = new DataBaseQueries(MainActivity.this);
-                                dataBaseQueries.addTableToDbAsync(dictName);
+                                dataBaseQueries.addTableToDbSync(dictName);
                             } catch (Exception e)
                             {
                                 e.printStackTrace();
@@ -609,7 +629,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void getNext() throws SQLException, ExecutionException, InterruptedException
     {
         dataBaseQueries = new DataBaseQueries(this);
-        int wordsCount = dataBaseQueries.getEntriesCountAsync(playList.get(appData2.getNdict()));
+        int wordsCount = dataBaseQueries.getCountEntriesSync(playList.get(appData2.getNdict()));
         appData2.setNword(appData2.getNword()+1);
         if (playList.size() > 1)
         {
@@ -657,7 +677,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 {
                     appData2.setNdict(playList.size()-1);
                 }
-                int wordsCount = dataBaseQueries.getEntriesCountAsync(playList.get(appData2.getNdict()));
+                int wordsCount = dataBaseQueries.getCountEntriesSync(playList.get(appData2.getNdict()));
                 appData2.setNword(wordsCount);
             }
         }
@@ -665,7 +685,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             if (appData2.getNword() <= 1)
             {
-                int wordsCount = dataBaseQueries.getEntriesCountAsync(playList.get(appData2.getNdict()));
+                int wordsCount = dataBaseQueries.getCountEntriesSync(playList.get(appData2.getNdict()));
                 appData2.setNword(wordsCount);
             }
             else
@@ -783,13 +803,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (dataBaseEntry != null)
         {
-            textViewEn.setText(dataBaseEntry.get_english());
-            textViewRu.setText(dataBaseEntry.get_translate());
+            textViewEn.setText(dataBaseEntry.getEnglish());
+            textViewRu.setText(dataBaseEntry.getTranslate());
             textViewDict.setText(playList.get(appData2.getNdict()));
 
             HashMap<String, String> hashMap = new HashMap<>();
-            hashMap.put("KEY_XXX", "xxx");
-            SplashScreenActivity.speech.speak(dataBaseEntry.get_english(), TextToSpeech.QUEUE_ADD, hashMap);
+            hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "main_activity");
+            SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            {
+                SplashScreenActivity.speech.speak(dataBaseEntry.getEnglish(), TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+            } else
+            {
+                SplashScreenActivity.speech.speak(dataBaseEntry.getEnglish(), TextToSpeech.QUEUE_ADD, hashMap);
+            }
         }
     }
 
@@ -798,6 +825,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
 
     }
+
+
 
     public class UpdateBroadcastReceiver extends BroadcastReceiver
     {

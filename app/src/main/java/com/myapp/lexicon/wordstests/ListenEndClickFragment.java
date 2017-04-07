@@ -2,12 +2,12 @@ package com.myapp.lexicon.wordstests;
 
 
 import android.animation.Animator;
-import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
 import android.view.Display;
@@ -15,7 +15,9 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewPropertyAnimator;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.AnticipateOvershootInterpolator;
@@ -23,6 +25,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -31,14 +34,23 @@ import android.widget.Toast;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
-import com.myapp.lexicon.database.DataBaseQueries;
-import com.myapp.lexicon.main.SplashScreenActivity;
+import com.myapp.lexicon.database.GetCountWordsAsync;
+import com.myapp.lexicon.database.GetEntriesFromDbAsync;
+import com.myapp.lexicon.database.GetTableListAsync;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
+import com.myapp.lexicon.main.BackgroundFragm;
+import com.myapp.lexicon.main.SplashScreenActivity;
+import com.myapp.lexicon.settings.AppData2;
+import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.ArrayList;
-
-import static android.content.Context.MODE_PRIVATE;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 
 /**
@@ -48,10 +60,27 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
 {
     public static final int ROWS = 5;
 
+    private ImageView imageBack;
+
     private static RelativeLayout.LayoutParams saveTopPanelParams;
     private static boolean isOpen = false;
+    private LinearLayout topPanel;
+    private RelativeLayout.LayoutParams topPanelParams;
+    private float touchDown = 0, touchUp = 0;
+    private Button topPanelButtonOK;
+    private Button topPanelButtonFinish;
+    private ImageButton topPanelButtonThreePoints;
+
+    private Button tempButton;
+    private LinearLayout buttonsLayout;
+    private Spinner spinnListDict;
+    private int spinnSelectedIndex = -1;
+    private ImageButton buttonSpeech;
+    private ProgressBar progressBar;
+
+    private int controlListSize = 0;
     private static ArrayList<String> storedListDict = new ArrayList<>();
-    private static RandomNumberGenerator randomGenerator;
+
     private static ArrayList<DataBaseEntry> controlList;
     private static ArrayList<DataBaseEntry> additionalList;
     private static ArrayList<String> textArray = new ArrayList<>();
@@ -61,31 +90,22 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
     private static ArrayList<DataBaseEntry> listFromDB;
     private static int counterRightAnswer = 0;
     private static int additonalCount = 0;
-
-    private RelativeLayout relLayout;
-    private LinearLayout linLayout;
-    private LinearLayout topPanel;
-    private RelativeLayout.LayoutParams topPanelParams;
-    private float touchDown = 0, touchUp = 0;
-    private Button tempButton;
-    private LinearLayout buttonsLayout;
-    private Spinner spinnListDict;
-    private int spinnSelectedIndex = -1;
-    private ImageButton buttonSpeech;
-    private ProgressBar progressBar;
-    private Button topPanelButtonOK;
-    private Button topPanelButtonFinish;
-    private int controlListSize = 0;
-    private LockOrientation lockOrientation;
-    private long duration = 1000;
+    private static float buttonY;
+    private static float buttonX;
     private int wordIndex = 1;
     private String spinnSelectedItem;
     private int wordsCount;
+
+    private static RandomNumberGenerator randomGenerator;
+    private LockOrientation lockOrientation;
+    private long duration = 1000;
     private DialogTestComplete dialogTestComplete;
     private ArrayList<String> arrStudiedDict = new ArrayList<>();
     private TestResults testResults;
-    private int range = 4;
     private DisplayMetrics displayMetrics;
+    private AppSettings appSettings;
+    private AppData2 appData;
+    private static boolean isStartAnim = false;
 
     private String KEY_CONTROL_LIST_SIZE = "key_control_list_size";
     private String KEY_WORDS_COUNT = "key_words_count";
@@ -96,6 +116,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
     private String KEY_WORD_INDEX = "key_word_index";
 
 
+
     public ListenEndClickFragment()
     {
         // Required empty public constructor
@@ -104,6 +125,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
     @Override
     public void onSaveInstanceState(Bundle outState)
     {
+        super.onSaveInstanceState(outState);
         outState.putInt(KEY_CONTROL_LIST_SIZE, controlListSize);
         outState.putInt(KEY_WORD_INDEX, wordIndex);
         outState.putInt(KEY_WORDS_COUNT, wordsCount);
@@ -124,8 +146,44 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
             Button button = (Button) buttonsLayout.getChildAt(i);
             textArray.add(button.getText().toString());
         }
+        saveButtonsLayoutState();
+    }
 
-        super.onSaveInstanceState(outState);
+    private void saveButtonsLayoutState()
+    {
+        Map<Float, String> stringMap = new HashMap<>();
+        for (int i = 0; i < buttonsLayout.getChildCount(); i++)
+        {
+            Button button = (Button) buttonsLayout.getChildAt(i);
+            if (!button.getText().toString().equals(""))
+            {
+                stringMap.put(button.getY(), button.getText().toString());
+            }
+        }
+
+        Map<Float, String> sortBtnsLayout = new TreeMap<>(new Comparator<Float>()
+        {
+            @Override
+            public int compare(Float lhs, Float rhs)
+            {
+                return lhs.compareTo(rhs);
+            }
+        });
+        sortBtnsLayout.putAll(stringMap);
+
+        Collection<String> stringCollection = sortBtnsLayout.values();
+        textArray.clear();
+        for (String item : stringCollection)
+        {
+            textArray.add(item);
+        }
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
     }
 
     @Override
@@ -143,11 +201,15 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
         display.getMetrics(displayMetrics);
 
         lockOrientation = new LockOrientation(getActivity());
+        appSettings = new AppSettings(getActivity());
+        appData = AppData2.getInstance();
+
         View fragment_view = inflater.inflate(R.layout.t_listen_end_click_layout, container, false);
-        //relLayout = (RelativeLayout) fragment_view.findViewById(R.id.rel_layout);
+
+        imageBack = (ImageView) fragment_view.findViewById(R.id.img_back_listen_layout);
         topPanel = (LinearLayout) fragment_view.findViewById(R.id.top_panel);
         topPanelParams = (RelativeLayout.LayoutParams) topPanel.getLayoutParams();
-        linLayout = (LinearLayout) fragment_view.findViewById(R.id.linear_layout);
+        LinearLayout linLayout = (LinearLayout) fragment_view.findViewById(R.id.linear_layout);
         spinnListDict = (Spinner) fragment_view.findViewById(R.id.spinner_dict);
         buttonsLayout = (LinearLayout) fragment_view.findViewById(R.id.buttons_layout);
         buttonSpeech = (ImageButton) fragment_view.findViewById(R.id.btn_speech);
@@ -155,10 +217,10 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
         progressBar = (ProgressBar) fragment_view.findViewById(R.id.prog_bar_listen);
         topPanelButtonOK = (Button) fragment_view.findViewById(R.id.btn_ok);
         topPanelButtonFinish = (Button) fragment_view.findViewById(R.id.btn_complete);
+        topPanelButtonThreePoints = (ImageButton) fragment_view.findViewById(R.id.btn_more_horiz);
         topPanelButtons_OnClick();
 
         testResults = new TestResults(getActivity());
-        //dialogTestComplete = t_DialogTestComplete.getInstance();
         dialogTestComplete = new DialogTestComplete();
         dialogTestComplete.setIDialogCompleteResult(ListenEndClickFragment.this);
 
@@ -188,7 +250,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
             for (int i = 0; i < buttonsLayout.getChildCount(); i++)
             {
                 Button button = (Button) buttonsLayout.getChildAt(i);
-                if (!textArray.get(i).equals(""))
+                if (textArray.size() > 0 && i < textArray.size() && !textArray.get(i).equals(""))
                 {
                     button.setText(textArray.get(i));
                     button.setVisibility(View.VISIBLE);
@@ -233,27 +295,15 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
             public void onClick(View v)
             {
                 topPanelVisible(1, 0, isOpen);
-                SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, SplashScreenActivity.map);
-                SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+                HashMap<String, String> hashMap = new HashMap<>();
+                hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "btn_speech");
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                 {
-                    @Override
-                    public void onStart(String utteranceId)
-                    {
-
-                    }
-
-                    @Override
-                    public void onDone(String utteranceId)
-                    {
-
-                    }
-
-                    @Override
-                    public void onError(String utteranceId)
-                    {
-
-                    }
-                });
+                    SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+                } else
+                {
+                    SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, hashMap);
+                }
             }
         });
     }
@@ -267,21 +317,35 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
             return;
         }
 
-        new DataBaseQueries.GetLictTableAsync()
+        GetTableListAsync getTableListAsync = new GetTableListAsync(getActivity(), new GetTableListAsync.GetTableListListener()
         {
             @Override
-            public void resultAsyncTask(ArrayList<String> list)
+            public void getTableListListener(ArrayList<String> arrayList)
             {
-                ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(getActivity().getApplicationContext(), R.layout.my_content_spinner_layout, list);
+                ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(getActivity().getApplicationContext(), R.layout.my_content_spinner_layout, arrayList);
                 spinnListDict.setAdapter(adapterSpinner);
-                spinnListDict.setSelection(spinnSelectedIndex);
+                ArrayList<String> playList = appSettings.getPlayList();
+                String currentDict = playList.get(appData.getNdict());
+                if (arrayList.contains(currentDict))
+                {
+                    int indexOf = arrayList.indexOf(currentDict);
+                    spinnListDict.setSelection(indexOf);
+                }
+                else
+                {
+                    spinnListDict.setSelection(0);
+                }
                 spinnListDict_OnItemSelectedListener();
                 for (int i = 0; i < spinnListDict.getAdapter().getCount(); i++)
                 {
                     storedListDict.add(spinnListDict.getAdapter().getItem(i).toString());
                 }
             }
-        }.execute();
+        });
+        if (getTableListAsync.getStatus() != AsyncTask.Status.RUNNING)
+        {
+            getTableListAsync.execute();
+        }
     }
 
     private void spinnListDict_OnItemSelectedListener()
@@ -307,24 +371,26 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
 
     private void startTest(final int position)
     {
-        lockOrientation.lock();
         wordIndex = 1;
         spinnSelectedItem = spinnListDict.getSelectedItem().toString();
-        DataBaseQueries.GetWordsCountAsync getWordsCount = new DataBaseQueries.GetWordsCountAsync()
+
+        GetCountWordsAsync getCountWordsAsync = new GetCountWordsAsync(getActivity(), spinnSelectedItem, new GetCountWordsAsync.GetCountListener()
         {
             @Override
-            public void resultAsyncTask(int res)
+            public void onTaskComplete(int count)
             {
-                wordsCount = res;
+                wordsCount = count;
                 fillLayoutLeft();
                 spinnSelectedIndex = position;
-                progressBar.setMax(res);
+                progressBar.setMax(count);
                 progressBar.setProgress(0);
                 counterRightAnswer = 0;
-                topPanelVisible(0, 1, isOpen);
             }
-        };
-        getWordsCount.execute(spinnSelectedItem);
+        });
+        if (getCountWordsAsync.getStatus() != AsyncTask.Status.RUNNING)
+        {
+            getCountWordsAsync.execute();
+        }
     }
 
     private void fillLayoutLeft()
@@ -336,24 +402,25 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
             button.setVisibility(View.GONE);
         }
 
-        AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
+        GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), spinnSelectedItem, wordIndex, ROWS, new GetEntriesFromDbAsync.GetEntriesListener()
         {
             @Override
-            public void resultAsyncTask(ArrayList<DataBaseEntry> list)
+            public void getEntriesListener(ArrayList<DataBaseEntry> entries)
             {
-                controlList = list;
+                controlList = entries;
                 additionalList = new ArrayList<>();
                 additonalCount = 0;
-                for (DataBaseEntry entry : list)
+                for (DataBaseEntry entry : entries)
                 {
                     additionalList.add(entry);
                 }
                 controlListSize = controlList.size();
+                randomGenerator = new RandomNumberGenerator(controlListSize, (int) new Date().getTime());
                 long start_delay = 0;
                 for (int i = 0; i < controlList.size(); i++)
                 {
                     Button button = (Button) buttonsLayout.getChildAt(i);
-                    button.setText(controlList.get(i).get_translate());
+                    button.setText(controlList.get(randomGenerator.generate()).getTranslate());
                     button.setTranslationX(displayMetrics.widthPixels);
                     button.setTranslationY(0);
                     button.setVisibility(View.VISIBLE);
@@ -362,14 +429,15 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                     btnLeft_OnClick(button);
                     wordIndex++;
                 }
-                randomGenerator = new RandomNumberGenerator(controlListSize, range);
+                randomGenerator = new RandomNumberGenerator(controlListSize, (int) new Date().getTime());
                 int randIndex = randomGenerator.generate();
-                textEn = list.get(randIndex).get_english();
-                getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+                textEn = entries.get(randIndex).getEnglish();
             }
-        };
-        asyncTask.execute(spinnSelectedItem, wordIndex, ROWS);
-        asyncTask = null;
+        });
+        if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
+        {
+            getEntriesFromDbAsync.execute();
+        }
     }
 
     private void btnLeft_OnClick(final View view)
@@ -379,13 +447,13 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
             @Override
             public void onClick(View view)
             {
-                int requestedOrientation = getActivity().getRequestedOrientation();
-                if (requestedOrientation != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+                if (isStartAnim)
                 {
                     return;
                 }
-                lockOrientation.lock();
                 tempButton = (Button) view;
+                buttonY = tempButton.getY();
+                buttonX = tempButton.getX();
                 compareWords(spinnSelectedItem, textEn, tempButton.getText().toString());
             }
         });
@@ -395,14 +463,13 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
     {
         if (enword == null || ruword == null)   return;
 
-        lockOrientation.lock();
         for (int i = 0; i < controlList.size(); i++)
         {
-            if (controlList.get(i).get_english().equals(enword))
+            if (controlList.get(i).getEnglish().equals(enword))
             {
                 indexEn = i;
             }
-            if (controlList.get(i).get_translate().equals(ruword))
+            if (controlList.get(i).getTranslate().equals(ruword))
             {
                 indexRu = i;
             }
@@ -410,20 +477,28 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
 
         if (indexEn == indexRu && indexEn != -1 && indexRu != -1)
         {
-            AsyncTask<Object, Void, ArrayList<DataBaseEntry>> asyncTask = new DataBaseQueries.GetWordsFromDBAsync()
+
+            GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), tableName, wordIndex, wordIndex, new GetEntriesFromDbAsync.GetEntriesListener()
             {
                 @Override
-                public void resultAsyncTask(ArrayList<DataBaseEntry> list)
+                public void getEntriesListener(ArrayList<DataBaseEntry> entries)
                 {
-                    listFromDB = list;
+                    listFromDB = entries;
                     progressBar.setProgress(progressBar.getProgress()+1);
                     if (tempButton != null)
                     {
                         tempButton.setText(textEn);
                         tempButton.setBackgroundResource(R.drawable.text_btn_for_test_green);
                     }
-
-                    SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, SplashScreenActivity.map);
+                    final HashMap<String, String> hashMap = new HashMap<>();
+                    hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "compare_words");
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                    {
+                        SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+                    } else
+                    {
+                        SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, hashMap);
+                    }
                     SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
                     {
                         @Override
@@ -435,7 +510,10 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                         @Override
                         public void onDone(String utteranceId)
                         {
-                            animButtonToLeft(tempButton);
+                            if (utteranceId.equals("compare_words"))
+                            {
+                                animButtonToLeft(tempButton);
+                            }
                         }
 
                         @Override
@@ -446,8 +524,11 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                     });
                     counterRightAnswer++;
                 }
-            };
-            asyncTask.execute(tableName, wordIndex, wordIndex);
+            });
+            if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
+            {
+                getEntriesFromDbAsync.execute();
+            }
         }
         else
         {
@@ -465,7 +546,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                 public void onAnimationEnd(Animation animation)
                 {
                     tempButton.setBackgroundResource(R.drawable.text_button_for_test);
-                    getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+                    lockOrientation.unLock();
                 }
 
                 @Override
@@ -482,6 +563,59 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
         }
     }
 
+    public void animButtonsToDown(float x, float y)
+    {
+        ViewPropertyAnimator animToDown;
+        boolean isListener = false;
+        for (int i = 0; i < buttonsLayout.getChildCount(); i++)
+        {
+            Button button = (Button) buttonsLayout.getChildAt(i);
+            LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) button.getLayoutParams();
+
+            float X = button.getX();
+            float Y = button.getY();
+            if (Y < y && x == X)
+            {
+                animToDown = button.animate()
+                        .translationYBy(button.getHeight()+layoutParams.bottomMargin)
+                        .setDuration(300)
+                        .setStartDelay(0)
+                        .setInterpolator(new AccelerateInterpolator());
+                if (!isListener)
+                {
+                    isListener = true;
+                    animToDown.setListener(new android.animation.Animator.AnimatorListener()
+                    {
+
+                        @Override
+                        public void onAnimationStart(android.animation.Animator animation)
+                        {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(android.animation.Animator animation)
+                        {
+                            animButtonFromRigth(tempButton);
+                        }
+
+                        @Override
+                        public void onAnimationCancel(android.animation.Animator animation)
+                        {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(android.animation.Animator animation)
+                        {
+
+                        }
+                    });
+                }
+            }
+        }
+    }
+
     private void animButtonToLeft(final Button button)
     {
         if (button == null) return;
@@ -493,56 +627,72 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                     @Override
                     public void onAnimationStart(Animator animation)
                     {
-
+                        lockOrientation.lock();
+                        isStartAnim = true;
                     }
 
                     @Override
                     public void onAnimationEnd(Animator animation)
                     {
+                        tempButton.setY(0);
                         Display display = getActivity().getWindowManager().getDefaultDisplay();
                         DisplayMetrics metrics = new DisplayMetrics();
                         display.getMetrics(metrics);
                         button.setX(metrics.widthPixels+10);
-                        int range = 4;
                         if (listFromDB.size() > 0)
                         {
                             controlList.set(indexEn, listFromDB.get(0));
-                            button.setText(listFromDB.get(0).get_translate());
+                            button.setText(listFromDB.get(0).getTranslate());
                             if (controlListSize != controlList.size())
                             {
-                                randomGenerator = new RandomNumberGenerator(controlList.size(), range);
+                                randomGenerator = new RandomNumberGenerator(controlList.size(), (int) new Date().getTime());
                                 controlListSize = controlList.size();
                             }
                             int randomNumber = randomGenerator.generate();
                             if (randomNumber < 0)
                             {
-                                randomGenerator = new RandomNumberGenerator(controlListSize, range);
+                                randomGenerator = new RandomNumberGenerator(controlListSize, (int) new Date().getTime());
                                 randomNumber = randomGenerator.generate();
                             }
-                            String english = controlList.get(randomNumber).get_english();
-                            textEn = controlList.get(randomNumber).get_english();
+                            textEn = controlList.get(randomNumber).getEnglish();
+                            if (buttonY > 0)
+                            {
+                                animButtonsToDown(buttonX, buttonY);
+                            }
+                            else
+                            {
+                                animButtonFromRigth(tempButton);
+                            }
                         }
                         else if (listFromDB.size() == 0 && controlList.size() <= ROWS)
                         {
                             try
                             {
                                 controlList.remove(indexEn);
-                                button.setText(additionalList.get(additonalCount).get_translate());
+                                button.setText(additionalList.get(additonalCount).getTranslate());
                                 additonalCount++;
                                 textEn = "";
                                 if (controlList.size() > 0)
                                 {
-                                    randomGenerator = new RandomNumberGenerator(controlList.size(), range);
+                                    randomGenerator = new RandomNumberGenerator(controlList.size(), (int) new Date().getTime());
                                     int randomNumber = randomGenerator.generate();
-                                    textEn = controlList.get(randomNumber).get_english();
+                                    textEn = controlList.get(randomNumber).getEnglish();
                                 }
                             } catch (Exception e)
                             {
                                 Toast.makeText(getActivity(), "Ошибка - "+e.getMessage(), Toast.LENGTH_SHORT).show();
                             }
+                            if (buttonY > 0)
+                            {
+                                animButtonsToDown(buttonX, buttonY);
+                            }
+                            else
+                            {
+                                animButtonFromRigth(tempButton);
+                            }
                         }
                         wordIndex++;
-                        animButtonFromRigth(button);
+
                     }
 
                     @Override
@@ -562,68 +712,78 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
     private void animButtonFromRigth(Button button)
     {
         if (button == null) return;
-        button.animate().translationX(0)
+        final ViewPropertyAnimator _animator = button.animate().translationX(0)
                 .setDuration(duration)
-                .setInterpolator(new AnticipateOvershootInterpolator())
-                .setListener(new Animator.AnimatorListener()
+                .setStartDelay(0)
+                .setInterpolator(new AnticipateOvershootInterpolator());
+        _animator.setListener(new Animator.AnimatorListener()
+        {
+            @Override
+            public void onAnimationStart(Animator animation)
+            {
+                tempButton.setBackgroundResource(R.drawable.text_button_for_test);
+            }
+
+            @Override
+            public void onAnimationEnd(final Animator animation)
+            {
+                HashMap<String, String> hashMap = new HashMap<>();
+                hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "btn_from_rigth_anim");
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                {
+                    SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+                } else
+                {
+                    SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, hashMap);
+                }
+                SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
                 {
                     @Override
-                    public void onAnimationStart(Animator animation)
-                    {
-                        tempButton.setBackgroundResource(R.drawable.text_button_for_test);
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animator animation)
-                    {
-                        SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, SplashScreenActivity.map);
-                        SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
-                        {
-                            @Override
-                            public void onStart(String utteranceId)
-                            {
-
-                            }
-
-                            @Override
-                            public void onDone(String utteranceId)
-                            {
-
-                            }
-
-                            @Override
-                            public void onError(String utteranceId)
-                            {
-
-                            }
-                        });
-                        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-                        if (textEn == "")
-                        {
-                            ArrayList<String> list = new ArrayList<String>();
-                            list.add(testResults.getOverallResult(counterRightAnswer, wordsCount));
-                            list.add(counterRightAnswer + getActivity().getString(R.string.text_out_of) + wordsCount);
-                            Bundle bundle = new Bundle();
-                            bundle.putString(dialogTestComplete.KEY_RESULT, list.get(0));
-                            bundle.putString(dialogTestComplete.KEY_ERRORS, list.get(1));
-                            dialogTestComplete.setArguments(bundle);
-                            dialogTestComplete.setCancelable(false);
-                            dialogTestComplete.show(getFragmentManager(), "dialog_complete_lexicon");
-                        }
-                    }
-
-                    @Override
-                    public void onAnimationCancel(Animator animation)
+                    public void onStart(String utteranceId)
                     {
 
                     }
 
                     @Override
-                    public void onAnimationRepeat(Animator animation)
+                    public void onDone(String utteranceId)
+                    {
+                        _animator.setListener(null);
+                    }
+
+                    @Override
+                    public void onError(String utteranceId)
                     {
 
                     }
                 });
+                lockOrientation.unLock();
+                isStartAnim = false;
+                if (textEn.equals(""))
+                {
+                    ArrayList<String> list = new ArrayList<>();
+                    list.add(testResults.getOverallResult(counterRightAnswer, wordsCount));
+                    list.add(counterRightAnswer + getActivity().getString(R.string.text_out_of) + wordsCount);
+                    Bundle bundle = new Bundle();
+                    bundle.putString(dialogTestComplete.KEY_RESULT, list.get(0));
+                    bundle.putString(dialogTestComplete.KEY_ERRORS, list.get(1));
+                    dialogTestComplete.setArguments(bundle);
+                    dialogTestComplete.setCancelable(false);
+                    dialogTestComplete.show(getFragmentManager(), "dialog_complete_lexicon");
+                }
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation)
+            {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation)
+            {
+
+            }
+        });
     }
 
     @Override
@@ -670,34 +830,18 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
         }
     }
 
-    public ArrayList<String> getPlayList()
-    {
-        ArrayList<String> listDicts=new ArrayList<>();
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(getString(R.string.key_play_list), MODE_PRIVATE);
-        String play_list_items = sharedPreferences.getString(getString(R.string.play_list_items), null);
-        if (play_list_items != null && play_list_items.length() > 0)
-        {
-            String[] splitArray = play_list_items.split(" ");
-            for (int i = 0; i < splitArray.length; i++)
-            {
-                listDicts.add(i, splitArray[i]);
-            }
-        }
-
-        return listDicts;
-    }
-
     private void addToStudiedList()
     {
         boolean containsInPlayList = false;
-        for (String item : getPlayList())
+        ArrayList<String> playList = appSettings.getPlayList();
+        for (String item : playList)
         {
             if (item.equals(spinnListDict.getSelectedItem()))
             {
                 containsInPlayList = true; break;
             }
         }
-        boolean contains = arrStudiedDict.contains(spinnListDict.getSelectedItem());
+        boolean contains = arrStudiedDict.contains(spinnListDict.getSelectedItem().toString());
         if (counterRightAnswer == wordsCount && !contains && containsInPlayList)
         {
             arrStudiedDict.add(spinnListDict.getSelectedItem().toString());
@@ -801,6 +945,14 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                 getActivity().onBackPressed();
             }
         });
+        topPanelButtonThreePoints.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                topPanelVisible(0, 1, isOpen);
+            }
+        });
     }
 
     @Override
@@ -809,6 +961,14 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
         super.onPause();
         Tests.bundleListenTest = new Bundle();
         onSaveInstanceState(Tests.bundleListenTest);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState)
+    {
+        super.onActivityCreated(savedInstanceState);
+        RandomNumberGenerator generator = new RandomNumberGenerator(BackgroundFragm.imagesId.length, (int) new Date().getTime());
+        imageBack.setImageResource(BackgroundFragm.imagesId[generator.generate()]);
     }
 
 

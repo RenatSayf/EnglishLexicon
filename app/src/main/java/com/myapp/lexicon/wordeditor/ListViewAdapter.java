@@ -1,6 +1,7 @@
 package com.myapp.lexicon.wordeditor;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +18,7 @@ import java.util.ArrayList;
 /**
  * Created by Ренат on 29.03.2016.
  */
-// TODO: 26.01.2017 ListView adapter class
+// TODO: ListView adapter class
 public class ListViewAdapter extends ArrayAdapter implements Filterable
 {
     private ArrayList<DataBaseEntry> entries;
@@ -32,11 +33,6 @@ public class ListViewAdapter extends ArrayAdapter implements Filterable
         this.tempEntries = new ArrayList<>(entries);
     }
 
-    public ListViewAdapter(Context context, int resource)
-    {
-        super(context, resource);
-    }
-
     @Override
     public int getCount()
     {
@@ -44,7 +40,7 @@ public class ListViewAdapter extends ArrayAdapter implements Filterable
     }
 
     @Override
-    public Object getItem(int position)
+    public DataBaseEntry getItem(int position)
     {
         return entries.get(position);
     }
@@ -55,8 +51,9 @@ public class ListViewAdapter extends ArrayAdapter implements Filterable
         return position;
     }
 
+    @NonNull
     @Override
-    public View getView(int position, View convertView, ViewGroup viewGroup)
+    public View getView(int position, View convertView, @NonNull ViewGroup viewGroup)
     {
         View wordView=convertView;
         if (wordView == null)
@@ -67,19 +64,20 @@ public class ListViewAdapter extends ArrayAdapter implements Filterable
         DataBaseEntry dataBaseEntry = entries.get(position);
 
         TextView textEnglish = (TextView) wordView.findViewById(R.id.english);
-        textEnglish.setText(dataBaseEntry.get_english());
+        textEnglish.setText(dataBaseEntry.getEnglish());
 
         TextView textTranslate = (TextView) wordView.findViewById(R.id.translate);
-        textTranslate.setText(dataBaseEntry.get_translate());
+        textTranslate.setText(dataBaseEntry.getTranslate());
 
         TextView textCountRepeat = (TextView) wordView.findViewById(R.id.count_repeat);
-        textCountRepeat.setText(dataBaseEntry.get_count_repeat());
+        textCountRepeat.setText(dataBaseEntry.getCountRepeat());
 
         return wordView;
     }
 
+    @NonNull
     @Override
-    public Filter getFilter() //// TODO: 19.01.2017 Фильтрацтя ListView
+    public Filter getFilter() //// TODO: ListView Фильтрацтя
     {
         Filter filter = new Filter()
         {
@@ -97,7 +95,7 @@ public class ListViewAdapter extends ArrayAdapter implements Filterable
                     ArrayList<DataBaseEntry> filteredEntries = new ArrayList<>();
                     for (DataBaseEntry entry : tempEntries)
                     {
-                        if (entry.get_english().contains(constraint) || entry.get_translate().contains(constraint))
+                        if (entry.getEnglish().contains(constraint) || entry.getTranslate().contains(constraint))
                         {
                             filteredEntries.add(entry);
                         }

@@ -16,6 +16,7 @@ import android.widget.Spinner;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.database.GetTableListLoader;
+import com.myapp.lexicon.helpers.StringOperations;
 import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.ArrayList;
@@ -206,9 +207,11 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
                         while ( !cursor.isAfterLast() )
                         {
                             nameNotDict = cursor.getString( cursor.getColumnIndex("name"));
-                            if (!nameNotDict.equals("android_metadata") && !nameNotDict.equals("sqlite_sequence"))
+                            if (!nameNotDict.equals(DatabaseHelper.TABLE_METADATA) && !nameNotDict.equals(DatabaseHelper.TABLE_SEQUENCE) && !nameNotDict.equals(DatabaseHelper.TABLE_API_KEY))
                             {
-                                list.add( cursor.getString( cursor.getColumnIndex("name")) );
+                                String table_name = cursor.getString(cursor.getColumnIndex("name"));
+                                table_name = StringOperations.getInstance().underscoreToSpace(table_name);
+                                list.add(table_name);
                             }
                             cursor.moveToNext();
                         }

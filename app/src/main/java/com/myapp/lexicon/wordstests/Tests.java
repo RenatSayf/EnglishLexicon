@@ -1,33 +1,29 @@
 package com.myapp.lexicon.wordstests;
 
 
+import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.database.DataBaseQueries;
-
-import java.sql.SQLException;
+import com.myapp.lexicon.database.GetTableListFragm;
 
 public class Tests extends AppCompatActivity
 {
     private ImageButton buttonFindPair, buttonListenEndClick, buttonOneOfFive;
-
     private FindPairFragment findPairFragment;
-
     private ListenEndClickFragment listenEndClickFragment;
-
     private OneOfFiveTest oneOfFiveTest;
-
     private FragmentTransaction transaction;
-    private DataBaseQueries baseQueries;
+
+    public static String FIND_PAIR_FRAGMENT = "find_pair_fragment";
+    public static String LISTEN_END_CLICK_FRAGMENT = "listen_and_click_fragment";
+    public static String ONE_OF_FIVE_FRAGMENT = "one_of_five_fragment";
 
     public static Bundle bundleOneOfFiveTest;
     public static Bundle bundleListenTest;
@@ -48,23 +44,12 @@ public class Tests extends AppCompatActivity
 
     private void initViews()
     {
-        try
-        {
-            baseQueries = new DataBaseQueries(this);
-        } catch (SQLException e)
-        {
-            e.printStackTrace();
-            Toast.makeText(this,"Error - "+e.getMessage(),Toast.LENGTH_SHORT).show();
-            this.finish();
-        }
-
         buttonFindPair = (ImageButton) findViewById(R.id.btn_find_pair);
         buttonListenEndClick = (ImageButton) findViewById(R.id.btn_select_word_test);
         buttonOneOfFive = (ImageButton) findViewById(R.id.btn_test_1of5);
 
         FragmentManager manager = getSupportFragmentManager();
 
-        String FIND_PAIR_FRAGMENT = "find_pair_fragment";
         findPairFragment = (FindPairFragment) manager.findFragmentByTag(FIND_PAIR_FRAGMENT);
         if (findPairFragment == null)
         {
@@ -72,7 +57,6 @@ public class Tests extends AppCompatActivity
             bundleFindPair = new Bundle();
         }
 
-        String LISTEN_END_CLICK_FRAGMENT = "listenEndClickFragment";
         listenEndClickFragment = (ListenEndClickFragment) manager.findFragmentByTag(LISTEN_END_CLICK_FRAGMENT);
         if (listenEndClickFragment == null)
         {
@@ -80,7 +64,6 @@ public class Tests extends AppCompatActivity
             bundleListenTest = new Bundle();
         }
 
-        String ONE_OF_FIVE_FRAGMENT = "one_of_five";
         oneOfFiveTest = (OneOfFiveTest) manager.findFragmentByTag(ONE_OF_FIVE_FRAGMENT);
         if (oneOfFiveTest == null)
         {
@@ -181,5 +164,6 @@ public class Tests extends AppCompatActivity
             finish();
         }
     }
+
 
 }

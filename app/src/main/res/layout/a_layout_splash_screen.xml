@@ -11,7 +11,8 @@
     <ImageView
         android:layout_width="150dp"
         android:layout_height="150dp"
-        android:src="@drawable/icon_lexicon"/>
+        android:src="@drawable/icon_lexicon"
+        android:contentDescription="@string/content_describt"/>
 
     <TextView
         android:layout_width="match_parent"
@@ -19,7 +20,7 @@
         android:layout_gravity="center_vertical"
         android:fontFamily="serif"
         android:gravity="center"
-        android:text="Lexicon"
+        android:text="@string/app_name"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@android:color/holo_orange_light"
         android:textSize="35sp"

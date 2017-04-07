@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -17,26 +18,14 @@ import com.myapp.lexicon.R;
 
 public class DialogTestComplete extends android.support.v4.app.DialogFragment
 {
-    //private static t_DialogTestComplete instance = new t_DialogTestComplete();
     public String KEY_RESULT = "result";
     public String KEY_ERRORS = "errors";
     public static IDialogComplete_Result iDialogCompleteResult;
-
-    private TextView textViewResult;
-    private TextView textViewErrors;
-    private ImageButton buttonNext;
-    private ImageButton buttonRepeat;
-    private ImageButton buttonComplete;
 
     public DialogTestComplete()
     {
 
     }
-
-//    public static t_DialogTestComplete getInstance()
-//    {
-//        return instance;
-//    }
 
     public interface IDialogComplete_Result
     {
@@ -55,16 +44,29 @@ public class DialogTestComplete extends android.support.v4.app.DialogFragment
 
         final View dialogView = getActivity().getLayoutInflater().inflate(R.layout.t_dialog_complete_test, null);
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
-                .setTitle("Завершено")
+                .setTitle(getResources().getString(R.string.text_test_is_finish))
                 .setView(dialogView);
 
-        textViewResult = (TextView) dialogView.findViewById(R.id.txt_view_result);
+        if (getArguments().get(KEY_RESULT) == getString(R.string.text_excellent))
+        {
+            builder.setIcon(getResources().getDrawable(R.drawable.icon_smiling_face));
+        }
+        if (getArguments().get(KEY_RESULT) == getString(R.string.text_good))
+        {
+            builder.setIcon(getResources().getDrawable(R.drawable.icon_calm_face));
+        }
+        if (getArguments().get(KEY_RESULT) == getString(R.string.text_bad))
+        {
+            builder.setIcon(getResources().getDrawable(R.drawable.icon_sad_face));
+        }
+
+        TextView textViewResult = (TextView) dialogView.findViewById(R.id.txt_view_result);
         textViewResult.setText(getArguments().getString(KEY_RESULT, ""));
 
-        textViewErrors = (TextView) dialogView.findViewById(R.id.txt_view_errors);
+        TextView textViewErrors = (TextView) dialogView.findViewById(R.id.txt_view_errors);
         textViewErrors.setText(getArguments().getString(KEY_ERRORS, ""));
 
-        buttonNext = (ImageButton) dialogView.findViewById(R.id.btn_next);
+        Button buttonNext = (Button) dialogView.findViewById(R.id.btn_next);
         buttonNext.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -78,7 +80,7 @@ public class DialogTestComplete extends android.support.v4.app.DialogFragment
             }
         });
 
-        buttonRepeat = (ImageButton) dialogView.findViewById(R.id.btn_repeat);
+        Button buttonRepeat = (Button) dialogView.findViewById(R.id.btn_repeat);
         buttonRepeat.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -92,7 +94,7 @@ public class DialogTestComplete extends android.support.v4.app.DialogFragment
             }
         });
 
-        buttonComplete = (ImageButton) dialogView.findViewById(R.id.btn_complete);
+        Button buttonComplete = (Button) dialogView.findViewById(R.id.btn_complete);
         buttonComplete.setOnClickListener(new View.OnClickListener()
         {
             @Override

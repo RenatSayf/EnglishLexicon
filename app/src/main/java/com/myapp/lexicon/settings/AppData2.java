@@ -2,17 +2,19 @@ package com.myapp.lexicon.settings;
 
 import android.content.Context;
 
+import com.myapp.lexicon.wordeditor.ListViewAdapter;
+
 /**
- * Created by Renat on 08.03.2017.
+ * Storing intermediate data of the application
  */
 
 public class AppData2
 {
     private static final AppData2 ourInstance = new AppData2();
-    private Context context;
     private int ndict;
     private int nword = 1;
     private boolean isPause = false;
+    private ListViewAdapter listViewAdapter;
 
     public static AppData2 getInstance()
     {
@@ -24,10 +26,6 @@ public class AppData2
 
     }
 
-    public void setContext(Context context)
-    {
-        this.context = context;
-    }
     public int getNdict()
     {
         return ndict;
@@ -58,7 +56,17 @@ public class AppData2
         isPause = pause;
     }
 
-    public void saveAllSettings()
+    public ListViewAdapter getListViewAdapter()
+    {
+        return listViewAdapter;
+    }
+
+    public void setListViewAdapter(ListViewAdapter listViewAdapter)
+    {
+        this.listViewAdapter = listViewAdapter;
+    }
+
+    public void saveAllSettings(Context context)
     {
         AppSettings appSettings = new AppSettings(context);
         appSettings.setPause(isPause);
@@ -66,7 +74,7 @@ public class AppData2
         appSettings.setWordNumber(nword);
     }
 
-    public void initAllSettings()
+    public void initAllSettings(Context context)
     {
         AppSettings appSettings = new AppSettings(context);
         isPause = appSettings.isPause();

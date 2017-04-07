@@ -5,6 +5,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 
+import com.myapp.lexicon.helpers.StringOperations;
+
 /**
  * Created by Renat on 28.02.2017.
  */
@@ -28,11 +30,10 @@ public class GetEntriesLoader extends AsyncTaskLoader<Cursor>
         databaseHelper.create_db();
         if (bundle != null)
         {
-            tableName = bundle.getString(KEY_TABLE_NAME);
+            tableName = StringOperations.getInstance().spaceToUnderscore(bundle.getString(KEY_TABLE_NAME));
             startId = bundle.getInt(KEY_START_ID);
             endId = bundle.getInt(KEY_END_ID);
         }
-        return;
     }
 
     @Override
@@ -59,8 +60,6 @@ public class GetEntriesLoader extends AsyncTaskLoader<Cursor>
 
         return cursor;
     }
-
-
 
 
 }

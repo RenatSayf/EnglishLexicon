@@ -4,18 +4,8 @@
       xmlns:tools="http://schemas.android.com/tools"
       tools:context=".addword.AddWordActivity">
 
-    <item android:id="@+id/menu_tests"
-          android:title="@string/tests"
-          android:orderInCategory="100"
-          app:showAsAction="never"/>
-
-    <item android:id="@+id/menu_play_list"
-          android:title="@string/play_list"
-          android:orderInCategory="100"
-          app:showAsAction="never"/>
-
-    <item android:id="@+id/menu_word_editor"
-          android:title="@string/edit_word"
+    <item android:id="@+id/enter_key"
+          android:title="@string/menu_text_api_key"
           android:orderInCategory="100"
           app:showAsAction="never"/>
 

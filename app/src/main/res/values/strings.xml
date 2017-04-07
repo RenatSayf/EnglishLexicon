@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Lexicon</string>
+    <string name="app_link">https://play.google.com/store</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -164,6 +165,43 @@
     <string name="text_one_of_five">1 из 5</string>
     <string name="text_find_pair">Нади пару</string>
     <string name="text_choice_test">Выберите тест</string>
+    <string name="text_find_pair_words">Найди парные слова</string>
+    <string name="text_recognize_words_by_sight">Распознай слова на слух</string>
+    <string name="text_dictionary">Словарь:</string>
+    <string name="text_ok">Ok</string>
+    <string name="text_complete">Завершить</string>
+    <string name="text_choose_correctly">Выбери правильно</string>
+    <string name="description_sound_button">sound_button</string>
+    <string name="text_finish">Завершить</string>
+    <string name="text_repeat">Повтор</string>
+    <string name="text_next">Следующий</string>
+    <string name="text_50_50">50 из 50</string>
+    <string name="text_correctly">Верно:</string>
+    <string name="text_test_is_finish">Тест завершен</string>
+    <string name="descript_image_background">image_background</string>
+    <string name="msg_error_creating_database">Не удалось создать базу данных</string>
+    <string name="http_error_413">Превышен максимально допустимый размер текста</string>
+    <string name="http_error_422">Текст не может быть переведен</string>
+    <string name="http_error_501">Заданное направление перевода не поддерживается</string>
+    <string name="http_error_401">Неправильный API-ключ</string>
+    <string name="http_error_402">API-ключ заблокирован</string>
+    <string name="http_error_404">Превышено суточное ограничение на объем переведенного текста</string>
+    <string name="title_yandex_translate">Яндекс.Переводчик:</string>
+    <string name="menu_text_api_key">Ввести API ключ</string>
+    <string name="dialog_error_text_0">Если у Вас есть API-ключ введите его в поле ниже или нажмите кнопку \"Вставить\" если он скопирован, затем нажмите \"Сохранить\".</string>
+    <string name="dialog_option_text_0">Если у Вас нет ключа, Вы можете получить бесплатный API-ключ нажав кнопку \"Получить\".</string>
+    <string name="tech.yandex.ru_translate">https://tech.yandex.ru/translate/</string>
+    <string name="text_api_key">API ключ:</string>
+    <string name="text_paste">Вставить</string>
+    <string name="text_save">Сохранить</string>
+    <string name="text_get">Получить</string>
+    <string name="text_cancel">Отмена</string>
+    <string name="text_evaluate_app">Оценить приложение</string>
+    <string name="text_about_app">О программе</string>
+    <string name="content_describt">image_view</string>
+    <string name="text_developer_name">Разработка: Ренат Сайфутдинов</string>
+    <string name="text_developer_email">E-mail: renatsayf@gmail.com</string>
+    <string name="text_evaluate">Оценить</string>
 
 
 </resources>

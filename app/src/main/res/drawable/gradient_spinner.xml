@@ -10,8 +10,7 @@
                               android:startColor="#a9b7ca"
                               android:type="linear"/>
 
-                    <stroke android:width="1dp"
-                            android:color="#f5e12a"/>
+                    <stroke android:width="4dp" android:color="#4aa5d4" />
 
                     <corners android:radius="4dp"/>
 
@@ -22,8 +21,7 @@
             </item>
 
             <item>
-                <bitmap android:gravity="bottom|right"
-                        android:src="@drawable/btn_down"/>
+                <bitmap android:gravity="center|right" android:src="@drawable/btn_down"/>
             </item>
 
         </layer-list>
@@ -39,8 +37,7 @@
                               android:startColor="#E8EBEF"
                               android:type="linear"/>
 
-                    <stroke android:width="1dp"
-                            android:color="#000000"/>
+                    <stroke android:width="4dp" android:color="#4aa5d4" />
 
                     <corners android:radius="4dp"/>
 
@@ -51,8 +48,7 @@
             </item>
 
             <item>
-                <bitmap android:gravity="bottom|right"
-                        android:src="@drawable/btn_down"/>
+                <bitmap android:gravity="center|right" android:src="@drawable/btn_down"/>
             </item>
 
         </layer-list>

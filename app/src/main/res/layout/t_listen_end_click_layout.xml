@@ -4,10 +4,17 @@
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/pape_background_blue"
                 android:orientation="vertical"
                 tools:context="com.myapp.lexicon.wordstests.ListenEndClickFragment"
-    >
+                >
+
+    <ImageView
+        android:id="@+id/img_back_listen_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/img_uk2"
+        android:scaleType="centerCrop"
+        android:contentDescription="@string/descript_image_background"/>
 
 
     <LinearLayout
@@ -20,17 +27,19 @@
         <ProgressBar
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="20dp"
             android:layout_marginBottom="10dp"
             android:layout_marginTop="30dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
             android:id="@+id/prog_bar_listen"
-            android:layout_weight="1"/>
+            android:layout_weight="0"/>
 
         <LinearLayout
             android:id="@+id/buttons_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="0dp"
             android:layout_weight="1"
             android:gravity="center_horizontal"
             android:orientation="vertical">
@@ -41,9 +50,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="30dp"
                 android:layout_marginRight="30dp"
-                android:layout_marginBottom="10dp"
+                android:layout_marginBottom="5dp"
                 android:layout_weight="1"
                 android:background="@drawable/text_button_for_test"
+                android:textColor="@color/trans_text_color"
+                android:textStyle="bold"
+                style="@style/Base.Widget.AppCompat.ButtonBar"
+                android:textSize="18sp"
                 />
 
             <Button
@@ -52,10 +65,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="30dp"
                 android:layout_marginRight="30dp"
-                android:layout_below="@+id/btn0"
-                android:layout_marginBottom="10dp"
+                android:layout_marginBottom="5dp"
                 android:layout_weight="1"
                 android:background="@drawable/text_button_for_test"
+                android:textColor="@color/trans_text_color"
+                android:textStyle="bold"
+                style="@style/Base.Widget.AppCompat.ButtonBar"
+                android:textSize="18sp"
                 />
 
             <Button
@@ -64,10 +80,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="30dp"
                 android:layout_marginRight="30dp"
-                android:layout_below="@+id/btn1"
-                android:layout_marginBottom="10dp"
+                android:layout_marginBottom="5dp"
                 android:layout_weight="1"
                 android:background="@drawable/text_button_for_test"
+                android:textColor="@color/trans_text_color"
+                android:textStyle="bold"
+                style="@style/Base.Widget.AppCompat.ButtonBar"
+                android:textSize="18sp"
                 />
 
             <Button
@@ -76,10 +95,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="30dp"
                 android:layout_marginRight="30dp"
-                android:layout_below="@+id/btn2"
-                android:layout_marginBottom="10dp"
+                android:layout_marginBottom="5dp"
                 android:layout_weight="1"
                 android:background="@drawable/text_button_for_test"
+                android:textColor="@color/trans_text_color"
+                android:textStyle="bold"
+                style="@style/Base.Widget.AppCompat.ButtonBar"
+                android:textSize="18sp"
                 />
 
             <Button
@@ -88,22 +110,25 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="30dp"
                 android:layout_marginRight="30dp"
-                android:layout_below="@+id/btn3"
-                android:layout_marginBottom="10dp"
+                android:layout_marginBottom="5dp"
                 android:layout_weight="1"
                 android:background="@drawable/text_button_for_test"
+                android:textColor="@color/trans_text_color"
+                android:textStyle="bold"
+                style="@style/Base.Widget.AppCompat.ButtonBar"
+                android:textSize="18sp"
                 />
 
         </LinearLayout>
 
         <ImageButton
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:layout_marginBottom="30dp"
-            android:src="@drawable/sound_btn_foreground"
-            android:background="@android:color/transparent"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="10dp"
+            android:src="@drawable/sound_btn_foreground2"
+            android:background="@drawable/circle_press_background"
             android:layout_gravity="center_horizontal"
-            android:contentDescription="sound_button"
+            android:contentDescription="@string/description_sound_button"
             android:id="@+id/btn_speech"/>
 
 
@@ -113,7 +138,7 @@
         android:id="@+id/top_panel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="-158dp">
+        android:layout_marginTop="-164dp">
 
         <include
             layout="@layout/t_top_panel"
