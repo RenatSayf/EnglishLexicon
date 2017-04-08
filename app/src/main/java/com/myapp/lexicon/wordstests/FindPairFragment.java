@@ -1,6 +1,8 @@
 package com.myapp.lexicon.wordstests;
 
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,6 +25,7 @@ import android.view.animation.AnticipateOvershootInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Chronometer;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -37,12 +40,14 @@ import com.myapp.lexicon.database.GetCountWordsAsync;
 import com.myapp.lexicon.database.GetEntriesFromDbAsync;
 import com.myapp.lexicon.database.GetTableListAsync;
 import com.myapp.lexicon.helpers.LockOrientation;
+import com.myapp.lexicon.helpers.ObjectSerializer;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
 import com.myapp.lexicon.main.BackgroundFragm;
 import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.settings.AppData2;
 import com.myapp.lexicon.settings.AppSettings;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -53,6 +58,8 @@ import java.util.HashMap;
  */
 public class FindPairFragment extends Fragment implements DialogTestComplete.IDialogComplete_Result
 {
+    public static final String KEY_FIND_PAIR = "key_find_pair";
+
     public final int ROWS = 5;
 
     private static RelativeLayout.LayoutParams saveTopPanelParams;
@@ -71,7 +78,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     private Spinner spinnListDict;
     private int spinnSelectedIndex = -1;
     private String spinnSelectedItem;
-    private static ArrayList<String> storedListDict = new ArrayList<>();
+    private ArrayList<String> storedListDict = new ArrayList<>();
 
     private ProgressBar progressBar;
     private ImageView backImageView;
@@ -79,12 +86,12 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     private LockOrientation lockOrientation;
     private int wordIndex = 1;
     private int wordsCount;
-    private static int counterRightAnswer = 0;
+    private int counterRightAnswer = 0;
     private static ArrayList<String> textArrayleft = new ArrayList<>();
     private static ArrayList<String> textArrayRight = new ArrayList<>();
     private ArrayList<String> arrStudiedDict = new ArrayList<>();
-    private static ArrayList<DataBaseEntry> controlList;
-    private static ArrayList<DataBaseEntry> additionalList;
+    private ArrayList<DataBaseEntry> controlList;
+    private ArrayList<DataBaseEntry> additionalList;
     private int controlListSize = 0;
     private DisplayMetrics metrics;
     private String enWord = null;
@@ -107,6 +114,11 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     private String KEY_PROGRESS = "key_progress";
     private String KEY_PROGRESS_MAX = "key_progress_max";
     private String KEY_WORD_INDEX = "key_word_index";
+    private String KEY_COUNTER_RIGHT_ANSWER = "key_counter_right_answer";
+    private String KEY_ARRAY_STUDIED_DICT = "key_array_studied_dict";
+    private String KEY_CONTROL_LIST = "key_control_list";
+    private String KEY_ADDITIONAL_LIST = "key_additional_list";
+    private String KEY_STORED_DICT_LIST = "key_stored_dict_list";
 
 
     public FindPairFragment()
@@ -132,6 +144,11 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         outState.putInt(KEY_WORD_INDEX, wordIndex);
         outState.putInt(KEY_WORDS_COUNT, wordsCount);
         outState.putInt(KEY_CONTROL_LIST_SIZE, controlListSize);
+        outState.putInt(KEY_COUNTER_RIGHT_ANSWER, counterRightAnswer);
+        outState.putStringArrayList(KEY_ARRAY_STUDIED_DICT, arrStudiedDict);
+        outState.putParcelableArrayList(KEY_CONTROL_LIST, controlList);
+        outState.putParcelableArrayList(KEY_ADDITIONAL_LIST, additionalList);
+        outState.putStringArrayList(KEY_STORED_DICT_LIST, storedListDict);
 
         if (isOpen)
         {
@@ -170,10 +187,28 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState)
+    public void onDestroy()
     {
-        // Inflate the layout for this fragment
+        super.onDestroy();
+        Bundle bundle = new Bundle();
+        bundle.putString(KEY_SPINN_SELECT_ITEM, spinnSelectedItem);
+        bundle.putInt(KEY_SPINN_SELECT_INDEX, spinnSelectedIndex);
+        bundle.putInt(KEY_PROGRESS, progressBar.getProgress());
+        bundle.putInt(KEY_PROGRESS_MAX, progressBar.getMax());
+        bundle.putInt(KEY_WORD_INDEX, wordIndex);
+        bundle.putInt(KEY_WORDS_COUNT, wordsCount);
+        bundle.putInt(KEY_CONTROL_LIST_SIZE, controlListSize);
+        bundle.putInt(KEY_COUNTER_RIGHT_ANSWER, counterRightAnswer);
+        bundle.putString(KEY_ARRAY_STUDIED_DICT, ObjectSerializer.serialize(arrStudiedDict));
+        bundle.putString(KEY_CONTROL_LIST, ObjectSerializer.serialize(controlList));
+        bundle.putString(KEY_ADDITIONAL_LIST, ObjectSerializer.serialize(additionalList));
+        bundle.putString(KEY_STORED_DICT_LIST, ObjectSerializer.serialize(storedListDict));
+        appSettings.saveStateFindPairFragment(bundle);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+    {
         if (savedInstanceState == null && Tests.bundleFindPair.containsKey(KEY_WORD_INDEX))
         {
             savedInstanceState = Tests.bundleFindPair;
@@ -225,25 +260,26 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         spinnListDict = (Spinner) fragment_view.findViewById(R.id.spinner_dict);
         spinnListDict_OnItemSelectedListener();
         setItemsToSpinnListDict();
+
+        progressBar = (ProgressBar) fragment_view.findViewById(R.id.prog_bar_find_pair);
+
         if (savedInstanceState != null)
         {
             spinnSelectedItem = savedInstanceState.getString(KEY_SPINN_SELECT_ITEM);
             spinnSelectedIndex = savedInstanceState.getInt(KEY_SPINN_SELECT_INDEX);
-        }
-
-        progressBar = (ProgressBar) fragment_view.findViewById(R.id.prog_bar_find_pair);
-        if (savedInstanceState != null)
-        {
             progressBar.setProgress(savedInstanceState.getInt(KEY_PROGRESS));
             progressBar.setMax(savedInstanceState.getInt(KEY_PROGRESS_MAX));
-        }
-
-        if (savedInstanceState != null)
-        {
             wordIndex = savedInstanceState.getInt(KEY_WORD_INDEX);
             wordsCount = savedInstanceState.getInt(KEY_WORDS_COUNT);
             controlListSize = savedInstanceState.getInt(KEY_CONTROL_LIST_SIZE);
+            counterRightAnswer = savedInstanceState.getInt(KEY_COUNTER_RIGHT_ANSWER);
+            arrStudiedDict = savedInstanceState.getStringArrayList(KEY_ARRAY_STUDIED_DICT);
+            controlList = savedInstanceState.getParcelableArrayList(KEY_CONTROL_LIST);
+            additionalList = savedInstanceState.getParcelableArrayList(KEY_ADDITIONAL_LIST);
+            storedListDict = savedInstanceState.getStringArrayList(KEY_STORED_DICT_LIST);
         }
+
+
 
         btnLayoutLeft = (LinearLayout) fragment_view.findViewById(R.id.btn_layout_left);
         btnLayoutRight = (LinearLayout) fragment_view.findViewById(R.id.btn_layout_right);

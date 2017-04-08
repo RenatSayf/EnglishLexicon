@@ -1,6 +1,10 @@
 package com.myapp.lexicon.settings;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+
+import com.myapp.lexicon.wordstests.FindPairFragment;
 
 import java.util.ArrayList;
 
@@ -202,6 +206,12 @@ public class AppSettings
     public boolean isPause()
     {
         return context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getBoolean(KEY_IS_PAUSE, false);
+    }
+
+    public void saveStateFindPairFragment(Bundle bundle)
+    {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(FindPairFragment.KEY_FIND_PAIR, MODE_PRIVATE);
+
     }
 
 

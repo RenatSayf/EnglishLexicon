@@ -1,7 +1,12 @@
 package com.myapp.lexicon.database;
 
 
-public class DataBaseEntry
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import java.io.Serializable;
+
+public class DataBaseEntry implements Parcelable, Serializable
 {
     private String english;
     private String translate;
@@ -19,6 +24,28 @@ public class DataBaseEntry
         this.translate =translate;
         this.countRepeat =count_repeat;
     }
+
+    protected DataBaseEntry(Parcel in)
+    {
+        english = in.readString();
+        translate = in.readString();
+        countRepeat = in.readString();
+    }
+
+    public static final Creator<DataBaseEntry> CREATOR = new Creator<DataBaseEntry>()
+    {
+        @Override
+        public DataBaseEntry createFromParcel(Parcel in)
+        {
+            return new DataBaseEntry(in);
+        }
+
+        @Override
+        public DataBaseEntry[] newArray(int size)
+        {
+            return new DataBaseEntry[size];
+        }
+    };
 
     public String getEnglish()
     {
@@ -45,4 +72,17 @@ public class DataBaseEntry
         return countRepeat;
     }
 
+    @Override
+    public int describeContents()
+    {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i)
+    {
+        parcel.writeString(english);
+        parcel.writeString(translate);
+        parcel.writeString(countRepeat);
+    }
 }

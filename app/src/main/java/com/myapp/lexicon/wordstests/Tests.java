@@ -1,6 +1,7 @@
 package com.myapp.lexicon.wordstests;
 
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -81,6 +82,7 @@ public class Tests extends AppCompatActivity
             @Override
             public void onClick(View v)
             {
+
                 transaction = getSupportFragmentManager().beginTransaction();
                 transaction.replace(R.id.find_pair_fragment, findPairFragment);
                 transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
