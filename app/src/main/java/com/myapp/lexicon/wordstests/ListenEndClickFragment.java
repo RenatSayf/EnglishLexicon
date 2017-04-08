@@ -325,11 +325,14 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                 ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(getActivity().getApplicationContext(), R.layout.my_content_spinner_layout, arrayList);
                 spinnListDict.setAdapter(adapterSpinner);
                 ArrayList<String> playList = appSettings.getPlayList();
-                String currentDict = playList.get(appData.getNdict());
-                if (arrayList.contains(currentDict))
+                if (playList != null && playList.size() > 0)
                 {
-                    int indexOf = arrayList.indexOf(currentDict);
-                    spinnListDict.setSelection(indexOf);
+                    String currentDict = playList.get(appData.getNdict());
+                    if (arrayList.contains(currentDict))
+                    {
+                        int indexOf = arrayList.indexOf(currentDict);
+                        spinnListDict.setSelection(indexOf);
+                    }
                 }
                 else
                 {

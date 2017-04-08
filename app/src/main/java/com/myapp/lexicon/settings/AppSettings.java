@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import com.myapp.lexicon.database.DataBaseEntry;
+import com.myapp.lexicon.helpers.ObjectSerializer;
 import com.myapp.lexicon.wordstests.FindPairFragment;
 
 import java.util.ArrayList;
@@ -210,8 +212,58 @@ public class AppSettings
 
     public void saveStateFindPairFragment(Bundle bundle)
     {
-        SharedPreferences sharedPreferences = context.getSharedPreferences(FindPairFragment.KEY_FIND_PAIR, MODE_PRIVATE);
+        SharedPreferences.Editor settingsEditor = context.getSharedPreferences(FindPairFragment.KEY_FIND_PAIR, MODE_PRIVATE).edit();
+        settingsEditor.putString(FindPairFragment.KEY_SPINN_SELECT_ITEM, bundle.getString(FindPairFragment.KEY_SPINN_SELECT_ITEM));
+        settingsEditor.putInt(FindPairFragment.KEY_SPINN_SELECT_INDEX, bundle.getInt(FindPairFragment.KEY_SPINN_SELECT_INDEX));
+        settingsEditor.putInt(FindPairFragment.KEY_PROGRESS, bundle.getInt(FindPairFragment.KEY_PROGRESS));
+        settingsEditor.putInt(FindPairFragment.KEY_PROGRESS_MAX, bundle.getInt(FindPairFragment.KEY_PROGRESS_MAX));
+        settingsEditor.putInt(FindPairFragment.KEY_WORD_INDEX, bundle.getInt(FindPairFragment.KEY_WORD_INDEX));
+        settingsEditor.putInt(FindPairFragment.KEY_WORDS_COUNT, bundle.getInt(FindPairFragment.KEY_WORDS_COUNT));
+        settingsEditor.putInt(FindPairFragment.KEY_CONTROL_LIST_SIZE, bundle.getInt(FindPairFragment.KEY_CONTROL_LIST_SIZE));
+        settingsEditor.putInt(FindPairFragment.KEY_COUNTER_RIGHT_ANSWER, bundle.getInt(FindPairFragment.KEY_COUNTER_RIGHT_ANSWER));
+        settingsEditor.putString(FindPairFragment.KEY_ARRAY_STUDIED_DICT, bundle.getString(FindPairFragment.KEY_ARRAY_STUDIED_DICT));
+        settingsEditor.putString(FindPairFragment.KEY_CONTROL_LIST, bundle.getString(FindPairFragment.KEY_CONTROL_LIST));
+        settingsEditor.putString(FindPairFragment.KEY_ADDITIONAL_LIST, bundle.getString(FindPairFragment.KEY_ADDITIONAL_LIST));
+        settingsEditor.putString(FindPairFragment.KEY_STORED_DICT_LIST, bundle.getString(FindPairFragment.KEY_STORED_DICT_LIST));
 
+        settingsEditor.apply();
+    }
+
+    public Bundle getStateFindPairFragment()
+    {
+        Bundle bundle = new Bundle();
+        SharedPreferences sharedPreferences = context.getSharedPreferences(FindPairFragment.KEY_FIND_PAIR, MODE_PRIVATE);
+        bundle.putString(FindPairFragment.KEY_SPINN_SELECT_ITEM, sharedPreferences.getString(FindPairFragment.KEY_SPINN_SELECT_ITEM, null));
+        bundle.putInt(FindPairFragment.KEY_SPINN_SELECT_INDEX, sharedPreferences.getInt(FindPairFragment.KEY_SPINN_SELECT_INDEX, 0));
+        bundle.putInt(FindPairFragment.KEY_PROGRESS, sharedPreferences.getInt(FindPairFragment.KEY_PROGRESS, 0));
+        bundle.putInt(FindPairFragment.KEY_PROGRESS_MAX, sharedPreferences.getInt(FindPairFragment.KEY_PROGRESS_MAX, 0));
+        bundle.putInt(FindPairFragment.KEY_WORD_INDEX, sharedPreferences.getInt(FindPairFragment.KEY_WORD_INDEX, 1));
+        bundle.putInt(FindPairFragment.KEY_WORDS_COUNT, sharedPreferences.getInt(FindPairFragment.KEY_WORDS_COUNT, 0));
+        bundle.putInt(FindPairFragment.KEY_CONTROL_LIST_SIZE, sharedPreferences.getInt(FindPairFragment.KEY_CONTROL_LIST_SIZE, 0));
+        bundle.putInt(FindPairFragment.KEY_COUNTER_RIGHT_ANSWER, sharedPreferences.getInt(FindPairFragment.KEY_COUNTER_RIGHT_ANSWER, 0));
+
+        String strArrStudiedDict = sharedPreferences.getString(FindPairFragment.KEY_ARRAY_STUDIED_DICT, null);
+        ArrayList<String> arrStudiedDict = (ArrayList<String>) ObjectSerializer.deserialize(strArrStudiedDict);
+        bundle.putStringArrayList(FindPairFragment.KEY_ARRAY_STUDIED_DICT, arrStudiedDict);
+
+        String strControlList = sharedPreferences.getString(FindPairFragment.KEY_CONTROL_LIST, null);
+        ArrayList<DataBaseEntry> controlList = (ArrayList<DataBaseEntry>) ObjectSerializer.deserialize(strControlList);
+        bundle.putParcelableArrayList(FindPairFragment.KEY_CONTROL_LIST, controlList);
+
+        String strAdditionalList = sharedPreferences.getString(FindPairFragment.KEY_ADDITIONAL_LIST, null);
+        ArrayList<DataBaseEntry> additionalList = (ArrayList<DataBaseEntry>) ObjectSerializer.deserialize(strAdditionalList);
+        bundle.putParcelableArrayList(FindPairFragment.KEY_ADDITIONAL_LIST, additionalList);
+
+        String strStoredDictList = sharedPreferences.getString(FindPairFragment.KEY_STORED_DICT_LIST, null);
+        ArrayList<String> storedDictList = (ArrayList<String>) ObjectSerializer.deserialize(strStoredDictList);
+        bundle.putStringArrayList(FindPairFragment.KEY_STORED_DICT_LIST, storedDictList);
+
+        //bundle.putString(FindPairFragment.KEY_ARRAY_STUDIED_DICT, sharedPreferences.getString(FindPairFragment.KEY_ARRAY_STUDIED_DICT, null));
+        //bundle.putString(FindPairFragment.KEY_CONTROL_LIST, sharedPreferences.getString(FindPairFragment.KEY_CONTROL_LIST, null));
+        //bundle.putString(FindPairFragment.KEY_ADDITIONAL_LIST, sharedPreferences.getString(FindPairFragment.KEY_ADDITIONAL_LIST, null));
+        //bundle.putString(FindPairFragment.KEY_STORED_DICT_LIST, sharedPreferences.getString(FindPairFragment.KEY_STORED_DICT_LIST, null));
+
+        return bundle;
     }
 
 

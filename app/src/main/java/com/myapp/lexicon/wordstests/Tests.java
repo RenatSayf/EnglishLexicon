@@ -13,6 +13,7 @@ import android.widget.ImageButton;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.GetTableListFragm;
+import com.myapp.lexicon.settings.AppSettings;
 
 public class Tests extends AppCompatActivity
 {
@@ -82,7 +83,9 @@ public class Tests extends AppCompatActivity
             @Override
             public void onClick(View v)
             {
-
+                AppSettings appSettings = new AppSettings(Tests.this);
+                Bundle bundle = appSettings.getStateFindPairFragment();
+                findPairFragment.setArguments(bundle);
                 transaction = getSupportFragmentManager().beginTransaction();
                 transaction.replace(R.id.find_pair_fragment, findPairFragment);
                 transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
