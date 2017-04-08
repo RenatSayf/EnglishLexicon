@@ -131,19 +131,12 @@ public class Tests extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
         switch (id)
         {
             case android.R.id.home:
                 onBackPressed();
-                return true;
-            case R.id.action_item1:
-                break;
-            case R.id.action_item2:
                 break;
             default:
                 return super.onOptionsItemSelected(item);
