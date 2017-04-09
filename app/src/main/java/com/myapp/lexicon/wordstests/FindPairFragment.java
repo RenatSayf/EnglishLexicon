@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -106,6 +107,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     private FragmentManager fragmentManager;
     private AppSettings appSettings;
     private AppData2 appData;
+    private static boolean isSave = true;
 
     public static final String KEY_CONTROL_LIST_SIZE = "key_control_list_size";
     public static final String KEY_WORDS_COUNT = "key_words_count";
@@ -194,35 +196,35 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     public void onDetach()
     {
         super.onDetach();
-        Bundle bundle = new Bundle();
-        bundle.putString(KEY_SPINN_SELECT_ITEM, spinnSelectedItem);
-        bundle.putInt(KEY_SPINN_SELECT_INDEX, spinnSelectedIndex);
-        bundle.putInt(KEY_PROGRESS, progressBar.getProgress());
-        bundle.putInt(KEY_PROGRESS_MAX, progressBar.getMax());
-        bundle.putInt(KEY_WORD_INDEX, wordIndex);
-        bundle.putInt(KEY_WORDS_COUNT, wordsCount);
-        bundle.putInt(KEY_CONTROL_LIST_SIZE, controlListSize);
-        bundle.putInt(KEY_COUNTER_RIGHT_ANSWER, counterRightAnswer);
-        bundle.putString(KEY_ARRAY_STUDIED_DICT, ObjectSerializer.serialize(arrStudiedDict));
-        bundle.putString(KEY_CONTROL_LIST, ObjectSerializer.serialize(controlList));
-        bundle.putString(KEY_ADDITIONAL_LIST, ObjectSerializer.serialize(additionalList));
-        bundle.putString(KEY_STORED_DICT_LIST, ObjectSerializer.serialize(storedListDict));
-        appSettings.saveStateFindPairFragment(bundle);
+        if (isSave)
+        {
+            Bundle bundle = new Bundle();
+            bundle.putString(KEY_SPINN_SELECT_ITEM, spinnSelectedItem);
+            bundle.putInt(KEY_SPINN_SELECT_INDEX, spinnSelectedIndex);
+            bundle.putInt(KEY_PROGRESS, progressBar.getProgress());
+            bundle.putInt(KEY_PROGRESS_MAX, progressBar.getMax());
+            bundle.putInt(KEY_WORD_INDEX, wordIndex);
+            bundle.putInt(KEY_WORDS_COUNT, wordsCount);
+            bundle.putInt(KEY_CONTROL_LIST_SIZE, controlListSize);
+            bundle.putInt(KEY_COUNTER_RIGHT_ANSWER, counterRightAnswer);
+            bundle.putString(KEY_ARRAY_STUDIED_DICT, ObjectSerializer.serialize(arrStudiedDict));
+            bundle.putString(KEY_CONTROL_LIST, ObjectSerializer.serialize(controlList));
+            bundle.putString(KEY_ADDITIONAL_LIST, ObjectSerializer.serialize(additionalList));
+            bundle.putString(KEY_STORED_DICT_LIST, ObjectSerializer.serialize(storedListDict));
+            appSettings.saveStateFindPairFragment(bundle);
+        } else
+        {
+            appSettings.saveStateFindPairFragment(null);
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle bundle)
     {
-        Bundle savedInstanceState = bundle;
-        if (bundle == null && getArguments().getParcelableArrayList(KEY_CONTROL_LIST) != null)
-        {
-            savedInstanceState = getArguments();
-        }
-
-        if (savedInstanceState == null && Tests.bundleFindPair.containsKey(KEY_WORD_INDEX))
-        {
-            savedInstanceState = Tests.bundleFindPair;
-        }
+//        if (savedInstanceState == null && Tests.bundleFindPair.containsKey(KEY_WORD_INDEX))
+//        {
+//            savedInstanceState = Tests.bundleFindPair;
+//        }
 
         appSettings = new AppSettings(getActivity());
         appData = AppData2.getInstance();
@@ -262,16 +264,26 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                 return true;
             }
         });
-        if (savedInstanceState != null && isOpen)
-        {
-            topPanel.setLayoutParams(saveTopPanelParams);
-        }
 
         spinnListDict = (Spinner) fragment_view.findViewById(R.id.spinner_dict);
         spinnListDict_OnItemSelectedListener();
         setItemsToSpinnListDict();
 
         progressBar = (ProgressBar) fragment_view.findViewById(R.id.prog_bar_find_pair);
+
+        Bundle savedInstanceState = bundle;
+        Bundle arguments = getArguments();
+        boolean isKey = getArguments().containsKey(KEY_CONTROL_LIST);
+        ArrayList<DataBaseEntry> controlList = getArguments().getParcelableArrayList(KEY_CONTROL_LIST);
+        if (bundle == null && getArguments().getParcelableArrayList(KEY_CONTROL_LIST) != null)
+        {
+            savedInstanceState = getArguments();
+        }
+
+        if (savedInstanceState != null && isOpen)
+        {
+            topPanel.setLayoutParams(saveTopPanelParams);
+        }
 
         if (savedInstanceState != null)
         {
@@ -284,7 +296,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             controlListSize = savedInstanceState.getInt(KEY_CONTROL_LIST_SIZE);
             counterRightAnswer = savedInstanceState.getInt(KEY_COUNTER_RIGHT_ANSWER);
             arrStudiedDict = savedInstanceState.getStringArrayList(KEY_ARRAY_STUDIED_DICT);
-            controlList = savedInstanceState.getParcelableArrayList(KEY_CONTROL_LIST);
+            this.controlList = savedInstanceState.getParcelableArrayList(KEY_CONTROL_LIST);
             additionalList = savedInstanceState.getParcelableArrayList(KEY_ADDITIONAL_LIST);
             storedListDict = savedInstanceState.getStringArrayList(KEY_STORED_DICT_LIST);
         }
@@ -785,6 +797,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     @Override
     public void dialogCompleteResult(int res)
     {
+        isSave = false;
         if (res == 0)
         {
             addToStudiedList();
@@ -821,7 +834,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                 bundle.putStringArrayList(dialogChangePlayList.KEY_LIST_DICT, arrStudiedDict);
                 dialogChangePlayList.setArguments(bundle);
                 dialogChangePlayList.setCancelable(false);
-                dialogChangePlayList.show(getFragmentManager(), "dialog_change_pl_lexicon");
+                dialogChangePlayList.show(getFragmentManager(), dialogChangePlayList.TAG);
             }
         }
     }

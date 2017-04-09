@@ -15,6 +15,8 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.GetTableListFragm;
 import com.myapp.lexicon.settings.AppSettings;
 
+import junit.framework.Test;
+
 public class Tests extends AppCompatActivity
 {
     private ImageButton buttonFindPair, buttonListenEndClick, buttonOneOfFive;
@@ -83,14 +85,43 @@ public class Tests extends AppCompatActivity
             @Override
             public void onClick(View v)
             {
-                AppSettings appSettings = new AppSettings(Tests.this);
-                Bundle bundle = appSettings.getStateFindPairFragment();
-                findPairFragment.setArguments(bundle);
+                final AppSettings appSettings = new AppSettings(Tests.this);
+                final Bundle bundle = appSettings.getStateFindPairFragment();
+                DialogWarning dialogWarning = new DialogWarning();
+                dialogWarning.setCancelable(false);
+
                 transaction = getSupportFragmentManager().beginTransaction();
                 transaction.replace(R.id.find_pair_fragment, findPairFragment);
                 transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
                 transaction.addToBackStack(null);
-                transaction.commit();
+
+                if (bundle.getParcelableArrayList(FindPairFragment.KEY_CONTROL_LIST) != null && bundle.getParcelableArrayList(FindPairFragment.KEY_CONTROL_LIST).size() > 0)
+                {
+                    dialogWarning.setListener(new DialogWarning.IDialogResult()
+                    {
+                        @Override
+                        public void dialogListener(boolean result)
+                        {
+                            if (result)
+                            {
+                                 findPairFragment.setArguments(appSettings.getStateFindPairFragment());
+                            }
+                            else
+                            {
+                                appSettings.saveStateFindPairFragment(null);
+                                findPairFragment.setArguments(appSettings.getStateFindPairFragment());
+                            }
+                            transaction.commit();
+
+                        }
+                    });
+                    dialogWarning.show(getSupportFragmentManager(), DialogWarning.TAG);
+                }
+                else
+                {
+                    transaction.commit();
+                }
+
             }
         });
 
@@ -100,10 +131,8 @@ public class Tests extends AppCompatActivity
             public void onClick(View v)
             {
                 transaction = getSupportFragmentManager().beginTransaction();
-                //transaction = getFragmentManager().beginTransaction();
                 transaction.replace(R.id.listen_end_click_fragment, listenEndClickFragment);
                 transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
-                //transaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right);
                 transaction.addToBackStack(null);
                 transaction.commit();
             }
@@ -115,10 +144,8 @@ public class Tests extends AppCompatActivity
             public void onClick(View v)
             {
                 transaction = getSupportFragmentManager().beginTransaction();
-                //transaction = getFragmentManager().beginTransaction();
                 transaction.replace(R.id.fragment_1of5, oneOfFiveTest);
                 transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
-                //transaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right);
                 transaction.addToBackStack(null);
                 transaction.commit();
             }

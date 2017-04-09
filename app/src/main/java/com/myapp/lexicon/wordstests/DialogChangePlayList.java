@@ -16,6 +16,7 @@ import java.util.ArrayList;
 
 public class DialogChangePlayList extends android.support.v4.app.DialogFragment
 {
+    public final String TAG = "dialog_change_pl_lexicon";
     public final String KEY_LIST_DICT = "listdict";
     public IChangePlayList changePlayList;
 

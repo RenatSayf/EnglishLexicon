@@ -213,19 +213,24 @@ public class AppSettings
     public void saveStateFindPairFragment(Bundle bundle)
     {
         SharedPreferences.Editor settingsEditor = context.getSharedPreferences(FindPairFragment.KEY_FIND_PAIR, MODE_PRIVATE).edit();
-        settingsEditor.putString(FindPairFragment.KEY_SPINN_SELECT_ITEM, bundle.getString(FindPairFragment.KEY_SPINN_SELECT_ITEM));
-        settingsEditor.putInt(FindPairFragment.KEY_SPINN_SELECT_INDEX, bundle.getInt(FindPairFragment.KEY_SPINN_SELECT_INDEX));
-        settingsEditor.putInt(FindPairFragment.KEY_PROGRESS, bundle.getInt(FindPairFragment.KEY_PROGRESS));
-        settingsEditor.putInt(FindPairFragment.KEY_PROGRESS_MAX, bundle.getInt(FindPairFragment.KEY_PROGRESS_MAX));
-        settingsEditor.putInt(FindPairFragment.KEY_WORD_INDEX, bundle.getInt(FindPairFragment.KEY_WORD_INDEX));
-        settingsEditor.putInt(FindPairFragment.KEY_WORDS_COUNT, bundle.getInt(FindPairFragment.KEY_WORDS_COUNT));
-        settingsEditor.putInt(FindPairFragment.KEY_CONTROL_LIST_SIZE, bundle.getInt(FindPairFragment.KEY_CONTROL_LIST_SIZE));
-        settingsEditor.putInt(FindPairFragment.KEY_COUNTER_RIGHT_ANSWER, bundle.getInt(FindPairFragment.KEY_COUNTER_RIGHT_ANSWER));
-        settingsEditor.putString(FindPairFragment.KEY_ARRAY_STUDIED_DICT, bundle.getString(FindPairFragment.KEY_ARRAY_STUDIED_DICT));
-        settingsEditor.putString(FindPairFragment.KEY_CONTROL_LIST, bundle.getString(FindPairFragment.KEY_CONTROL_LIST));
-        settingsEditor.putString(FindPairFragment.KEY_ADDITIONAL_LIST, bundle.getString(FindPairFragment.KEY_ADDITIONAL_LIST));
-        settingsEditor.putString(FindPairFragment.KEY_STORED_DICT_LIST, bundle.getString(FindPairFragment.KEY_STORED_DICT_LIST));
-
+        if (bundle != null)
+        {
+            settingsEditor.putString(FindPairFragment.KEY_SPINN_SELECT_ITEM, bundle.getString(FindPairFragment.KEY_SPINN_SELECT_ITEM));
+            settingsEditor.putInt(FindPairFragment.KEY_SPINN_SELECT_INDEX, bundle.getInt(FindPairFragment.KEY_SPINN_SELECT_INDEX));
+            settingsEditor.putInt(FindPairFragment.KEY_PROGRESS, bundle.getInt(FindPairFragment.KEY_PROGRESS));
+            settingsEditor.putInt(FindPairFragment.KEY_PROGRESS_MAX, bundle.getInt(FindPairFragment.KEY_PROGRESS_MAX));
+            settingsEditor.putInt(FindPairFragment.KEY_WORD_INDEX, bundle.getInt(FindPairFragment.KEY_WORD_INDEX));
+            settingsEditor.putInt(FindPairFragment.KEY_WORDS_COUNT, bundle.getInt(FindPairFragment.KEY_WORDS_COUNT));
+            settingsEditor.putInt(FindPairFragment.KEY_CONTROL_LIST_SIZE, bundle.getInt(FindPairFragment.KEY_CONTROL_LIST_SIZE));
+            settingsEditor.putInt(FindPairFragment.KEY_COUNTER_RIGHT_ANSWER, bundle.getInt(FindPairFragment.KEY_COUNTER_RIGHT_ANSWER));
+            settingsEditor.putString(FindPairFragment.KEY_ARRAY_STUDIED_DICT, bundle.getString(FindPairFragment.KEY_ARRAY_STUDIED_DICT));
+            settingsEditor.putString(FindPairFragment.KEY_CONTROL_LIST, bundle.getString(FindPairFragment.KEY_CONTROL_LIST));
+            settingsEditor.putString(FindPairFragment.KEY_ADDITIONAL_LIST, bundle.getString(FindPairFragment.KEY_ADDITIONAL_LIST));
+            settingsEditor.putString(FindPairFragment.KEY_STORED_DICT_LIST, bundle.getString(FindPairFragment.KEY_STORED_DICT_LIST));
+        } else
+        {
+            settingsEditor.clear();
+        }
         settingsEditor.apply();
     }
 
