@@ -125,7 +125,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     public void onCreate(@Nullable Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
+        setRetainInstance(false);
 
         storedListDict = new ArrayList<>();
         arrStudiedDict = new ArrayList<>();
@@ -778,7 +778,6 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                         @Override
                         public void onAnimationStart(android.animation.Animator animation)
                         {
-                            //lockOrientation.lock();
                             isAnimStart = true;
                         }
 
@@ -786,24 +785,6 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                         public void onAnimationEnd(android.animation.Animator animation)
                         {
                             isAnimStart = false;
-                            lockOrientation.unLock();
-                            if (wordIndex < wordsCount)
-                            {
-                                boolean isFill = true;
-                                for (int i = 0; i < btnLayoutLeft.getChildCount(); i++)
-                                {
-                                    Button button = (Button) btnLayoutLeft.getChildAt(i);
-                                    if (!button.getText().equals(""))
-                                    {
-                                        isFill = false;
-                                        break;
-                                    }
-                                }
-                                if (isFill)
-                                {
-                                    fillButtonsLayout(spinnSelectedItem, wordIndex + 1, wordIndex + ROWS);
-                                }
-                            }
                         }
 
                         @Override

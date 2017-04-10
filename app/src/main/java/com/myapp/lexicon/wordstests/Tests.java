@@ -54,12 +54,12 @@ public class Tests extends AppCompatActivity
 
         FragmentManager manager = getSupportFragmentManager();
 
-        findPairFragment = (FindPairFragment) manager.findFragmentByTag(FIND_PAIR_FRAGMENT);
-        if (findPairFragment == null)
-        {
-            findPairFragment = new FindPairFragment();
-            bundleFindPair = new Bundle();
-        }
+//        findPairFragment = (FindPairFragment) manager.findFragmentByTag(FIND_PAIR_FRAGMENT);
+//        if (findPairFragment == null)
+//        {
+//            findPairFragment = new FindPairFragment();
+//            bundleFindPair = new Bundle();
+//        }
 
         listenEndClickFragment = (ListenEndClickFragment) manager.findFragmentByTag(LISTEN_END_CLICK_FRAGMENT);
         if (listenEndClickFragment == null)
@@ -85,6 +85,13 @@ public class Tests extends AppCompatActivity
             @Override
             public void onClick(View v)
             {
+                findPairFragment = (FindPairFragment) getSupportFragmentManager().findFragmentByTag(FIND_PAIR_FRAGMENT);
+                if (findPairFragment == null)
+                {
+                    findPairFragment = new FindPairFragment();
+                    bundleFindPair = new Bundle();
+                }
+
                 final AppSettings appSettings = new AppSettings(Tests.this);
                 final Bundle bundle = appSettings.getStateFindPairFragment(FindPairFragment.TAG_FIND_PAIR);
 
