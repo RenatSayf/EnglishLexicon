@@ -188,13 +188,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     public void onDetach()
     {
         super.onDetach();
-        boolean inLayout = isInLayout();
-        boolean visible = isVisible();
-        boolean added = isAdded();
-        boolean detached = isDetached();
-        boolean hidden = isHidden();
-        boolean removing = isRemoving();
-        boolean resumed = isResumed();
+
         if (isRemoving() && wordIndex -1 < wordsCount)
         {
             spinnSelectedIndex = -1;
@@ -274,8 +268,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         });
 
         spinnListDict = (Spinner) fragment_view.findViewById(R.id.spinner_dict);
-        spinnListDict_OnItemSelectedListener();
-        setItemsToSpinnListDict();
+
 
         progressBar = (ProgressBar) fragment_view.findViewById(R.id.prog_bar_find_pair);
 
@@ -346,6 +339,9 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             }
         }
 
+        spinnListDict_OnItemSelectedListener();
+        setItemsToSpinnListDict();
+
         testResults = new TestResults(getActivity());
 
         fragmentManager = getFragmentManager();
@@ -360,7 +356,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         spinnListDict.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
         {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, final int position, long id)
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
             {
                 if (position == spinnSelectedIndex) return;
                 spinnSelectedIndex = position;
@@ -645,14 +641,6 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     public void onResume()
     {
         super.onResume();
-        boolean inLayout = isInLayout();
-        boolean visible = isVisible();
-        boolean added = isAdded();
-        boolean detached = isDetached();
-        boolean hidden = isHidden();
-        boolean removing = isRemoving();
-        boolean resumed = isResumed();
-
         boolean isFill = true;
         for (int i = 0; i < btnLayoutLeft.getChildCount(); i++)
         {
@@ -665,7 +653,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         }
         if (isFill && spinnSelectedItem != null)
         {
-            //fillButtonsLayout(spinnSelectedItem, wordIndex + 1, wordIndex + ROWS);
+            fillButtonsLayout(spinnSelectedItem, wordIndex, wordIndex - 1 + ROWS);
         }
     }
 
