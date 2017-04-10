@@ -107,6 +107,7 @@ public class Tests extends AppCompatActivity
                     dialogBundle.putString(dialogWarning.KEY_MESSAGE, getString(R.string.you_have_uncompleted_test));
                     dialogBundle.putString(dialogWarning.KEY_TEXT_OK_BUTTON, getString(R.string.text_continue));
                     dialogBundle.putString(dialogWarning.KEY_TEXT_NO_BUTTON, getString(R.string.text_from_the_beginning));
+                    dialogBundle.putBoolean(dialogWarning.KEY_IS_NEUTRAL_BTN, true);
                     dialogWarning.setArguments(dialogBundle);
                     dialogWarning.setCancelable(false);
                     dialogWarning.setListener(new DialogWarning.IDialogResult()

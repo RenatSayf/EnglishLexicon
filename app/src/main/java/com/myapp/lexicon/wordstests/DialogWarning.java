@@ -19,6 +19,7 @@ public class DialogWarning extends DialogFragment
     public final String KEY_TEXT_OK_BUTTON = "key_text_ok_btn";
     public final String KEY_TEXT_NO_BUTTON = "key_text_no_btn";
     public final String KEY_MESSAGE = "key_message";
+    public final String KEY_IS_NEUTRAL_BTN = "key_is_neutral_btn";
 
     private IDialogResult listener;
 
@@ -44,11 +45,17 @@ public class DialogWarning extends DialogFragment
         String textBtnOk = getString(R.string.button_text_yes);
         String textBtnNo = getString(R.string.button_text_no);
         String message = getString(R.string.you_have_uncompleted_test);
+        boolean isNeutralBtn = false;
+
         if (getArguments() != null)
         {
             textBtnOk = getArguments().getString(KEY_TEXT_OK_BUTTON, textBtnOk);
             textBtnNo = getArguments().getString(KEY_TEXT_NO_BUTTON, textBtnNo);
             message = getArguments().getString(KEY_MESSAGE, message);
+            if (getArguments().containsKey(KEY_IS_NEUTRAL_BTN))
+            {
+                isNeutralBtn = getArguments().getBoolean(KEY_IS_NEUTRAL_BTN);
+            }
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
                 .setTitle("Незавершенный тест:")
@@ -77,6 +84,18 @@ public class DialogWarning extends DialogFragment
                         dismiss();
                     }
                 });
+
+        if (builder != null && isNeutralBtn)
+        {
+            builder.setNeutralButton("Отмена", new DialogInterface.OnClickListener()
+            {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i)
+                {
+                    dismiss();
+                }
+            });
+        }
 
         return builder.create();
     }
