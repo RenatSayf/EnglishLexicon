@@ -147,6 +147,7 @@
     <string name="you_have_uncompleted_test">У Вас есть незавершенный тест. Вы хотите продолжить проверку или начать тест с начала</string>
     <string name="text_continue">Продолжить</string>
     <string name="text_from_the_beginning">С начала</string>
+    <string name="text_not_finished_test">Вы не завершили тест. Сделать закладку, что бы потом продолжить с этого места?</string>
 
 
 </resources>

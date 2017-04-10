@@ -195,7 +195,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             DialogWarning dialogWarning = new DialogWarning();
 
             Bundle bundle = new Bundle();
-            bundle.putString(dialogWarning.KEY_MESSAGE, "Вы не завершили тест. Сделать закладку, что бы потом продолжить с этого места?");
+            bundle.putString(dialogWarning.KEY_MESSAGE, getString(R.string.text_not_finished_test));
             bundle.putString(dialogWarning.KEY_TEXT_OK_BUTTON, getString(R.string.button_text_yes));
             bundle.putString(dialogWarning.KEY_TEXT_NO_BUTTON, getString(R.string.button_text_no));
 
