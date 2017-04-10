@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
-import com.myapp.lexicon.database.DataBaseEntry;
-import com.myapp.lexicon.helpers.ObjectSerializer;
 import com.myapp.lexicon.wordstests.FindPairFragment;
 
 import java.util.ArrayList;
@@ -210,9 +208,9 @@ public class AppSettings
         return context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getBoolean(KEY_IS_PAUSE, false);
     }
 
-    public void saveStateFindPairFragment(Bundle bundle)
+    public void saveStateFindPairFragment(String tag, Bundle bundle)
     {
-        SharedPreferences.Editor settingsEditor = context.getSharedPreferences(FindPairFragment.KEY_FIND_PAIR, MODE_PRIVATE).edit();
+        SharedPreferences.Editor settingsEditor = context.getSharedPreferences(tag, MODE_PRIVATE).edit();
         if (bundle != null)
         {
             settingsEditor.putString(FindPairFragment.KEY_SPINN_SELECT_ITEM, bundle.getString(FindPairFragment.KEY_SPINN_SELECT_ITEM));
@@ -227,10 +225,10 @@ public class AppSettings
         settingsEditor.apply();
     }
 
-    public Bundle getStateFindPairFragment()
+    public Bundle getStateFindPairFragment(String tag)
     {
         Bundle bundle = new Bundle();
-        SharedPreferences sharedPreferences = context.getSharedPreferences(FindPairFragment.KEY_FIND_PAIR, MODE_PRIVATE);
+        SharedPreferences sharedPreferences = context.getSharedPreferences(tag, MODE_PRIVATE);
         bundle.putString(FindPairFragment.KEY_SPINN_SELECT_ITEM, sharedPreferences.getString(FindPairFragment.KEY_SPINN_SELECT_ITEM, null));
         bundle.putInt(FindPairFragment.KEY_WORD_INDEX, sharedPreferences.getInt(FindPairFragment.KEY_WORD_INDEX, 1));
         bundle.putInt(FindPairFragment.KEY_COUNTER_RIGHT_ANSWER, sharedPreferences.getInt(FindPairFragment.KEY_COUNTER_RIGHT_ANSWER, 0));

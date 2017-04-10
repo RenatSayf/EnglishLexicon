@@ -1,12 +1,9 @@
 package com.myapp.lexicon.wordstests;
 
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -26,7 +23,6 @@ import android.view.animation.AnticipateOvershootInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.Chronometer;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -41,14 +37,12 @@ import com.myapp.lexicon.database.GetCountWordsAsync;
 import com.myapp.lexicon.database.GetEntriesFromDbAsync;
 import com.myapp.lexicon.database.GetTableListAsync;
 import com.myapp.lexicon.helpers.LockOrientation;
-import com.myapp.lexicon.helpers.ObjectSerializer;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
 import com.myapp.lexicon.main.BackgroundFragm;
 import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.settings.AppData2;
 import com.myapp.lexicon.settings.AppSettings;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -59,7 +53,7 @@ import java.util.HashMap;
  */
 public class FindPairFragment extends Fragment implements DialogTestComplete.IDialogComplete_Result
 {
-    public static final String KEY_FIND_PAIR = "key_find_pair";
+    public static final String TAG_FIND_PAIR = "key_find_pair";
 
     public final int ROWS = 5;
 
@@ -205,6 +199,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         boolean resumed = isResumed();
         if (isRemoving() && wordIndex -1 < wordsCount)
         {
+            spinnSelectedIndex = -1;
             DialogWarning dialogWarning = new DialogWarning();
             Bundle bundle = new Bundle();
             bundle.putString(dialogWarning.KEY_MESSAGE, "Вы не завершили тест. Сделать закладку, что бы потом продолжить с этого места?");
@@ -222,22 +217,13 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                     {
                         Bundle bundle = new Bundle();
                         bundle.putString(KEY_SPINN_SELECT_ITEM, spinnSelectedItem);
-                        //bundle.putInt(KEY_SPINN_SELECT_INDEX, spinnSelectedIndex);
-                        //bundle.putInt(KEY_PROGRESS, progressBar.getProgress());
-                        //bundle.putInt(KEY_PROGRESS_MAX, progressBar.getMax());
                         bundle.putInt(KEY_WORD_INDEX, wordIndex);
-                        //bundle.putInt(KEY_WORDS_COUNT, wordsCount);
-                        //bundle.putInt(KEY_CONTROL_LIST_SIZE, controlListSize);
                         bundle.putInt(KEY_COUNTER_RIGHT_ANSWER, counterRightAnswer);
-//                        bundle.putString(KEY_ARRAY_STUDIED_DICT, ObjectSerializer.serialize(arrStudiedDict));
-//                        bundle.putString(KEY_CONTROL_LIST, ObjectSerializer.serialize(controlList));
-//                        bundle.putString(KEY_ADDITIONAL_LIST, ObjectSerializer.serialize(additionalList));
-//                        bundle.putString(KEY_STORED_DICT_LIST, ObjectSerializer.serialize(storedListDict));
-                        appSettings.saveStateFindPairFragment(bundle);
+                        appSettings.saveStateFindPairFragment(TAG_FIND_PAIR, bundle);
                     }
                     else
                     {
-                        appSettings.saveStateFindPairFragment(null);
+                        appSettings.saveStateFindPairFragment(TAG_FIND_PAIR, null);
                     }
                 }
             });
@@ -384,6 +370,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             public void onItemSelected(AdapterView<?> parent, View view, final int position, long id)
             {
                 if (position == spinnSelectedIndex) return;
+                spinnSelectedIndex = position;
                 startTest(position);
                 topPanelVisible(1, 0, isOpen);
             }
@@ -840,7 +827,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     public void dialogCompleteResult(int res)
     {
         isSave = false;
-        appSettings.saveStateFindPairFragment(null);
+        appSettings.saveStateFindPairFragment(TAG_FIND_PAIR, null);
         if (res == 0)
         {
             addToStudiedList();

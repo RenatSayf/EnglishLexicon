@@ -86,7 +86,7 @@ public class Tests extends AppCompatActivity
             public void onClick(View v)
             {
                 final AppSettings appSettings = new AppSettings(Tests.this);
-                final Bundle bundle = appSettings.getStateFindPairFragment();
+                final Bundle bundle = appSettings.getStateFindPairFragment(FindPairFragment.TAG_FIND_PAIR);
 
                 transaction = getSupportFragmentManager().beginTransaction();
                 transaction.replace(R.id.find_pair_fragment, findPairFragment);
@@ -98,8 +98,8 @@ public class Tests extends AppCompatActivity
                     DialogWarning dialogWarning = new DialogWarning();
                     Bundle dialogBundle = new Bundle();
                     dialogBundle.putString(dialogWarning.KEY_MESSAGE, getString(R.string.you_have_uncompleted_test));
-                    dialogBundle.putString(dialogWarning.KEY_TEXT_OK_BUTTON, "Продолжить");
-                    dialogBundle.putString(dialogWarning.KEY_TEXT_NO_BUTTON, "С начала");
+                    dialogBundle.putString(dialogWarning.KEY_TEXT_OK_BUTTON, getString(R.string.text_continue));
+                    dialogBundle.putString(dialogWarning.KEY_TEXT_NO_BUTTON, getString(R.string.text_from_the_beginning));
                     dialogWarning.setArguments(dialogBundle);
                     dialogWarning.setCancelable(false);
                     dialogWarning.setListener(new DialogWarning.IDialogResult()
@@ -109,15 +109,14 @@ public class Tests extends AppCompatActivity
                         {
                             if (result)
                             {
-                                 findPairFragment.setArguments(appSettings.getStateFindPairFragment());
+                                 findPairFragment.setArguments(appSettings.getStateFindPairFragment(FindPairFragment.TAG_FIND_PAIR));
                             }
                             else
                             {
-                                appSettings.saveStateFindPairFragment(null);
+                                appSettings.saveStateFindPairFragment(FindPairFragment.TAG_FIND_PAIR, null);
                                 findPairFragment.setArguments(null);
                             }
                             transaction.commit();
-
                         }
                     });
                     dialogWarning.show(getSupportFragmentManager(), dialogWarning.TAG);
