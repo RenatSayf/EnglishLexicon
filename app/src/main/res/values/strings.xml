@@ -110,7 +110,7 @@
     <string name="text_find_pair_words">Найди парные слова</string>
     <string name="text_recognize_words_by_sight">Распознай слова на слух</string>
     <string name="text_dictionary">Словарь:</string>
-    <string name="text_ok">Ok</string>
+    <string name="text_ok">OK</string>
     <string name="text_complete">Завершить</string>
     <string name="text_choose_correctly">Выбери правильно</string>
     <string name="description_sound_button">sound_button</string>
@@ -144,6 +144,7 @@
     <string name="text_developer_name">Разработка: Ренат Сайфутдинов</string>
     <string name="text_developer_email">E-mail: renatsayf@gmail.com</string>
     <string name="text_evaluate">Оценить</string>
+    <string name="you_have_uncompleted_test">У Вас есть незавершенный тест. Вы хотите продолжить проверку или начать тест с начала</string>
 
 
 </resources>

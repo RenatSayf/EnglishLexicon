@@ -87,16 +87,21 @@ public class Tests extends AppCompatActivity
             {
                 final AppSettings appSettings = new AppSettings(Tests.this);
                 final Bundle bundle = appSettings.getStateFindPairFragment();
-                DialogWarning dialogWarning = new DialogWarning();
-                dialogWarning.setCancelable(false);
 
                 transaction = getSupportFragmentManager().beginTransaction();
                 transaction.replace(R.id.find_pair_fragment, findPairFragment);
                 transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
                 transaction.addToBackStack(null);
 
-                if (bundle.getParcelableArrayList(FindPairFragment.KEY_CONTROL_LIST) != null && bundle.getParcelableArrayList(FindPairFragment.KEY_CONTROL_LIST).size() > 0)
+                if (bundle.getInt(FindPairFragment.KEY_COUNTER_RIGHT_ANSWER) > 0)
                 {
+                    DialogWarning dialogWarning = new DialogWarning();
+                    Bundle dialogBundle = new Bundle();
+                    dialogBundle.putString(dialogWarning.KEY_MESSAGE, getString(R.string.you_have_uncompleted_test));
+                    dialogBundle.putString(dialogWarning.KEY_TEXT_OK_BUTTON, "Продолжить");
+                    dialogBundle.putString(dialogWarning.KEY_TEXT_NO_BUTTON, "С начала");
+                    dialogWarning.setArguments(dialogBundle);
+                    dialogWarning.setCancelable(false);
                     dialogWarning.setListener(new DialogWarning.IDialogResult()
                     {
                         @Override
@@ -109,13 +114,13 @@ public class Tests extends AppCompatActivity
                             else
                             {
                                 appSettings.saveStateFindPairFragment(null);
-                                findPairFragment.setArguments(appSettings.getStateFindPairFragment());
+                                findPairFragment.setArguments(null);
                             }
                             transaction.commit();
 
                         }
                     });
-                    dialogWarning.show(getSupportFragmentManager(), DialogWarning.TAG);
+                    dialogWarning.show(getSupportFragmentManager(), dialogWarning.TAG);
                 }
                 else
                 {
