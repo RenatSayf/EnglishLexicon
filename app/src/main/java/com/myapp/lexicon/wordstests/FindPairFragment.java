@@ -101,7 +101,6 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     private FragmentManager fragmentManager;
     private AppSettings appSettings;
     private AppData2 appData;
-    private static boolean isSave = true;
 
     public static final String KEY_CONTROL_LIST_SIZE = "key_control_list_size";
     public static final String KEY_WORDS_COUNT = "key_words_count";
@@ -371,6 +370,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             {
                 if (position == spinnSelectedIndex) return;
                 spinnSelectedIndex = position;
+                //wordIndex = 1;
                 startTest(position);
                 topPanelVisible(1, 0, isOpen);
             }
@@ -718,7 +718,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                         }
                         if (isFill)
                         {
-                            fillButtonsLayout(spinnSelectedItem, wordIndex + 1, wordIndex + ROWS);
+                            fillButtonsLayout(spinnSelectedItem, wordIndex, wordIndex - 1 + ROWS);
                             return;
                         }
                         buttonsToDown(btnLayoutLeft, tempButtonLeft.getX(), tempButtonLeft.getY(), false);
@@ -826,7 +826,6 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     @Override
     public void dialogCompleteResult(int res)
     {
-        isSave = false;
         appSettings.saveStateFindPairFragment(TAG_FIND_PAIR, null);
         if (res == 0)
         {
