@@ -81,14 +81,14 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     private ArrayList<DataBaseEntry> controlList;
     private ArrayList<DataBaseEntry> additionalList;
     private ArrayList<String> storedListDict;
-    private static ArrayList<DataBaseEntry> listFromDB;
+    //private static ArrayList<DataBaseEntry> listFromDB;
 
-    private static int additonalCount = 0;
-    private static int wordIndex = 1;
-    private static float buttonY;
-    private static float buttonX;
-    private static int indexEn = -1;
-    private static int indexRu = -1;
+    //private static int additonalCount = 0;
+    //private static int wordIndex = 1;
+    //private static float buttonY;
+    //private static float buttonX;
+    //private static int indexEn = -1;
+    //private static int indexRu = -1;
 
     private static RandomNumberGenerator randomGenerator;
     private DisplayMetrics displayMetrics;
@@ -104,9 +104,9 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     private int wordsCount;
     private int controlListSize = 0;
     private Button tempButton;
-    private int tempButtonId;
+    //private int tempButtonId;
     private LockOrientation lockOrientation;
-    private int counterRightAnswer = 0;
+    //private int counterRightAnswer = 0;
     private TestResults testResults;
     private DialogTestComplete dialogTestComplete;
     private AppSettings appSettings;
@@ -139,7 +139,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     public void onSaveInstanceState(Bundle outState)
     {
         super.onSaveInstanceState(outState);
-        outState.putInt(KEY_BUTTON_ID, tempButtonId);
+        //outState.putInt(KEY_BUTTON_ID, tempButtonId);
         outState.putString(KEY_TEXT, textView.getText().toString());
         outState.putInt(KEY_CONTROL_LIST_SIZE, controlListSize);
         outState.putInt(KEY_WORDS_COUNT, wordsCount);
@@ -147,7 +147,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
         outState.putInt(KEY_SPINN_SELECT_INDEX, spinnSelectedIndex);
         outState.putInt(KEY_PROGRESS_MAX, progressBar.getMax());
         outState.putInt(KEY_PROGRESS, progressBar.getProgress());
-        outState.putInt(KEY_COUNTER_RIGHT_ANSWER, counterRightAnswer);
+        //outState.putInt(KEY_COUNTER_RIGHT_ANSWER, counterRightAnswer);
         outState.putStringArrayList(KEY_ARRAY_STUDIED_DICT, arrStudiedDict);
         outState.putParcelableArrayList(KEY_CONTROL_LIST, controlList);
         outState.putParcelableArrayList(KEY_ADDITIONAL_LIST, additionalList);
@@ -267,7 +267,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
         {
             textArray = savedInstanceState.getStringArrayList(KEY_TEXT_ARRAY);
             textView.setText(savedInstanceState.getString(KEY_TEXT));
-            tempButtonId = savedInstanceState.getInt(KEY_BUTTON_ID);
+            fields.tempButtonId = savedInstanceState.getInt(KEY_BUTTON_ID);
             controlListSize = savedInstanceState.getInt(KEY_CONTROL_LIST_SIZE);
             wordsCount = savedInstanceState.getInt(KEY_WORDS_COUNT);
             spinnSelectedItem = savedInstanceState.getString(KEY_SPINN_SELECT_ITEM);
@@ -405,7 +405,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
 
     private void startTest(final int position)
     {
-        wordIndex = 1;
+        fields.wordIndex = 1;
         spinnSelectedItem = spinnListDict.getSelectedItem().toString();
 
         GetCountWordsAsync getCountWordsAsync = new GetCountWordsAsync(getActivity(), spinnSelectedItem, new GetCountWordsAsync.GetCountListener()
@@ -418,7 +418,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                 spinnSelectedIndex = position;
                 progressBar.setMax(wordsCount);
                 progressBar.setProgress(0);
-                counterRightAnswer = 0;
+                fields.counterRightAnswer = 0;
             }
         });
         if (getCountWordsAsync.getStatus() != AsyncTask.Status.RUNNING)
@@ -437,14 +437,14 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
             count = ROWS;
         }
 
-        GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), spinnSelectedItem, wordIndex, count, new GetEntriesFromDbAsync.GetEntriesListener()
+        GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), spinnSelectedItem, fields.wordIndex, count, new GetEntriesFromDbAsync.GetEntriesListener()
         {
             @Override
             public void getEntriesListener(ArrayList<DataBaseEntry> entries)
             {
                 controlList = entries;
                 additionalList = new ArrayList<>();
-                additonalCount = 0;
+                fields.additonalCount = 0;
                 for (DataBaseEntry entry : entries)
                 {
                     additionalList.add(entry);
@@ -462,7 +462,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                     start_delay += 70;
                     btn_OnClick(button);
                     button.setText(controlList.get(randomGenerator.generate()).getTranslate());
-                    wordIndex++;
+                    fields.wordIndex++;
                 }
                 randomGenerator = new RandomNumberGenerator(entries.size(), (int) new Date().getTime());
                 textView.setText(entries.get(randomGenerator.generate()).getEnglish());
@@ -489,9 +489,9 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                     return;
                 }
                 tempButton = (Button) view;
-                tempButtonId = tempButton.getId();
-                buttonY = tempButton.getY();
-                buttonX = tempButton.getX();
+                fields.tempButtonId = tempButton.getId();
+                fields.buttonY = tempButton.getY();
+                fields.buttonX = tempButton.getX();
                 compareWords(spinnSelectedItem,textView.getText().toString(), tempButton.getText().toString());
             }
         });
@@ -505,22 +505,22 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
         {
             if (controlList.get(i).getEnglish().equals(enword))
             {
-                indexEn = i;
+                fields.indexEn = i;
             }
             if (controlList.get(i).getTranslate().equals(ruword))
             {
-                indexRu = i;
+                fields.indexRu = i;
             }
         }
 
-        if (indexEn == indexRu && indexEn != -1 && indexRu != -1)
+        if (fields.indexEn == fields.indexRu && fields.indexEn != -1 && fields.indexRu != -1)
         {
-            GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), tableName, wordIndex, wordIndex, new GetEntriesFromDbAsync.GetEntriesListener()
+            GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), tableName, fields.wordIndex, fields.wordIndex, new GetEntriesFromDbAsync.GetEntriesListener()
             {
                 @Override
                 public void getEntriesListener(ArrayList<DataBaseEntry> entries)
                 {
-                    listFromDB = entries;
+                    fields.listFromDB = entries;
                     progressBar.setProgress(progressBar.getProgress()+1);
                     HashMap<String, String> hashMap = new HashMap<>();
                     hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "one_of_five_fragm");
@@ -535,7 +535,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                     textViewToLeftAnimatoin();
                     buttonToRightAnimation(tempButton);
                     tempButton.setBackgroundResource(R.drawable.text_btn_for_test_green);
-                    counterRightAnswer++;
+                    fields.counterRightAnswer++;
                 }
             });
             if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
@@ -545,8 +545,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
         }
         else
         {
-            //Toast.makeText(getActivity(), "Неправильно", Toast.LENGTH_SHORT).show();
-            counterRightAnswer--;
+            fields.counterRightAnswer--;
             Animation animNotRight = AnimationUtils.loadAnimation(getActivity().getApplicationContext(), R.anim.anim_not_right);
             animNotRight.setAnimationListener(new Animation.AnimationListener()
             {
@@ -594,10 +593,10 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                     @Override
                     public void onAnimationEnd(android.animation.Animator animation)
                     {
-                        if (listFromDB.size() > 0)
+                        if (fields.listFromDB.size() > 0)
                         {
-                            controlList.set(indexEn, listFromDB.get(0));
-                            tempButton.setText(listFromDB.get(0).getTranslate());
+                            controlList.set(fields.indexEn, fields.listFromDB.get(0));
+                            tempButton.setText(fields.listFromDB.get(0).getTranslate());
                             tempButton.setBackgroundResource(R.drawable.text_button_for_test);
                             if (controlListSize != controlList.size())
                             {
@@ -612,14 +611,14 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                             }
                             textView.setText(controlList.get(randomNumber).getEnglish());
                         }
-                        else if (listFromDB.size() == 0 && controlList.size() <= ROWS)
+                        else if (fields.listFromDB.size() == 0 && controlList.size() <= ROWS)
                         {
                             tempButton.setBackgroundResource(R.drawable.text_button_for_test);
                             try
                             {
-                                controlList.remove(indexEn);
-                                tempButton.setText(additionalList.get(additonalCount).getTranslate());
-                                additonalCount++;
+                                controlList.remove(fields.indexEn);
+                                tempButton.setText(additionalList.get(fields.additonalCount).getTranslate());
+                                fields.additonalCount++;
                                 textView.setText("");
                                 if (controlList.size() > 0)
                                 {
@@ -632,14 +631,14 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                                 Toast.makeText(getActivity(), "Ошибка - "+e.getMessage(), Toast.LENGTH_SHORT).show();
                             }
                         }
-                        if (buttonY > 0)
+                        if (fields.buttonY > 0)
                         {
-                            buttonsToDownAnimation(buttonX, buttonY);
+                            buttonsToDownAnimation(fields.buttonX, fields.buttonY);
                         } else
                         {
                             textViewToRightAnimation();
                         }
-                        wordIndex++;
+                        fields.wordIndex++;
                     }
 
                     @Override
@@ -738,8 +737,8 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                         {
                             //Toast.makeText(activity,"Тест завершен",Toast.LENGTH_SHORT).show();
                             ArrayList<String> list = new ArrayList<>();
-                            list.add(testResults.getOverallResult(counterRightAnswer, wordsCount));
-                            list.add(counterRightAnswer + getActivity().getString(R.string.text_out_of) + wordsCount);
+                            list.add(testResults.getOverallResult(fields.counterRightAnswer, wordsCount));
+                            list.add(fields.counterRightAnswer + getActivity().getString(R.string.text_out_of) + wordsCount);
                             Bundle bundle = new Bundle();
                             bundle.putString(dialogTestComplete.KEY_RESULT, list.get(0));
                             bundle.putString(dialogTestComplete.KEY_ERRORS, list.get(1));
@@ -856,10 +855,10 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
             }
         }
         boolean contains = arrStudiedDict.contains(spinnListDict.getSelectedItem().toString());
-        if (counterRightAnswer == wordsCount && !contains && containsInPlayList)
+        if (fields.counterRightAnswer == wordsCount && !contains && containsInPlayList)
         {
             arrStudiedDict.add(spinnListDict.getSelectedItem().toString());
-            counterRightAnswer = 0;
+            fields.counterRightAnswer = 0;
         }
     }
 

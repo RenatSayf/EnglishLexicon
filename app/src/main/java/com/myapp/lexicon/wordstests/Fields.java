@@ -17,8 +17,10 @@ public class Fields implements Parcelable
     public int wordIndex = 1;
     public float buttonY;
     public float buttonX;
-    public int indexEn = -10000;
+    public int indexEn = -1;
     public int indexRu = -1;
+    public int counterRightAnswer = 0;
+    public int tempButtonId;
 
     public ArrayList<DataBaseEntry> listFromDB;
 
@@ -61,6 +63,9 @@ public class Fields implements Parcelable
         parcel.writeFloat(buttonY);
         parcel.writeInt(indexEn);
         parcel.writeInt(indexRu);
+        parcel.writeInt(counterRightAnswer);
+        parcel.writeInt(tempButtonId);
+
         parcel.writeTypedList(listFromDB);
     }
 }
