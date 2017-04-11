@@ -74,11 +74,11 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     private long duration = 1000;
     private static boolean isOpen = false;
 
-    private ArrayList<String> textArray = new ArrayList<>();
-    private ArrayList<String> arrStudiedDict;
-    private ArrayList<DataBaseEntry> controlList;
-    private ArrayList<DataBaseEntry> additionalList;
-    private ArrayList<String> storedListDict;
+    //private ArrayList<String> textArray = new ArrayList<>();
+    //private ArrayList<String> arrStudiedDict;
+    //private ArrayList<DataBaseEntry> controlList;
+    //private ArrayList<DataBaseEntry> additionalList;
+    //private ArrayList<String> storedListDict;
     //private static ArrayList<DataBaseEntry> listFromDB;
 
     //private static int additonalCount = 0;
@@ -97,8 +97,8 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     private LinearLayout buttonsLayout;
     private Spinner spinnListDict;
     private ProgressBar progressBar;
-    private int spinnSelectedIndex = -1;
-    private String spinnSelectedItem;
+    //private int spinnSelectedIndex = -1;
+    //private String spinnSelectedItem;
     //private int wordsCount;
     //private int oldControlListSize = 0;
     private Button tempButton;
@@ -141,17 +141,17 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
         outState.putString(KEY_TEXT, textView.getText().toString());
         //outState.putInt(KEY_CONTROL_LIST_SIZE, oldControlListSize);
         //outState.putInt(KEY_WORDS_COUNT, wordsCount);
-        outState.putString(KEY_SPINN_SELECT_ITEM, spinnSelectedItem);
-        outState.putInt(KEY_SPINN_SELECT_INDEX, spinnSelectedIndex);
+        //outState.putString(KEY_SPINN_SELECT_ITEM, spinnSelectedItem);
+        //outState.putInt(KEY_SPINN_SELECT_INDEX, spinnSelectedIndex);
         outState.putInt(KEY_PROGRESS_MAX, progressBar.getMax());
         outState.putInt(KEY_PROGRESS, progressBar.getProgress());
         //outState.putInt(KEY_COUNTER_RIGHT_ANSWER, counterRightAnswer);
-        outState.putStringArrayList(KEY_ARRAY_STUDIED_DICT, arrStudiedDict);
-        outState.putParcelableArrayList(KEY_CONTROL_LIST, controlList);
-        outState.putParcelableArrayList(KEY_ADDITIONAL_LIST, additionalList);
-        outState.putStringArrayList(KEY_STORED_DICT_LIST, storedListDict);
+        //outState.putStringArrayList(KEY_ARRAY_STUDIED_DICT, arrStudiedDict);
+        //outState.putParcelableArrayList(KEY_CONTROL_LIST, controlList);
+        //outState.putParcelableArrayList(KEY_ADDITIONAL_LIST, additionalList);
+        //outState.putStringArrayList(KEY_STORED_DICT_LIST, storedListDict);
 
-        outState.putStringArrayList(KEY_TEXT_ARRAY, textArray);
+        //outState.putStringArrayList(KEY_TEXT_ARRAY, textArray);
 
         outState.putParcelable(KEY_FIELDS, fields);
 
@@ -187,10 +187,10 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
         sortBtnsLayout.putAll(stringMap);
 
         Collection<String> stringCollection = sortBtnsLayout.values();
-        textArray.clear();
+        fields.textArray.clear();
         for (String item : stringCollection)
         {
-            textArray.add(item);
+            fields.textArray.add(item);
         }
     }
 
@@ -202,8 +202,8 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
         super.onCreate(savedInstanceState);
         setRetainInstance(false);
 
-        arrStudiedDict = new ArrayList<>();
-        storedListDict = new ArrayList<>();
+        //arrStudiedDict = new ArrayList<>();
+        //storedListDict = new ArrayList<>();
 
         if (savedInstanceState == null)
         {
@@ -263,26 +263,26 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
 
         if (savedInstanceState != null)
         {
-            textArray = savedInstanceState.getStringArrayList(KEY_TEXT_ARRAY);
+            //fields.textArray = savedInstanceState.getStringArrayList(KEY_TEXT_ARRAY);
             textView.setText(savedInstanceState.getString(KEY_TEXT));
-            fields.tempButtonId = savedInstanceState.getInt(KEY_BUTTON_ID);
+            //fields.tempButtonId = savedInstanceState.getInt(KEY_BUTTON_ID);
             //oldControlListSize = savedInstanceState.getInt(KEY_CONTROL_LIST_SIZE);
             //wordsCount = savedInstanceState.getInt(KEY_WORDS_COUNT);
-            spinnSelectedItem = savedInstanceState.getString(KEY_SPINN_SELECT_ITEM);
-            spinnSelectedIndex = savedInstanceState.getInt(KEY_SPINN_SELECT_INDEX);
+            //spinnSelectedItem = savedInstanceState.getString(KEY_SPINN_SELECT_ITEM);
+            //spinnSelectedIndex = savedInstanceState.getInt(KEY_SPINN_SELECT_INDEX);
             progressBar.setMax(savedInstanceState.getInt(KEY_PROGRESS_MAX));
             progressBar.setProgress(savedInstanceState.getInt(KEY_PROGRESS));
-            arrStudiedDict = savedInstanceState.getStringArrayList(KEY_ARRAY_STUDIED_DICT);
-            controlList = savedInstanceState.getParcelableArrayList(KEY_CONTROL_LIST);
-            additionalList = savedInstanceState.getParcelableArrayList(KEY_ADDITIONAL_LIST);
-            storedListDict = savedInstanceState.getStringArrayList(KEY_STORED_DICT_LIST);
+            //arrStudiedDict = savedInstanceState.getStringArrayList(KEY_ARRAY_STUDIED_DICT);
+            //controlList = savedInstanceState.getParcelableArrayList(KEY_CONTROL_LIST);
+            //additionalList = savedInstanceState.getParcelableArrayList(KEY_ADDITIONAL_LIST);
+            //storedListDict = savedInstanceState.getStringArrayList(KEY_STORED_DICT_LIST);
 
             for (int i = 0; i < buttonsLayout.getChildCount(); i++)
             {
                 Button button = (Button) buttonsLayout.getChildAt(i);
                 try
                 {
-                    button.setText(textArray.get(i));
+                    button.setText(fields.textArray.get(i));
                 } catch (Exception e)
                 {
                     button.setText(null);
@@ -339,9 +339,9 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
 
     private void setItemsToSpinnListDict()
     {
-        if (storedListDict.size() > 0)
+        if (fields.storedListDict.size() > 0)
         {
-            ArrayAdapter<String> spinnAdapter = new ArrayAdapter<>(getActivity().getApplicationContext(), R.layout.my_content_spinner_layout, storedListDict);
+            ArrayAdapter<String> spinnAdapter = new ArrayAdapter<>(getActivity().getApplicationContext(), R.layout.my_content_spinner_layout, fields.storedListDict);
             spinnListDict.setAdapter(spinnAdapter);
             return;
         }
@@ -370,7 +370,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                 spinnListDict_OnItemSelectedListener();
                 for (int i = 0; i < spinnListDict.getAdapter().getCount(); i++)
                 {
-                    storedListDict.add(spinnListDict.getAdapter().getItem(i).toString());
+                    fields.storedListDict.add(spinnListDict.getAdapter().getItem(i).toString());
                 }
             }
         });
@@ -387,8 +387,8 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, final int position, long id)
             {
-                if (position == spinnSelectedIndex) return;
-                textArray.clear();
+                if (position == fields.spinnSelectedIndex) return;
+                fields.textArray.clear();
                 startTest(position);
                 topPanelVisible(1, 0, isOpen);
             }
@@ -404,16 +404,16 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     private void startTest(final int position)
     {
         fields.wordIndex = 1;
-        spinnSelectedItem = spinnListDict.getSelectedItem().toString();
+        fields.spinnSelectedItem = spinnListDict.getSelectedItem().toString();
 
-        GetCountWordsAsync getCountWordsAsync = new GetCountWordsAsync(getActivity(), spinnSelectedItem, new GetCountWordsAsync.GetCountListener()
+        GetCountWordsAsync getCountWordsAsync = new GetCountWordsAsync(getActivity(), fields.spinnSelectedItem, new GetCountWordsAsync.GetCountListener()
         {
             @Override
             public void onTaskComplete(int count)
             {
                 fields.wordsCount = count;
                 fillLayoutLeft(fields.wordsCount);
-                spinnSelectedIndex = position;
+                fields.spinnSelectedIndex = position;
                 progressBar.setMax(fields.wordsCount);
                 progressBar.setProgress(0);
                 fields.counterRightAnswer = 0;
@@ -435,22 +435,22 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
             count = ROWS;
         }
 
-        GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), spinnSelectedItem, fields.wordIndex, count, new GetEntriesFromDbAsync.GetEntriesListener()
+        GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), fields.spinnSelectedItem, fields.wordIndex, count, new GetEntriesFromDbAsync.GetEntriesListener()
         {
             @Override
             public void getEntriesListener(ArrayList<DataBaseEntry> entries)
             {
-                controlList = entries;
-                additionalList = new ArrayList<>();
+                fields.controlList = entries;
+                fields.additionalList = new ArrayList<>();
                 fields.additonalCount = 0;
                 for (DataBaseEntry entry : entries)
                 {
-                    additionalList.add(entry);
+                    fields.additionalList.add(entry);
                 }
-                fields.oldControlListSize = controlList.size();
+                fields.oldControlListSize = fields.controlList.size();
                 randomGenerator = new RandomNumberGenerator(fields.oldControlListSize, (int) new Date().getTime());
                 long start_delay = 0;
-                for (int i = 0; i < controlList.size(); i++)
+                for (int i = 0; i < fields.controlList.size(); i++)
                 {
                     Button button = (Button) buttonsLayout.getChildAt(i);
                     button.setTranslationX(displayMetrics.widthPixels);
@@ -459,7 +459,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                     button.animate().translationX(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null).setStartDelay(start_delay);
                     start_delay += 70;
                     btn_OnClick(button);
-                    button.setText(controlList.get(randomGenerator.generate()).getTranslate());
+                    button.setText(fields.controlList.get(randomGenerator.generate()).getTranslate());
                     fields.wordIndex++;
                 }
                 randomGenerator = new RandomNumberGenerator(entries.size(), (int) new Date().getTime());
@@ -490,7 +490,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                 fields.tempButtonId = tempButton.getId();
                 fields.buttonY = tempButton.getY();
                 fields.buttonX = tempButton.getX();
-                compareWords(spinnSelectedItem,textView.getText().toString(), tempButton.getText().toString());
+                compareWords(fields.spinnSelectedItem,textView.getText().toString(), tempButton.getText().toString());
             }
         });
     }
@@ -499,13 +499,13 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     {
         if (enword == null || ruword == null)   return;
 
-        for (int i = 0; i < controlList.size(); i++)
+        for (int i = 0; i < fields.controlList.size(); i++)
         {
-            if (controlList.get(i).getEnglish().equals(enword))
+            if (fields.controlList.get(i).getEnglish().equals(enword))
             {
                 fields.indexEn = i;
             }
-            if (controlList.get(i).getTranslate().equals(ruword))
+            if (fields.controlList.get(i).getTranslate().equals(ruword))
             {
                 fields.indexRu = i;
             }
@@ -593,13 +593,13 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                     {
                         if (fields.listFromDB.size() > 0)
                         {
-                            controlList.set(fields.indexEn, fields.listFromDB.get(0));
+                            fields.controlList.set(fields.indexEn, fields.listFromDB.get(0));
                             tempButton.setText(fields.listFromDB.get(0).getTranslate());
                             tempButton.setBackgroundResource(R.drawable.text_button_for_test);
-                            if (fields.oldControlListSize != controlList.size())
+                            if (fields.oldControlListSize != fields.controlList.size())
                             {
-                                randomGenerator = new RandomNumberGenerator(controlList.size(), (int) new Date().getTime());
-                                fields.oldControlListSize = controlList.size();
+                                randomGenerator = new RandomNumberGenerator(fields.controlList.size(), (int) new Date().getTime());
+                                fields.oldControlListSize = fields.controlList.size();
                             }
                             int randomNumber = randomGenerator.generate();
                             if (randomNumber < 0)
@@ -607,22 +607,22 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                                 randomGenerator = new RandomNumberGenerator(fields.oldControlListSize, (int) new Date().getTime());
                                 randomNumber = randomGenerator.generate();
                             }
-                            textView.setText(controlList.get(randomNumber).getEnglish());
+                            textView.setText(fields.controlList.get(randomNumber).getEnglish());
                         }
-                        else if (fields.listFromDB.size() == 0 && controlList.size() <= ROWS)
+                        else if (fields.listFromDB.size() == 0 && fields.controlList.size() <= ROWS)
                         {
                             tempButton.setBackgroundResource(R.drawable.text_button_for_test);
                             try
                             {
-                                controlList.remove(fields.indexEn);
-                                tempButton.setText(additionalList.get(fields.additonalCount).getTranslate());
+                                fields.controlList.remove(fields.indexEn);
+                                tempButton.setText(fields.additionalList.get(fields.additonalCount).getTranslate());
                                 fields.additonalCount++;
                                 textView.setText("");
-                                if (controlList.size() > 0)
+                                if (fields.controlList.size() > 0)
                                 {
-                                    randomGenerator = new RandomNumberGenerator(controlList.size(), (int) new Date().getTime());
+                                    randomGenerator = new RandomNumberGenerator(fields.controlList.size(), (int) new Date().getTime());
                                     int randomNumber = randomGenerator.generate();
-                                    textView.setText(controlList.get(randomNumber).getEnglish());
+                                    textView.setText(fields.controlList.get(randomNumber).getEnglish());
                                 }
                             } catch (Exception e)
                             {
@@ -804,8 +804,8 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
         if (res == 0)
         {
             addToStudiedList();
-            spinnSelectedIndex = spinnListDict.getSelectedItemPosition();
-            startTest(spinnSelectedIndex);
+            fields.spinnSelectedIndex = spinnListDict.getSelectedItemPosition();
+            startTest(fields.spinnSelectedIndex);
         }
         if (res > 0)
         {
@@ -828,13 +828,13 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
             addToStudiedList();
 
             spinnListDict.setSelection(-1);
-            spinnSelectedIndex = -1;
+            fields.spinnSelectedIndex = -1;
             getActivity().onBackPressed();
-            if (arrStudiedDict.size() > 0)
+            if (fields.arrStudiedDict.size() > 0)
             {
                 DialogChangePlayList dialogChangePlayList = new DialogChangePlayList();
                 Bundle bundle = new Bundle();
-                bundle.putStringArrayList(dialogChangePlayList.KEY_LIST_DICT, arrStudiedDict);
+                bundle.putStringArrayList(dialogChangePlayList.KEY_LIST_DICT, fields.arrStudiedDict);
                 dialogChangePlayList.setArguments(bundle);
                 dialogChangePlayList.setCancelable(false);
                 dialogChangePlayList.show(getFragmentManager(), "dialog_change_pl_lexicon");
@@ -852,10 +852,10 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                 containsInPlayList = true; break;
             }
         }
-        boolean contains = arrStudiedDict.contains(spinnListDict.getSelectedItem().toString());
+        boolean contains = fields.arrStudiedDict.contains(spinnListDict.getSelectedItem().toString());
         if (fields.counterRightAnswer == fields.wordsCount && !contains && containsInPlayList)
         {
-            arrStudiedDict.add(spinnListDict.getSelectedItem().toString());
+            fields.arrStudiedDict.add(spinnListDict.getSelectedItem().toString());
             fields.counterRightAnswer = 0;
         }
     }
@@ -954,7 +954,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
             {
                 topPanelVisible(1, 0, isOpen);
                 spinnListDict.setSelection(-1);
-                spinnSelectedIndex = -1;
+                fields.spinnSelectedIndex = -1;
                 getActivity().onBackPressed();
             }
         });

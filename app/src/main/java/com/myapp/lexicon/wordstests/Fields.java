@@ -23,8 +23,15 @@ class Fields implements Parcelable
     int tempButtonId;
     int oldControlListSize = 0;
     int wordsCount;
+    int spinnSelectedIndex = -1;
+    String spinnSelectedItem;
 
     ArrayList<DataBaseEntry> listFromDB;
+    ArrayList<String> textArray;
+    ArrayList<String> arrStudiedDict;
+    ArrayList<DataBaseEntry> controlList;
+    ArrayList<DataBaseEntry> additionalList;
+    ArrayList<String> storedListDict;
 
     private Fields(Parcel in)
     {
@@ -33,6 +40,11 @@ class Fields implements Parcelable
     Fields()
     {
         listFromDB = new ArrayList<>();
+        textArray = new ArrayList<>();
+        arrStudiedDict = new ArrayList<>();
+        controlList = new ArrayList<>();
+        additionalList = new ArrayList<>();
+        storedListDict = new ArrayList<>();
     }
 
     public static final Creator<Fields> CREATOR = new Creator<Fields>()
@@ -69,7 +81,14 @@ class Fields implements Parcelable
         parcel.writeInt(tempButtonId);
         parcel.writeInt(oldControlListSize);
         parcel.writeInt(wordsCount);
+        parcel.writeInt(spinnSelectedIndex);
+        parcel.writeString(spinnSelectedItem);
 
         parcel.writeTypedList(listFromDB);
+        parcel.writeList(textArray);
+        parcel.writeList(arrStudiedDict);
+        parcel.writeTypedList(controlList);
+        parcel.writeTypedList(additionalList);
+        parcel.writeList(storedListDict);
     }
 }
