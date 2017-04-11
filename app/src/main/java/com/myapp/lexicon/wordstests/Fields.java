@@ -11,24 +11,26 @@ import java.util.ArrayList;
  * Created by Renat.
  */
 
-public class Fields implements Parcelable
+class Fields implements Parcelable
 {
-    public int additonalCount = 0;
-    public int wordIndex = 1;
-    public float buttonY;
-    public float buttonX;
-    public int indexEn = -1;
-    public int indexRu = -1;
-    public int counterRightAnswer = 0;
-    public int tempButtonId;
+    int additonalCount = 0;
+    int wordIndex = 1;
+    float buttonY;
+    float buttonX;
+    int indexEn = -1;
+    int indexRu = -1;
+    int counterRightAnswer = 0;
+    int tempButtonId;
+    int oldControlListSize = 0;
+    int wordsCount;
 
-    public ArrayList<DataBaseEntry> listFromDB;
+    ArrayList<DataBaseEntry> listFromDB;
 
-    public Fields(Parcel in)
+    private Fields(Parcel in)
     {
     }
 
-    public Fields()
+    Fields()
     {
         listFromDB = new ArrayList<>();
     }
@@ -65,6 +67,8 @@ public class Fields implements Parcelable
         parcel.writeInt(indexRu);
         parcel.writeInt(counterRightAnswer);
         parcel.writeInt(tempButtonId);
+        parcel.writeInt(oldControlListSize);
+        parcel.writeInt(wordsCount);
 
         parcel.writeTypedList(listFromDB);
     }
