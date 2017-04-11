@@ -76,7 +76,6 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     private static RandomNumberGenerator randomGenerator;
     private DisplayMetrics displayMetrics;
     private int delta = 60;
-    //private static boolean isStartAnim = false;
 
     private TextView textView;
     private LinearLayout buttonsLayout;
@@ -89,20 +88,9 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     private AppSettings appSettings;
     private AppData2 appData;
 
-    //public static final String KEY_BUTTON_ID = "key_button_id";
     public static final String KEY_TEXT = "key_text";
-    //public static final String KEY_CONTROL_LIST_SIZE = "key_control_list_size";
-    public static final String KEY_WORDS_COUNT = "key_words_count";
-    public static final String KEY_SPINN_SELECT_ITEM = "key_spinn_select_item";
-    //public static final String KEY_SPINN_SELECT_INDEX = "key_spinn_select_index";
     public static final String KEY_PROGRESS = "key_progress";
     public static final String KEY_PROGRESS_MAX = "key_progress_max";
-    //public static final String KEY_TEXT_ARRAY = "key_text_array";
-    public static final String KEY_COUNTER_RIGHT_ANSWER = "key_counter_right";
-//    public static final String KEY_ARRAY_STUDIED_DICT = "key_array_studied_dict";
-//    public static final String KEY_CONTROL_LIST = "key_control_list";
-//    public static final String KEY_ADDITIONAL_LIST = "key_additional_list";
-//    public static final String KEY_STORED_DICT_LIST = "key_stored_dict_list";
     public static final String KEY_FIELDS = "key_fields";
 
     static FragmentManager fragmentManager;
@@ -352,6 +340,22 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     {
         fields.wordIndex = 1;
         fields.spinnSelectedItem = spinnListDict.getSelectedItem().toString();
+        fields.counterRightAnswer = 0;
+
+        Bundle arguments = getArguments();  // TODO: Добавить
+        if (arguments != null)
+        {
+            if (arguments.containsKey(appSettings.KEY_SPINN_SELECT_ITEM) && arguments.containsKey(appSettings.KEY_WORD_INDEX) && arguments.containsKey(appSettings.KEY_COUNTER_RIGHT_ANSWER))
+            {
+                if (arguments.getString(appSettings.KEY_SPINN_SELECT_ITEM) != null && arguments.getInt(appSettings.KEY_COUNTER_RIGHT_ANSWER) > 0)
+                {
+                    fields.spinnSelectedItem = arguments.getString(appSettings.KEY_SPINN_SELECT_ITEM);
+                    fields.wordIndex = arguments.getInt(appSettings.KEY_WORD_INDEX);
+                    fields.counterRightAnswer = arguments.getInt(appSettings.KEY_COUNTER_RIGHT_ANSWER);
+                }
+            }
+            getArguments().clear();
+        }
 
         GetCountWordsAsync getCountWordsAsync = new GetCountWordsAsync(getActivity(), fields.spinnSelectedItem, new GetCountWordsAsync.GetCountListener()
         {
@@ -360,10 +364,10 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
             {
                 fields.wordsCount = count;
                 fillLayoutLeft(fields.wordsCount);
-                fields.spinnSelectedIndex = position;
+                //fields.spinnSelectedIndex = position;
                 progressBar.setMax(fields.wordsCount);
-                progressBar.setProgress(0);
-                fields.counterRightAnswer = 0;
+                progressBar.setProgress(fields.wordIndex - 1);
+                //fields.counterRightAnswer = 0;
             }
         });
         if (getCountWordsAsync.getStatus() != AsyncTask.Status.RUNNING)
@@ -382,7 +386,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
             count = ROWS;
         }
 
-        GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), fields.spinnSelectedItem, fields.wordIndex, count, new GetEntriesFromDbAsync.GetEntriesListener()
+        GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), fields.spinnSelectedItem, fields.wordIndex, fields.wordIndex + count - 1, new GetEntriesFromDbAsync.GetEntriesListener()
         {
             @Override
             public void getEntriesListener(ArrayList<DataBaseEntry> entries)
@@ -748,6 +752,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     @Override
     public void dialogCompleteResult(int res)
     {
+        appSettings.saveTestFragmentState(TAG, null);
         if (res == 0)
         {
             addToStudiedList();
@@ -791,14 +796,9 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
 
     private void addToStudiedList()
     {
-        boolean containsInPlayList = false;
-        for (String item : appSettings.getPlayList())
-        {
-            if (item.equals(spinnListDict.getSelectedItem()))
-            {
-                containsInPlayList = true; break;
-            }
-        }
+        ArrayList<String> playList = appSettings.getPlayList();
+
+        boolean containsInPlayList = playList.contains(spinnListDict.getSelectedItem().toString());
         boolean contains = fields.arrStudiedDict.contains(spinnListDict.getSelectedItem().toString());
         if (fields.counterRightAnswer == fields.wordsCount && !contains && containsInPlayList)
         {
@@ -808,11 +808,50 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     }
 
     @Override
+    public void onDetach()
+    {
+        super.onDetach();
+        if (isRemoving() && fields.wordIndex -1 - ROWS < fields.wordsCount)
+        {
+            fields.spinnSelectedIndex = -1;
+            DialogWarning dialogWarning = new DialogWarning();
+
+            Bundle bundle = new Bundle();
+            bundle.putString(dialogWarning.KEY_MESSAGE, getString(R.string.text_not_finished_test));
+            bundle.putString(dialogWarning.KEY_TEXT_OK_BUTTON, getString(R.string.button_text_yes));
+            bundle.putString(dialogWarning.KEY_TEXT_NO_BUTTON, getString(R.string.button_text_no));
+
+            dialogWarning.setArguments(bundle);
+            dialogWarning.setCancelable(false);
+            dialogWarning.show(getActivity().getSupportFragmentManager(), dialogWarning.TAG);
+            dialogWarning.setListener(new DialogWarning.IDialogResult()
+            {
+                @Override
+                public void dialogListener(boolean result)
+                {
+                    if (result)
+                    {
+                        Bundle bundle = new Bundle();
+                        bundle.putString(appSettings.KEY_SPINN_SELECT_ITEM, fields.spinnSelectedItem);
+                        bundle.putInt(appSettings.KEY_WORD_INDEX, fields.wordIndex - ROWS);
+                        bundle.putInt(appSettings.KEY_COUNTER_RIGHT_ANSWER, fields.counterRightAnswer);
+                        appSettings.saveTestFragmentState(TAG, bundle);
+                    }
+                    else
+                    {
+                        appSettings.saveTestFragmentState(TAG, null);
+                    }
+                }
+            });
+        }
+    }
+
+    @Override
     public void onPause()
     {
         super.onPause();
-        Tests.bundleOneOfFiveTest = new Bundle();
-        onSaveInstanceState(Tests.bundleOneOfFiveTest);
+//        Tests.bundleOneOfFiveTest = new Bundle();
+//        onSaveInstanceState(Tests.bundleOneOfFiveTest);
     }
 
     @Override

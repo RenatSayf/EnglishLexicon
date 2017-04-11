@@ -19,14 +19,14 @@ public class AppSettings
 {
     private Context context;
 
-    private String KEY_ENG_ONLY = "eng_only";
-    private String KEY_PLAY_LIST = "play_list";
-    private String KEY_PLAY_LIST_ITEMS = "play_list_items";
-    private String KEY_ORDER_PLAY = "order_play";
-    private String KEY_N_DICT = "N_dict";
-    private String KEY_N_WORD = "N_word";
-    private String KEY_CURRENT_DICT = "current_dict";
-    private String KEY_IS_PAUSE = "is_pause";
+    private final String KEY_ENG_ONLY = "eng_only";
+    private final String KEY_PLAY_LIST = "play_list";
+    private final String KEY_PLAY_LIST_ITEMS = "play_list_items";
+    private final String KEY_ORDER_PLAY = "order_play";
+    private final String KEY_N_DICT = "N_dict";
+    private final String KEY_N_WORD = "N_word";
+    private final String KEY_CURRENT_DICT = "current_dict";
+    private final String KEY_IS_PAUSE = "is_pause";
 
     public AppSettings(Context context)
     {

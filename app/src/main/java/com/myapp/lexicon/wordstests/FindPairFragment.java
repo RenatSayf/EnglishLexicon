@@ -425,13 +425,13 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         Bundle arguments = getArguments();  // TODO: Добавить
         if (arguments != null)
         {
-            if (arguments.containsKey(KEY_SPINN_SELECT_ITEM) && arguments.containsKey(KEY_WORD_INDEX) && arguments.containsKey(KEY_COUNTER_RIGHT_ANSWER))
+            if (arguments.containsKey(appSettings.KEY_SPINN_SELECT_ITEM) && arguments.containsKey(appSettings.KEY_WORD_INDEX) && arguments.containsKey(appSettings.KEY_COUNTER_RIGHT_ANSWER))
             {
-                if (arguments.getString(KEY_SPINN_SELECT_ITEM) != null && arguments.getInt(KEY_COUNTER_RIGHT_ANSWER) > 0)
+                if (arguments.getString(appSettings.KEY_SPINN_SELECT_ITEM) != null && arguments.getInt(appSettings.KEY_COUNTER_RIGHT_ANSWER) > 0)
                 {
-                    spinnSelectedItem = arguments.getString(KEY_SPINN_SELECT_ITEM);
-                    wordIndex = arguments.getInt(KEY_WORD_INDEX);
-                    counterRightAnswer = arguments.getInt(KEY_COUNTER_RIGHT_ANSWER);
+                    spinnSelectedItem = arguments.getString(appSettings.KEY_SPINN_SELECT_ITEM);
+                    wordIndex = arguments.getInt(appSettings.KEY_WORD_INDEX);
+                    counterRightAnswer = arguments.getInt(appSettings.KEY_COUNTER_RIGHT_ANSWER);
                 }
             }
             getArguments().clear();
