@@ -126,6 +126,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     public static final String KEY_CONTROL_LIST = "key_control_list";
     public static final String KEY_ADDITIONAL_LIST = "key_additional_list";
     public static final String KEY_STORED_DICT_LIST = "key_stored_dict_list";
+    public static final String KEY_FIELDS = "key_fields";
 
     static FragmentManager fragmentManager;
 
@@ -153,6 +154,8 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
         outState.putStringArrayList(KEY_STORED_DICT_LIST, storedListDict);
 
         outState.putStringArrayList(KEY_TEXT_ARRAY, textArray);
+
+        outState.putParcelable(KEY_FIELDS, fields);
 
         if (isOpen)
         {
@@ -193,6 +196,8 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
         }
     }
 
+    private Fields fields;
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -201,6 +206,17 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
 
         arrStudiedDict = new ArrayList<>();
         storedListDict = new ArrayList<>();
+
+        if (savedInstanceState == null)
+        {
+            fields = new Fields();
+        }
+
+        if (savedInstanceState != null)
+        {
+            fields = savedInstanceState.getParcelable(KEY_FIELDS);
+        }
+        return;
     }
 
     @Override
@@ -211,7 +227,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
 //        {
 //            savedInstanceState = Tests.bundleOneOfFiveTest;
 //        }
-
+        fields.listFromDB.add(new DataBaseEntry("asdfgh", "фывапр"));
         fragmentManager = getFragmentManager();
         lockOrientation = new LockOrientation(getActivity());
         testResults = new TestResults(getActivity());
