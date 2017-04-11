@@ -73,7 +73,6 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     private Spinner spinnListDict;
     private int spinnSelectedIndex = -1;
     private String spinnSelectedItem;
-    private ArrayList<String> storedListDict;
 
     private ProgressBar progressBar;
     private ImageView backImageView;
@@ -82,11 +81,14 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     private int wordIndex = 1;
     private int wordsCount;
     private int counterRightAnswer = 0;
+
     private static ArrayList<String> textArrayleft = new ArrayList<>();
     private static ArrayList<String> textArrayRight = new ArrayList<>();
     private ArrayList<String> arrStudiedDict;
     private ArrayList<DataBaseEntry> controlList;
     private ArrayList<DataBaseEntry> additionalList;
+    private ArrayList<String> storedListDict;
+
     private int controlListSize = 0;
     private DisplayMetrics metrics;
     private String enWord = null;
@@ -213,11 +215,11 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                         bundle.putString(KEY_SPINN_SELECT_ITEM, spinnSelectedItem);
                         bundle.putInt(KEY_WORD_INDEX, wordIndex);
                         bundle.putInt(KEY_COUNTER_RIGHT_ANSWER, counterRightAnswer);
-                        appSettings.saveStateFindPairFragment(TAG, bundle);
+                        appSettings.saveTestFragmentState(TAG, bundle);
                     }
                     else
                     {
-                        appSettings.saveStateFindPairFragment(TAG, null);
+                        appSettings.saveTestFragmentState(TAG, null);
                     }
                 }
             });
@@ -787,7 +789,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     @Override
     public void dialogCompleteResult(int res)
     {
-        appSettings.saveStateFindPairFragment(TAG, null);
+        appSettings.saveTestFragmentState(TAG, null);
         if (res == 0)
         {
             addToStudiedList();

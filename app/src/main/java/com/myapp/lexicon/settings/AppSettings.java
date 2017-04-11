@@ -208,7 +208,7 @@ public class AppSettings
         return context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getBoolean(KEY_IS_PAUSE, false);
     }
 
-    public void saveStateFindPairFragment(String tag, Bundle bundle)
+    public void saveTestFragmentState(String tag, Bundle bundle)
     {
         SharedPreferences.Editor settingsEditor = context.getSharedPreferences(tag, MODE_PRIVATE).edit();
         if (bundle != null)
@@ -225,7 +225,7 @@ public class AppSettings
         settingsEditor.apply();
     }
 
-    public Bundle getStateFindPairFragment(String tag)
+    public Bundle getTestFragmentState(String tag)
     {
         Bundle bundle = new Bundle();
         SharedPreferences sharedPreferences = context.getSharedPreferences(tag, MODE_PRIVATE);

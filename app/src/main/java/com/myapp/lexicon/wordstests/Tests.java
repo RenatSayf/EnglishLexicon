@@ -64,12 +64,12 @@ public class Tests extends AppCompatActivity
             bundleListenTest = new Bundle();
         }
 
-        oneOfFiveTest = (OneOfFiveTest) manager.findFragmentByTag(ONE_OF_FIVE_FRAGMENT);
-        if (oneOfFiveTest == null)
-        {
-            oneOfFiveTest = new OneOfFiveTest();
-            bundleOneOfFiveTest = new Bundle();
-        }
+//        oneOfFiveTest = (OneOfFiveTest) manager.findFragmentByTag(ONE_OF_FIVE_FRAGMENT);
+//        if (oneOfFiveTest == null)
+//        {
+//            oneOfFiveTest = new OneOfFiveTest();
+//            bundleOneOfFiveTest = new Bundle();
+//        }
 
         button_OnClick();
     }
@@ -89,7 +89,7 @@ public class Tests extends AppCompatActivity
                 }
 
                 final AppSettings appSettings = new AppSettings(Tests.this);
-                final Bundle bundle = appSettings.getStateFindPairFragment(FindPairFragment.TAG);
+                final Bundle bundle = appSettings.getTestFragmentState(FindPairFragment.TAG);
 
                 transaction = getSupportFragmentManager().beginTransaction();
                 transaction.replace(R.id.find_pair_fragment, findPairFragment);
@@ -113,11 +113,11 @@ public class Tests extends AppCompatActivity
                         {
                             if (result)
                             {
-                                 findPairFragment.setArguments(appSettings.getStateFindPairFragment(FindPairFragment.TAG));
+                                 findPairFragment.setArguments(appSettings.getTestFragmentState(FindPairFragment.TAG));
                             }
                             else
                             {
-                                appSettings.saveStateFindPairFragment(FindPairFragment.TAG, null);
+                                appSettings.saveTestFragmentState(FindPairFragment.TAG, null);
                                 findPairFragment.setArguments(null);
                             }
                             transaction.commit();
@@ -151,11 +151,55 @@ public class Tests extends AppCompatActivity
             @Override
             public void onClick(View v)
             {
+                oneOfFiveTest = (OneOfFiveTest) getSupportFragmentManager().findFragmentByTag(OneOfFiveTest.TAG);
+                if (oneOfFiveTest == null)
+                {
+                    oneOfFiveTest = new OneOfFiveTest();
+                }
+
+                final AppSettings appSettings = new AppSettings(Tests.this);
+                final Bundle bundle = appSettings.getTestFragmentState(OneOfFiveTest.TAG);
+
                 transaction = getSupportFragmentManager().beginTransaction();
                 transaction.replace(R.id.fragment_1of5, oneOfFiveTest);
                 transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
                 transaction.addToBackStack(null);
-                transaction.commit();
+
+                if (bundle.getInt(OneOfFiveTest.KEY_COUNTER_RIGHT_ANSWER) > 0)
+                {
+                    DialogWarning dialogWarning = new DialogWarning();
+                    Bundle dialogBundle = new Bundle();
+                    dialogBundle.putString(dialogWarning.KEY_MESSAGE, getString(R.string.you_have_uncompleted_test));
+                    dialogBundle.putString(dialogWarning.KEY_TEXT_OK_BUTTON, getString(R.string.text_continue));
+                    dialogBundle.putString(dialogWarning.KEY_TEXT_NO_BUTTON, getString(R.string.text_from_the_beginning));
+                    dialogBundle.putBoolean(dialogWarning.KEY_IS_NEUTRAL_BTN, true);
+                    dialogWarning.setArguments(dialogBundle);
+                    dialogWarning.setCancelable(false);
+                    dialogWarning.setListener(new DialogWarning.IDialogResult()
+                    {
+                        @Override
+                        public void dialogListener(boolean result)
+                        {
+                            if (result)
+                            {
+                                oneOfFiveTest.setArguments(appSettings.getTestFragmentState(OneOfFiveTest.TAG));
+                            }
+                            else
+                            {
+                                appSettings.saveTestFragmentState(OneOfFiveTest.TAG, null);
+                                oneOfFiveTest.setArguments(null);
+                            }
+                            transaction.commit();
+                        }
+                    });
+                    dialogWarning.show(getSupportFragmentManager(), dialogWarning.TAG);
+                }
+                else
+                {
+                    transaction.commit();
+                }
+
+
             }
         });
     }

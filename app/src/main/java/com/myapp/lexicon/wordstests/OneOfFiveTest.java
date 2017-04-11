@@ -4,6 +4,8 @@ package com.myapp.lexicon.wordstests;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -58,6 +60,7 @@ import java.util.TreeMap;
  */
 public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialogComplete_Result
 {
+    public static final String TAG = "one_of_five_fragment";
     public static final int ROWS = 5;
 
     private static RelativeLayout.LayoutParams saveTopPanelParams;
@@ -73,18 +76,21 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     private long duration = 1000;
     private static boolean isOpen = false;
 
-    private static ArrayList<String> storedListDict = new ArrayList<>();
-    private static ArrayList<DataBaseEntry> controlList;
-    private static ArrayList<DataBaseEntry> additionalList;
+    private ArrayList<String> textArray = new ArrayList<>();
+    private ArrayList<String> arrStudiedDict;
+    private ArrayList<DataBaseEntry> controlList;
+    private ArrayList<DataBaseEntry> additionalList;
+    private ArrayList<String> storedListDict;
+    private static ArrayList<DataBaseEntry> listFromDB;
+
     private static int additonalCount = 0;
     private static int wordIndex = 1;
     private static float buttonY;
     private static float buttonX;
-    private static RandomNumberGenerator randomGenerator;
-    private static ArrayList<DataBaseEntry> listFromDB;
     private static int indexEn = -1;
     private static int indexRu = -1;
-    private static ArrayList<String> textArray = new ArrayList<>();
+
+    private static RandomNumberGenerator randomGenerator;
     private DisplayMetrics displayMetrics;
     private int delta = 60;
     private static boolean isStartAnim = false;
@@ -100,24 +106,29 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     private Button tempButton;
     private int tempButtonId;
     private LockOrientation lockOrientation;
-    private static int counterRightAnswer = 0;
+    private int counterRightAnswer = 0;
     private TestResults testResults;
     private DialogTestComplete dialogTestComplete;
-    private ArrayList<String> arrStudiedDict = new ArrayList<>();
     private AppSettings appSettings;
     private AppData2 appData;
 
-    private String KEY_BUTTON_ID = "key_button_id";
-    private String KEY_TEXT = "key_text";
-    private String KEY_CONTROL_LIST_SIZE = "key_control_list_size";
-    private String KEY_WORDS_COUNT = "key_words_count";
-    private String KEY_SPINN_SELECT_ITEM = "key_spinn_select_item";
-    private String KEY_SPINN_SELECT_INDEX = "key_spinn_select_index";
-    private String KEY_PROGRESS = "key_progress";
-    private String KEY_PROGRESS_MAX = "key_progress_max";
-    //private String KEY_COUNTER_RIGHT_ANSWER = "key_counter_right";
+    public static final String KEY_BUTTON_ID = "key_button_id";
+    public static final String KEY_TEXT = "key_text";
+    public static final String KEY_CONTROL_LIST_SIZE = "key_control_list_size";
+    public static final String KEY_WORDS_COUNT = "key_words_count";
+    public static final String KEY_SPINN_SELECT_ITEM = "key_spinn_select_item";
+    public static final String KEY_SPINN_SELECT_INDEX = "key_spinn_select_index";
+    public static final String KEY_PROGRESS = "key_progress";
+    public static final String KEY_PROGRESS_MAX = "key_progress_max";
+    public static final String KEY_TEXT_ARRAY = "key_text_array";
+    public static final String KEY_COUNTER_RIGHT_ANSWER = "key_counter_right";
+    public static final String KEY_ARRAY_STUDIED_DICT = "key_array_studied_dict";
+    public static final String KEY_CONTROL_LIST = "key_control_list";
+    public static final String KEY_ADDITIONAL_LIST = "key_additional_list";
+    public static final String KEY_STORED_DICT_LIST = "key_stored_dict_list";
 
     static FragmentManager fragmentManager;
+
     public OneOfFiveTest()
     {
         // Required empty public constructor
@@ -135,7 +146,13 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
         outState.putInt(KEY_SPINN_SELECT_INDEX, spinnSelectedIndex);
         outState.putInt(KEY_PROGRESS_MAX, progressBar.getMax());
         outState.putInt(KEY_PROGRESS, progressBar.getProgress());
-        //outState.putInt(KEY_COUNTER_RIGHT_ANSWER, counterRightAnswer);
+        outState.putInt(KEY_COUNTER_RIGHT_ANSWER, counterRightAnswer);
+        outState.putStringArrayList(KEY_ARRAY_STUDIED_DICT, arrStudiedDict);
+        outState.putParcelableArrayList(KEY_CONTROL_LIST, controlList);
+        outState.putParcelableArrayList(KEY_ADDITIONAL_LIST, additionalList);
+        outState.putStringArrayList(KEY_STORED_DICT_LIST, storedListDict);
+
+        outState.putStringArrayList(KEY_TEXT_ARRAY, textArray);
 
         if (isOpen)
         {
@@ -180,18 +197,21 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
+        setRetainInstance(false);
+
+        arrStudiedDict = new ArrayList<>();
+        storedListDict = new ArrayList<>();
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState)
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         // Inflate the layout for this fragment
-        if (savedInstanceState == null && Tests.bundleOneOfFiveTest.containsKey(KEY_TEXT))
-        {
-            savedInstanceState = Tests.bundleOneOfFiveTest;
-        }
+//        if (savedInstanceState == null && Tests.bundleOneOfFiveTest.containsKey(KEY_TEXT))
+//        {
+//            savedInstanceState = Tests.bundleOneOfFiveTest;
+//        }
+
         fragmentManager = getFragmentManager();
         lockOrientation = new LockOrientation(getActivity());
         testResults = new TestResults(getActivity());
@@ -229,6 +249,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
 
         if (savedInstanceState != null)
         {
+            textArray = savedInstanceState.getStringArrayList(KEY_TEXT_ARRAY);
             textView.setText(savedInstanceState.getString(KEY_TEXT));
             tempButtonId = savedInstanceState.getInt(KEY_BUTTON_ID);
             controlListSize = savedInstanceState.getInt(KEY_CONTROL_LIST_SIZE);
@@ -237,6 +258,10 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
             spinnSelectedIndex = savedInstanceState.getInt(KEY_SPINN_SELECT_INDEX);
             progressBar.setMax(savedInstanceState.getInt(KEY_PROGRESS_MAX));
             progressBar.setProgress(savedInstanceState.getInt(KEY_PROGRESS));
+            arrStudiedDict = savedInstanceState.getStringArrayList(KEY_ARRAY_STUDIED_DICT);
+            controlList = savedInstanceState.getParcelableArrayList(KEY_CONTROL_LIST);
+            additionalList = savedInstanceState.getParcelableArrayList(KEY_ADDITIONAL_LIST);
+            storedListDict = savedInstanceState.getStringArrayList(KEY_STORED_DICT_LIST);
 
             for (int i = 0; i < buttonsLayout.getChildCount(); i++)
             {
