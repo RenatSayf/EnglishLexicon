@@ -11,7 +11,7 @@ import com.myapp.lexicon.settings.AppSettings;
 import java.util.ArrayList;
 
 /**
- * Created by Ренат on 03.10.2016.
+ * Created by Ренат.
  */
 
 public class DialogChangePlayList extends android.support.v4.app.DialogFragment
@@ -64,11 +64,11 @@ public class DialogChangePlayList extends android.support.v4.app.DialogFragment
                     @Override
                     public void onClick(DialogInterface dialog, int which)
                     {
-                        for (int i = 0; i < items.length; i++)
+                        for (String item : items)
                         {
-                            new AppSettings(getContext()).removeItemFromPlayList(items[i]);
-                            //a_MainActivity.removeItemPlayList(items[i]);
+                            new AppSettings(getContext()).removeItemFromPlayList(item);
                         }
+                        dismiss();
                     }
                 })
                 .setNegativeButton("Нет", new DialogInterface.OnClickListener()
@@ -76,7 +76,7 @@ public class DialogChangePlayList extends android.support.v4.app.DialogFragment
                     @Override
                     public void onClick(DialogInterface dialog, int which)
                     {
-
+                        dismiss();
                     }
                 });
 
