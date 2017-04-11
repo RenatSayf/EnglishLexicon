@@ -1,7 +1,6 @@
 package com.myapp.lexicon.wordstests;
 
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -12,10 +11,7 @@ import android.view.View;
 import android.widget.ImageButton;
 
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.database.GetTableListFragm;
 import com.myapp.lexicon.settings.AppSettings;
-
-import junit.framework.Test;
 
 public class Tests extends AppCompatActivity
 {
@@ -93,7 +89,7 @@ public class Tests extends AppCompatActivity
                 }
 
                 final AppSettings appSettings = new AppSettings(Tests.this);
-                final Bundle bundle = appSettings.getStateFindPairFragment(FindPairFragment.TAG_FIND_PAIR);
+                final Bundle bundle = appSettings.getStateFindPairFragment(FindPairFragment.TAG);
 
                 transaction = getSupportFragmentManager().beginTransaction();
                 transaction.replace(R.id.find_pair_fragment, findPairFragment);
@@ -117,11 +113,11 @@ public class Tests extends AppCompatActivity
                         {
                             if (result)
                             {
-                                 findPairFragment.setArguments(appSettings.getStateFindPairFragment(FindPairFragment.TAG_FIND_PAIR));
+                                 findPairFragment.setArguments(appSettings.getStateFindPairFragment(FindPairFragment.TAG));
                             }
                             else
                             {
-                                appSettings.saveStateFindPairFragment(FindPairFragment.TAG_FIND_PAIR, null);
+                                appSettings.saveStateFindPairFragment(FindPairFragment.TAG, null);
                                 findPairFragment.setArguments(null);
                             }
                             transaction.commit();
