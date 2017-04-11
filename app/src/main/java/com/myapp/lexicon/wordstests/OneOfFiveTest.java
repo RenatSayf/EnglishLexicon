@@ -91,7 +91,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     private static RandomNumberGenerator randomGenerator;
     private DisplayMetrics displayMetrics;
     private int delta = 60;
-    private static boolean isStartAnim = false;
+    //private static boolean isStartAnim = false;
 
     private TextView textView;
     private LinearLayout buttonsLayout;
@@ -482,7 +482,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
             @Override
             public void onClick(View view)
             {
-                if (isStartAnim)
+                if (fields.isStartAnim[0])
                 {
                     return;
                 }
@@ -585,7 +585,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                     public void onAnimationStart(android.animation.Animator animation)
                     {
                         lockOrientation.lock();
-                        isStartAnim = true;
+                        fields.isStartAnim[0] = true;
                     }
 
                     @Override
@@ -730,7 +730,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                     public void onAnimationEnd(android.animation.Animator animation)
                     {
                         lockOrientation.unLock();
-                        isStartAnim = false;
+                        fields.isStartAnim[0] = false;
                         if (textView.getText().toString().equals(""))
                         {
                             //Toast.makeText(activity,"Тест завершен",Toast.LENGTH_SHORT).show();

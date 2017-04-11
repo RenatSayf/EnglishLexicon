@@ -25,7 +25,9 @@ class Fields implements Parcelable
     int wordsCount;
     int spinnSelectedIndex = -1;
     String spinnSelectedItem;
+    boolean[] isStartAnim;
 
+    Boolean[] arrBool = new Boolean[1];
     ArrayList<DataBaseEntry> listFromDB;
     ArrayList<String> textArray;
     ArrayList<String> arrStudiedDict;
@@ -45,6 +47,8 @@ class Fields implements Parcelable
         controlList = new ArrayList<>();
         additionalList = new ArrayList<>();
         storedListDict = new ArrayList<>();
+        isStartAnim = new boolean[1];
+        isStartAnim[0] = false;
     }
 
     public static final Creator<Fields> CREATOR = new Creator<Fields>()
@@ -83,6 +87,7 @@ class Fields implements Parcelable
         parcel.writeInt(wordsCount);
         parcel.writeInt(spinnSelectedIndex);
         parcel.writeString(spinnSelectedItem);
+        parcel.writeBooleanArray(isStartAnim);
 
         parcel.writeTypedList(listFromDB);
         parcel.writeList(textArray);
