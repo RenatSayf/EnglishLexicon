@@ -96,7 +96,7 @@ public class Tests extends AppCompatActivity
                 transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
                 transaction.addToBackStack(null);
 
-                if (bundle.getInt(FindPairFragment.KEY_COUNTER_RIGHT_ANSWER) > 0)
+                if (bundle.getInt(appSettings.KEY_COUNTER_RIGHT_ANSWER) > 0)
                 {
                     DialogWarning dialogWarning = new DialogWarning();
                     Bundle dialogBundle = new Bundle();
@@ -165,7 +165,7 @@ public class Tests extends AppCompatActivity
                 transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
                 transaction.addToBackStack(null);
 
-                if (bundle.getInt(OneOfFiveTest.KEY_COUNTER_RIGHT_ANSWER) > 0)
+                if (bundle.getInt(appSettings.KEY_COUNTER_RIGHT_ANSWER) > 0)
                 {
                     DialogWarning dialogWarning = new DialogWarning();
                     Bundle dialogBundle = new Bundle();

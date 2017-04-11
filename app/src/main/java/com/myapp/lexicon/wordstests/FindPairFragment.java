@@ -212,9 +212,9 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                     if (result)
                     {
                         Bundle bundle = new Bundle();
-                        bundle.putString(KEY_SPINN_SELECT_ITEM, spinnSelectedItem);
-                        bundle.putInt(KEY_WORD_INDEX, wordIndex);
-                        bundle.putInt(KEY_COUNTER_RIGHT_ANSWER, counterRightAnswer);
+                        bundle.putString(appSettings.KEY_SPINN_SELECT_ITEM, spinnSelectedItem);
+                        bundle.putInt(appSettings.KEY_WORD_INDEX, wordIndex);
+                        bundle.putInt(appSettings.KEY_COUNTER_RIGHT_ANSWER, counterRightAnswer);
                         appSettings.saveTestFragmentState(TAG, bundle);
                     }
                     else

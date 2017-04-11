@@ -208,19 +208,23 @@ public class AppSettings
         return context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getBoolean(KEY_IS_PAUSE, false);
     }
 
+    public final String KEY_SPINN_SELECT_ITEM = "key_spinn_select_item";
+    public final String KEY_WORD_INDEX = "key_word_index";
+    public final String KEY_COUNTER_RIGHT_ANSWER = "key_counter_right_answer";
+
     public void saveTestFragmentState(String tag, Bundle bundle)
     {
         SharedPreferences.Editor settingsEditor = context.getSharedPreferences(tag, MODE_PRIVATE).edit();
         if (bundle != null)
         {
-            settingsEditor.putString(FindPairFragment.KEY_SPINN_SELECT_ITEM, bundle.getString(FindPairFragment.KEY_SPINN_SELECT_ITEM));
-            settingsEditor.putInt(FindPairFragment.KEY_WORD_INDEX, bundle.getInt(FindPairFragment.KEY_WORD_INDEX));
-            settingsEditor.putInt(FindPairFragment.KEY_COUNTER_RIGHT_ANSWER, bundle.getInt(FindPairFragment.KEY_COUNTER_RIGHT_ANSWER));
+            settingsEditor.putString(KEY_SPINN_SELECT_ITEM, bundle.getString(KEY_SPINN_SELECT_ITEM));
+            settingsEditor.putInt(KEY_WORD_INDEX, bundle.getInt(KEY_WORD_INDEX));
+            settingsEditor.putInt(KEY_COUNTER_RIGHT_ANSWER, bundle.getInt(KEY_COUNTER_RIGHT_ANSWER));
         } else
         {
-            settingsEditor.remove(FindPairFragment.KEY_SPINN_SELECT_ITEM);
-            settingsEditor.remove(FindPairFragment.KEY_WORD_INDEX);
-            settingsEditor.remove(FindPairFragment.KEY_COUNTER_RIGHT_ANSWER);
+            settingsEditor.remove(KEY_SPINN_SELECT_ITEM);
+            settingsEditor.remove(KEY_WORD_INDEX);
+            settingsEditor.remove(KEY_COUNTER_RIGHT_ANSWER);
         }
         settingsEditor.apply();
     }
@@ -229,9 +233,9 @@ public class AppSettings
     {
         Bundle bundle = new Bundle();
         SharedPreferences sharedPreferences = context.getSharedPreferences(tag, MODE_PRIVATE);
-        bundle.putString(FindPairFragment.KEY_SPINN_SELECT_ITEM, sharedPreferences.getString(FindPairFragment.KEY_SPINN_SELECT_ITEM, null));
-        bundle.putInt(FindPairFragment.KEY_WORD_INDEX, sharedPreferences.getInt(FindPairFragment.KEY_WORD_INDEX, 1));
-        bundle.putInt(FindPairFragment.KEY_COUNTER_RIGHT_ANSWER, sharedPreferences.getInt(FindPairFragment.KEY_COUNTER_RIGHT_ANSWER, 0));
+        bundle.putString(KEY_SPINN_SELECT_ITEM, sharedPreferences.getString(KEY_SPINN_SELECT_ITEM, null));
+        bundle.putInt(KEY_WORD_INDEX, sharedPreferences.getInt(KEY_WORD_INDEX, 1));
+        bundle.putInt(KEY_COUNTER_RIGHT_ANSWER, sharedPreferences.getInt(KEY_COUNTER_RIGHT_ANSWER, 0));
 
         return bundle;
     }
