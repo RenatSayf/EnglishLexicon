@@ -72,21 +72,6 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     private Button topPanelButtonFinish;
     private ImageButton topPanelButtonThreePoints;
     private long duration = 1000;
-    private static boolean isOpen = false;
-
-    //private ArrayList<String> textArray = new ArrayList<>();
-    //private ArrayList<String> arrStudiedDict;
-    //private ArrayList<DataBaseEntry> controlList;
-    //private ArrayList<DataBaseEntry> additionalList;
-    //private ArrayList<String> storedListDict;
-    //private static ArrayList<DataBaseEntry> listFromDB;
-
-    //private static int additonalCount = 0;
-    //private static int wordIndex = 1;
-    //private static float buttonY;
-    //private static float buttonX;
-    //private static int indexEn = -1;
-    //private static int indexRu = -1;
 
     private static RandomNumberGenerator randomGenerator;
     private DisplayMetrics displayMetrics;
@@ -97,33 +82,27 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     private LinearLayout buttonsLayout;
     private Spinner spinnListDict;
     private ProgressBar progressBar;
-    //private int spinnSelectedIndex = -1;
-    //private String spinnSelectedItem;
-    //private int wordsCount;
-    //private int oldControlListSize = 0;
     private Button tempButton;
-    //private int tempButtonId;
     private LockOrientation lockOrientation;
-    //private int counterRightAnswer = 0;
     private TestResults testResults;
     private DialogTestComplete dialogTestComplete;
     private AppSettings appSettings;
     private AppData2 appData;
 
-    public static final String KEY_BUTTON_ID = "key_button_id";
+    //public static final String KEY_BUTTON_ID = "key_button_id";
     public static final String KEY_TEXT = "key_text";
-    public static final String KEY_CONTROL_LIST_SIZE = "key_control_list_size";
+    //public static final String KEY_CONTROL_LIST_SIZE = "key_control_list_size";
     public static final String KEY_WORDS_COUNT = "key_words_count";
     public static final String KEY_SPINN_SELECT_ITEM = "key_spinn_select_item";
-    public static final String KEY_SPINN_SELECT_INDEX = "key_spinn_select_index";
+    //public static final String KEY_SPINN_SELECT_INDEX = "key_spinn_select_index";
     public static final String KEY_PROGRESS = "key_progress";
     public static final String KEY_PROGRESS_MAX = "key_progress_max";
-    public static final String KEY_TEXT_ARRAY = "key_text_array";
+    //public static final String KEY_TEXT_ARRAY = "key_text_array";
     public static final String KEY_COUNTER_RIGHT_ANSWER = "key_counter_right";
-    public static final String KEY_ARRAY_STUDIED_DICT = "key_array_studied_dict";
-    public static final String KEY_CONTROL_LIST = "key_control_list";
-    public static final String KEY_ADDITIONAL_LIST = "key_additional_list";
-    public static final String KEY_STORED_DICT_LIST = "key_stored_dict_list";
+//    public static final String KEY_ARRAY_STUDIED_DICT = "key_array_studied_dict";
+//    public static final String KEY_CONTROL_LIST = "key_control_list";
+//    public static final String KEY_ADDITIONAL_LIST = "key_additional_list";
+//    public static final String KEY_STORED_DICT_LIST = "key_stored_dict_list";
     public static final String KEY_FIELDS = "key_fields";
 
     static FragmentManager fragmentManager;
@@ -137,25 +116,12 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     public void onSaveInstanceState(Bundle outState)
     {
         super.onSaveInstanceState(outState);
-        //outState.putInt(KEY_BUTTON_ID, tempButtonId);
         outState.putString(KEY_TEXT, textView.getText().toString());
-        //outState.putInt(KEY_CONTROL_LIST_SIZE, oldControlListSize);
-        //outState.putInt(KEY_WORDS_COUNT, wordsCount);
-        //outState.putString(KEY_SPINN_SELECT_ITEM, spinnSelectedItem);
-        //outState.putInt(KEY_SPINN_SELECT_INDEX, spinnSelectedIndex);
         outState.putInt(KEY_PROGRESS_MAX, progressBar.getMax());
         outState.putInt(KEY_PROGRESS, progressBar.getProgress());
-        //outState.putInt(KEY_COUNTER_RIGHT_ANSWER, counterRightAnswer);
-        //outState.putStringArrayList(KEY_ARRAY_STUDIED_DICT, arrStudiedDict);
-        //outState.putParcelableArrayList(KEY_CONTROL_LIST, controlList);
-        //outState.putParcelableArrayList(KEY_ADDITIONAL_LIST, additionalList);
-        //outState.putStringArrayList(KEY_STORED_DICT_LIST, storedListDict);
-
-        //outState.putStringArrayList(KEY_TEXT_ARRAY, textArray);
-
         outState.putParcelable(KEY_FIELDS, fields);
 
-        if (isOpen)
+        if (fields.isOpen[0])
         {
             saveTopPanelParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
             saveTopPanelParams.setMargins(topPanelParams.leftMargin, (int) topPanel.getY(), topPanelParams.rightMargin, topPanelParams.height);
@@ -202,9 +168,6 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
         super.onCreate(savedInstanceState);
         setRetainInstance(false);
 
-        //arrStudiedDict = new ArrayList<>();
-        //storedListDict = new ArrayList<>();
-
         if (savedInstanceState == null)
         {
             fields = new Fields();
@@ -220,12 +183,6 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        // Inflate the layout for this fragment
-//        if (savedInstanceState == null && Tests.bundleOneOfFiveTest.containsKey(KEY_TEXT))
-//        {
-//            savedInstanceState = Tests.bundleOneOfFiveTest;
-//        }
-        fields.listFromDB.add(new DataBaseEntry("asdfgh", "фывапр"));
         fragmentManager = getFragmentManager();
         lockOrientation = new LockOrientation(getActivity());
         testResults = new TestResults(getActivity());
@@ -263,19 +220,9 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
 
         if (savedInstanceState != null)
         {
-            //fields.textArray = savedInstanceState.getStringArrayList(KEY_TEXT_ARRAY);
             textView.setText(savedInstanceState.getString(KEY_TEXT));
-            //fields.tempButtonId = savedInstanceState.getInt(KEY_BUTTON_ID);
-            //oldControlListSize = savedInstanceState.getInt(KEY_CONTROL_LIST_SIZE);
-            //wordsCount = savedInstanceState.getInt(KEY_WORDS_COUNT);
-            //spinnSelectedItem = savedInstanceState.getString(KEY_SPINN_SELECT_ITEM);
-            //spinnSelectedIndex = savedInstanceState.getInt(KEY_SPINN_SELECT_INDEX);
             progressBar.setMax(savedInstanceState.getInt(KEY_PROGRESS_MAX));
             progressBar.setProgress(savedInstanceState.getInt(KEY_PROGRESS));
-            //arrStudiedDict = savedInstanceState.getStringArrayList(KEY_ARRAY_STUDIED_DICT);
-            //controlList = savedInstanceState.getParcelableArrayList(KEY_CONTROL_LIST);
-            //additionalList = savedInstanceState.getParcelableArrayList(KEY_ADDITIONAL_LIST);
-            //storedListDict = savedInstanceState.getStringArrayList(KEY_STORED_DICT_LIST);
 
             for (int i = 0; i < buttonsLayout.getChildCount(); i++)
             {
@@ -312,12 +259,12 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                     touchUp = event.getY();
                 }
 
-                topPanelVisible(touchDown, touchUp, isOpen);
+                topPanelVisible(touchDown, touchUp, fields.isOpen[0]);
 
                 return true;
             }
         });
-        if (savedInstanceState != null && isOpen)
+        if (savedInstanceState != null && fields.isOpen[0])
         {
             topPanel.setLayoutParams(saveTopPanelParams);
         }
@@ -390,7 +337,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                 if (position == fields.spinnSelectedIndex) return;
                 fields.textArray.clear();
                 startTest(position);
-                topPanelVisible(1, 0, isOpen);
+                topPanelVisible(1, 0, fields.isOpen[0]);
             }
 
             @Override
@@ -891,7 +838,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                 @Override
                 public void onAnimationEnd(android.animation.Animator animator)
                 {
-                    OneOfFiveTest.isOpen = true;
+                    fields.isOpen[0] = true;
                 }
 
                 @Override
@@ -920,7 +867,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                 @Override
                 public void onAnimationEnd(android.animation.Animator animator)
                 {
-                    OneOfFiveTest.isOpen = false;
+                    fields.isOpen[0] = false;
                 }
 
                 @Override
@@ -944,7 +891,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
             @Override
             public void onClick(View v)
             {
-                topPanelVisible(1, 0, isOpen);
+                topPanelVisible(1, 0, fields.isOpen[0]);
             }
         });
         topPanelButtonFinish.setOnClickListener(new View.OnClickListener()
@@ -952,7 +899,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
             @Override
             public void onClick(View v)
             {
-                topPanelVisible(1, 0, isOpen);
+                topPanelVisible(1, 0, fields.isOpen[0]);
                 spinnListDict.setSelection(-1);
                 fields.spinnSelectedIndex = -1;
                 getActivity().onBackPressed();
@@ -963,7 +910,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
             @Override
             public void onClick(View v)
             {
-                topPanelVisible(0, 1, isOpen);
+                topPanelVisible(0, 1, fields.isOpen[0]);
             }
         });
     }
