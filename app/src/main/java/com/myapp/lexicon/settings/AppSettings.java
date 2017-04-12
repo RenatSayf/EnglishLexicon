@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
-import com.myapp.lexicon.wordstests.FindPairFragment;
-
 import java.util.ArrayList;
 
 import static android.content.Context.MODE_PRIVATE;
