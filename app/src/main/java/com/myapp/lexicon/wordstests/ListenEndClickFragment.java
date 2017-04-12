@@ -343,6 +343,21 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
         fields.spinnSelectedItem = spinnListDict.getSelectedItem().toString();
         fields.counterRightAnswer = 0;
 
+        Bundle arguments = getArguments();
+        if (arguments != null)
+        {
+            if (arguments.containsKey(appSettings.KEY_SPINN_SELECT_ITEM) && arguments.containsKey(appSettings.KEY_WORD_INDEX) && arguments.containsKey(appSettings.KEY_COUNTER_RIGHT_ANSWER))
+            {
+                if (arguments.getString(appSettings.KEY_SPINN_SELECT_ITEM) != null && arguments.getInt(appSettings.KEY_COUNTER_RIGHT_ANSWER) > 0)
+                {
+                    fields.spinnSelectedItem = arguments.getString(appSettings.KEY_SPINN_SELECT_ITEM);
+                    fields.wordIndex = arguments.getInt(appSettings.KEY_WORD_INDEX);
+                    fields.counterRightAnswer = arguments.getInt(appSettings.KEY_COUNTER_RIGHT_ANSWER);
+                }
+            }
+            getArguments().clear();
+        }
+
         GetCountWordsAsync getCountWordsAsync = new GetCountWordsAsync(getActivity(), fields.spinnSelectedItem, new GetCountWordsAsync.GetCountListener()
         {
             @Override
@@ -351,7 +366,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                 fields.wordsCount = count;
                 fillLayoutLeft();
                 progressBar.setMax(count);
-                progressBar.setProgress(0);
+                progressBar.setProgress(fields.wordIndex - 1);
             }
         });
         if (getCountWordsAsync.getStatus() != AsyncTask.Status.RUNNING)
@@ -756,6 +771,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
     @Override
     public void dialogCompleteResult(int res)
     {
+        appSettings.saveTestFragmentState(TAG, null);
         if (res == 0)
         {
             addToStudiedList();
@@ -920,8 +936,45 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
     public void onPause()
     {
         super.onPause();
-//        Tests.bundleListenTest = new Bundle();
-//        onSaveInstanceState(Tests.bundleListenTest);
+    }
+
+    @Override
+    public void onDetach()
+    {
+        super.onDetach();
+        if (isRemoving() && fields.wordIndex -1 - ROWS < fields.wordsCount && fields.counterRightAnswer > 1 && fields.wordsCount >= ROWS)
+        {
+            fields.spinnSelectedIndex = -1;
+            DialogWarning dialogWarning = new DialogWarning();
+
+            Bundle bundle = new Bundle();
+            bundle.putString(dialogWarning.KEY_MESSAGE, getString(R.string.text_not_finished_test));
+            bundle.putString(dialogWarning.KEY_TEXT_OK_BUTTON, getString(R.string.button_text_yes));
+            bundle.putString(dialogWarning.KEY_TEXT_NO_BUTTON, getString(R.string.button_text_no));
+
+            dialogWarning.setArguments(bundle);
+            dialogWarning.setCancelable(false);
+            dialogWarning.show(getActivity().getSupportFragmentManager(), dialogWarning.TAG);
+            dialogWarning.setListener(new DialogWarning.IDialogResult()
+            {
+                @Override
+                public void dialogListener(boolean result)
+                {
+                    if (result)
+                    {
+                        Bundle bundle = new Bundle();
+                        bundle.putString(appSettings.KEY_SPINN_SELECT_ITEM, fields.spinnSelectedItem);
+                        bundle.putInt(appSettings.KEY_WORD_INDEX, fields.wordIndex - ROWS);
+                        bundle.putInt(appSettings.KEY_COUNTER_RIGHT_ANSWER, fields.counterRightAnswer);
+                        appSettings.saveTestFragmentState(TAG, bundle);
+                    }
+                    else
+                    {
+                        appSettings.saveTestFragmentState(TAG, null);
+                    }
+                }
+            });
+        }
     }
 
     @Override

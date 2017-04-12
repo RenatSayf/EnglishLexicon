@@ -182,8 +182,6 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     public void onPause()
     {
         super.onPause();
-        Tests.bundleFindPair = new Bundle();
-        onSaveInstanceState(Tests.bundleFindPair);
     }
 
     @Override
