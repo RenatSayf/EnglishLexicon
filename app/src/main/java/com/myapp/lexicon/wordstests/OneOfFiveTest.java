@@ -323,6 +323,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
             public void onItemSelected(AdapterView<?> parent, View view, final int position, long id)
             {
                 if (position == fields.spinnSelectedIndex) return;
+                fields.spinnSelectedIndex = position;
                 fields.textArray.clear();
                 startTest(position);
                 topPanelVisible(1, 0, fields.isOpen[0]);
@@ -811,7 +812,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     public void onDetach()
     {
         super.onDetach();
-        if (isRemoving() && fields.wordIndex -1 - ROWS < fields.wordsCount)
+        if (isRemoving() && fields.wordIndex -1 - ROWS < fields.wordsCount && fields.counterRightAnswer > 1 && fields.wordsCount >= ROWS)
         {
             fields.spinnSelectedIndex = -1;
             DialogWarning dialogWarning = new DialogWarning();

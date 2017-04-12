@@ -191,7 +191,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     {
         super.onDetach();
 
-        if (isRemoving() && wordIndex -1 < wordsCount)  // TODO: Добавить
+        if (isRemoving() && wordIndex -1 < wordsCount && counterRightAnswer > 1 && wordsCount >= ROWS)  // TODO: Добавить
         {
             spinnSelectedIndex = -1;
             DialogWarning dialogWarning = new DialogWarning();
