@@ -87,13 +87,14 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     private DialogTestComplete dialogTestComplete;
     private AppSettings appSettings;
     private AppData2 appData;
+    private Fields fields;
 
-    public static final String KEY_TEXT = "key_text";
-    public static final String KEY_PROGRESS = "key_progress";
-    public static final String KEY_PROGRESS_MAX = "key_progress_max";
-    public static final String KEY_FIELDS = "key_fields";
+    private final String KEY_TEXT = "key_text";
+    private final String KEY_PROGRESS = "key_progress";
+    private final String KEY_PROGRESS_MAX = "key_progress_max";
+    private final String KEY_FIELDS = "key_fields";
 
-    static FragmentManager fragmentManager;
+    private FragmentManager fragmentManager;
 
     public OneOfFiveTest()
     {
@@ -148,7 +149,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
         }
     }
 
-    private Fields fields;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -325,7 +326,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                 if (position == fields.spinnSelectedIndex) return;
                 fields.spinnSelectedIndex = position;
                 fields.textArray.clear();
-                startTest(position);
+                startTest();
                 topPanelVisible(1, 0, fields.isOpen[0]);
             }
 
@@ -337,13 +338,13 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
         });
     }
 
-    private void startTest(final int position)
+    private void startTest()
     {
         fields.wordIndex = 1;
         fields.spinnSelectedItem = spinnListDict.getSelectedItem().toString();
         fields.counterRightAnswer = 0;
 
-        Bundle arguments = getArguments();  // TODO: Добавить
+        Bundle arguments = getArguments();
         if (arguments != null)
         {
             if (arguments.containsKey(appSettings.KEY_SPINN_SELECT_ITEM) && arguments.containsKey(appSettings.KEY_WORD_INDEX) && arguments.containsKey(appSettings.KEY_COUNTER_RIGHT_ANSWER))
@@ -365,10 +366,8 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
             {
                 fields.wordsCount = count;
                 fillLayoutLeft(fields.wordsCount);
-                //fields.spinnSelectedIndex = position;
                 progressBar.setMax(fields.wordsCount);
                 progressBar.setProgress(fields.wordIndex - 1);
-                //fields.counterRightAnswer = 0;
             }
         });
         if (getCountWordsAsync.getStatus() != AsyncTask.Status.RUNNING)
@@ -758,7 +757,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
         {
             addToStudiedList();
             fields.spinnSelectedIndex = spinnListDict.getSelectedItemPosition();
-            startTest(fields.spinnSelectedIndex);
+            startTest();
         }
         if (res > 0)
         {

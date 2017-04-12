@@ -104,18 +104,18 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     private AppSettings appSettings;
     private AppData2 appData;
 
-    public static final String KEY_CONTROL_LIST_SIZE = "key_control_list_size";
-    public static final String KEY_WORDS_COUNT = "key_words_count";
-    public static final String KEY_SPINN_SELECT_ITEM = "key_spinn_select_item";
-    public static final String KEY_SPINN_SELECT_INDEX = "key_spinn_select_index";
-    public static final String KEY_PROGRESS = "key_progress";
-    public static final String KEY_PROGRESS_MAX = "key_progress_max";
-    public static final String KEY_WORD_INDEX = "key_word_index";
-    public static final String KEY_COUNTER_RIGHT_ANSWER = "key_counter_right_answer";
-    public static final String KEY_ARRAY_STUDIED_DICT = "key_array_studied_dict";
-    public static final String KEY_CONTROL_LIST = "key_control_list";
-    public static final String KEY_ADDITIONAL_LIST = "key_additional_list";
-    public static final String KEY_STORED_DICT_LIST = "key_stored_dict_list";
+    private final String KEY_CONTROL_LIST_SIZE = "key_control_list_size";
+    private final String KEY_WORDS_COUNT = "key_words_count";
+    private final String KEY_SPINN_SELECT_ITEM = "key_spinn_select_item";
+    private final String KEY_SPINN_SELECT_INDEX = "key_spinn_select_index";
+    private final String KEY_PROGRESS = "key_progress";
+    private final String KEY_PROGRESS_MAX = "key_progress_max";
+    private final String KEY_WORD_INDEX = "key_word_index";
+    private final String KEY_COUNTER_RIGHT_ANSWER = "key_counter_right_answer";
+    private final String KEY_ARRAY_STUDIED_DICT = "key_array_studied_dict";
+    private final String KEY_CONTROL_LIST = "key_control_list";
+    private final String KEY_ADDITIONAL_LIST = "key_additional_list";
+    private final String KEY_STORED_DICT_LIST = "key_stored_dict_list";
 
 
     public FindPairFragment()
@@ -362,7 +362,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             {
                 if (position == spinnSelectedIndex) return;
                 spinnSelectedIndex = position;  // TODO: Добавить
-                startTest(position);
+                startTest();
                 topPanelVisible(1, 0, isOpen);
             }
 
@@ -417,11 +417,12 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         }
     }
 
-    private void startTest(final int position)
+    private void startTest()
     {
         wordIndex = 1;
         spinnSelectedItem = spinnListDict.getSelectedItem().toString();
         counterRightAnswer = 0;
+
         Bundle arguments = getArguments();  // TODO: Добавить
         if (arguments != null)
         {
@@ -443,10 +444,8 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             public void onTaskComplete(int count)
             {
                 wordsCount = count;
-                //spinnSelectedIndex = position;
                 progressBar.setMax(count);
                 progressBar.setProgress(wordIndex - 1); // TODO: Исправить
-                //counterRightAnswer = 0;
                 hideWordButtons();
                 if (wordsCount < ROWS)
                 {
@@ -794,7 +793,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         {
             addToStudiedList();
             spinnSelectedIndex = spinnListDict.getSelectedItemPosition();
-            startTest(spinnSelectedIndex);
+            startTest();
         }
         if (res > 0)
         {

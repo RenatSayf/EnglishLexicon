@@ -27,6 +27,7 @@ class Fields implements Parcelable
     String spinnSelectedItem;
     boolean[] isStartAnim;
     boolean[] isOpen;
+    String textEn;
 
     ArrayList<DataBaseEntry> listFromDB;
     ArrayList<String> textArray;
@@ -91,6 +92,7 @@ class Fields implements Parcelable
         parcel.writeString(spinnSelectedItem);
         parcel.writeBooleanArray(isStartAnim);
         parcel.writeBooleanArray(isOpen);
+        parcel.writeString(textEn);
 
         parcel.writeTypedList(listFromDB);
         parcel.writeList(textArray);
