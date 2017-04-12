@@ -81,7 +81,6 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
     private LockOrientation lockOrientation;
     private long duration = 1000;
     private DialogTestComplete dialogTestComplete;
-    private ArrayList<String> arrStudiedDict = new ArrayList<>();
     private TestResults testResults;
     private DisplayMetrics displayMetrics;
     private AppSettings appSettings;
@@ -801,11 +800,11 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
             spinnListDict.setSelection(-1);
             fields.spinnSelectedIndex = -1;
             getActivity().onBackPressed();
-            if (arrStudiedDict.size() > 0)
+            if (fields.arrStudiedDict.size() > 0)
             {
                 DialogChangePlayList dialogChangePlayList = new DialogChangePlayList();
                 Bundle bundle = new Bundle();
-                bundle.putStringArrayList(dialogChangePlayList.KEY_LIST_DICT, arrStudiedDict);
+                bundle.putStringArrayList(dialogChangePlayList.KEY_LIST_DICT, fields.arrStudiedDict);
                 dialogChangePlayList.setArguments(bundle);
                 dialogChangePlayList.setCancelable(false);
                 dialogChangePlayList.show(getFragmentManager(), "dialog_change_pl_lexicon");
