@@ -1,6 +1,8 @@
 package com.myapp.lexicon.settings;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.Bundle;
 
 import java.util.ArrayList;
 
@@ -15,14 +17,14 @@ public class AppSettings
 {
     private Context context;
 
-    private String KEY_ENG_ONLY = "eng_only";
-    private String KEY_PLAY_LIST = "play_list";
-    private String KEY_PLAY_LIST_ITEMS = "play_list_items";
-    private String KEY_ORDER_PLAY = "order_play";
-    private String KEY_N_DICT = "N_dict";
-    private String KEY_N_WORD = "N_word";
-    private String KEY_CURRENT_DICT = "current_dict";
-    private String KEY_IS_PAUSE = "is_pause";
+    private final String KEY_ENG_ONLY = "eng_only";
+    private final String KEY_PLAY_LIST = "play_list";
+    private final String KEY_PLAY_LIST_ITEMS = "play_list_items";
+    private final String KEY_ORDER_PLAY = "order_play";
+    private final String KEY_N_DICT = "N_dict";
+    private final String KEY_N_WORD = "N_word";
+    private final String KEY_CURRENT_DICT = "current_dict";
+    private final String KEY_IS_PAUSE = "is_pause";
 
     public AppSettings(Context context)
     {
@@ -202,6 +204,38 @@ public class AppSettings
     public boolean isPause()
     {
         return context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getBoolean(KEY_IS_PAUSE, false);
+    }
+
+    public final String KEY_SPINN_SELECT_ITEM = "key_spinn_select_item";
+    public final String KEY_WORD_INDEX = "key_word_index";
+    public final String KEY_COUNTER_RIGHT_ANSWER = "key_counter_right_answer";
+
+    public void saveTestFragmentState(String tag, Bundle bundle)
+    {
+        SharedPreferences.Editor settingsEditor = context.getSharedPreferences(tag, MODE_PRIVATE).edit();
+        if (bundle != null)
+        {
+            settingsEditor.putString(KEY_SPINN_SELECT_ITEM, bundle.getString(KEY_SPINN_SELECT_ITEM));
+            settingsEditor.putInt(KEY_WORD_INDEX, bundle.getInt(KEY_WORD_INDEX));
+            settingsEditor.putInt(KEY_COUNTER_RIGHT_ANSWER, bundle.getInt(KEY_COUNTER_RIGHT_ANSWER));
+        } else
+        {
+            settingsEditor.remove(KEY_SPINN_SELECT_ITEM);
+            settingsEditor.remove(KEY_WORD_INDEX);
+            settingsEditor.remove(KEY_COUNTER_RIGHT_ANSWER);
+        }
+        settingsEditor.apply();
+    }
+
+    public Bundle getTestFragmentState(String tag)
+    {
+        Bundle bundle = new Bundle();
+        SharedPreferences sharedPreferences = context.getSharedPreferences(tag, MODE_PRIVATE);
+        bundle.putString(KEY_SPINN_SELECT_ITEM, sharedPreferences.getString(KEY_SPINN_SELECT_ITEM, null));
+        bundle.putInt(KEY_WORD_INDEX, sharedPreferences.getInt(KEY_WORD_INDEX, 1));
+        bundle.putInt(KEY_COUNTER_RIGHT_ANSWER, sharedPreferences.getInt(KEY_COUNTER_RIGHT_ANSWER, 0));
+
+        return bundle;
     }
 
 

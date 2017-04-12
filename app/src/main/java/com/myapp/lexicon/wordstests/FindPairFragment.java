@@ -53,6 +53,8 @@ import java.util.HashMap;
  */
 public class FindPairFragment extends Fragment implements DialogTestComplete.IDialogComplete_Result
 {
+    public static final String TAG = "tag_find_pair";
+
     public final int ROWS = 5;
 
     private static RelativeLayout.LayoutParams saveTopPanelParams;
@@ -71,7 +73,6 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     private Spinner spinnListDict;
     private int spinnSelectedIndex = -1;
     private String spinnSelectedItem;
-    private static ArrayList<String> storedListDict = new ArrayList<>();
 
     private ProgressBar progressBar;
     private ImageView backImageView;
@@ -79,12 +80,15 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     private LockOrientation lockOrientation;
     private int wordIndex = 1;
     private int wordsCount;
-    private static int counterRightAnswer = 0;
+    private int counterRightAnswer = 0;
+
     private static ArrayList<String> textArrayleft = new ArrayList<>();
     private static ArrayList<String> textArrayRight = new ArrayList<>();
-    private ArrayList<String> arrStudiedDict = new ArrayList<>();
-    private static ArrayList<DataBaseEntry> controlList;
-    private static ArrayList<DataBaseEntry> additionalList;
+    private ArrayList<String> arrStudiedDict;
+    private ArrayList<DataBaseEntry> controlList;
+    private ArrayList<DataBaseEntry> additionalList;
+    private ArrayList<String> storedListDict;
+
     private int controlListSize = 0;
     private DisplayMetrics metrics;
     private String enWord = null;
@@ -100,13 +104,18 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     private AppSettings appSettings;
     private AppData2 appData;
 
-    private String KEY_CONTROL_LIST_SIZE = "key_control_list_size";
-    private String KEY_WORDS_COUNT = "key_words_count";
-    private String KEY_SPINN_SELECT_ITEM = "key_spinn_select_item";
-    private String KEY_SPINN_SELECT_INDEX = "key_spinn_select_index";
-    private String KEY_PROGRESS = "key_progress";
-    private String KEY_PROGRESS_MAX = "key_progress_max";
-    private String KEY_WORD_INDEX = "key_word_index";
+    private final String KEY_CONTROL_LIST_SIZE = "key_control_list_size";
+    private final String KEY_WORDS_COUNT = "key_words_count";
+    private final String KEY_SPINN_SELECT_ITEM = "key_spinn_select_item";
+    private final String KEY_SPINN_SELECT_INDEX = "key_spinn_select_index";
+    private final String KEY_PROGRESS = "key_progress";
+    private final String KEY_PROGRESS_MAX = "key_progress_max";
+    private final String KEY_WORD_INDEX = "key_word_index";
+    private final String KEY_COUNTER_RIGHT_ANSWER = "key_counter_right_answer";
+    private final String KEY_ARRAY_STUDIED_DICT = "key_array_studied_dict";
+    private final String KEY_CONTROL_LIST = "key_control_list";
+    private final String KEY_ADDITIONAL_LIST = "key_additional_list";
+    private final String KEY_STORED_DICT_LIST = "key_stored_dict_list";
 
 
     public FindPairFragment()
@@ -118,7 +127,10 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     public void onCreate(@Nullable Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
+        setRetainInstance(false);
+
+        storedListDict = new ArrayList<>(); // TODO: Перенести сюда
+        arrStudiedDict = new ArrayList<>();
     }
 
     @Override
@@ -132,6 +144,11 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         outState.putInt(KEY_WORD_INDEX, wordIndex);
         outState.putInt(KEY_WORDS_COUNT, wordsCount);
         outState.putInt(KEY_CONTROL_LIST_SIZE, controlListSize);
+        outState.putInt(KEY_COUNTER_RIGHT_ANSWER, counterRightAnswer);
+        outState.putStringArrayList(KEY_ARRAY_STUDIED_DICT, arrStudiedDict);
+        outState.putParcelableArrayList(KEY_CONTROL_LIST, controlList);
+        outState.putParcelableArrayList(KEY_ADDITIONAL_LIST, additionalList);
+        outState.putStringArrayList(KEY_STORED_DICT_LIST, storedListDict);
 
         if (isOpen)
         {
@@ -165,20 +182,51 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     public void onPause()
     {
         super.onPause();
-        Tests.bundleFindPair = new Bundle();
-        onSaveInstanceState(Tests.bundleFindPair);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState)
+    public void onDetach()
     {
-        // Inflate the layout for this fragment
-        if (savedInstanceState == null && Tests.bundleFindPair.containsKey(KEY_WORD_INDEX))
-        {
-            savedInstanceState = Tests.bundleFindPair;
-        }
+        super.onDetach();
 
+        if (isRemoving() && wordIndex -1 < wordsCount && counterRightAnswer > 1 && wordsCount >= ROWS)  // TODO: Добавить
+        {
+            spinnSelectedIndex = -1;
+            DialogWarning dialogWarning = new DialogWarning();
+
+            Bundle bundle = new Bundle();
+            bundle.putString(dialogWarning.KEY_MESSAGE, getString(R.string.text_not_finished_test));
+            bundle.putString(dialogWarning.KEY_TEXT_OK_BUTTON, getString(R.string.button_text_yes));
+            bundle.putString(dialogWarning.KEY_TEXT_NO_BUTTON, getString(R.string.button_text_no));
+
+            dialogWarning.setArguments(bundle);
+            dialogWarning.setCancelable(false);
+            dialogWarning.show(getActivity().getSupportFragmentManager(), dialogWarning.TAG);
+            dialogWarning.setListener(new DialogWarning.IDialogResult()
+            {
+                @Override
+                public void dialogListener(boolean result)
+                {
+                    if (result)
+                    {
+                        Bundle bundle = new Bundle();
+                        bundle.putString(appSettings.KEY_SPINN_SELECT_ITEM, spinnSelectedItem);
+                        bundle.putInt(appSettings.KEY_WORD_INDEX, wordIndex);
+                        bundle.putInt(appSettings.KEY_COUNTER_RIGHT_ANSWER, counterRightAnswer);
+                        appSettings.saveTestFragmentState(TAG, bundle);
+                    }
+                    else
+                    {
+                        appSettings.saveTestFragmentState(TAG, null);
+                    }
+                }
+            });
+        }
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+    {
         appSettings = new AppSettings(getActivity());
         appData = AppData2.getInstance();
         lockOrientation = new LockOrientation(getActivity());
@@ -189,6 +237,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         View fragment_view = inflater.inflate(R.layout.t_find_pair_fragment, container, false);
 
         backImageView = (ImageView) fragment_view.findViewById(R.id.back_image_view1);
+
         topPanel = (LinearLayout) fragment_view.findViewById(R.id.top_panel);
         topPanelParams = (RelativeLayout.LayoutParams) topPanel.getLayoutParams();
         LinearLayout linLayout = (LinearLayout) fragment_view.findViewById(R.id.lin_layout_find_pair);
@@ -217,39 +266,39 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                 return true;
             }
         });
+
+        spinnListDict = (Spinner) fragment_view.findViewById(R.id.spinner_dict);
+
+
+        progressBar = (ProgressBar) fragment_view.findViewById(R.id.prog_bar_find_pair);
+
+        btnLayoutLeft = (LinearLayout) fragment_view.findViewById(R.id.btn_layout_left);
+        btnLayoutRight = (LinearLayout) fragment_view.findViewById(R.id.btn_layout_right);
+
+        if (savedInstanceState == null) // TODO: Перенести ниже
+        {
+            hideWordButtons();
+        }
+
         if (savedInstanceState != null && isOpen)
         {
             topPanel.setLayoutParams(saveTopPanelParams);
         }
 
-        spinnListDict = (Spinner) fragment_view.findViewById(R.id.spinner_dict);
-        spinnListDict_OnItemSelectedListener();
-        setItemsToSpinnListDict();
         if (savedInstanceState != null)
         {
             spinnSelectedItem = savedInstanceState.getString(KEY_SPINN_SELECT_ITEM);
             spinnSelectedIndex = savedInstanceState.getInt(KEY_SPINN_SELECT_INDEX);
-        }
-
-        progressBar = (ProgressBar) fragment_view.findViewById(R.id.prog_bar_find_pair);
-        if (savedInstanceState != null)
-        {
             progressBar.setProgress(savedInstanceState.getInt(KEY_PROGRESS));
             progressBar.setMax(savedInstanceState.getInt(KEY_PROGRESS_MAX));
-        }
-
-        if (savedInstanceState != null)
-        {
             wordIndex = savedInstanceState.getInt(KEY_WORD_INDEX);
             wordsCount = savedInstanceState.getInt(KEY_WORDS_COUNT);
             controlListSize = savedInstanceState.getInt(KEY_CONTROL_LIST_SIZE);
-        }
-
-        btnLayoutLeft = (LinearLayout) fragment_view.findViewById(R.id.btn_layout_left);
-        btnLayoutRight = (LinearLayout) fragment_view.findViewById(R.id.btn_layout_right);
-        if (savedInstanceState == null)
-        {
-            hideWordButtons();
+            counterRightAnswer = savedInstanceState.getInt(KEY_COUNTER_RIGHT_ANSWER);
+            arrStudiedDict = savedInstanceState.getStringArrayList(KEY_ARRAY_STUDIED_DICT);
+            controlList = savedInstanceState.getParcelableArrayList(KEY_CONTROL_LIST);
+            additionalList = savedInstanceState.getParcelableArrayList(KEY_ADDITIONAL_LIST);
+            storedListDict = savedInstanceState.getStringArrayList(KEY_STORED_DICT_LIST);
         }
 
         if (savedInstanceState != null)
@@ -290,6 +339,9 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             }
         }
 
+        spinnListDict_OnItemSelectedListener(); // TODO: Перенести ниже
+        setItemsToSpinnListDict();
+
         testResults = new TestResults(getActivity());
 
         fragmentManager = getFragmentManager();
@@ -304,10 +356,11 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         spinnListDict.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
         {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, final int position, long id)
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
             {
                 if (position == spinnSelectedIndex) return;
-                startTest(position);
+                spinnSelectedIndex = position;  // TODO: Добавить
+                startTest();
                 topPanelVisible(1, 0, isOpen);
             }
 
@@ -336,11 +389,14 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                 ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(getActivity().getApplicationContext(), R.layout.my_content_spinner_layout, arrayList);
                 spinnListDict.setAdapter(adapterSpinner);
                 ArrayList<String> playList = appSettings.getPlayList();
-                String currentDict = playList.get(appData.getNdict());
-                if (arrayList.contains(currentDict))
+                if (playList != null && playList.size() > 0)
                 {
-                    int indexOf = arrayList.indexOf(currentDict);
-                    spinnListDict.setSelection(indexOf);
+                    String currentDict = playList.get(appData.getNdict());
+                    if (arrayList.contains(currentDict))
+                    {
+                        int indexOf = arrayList.indexOf(currentDict);
+                        spinnListDict.setSelection(indexOf);
+                    }
                 }
                 else
                 {
@@ -359,10 +415,26 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         }
     }
 
-    private void startTest(final int position)
+    private void startTest()
     {
-        wordIndex = 0;
+        wordIndex = 1;
         spinnSelectedItem = spinnListDict.getSelectedItem().toString();
+        counterRightAnswer = 0;
+
+        Bundle arguments = getArguments();  // TODO: Добавить
+        if (arguments != null)
+        {
+            if (arguments.containsKey(appSettings.KEY_SPINN_SELECT_ITEM) && arguments.containsKey(appSettings.KEY_WORD_INDEX) && arguments.containsKey(appSettings.KEY_COUNTER_RIGHT_ANSWER))
+            {
+                if (arguments.getString(appSettings.KEY_SPINN_SELECT_ITEM) != null && arguments.getInt(appSettings.KEY_COUNTER_RIGHT_ANSWER) > 0)
+                {
+                    spinnSelectedItem = arguments.getString(appSettings.KEY_SPINN_SELECT_ITEM);
+                    wordIndex = arguments.getInt(appSettings.KEY_WORD_INDEX);
+                    counterRightAnswer = arguments.getInt(appSettings.KEY_COUNTER_RIGHT_ANSWER);
+                }
+            }
+            getArguments().clear();
+        }
 
         GetCountWordsAsync getCountWordsAsync = new GetCountWordsAsync(getActivity(), spinnSelectedItem, new GetCountWordsAsync.GetCountListener()
         {
@@ -370,10 +442,8 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             public void onTaskComplete(int count)
             {
                 wordsCount = count;
-                spinnSelectedIndex = position;
                 progressBar.setMax(count);
-                progressBar.setProgress(0);
-                counterRightAnswer = 0;
+                progressBar.setProgress(wordIndex - 1); // TODO: Исправить
                 hideWordButtons();
                 if (wordsCount < ROWS)
                 {
@@ -381,7 +451,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                 }
                 else
                 {
-                    fillButtonsLayout(spinnSelectedItem, wordIndex, ROWS);
+                    fillButtonsLayout(spinnSelectedItem, wordIndex, wordIndex -1 + ROWS);   // TODO: Исправить
                 }
             }
         });
@@ -581,7 +651,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         }
         if (isFill && spinnSelectedItem != null)
         {
-            fillButtonsLayout(spinnSelectedItem, wordIndex + 1, wordIndex + ROWS);
+            fillButtonsLayout(spinnSelectedItem, wordIndex, wordIndex - 1 + ROWS);  // TODO: Исправлено
         }
     }
 
@@ -613,7 +683,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                     tempButtonLeft.setVisibility(View.INVISIBLE);
                     tempButtonRight.setVisibility(View.INVISIBLE);
 
-                    if (wordIndex < wordsCount)
+                    if (wordIndex - 1 < wordsCount)     // TODO: Исправлено
                     {
                         boolean isFill = true;
                         for (int i = 0; i < btnLayoutLeft.getChildCount(); i++)
@@ -627,13 +697,13 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                         }
                         if (isFill)
                         {
-                            fillButtonsLayout(spinnSelectedItem, wordIndex + 1, wordIndex + ROWS);
+                            fillButtonsLayout(spinnSelectedItem, wordIndex, wordIndex - 1 + ROWS);  // TODO: Исправлено
                             return;
                         }
                         buttonsToDown(btnLayoutLeft, tempButtonLeft.getX(), tempButtonLeft.getY(), false);
                         buttonsToDown(btnLayoutRight, tempButtonRight.getX(), tempButtonRight.getY(), true);
                     }
-                    if (wordIndex == wordsCount)
+                    if (wordIndex - 1 == wordsCount)    // TODO: Исправлено
                     {
                         ArrayList<String> list = new ArrayList<>();
                         list.add(testResults.getOverallResult(counterRightAnswer, wordsCount));
@@ -687,7 +757,6 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                         @Override
                         public void onAnimationStart(android.animation.Animator animation)
                         {
-                            //lockOrientation.lock();
                             isAnimStart = true;
                         }
 
@@ -695,24 +764,6 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                         public void onAnimationEnd(android.animation.Animator animation)
                         {
                             isAnimStart = false;
-                            lockOrientation.unLock();
-                            if (wordIndex < wordsCount)
-                            {
-                                boolean isFill = true;
-                                for (int i = 0; i < btnLayoutLeft.getChildCount(); i++)
-                                {
-                                    Button button = (Button) btnLayoutLeft.getChildAt(i);
-                                    if (!button.getText().equals(""))
-                                    {
-                                        isFill = false;
-                                        break;
-                                    }
-                                }
-                                if (isFill)
-                                {
-                                    fillButtonsLayout(spinnSelectedItem, wordIndex + 1, wordIndex + ROWS);
-                                }
-                            }
                         }
 
                         @Override
@@ -735,11 +786,12 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     @Override
     public void dialogCompleteResult(int res)
     {
+        appSettings.saveTestFragmentState(TAG, null);
         if (res == 0)
         {
             addToStudiedList();
             spinnSelectedIndex = spinnListDict.getSelectedItemPosition();
-            startTest(spinnSelectedIndex);
+            startTest();
         }
         if (res > 0)
         {
@@ -771,24 +823,16 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                 bundle.putStringArrayList(dialogChangePlayList.KEY_LIST_DICT, arrStudiedDict);
                 dialogChangePlayList.setArguments(bundle);
                 dialogChangePlayList.setCancelable(false);
-                dialogChangePlayList.show(getFragmentManager(), "dialog_change_pl_lexicon");
+                dialogChangePlayList.show(getFragmentManager(), dialogChangePlayList.TAG);
             }
         }
     }
 
-    private void addToStudiedList()
+    private void addToStudiedList() // TODO: Исправлено
     {
-        boolean containsInPlayList = false;
-
-
         ArrayList<String> playList = appSettings.getPlayList();
-        for (String item : playList)
-        {
-            if (item.equals(spinnListDict.getSelectedItem()))
-            {
-                containsInPlayList = true; break;
-            }
-        }
+
+        boolean containsInPlayList = playList.contains(spinnListDict.getSelectedItem().toString());
         boolean contains = arrStudiedDict.contains(spinnListDict.getSelectedItem().toString());
         if (counterRightAnswer == wordsCount && !contains && containsInPlayList)
         {

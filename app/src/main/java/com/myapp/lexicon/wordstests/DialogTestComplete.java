@@ -13,7 +13,7 @@ import com.myapp.lexicon.R;
 
 
 /**
- * Created by Ренат on 28.09.2016.
+ * Created by Ренат.
  */
 
 public class DialogTestComplete extends android.support.v4.app.DialogFragment
