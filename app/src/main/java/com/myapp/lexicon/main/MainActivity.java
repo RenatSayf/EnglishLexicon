@@ -404,6 +404,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         else if (id == R.id.nav_exit)
         {
+            SplashScreenActivity.speech.stop();
+            SplashScreenActivity.speech.shutdown();
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
             wakeLock.release();
             this.finish();
@@ -626,7 +628,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private DataBaseQueries dataBaseQueries;
 
-    public void btnNextBackClick(View view) throws SQLException, ExecutionException, InterruptedException
+    public void btnNextBackClick(View view)
     {
         speechServiceOnPause();
         int id = view.getId();
@@ -641,7 +643,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private void getNext() throws SQLException, ExecutionException, InterruptedException
+    private void getNext()
     {
         dataBaseQueries = new DataBaseQueries(this);
         int wordsCount = dataBaseQueries.getCountEntriesSync(playList.get(appData2.getNdict()));
@@ -677,7 +679,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         dbLoader.forceLoad();
     }
 
-    private void getPrevious() throws SQLException, ExecutionException, InterruptedException
+    private void getPrevious()
     {
         dataBaseQueries = new DataBaseQueries(this);
         playList = appSettings.getPlayList();

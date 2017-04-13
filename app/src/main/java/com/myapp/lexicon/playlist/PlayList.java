@@ -146,6 +146,13 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
                                     playList.add(dictArray[which]);
                                 }
                             }
+                            else
+                            {
+                                if (playList.contains(dictArray[which]))
+                                {
+                                    playList.remove(dictArray[which]);
+                                }
+                            }
                         }
                     })
                     .setPositiveButton("Ok", new DialogInterface.OnClickListener()
