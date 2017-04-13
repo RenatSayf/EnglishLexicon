@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import com.myapp.lexicon.helpers.ObjectSerializer;
+
 import java.util.ArrayList;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -63,12 +65,7 @@ public class AppSettings
     {
         if (list != null && list.size() > 0)
         {
-            String play_list_string = "";
-            for (String item : list)
-            {
-                play_list_string += item + " ";
-            }
-            String temp = play_list_string.trim();
+            String temp = ObjectSerializer.serialize(list);
             context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putString(KEY_PLAY_LIST_ITEMS, temp).apply();
         }
     }
@@ -83,13 +80,7 @@ public class AppSettings
         if (list != null && list.size() > 0 && position >= 0 && position < list.size() )
         {
             list.remove(position);
-            String play_list_string = "";
-            for (String item : list)
-            {
-                play_list_string += item + " ";
-            }
-            String temp = play_list_string.trim();
-            context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putString(KEY_PLAY_LIST_ITEMS, temp).apply();
+            savePlayList(list);
             AppData2 appData2 = AppData2.getInstance();
 
             if (appData2.getNdict() == position)
@@ -143,11 +134,7 @@ public class AppSettings
 
         if (play_list_items != null && play_list_items.length() > 0)
         {
-            String[] splitArray = play_list_items.split(" ");
-            for (int i = 0; i < splitArray.length; i++)
-            {
-                list.add(i, splitArray[i]);
-            }
+            list = (ArrayList<String>) ObjectSerializer.deserialize(play_list_items);
         }
         return list;
     }
