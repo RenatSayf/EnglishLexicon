@@ -35,6 +35,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -76,11 +77,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView textViewEn;
     private TextView textViewRu;
     private TextView textViewDict;
-    private Button btnPlay;
-    private Button btnStop;
-    private Button btnPause;
-    private Button btnNext;
-    private Button btnPrevious;
+    private ImageButton btnPlay;
+    private ImageButton btnStop;
+    private ImageButton btnPause;
+    private ImageButton btnNext;
+    private ImageButton btnPrevious;
     private ProgressBar progressBar;
     private Switch switchRuSound;
     private static Intent speechIntentService;
@@ -193,23 +194,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             textViewDict.setVisibility(View.INVISIBLE);
         }
-        btnPlay = (Button) findViewById(R.id.btn_play);
-        btnStop = (Button) findViewById(R.id.btn_stop);
+        btnPlay = (ImageButton) findViewById(R.id.btn_play);
+        btnStop = (ImageButton) findViewById(R.id.btn_stop);
         if (btnStop != null)
         {
             btnStop.setVisibility(View.GONE);
         }
-        btnPause = (Button) findViewById(R.id.btn_pause);
+        btnPause = (ImageButton) findViewById(R.id.btn_pause);
         if (btnPause != null)
         {
             btnPause.setVisibility(View.GONE);
         }
-        btnPrevious = (Button) findViewById(R.id.btn_previous);
+        btnPrevious = (ImageButton) findViewById(R.id.btn_previous);
         if (btnPrevious != null)
         {
             btnPrevious.setVisibility(View.GONE);
         }
-        btnNext = (Button) findViewById(R.id.btn_next);
+        btnNext = (ImageButton) findViewById(R.id.btn_next);
         if (btnNext != null)
         {
             btnNext.setVisibility(View.GONE);
