@@ -155,7 +155,7 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
                             }
                         }
                     })
-                    .setPositiveButton("Ok", new DialogInterface.OnClickListener()
+                    .setPositiveButton(getString(R.string.text_ok), new DialogInterface.OnClickListener()
                     {
                         @Override
                         public void onClick(DialogInterface dialog, int which)

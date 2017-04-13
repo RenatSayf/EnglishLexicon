@@ -483,7 +483,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         final View view = getLayoutInflater().inflate(R.layout.a_dialog_add_dict, null);
         final EditText editText = (EditText) view.findViewById(R.id.dialog_add_dict);
         editText.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
-        new AlertDialog.Builder(this).setTitle(R.string.title_new_dictionary).setIcon(R.drawable.icon_add_dict)
+        new AlertDialog.Builder(this).setTitle(R.string.title_new_dictionary).setIcon(R.drawable.icon_book)
                 .setPositiveButton(R.string.btn_text_add, new DialogInterface.OnClickListener()
                 {
                     @Override
