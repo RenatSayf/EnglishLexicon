@@ -97,27 +97,11 @@ public class SpeechService extends IntentService
         {
             e.printStackTrace();
         }
-        if (isReset)
-        {
-            appData2.setNdict(0);
-            appData2.setNword(1);
-        }
-        else
-        {
-            appData2.setPause(true);
-        }
     }
 
     public static void stopIntentService()
     {
         stop = true;
-    }
-
-    private static boolean isReset = false;
-
-    public static void resetCounter(boolean param)
-    {
-        isReset = param;
     }
 
     public static void setEnglishOnly(boolean param)

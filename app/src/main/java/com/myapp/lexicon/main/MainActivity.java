@@ -596,7 +596,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         btnPause.setVisibility(View.GONE);
         btnPlay.setVisibility(View.VISIBLE);
-        textViewRu.setText(null);
         progressBar.setVisibility(View.GONE);
     }
 
@@ -610,7 +609,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (speechIntentService != null)
         {
             stopService(speechIntentService);
-            SpeechService.resetCounter(false);
         }
         textViewEn.setText(null);
         textViewRu.setText(null);
@@ -621,6 +619,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         btnPrevious.setVisibility(View.GONE);
         textViewDict.setVisibility(View.INVISIBLE);
         progressBar.setVisibility(View.GONE);
+
+        appData2.setNdict(0);
+        appData2.setNword(1);
     }
 
     private DataBaseQueries dataBaseQueries;
