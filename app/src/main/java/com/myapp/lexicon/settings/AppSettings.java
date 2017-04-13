@@ -67,6 +67,18 @@ public class AppSettings
         {
             String temp = ObjectSerializer.serialize(list);
             context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putString(KEY_PLAY_LIST_ITEMS, temp).apply();
+            AppData2 appData2 = AppData2.getInstance();
+
+            while (appData2.getNdict() > list.size()-1)
+            {
+                appData2.setNdict(appData2.getNdict()-1);
+                appData2.setNword(1);
+            }
+            if (appData2.getNdict() < 0)
+            {
+                appData2.setNdict(0);
+                appData2.setNword(1);
+            }
         }
     }
 
@@ -81,17 +93,18 @@ public class AppSettings
         {
             list.remove(position);
             savePlayList(list);
-            AppData2 appData2 = AppData2.getInstance();
-
-            if (appData2.getNdict() == position)
-            {
-                appData2.setNdict(appData2.getNdict()-1);
-                if (appData2.getNdict() < 0)
-                {
-                    appData2.setNdict(0);
-                }
-                appData2.setNword(1);
-            }
+//            AppData2 appData2 = AppData2.getInstance();
+//
+//            while (appData2.getNdict() > list.size()-1)
+//            {
+//                appData2.setNdict(appData2.getNdict()-1);
+//                appData2.setNword(1);
+//            }
+//            if (appData2.getNdict() < 0)
+//            {
+//                appData2.setNdict(0);
+//                appData2.setNword(1);
+//            }
         }
     }
 
@@ -110,16 +123,17 @@ public class AppSettings
                 playList.remove(item);
                 savePlayList(playList);
             }
-            AppData2 appData2 = AppData2.getInstance();
-            if (appData2.getNdict() == indexOf)
-            {
-                appData2.setNdict(appData2.getNdict()-1);
-                if (appData2.getNdict() < 0)
-                {
-                    appData2.setNdict(0);
-                }
-                appData2.setNword(1);
-            }
+//            AppData2 appData2 = AppData2.getInstance();
+//            while (appData2.getNdict() > playList.size()-1)
+//            {
+//                appData2.setNdict(appData2.getNdict()-1);
+//                appData2.setNword(1);
+//            }
+//            if (appData2.getNdict() < 0)
+//            {
+//                appData2.setNdict(0);
+//                appData2.setNword(1);
+//            }
         }
     }
 

@@ -128,6 +128,7 @@ public class SpeechService extends IntentService
     @Override
     public boolean stopService(Intent name)
     {
+        stop = true;
         return super.stopService(name);
     }
 
@@ -157,7 +158,6 @@ public class SpeechService extends IntentService
         {
             while (!stop)
             {
-                playList = appSettings.getPlayList();
                 if (playList.size() > 0)
                 {
                     if (!appData2.isPause()) appData2.setNdict(0);
@@ -239,7 +239,6 @@ public class SpeechService extends IntentService
         {
             while (!stop)
             {
-                playList = appSettings.getPlayList();
                 if (playList.size() > 0)
                 {
                     if (!appData2.isPause()) appData2.setNdict(0);

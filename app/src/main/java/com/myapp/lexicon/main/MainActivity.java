@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.provider.Settings;
 import android.speech.tts.TextToSpeech;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
@@ -58,6 +59,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 //import com.myapp.lexicon.database.GetDbEntriesLoader;
@@ -325,6 +327,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             startActivity(wordEditorIntent);
         }
+        if (id == R.id.edit_speech_data)
+        {
+            speechServiceOnPause();
+            Intent speechEditorIntent = new Intent(Intent.ACTION_VIEW);
+            speechEditorIntent.setAction(Settings.ACTION_SETTINGS);
+            startActivity(speechEditorIntent);
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -581,10 +591,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (speechIntentService != null)
         {
             stopService(speechIntentService);
+            SpeechService.stopIntentService();
         }
         btnPause.setVisibility(View.GONE);
         btnPlay.setVisibility(View.VISIBLE);
         textViewRu.setText(null);
+        progressBar.setVisibility(View.GONE);
     }
 
     public void btnStopClick(View view)
@@ -607,6 +619,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         btnNext.setVisibility(View.GONE);
         btnPrevious.setVisibility(View.GONE);
         textViewDict.setVisibility(View.INVISIBLE);
+        progressBar.setVisibility(View.GONE);
     }
 
     private DataBaseQueries dataBaseQueries;
@@ -809,6 +822,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             HashMap<String, String> hashMap = new HashMap<>();
             hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "main_activity");
+            SplashScreenActivity.speech.setLanguage(Locale.US);
+            //SplashScreenActivity.speech.setSpeechRate(0.5f);
+
             SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
             {
