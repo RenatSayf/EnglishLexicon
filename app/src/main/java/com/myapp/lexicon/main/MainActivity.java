@@ -843,6 +843,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+    public void btnSpeak_OnClick(View view)
+    {
+        speechServiceOnPause();
+        HashMap<String, String> hashMap = new HashMap<>();
+        hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "btn_speak_onclick");
+        SplashScreenActivity.speech.setLanguage(Locale.US);
+        SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+        {
+            SplashScreenActivity.speech.speak(textViewEn.getText().toString(), TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+        } else
+        {
+            SplashScreenActivity.speech.speak(textViewEn.getText().toString(), TextToSpeech.QUEUE_ADD, hashMap);
+        }
+    }
 
 
     public class UpdateBroadcastReceiver extends BroadcastReceiver

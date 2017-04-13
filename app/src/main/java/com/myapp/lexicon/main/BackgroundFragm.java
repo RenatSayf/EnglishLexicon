@@ -69,7 +69,7 @@ public class BackgroundFragm extends Fragment
             // TODO: AdapterViewFlipper: 7. создание адаптера и запуск анимации
             FlipperAdapter flipperAdapter = new FlipperAdapter(getActivity(), imagesId);
             adapterViewFlipper.setAdapter(flipperAdapter);
-            adapterViewFlipper.setFlipInterval(10000);
+            adapterViewFlipper.setFlipInterval(20000);
 
             // предварительно создать в директории res новую директорию animator и добавить в нее ресурсы анимации (см. директорию res/animator)
             adapterViewFlipper.setInAnimation(getActivity(), R.animator.in_animator);

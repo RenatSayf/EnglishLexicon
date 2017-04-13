@@ -178,17 +178,6 @@
                 android:orientation="horizontal"
                 android:gravity="center_horizontal">
 
-                <!--<Button-->
-                    <!--android:id="@+id/btn_previous"-->
-                    <!--style="?android:attr/buttonStyleSmall"-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="match_parent"-->
-                    <!--android:drawableLeft="@drawable/btn_previous"-->
-                    <!--android:onClick="btnNextBackClick"-->
-                    <!--android:visibility="visible"-->
-                    <!--android:gravity="center_horizontal"-->
-                    <!--/>-->
-
                 <ImageButton
                     android:id="@+id/btn_pause"
                     style="?android:attr/buttonStyleSmall"
@@ -215,16 +204,6 @@
                     android:contentDescription="@string/content_describt"
                     />
 
-                <!--<Button-->
-                    <!--android:id="@+id/btn_next"-->
-                    <!--style="?android:attr/buttonStyleSmall"-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="match_parent"-->
-                    <!--android:drawableLeft="@drawable/btn_next"-->
-                    <!--android:onClick="btnNextBackClick"-->
-                    <!--android:visibility="visible"-->
-                    <!--/>-->
-
                 <ImageButton
                     android:id="@+id/btn_speak"
                     style="?android:attr/buttonStyleSmall"
@@ -234,6 +213,7 @@
                     android:visibility="visible"
                     android:background="@drawable/selector_transp_to_white_back"
                     android:contentDescription="@string/content_describt"
+                    android:onClick="btnSpeak_OnClick"
                     />
 
             </LinearLayout>
