@@ -8,10 +8,10 @@
         android:title="@string/edit_word"
         app:showAsAction="never"/>
 
-    <!--<item-->
-        <!--android:id="@+id/action_item2"-->
-        <!--android:orderInCategory="100"-->
-        <!--android:title="Item2"-->
-        <!--app:showAsAction="never"/>-->
+    <item
+        android:id="@+id/edit_speech_data"
+        android:orderInCategory="100"
+        android:title="@string/text_speech_settings"
+        app:showAsAction="never"/>
 
 </menu>

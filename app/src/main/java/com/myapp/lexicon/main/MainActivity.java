@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.provider.Settings;
 import android.speech.tts.TextToSpeech;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
@@ -34,6 +35,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -57,6 +59,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 //import com.myapp.lexicon.database.GetDbEntriesLoader;
@@ -73,11 +76,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView textViewEn;
     private TextView textViewRu;
     private TextView textViewDict;
-    private Button btnPlay;
-    private Button btnStop;
-    private Button btnPause;
-    private Button btnNext;
-    private Button btnPrevious;
+    private ImageButton btnPlay;
+    private ImageButton btnStop;
+    private ImageButton btnPause;
+    private ImageButton btnNext;
+    private ImageButton btnPrevious;
     private ProgressBar progressBar;
     private Switch switchRuSound;
     private static Intent speechIntentService;
@@ -113,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (savedInstanceState == null)
         {
             BackgroundFragm backgroundFragm = new BackgroundFragm();
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_layout, backgroundFragm).addToBackStack(null).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_layout, backgroundFragm).commit();
         }
 
         final PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -190,23 +193,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             textViewDict.setVisibility(View.INVISIBLE);
         }
-        btnPlay = (Button) findViewById(R.id.btn_play);
-        btnStop = (Button) findViewById(R.id.btn_stop);
+        btnPlay = (ImageButton) findViewById(R.id.btn_play);
+        btnStop = (ImageButton) findViewById(R.id.btn_stop);
         if (btnStop != null)
         {
             btnStop.setVisibility(View.GONE);
         }
-        btnPause = (Button) findViewById(R.id.btn_pause);
+        btnPause = (ImageButton) findViewById(R.id.btn_pause);
         if (btnPause != null)
         {
             btnPause.setVisibility(View.GONE);
         }
-        btnPrevious = (Button) findViewById(R.id.btn_previous);
+        btnPrevious = (ImageButton) findViewById(R.id.btn_previous);
         if (btnPrevious != null)
         {
             btnPrevious.setVisibility(View.GONE);
         }
-        btnNext = (Button) findViewById(R.id.btn_next);
+        btnNext = (ImageButton) findViewById(R.id.btn_next);
         if (btnNext != null)
         {
             btnNext.setVisibility(View.GONE);
@@ -324,6 +327,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             startActivity(wordEditorIntent);
         }
+        if (id == R.id.edit_speech_data)
+        {
+            speechServiceOnPause();
+            Intent speechEditorIntent = new Intent(Intent.ACTION_VIEW);
+            speechEditorIntent.setAction(Settings.ACTION_SETTINGS);
+            startActivity(speechEditorIntent);
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -392,6 +403,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         else if (id == R.id.nav_exit)
         {
+            SplashScreenActivity.speech.stop();
+            SplashScreenActivity.speech.shutdown();
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
             wakeLock.release();
             this.finish();
@@ -469,7 +482,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         final View view = getLayoutInflater().inflate(R.layout.a_dialog_add_dict, null);
         final EditText editText = (EditText) view.findViewById(R.id.dialog_add_dict);
         editText.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
-        new AlertDialog.Builder(this).setTitle(R.string.title_new_dictionary).setIcon(R.drawable.icon_add_dict)
+        new AlertDialog.Builder(this).setTitle(R.string.title_new_dictionary).setIcon(R.drawable.icon_book)
                 .setPositiveButton(R.string.btn_text_add, new DialogInterface.OnClickListener()
                 {
                     @Override
@@ -580,10 +593,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (speechIntentService != null)
         {
             stopService(speechIntentService);
+            SpeechService.stopIntentService();
         }
         btnPause.setVisibility(View.GONE);
         btnPlay.setVisibility(View.VISIBLE);
-        textViewRu.setText(null);
+        progressBar.setVisibility(View.GONE);
     }
 
     public void btnStopClick(View view)
@@ -596,7 +610,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (speechIntentService != null)
         {
             stopService(speechIntentService);
-            SpeechService.resetCounter(false);
         }
         textViewEn.setText(null);
         textViewRu.setText(null);
@@ -606,11 +619,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         btnNext.setVisibility(View.GONE);
         btnPrevious.setVisibility(View.GONE);
         textViewDict.setVisibility(View.INVISIBLE);
+        progressBar.setVisibility(View.GONE);
+
+        appData2.setNdict(0);
+        appData2.setNword(1);
     }
 
     private DataBaseQueries dataBaseQueries;
 
-    public void btnNextBackClick(View view) throws SQLException, ExecutionException, InterruptedException
+    public void btnNextBackClick(View view)
     {
         speechServiceOnPause();
         int id = view.getId();
@@ -625,7 +642,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private void getNext() throws SQLException, ExecutionException, InterruptedException
+    private void getNext()
     {
         dataBaseQueries = new DataBaseQueries(this);
         int wordsCount = dataBaseQueries.getCountEntriesSync(playList.get(appData2.getNdict()));
@@ -661,7 +678,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         dbLoader.forceLoad();
     }
 
-    private void getPrevious() throws SQLException, ExecutionException, InterruptedException
+    private void getPrevious()
     {
         dataBaseQueries = new DataBaseQueries(this);
         playList = appSettings.getPlayList();
@@ -808,6 +825,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             HashMap<String, String> hashMap = new HashMap<>();
             hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "main_activity");
+            SplashScreenActivity.speech.setLanguage(Locale.US);
+            //SplashScreenActivity.speech.setSpeechRate(0.5f);
+
             SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
             {
@@ -825,6 +845,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+    public void btnSpeak_OnClick(View view)
+    {
+        speechServiceOnPause();
+        HashMap<String, String> hashMap = new HashMap<>();
+        hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "btn_speak_onclick");
+        SplashScreenActivity.speech.setLanguage(Locale.US);
+        SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+        {
+            SplashScreenActivity.speech.speak(textViewEn.getText().toString(), TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+        } else
+        {
+            SplashScreenActivity.speech.speak(textViewEn.getText().toString(), TextToSpeech.QUEUE_ADD, hashMap);
+        }
+    }
 
 
     public class UpdateBroadcastReceiver extends BroadcastReceiver

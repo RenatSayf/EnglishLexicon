@@ -28,6 +28,7 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
     private ArrayList<String> playList = new ArrayList<>();
     private DatabaseHelper databaseHelper;
     private AppSettings appSettings;
+    private String[] dictArray;
 
     private final int LOADER_GET_TABLE_LIST = 2423144;
 
@@ -121,8 +122,6 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
         appSettings.savePlayList(playList);
     }
 
-    private String[] dictArray;
-
     public void buttonAddClick(View view)
     {
         getLoaderManager().restartLoader(LOADER_GET_TABLE_LIST, null, PlayList.this).forceLoad();
@@ -146,9 +145,16 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
                                     playList.add(dictArray[which]);
                                 }
                             }
+                            else
+                            {
+                                if (playList.contains(dictArray[which]))
+                                {
+                                    playList.remove(dictArray[which]);
+                                }
+                            }
                         }
                     })
-                    .setPositiveButton("Ok", new DialogInterface.OnClickListener()
+                    .setPositiveButton(getString(R.string.text_ok), new DialogInterface.OnClickListener()
                     {
                         @Override
                         public void onClick(DialogInterface dialog, int which)

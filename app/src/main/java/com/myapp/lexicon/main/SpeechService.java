@@ -13,6 +13,7 @@ import android.widget.Toast;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DatabaseHelper;
+import com.myapp.lexicon.helpers.StringOperations;
 import com.myapp.lexicon.settings.AppData2;
 import com.myapp.lexicon.settings.AppSettings;
 
@@ -96,27 +97,11 @@ public class SpeechService extends IntentService
         {
             e.printStackTrace();
         }
-        if (isReset)
-        {
-            appData2.setNdict(0);
-            appData2.setNword(1);
-        }
-        else
-        {
-            appData2.setPause(true);
-        }
     }
 
     public static void stopIntentService()
     {
         stop = true;
-    }
-
-    private static boolean isReset = false;
-
-    public static void resetCounter(boolean param)
-    {
-        isReset = param;
     }
 
     public static void setEnglishOnly(boolean param)
@@ -127,6 +112,7 @@ public class SpeechService extends IntentService
     @Override
     public boolean stopService(Intent name)
     {
+        stop = true;
         return super.stopService(name);
     }
 
@@ -156,7 +142,6 @@ public class SpeechService extends IntentService
         {
             while (!stop)
             {
-                playList = appSettings.getPlayList();
                 if (playList.size() > 0)
                 {
                     if (!appData2.isPause()) appData2.setNdict(0);
@@ -238,7 +223,6 @@ public class SpeechService extends IntentService
         {
             while (!stop)
             {
-                playList = appSettings.getPlayList();
                 if (playList.size() > 0)
                 {
                     if (!appData2.isPause()) appData2.setNdict(0);
@@ -412,8 +396,9 @@ public class SpeechService extends IntentService
         }
     }
 
-    private int getWordsCount(String dictName)
+    private int getWordsCount(String tableName)
     {
+        String table_name = StringOperations.getInstance().spaceToUnderscore(tableName);
         int count = 0;
         Cursor cursor = null;
         try
@@ -421,7 +406,7 @@ public class SpeechService extends IntentService
             if (databaseHelper.database.isOpen())
             {
 
-                cursor = databaseHelper.database.query(dictName, null, null, null, null, null, null);
+                cursor = databaseHelper.database.query(table_name, null, null, null, null, null, null);
                 count = cursor.getCount();
             }
         }
@@ -441,6 +426,7 @@ public class SpeechService extends IntentService
 
     public ArrayList<DataBaseEntry> getEntriesFromDB(String tableName, int startId, int endId)
     {
+        String table_name = StringOperations.getInstance().spaceToUnderscore(tableName);
         ArrayList<DataBaseEntry> entriesFromDB = new ArrayList<>();
         Cursor cursor = null;
         try
@@ -448,7 +434,7 @@ public class SpeechService extends IntentService
             databaseHelper.open();
             if (databaseHelper.database.isOpen())
             {
-                cursor = databaseHelper.database.rawQuery("SELECT * FROM " + tableName + " WHERE RowID BETWEEN " + startId +" AND " + endId, null);
+                cursor = databaseHelper.database.rawQuery("SELECT * FROM " + table_name + " WHERE RowID BETWEEN " + startId +" AND " + endId, null);
                 if (cursor.moveToFirst())
                 {
                     while (!cursor.isAfterLast())
