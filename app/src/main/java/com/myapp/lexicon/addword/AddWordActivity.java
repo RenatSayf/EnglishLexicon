@@ -756,4 +756,5 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
     }
 
 
+
 }

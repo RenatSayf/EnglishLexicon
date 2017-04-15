@@ -31,13 +31,38 @@
                     android:orientation="vertical"
                     >
 
-                    <TextView
-                        android:layout_width="match_parent"
+                    <LinearLayout android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:text="@string/label_english"
-                        android:textColor="@color/colorWhite"
-                        />
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:text="@string/label_english"
+                            android:textColor="@color/colorWhite"
+                            />
+
+                        <android.support.v4.widget.Space
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"/>
+
+                        <ImageButton
+                            android:id="@+id/btn_sound"
+                            style="?android:attr/buttonStyleSmall"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="right"
+                            android:src="@drawable/selector_icon_sound"
+                            android:visibility="visible"
+                            android:background="@drawable/selector_transp_to_white_back"
+                            android:contentDescription="@string/content_describt"
+                            android:onClick="btnSpeak_OnClick"
+                            />
+
+                    </LinearLayout>
+
 
                     <EditText
                         android:layout_width="match_parent"
