@@ -48,7 +48,6 @@ import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.database.GetEntriesLoader;
 import com.myapp.lexicon.database.GetTableListFragm;
-import com.myapp.lexicon.helpers.MyLog;
 import com.myapp.lexicon.playlist.PlayList;
 import com.myapp.lexicon.settings.AppData2;
 import com.myapp.lexicon.settings.AppSettings;
@@ -141,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             registerReceiver(mUpdateBroadcastReceiver, updateIntentFilter);
         } catch (Exception e)
         {
-            MyLog.v(e.getMessage());
+            e.printStackTrace();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

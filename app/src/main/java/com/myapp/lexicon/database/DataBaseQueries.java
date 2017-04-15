@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.widget.Toast;
 
-import com.myapp.lexicon.helpers.MyLog;
 import com.myapp.lexicon.helpers.StringOperations;
 
 import java.sql.SQLException;
@@ -131,7 +130,6 @@ public class DataBaseQueries
             }
         } catch (SQLException e)
         {
-            MyLog.v("ИСКЛЮЧЕНИЕ - "+e);
             e.printStackTrace();
         }
         finally
