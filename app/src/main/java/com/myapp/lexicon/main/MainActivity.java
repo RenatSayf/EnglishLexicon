@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (savedInstanceState == null)
         {
             BackgroundFragm backgroundFragm = new BackgroundFragm();
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_layout, backgroundFragm).addToBackStack(null).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_layout, backgroundFragm).commit();
         }
 
         final PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);

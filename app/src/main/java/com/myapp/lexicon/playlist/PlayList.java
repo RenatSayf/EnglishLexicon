@@ -28,6 +28,7 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
     private ArrayList<String> playList = new ArrayList<>();
     private DatabaseHelper databaseHelper;
     private AppSettings appSettings;
+    private String[] dictArray;
 
     private final int LOADER_GET_TABLE_LIST = 2423144;
 
@@ -120,8 +121,6 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
         super.onDestroy();
         appSettings.savePlayList(playList);
     }
-
-    private String[] dictArray;
 
     public void buttonAddClick(View view)
     {
