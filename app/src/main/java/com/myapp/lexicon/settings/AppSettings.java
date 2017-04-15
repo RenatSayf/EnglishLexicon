@@ -93,18 +93,6 @@ public class AppSettings
         {
             list.remove(position);
             savePlayList(list);
-//            AppData2 appData2 = AppData2.getInstance();
-//
-//            while (appData2.getNdict() > list.size()-1)
-//            {
-//                appData2.setNdict(appData2.getNdict()-1);
-//                appData2.setNword(1);
-//            }
-//            if (appData2.getNdict() < 0)
-//            {
-//                appData2.setNdict(0);
-//                appData2.setNword(1);
-//            }
         }
     }
 
@@ -117,23 +105,11 @@ public class AppSettings
         if (item != null)
         {
             ArrayList<String> playList = getPlayList();
-            int indexOf = playList.indexOf(item);
             if (playList.contains(item))
             {
                 playList.remove(item);
                 savePlayList(playList);
             }
-//            AppData2 appData2 = AppData2.getInstance();
-//            while (appData2.getNdict() > playList.size()-1)
-//            {
-//                appData2.setNdict(appData2.getNdict()-1);
-//                appData2.setNword(1);
-//            }
-//            if (appData2.getNdict() < 0)
-//            {
-//                appData2.setNdict(0);
-//                appData2.setNword(1);
-//            }
         }
     }
 
