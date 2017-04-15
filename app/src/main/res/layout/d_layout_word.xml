@@ -8,7 +8,7 @@
               android:layout_marginBottom="3dp"
               >
 
-    <LinearLayout android:layout_width="match_parent"
+    <LinearLayout android:layout_width="0dp"
         android:layout_height="wrap_content"
                   android:layout_weight="1"
         android:orientation="vertical">
@@ -42,7 +42,7 @@
         android:text="0"
         android:textSize="18sp"
         android:textAlignment="inherit"
-        android:background="@color/colorLightGreen"/>
+        android:background="@drawable/words_list_view_background_ru"/>
 
 </LinearLayout>
 

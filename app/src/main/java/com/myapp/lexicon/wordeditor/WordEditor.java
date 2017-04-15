@@ -77,7 +77,6 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
     private final String KEY_CHECK_MOVE = "check-move";
     private final String KEY_FIELDS = "key_fields";
 
-
     private final int LOADER_GET_ENTRIES = 1;
     private final int LOADER_GET_TABLE_LIST = 2;
     private final int LOADER_GET_ALL_FROM_TABLE = 3;
