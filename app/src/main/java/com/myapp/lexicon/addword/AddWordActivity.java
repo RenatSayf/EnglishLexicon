@@ -1,6 +1,7 @@
 package com.myapp.lexicon.addword;
 
 import android.app.LoaderManager;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
@@ -10,6 +11,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.support.v7.app.AppCompatActivity;
@@ -24,6 +26,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -49,7 +52,7 @@ import static android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE;
 
 public class AddWordActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks
 {
-    private EditText textViewEnter;
+    private AutoCompleteTextView textViewEnter;
     private LinearLayout layoutLinkYa;
     private TextView textViewLinkYandex;
     private EditText textViewResult;
@@ -79,7 +82,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
 
     private void initViews()
     {
-        textViewEnter = (EditText) findViewById(R.id.textViewEnter);
+        textViewEnter = (AutoCompleteTextView) findViewById(R.id.textViewEnter);
         textViewEnter_onChange();
         layoutLinkYa = (LinearLayout) findViewById(R.id.lin_layout_link_ya);
         if (layoutLinkYa != null)
@@ -756,4 +759,38 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
     }
 
 
+    public void btnMicrophone_OnClick(View view)
+    {
+        Intent recognizerIntent = new Intent(Intent.ACTION_VIEW);
+        recognizerIntent.setAction(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.US);
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.text_say_something));
+        try
+        {
+            startActivityForResult(recognizerIntent, 1);
+        } catch (ActivityNotFoundException a)
+        {
+            Toast.makeText(this, R.string.text_speech_recogniz_not_support, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1)
+        {
+            if (resultCode == RESULT_OK && data != null)
+            {
+                final ArrayList<String> arrayList = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                if (arrayList != null && arrayList.size() > 0)
+                {
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(AddWordActivity.this, android.R.layout.simple_dropdown_item_1line, arrayList);
+                    textViewEnter.setAdapter(adapter);
+                    textViewEnter.showDropDown();
+                }
+            }
+        }
+    }
 }

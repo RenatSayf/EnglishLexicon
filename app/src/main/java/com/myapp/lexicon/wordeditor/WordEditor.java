@@ -6,7 +6,9 @@ import android.content.DialogInterface;
 import android.content.Loader;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -37,9 +39,12 @@ import com.myapp.lexicon.database.GetEntriesLoader;
 import com.myapp.lexicon.database.GetTableListLoader;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.StringOperations;
+import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.settings.AppData2;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Locale;
 
 public class WordEditor extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>
 {
@@ -753,6 +758,21 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
         }
     }
 
-
-
+    public void btn_Speak_OnClick(View view)
+    {
+        HashMap<String, String> hashMap = new HashMap<>();
+        hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "word_editor_btn_speak_onclick");
+        SplashScreenActivity.speech.setLanguage(Locale.US);
+        SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
+        if (!editTextEn.getText().toString().equals(""))
+        {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            {
+                SplashScreenActivity.speech.speak(editTextEn.getText().toString(), TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+            } else
+            {
+                SplashScreenActivity.speech.speak(editTextEn.getText().toString(), TextToSpeech.QUEUE_ADD, hashMap);
+            }
+        }
+    }
 }
