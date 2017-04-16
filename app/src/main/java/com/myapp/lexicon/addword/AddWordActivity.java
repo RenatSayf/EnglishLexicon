@@ -765,7 +765,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
         recognizerIntent.setAction(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.US);
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        recognizerIntent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak something...");
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.text_say_something));
         try
         {
             startActivityForResult(recognizerIntent, 1);
