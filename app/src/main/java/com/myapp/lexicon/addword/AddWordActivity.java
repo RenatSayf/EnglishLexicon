@@ -26,6 +26,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -51,7 +52,7 @@ import static android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE;
 
 public class AddWordActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks
 {
-    private EditText textViewEnter;
+    private AutoCompleteTextView textViewEnter;
     private LinearLayout layoutLinkYa;
     private TextView textViewLinkYandex;
     private EditText textViewResult;
@@ -81,7 +82,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
 
     private void initViews()
     {
-        textViewEnter = (EditText) findViewById(R.id.textViewEnter);
+        textViewEnter = (AutoCompleteTextView) findViewById(R.id.textViewEnter);
         textViewEnter_onChange();
         layoutLinkYa = (LinearLayout) findViewById(R.id.lin_layout_link_ya);
         if (layoutLinkYa != null)
@@ -782,11 +783,12 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
         {
             if (resultCode == RESULT_OK && data != null)
             {
-                ArrayList<String> arrayList = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                final ArrayList<String> arrayList = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
                 if (arrayList != null && arrayList.size() > 0)
                 {
-                    String text = arrayList.get(0);
-                    textViewEnter.setText(text);
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(AddWordActivity.this, android.R.layout.simple_dropdown_item_1line, arrayList);
+                    textViewEnter.setAdapter(adapter);
+                    textViewEnter.showDropDown();
                 }
             }
         }

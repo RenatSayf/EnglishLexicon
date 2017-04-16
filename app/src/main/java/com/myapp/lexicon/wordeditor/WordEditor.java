@@ -758,7 +758,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
         }
     }
 
-    public void btnSpeak_OnClick(View view)
+    public void btn_Speak_OnClick(View view)
     {
         HashMap<String, String> hashMap = new HashMap<>();
         hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "word_editor_btn_speak_onclick");
