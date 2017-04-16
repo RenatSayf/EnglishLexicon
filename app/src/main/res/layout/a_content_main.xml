@@ -213,7 +213,7 @@
                     android:visibility="visible"
                     android:background="@drawable/selector_transp_to_white_back"
                     android:contentDescription="@string/content_describt"
-                    android:onClick="btnSpeak_OnClick"
+                    android:onClick="btnMicrophone_OnClick"
                     />
 
             </LinearLayout>

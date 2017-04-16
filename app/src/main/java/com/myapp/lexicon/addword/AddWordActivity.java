@@ -1,6 +1,7 @@
 package com.myapp.lexicon.addword;
 
 import android.app.LoaderManager;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
@@ -10,6 +11,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.support.v7.app.AppCompatActivity;
@@ -756,5 +758,37 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
     }
 
 
+    public void btnMicrophone_OnClick(View view)
+    {
+        Intent recognizerIntent = new Intent(Intent.ACTION_VIEW);
+        recognizerIntent.setAction(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.US);
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak something...");
+        try
+        {
+            startActivityForResult(recognizerIntent, 1);
+        } catch (ActivityNotFoundException a)
+        {
+            Toast.makeText(this, R.string.text_speech_recogniz_not_support, Toast.LENGTH_SHORT).show();
+        }
+    }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1)
+        {
+            if (resultCode == RESULT_OK && data != null)
+            {
+                ArrayList<String> arrayList = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                if (arrayList != null && arrayList.size() > 0)
+                {
+                    String text = arrayList.get(0);
+                    textViewEnter.setText(text);
+                }
+            }
+        }
+    }
 }
