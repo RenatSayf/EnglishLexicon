@@ -12,7 +12,6 @@
     tools:showIn="@layout/a_layout_main"
     android:background="@drawable/side_nav_bar">
 
-
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -170,13 +169,7 @@
                     />
 
 
-                <!--<com.google.android.gms.ads.AdView-->
-                    <!--android:id="@+id/adView_main"-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--ads:adSize="BANNER"-->
-                    <!--ads:adUnitId="@string/main_bottom_banner"-->
-                    <!--/>-->
+
 
             </LinearLayout>
 
@@ -242,6 +235,14 @@
         </FrameLayout>
 
     </FrameLayout>
+
+    <com.google.android.gms.ads.AdView
+        android:id="@+id/adView_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        ads:adSize="BANNER"
+        ads:adUnitId="@string/main_bottom_banner"
+        />
 
 
 </RelativeLayout>

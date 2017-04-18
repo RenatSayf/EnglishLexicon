@@ -180,11 +180,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // TODO: AsyncTaskLoader - 3. инициализация
         getLoaderManager().initLoader(LOADER_GET_ENTRIES, savedInstanceState, this);
 
-        //MobileAds.initialize(this, getString(R.string.main_bottom_banner));
-        //AdView bannerView = (AdView) findViewById(R.id.adView_main);
-        //AdRequest adRequest = new AdRequest.Builder().build();
-        //AdRequest adRequest1 = new AdRequest.Builder().addTestDevice("12345678").build();
-        //bannerView.loadAd(adRequest);
+        MobileAds.initialize(this, getString(R.string.main_bottom_banner));
+        AdView bannerView = (AdView) findViewById(R.id.adView_main);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        AdRequest adRequest1 = new AdRequest.Builder().addTestDevice("7162b61eda7337bb").build();
+        bannerView.loadAd(adRequest1);
     }
 
 
