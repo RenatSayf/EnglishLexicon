@@ -761,6 +761,13 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
 
     public void btnMicrophone_OnClick(View view)
     {
+        if (!isOnline(this))
+        {
+            Toast toast = Toast.makeText(this, R.string.text_voice_input_not_available, Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.show();
+            return;
+        }
         Intent recognizerIntent = new Intent(Intent.ACTION_VIEW);
         recognizerIntent.setAction(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.US);

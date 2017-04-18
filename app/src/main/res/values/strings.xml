@@ -151,6 +151,7 @@
     <string name="text_speech_settings">Голосовые настройки</string>
     <string name="text_speech_recogniz_not_support">Извените! Распознавание речи не поддерживается на этом устройстве.</string>
     <string name="text_say_something">Говорите...</string>
+    <string name="text_voice_input_not_available">Нет соединения с интернетом. Голосовой ввод недоступен</string>
 
 
 </resources>
