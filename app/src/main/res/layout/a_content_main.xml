@@ -14,7 +14,8 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        >
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -27,12 +28,15 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:background="@drawable/semitransparent_background">
+            android:background="@drawable/semitransparent_background"
+            >
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
+                android:layout_marginTop="50dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
                 android:orientation="horizontal"
                 android:layout_gravity="top">
 
@@ -51,17 +55,17 @@
                         android:textColor="@color/colorWhite"
                         />
 
-                    <Switch
-                        android:id="@+id/switch_ru_sound"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:checked="false"
-                        android:showText="false"
-                        android:textOff="@string/text_ru_off"
-                        android:textOn="@string/text_ru_on"
-                        android:typeface="sans"
-                        />
+                    <!--<Switch-->
+                        <!--android:id="@+id/switch_ru_sound"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_gravity="end"-->
+                        <!--android:checked="false"-->
+                        <!--android:showText="false"-->
+                        <!--android:textOff="@string/text_ru_off"-->
+                        <!--android:textOn="@string/text_ru_on"-->
+                        <!--android:typeface="sans"-->
+                        <!--/>-->
 
                 </FrameLayout>
 
@@ -186,6 +190,11 @@
                 android:orientation="horizontal"
                 android:gravity="center_horizontal">
 
+                <android.support.v4.widget.Space
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.5"/>
+
                 <ImageButton
                     android:id="@+id/btn_pause"
                     style="?android:attr/buttonStyleSmall"
@@ -224,6 +233,21 @@
                     android:onClick="btnSpeak_OnClick"
                     />
 
+                <android.support.v4.widget.Space
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"/>
+
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Ru"
+                    android:id="@+id/check_box_ru_speak"
+                    android:textColor="@color/colorWhite"
+                    style="@android:style/Widget.Holo.Light.CompoundButton.CheckBox"
+                    app:buttonTint="@color/colorWhite"/>
+
             </LinearLayout>
         </FrameLayout>
 
@@ -240,9 +264,8 @@
         android:id="@+id/adView_main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        ads:adSize="BANNER"
+        ads:adSize="SMART_BANNER"
         ads:adUnitId="@string/main_bottom_banner"
         />
-
 
 </RelativeLayout>

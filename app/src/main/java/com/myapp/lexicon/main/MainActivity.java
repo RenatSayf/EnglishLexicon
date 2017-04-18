@@ -32,6 +32,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -81,7 +82,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ImageButton btnNext;
     private ImageButton btnPrevious;
     private ProgressBar progressBar;
-    private Switch switchRuSound;
+    //private Switch switchRuSound;
+    private CheckBox checkBoxRuSpeak;
     private static Intent speechIntentService;
     private UpdateBroadcastReceiver mUpdateBroadcastReceiver;
     private boolean isFirstTime = true;
@@ -219,8 +221,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             btnNext.setVisibility(View.GONE);
         }
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        switchRuSound = (Switch) findViewById(R.id.switch_ru_sound);
-        switchRuSound.setChecked(appSettings.isEnglishSpeechOnly());
+//        switchRuSound = (Switch) findViewById(R.id.switch_ru_sound);
+//        switchRuSound.setChecked(appSettings.isEnglishSpeechOnly());
+        checkBoxRuSpeak = (CheckBox) findViewById(R.id.check_box_ru_speak);
+        checkBoxRuSpeak.setChecked(appSettings.isEnglishSpeechOnly());
         switchRuSound_OnCheckedChange();
     }
 
@@ -727,39 +731,59 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void switchRuSound_OnCheckedChange()
     {
-        switchRuSound.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
+//        switchRuSound.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
+//        {
+//            @Override
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+//            {
+//                if (isChecked)
+//                {
+//                    appSettings.setEnglishSpeechOnly(true);
+//                    SpeechService.setEnglishOnly(appSettings.isEnglishSpeechOnly());
+//                    Toast toast = Toast.makeText(MainActivity.this,"Русскоязычное озвучивание включено",Toast.LENGTH_SHORT);
+//                    toast.setGravity(Gravity.TOP, 0, 0);
+//                    toast.show();
+//
+//                }
+//                else
+//                {
+//                    appSettings.setEnglishSpeechOnly(false);
+//                    SpeechService.setEnglishOnly(appSettings.isEnglishSpeechOnly());
+//                    Toast toast = Toast.makeText(MainActivity.this,"Русскоязычное озвучивание отключено",Toast.LENGTH_SHORT);
+//                    toast.setGravity(Gravity.TOP, 0, 0);
+//                    toast.show();
+//                }
+//            }
+//        });
+
+//        switchRuSound.setOnClickListener(new View.OnClickListener()
+//        {
+//            @Override
+//            public void onClick(View v)
+//            {
+//                Toast toast = Toast.makeText(a_MainActivity.this,"Вы можете отключить русское озвучивание, что бы ускорить воспроизведение",Toast.LENGTH_SHORT);
+//                toast.setGravity(Gravity.TOP, 0, 0);
+//                toast.show();
+//            }
+//        });
+
+        checkBoxRuSpeak.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
         {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked)
             {
                 if (isChecked)
                 {
                     appSettings.setEnglishSpeechOnly(true);
                     SpeechService.setEnglishOnly(appSettings.isEnglishSpeechOnly());
-                    Toast toast = Toast.makeText(MainActivity.this,"Русскоязычное озвучивание включено",Toast.LENGTH_SHORT);
-                    toast.setGravity(Gravity.TOP, 0, 0);
-                    toast.show();
-
+                    Toast.makeText(MainActivity.this,"Русскоязычное озвучивание включено",Toast.LENGTH_SHORT).show();
                 }
                 else
                 {
                     appSettings.setEnglishSpeechOnly(false);
                     SpeechService.setEnglishOnly(appSettings.isEnglishSpeechOnly());
-                    Toast toast = Toast.makeText(MainActivity.this,"Русскоязычное озвучивание отключено",Toast.LENGTH_SHORT);
-                    toast.setGravity(Gravity.TOP, 0, 0);
-                    toast.show();
+                    Toast.makeText(MainActivity.this,"Русскоязычное озвучивание отключено",Toast.LENGTH_SHORT).show();
                 }
-            }
-        });
-
-        switchRuSound.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-//                Toast toast = Toast.makeText(a_MainActivity.this,"Вы можете отключить русское озвучивание, что бы ускорить воспроизведение",Toast.LENGTH_SHORT);
-//                toast.setGravity(Gravity.TOP, 0, 0);
-//                toast.show();
             }
         });
     }
