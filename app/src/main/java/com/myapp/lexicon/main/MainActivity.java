@@ -4,7 +4,6 @@ import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.LoaderManager;
 import android.app.Service;
-import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -17,7 +16,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.provider.Settings;
-import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
@@ -42,6 +40,9 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.AddWordActivity;
@@ -179,6 +180,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // TODO: AsyncTaskLoader - 3. инициализация
         getLoaderManager().initLoader(LOADER_GET_ENTRIES, savedInstanceState, this);
 
+        //MobileAds.initialize(this, getString(R.string.main_bottom_banner));
+        //AdView bannerView = (AdView) findViewById(R.id.adView_main);
+        //AdRequest adRequest = new AdRequest.Builder().build();
+        //AdRequest adRequest1 = new AdRequest.Builder().addTestDevice("12345678").build();
+        //bannerView.loadAd(adRequest);
     }
 
 
