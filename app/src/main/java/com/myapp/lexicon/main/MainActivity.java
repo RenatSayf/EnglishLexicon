@@ -37,7 +37,6 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,7 +52,7 @@ import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.database.GetEntriesLoader;
 import com.myapp.lexicon.database.GetTableListFragm;
 import com.myapp.lexicon.playlist.PlayList;
-import com.myapp.lexicon.settings.AppData2;
+import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 import com.myapp.lexicon.wordeditor.WordEditor;
 import com.myapp.lexicon.wordstests.Tests;
@@ -89,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private UpdateBroadcastReceiver mUpdateBroadcastReceiver;
     private boolean isFirstTime = true;
     private AppSettings appSettings;
-    private AppData2 appData2;
+    private AppData appData;
     private ArrayList<String> playList = new ArrayList<>();
 
     private String KEY_ENG_TEXT = "eng_text";
@@ -132,8 +131,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         appSettings = new AppSettings(this);
         playList = appSettings.getPlayList();
-        appData2 = AppData2.getInstance();
-        appData2.initAllSettings(this);
+        appData = AppData.getInstance();
+        appData.initAllSettings(this);
 
         initViews();
 
@@ -244,7 +243,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onPause()
     {
         super.onPause();
-        appData2.saveAllSettings(this);
+        appData.saveAllSettings(this);
         if (!isActivityOnTop())
         {
             speechServiceOnPause();
@@ -270,8 +269,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onResume();
         appSettings = new AppSettings(this);
         playList = appSettings.getPlayList();
-        appData2 = AppData2.getInstance();
-        appData2.initAllSettings(this);
+        appData = AppData.getInstance();
+        appData.initAllSettings(this);
     }
 
     @Override
@@ -292,7 +291,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
         speechServiceOnPause();
-        appData2.saveAllSettings(this);
+        appData.saveAllSettings(this);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer != null)
         {
@@ -326,8 +325,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
             speechServiceOnPause();
             Bundle bundle = new Bundle();
-            bundle.putString(WordEditor.KEY_EXTRA_DICT_NAME, playList.get(AppData2.getInstance().getNdict()));
-            bundle.putInt(WordEditor.KEY_ROW_ID, appData2.getNword());
+            bundle.putString(WordEditor.KEY_EXTRA_DICT_NAME, playList.get(AppData.getInstance().getNdict()));
+            bundle.putInt(WordEditor.KEY_ROW_ID, appData.getNword());
             wordEditorIntent.replaceExtras(bundle);
 
             startActivity(wordEditorIntent);
@@ -375,7 +374,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 wordEditorIntent = new Intent(this, WordEditor.class);
             }
             Bundle bundle = new Bundle();
-            bundle.putString(WordEditor.KEY_EXTRA_DICT_NAME, playList.get(AppData2.getInstance().getNdict()));
+            bundle.putString(WordEditor.KEY_EXTRA_DICT_NAME, playList.get(AppData.getInstance().getNdict()));
             wordEditorIntent.replaceExtras(bundle);
             startActivity(wordEditorIntent);
         }
@@ -593,7 +592,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void speechServiceOnPause()
     {
-        appData2.setPause(true);
+        appData.setPause(true);
         if (speechIntentService != null)
         {
             stopService(speechIntentService);
@@ -626,8 +625,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         btnPrevious.setVisibility(View.GONE);
         progressBar.setVisibility(View.GONE);
 
-        appData2.setNdict(0);
-        appData2.setNword(1);
+        appData.setNdict(0);
+        appData.setNword(1);
     }
 
     private DataBaseQueries dataBaseQueries;
@@ -645,39 +644,39 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             getPrevious();
         }
-        tvWordsCounter.setText(String.valueOf(appData2.getNword()));
+        tvWordsCounter.setText(String.valueOf(appData.getNword()));
     }
 
     private void getNext()
     {
         dataBaseQueries = new DataBaseQueries(this);
-        int wordsCount = dataBaseQueries.getCountEntriesSync(playList.get(appData2.getNdict()));
-        appData2.setNword(appData2.getNword()+1);
+        int wordsCount = dataBaseQueries.getCountEntriesSync(playList.get(appData.getNdict()));
+        appData.setNword(appData.getNword()+1);
         if (playList.size() > 1)
         {
-            if (appData2.getNword() > wordsCount)
+            if (appData.getNword() > wordsCount)
             {
-                appData2.setNword(1);
-                appData2.setNdict(appData2.getNdict()+1);
-                if (appData2.getNdict() > playList.size()-1)
+                appData.setNword(1);
+                appData.setNdict(appData.getNdict()+1);
+                if (appData.getNdict() > playList.size()-1)
                 {
-                    appData2.setNdict(0);
+                    appData.setNdict(0);
                 }
             }
         }
         else if (playList.size() == 1)
         {
-            if (appData2.getNword() > wordsCount)
+            if (appData.getNword() > wordsCount)
             {
-                appData2.setNword(1);
+                appData.setNword(1);
             }
         }
 
         // TODO: AsyncTaskLoader - 4. Передача параметров в AsyncTaskLoader
         Bundle loaderBundle = new Bundle();
-        loaderBundle.putString(GetEntriesLoader.KEY_TABLE_NAME, playList.get(appData2.getNdict()));
-        loaderBundle.putInt(GetEntriesLoader.KEY_START_ID, appData2.getNword());
-        loaderBundle.putInt(GetEntriesLoader.KEY_END_ID, appData2.getNword());
+        loaderBundle.putString(GetEntriesLoader.KEY_TABLE_NAME, playList.get(appData.getNdict()));
+        loaderBundle.putInt(GetEntriesLoader.KEY_START_ID, appData.getNword());
+        loaderBundle.putInt(GetEntriesLoader.KEY_END_ID, appData.getNword());
 
         // TODO: AsyncTaskLoader - 5. Запуск загрузки данных
         Loader<Cursor> dbLoader = getLoaderManager().restartLoader(LOADER_GET_ENTRIES, loaderBundle, this);
@@ -691,36 +690,36 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (playList.size() > 1)
         {
-            appData2.setNword(appData2.getNword()-1);
-            if (appData2.getNword() < 1)
+            appData.setNword(appData.getNword()-1);
+            if (appData.getNword() < 1)
             {
-                appData2.setNdict(appData2.getNdict()-1);
-                if (appData2.getNdict() < 0)
+                appData.setNdict(appData.getNdict()-1);
+                if (appData.getNdict() < 0)
                 {
-                    appData2.setNdict(playList.size()-1);
+                    appData.setNdict(playList.size()-1);
                 }
-                int wordsCount = dataBaseQueries.getCountEntriesSync(playList.get(appData2.getNdict()));
-                appData2.setNword(wordsCount);
+                int wordsCount = dataBaseQueries.getCountEntriesSync(playList.get(appData.getNdict()));
+                appData.setNword(wordsCount);
             }
         }
         if (playList.size() == 1)
         {
-            if (appData2.getNword() <= 1)
+            if (appData.getNword() <= 1)
             {
-                int wordsCount = dataBaseQueries.getCountEntriesSync(playList.get(appData2.getNdict()));
-                appData2.setNword(wordsCount);
+                int wordsCount = dataBaseQueries.getCountEntriesSync(playList.get(appData.getNdict()));
+                appData.setNword(wordsCount);
             }
             else
             {
-                appData2.setNword(appData2.getNword()-1);
+                appData.setNword(appData.getNword()-1);
             }
         }
 
         // TODO: AsyncTaskLoader - 4. Передача параметров в AsyncTaskLoader
         Bundle loaderBundle = new Bundle();
-        loaderBundle.putString(GetEntriesLoader.KEY_TABLE_NAME, playList.get(appData2.getNdict()));
-        loaderBundle.putInt(GetEntriesLoader.KEY_START_ID, appData2.getNword());
-        loaderBundle.putInt(GetEntriesLoader.KEY_END_ID, appData2.getNword());
+        loaderBundle.putString(GetEntriesLoader.KEY_TABLE_NAME, playList.get(appData.getNdict()));
+        loaderBundle.putInt(GetEntriesLoader.KEY_START_ID, appData.getNword());
+        loaderBundle.putInt(GetEntriesLoader.KEY_END_ID, appData.getNword());
 
         // TODO: AsyncTaskLoader - 5. Запуск загрузки данных
         Loader<Cursor> dbLoader = getLoaderManager().restartLoader(LOADER_GET_ENTRIES, loaderBundle, this);
@@ -811,7 +810,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             textViewEn.setText(dataBaseEntry.getEnglish());
             textViewRu.setText(dataBaseEntry.getTranslate());
-            textViewDict.setText(playList.get(appData2.getNdict()));
+            textViewDict.setText(playList.get(appData.getNdict()));
 
             HashMap<String, String> hashMap = new HashMap<>();
             hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "main_activity");
@@ -863,7 +862,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             textViewEn.setText(updateEN);
             textViewRu.setText(updateRU);
             textViewDict.setText(updateDict);
-            int nword = MainActivity.this.appData2.getNword();
+            int nword = MainActivity.this.appData.getNword();
             tvWordsCounter.setText(String.valueOf(nword));
             if (!textViewEn.getText().equals(""))
             {

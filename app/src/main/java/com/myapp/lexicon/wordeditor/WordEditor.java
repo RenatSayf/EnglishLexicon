@@ -40,7 +40,7 @@ import com.myapp.lexicon.database.GetTableListLoader;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.StringOperations;
 import com.myapp.lexicon.main.SplashScreenActivity;
-import com.myapp.lexicon.settings.AppData2;
+import com.myapp.lexicon.settings.AppData;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -171,7 +171,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
         outState.putString(KEY_EDITTEXT_RU, editTextRu.getText().toString());
         outState.putBoolean(KEY_CHECK_COPY, checkCopy.isChecked());
         outState.putBoolean(KEY_CHECK_MOVE, checkMove.isChecked());
-        AppData2.getInstance().setListViewAdapter((ListViewAdapter) listView.getAdapter());
+        AppData.getInstance().setListViewAdapter((ListViewAdapter) listView.getAdapter());
     }
 
     @Override
@@ -293,7 +293,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
         }
         else
         {
-            listView.setAdapter(AppData2.getInstance().getListViewAdapter());
+            listView.setAdapter(AppData.getInstance().getListViewAdapter());
             progressBar.setVisibility(View.GONE);
         }
     }

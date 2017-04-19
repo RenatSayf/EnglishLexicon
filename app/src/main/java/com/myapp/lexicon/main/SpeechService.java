@@ -14,7 +14,7 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.helpers.StringOperations;
-import com.myapp.lexicon.settings.AppData2;
+import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
 import java.sql.SQLException;
@@ -30,7 +30,7 @@ public class SpeechService extends IntentService
     private static boolean stop = true;
     private DatabaseHelper databaseHelper;
     private AppSettings appSettings;
-    private AppData2 appData2;
+    private AppData appData;
     private String textEn;
     private String textRu;
     private String textDict;
@@ -61,7 +61,7 @@ public class SpeechService extends IntentService
             databaseHelper.create_db();
         }
         appSettings = new AppSettings(this);
-        appData2 = AppData2.getInstance();
+        appData = AppData.getInstance();
     }
 
     @Override
@@ -145,22 +145,22 @@ public class SpeechService extends IntentService
             {
                 if (playList.size() > 0)
                 {
-                    if (!appData2.isPause()) appData2.setNdict(0);
-                    for (int i = appData2.getNdict(); i < playList.size(); i++)
+                    if (!appData.isPause()) appData.setNdict(0);
+                    for (int i = appData.getNdict(); i < playList.size(); i++)
                     {
                         String playListItem = playList.get(i);
                         textDict = playListItem;
-                        appData2.setNdict(i);
+                        appData.setNdict(i);
                         int wordsCountInTable = getWordsCount(playListItem);
                         if (wordsCountInTable > 0)
                         {
-                            if (!appData2.isPause())
+                            if (!appData.isPause())
                             {
-                                appData2.setNword(1);
+                                appData.setNword(1);
                             }
-                            for (int j = appData2.getNword(); j <= wordsCountInTable; j++)
+                            for (int j = appData.getNword(); j <= wordsCountInTable; j++)
                             {
-                                appData2.setNword(j);
+                                appData.setNword(j);
                                 ArrayList<DataBaseEntry> list = getEntriesFromDB(playListItem, j, j);
                                 if (list.size() == 0)
                                 {
@@ -204,14 +204,14 @@ public class SpeechService extends IntentService
                                         e.printStackTrace();
                                     }
                                 }
-                                appData2.setNword(j);
+                                appData.setNword(j);
                             }
                         } else
                         {
                             break;
                         }
-                        appData2.setNdict(i);
-                        appData2.setPause(false);
+                        appData.setNdict(i);
+                        appData.setPause(false);
                     }
                 } else
                 {
@@ -226,22 +226,22 @@ public class SpeechService extends IntentService
             {
                 if (playList.size() > 0)
                 {
-                    if (!appData2.isPause()) appData2.setNdict(0);
-                    for (int i = appData2.getNdict(); i < playList.size(); i++)
+                    if (!appData.isPause()) appData.setNdict(0);
+                    for (int i = appData.getNdict(); i < playList.size(); i++)
                     {
                         String playListItem = playList.get(i);
                         textDict = playListItem;
-                        appData2.setNdict(i);
+                        appData.setNdict(i);
                         int wordsCountInTable = getWordsCount(playListItem);
                         if (wordsCountInTable > 0)
                         {
-                            if (!appData2.isPause())
+                            if (!appData.isPause())
                             {
-                                appData2.setNword(wordsCountInTable);
+                                appData.setNword(wordsCountInTable);
                             }
-                            for (int j = appData2.getNword(); j >= 1; j--)
+                            for (int j = appData.getNword(); j >= 1; j--)
                             {
-                                appData2.setNword(j);
+                                appData.setNword(j);
                                 ArrayList<DataBaseEntry> list = getEntriesFromDB(playListItem, j, j);
                                 if (list.size() == 0)
                                 {
@@ -285,14 +285,14 @@ public class SpeechService extends IntentService
                                         e.printStackTrace();
                                     }
                                 }
-                                appData2.setNword(j);
+                                appData.setNword(j);
                             }
                         } else
                         {
                             break;
                         }
-                        appData2.setNdict(i);
-                        appData2.setPause(false);
+                        appData.setNdict(i);
+                        appData.setPause(false);
                     }
                 } else
                 {
@@ -318,7 +318,7 @@ public class SpeechService extends IntentService
                 updateIntent.putExtra(EXTRA_KEY_RU, textRu);
                 updateIntent.putExtra(EXTRA_KEY_DICT, textDict);
                 updateIntent.putExtra(EXTRA_KEY_COUNT_REPEAT, countRepeat);
-                updateIntent.putExtra(EXTRA_KEY_WORDS_COUNTER, appData2.getNword());
+                updateIntent.putExtra(EXTRA_KEY_WORDS_COUNTER, appData.getNword());
                 sendBroadcast(updateIntent);
             }
 
