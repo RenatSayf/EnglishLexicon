@@ -43,6 +43,7 @@ public class SpeechService extends IntentService
     public static final String EXTRA_KEY_RU = "EXTRA_UPDATE_RU";
     public static final String EXTRA_KEY_DICT = "EXTRA_UPDATE_DICT";
     public static final String EXTRA_KEY_COUNT_REPEAT = "extra_key_count_repeat";
+    public static final String EXTRA_KEY_WORDS_COUNTER = "extra_words_counter";
 
     public SpeechService()
     {
@@ -317,6 +318,7 @@ public class SpeechService extends IntentService
                 updateIntent.putExtra(EXTRA_KEY_RU, textRu);
                 updateIntent.putExtra(EXTRA_KEY_DICT, textDict);
                 updateIntent.putExtra(EXTRA_KEY_COUNT_REPEAT, countRepeat);
+                updateIntent.putExtra(EXTRA_KEY_WORDS_COUNTER, appData2.getNword());
                 sendBroadcast(updateIntent);
             }
 

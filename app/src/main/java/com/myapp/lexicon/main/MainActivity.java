@@ -76,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView textViewEn;
     private TextView textViewRu;
     private TextView textViewDict;
+    private TextView tvWordsCounter;
     private ImageButton btnPlay;
     private ImageButton btnStop;
     private ImageButton btnPause;
@@ -170,7 +171,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             textViewEn.setText(savedInstanceState.getString(KEY_ENG_TEXT));
             textViewRu.setText(savedInstanceState.getString(KEY_RU_TEXT));
             textViewDict.setText(savedInstanceState.getString(KEY_CURRENT_DICT));
-            textViewDict.setVisibility(View.VISIBLE);
             btnPlay.setVisibility(savedInstanceState.getInt(KEY_BTN_PLAY_VISIBLE));
             btnStop.setVisibility(savedInstanceState.getInt(KEY_BTN_STOP_VISIBLE));
             btnPause.setVisibility(savedInstanceState.getInt(KEY_BTN_PAUSE_VISIBLE));
@@ -195,10 +195,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         textViewEn = (TextView) findViewById(R.id.enTextView);
         textViewRu = (TextView) findViewById(R.id.ruTextView);
         textViewDict = (TextView) findViewById(R.id.textViewDict);
-        if (textViewDict != null)
-        {
-            textViewDict.setVisibility(View.INVISIBLE);
-        }
+        tvWordsCounter = (TextView) findViewById(R.id.tv_words_counter);
         btnPlay = (ImageButton) findViewById(R.id.btn_play);
         btnStop = (ImageButton) findViewById(R.id.btn_stop);
         if (btnStop != null)
@@ -572,7 +569,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             btnNext.setVisibility(View.VISIBLE);
             btnPrevious.setVisibility(View.VISIBLE);
             textViewRu.setText(null);
-            textViewDict.setVisibility(View.VISIBLE);
         } else
         {
             Toast toast = Toast.makeText(this, R.string.no_playlist, Toast.LENGTH_SHORT);
@@ -621,12 +617,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         textViewEn.setText(null);
         textViewRu.setText(null);
+        textViewDict.setText(null);
+        tvWordsCounter.setText(null);
         btnPlay.setVisibility(View.VISIBLE);
         btnStop.setVisibility(View.GONE);
         btnPause.setVisibility(View.GONE);
         btnNext.setVisibility(View.GONE);
         btnPrevious.setVisibility(View.GONE);
-        textViewDict.setVisibility(View.INVISIBLE);
         progressBar.setVisibility(View.GONE);
 
         appData2.setNdict(0);
@@ -648,6 +645,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             getPrevious();
         }
+        tvWordsCounter.setText(String.valueOf(appData2.getNword()));
     }
 
     private void getNext()
@@ -731,42 +729,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void switchRuSound_OnCheckedChange()
     {
-//        switchRuSound.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
-//        {
-//            @Override
-//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
-//            {
-//                if (isChecked)
-//                {
-//                    appSettings.setEnglishSpeechOnly(true);
-//                    SpeechService.setEnglishOnly(appSettings.isEnglishSpeechOnly());
-//                    Toast toast = Toast.makeText(MainActivity.this,"Русскоязычное озвучивание включено",Toast.LENGTH_SHORT);
-//                    toast.setGravity(Gravity.TOP, 0, 0);
-//                    toast.show();
-//
-//                }
-//                else
-//                {
-//                    appSettings.setEnglishSpeechOnly(false);
-//                    SpeechService.setEnglishOnly(appSettings.isEnglishSpeechOnly());
-//                    Toast toast = Toast.makeText(MainActivity.this,"Русскоязычное озвучивание отключено",Toast.LENGTH_SHORT);
-//                    toast.setGravity(Gravity.TOP, 0, 0);
-//                    toast.show();
-//                }
-//            }
-//        });
-
-//        switchRuSound.setOnClickListener(new View.OnClickListener()
-//        {
-//            @Override
-//            public void onClick(View v)
-//            {
-//                Toast toast = Toast.makeText(a_MainActivity.this,"Вы можете отключить русское озвучивание, что бы ускорить воспроизведение",Toast.LENGTH_SHORT);
-//                toast.setGravity(Gravity.TOP, 0, 0);
-//                toast.show();
-//            }
-//        });
-
         checkBoxRuSpeak.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
         {
             @Override
@@ -901,6 +863,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             textViewEn.setText(updateEN);
             textViewRu.setText(updateRU);
             textViewDict.setText(updateDict);
+            int nword = MainActivity.this.appData2.getNword();
+            tvWordsCounter.setText(String.valueOf(nword));
             if (!textViewEn.getText().equals(""))
             {
                 progressBar.setVisibility(View.GONE);
