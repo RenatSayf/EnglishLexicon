@@ -40,6 +40,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
@@ -82,7 +83,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ImageButton btnNext;
     private ImageButton btnPrevious;
     private ProgressBar progressBar;
-    //private Switch switchRuSound;
     private CheckBox checkBoxRuSpeak;
     private static Intent speechIntentService;
     private UpdateBroadcastReceiver mUpdateBroadcastReceiver;
@@ -91,15 +91,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private AppData appData;
     private ArrayList<String> playList = new ArrayList<>();
 
-    private String KEY_ENG_TEXT = "eng_text";
-    private String KEY_RU_TEXT = "ru_text";
-    private String KEY_CURRENT_DICT = "current_dict";
-    private String KEY_BTN_PLAY_VISIBLE = "btn_play_visible";
-    private String KEY_BTN_PAUSE_VISIBLE = "btn_pause_visible";
-    private String KEY_BTN_STOP_VISIBLE = "btn_stop_visible";
-    private String KEY_BTN_NEXT_VISIBLE = "btn_next_visible";
-    private String KEY_BTN_BACK_VISIBLE = "btn_back_visible";
-    private String KEY_PROG_BAR_VISIBLE = "prog_bar_visible";
+    private final String KEY_ENG_TEXT = "eng_text";
+    private final String KEY_RU_TEXT = "ru_text";
+    private final String KEY_CURRENT_DICT = "current_dict";
+    private final String KEY_TV_WORDS_COUNTER = "tv_words_counter";
+    private final String KEY_BTN_PLAY_VISIBLE = "btn_play_visible";
+    private final String KEY_BTN_PAUSE_VISIBLE = "btn_pause_visible";
+    private final String KEY_BTN_STOP_VISIBLE = "btn_stop_visible";
+    private final String KEY_BTN_NEXT_VISIBLE = "btn_next_visible";
+    private final String KEY_BTN_BACK_VISIBLE = "btn_back_visible";
+    private final String KEY_PROG_BAR_VISIBLE = "prog_bar_visible";
 
     protected PowerManager.WakeLock wakeLock;
 
@@ -117,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (savedInstanceState == null)
         {
             BackgroundFragm backgroundFragm = new BackgroundFragm();
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_layout, backgroundFragm).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.background_fragment, backgroundFragm).commit();
         }
 
         final PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -170,6 +171,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             textViewEn.setText(savedInstanceState.getString(KEY_ENG_TEXT));
             textViewRu.setText(savedInstanceState.getString(KEY_RU_TEXT));
             textViewDict.setText(savedInstanceState.getString(KEY_CURRENT_DICT));
+            tvWordsCounter.setText(savedInstanceState.getString(KEY_TV_WORDS_COUNTER));
             btnPlay.setVisibility(savedInstanceState.getInt(KEY_BTN_PLAY_VISIBLE));
             btnStop.setVisibility(savedInstanceState.getInt(KEY_BTN_STOP_VISIBLE));
             btnPause.setVisibility(savedInstanceState.getInt(KEY_BTN_PAUSE_VISIBLE));
@@ -181,11 +183,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // TODO: AsyncTaskLoader - 3. инициализация
         getLoaderManager().initLoader(LOADER_GET_ENTRIES, savedInstanceState, this);
 
-        MobileAds.initialize(this, getString(R.string.main_bottom_banner));
-        AdView bannerView = (AdView) findViewById(R.id.adView_main);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        AdRequest adRequest1 = new AdRequest.Builder().addTestDevice("7162b61eda7337bb").build();
-        bannerView.loadAd(adRequest1);
+        final AdView bannerView = (AdView) findViewById(R.id.adView_main);
+        bannerView.setVisibility(View.GONE);
+        if (appData.isOnline(this))
+        {
+            if (appData.isAdMob())
+            {
+                MobileAds.initialize(this, getString(R.string.main_bottom_banner));
+                AdRequest adRequest = new AdRequest.Builder().build();
+                AdRequest adRequest1 = new AdRequest.Builder().addTestDevice("7162b61eda7337bb").build();
+                bannerView.loadAd(adRequest1);
+                bannerView.setAdListener(new AdListener()
+                {
+                    @Override
+                    public void onAdLoaded()
+                    {
+                        super.onAdLoaded();
+                        bannerView.setVisibility(View.VISIBLE);
+                    }
+                });
+            }
+        }
+
     }
 
 
@@ -231,6 +250,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         outState.putString(KEY_ENG_TEXT, textViewEn.getText().toString());
         outState.putString(KEY_RU_TEXT, textViewRu.getText().toString());
         outState.putString(KEY_CURRENT_DICT, textViewDict.getText().toString());
+        outState.putString(KEY_TV_WORDS_COUNTER, tvWordsCounter.getText().toString());
         outState.putInt(KEY_BTN_PLAY_VISIBLE, btnPlay.getVisibility());
         outState.putInt(KEY_BTN_STOP_VISIBLE, btnStop.getVisibility());
         outState.putInt(KEY_BTN_PAUSE_VISIBLE, btnPause.getVisibility());
