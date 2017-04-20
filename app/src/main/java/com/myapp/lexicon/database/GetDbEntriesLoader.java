@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.os.Bundle;
 
 import com.myapp.lexicon.helpers.StringOperations;
-import com.myapp.lexicon.settings.AppData2;
 
 import java.util.ArrayList;
 

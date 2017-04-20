@@ -41,7 +41,7 @@ import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
 import com.myapp.lexicon.main.BackgroundFragm;
 import com.myapp.lexicon.main.SplashScreenActivity;
-import com.myapp.lexicon.settings.AppData2;
+import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.ArrayList;
@@ -86,7 +86,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     private TestResults testResults;
     private DialogTestComplete dialogTestComplete;
     private AppSettings appSettings;
-    private AppData2 appData;
+    private AppData appData;
     private Fields fields;
 
     private final String KEY_TEXT = "key_text";
@@ -176,7 +176,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
         lockOrientation = new LockOrientation(getActivity());
         testResults = new TestResults(getActivity());
         appSettings = new AppSettings(getActivity());
-        appData = AppData2.getInstance();
+        appData = AppData.getInstance();
 
         Display display = getActivity().getWindowManager().getDefaultDisplay();
         displayMetrics = new DisplayMetrics();

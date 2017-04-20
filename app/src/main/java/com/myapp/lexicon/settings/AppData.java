@@ -1,67 +1,99 @@
 package com.myapp.lexicon.settings;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+
+import com.myapp.lexicon.wordeditor.ListViewAdapter;
 
 /**
- * Created by Ренат on 20.04.2016.
+ * Storing intermediate data of the application
  */
+
 public class AppData
 {
-    private static AppSettings appSettings;
-    private Context context;
-    private static int ndict;
-    private static int nword = 1;
-    private static boolean isPause = false;
+    private static final AppData ourInstance = new AppData();
+    private int ndict;
+    private int nword = 1;
+    private boolean isPause = false;
+    private ListViewAdapter listViewAdapter;
 
-    public AppData(Context context)
+    public static AppData getInstance()
     {
-        appSettings = new AppSettings(context);
+        return ourInstance;
     }
 
-    public static int get_Ndict()
+    private AppData()
+    {
+
+    }
+
+    public int getNdict()
     {
         return ndict;
     }
 
-    public static void set_Ndict(int Ndict)
+    public void setNdict(int ndict)
     {
-        ndict = Ndict;
+        this.ndict = ndict;
     }
 
-    public static int get_Nword()
+    public int getNword()
     {
         return nword;
     }
 
-    public static void set_Nword(int Nword)
+    public void setNword(int nword)
     {
-        nword = Nword;
+        this.nword = nword;
     }
 
-    public static boolean isPause()
+    public boolean isPause()
     {
         return isPause;
     }
 
-    public static void setPause(boolean param)
+    public void setPause(boolean pause)
     {
-        isPause = param;
+        isPause = pause;
     }
 
-
-
-    public static void saveAllSettings()
+    public ListViewAdapter getListViewAdapter()
     {
+        return listViewAdapter;
+    }
+
+    public void setListViewAdapter(ListViewAdapter listViewAdapter)
+    {
+        this.listViewAdapter = listViewAdapter;
+    }
+
+    public void saveAllSettings(Context context)
+    {
+        AppSettings appSettings = new AppSettings(context);
         appSettings.setPause(isPause);
         appSettings.setDictNumber(ndict);
         appSettings.setWordNumber(nword);
     }
 
-    public static void initAllSettings()
+    public void initAllSettings(Context context)
     {
+        AppSettings appSettings = new AppSettings(context);
         isPause = appSettings.isPause();
         ndict = appSettings.getDictNumber();
         nword = appSettings.getWordNumber();
+    }
+
+    public boolean isAdMob()
+    {
+        return true;
+    }
+
+    public boolean isOnline(Context context)
+    {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
 }
