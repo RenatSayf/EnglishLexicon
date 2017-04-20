@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -11,59 +11,57 @@
     tools:showIn="@layout/a_layout_main"
     android:background="@drawable/side_nav_bar">
 
-
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:id="@+id/background_fragment"
+        >
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        >
 
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/fragment_layout"
+            android:layout_weight="1"
+            android:background="@drawable/semitransparent_background"
             >
-        </FrameLayout>
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:background="@drawable/semitransparent_background">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:orientation="horizontal"
-                android:layout_gravity="top">
+                android:layout_gravity="top"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
 
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/textViewDict"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:minWidth="80dp"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/colorWhite"
+                    />
 
-                    <TextView
-                        android:id="@+id/textViewDict"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:minWidth="80dp"
-                        android:layout_gravity="start"
-                        android:textAppearance="?android:attr/textAppearanceSmall"
-                        android:textAlignment="center"
-                        android:textColor="@color/colorWhite"
-                        />
+                <android.support.v4.widget.Space
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"/>
 
-                    <Switch
-                        android:id="@+id/switch_ru_sound"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:checked="false"
-                        android:showText="false"
-                        android:textOff="@string/text_ru_off"
-                        android:textOn="@string/text_ru_on"
-                        android:typeface="sans"
-                        />
-
-                </FrameLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/tv_words_counter"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/colorWhite"
+                    />
 
             </LinearLayout>
 
@@ -103,8 +101,7 @@
                         android:src="@drawable/selector_icon_skip_prev"
                         android:onClick="btnNextBackClick"
                         android:visibility="visible"
-                        android:gravity="center_horizontal"
-                        android:background="@drawable/selector_transp_to_white_back"
+                        android:gravity="center_horizontal"                        android:background="@drawable/selector_transp_to_white_back"
                         android:contentDescription="@string/content_describt"
                         />
 
@@ -120,15 +117,15 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:src="@drawable/selector_icon_play_arrow"
-                        android:onClick="btnPlayClick"
-                        android:background="@drawable/selector_transp_to_white_back"
+                        android:onClick="btnPlayClick"                        android:background="@drawable/selector_transp_to_white_back"
                         android:contentDescription="@string/content_describt"
                         />
 
                     <android.support.v4.widget.Space
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"/>
+                        android:layout_weight="1"
+                        />
 
                     <ImageButton
                         android:id="@+id/btn_next"
@@ -138,13 +135,11 @@
                         android:gravity="right"
                         android:src="@drawable/selector_icon_skip_next"
                         android:onClick="btnNextBackClick"
-                        android:visibility="visible"
-                        android:background="@drawable/selector_transp_to_white_back"
+                        android:visibility="visible"                        android:background="@drawable/selector_transp_to_white_back"
                         android:contentDescription="@string/content_describt"
                         />
 
                 </LinearLayout>
-
 
                 <TextView
                     android:id="@+id/ruTextView"
@@ -166,8 +161,8 @@
                     android:layout_gravity="center"
                     android:visibility="gone"
                     />
-            </LinearLayout>
 
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/bottomPanel"
@@ -178,25 +173,38 @@
                 android:orientation="horizontal"
                 android:gravity="center_horizontal">
 
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/text_ru"
+                    android:textColor="@color/colorWhite"
+                    style="@android:style/Widget.Holo.Light.CompoundButton.CheckBox"
+                    app:buttonTint="@color/colorWhite"
+                    android:visibility="invisible"/>
+
+                <android.support.v4.widget.Space
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"/>
+
                 <ImageButton
                     android:id="@+id/btn_pause"
                     style="?android:attr/buttonStyleSmall"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:src="@drawable/selector_icon_pause"
                     android:onClick="btnPauseClick"
                     android:visibility="visible"
                     android:background="@drawable/selector_transp_to_white_back"
                     android:contentDescription="@string/content_describt"
-                    >
-
-                </ImageButton>
+                    />
 
                 <ImageButton
                     android:id="@+id/btn_stop"
                     style="?android:attr/buttonStyleSmall"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:src="@drawable/selector_icon_stop"
                     android:onClick="btnStopClick"
                     android:visibility="visible"
@@ -208,7 +216,7 @@
                     android:id="@+id/btn_speak"
                     style="?android:attr/buttonStyleSmall"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:src="@drawable/selector_icon_sound"
                     android:visibility="visible"
                     android:background="@drawable/selector_transp_to_white_back"
@@ -216,17 +224,41 @@
                     android:onClick="btnSpeak_OnClick"
                     />
 
+                <android.support.v4.widget.Space
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"/>
+
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/text_ru"
+                    android:id="@+id/check_box_ru_speak"
+                    android:textColor="@color/colorWhite"
+                    style="@android:style/Widget.Holo.Light.CompoundButton.CheckBox"
+                    app:buttonTint="@color/colorWhite"/>
+
             </LinearLayout>
         </FrameLayout>
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/about_app_fragment"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:id="@+id/banner_frame_main"
+            android:foreground="@drawable/semitransparent_background"
             >
+
         </FrameLayout>
 
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/about_app_fragment"
+        >
     </FrameLayout>
 
-
-</RelativeLayout>
+</FrameLayout>

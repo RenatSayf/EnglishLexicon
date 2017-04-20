@@ -91,7 +91,8 @@
                         android:id="@+id/edit_text_ru"
                         android:background="@drawable/text_button_for_test"
                         android:paddingLeft="10dp"
-                        android:paddingRight="10dp"/>
+                        android:paddingRight="10dp"
+                        android:inputType="textMultiLine"/>
 
                     <TextView
                         android:layout_width="match_parent"
@@ -100,7 +101,6 @@
                         android:textAppearance="?android:attr/textAppearanceMedium"
                         android:text="@string/label_count_repeat"
                         android:textColor="@color/colorWhite"
-                        android:allowUndo="false"
                         />
 
                     <Spinner
@@ -162,7 +162,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_weight="0"
             android:gravity="center_horizontal"
             android:layout_gravity="bottom"
             android:paddingTop="10dp"

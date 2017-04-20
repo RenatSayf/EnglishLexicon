@@ -67,17 +67,17 @@ public class AppSettings
         {
             String temp = ObjectSerializer.serialize(list);
             context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putString(KEY_PLAY_LIST_ITEMS, temp).apply();
-            AppData2 appData2 = AppData2.getInstance();
+            AppData appData = AppData.getInstance();
 
-            while (appData2.getNdict() > list.size()-1)
+            while (appData.getNdict() > list.size()-1)
             {
-                appData2.setNdict(appData2.getNdict()-1);
-                appData2.setNword(1);
+                appData.setNdict(appData.getNdict()-1);
+                appData.setNword(1);
             }
-            if (appData2.getNdict() < 0)
+            if (appData.getNdict() < 0)
             {
-                appData2.setNdict(0);
-                appData2.setNword(1);
+                appData.setNdict(0);
+                appData.setNword(1);
             }
         }
     }

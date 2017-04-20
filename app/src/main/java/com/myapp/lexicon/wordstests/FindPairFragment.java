@@ -40,7 +40,7 @@ import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
 import com.myapp.lexicon.main.BackgroundFragm;
 import com.myapp.lexicon.main.SplashScreenActivity;
-import com.myapp.lexicon.settings.AppData2;
+import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.ArrayList;
@@ -102,7 +102,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     private TestResults testResults;
     private FragmentManager fragmentManager;
     private AppSettings appSettings;
-    private AppData2 appData;
+    private AppData appData;
 
     private final String KEY_CONTROL_LIST_SIZE = "key_control_list_size";
     private final String KEY_WORDS_COUNT = "key_words_count";
@@ -228,7 +228,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         appSettings = new AppSettings(getActivity());
-        appData = AppData2.getInstance();
+        appData = AppData.getInstance();
         lockOrientation = new LockOrientation(getActivity());
         Display display = getActivity().getWindowManager().getDefaultDisplay();
         metrics = new DisplayMetrics();
