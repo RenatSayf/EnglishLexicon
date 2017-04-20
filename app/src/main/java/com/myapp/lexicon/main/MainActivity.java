@@ -183,30 +183,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // TODO: AsyncTaskLoader - 3. инициализация
         getLoaderManager().initLoader(LOADER_GET_ENTRIES, savedInstanceState, this);
 
-//        final AdView bannerView = (AdView) findViewById(R.id.adView_main);
-//        bannerView.setVisibility(View.GONE);
         if (savedInstanceState == null)
         {
             if (appData.isAdMob())
             {
-//                MobileAds.initialize(this, getString(R.string.main_bottom_banner));
-//                AdRequest adRequest = new AdRequest.Builder().build();
-//                AdRequest adRequest1 = new AdRequest.Builder().addTestDevice("7162b61eda7337bb").build();
-//                bannerView.loadAd(adRequest1);
-//                bannerView.setAdListener(new AdListener()
-//                {
-//                    @Override
-//                    public void onAdLoaded()
-//                    {
-//                        super.onAdLoaded();
-//                        bannerView.setVisibility(View.VISIBLE);
-//                    }
-//                });
-
                 if (appData.isOnline(this))
                 {
                     MainBannerFragment bannerFragment = new MainBannerFragment();
-                    getSupportFragmentManager().beginTransaction().replace(R.id.bottom_banner_fragment, bannerFragment).commit();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.banner_frame_main, bannerFragment).commit();
                 }
             }
         }
@@ -242,8 +226,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             btnNext.setVisibility(View.GONE);
         }
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
-//        switchRuSound = (Switch) findViewById(R.id.switch_ru_sound);
-//        switchRuSound.setChecked(appSettings.isEnglishSpeechOnly());
         checkBoxRuSpeak = (CheckBox) findViewById(R.id.check_box_ru_speak);
         checkBoxRuSpeak.setChecked(appSettings.isEnglishSpeechOnly());
         switchRuSound_OnCheckedChange();

@@ -20,7 +20,6 @@ import com.myapp.lexicon.settings.AppData;
  */
 public class MainBannerFragment extends Fragment
 {
-    private AppData appData;
     private View view = null;
 
     public MainBannerFragment()
@@ -33,7 +32,6 @@ public class MainBannerFragment extends Fragment
     {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        appData = AppData.getInstance();
     }
 
     @Override
