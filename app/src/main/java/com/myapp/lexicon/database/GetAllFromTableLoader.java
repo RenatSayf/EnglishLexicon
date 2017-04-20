@@ -5,6 +5,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 
+import com.myapp.lexicon.helpers.StringOperations;
+
 /**
  * Created by Renat on 01.03.2017.
  */
@@ -35,6 +37,7 @@ public class GetAllFromTableLoader extends AsyncTaskLoader<Cursor>
 
     private Cursor getAllFromDBTable(String tableName)
     {
+        tableName = StringOperations.getInstance().spaceToUnderscore(tableName);
         Cursor cursor = null;
         try
         {

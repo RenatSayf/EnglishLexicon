@@ -3,6 +3,7 @@ package com.myapp.lexicon.main;
 import android.app.IntentService;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.speech.tts.TextToSpeech;
@@ -12,8 +13,8 @@ import android.widget.Toast;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DatabaseHelper;
-import com.myapp.lexicon.main.SplashScreenActivity;
-import com.myapp.lexicon.settings.AppData2;
+import com.myapp.lexicon.helpers.StringOperations;
+import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
 import java.sql.SQLException;
@@ -29,7 +30,7 @@ public class SpeechService extends IntentService
     private static boolean stop = true;
     private DatabaseHelper databaseHelper;
     private AppSettings appSettings;
-    private AppData2 appData2;
+    private AppData appData;
     private String textEn;
     private String textRu;
     private String textDict;
@@ -42,6 +43,7 @@ public class SpeechService extends IntentService
     public static final String EXTRA_KEY_RU = "EXTRA_UPDATE_RU";
     public static final String EXTRA_KEY_DICT = "EXTRA_UPDATE_DICT";
     public static final String EXTRA_KEY_COUNT_REPEAT = "extra_key_count_repeat";
+    public static final String EXTRA_KEY_WORDS_COUNTER = "extra_words_counter";
 
     public SpeechService()
     {
@@ -59,7 +61,7 @@ public class SpeechService extends IntentService
             databaseHelper.create_db();
         }
         appSettings = new AppSettings(this);
-        appData2 = AppData2.getInstance();
+        appData = AppData.getInstance();
     }
 
     @Override
@@ -96,27 +98,11 @@ public class SpeechService extends IntentService
         {
             e.printStackTrace();
         }
-        if (isReset)
-        {
-            appData2.setNdict(0);
-            appData2.setNword(1);
-        }
-        else
-        {
-            appData2.setPause(true);
-        }
     }
 
     public static void stopIntentService()
     {
         stop = true;
-    }
-
-    private static boolean isReset = false;
-
-    public static void resetCounter(boolean param)
-    {
-        isReset = param;
     }
 
     public static void setEnglishOnly(boolean param)
@@ -127,6 +113,7 @@ public class SpeechService extends IntentService
     @Override
     public boolean stopService(Intent name)
     {
+        stop = true;
         return super.stopService(name);
     }
 
@@ -156,25 +143,24 @@ public class SpeechService extends IntentService
         {
             while (!stop)
             {
-                playList = appSettings.getPlayList();
                 if (playList.size() > 0)
                 {
-                    if (!appData2.isPause()) appData2.setNdict(0);
-                    for (int i = appData2.getNdict(); i < playList.size(); i++)
+                    if (!appData.isPause()) appData.setNdict(0);
+                    for (int i = appData.getNdict(); i < playList.size(); i++)
                     {
                         String playListItem = playList.get(i);
                         textDict = playListItem;
-                        appData2.setNdict(i);
+                        appData.setNdict(i);
                         int wordsCountInTable = getWordsCount(playListItem);
                         if (wordsCountInTable > 0)
                         {
-                            if (!appData2.isPause())
+                            if (!appData.isPause())
                             {
-                                appData2.setNword(1);
+                                appData.setNword(1);
                             }
-                            for (int j = appData2.getNword(); j <= wordsCountInTable; j++)
+                            for (int j = appData.getNword(); j <= wordsCountInTable; j++)
                             {
-                                appData2.setNword(j);
+                                appData.setNword(j);
                                 ArrayList<DataBaseEntry> list = getEntriesFromDB(playListItem, j, j);
                                 if (list.size() == 0)
                                 {
@@ -184,7 +170,7 @@ public class SpeechService extends IntentService
                                 int repeat;
                                 try
                                 {
-                                    repeat = Integer.parseInt(list.get(0).get_count_repeat());
+                                    repeat = Integer.parseInt(list.get(0).getCountRepeat());
                                 } catch (NumberFormatException e)
                                 {
                                     repeat = 1;
@@ -218,14 +204,14 @@ public class SpeechService extends IntentService
                                         e.printStackTrace();
                                     }
                                 }
-                                appData2.setNword(j);
+                                appData.setNword(j);
                             }
                         } else
                         {
                             break;
                         }
-                        appData2.setNdict(i);
-                        appData2.setPause(false);
+                        appData.setNdict(i);
+                        appData.setPause(false);
                     }
                 } else
                 {
@@ -238,25 +224,24 @@ public class SpeechService extends IntentService
         {
             while (!stop)
             {
-                playList = appSettings.getPlayList();
                 if (playList.size() > 0)
                 {
-                    if (!appData2.isPause()) appData2.setNdict(0);
-                    for (int i = appData2.getNdict(); i < playList.size(); i++)
+                    if (!appData.isPause()) appData.setNdict(0);
+                    for (int i = appData.getNdict(); i < playList.size(); i++)
                     {
                         String playListItem = playList.get(i);
                         textDict = playListItem;
-                        appData2.setNdict(i);
+                        appData.setNdict(i);
                         int wordsCountInTable = getWordsCount(playListItem);
                         if (wordsCountInTable > 0)
                         {
-                            if (!appData2.isPause())
+                            if (!appData.isPause())
                             {
-                                appData2.setNword(wordsCountInTable);
+                                appData.setNword(wordsCountInTable);
                             }
-                            for (int j = appData2.getNword(); j >= 1; j--)
+                            for (int j = appData.getNword(); j >= 1; j--)
                             {
-                                appData2.setNword(j);
+                                appData.setNword(j);
                                 ArrayList<DataBaseEntry> list = getEntriesFromDB(playListItem, j, j);
                                 if (list.size() == 0)
                                 {
@@ -266,7 +251,7 @@ public class SpeechService extends IntentService
                                 int repeat;
                                 try
                                 {
-                                    repeat = Integer.parseInt(list.get(0).get_count_repeat());
+                                    repeat = Integer.parseInt(list.get(0).getCountRepeat());
                                 } catch (NumberFormatException e)
                                 {
                                     repeat = 1;
@@ -300,14 +285,14 @@ public class SpeechService extends IntentService
                                         e.printStackTrace();
                                     }
                                 }
-                                appData2.setNword(j);
+                                appData.setNword(j);
                             }
                         } else
                         {
                             break;
                         }
-                        appData2.setNdict(i);
-                        appData2.setPause(false);
+                        appData.setNdict(i);
+                        appData.setPause(false);
                     }
                 } else
                 {
@@ -327,12 +312,13 @@ public class SpeechService extends IntentService
             {
                 if (utteranceId.equals("ru"))
                 {
-                    textRu = entries.get_translate();
+                    textRu = entries.getTranslate();
                 }
                 updateIntent.putExtra(EXTRA_KEY_EN, textEn);
                 updateIntent.putExtra(EXTRA_KEY_RU, textRu);
                 updateIntent.putExtra(EXTRA_KEY_DICT, textDict);
                 updateIntent.putExtra(EXTRA_KEY_COUNT_REPEAT, countRepeat);
+                updateIntent.putExtra(EXTRA_KEY_WORDS_COUNTER, appData.getNword());
                 sendBroadcast(updateIntent);
             }
 
@@ -346,11 +332,17 @@ public class SpeechService extends IntentService
                 }
                 if (utteranceId.equals("en"))
                 {
-                    textRu = entries.get_translate();
+                    textRu = entries.getTranslate();
                     HashMap<String,String> mapRu = new HashMap<>();
                     mapRu.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "ru");
                     SplashScreenActivity.speech.setLanguage(Locale.getDefault());
-                    SplashScreenActivity.speech.speak(textRu, TextToSpeech.QUEUE_ADD, mapRu);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                    {
+                        SplashScreenActivity.speech.speak(textRu, TextToSpeech.QUEUE_ADD, null, mapRu.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+                    } else
+                    {
+                        SplashScreenActivity.speech.speak(textRu, TextToSpeech.QUEUE_ADD, mapRu);
+                    }
                 }
                 if (utteranceId.equals("ru"))
                 {
@@ -383,10 +375,16 @@ public class SpeechService extends IntentService
         {
             mapEn.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "ru");
         }
-        textEn = entries.get_english();
+        textEn = entries.getEnglish();
         textRu = "";
         SplashScreenActivity.speech.setLanguage(Locale.US);
-        SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, mapEn);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+        {
+            SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, null, mapEn.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+        } else
+        {
+            SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, mapEn);
+        }
 
         while (!speek_done[0])
         {
@@ -400,8 +398,9 @@ public class SpeechService extends IntentService
         }
     }
 
-    private int getWordsCount(String dictName)
+    private int getWordsCount(String tableName)
     {
+        String table_name = StringOperations.getInstance().spaceToUnderscore(tableName);
         int count = 0;
         Cursor cursor = null;
         try
@@ -409,7 +408,7 @@ public class SpeechService extends IntentService
             if (databaseHelper.database.isOpen())
             {
 
-                cursor = databaseHelper.database.query(dictName, null, null, null, null, null, null);
+                cursor = databaseHelper.database.query(table_name, null, null, null, null, null, null);
                 count = cursor.getCount();
             }
         }
@@ -429,6 +428,7 @@ public class SpeechService extends IntentService
 
     public ArrayList<DataBaseEntry> getEntriesFromDB(String tableName, int startId, int endId)
     {
+        String table_name = StringOperations.getInstance().spaceToUnderscore(tableName);
         ArrayList<DataBaseEntry> entriesFromDB = new ArrayList<>();
         Cursor cursor = null;
         try
@@ -436,7 +436,7 @@ public class SpeechService extends IntentService
             databaseHelper.open();
             if (databaseHelper.database.isOpen())
             {
-                cursor = databaseHelper.database.rawQuery("SELECT * FROM " + tableName + " WHERE RowID BETWEEN " + startId +" AND " + endId, null);
+                cursor = databaseHelper.database.rawQuery("SELECT * FROM " + table_name + " WHERE RowID BETWEEN " + startId +" AND " + endId, null);
                 if (cursor.moveToFirst())
                 {
                     while (!cursor.isAfterLast())

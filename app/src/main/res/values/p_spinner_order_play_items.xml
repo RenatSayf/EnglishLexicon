@@ -6,11 +6,6 @@
         <item>В обратном порядке</item>
         <!--<item>Случайный выбор</item>-->
     </string-array>
-    <string-array name="order_play_items_values">
-        <item>0</item>
-        <item>1</item>
-        <!--<item>2</item>-->
-    </string-array>
 
 
 </resources>

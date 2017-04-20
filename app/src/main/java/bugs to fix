@@ -1,3 +1,0 @@
-1. b_AddWordActivity progressBarEn работает некорректно
-2. b_AddWordActivity иногда некорректно происходит выбор словаря
-3. t_OneOfFiveTest.java иногда сбивается spinner выбора словаря при нажатии Back и и входе обратно

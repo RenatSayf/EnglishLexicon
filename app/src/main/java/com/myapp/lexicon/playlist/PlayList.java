@@ -16,6 +16,7 @@ import android.widget.Spinner;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.database.GetTableListLoader;
+import com.myapp.lexicon.helpers.StringOperations;
 import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
     private ArrayList<String> playList = new ArrayList<>();
     private DatabaseHelper databaseHelper;
     private AppSettings appSettings;
+    private String[] dictArray;
 
     private final int LOADER_GET_TABLE_LIST = 2423144;
 
@@ -120,8 +122,6 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
         appSettings.savePlayList(playList);
     }
 
-    private String[] dictArray;
-
     public void buttonAddClick(View view)
     {
         getLoaderManager().restartLoader(LOADER_GET_TABLE_LIST, null, PlayList.this).forceLoad();
@@ -145,9 +145,16 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
                                     playList.add(dictArray[which]);
                                 }
                             }
+                            else
+                            {
+                                if (playList.contains(dictArray[which]))
+                                {
+                                    playList.remove(dictArray[which]);
+                                }
+                            }
                         }
                     })
-                    .setPositiveButton("Ok", new DialogInterface.OnClickListener()
+                    .setPositiveButton(getString(R.string.text_ok), new DialogInterface.OnClickListener()
                     {
                         @Override
                         public void onClick(DialogInterface dialog, int which)
@@ -206,9 +213,11 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
                         while ( !cursor.isAfterLast() )
                         {
                             nameNotDict = cursor.getString( cursor.getColumnIndex("name"));
-                            if (!nameNotDict.equals("android_metadata") && !nameNotDict.equals("sqlite_sequence"))
+                            if (!nameNotDict.equals(DatabaseHelper.TABLE_METADATA) && !nameNotDict.equals(DatabaseHelper.TABLE_SEQUENCE) && !nameNotDict.equals(DatabaseHelper.TABLE_API_KEY))
                             {
-                                list.add( cursor.getString( cursor.getColumnIndex("name")) );
+                                String table_name = cursor.getString(cursor.getColumnIndex("name"));
+                                table_name = StringOperations.getInstance().underscoreToSpace(table_name);
+                                list.add(table_name);
                             }
                             cursor.moveToNext();
                         }

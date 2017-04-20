@@ -5,7 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 
-import com.myapp.lexicon.settings.AppData2;
+import com.myapp.lexicon.helpers.StringOperations;
 
 import java.util.ArrayList;
 
@@ -24,7 +24,6 @@ public class GetDbEntriesLoader extends AsyncTaskLoader<ArrayList<DataBaseEntry>
     private int startId, endId;
 
     private DatabaseHelper databaseHelper;
-    private AppData2 appData2;
 
     public GetDbEntriesLoader(Context context, Bundle bundle)
     {
@@ -33,11 +32,10 @@ public class GetDbEntriesLoader extends AsyncTaskLoader<ArrayList<DataBaseEntry>
         databaseHelper.create_db();
         if (bundle != null)
         {
-            tableName = bundle.getString(KEY_TABLE_NAME);
+            tableName = StringOperations.getInstance().spaceToUnderscore(bundle.getString(KEY_TABLE_NAME));
             startId = bundle.getInt(KEY_START_ID);
             endId = bundle.getInt(KEY_END_ID);
         }
-        appData2 = AppData2.getInstance();
     }
 
     @Override
