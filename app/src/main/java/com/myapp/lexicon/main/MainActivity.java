@@ -40,10 +40,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.MobileAds;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.AddWordActivity;
@@ -183,25 +179,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // TODO: AsyncTaskLoader - 3. инициализация
         getLoaderManager().initLoader(LOADER_GET_ENTRIES, savedInstanceState, this);
 
-        final AdView bannerView = (AdView) findViewById(R.id.adView_main);
-        bannerView.setVisibility(View.GONE);
-        if (appData.isOnline(this))
+        if (savedInstanceState == null)
         {
             if (appData.isAdMob())
             {
-                MobileAds.initialize(this, getString(R.string.main_bottom_banner));
-                AdRequest adRequest = new AdRequest.Builder().build();
-                AdRequest adRequest1 = new AdRequest.Builder().addTestDevice("7162b61eda7337bb").build();
-                bannerView.loadAd(adRequest1);
-                bannerView.setAdListener(new AdListener()
+                if (appData.isOnline(this))
                 {
-                    @Override
-                    public void onAdLoaded()
-                    {
-                        super.onAdLoaded();
-                        bannerView.setVisibility(View.VISIBLE);
-                    }
-                });
+                    MainBannerFragment bannerFragment = new MainBannerFragment();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.banner_frame_main, bannerFragment).commit();
+                }
             }
         }
 
@@ -236,8 +222,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             btnNext.setVisibility(View.GONE);
         }
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
-//        switchRuSound = (Switch) findViewById(R.id.switch_ru_sound);
-//        switchRuSound.setChecked(appSettings.isEnglishSpeechOnly());
         checkBoxRuSpeak = (CheckBox) findViewById(R.id.check_box_ru_speak);
         checkBoxRuSpeak.setChecked(appSettings.isEnglishSpeechOnly());
         switchRuSound_OnCheckedChange();
