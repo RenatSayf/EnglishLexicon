@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
@@ -19,12 +20,12 @@ import java.util.HashMap;
 import java.util.Locale;
 
 /**
- * Created by Ренат on 15.09.2016.
+ * The initial activity that checks the voice functions of the device
  */
 public class SplashScreenActivity extends Activity
 {
     public static TextToSpeech speech;
-    public static HashMap<String, String> map = new HashMap<String, String>();
+    public HashMap<String, String> map = new HashMap<>();
 
     private UpdateBroadcastReceiver broadcastReceiver; // TODO: UpdateBroadcastReceiver. 1 - объявление экземпляра UpdateBroadcastReceiver
     private Intent messageErrorIntent;  // TODO: UpdateBroadcastReceiver. 2 - объявление экземпляра Intent
@@ -72,7 +73,13 @@ public class SplashScreenActivity extends Activity
                     {
                         map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.US.getDisplayLanguage());
                         speech.setLanguage(Locale.US);
-                        speech.speak(getString(R.string.start_speech_en),TextToSpeech.QUEUE_ADD,map);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                        {
+                            speech.speak(getString(R.string.start_speech_en), TextToSpeech.QUEUE_ADD, null, map.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+                        } else
+                        {
+                            speech.speak(getString(R.string.start_speech_en),TextToSpeech.QUEUE_ADD,map);
+                        }
                     }
                 }else
                 {
@@ -103,7 +110,13 @@ public class SplashScreenActivity extends Activity
                 {
                     map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.getDefault().getDisplayLanguage());
                     speech.setLanguage(Locale.getDefault());
-                    speech.speak(getString(R.string.start_speech_ru),TextToSpeech.QUEUE_ADD,map);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                    {
+                        speech.speak(getString(R.string.start_speech_ru), TextToSpeech.QUEUE_ADD, null, map.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+                    } else
+                    {
+                        speech.speak(getString(R.string.start_speech_ru), TextToSpeech.QUEUE_ADD, map);
+                    }
                 }
             }
 
@@ -193,7 +206,6 @@ public class SplashScreenActivity extends Activity
             }
             if (id.equals(Locale.getDefault().getDisplayLanguage()))
             {
-                boolean englishSpeechOnly = appSettings.isEnglishSpeechOnly();
                 if (appSettings.isEnglishSpeechOnly())
                 {
                     dialogErrorTTS(installTTSdata, getString(R.string.message_inst_tts_data_ru), true);

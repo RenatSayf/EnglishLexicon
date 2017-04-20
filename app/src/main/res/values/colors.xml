@@ -4,10 +4,15 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="colorWhite">#ffffff</color>
+    <color name="colorWhiteOpacity">#dcffffff</color>
     <color name="colorBlack">#FF000000</color>
-    <color name="testMatchPageColor">#42ed8a</color>
     <color name="colorOrange">#e6a612</color>
-    <color name="colorYellow">#e6f241</color>
-    <color name="one_of_five_backgr">#d6e413</color>
+    <color name="colorGreen">#42ed8a</color>
+    <color name="colorLightRed">#fa3f42</color>
+    <color name="colorLightPurple">#a7a5f7</color>
+    <color name="colorTransparent">#00000000</color>
     <color name="colorGrey">#aaafd7</color>
+    <color name="eng_text_color">#132ef7</color>
+    <color name="trans_text_color">#0b9404</color>
+    <color name="colorLightGreen">#90fd75</color>
 </resources>

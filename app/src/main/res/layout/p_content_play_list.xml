@@ -54,6 +54,11 @@
             android:layout_gravity="left"
             android:onClick="buttonAddClick"
             android:text="@string/add"
+            android:textColor="@drawable/selector_text_black_to_white"
+            android:background="@drawable/text_btn_for_test_green"
+            android:drawableLeft="@drawable/selector_icon_add"
+            style="@style/Base.Widget.AppCompat.ButtonBar"
+            android:paddingRight="10dp"
             />
 
         <ListView

@@ -21,7 +21,6 @@
 
 
         </shape>
-        <color android:color="@android:color/transparent"/>
     </item>
 
 </selector>

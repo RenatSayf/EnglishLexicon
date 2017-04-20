@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 
 import com.myapp.lexicon.helpers.LockOrientation;
+import com.myapp.lexicon.helpers.StringOperations;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ import java.util.ArrayList;
 
 public class GetEntriesAsync extends AsyncTask<String, Void, Cursor>
 {
-    private WeakReference<AsyncTaskListener> listener;
+    private AsyncTaskListener listener;
     private LockOrientation lockOrientation;
     private Activity activity;
     private DatabaseHelper databaseHelper;
@@ -36,14 +37,17 @@ public class GetEntriesAsync extends AsyncTask<String, Void, Cursor>
 
     private void setTaskCompleteListener(AsyncTaskListener listener)
     {
-        this.listener = new WeakReference<>(listener);
+        this.listener = listener;
     }
 
     @Override
     protected void onPreExecute()
     {
         super.onPreExecute();
-        lockOrientation.lock();
+        if (activity != null)
+        {
+            lockOrientation.lock();
+        }
     }
 
     @Override
@@ -55,10 +59,11 @@ public class GetEntriesAsync extends AsyncTask<String, Void, Cursor>
             databaseHelper.open();
             if (databaseHelper.database.isOpen())
             {
-                cursor = databaseHelper.database.rawQuery("SELECT max(RowId) FROM " + params[0], null);
+                String table_name = StringOperations.getInstance().spaceToUnderscore(params[0]);
+                cursor = databaseHelper.database.rawQuery("SELECT max(RowId) FROM " + table_name, null);
                 cursor.moveToFirst();
                 long rowId = cursor.getLong(0);
-                cursor = databaseHelper.database.rawQuery("SELECT * FROM " + params[0] + " WHERE RowID BETWEEN " + params[1] +" AND " + params[2], null);
+                cursor = databaseHelper.database.rawQuery("SELECT * FROM " + table_name + " WHERE RowID BETWEEN " + params[1] +" AND " + params[2], null);
             }
         }
         catch (Exception e)
@@ -72,7 +77,6 @@ public class GetEntriesAsync extends AsyncTask<String, Void, Cursor>
     protected void onPostExecute(Cursor cursor)
     {
         super.onPostExecute(cursor);
-        AsyncTaskListener listener = this.listener.get();
         if (listener != null)
         {
             ArrayList<DataBaseEntry> entries = new ArrayList<>();
@@ -101,7 +105,10 @@ public class GetEntriesAsync extends AsyncTask<String, Void, Cursor>
                     cursor.close();
                 }
                 listener.onTaskComplete(entries);
-                lockOrientation.unLock();
+                if (activity != null)
+                {
+                    lockOrientation.unLock();
+                }
             }
         }
     }
@@ -110,6 +117,9 @@ public class GetEntriesAsync extends AsyncTask<String, Void, Cursor>
     protected void onCancelled()
     {
         super.onCancelled();
-        lockOrientation.unLock();
+        if (activity != null)
+        {
+            lockOrientation.unLock();
+        }
     }
 }

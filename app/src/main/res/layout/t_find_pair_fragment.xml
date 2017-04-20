@@ -3,7 +3,14 @@
              android:layout_width="match_parent"
              android:layout_height="match_parent"
              tools:context="com.myapp.lexicon.wordstests.FindPairFragment"
-    android:background="@color/colorWhite">
+    android:background="@color/colorOrange">
+
+    <include
+        layout="@layout/a_image_background2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="0dp"
+        />
 
     <ProgressBar
         style="?android:attr/progressBarStyleHorizontal"
@@ -11,6 +18,8 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
         android:layout_marginTop="30dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
         android:id="@+id/prog_bar_find_pair"
         />
 
@@ -20,7 +29,8 @@
         android:layout_marginBottom="10dp"
         android:orientation="horizontal"
         android:id="@+id/lin_layout_find_pair"
-        android:layout_below="@id/prog_bar_find_pair">
+        android:layout_below="@id/prog_bar_find_pair"
+        android:baselineAligned="false">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -38,6 +48,10 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginBottom="5dp"
+                android:textColor="@color/eng_text_color"
+                android:textStyle="bold"
+                style="@style/Base.Widget.AppCompat.ButtonBar"
+                android:textSize="18sp"
                 />
 
             <Button
@@ -49,6 +63,10 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginBottom="5dp"
+                android:textColor="@color/eng_text_color"
+                android:textStyle="bold"
+                style="@style/Base.Widget.AppCompat.ButtonBar"
+                android:textSize="18sp"
                 />
 
             <Button
@@ -60,6 +78,10 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginBottom="5dp"
+                android:textColor="@color/eng_text_color"
+                android:textStyle="bold"
+                style="@style/Base.Widget.AppCompat.ButtonBar"
+                android:textSize="18sp"
                 />
 
             <Button
@@ -71,6 +93,10 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginBottom="5dp"
+                android:textColor="@color/eng_text_color"
+                android:textStyle="bold"
+                style="@style/Base.Widget.AppCompat.ButtonBar"
+                android:textSize="18sp"
                 />
 
             <Button
@@ -82,6 +108,10 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginBottom="10dp"
+                android:textColor="@color/eng_text_color"
+                android:textStyle="bold"
+                style="@style/Base.Widget.AppCompat.ButtonBar"
+                android:textSize="18sp"
                 />
 
         </LinearLayout>
@@ -102,6 +132,10 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginBottom="5dp"
+                android:textColor="@color/trans_text_color"
+                android:textStyle="bold"
+                style="@style/Base.Widget.AppCompat.ButtonBar"
+                android:textSize="18sp"
                 />
 
             <Button
@@ -113,6 +147,10 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginBottom="5dp"
+                android:textColor="@color/trans_text_color"
+                android:textStyle="bold"
+                style="@style/Base.Widget.AppCompat.ButtonBar"
+                android:textSize="18sp"
                 />
 
             <Button
@@ -124,6 +162,10 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginBottom="5dp"
+                android:textColor="@color/trans_text_color"
+                android:textStyle="bold"
+                style="@style/Base.Widget.AppCompat.ButtonBar"
+                android:textSize="18sp"
                 />
 
             <Button
@@ -135,6 +177,10 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginBottom="5dp"
+                android:textColor="@color/trans_text_color"
+                android:textStyle="bold"
+                style="@style/Base.Widget.AppCompat.ButtonBar"
+                android:textSize="18sp"
                 />
 
             <Button
@@ -146,6 +192,10 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginBottom="10dp"
+                android:textColor="@color/trans_text_color"
+                android:textStyle="bold"
+                style="@style/Base.Widget.AppCompat.ButtonBar"
+                android:textSize="18sp"
                 />
 
         </LinearLayout>
@@ -158,7 +208,7 @@
         android:id="@+id/top_panel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="-158dp">
+        android:layout_marginTop="-164dp">
 
         <include
             layout="@layout/t_top_panel"

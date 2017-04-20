@@ -1,34 +1,21 @@
 <resources>
     <string name="app_name">Lexicon</string>
+    <string name="app_link">https://play.google.com/store</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <string name="action_settings">Настройки</string>
     <string name="add_word">Добавить слово</string>
     <string name="add_dict">Добавить словарь</string>
     <string name="edit_word">Изменить слово</string>
     <string name="check_your_self">Тесты</string>
     <string name="exit">Выход</string>
-    <string name="title_activity_add_dict">Add or remove the dictionary</string>
     <string name="title_activity_add_word">Добавить слово</string>
-    <string name="title_activity_edit_word">Редактор слов</string>
     <string name="title_activity_check_self">Тесты</string>
 
     <!-- Strings related to Settings -->
 
     <!-- Example General settings -->
-    <string name="pref_header_general">General</string>
-
-    <string name="pref_title_social_recommendations">Enable social recommendations</string>
-    <string name="pref_description_social_recommendations">Recommendations for people to contact
-        based on your message history
-    </string>
-
-    <string name="pref_title_display_name">Display name</string>
-    <string name="pref_default_display_name">John Smith</string>
-
-    <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
 
     <string-array name="not_move">
         <item>Не перемещать</item>
@@ -49,50 +36,16 @@
     </string-array>
 
     <!-- Example settings for Data & Sync -->
-    <string name="pref_header_data_sync">Data &amp; sync</string>
-
-    <string name="pref_title_sync_frequency">Sync frequency</string>
-    <string-array name="pref_sync_frequency_titles">
-        <item>15 minutes</item>
-        <item>30 minutes</item>
-        <item>1 hour</item>
-        <item>3 hours</item>
-        <item>6 hours</item>
-        <item>Never</item>
-    </string-array>
-    <string-array name="pref_sync_frequency_values">
-        <item>15</item>
-        <item>30</item>
-        <item>60</item>
-        <item>180</item>
-        <item>360</item>
-        <item>-1</item>
-    </string-array>
-
-    <string name="pref_title_system_sync_settings">System sync settings</string>
 
     <!-- Example settings for Notifications -->
-    <string name="pref_header_notifications">Notifications</string>
 
-    <string name="pref_title_new_message_notifications">New message notifications</string>
-
-    <string name="pref_title_ringtone">Ringtone</string>
-    <string name="pref_ringtone_silent">Silent</string>
-
-    <string name="pref_title_vibrate">Vibrate</string>
     <string name="title_activity_word_editor">Редактор слов</string>
     <string name="title_activity_play_list">Список воспроизведения</string>
-    <string name="title_spinner_list_dict">Словари</string>
-    <string name="title_activity_word__editor">Редактор слов</string>
-    <string name="title_activity_editor_words">Редактор слов</string>
-    <string name="title_activity_dict_set">Настройки словаря</string>
-    <string name="section_format">Hello World from section: %1$d</string>
     <string name="delete_dict">Удалить словарь</string>
     <string name="spinner_order_play_header">Порядок воспроизведения:</string>
     <string name="play_list_header">Список воспроизведения:</string>
     <string name="add">Добавить</string>
     <string name="access_dict">Доступные словари</string>
-    <string name="select_dict">Выбран словарь</string>
     <string name="no_playlist">Не задан список воспроизведения</string>
     <string name="message_about_pause">Пауза</string>
     <string name="message_about_start">Подождите немного сейчас начнем</string>
@@ -114,9 +67,6 @@
     <string name="text_add">Добавить</string>
     <string name="new_word_is_added">" добавлено новое слово"</string>
     <string name="in_dictionary">"В словарь "</string>
-    <string name="play_list">Play List</string>
-    <string name="tests">Тесты</string>
-    <string name="msg_change_word">Что бы изменить слово - нажимайте долго</string>
     <string name="label_english">English</string>
     <string name="label_russian">Русский</string>
     <string name="label_count_repeat">Количество повторов</string>
@@ -124,8 +74,6 @@
     <string name="msg_wrong_text">В одном из полей ввода текст не соответствует языку</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="header.matchfragment">Найди соответствия в словаре:</string>
     <string name="header.correctfragment">Выбери правильно в словаре:</string>
     <string name="text_excellent">Отлично</string>
     <string name="text_good">Хорошо</string>
@@ -139,21 +87,16 @@
     <string name="btn_text_add">Добавить</string>
     <string name="btn_text_cancel">Отмена</string>
     <string name="text_set_dict_name">Задайте имя словаря</string>
-    <string name="search_hint">search_hint</string>
     <string name="menu_search">Найти</string>
     <string name="dialog_title_confirm_action">Подтвердите ваши действия</string>
     <string name="dialog_msg_delete_word">"Вы действительно хотите удалить слово из словаря - "</string>
     <string name="msg_data_base_error">"Ошибка базы данных - "</string>
     <string name="key_play_order">key_play_order</string>
-    <string name="text_msg_not_match_lang">Текст не соответствует языку</string>
     <string name="speech_error">Error of speech synthesis</string>
     <string name="is_one_time">is_one_time</string>
     <string name="text_ru_off">Ru Выкл</string>
     <string name="text_ru_on">Ru Вкл</string>
     <string name="text_added_new_dict">"Добавлен новый словарь: "</string>
-    <string name="play_list_set">play_list</string>
-    <string name="key_play_list">play_list</string>
-    <string name="play_list_items">play_list_items</string>
     <string name="btn_text_setup">Установить</string>
     <string name="start_speech_en">lets go</string>
     <string name="start_speech_ru">Поехали</string>
@@ -164,6 +107,51 @@
     <string name="text_one_of_five">1 из 5</string>
     <string name="text_find_pair">Нади пару</string>
     <string name="text_choice_test">Выберите тест</string>
+    <string name="text_find_pair_words">Найди парные слова</string>
+    <string name="text_recognize_words_by_sight">Распознай слова на слух</string>
+    <string name="text_dictionary">Словарь:</string>
+    <string name="text_ok">OK</string>
+    <string name="text_complete">Завершить</string>
+    <string name="text_choose_correctly">Выбери правильно</string>
+    <string name="description_sound_button">sound_button</string>
+    <string name="text_finish">Завершить</string>
+    <string name="text_repeat">Повтор</string>
+    <string name="text_next">Следующий</string>
+    <string name="text_50_50">50 из 50</string>
+    <string name="text_correctly">Верно:</string>
+    <string name="text_test_is_finish">Тест завершен</string>
+    <string name="descript_image_background">image_background</string>
+    <string name="msg_error_creating_database">Не удалось создать базу данных</string>
+    <string name="http_error_413">Превышен максимально допустимый размер текста</string>
+    <string name="http_error_422">Текст не может быть переведен</string>
+    <string name="http_error_501">Заданное направление перевода не поддерживается</string>
+    <string name="http_error_401">Неправильный API-ключ</string>
+    <string name="http_error_402">API-ключ заблокирован</string>
+    <string name="http_error_404">Превышено суточное ограничение на объем переведенного текста</string>
+    <string name="title_yandex_translate">Яндекс.Переводчик:</string>
+    <string name="menu_text_api_key">Ввести API ключ</string>
+    <string name="dialog_error_text_0">Если у Вас есть API-ключ введите его в поле ниже или нажмите кнопку \"Вставить\" если он скопирован, затем нажмите \"Сохранить\".</string>
+    <string name="dialog_option_text_0">Если у Вас нет ключа, Вы можете получить бесплатный API-ключ нажав кнопку \"Получить\".</string>
+    <string name="tech.yandex.ru_translate">https://tech.yandex.ru/translate/</string>
+    <string name="text_api_key">API ключ:</string>
+    <string name="text_paste">Вставить</string>
+    <string name="text_save">Сохранить</string>
+    <string name="text_get">Получить</string>
+    <string name="text_cancel">Отмена</string>
+    <string name="text_evaluate_app">Оценить приложение</string>
+    <string name="text_about_app">О программе</string>
+    <string name="content_describt">image_view</string>
+    <string name="text_developer_name">Разработка: Ренат Сайфутдинов</string>
+    <string name="text_developer_email">E-mail: renatsayf@gmail.com</string>
+    <string name="text_evaluate">Оценить</string>
+    <string name="you_have_uncompleted_test">У Вас есть незавершенный тест. Вы хотите продолжить проверку или начать тест с начала</string>
+    <string name="text_continue">Продолжить</string>
+    <string name="text_from_the_beginning">С начала</string>
+    <string name="text_not_finished_test">Вы не завершили тест. Сделать закладку, что бы потом продолжить с этого же места?</string>
+    <string name="text_speech_settings">Голосовые настройки</string>
+    <string name="text_speech_recogniz_not_support">Извените! Распознавание речи не поддерживается на этом устройстве.</string>
+    <string name="text_say_something">Говорите...</string>
+    <string name="text_voice_input_not_available">Нет соединения с интернетом. Голосовой ввод недоступен</string>
 
 
 </resources>
