@@ -183,25 +183,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // TODO: AsyncTaskLoader - 3. инициализация
         getLoaderManager().initLoader(LOADER_GET_ENTRIES, savedInstanceState, this);
 
-        final AdView bannerView = (AdView) findViewById(R.id.adView_main);
-        bannerView.setVisibility(View.GONE);
-        if (appData.isOnline(this))
+//        final AdView bannerView = (AdView) findViewById(R.id.adView_main);
+//        bannerView.setVisibility(View.GONE);
+        if (savedInstanceState == null)
         {
             if (appData.isAdMob())
             {
-                MobileAds.initialize(this, getString(R.string.main_bottom_banner));
-                AdRequest adRequest = new AdRequest.Builder().build();
-                AdRequest adRequest1 = new AdRequest.Builder().addTestDevice("7162b61eda7337bb").build();
-                bannerView.loadAd(adRequest1);
-                bannerView.setAdListener(new AdListener()
+//                MobileAds.initialize(this, getString(R.string.main_bottom_banner));
+//                AdRequest adRequest = new AdRequest.Builder().build();
+//                AdRequest adRequest1 = new AdRequest.Builder().addTestDevice("7162b61eda7337bb").build();
+//                bannerView.loadAd(adRequest1);
+//                bannerView.setAdListener(new AdListener()
+//                {
+//                    @Override
+//                    public void onAdLoaded()
+//                    {
+//                        super.onAdLoaded();
+//                        bannerView.setVisibility(View.VISIBLE);
+//                    }
+//                });
+
+                if (appData.isOnline(this))
                 {
-                    @Override
-                    public void onAdLoaded()
-                    {
-                        super.onAdLoaded();
-                        bannerView.setVisibility(View.VISIBLE);
-                    }
-                });
+                    MainBannerFragment bannerFragment = new MainBannerFragment();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.bottom_banner_fragment, bannerFragment).commit();
+                }
             }
         }
 

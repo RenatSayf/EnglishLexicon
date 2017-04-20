@@ -1,281 +1,277 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<FrameLayout
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    xmlns:ads="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/side_nav_bar"
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".main.MainActivity"
-    tools:showIn="@layout/a_layout_main"
-    android:background="@drawable/side_nav_bar">
+    tools:showIn="@layout/a_layout_main">
 
 
     <FrameLayout
+        android:id="@+id/background_fragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1"
         >
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/background_fragment"
-            >
-        </FrameLayout>
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:background="@drawable/semitransparent_background"
-            >
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_marginTop="10dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/textViewDict"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:minWidth="80dp"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="@color/colorWhite"
-                    />
-
-                <android.support.v4.widget.Space
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/tv_words_counter"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="@color/colorWhite"
-                    />
-
-            </LinearLayout>
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="15dp"
-                android:layout_gravity="center"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/enTextView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0"
-                    android:background="@android:color/transparent"
-                    android:gravity="center"
-                    android:textAlignment="center"
-                    android:textColor="@color/colorWhite"
-                    android:textSize="40sp"
-                    android:textStyle="normal|bold"/>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="5dp"
-                    android:layout_marginTop="5dp"
-                    android:gravity="center"
-                    android:orientation="horizontal">
-
-                    <ImageButton
-                        android:id="@+id/btn_previous"
-                        style="?android:attr/buttonStyleSmall"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:src="@drawable/selector_icon_skip_prev"
-                        android:onClick="btnNextBackClick"
-                        android:visibility="visible"
-                        android:gravity="center_horizontal"
-                        android:background="@drawable/selector_transp_to_white_back"
-                        android:contentDescription="@string/content_describt"
-                        />
-
-                    <android.support.v4.widget.Space
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"/>
-
-                    <ImageButton
-                        android:id="@+id/btn_play"
-                        style="?android:attr/buttonStyleSmall"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:src="@drawable/selector_icon_play_arrow"
-                        android:onClick="btnPlayClick"
-                        android:background="@drawable/selector_transp_to_white_back"
-                        android:contentDescription="@string/content_describt"
-                        />
-
-                    <android.support.v4.widget.Space
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        />
-
-                    <ImageButton
-                        android:id="@+id/btn_next"
-                        style="?android:attr/buttonStyleSmall"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:gravity="right"
-                        android:src="@drawable/selector_icon_skip_next"
-                        android:onClick="btnNextBackClick"
-                        android:visibility="visible"
-                        android:background="@drawable/selector_transp_to_white_back"
-                        android:contentDescription="@string/content_describt"
-                        />
-
-                </LinearLayout>
-
-
-                <TextView
-                    android:id="@+id/ruTextView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0"
-                    android:background="@android:color/transparent"
-                    android:gravity="center"
-                    android:textAlignment="center"
-                    android:textColor="@color/colorLightGreen"
-                    android:textSize="40sp"
-                    android:textStyle="normal|bold"/>
-
-                <ProgressBar
-                    android:id="@+id/progressBar"
-                    style="?android:attr/progressBarStyleLarge"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:visibility="gone"
-                    />
-
-
-
-
-            </LinearLayout>
-
-
-
-
-
-            <LinearLayout
-                android:id="@+id/bottomPanel"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_margin="5dp"
-                android:layout_gravity="bottom"
-                android:orientation="horizontal"
-                android:gravity="center_horizontal">
-
-
-
-                <CheckBox
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="Ru"
-                    android:textColor="@color/colorWhite"
-                    style="@android:style/Widget.Holo.Light.CompoundButton.CheckBox"
-                    app:buttonTint="@color/colorWhite"
-                    android:visibility="invisible"/>
-
-                <android.support.v4.widget.Space
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"/>
-
-                <ImageButton
-                    android:id="@+id/btn_pause"
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/selector_icon_pause"
-                    android:onClick="btnPauseClick"
-                    android:visibility="visible"
-                    android:background="@drawable/selector_transp_to_white_back"
-                    android:contentDescription="@string/content_describt"
-                    >
-
-                </ImageButton>
-
-                <ImageButton
-                    android:id="@+id/btn_stop"
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/selector_icon_stop"
-                    android:onClick="btnStopClick"
-                    android:visibility="visible"
-                    android:background="@drawable/selector_transp_to_white_back"
-                    android:contentDescription="@string/content_describt"
-                    />
-
-                <ImageButton
-                    android:id="@+id/btn_speak"
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/selector_icon_sound"
-                    android:visibility="visible"
-                    android:background="@drawable/selector_transp_to_white_back"
-                    android:contentDescription="@string/content_describt"
-                    android:onClick="btnSpeak_OnClick"
-                    />
-
-                <android.support.v4.widget.Space
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"/>
-
-                <CheckBox
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="Ru"
-                    android:id="@+id/check_box_ru_speak"
-                    android:textColor="@color/colorWhite"
-                    style="@android:style/Widget.Holo.Light.CompoundButton.CheckBox"
-                    app:buttonTint="@color/colorWhite"/>
-
-            </LinearLayout>
-        </FrameLayout>
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/about_app_fragment"
-            >
-        </FrameLayout>
-
     </FrameLayout>
 
-    <com.google.android.gms.ads.AdView
-        android:id="@+id/adView_main"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0"
-        ads:adSize="SMART_BANNER"
-        ads:adUnitId="@string/main_bottom_banner"
-        android:visibility="visible"
-        />
+        android:layout_height="match_parent"
+        android:background="@drawable/semitransparent_background"
+        android:orientation="vertical"
+        >
 
-</LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/textViewDict"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:minWidth="80dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/colorWhite"
+                />
+
+            <android.support.v4.widget.Space
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"/>
+
+            <TextView
+                android:id="@+id/tv_words_counter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/colorWhite"
+                />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:layout_margin="15dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/enTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:gravity="center"
+                android:textAlignment="center"
+                android:textColor="@color/colorWhite"
+                android:textSize="40sp"
+                android:textStyle="normal|bold"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="5dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/btn_previous"
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/selector_transp_to_white_back"
+                    android:contentDescription="@string/content_describt"
+                    android:gravity="center_horizontal"
+                    android:onClick="btnNextBackClick"
+                    android:src="@drawable/selector_icon_skip_prev"
+                    android:visibility="visible"
+                    />
+
+                <android.support.v4.widget.Space
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"/>
+
+                <ImageButton
+                    android:id="@+id/btn_play"
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:background="@drawable/selector_transp_to_white_back"
+                    android:contentDescription="@string/content_describt"
+                    android:onClick="btnPlayClick"
+                    android:src="@drawable/selector_icon_play_arrow"
+                    />
+
+                <android.support.v4.widget.Space
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    />
+
+                <ImageButton
+                    android:id="@+id/btn_next"
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/selector_transp_to_white_back"
+                    android:contentDescription="@string/content_describt"
+                    android:gravity="right"
+                    android:onClick="btnNextBackClick"
+                    android:src="@drawable/selector_icon_skip_next"
+                    android:visibility="visible"
+                    />
+
+            </LinearLayout>
+
+
+            <TextView
+                android:id="@+id/ruTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:gravity="center"
+                android:textAlignment="center"
+                android:textColor="@color/colorLightGreen"
+                android:textSize="40sp"
+                android:textStyle="normal|bold"/>
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                />
+
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/bottomPanel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:layout_gravity="bottom"
+            android:layout_margin="5dp"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <CheckBox
+                style="@android:style/Widget.Holo.Light.CompoundButton.CheckBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Ru"
+                android:textColor="@color/colorWhite"
+                android:visibility="invisible"
+                app:buttonTint="@color/colorWhite"/>
+
+            <android.support.v4.widget.Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"/>
+
+            <ImageButton
+                android:id="@+id/btn_pause"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/selector_transp_to_white_back"
+                android:contentDescription="@string/content_describt"
+                android:onClick="btnPauseClick"
+                android:src="@drawable/selector_icon_pause"
+                android:visibility="visible"
+                >
+
+            </ImageButton>
+
+            <ImageButton
+                android:id="@+id/btn_stop"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/selector_transp_to_white_back"
+                android:contentDescription="@string/content_describt"
+                android:onClick="btnStopClick"
+                android:src="@drawable/selector_icon_stop"
+                android:visibility="visible"
+                />
+
+            <ImageButton
+                android:id="@+id/btn_speak"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/selector_transp_to_white_back"
+                android:contentDescription="@string/content_describt"
+                android:onClick="btnSpeak_OnClick"
+                android:src="@drawable/selector_icon_sound"
+                android:visibility="visible"
+                />
+
+            <android.support.v4.widget.Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"/>
+
+            <CheckBox
+                android:id="@+id/check_box_ru_speak"
+                style="@android:style/Widget.Holo.Light.CompoundButton.CheckBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Ru"
+                android:textColor="@color/colorWhite"
+                app:buttonTint="@color/colorWhite"/>
+
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/bottom_banner_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_weight="0"
+            >
+            <CheckBox
+                style="@android:style/Widget.Holo.Light.CompoundButton.CheckBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Ru"
+                android:textColor="@color/colorWhite"
+                app:buttonTint="@color/colorWhite"/>
+        </FrameLayout>
+
+    </LinearLayout>
+
+
+    <FrameLayout
+        android:id="@+id/about_app_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+    </FrameLayout>
+
+
+</FrameLayout>
