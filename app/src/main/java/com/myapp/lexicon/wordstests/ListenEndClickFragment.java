@@ -41,7 +41,7 @@ import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
 import com.myapp.lexicon.main.BackgroundFragm;
 import com.myapp.lexicon.main.SplashScreenActivity;
-import com.myapp.lexicon.settings.AppData2;
+import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.ArrayList;
@@ -84,7 +84,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
     private TestResults testResults;
     private DisplayMetrics displayMetrics;
     private AppSettings appSettings;
-    private AppData2 appData;
+    private AppData appData;
     private Fields fields;
 
     private final String KEY_FIELDS = "key_fields";
@@ -170,7 +170,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
 
         lockOrientation = new LockOrientation(getActivity());
         appSettings = new AppSettings(getActivity());
-        appData = AppData2.getInstance();
+        appData = AppData.getInstance();
 
         View fragment_view = inflater.inflate(R.layout.t_listen_end_click_layout, container, false);
 

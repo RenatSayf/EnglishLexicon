@@ -4,7 +4,6 @@ import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.LoaderManager;
 import android.app.Service;
-import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -17,7 +16,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.provider.Settings;
-import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
@@ -34,14 +32,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.AddWordActivity;
@@ -51,7 +53,7 @@ import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.database.GetEntriesLoader;
 import com.myapp.lexicon.database.GetTableListFragm;
 import com.myapp.lexicon.playlist.PlayList;
-import com.myapp.lexicon.settings.AppData2;
+import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 import com.myapp.lexicon.wordeditor.WordEditor;
 import com.myapp.lexicon.wordstests.Tests;
@@ -74,29 +76,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView textViewEn;
     private TextView textViewRu;
     private TextView textViewDict;
+    private TextView tvWordsCounter;
     private ImageButton btnPlay;
     private ImageButton btnStop;
     private ImageButton btnPause;
     private ImageButton btnNext;
     private ImageButton btnPrevious;
     private ProgressBar progressBar;
-    private Switch switchRuSound;
+    private CheckBox checkBoxRuSpeak;
     private static Intent speechIntentService;
     private UpdateBroadcastReceiver mUpdateBroadcastReceiver;
     private boolean isFirstTime = true;
     private AppSettings appSettings;
-    private AppData2 appData2;
+    private AppData appData;
     private ArrayList<String> playList = new ArrayList<>();
 
-    private String KEY_ENG_TEXT = "eng_text";
-    private String KEY_RU_TEXT = "ru_text";
-    private String KEY_CURRENT_DICT = "current_dict";
-    private String KEY_BTN_PLAY_VISIBLE = "btn_play_visible";
-    private String KEY_BTN_PAUSE_VISIBLE = "btn_pause_visible";
-    private String KEY_BTN_STOP_VISIBLE = "btn_stop_visible";
-    private String KEY_BTN_NEXT_VISIBLE = "btn_next_visible";
-    private String KEY_BTN_BACK_VISIBLE = "btn_back_visible";
-    private String KEY_PROG_BAR_VISIBLE = "prog_bar_visible";
+    private final String KEY_ENG_TEXT = "eng_text";
+    private final String KEY_RU_TEXT = "ru_text";
+    private final String KEY_CURRENT_DICT = "current_dict";
+    private final String KEY_TV_WORDS_COUNTER = "tv_words_counter";
+    private final String KEY_BTN_PLAY_VISIBLE = "btn_play_visible";
+    private final String KEY_BTN_PAUSE_VISIBLE = "btn_pause_visible";
+    private final String KEY_BTN_STOP_VISIBLE = "btn_stop_visible";
+    private final String KEY_BTN_NEXT_VISIBLE = "btn_next_visible";
+    private final String KEY_BTN_BACK_VISIBLE = "btn_back_visible";
+    private final String KEY_PROG_BAR_VISIBLE = "prog_bar_visible";
 
     protected PowerManager.WakeLock wakeLock;
 
@@ -114,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (savedInstanceState == null)
         {
             BackgroundFragm backgroundFragm = new BackgroundFragm();
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_layout, backgroundFragm).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.background_fragment, backgroundFragm).commit();
         }
 
         final PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -128,8 +132,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         appSettings = new AppSettings(this);
         playList = appSettings.getPlayList();
-        appData2 = AppData2.getInstance();
-        appData2.initAllSettings(this);
+        appData = AppData.getInstance();
+        appData.initAllSettings(this);
 
         initViews();
 
@@ -167,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             textViewEn.setText(savedInstanceState.getString(KEY_ENG_TEXT));
             textViewRu.setText(savedInstanceState.getString(KEY_RU_TEXT));
             textViewDict.setText(savedInstanceState.getString(KEY_CURRENT_DICT));
-            textViewDict.setVisibility(View.VISIBLE);
+            tvWordsCounter.setText(savedInstanceState.getString(KEY_TV_WORDS_COUNTER));
             btnPlay.setVisibility(savedInstanceState.getInt(KEY_BTN_PLAY_VISIBLE));
             btnStop.setVisibility(savedInstanceState.getInt(KEY_BTN_STOP_VISIBLE));
             btnPause.setVisibility(savedInstanceState.getInt(KEY_BTN_PAUSE_VISIBLE));
@@ -179,6 +183,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // TODO: AsyncTaskLoader - 3. инициализация
         getLoaderManager().initLoader(LOADER_GET_ENTRIES, savedInstanceState, this);
 
+        final AdView bannerView = (AdView) findViewById(R.id.adView_main);
+        bannerView.setVisibility(View.GONE);
+        if (appData.isOnline(this))
+        {
+            if (appData.isAdMob())
+            {
+                MobileAds.initialize(this, getString(R.string.main_bottom_banner));
+                AdRequest adRequest = new AdRequest.Builder().build();
+                AdRequest adRequest1 = new AdRequest.Builder().addTestDevice("7162b61eda7337bb").build();
+                bannerView.loadAd(adRequest1);
+                bannerView.setAdListener(new AdListener()
+                {
+                    @Override
+                    public void onAdLoaded()
+                    {
+                        super.onAdLoaded();
+                        bannerView.setVisibility(View.VISIBLE);
+                    }
+                });
+            }
+        }
+
     }
 
 
@@ -187,10 +213,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         textViewEn = (TextView) findViewById(R.id.enTextView);
         textViewRu = (TextView) findViewById(R.id.ruTextView);
         textViewDict = (TextView) findViewById(R.id.textViewDict);
-        if (textViewDict != null)
-        {
-            textViewDict.setVisibility(View.INVISIBLE);
-        }
+        tvWordsCounter = (TextView) findViewById(R.id.tv_words_counter);
         btnPlay = (ImageButton) findViewById(R.id.btn_play);
         btnStop = (ImageButton) findViewById(R.id.btn_stop);
         if (btnStop != null)
@@ -213,8 +236,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             btnNext.setVisibility(View.GONE);
         }
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        switchRuSound = (Switch) findViewById(R.id.switch_ru_sound);
-        switchRuSound.setChecked(appSettings.isEnglishSpeechOnly());
+//        switchRuSound = (Switch) findViewById(R.id.switch_ru_sound);
+//        switchRuSound.setChecked(appSettings.isEnglishSpeechOnly());
+        checkBoxRuSpeak = (CheckBox) findViewById(R.id.check_box_ru_speak);
+        checkBoxRuSpeak.setChecked(appSettings.isEnglishSpeechOnly());
         switchRuSound_OnCheckedChange();
     }
 
@@ -225,6 +250,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         outState.putString(KEY_ENG_TEXT, textViewEn.getText().toString());
         outState.putString(KEY_RU_TEXT, textViewRu.getText().toString());
         outState.putString(KEY_CURRENT_DICT, textViewDict.getText().toString());
+        outState.putString(KEY_TV_WORDS_COUNTER, tvWordsCounter.getText().toString());
         outState.putInt(KEY_BTN_PLAY_VISIBLE, btnPlay.getVisibility());
         outState.putInt(KEY_BTN_STOP_VISIBLE, btnStop.getVisibility());
         outState.putInt(KEY_BTN_PAUSE_VISIBLE, btnPause.getVisibility());
@@ -237,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onPause()
     {
         super.onPause();
-        appData2.saveAllSettings(this);
+        appData.saveAllSettings(this);
         if (!isActivityOnTop())
         {
             speechServiceOnPause();
@@ -263,8 +289,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onResume();
         appSettings = new AppSettings(this);
         playList = appSettings.getPlayList();
-        appData2 = AppData2.getInstance();
-        appData2.initAllSettings(this);
+        appData = AppData.getInstance();
+        appData.initAllSettings(this);
     }
 
     @Override
@@ -285,7 +311,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
         speechServiceOnPause();
-        appData2.saveAllSettings(this);
+        appData.saveAllSettings(this);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer != null)
         {
@@ -319,8 +345,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
             speechServiceOnPause();
             Bundle bundle = new Bundle();
-            bundle.putString(WordEditor.KEY_EXTRA_DICT_NAME, playList.get(AppData2.getInstance().getNdict()));
-            bundle.putInt(WordEditor.KEY_ROW_ID, appData2.getNword());
+            bundle.putString(WordEditor.KEY_EXTRA_DICT_NAME, playList.get(AppData.getInstance().getNdict()));
+            bundle.putInt(WordEditor.KEY_ROW_ID, appData.getNword());
             wordEditorIntent.replaceExtras(bundle);
 
             startActivity(wordEditorIntent);
@@ -368,7 +394,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 wordEditorIntent = new Intent(this, WordEditor.class);
             }
             Bundle bundle = new Bundle();
-            bundle.putString(WordEditor.KEY_EXTRA_DICT_NAME, playList.get(AppData2.getInstance().getNdict()));
+            bundle.putString(WordEditor.KEY_EXTRA_DICT_NAME, playList.get(AppData.getInstance().getNdict()));
             wordEditorIntent.replaceExtras(bundle);
             startActivity(wordEditorIntent);
         }
@@ -562,7 +588,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             btnNext.setVisibility(View.VISIBLE);
             btnPrevious.setVisibility(View.VISIBLE);
             textViewRu.setText(null);
-            textViewDict.setVisibility(View.VISIBLE);
         } else
         {
             Toast toast = Toast.makeText(this, R.string.no_playlist, Toast.LENGTH_SHORT);
@@ -587,7 +612,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void speechServiceOnPause()
     {
-        appData2.setPause(true);
+        appData.setPause(true);
         if (speechIntentService != null)
         {
             stopService(speechIntentService);
@@ -611,16 +636,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         textViewEn.setText(null);
         textViewRu.setText(null);
+        textViewDict.setText(null);
+        tvWordsCounter.setText(null);
         btnPlay.setVisibility(View.VISIBLE);
         btnStop.setVisibility(View.GONE);
         btnPause.setVisibility(View.GONE);
         btnNext.setVisibility(View.GONE);
         btnPrevious.setVisibility(View.GONE);
-        textViewDict.setVisibility(View.INVISIBLE);
         progressBar.setVisibility(View.GONE);
 
-        appData2.setNdict(0);
-        appData2.setNword(1);
+        appData.setNdict(0);
+        appData.setNword(1);
     }
 
     private DataBaseQueries dataBaseQueries;
@@ -638,38 +664,39 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             getPrevious();
         }
+        tvWordsCounter.setText(String.valueOf(appData.getNword()));
     }
 
     private void getNext()
     {
         dataBaseQueries = new DataBaseQueries(this);
-        int wordsCount = dataBaseQueries.getCountEntriesSync(playList.get(appData2.getNdict()));
-        appData2.setNword(appData2.getNword()+1);
+        int wordsCount = dataBaseQueries.getCountEntriesSync(playList.get(appData.getNdict()));
+        appData.setNword(appData.getNword()+1);
         if (playList.size() > 1)
         {
-            if (appData2.getNword() > wordsCount)
+            if (appData.getNword() > wordsCount)
             {
-                appData2.setNword(1);
-                appData2.setNdict(appData2.getNdict()+1);
-                if (appData2.getNdict() > playList.size()-1)
+                appData.setNword(1);
+                appData.setNdict(appData.getNdict()+1);
+                if (appData.getNdict() > playList.size()-1)
                 {
-                    appData2.setNdict(0);
+                    appData.setNdict(0);
                 }
             }
         }
         else if (playList.size() == 1)
         {
-            if (appData2.getNword() > wordsCount)
+            if (appData.getNword() > wordsCount)
             {
-                appData2.setNword(1);
+                appData.setNword(1);
             }
         }
 
         // TODO: AsyncTaskLoader - 4. Передача параметров в AsyncTaskLoader
         Bundle loaderBundle = new Bundle();
-        loaderBundle.putString(GetEntriesLoader.KEY_TABLE_NAME, playList.get(appData2.getNdict()));
-        loaderBundle.putInt(GetEntriesLoader.KEY_START_ID, appData2.getNword());
-        loaderBundle.putInt(GetEntriesLoader.KEY_END_ID, appData2.getNword());
+        loaderBundle.putString(GetEntriesLoader.KEY_TABLE_NAME, playList.get(appData.getNdict()));
+        loaderBundle.putInt(GetEntriesLoader.KEY_START_ID, appData.getNword());
+        loaderBundle.putInt(GetEntriesLoader.KEY_END_ID, appData.getNword());
 
         // TODO: AsyncTaskLoader - 5. Запуск загрузки данных
         Loader<Cursor> dbLoader = getLoaderManager().restartLoader(LOADER_GET_ENTRIES, loaderBundle, this);
@@ -683,36 +710,36 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (playList.size() > 1)
         {
-            appData2.setNword(appData2.getNword()-1);
-            if (appData2.getNword() < 1)
+            appData.setNword(appData.getNword()-1);
+            if (appData.getNword() < 1)
             {
-                appData2.setNdict(appData2.getNdict()-1);
-                if (appData2.getNdict() < 0)
+                appData.setNdict(appData.getNdict()-1);
+                if (appData.getNdict() < 0)
                 {
-                    appData2.setNdict(playList.size()-1);
+                    appData.setNdict(playList.size()-1);
                 }
-                int wordsCount = dataBaseQueries.getCountEntriesSync(playList.get(appData2.getNdict()));
-                appData2.setNword(wordsCount);
+                int wordsCount = dataBaseQueries.getCountEntriesSync(playList.get(appData.getNdict()));
+                appData.setNword(wordsCount);
             }
         }
         if (playList.size() == 1)
         {
-            if (appData2.getNword() <= 1)
+            if (appData.getNword() <= 1)
             {
-                int wordsCount = dataBaseQueries.getCountEntriesSync(playList.get(appData2.getNdict()));
-                appData2.setNword(wordsCount);
+                int wordsCount = dataBaseQueries.getCountEntriesSync(playList.get(appData.getNdict()));
+                appData.setNword(wordsCount);
             }
             else
             {
-                appData2.setNword(appData2.getNword()-1);
+                appData.setNword(appData.getNword()-1);
             }
         }
 
         // TODO: AsyncTaskLoader - 4. Передача параметров в AsyncTaskLoader
         Bundle loaderBundle = new Bundle();
-        loaderBundle.putString(GetEntriesLoader.KEY_TABLE_NAME, playList.get(appData2.getNdict()));
-        loaderBundle.putInt(GetEntriesLoader.KEY_START_ID, appData2.getNword());
-        loaderBundle.putInt(GetEntriesLoader.KEY_END_ID, appData2.getNword());
+        loaderBundle.putString(GetEntriesLoader.KEY_TABLE_NAME, playList.get(appData.getNdict()));
+        loaderBundle.putInt(GetEntriesLoader.KEY_START_ID, appData.getNword());
+        loaderBundle.putInt(GetEntriesLoader.KEY_END_ID, appData.getNword());
 
         // TODO: AsyncTaskLoader - 5. Запуск загрузки данных
         Loader<Cursor> dbLoader = getLoaderManager().restartLoader(LOADER_GET_ENTRIES, loaderBundle, this);
@@ -721,39 +748,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void switchRuSound_OnCheckedChange()
     {
-        switchRuSound.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
+        checkBoxRuSpeak.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
         {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked)
             {
                 if (isChecked)
                 {
                     appSettings.setEnglishSpeechOnly(true);
                     SpeechService.setEnglishOnly(appSettings.isEnglishSpeechOnly());
-                    Toast toast = Toast.makeText(MainActivity.this,"Русскоязычное озвучивание включено",Toast.LENGTH_SHORT);
-                    toast.setGravity(Gravity.TOP, 0, 0);
-                    toast.show();
-
+                    Toast.makeText(MainActivity.this,"Русскоязычное озвучивание включено",Toast.LENGTH_SHORT).show();
                 }
                 else
                 {
                     appSettings.setEnglishSpeechOnly(false);
                     SpeechService.setEnglishOnly(appSettings.isEnglishSpeechOnly());
-                    Toast toast = Toast.makeText(MainActivity.this,"Русскоязычное озвучивание отключено",Toast.LENGTH_SHORT);
-                    toast.setGravity(Gravity.TOP, 0, 0);
-                    toast.show();
+                    Toast.makeText(MainActivity.this,"Русскоязычное озвучивание отключено",Toast.LENGTH_SHORT).show();
                 }
-            }
-        });
-
-        switchRuSound.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-//                Toast toast = Toast.makeText(a_MainActivity.this,"Вы можете отключить русское озвучивание, что бы ускорить воспроизведение",Toast.LENGTH_SHORT);
-//                toast.setGravity(Gravity.TOP, 0, 0);
-//                toast.show();
             }
         });
     }
@@ -819,7 +830,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             textViewEn.setText(dataBaseEntry.getEnglish());
             textViewRu.setText(dataBaseEntry.getTranslate());
-            textViewDict.setText(playList.get(appData2.getNdict()));
+            textViewDict.setText(playList.get(appData.getNdict()));
 
             HashMap<String, String> hashMap = new HashMap<>();
             hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "main_activity");
@@ -871,6 +882,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             textViewEn.setText(updateEN);
             textViewRu.setText(updateRU);
             textViewDict.setText(updateDict);
+            int nword = MainActivity.this.appData.getNword();
+            tvWordsCounter.setText(String.valueOf(nword));
             if (!textViewEn.getText().equals(""))
             {
                 progressBar.setVisibility(View.GONE);
