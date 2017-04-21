@@ -45,6 +45,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
+                android:layout_marginBottom="-5dp"
                 android:id="@+id/search_view"
                 android:iconifiedByDefault="false"
                 android:layout_below="@+id/spinner"
@@ -67,7 +68,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="2dp"
+                android:layout_marginTop="4dp"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentEnd="false"
                 android:layout_alignParentLeft="false"
@@ -83,15 +84,18 @@
                 <ListView
                     android:id="@+id/listView"
                     android:layout_width="match_parent"
-                    android:layout_height="0dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/selector_bold_border"
                     />
 
                 <FrameLayout
                     android:id="@+id/bottom_banner_frame_we"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
+                    android:layout_marginTop="4dp"
                     >
                 </FrameLayout>
 
