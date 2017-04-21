@@ -44,7 +44,7 @@ public class BottomBannerFragmentWE extends Fragment
         if (savedInstanceState == null)
         {
             final AdView bannerView = (AdView) fragment_view.findViewById(R.id.adView_we);
-            bannerView.setVisibility(View.GONE);
+            //bannerView.setVisibility(View.GONE);
             MobileAds.initialize(getActivity(), getString(R.string.main_bottom_banner));
             AdRequest adRequest = new AdRequest.Builder().build();
             AdRequest adRequest1 = new AdRequest.Builder().addTestDevice("7162b61eda7337bb").build();
