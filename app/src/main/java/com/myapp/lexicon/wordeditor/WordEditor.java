@@ -215,7 +215,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
             ArrayList<String> arrayList = savedInstanceState.getStringArrayList(KEY_SPINNER_ITEMS);
             if (arrayList != null)
             {
-                ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(this, R.layout.my_content_spinner_layout, arrayList);
+                ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, arrayList);
                 spinnerListDict.setAdapter(adapterSpinner);
                 int index = savedInstanceState.getInt(KEY_SPINNER_SELECT_INDEX);
                 if (index < adapterSpinner.getCount())
@@ -227,7 +227,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
             ArrayList<String> arrayList2 = savedInstanceState.getStringArrayList(KEY_SPINNER_2_ITEMS);
             if (arrayList2 != null)
             {
-                ArrayAdapter<String> adapterSpinner2= new ArrayAdapter<>(this, R.layout.my_content_spinner_layout, arrayList2);
+                ArrayAdapter<String> adapterSpinner2= new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, arrayList2);
                 spinnerListDict2.setAdapter(adapterSpinner2);
             }
 
@@ -741,7 +741,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
             }
             if (list.size() > 0)
             {
-                ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(this, R.layout.my_content_spinner_layout, list);
+                ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
                 spinnerListDict.setAdapter(adapterSpinner);
                 int position;
                 if (spinnerDictSelectItem != null)
@@ -761,7 +761,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
 
                 ArrayList<String> list2 = (ArrayList<String>) list.clone();
                 list2.remove(position);
-                ArrayAdapter<String> adapterSpinner2 = new ArrayAdapter<>(this, R.layout.my_content_spinner_layout, list2);
+                ArrayAdapter<String> adapterSpinner2 = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list2);
                 spinnerListDict2.setAdapter(adapterSpinner2);
             }
         }

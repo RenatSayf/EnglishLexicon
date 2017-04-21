@@ -166,7 +166,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
             ArrayList<String> list = savedInstanceState.getStringArrayList(KEY_SPINNER_ITEMS);
             if (list != null  && list.size() > 0)
             {
-                ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(this, R.layout.my_content_spinner_layout, list);
+                ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
                 spinnerListDict.setAdapter(adapterSpinner);
                 spinnerListDict.setSelection(savedInstanceState.getInt(KEY_SELECT_SPINNER_INDEX));
             }
@@ -684,7 +684,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
         if (loader.getId() == LOADER_GET_TABLE_LIST)
         {
             ArrayList<String> list = (ArrayList<String>) data;
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.my_content_spinner_layout, list);
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
             spinnerListDict.setAdapter(adapter);
         }
         if (loader.getId() == LOADER_GET_TRANSLATE)

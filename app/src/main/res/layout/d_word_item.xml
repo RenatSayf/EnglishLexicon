@@ -131,7 +131,7 @@
 
                         <Spinner
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_height="36dp"
                             android:layout_marginRight="5dp"
                             android:layout_weight="3"
                             style="@style/spinner_style"
@@ -141,7 +141,7 @@
 
                         <CheckBox
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_height="36dp"
                             android:layout_weight="0"
                             android:text="@string/label_copy"
                             android:id="@+id/check_copy"
