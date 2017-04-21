@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -87,6 +88,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
     private final int LOADER_GET_TABLE_LIST = 2;
     private final int LOADER_GET_ALL_FROM_TABLE = 3;
 
+    private BottomBannerFragmentWE bannerFragment;
 
     private void initViews()
     {
@@ -175,6 +177,8 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
         AppData.getInstance().setListViewAdapter((ListViewAdapter) listView.getAdapter());
     }
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -250,16 +254,17 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
         }
 
 
-        if (savedInstanceState == null)
+        AppData appData = AppData.getInstance();
+        if (appData.isAdMob())
         {
-            AppData appData = AppData.getInstance();
-            if (appData.isAdMob())
+            if (appData.isOnline(this))
             {
-                if (appData.isOnline(this))
+                bannerFragment = (BottomBannerFragmentWE) getSupportFragmentManager().findFragmentByTag(BottomBannerFragmentWE.TAG);
+                if (bannerFragment == null)
                 {
-                    BottomBannerFragmentWE bannerFragment = new BottomBannerFragmentWE();
-                    getSupportFragmentManager().beginTransaction().replace(R.id.bottom_banner_frame_we, bannerFragment).commit();
+                    bannerFragment = new BottomBannerFragmentWE();
                 }
+                getSupportFragmentManager().beginTransaction().replace(R.id.bottom_banner_frame_we, bannerFragment).commit();
             }
         }
     }

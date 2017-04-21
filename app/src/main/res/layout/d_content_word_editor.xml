@@ -13,14 +13,14 @@
 
     <ViewSwitcher
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:id="@+id/viewSwitcher"
         >
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="10dp">
+            android:layout_margin="0dp">
 
             <TextView
                 android:id="@+id/spinner_header"
@@ -86,9 +86,7 @@
                 <FrameLayout
                     android:id="@+id/bottom_banner_frame_we"
                     android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="5dp"
-                    android:foreground="@drawable/semitransparent_background"
+                    android:layout_height="wrap_content"
                     >
                 </FrameLayout>
 
@@ -99,7 +97,5 @@
         <include layout="@layout/d_word_item"/>
 
     </ViewSwitcher>
-
-
 
 </FrameLayout>
