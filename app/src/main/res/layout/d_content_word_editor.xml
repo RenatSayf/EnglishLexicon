@@ -26,27 +26,31 @@
                 android:id="@+id/spinner_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
                 android:text="@string/text_dictionary"
                 android:textColor="@color/colorWhite"/>
 
             <Spinner
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
                 android:id="@+id/spinner"
                 style="@style/spinner_style"
                 android:layout_below="@id/spinner_header"
-                android:layout_marginBottom="2dp"
                 />
 
             <SearchView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
                 android:id="@+id/search_view"
                 android:iconifiedByDefault="false"
                 android:layout_below="@+id/spinner"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
-                android:layout_marginTop="0dp"/>
+                />
 
             <ProgressBar
                 android:id="@+id/progressBar"
@@ -79,7 +83,7 @@
                 <ListView
                     android:id="@+id/listView"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="0dp"
                     android:layout_weight="1"
                     />
 
@@ -87,6 +91,7 @@
                     android:id="@+id/bottom_banner_frame_we"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
                     >
                 </FrameLayout>
 
