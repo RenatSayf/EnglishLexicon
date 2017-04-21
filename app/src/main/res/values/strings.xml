@@ -156,9 +156,8 @@
     <string name="add_word_bottom_banner">ca-app-pub-4071145618173901/9155315479</string>
     <string name="word_editor_bottom_banner">ca-app-pub-4071145618173901/4585515071</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="text_ru">Ru</string>
+    <string name="text_dict">Словарь</string>
 
 
 </resources>

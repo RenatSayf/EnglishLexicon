@@ -39,6 +39,7 @@ import com.myapp.lexicon.database.GetEntriesLoader;
 import com.myapp.lexicon.database.GetTableListLoader;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.StringOperations;
+import com.myapp.lexicon.main.MainBannerFragment;
 import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.settings.AppData;
 
@@ -246,6 +247,20 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
         else
         {
             getLoaderManager().restartLoader(LOADER_GET_TABLE_LIST, null, WordEditor.this).forceLoad();
+        }
+
+
+        if (savedInstanceState == null)
+        {
+            AppData appData = AppData.getInstance();
+            if (appData.isAdMob())
+            {
+                if (appData.isOnline(this))
+                {
+                    BottomBannerFragmentWE bannerFragment = new BottomBannerFragmentWE();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.bottom_banner_frame_we, bannerFragment).commit();
+                }
+            }
         }
     }
 
