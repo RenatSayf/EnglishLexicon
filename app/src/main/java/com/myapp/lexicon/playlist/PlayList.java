@@ -17,6 +17,8 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.database.GetTableListLoader;
 import com.myapp.lexicon.helpers.StringOperations;
+import com.myapp.lexicon.main.MainBannerFragment;
+import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.ArrayList;
@@ -107,6 +109,18 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
             }
         });
         getLoaderManager().initLoader(LOADER_GET_TABLE_LIST, savedInstanceState, this);
+
+        if (savedInstanceState == null)
+        {
+            if (AppData.getInstance().isAdMob())
+            {
+                if (AppData.getInstance().isOnline(this))
+                {
+                    BannerFragmentPL bannerFragment = new BannerFragmentPL();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.banner_frame_pl, bannerFragment).commit();
+                }
+            }
+        }
     }
 
     @Override

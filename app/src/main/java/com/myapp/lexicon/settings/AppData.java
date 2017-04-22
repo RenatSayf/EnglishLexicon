@@ -96,4 +96,9 @@ public class AppData
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
+    public String getTestDeviceID()
+    {
+        return "7162b61eda7337bb";
+    }
+
 }
