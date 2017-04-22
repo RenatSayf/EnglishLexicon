@@ -25,4 +25,8 @@
         <!--<item name="android:paddingBottom">4dp</item>-->
     </style>
 
+    <style name="CircularProgress" parent="Theme.AppCompat.Light">
+        <item name="colorAccent">@android:color/holo_red_light</item>
+    </style>
+
 </resources>
