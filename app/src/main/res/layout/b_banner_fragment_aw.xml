@@ -6,11 +6,11 @@
              tools:context="com.myapp.lexicon.playlist.BannerFragmentPL">
 
     <com.google.android.gms.ads.AdView
-        android:id="@+id/adView_pl"
+        android:id="@+id/adView_aw"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         ads:adSize="BANNER"
-        ads:adUnitId="@string/play_list_banner"
+        ads:adUnitId="@string/add_word_bottom_banner"
         android:visibility="visible"
         />
 

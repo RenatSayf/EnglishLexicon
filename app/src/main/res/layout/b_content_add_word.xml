@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -13,313 +13,330 @@
     android:background="@drawable/side_nav_bar">
 
 
-    <ScrollView
-        android:layout_width="match_parent"
+    <LinearLayout android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="10dp">
+        android:orientation="vertical">
 
-        <LinearLayout
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginBottom="0dp">
 
-            <FrameLayout
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_marginBottom="5dp"
-                android:background="@drawable/text_background">
+                android:orientation="vertical">
 
-                <LinearLayout
+                <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <LinearLayout android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:layout_marginLeft="10dp"
-                            android:layout_marginRight="20dp"
-                            android:layout_marginTop="2dp"
-                            android:text="@string/text_enter"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            />
-
-                        <ImageButton
-                            android:id="@+id/btn_sound"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:layout_marginLeft="10dp"
-                            android:layout_marginRight="10dp"
-                            android:src="@drawable/selector_icon_microphone"
-                            android:visibility="visible"
-                            android:background="@drawable/selector_transp_to_white_back"
-                            android:contentDescription="@string/content_describt"
-                            android:onClick="btnMicrophone_OnClick"
-                            />
-
-                        <ImageButton
-                            android:id="@+id/btn_clean1"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/btn_close_background"
-                            android:contentDescription="@string/content_describt"
-                            />
-
-                    </LinearLayout>
+                    android:layout_marginTop="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginBottom="5dp"
+                    android:background="@drawable/text_background">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                        android:orientation="vertical">
 
-                        <AutoCompleteTextView
-                            android:id="@+id/textViewEnter"
-                            android:layout_width="0dp"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="bottom|start"
-                            android:layout_weight="0.1"
-                            android:minHeight="100dp"
-                            android:textAlignment="textStart"
-                            android:textColorLink="@android:color/holo_blue_dark"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_marginLeft="10dp"
+                                android:layout_marginRight="20dp"
+                                android:layout_marginTop="2dp"
+                                android:text="@string/text_enter"
+                                android:textAppearance="?android:attr/textAppearanceMedium"
+                                />
+
+                            <ImageButton
+                                android:id="@+id/btn_sound"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_marginLeft="10dp"
+                                android:layout_marginRight="10dp"
+                                android:src="@drawable/selector_icon_microphone"
+                                android:visibility="visible"
+                                android:background="@drawable/selector_transp_to_white_back"
+                                android:contentDescription="@string/content_describt"
+                                android:onClick="btnMicrophone_OnClick"
+                                />
+
+                            <ImageButton
+                                android:id="@+id/btn_clean1"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/btn_close_background"
+                                android:contentDescription="@string/content_describt"
+                                />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <AutoCompleteTextView
+                                android:id="@+id/textViewEnter"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="bottom|start"
+                                android:layout_weight="0.1"
+                                android:minHeight="100dp"
+                                android:textAlignment="textStart"
+                                android:textColorLink="@android:color/holo_blue_dark"
+                                />
+
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="right"
+                                android:orientation="vertical">
+
+                                <ImageButton
+                                    android:id="@+id/btn_speech"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:background="@android:color/transparent"
+                                    android:contentDescription="@string/content_describt"
+                                    android:src="@drawable/sound_btn_foreground"/>
+
+                                <ProgressBar
+                                    android:id="@+id/progressEn"
+                                    android:layout_width="30dp"
+                                    android:layout_height="30dp"
+                                    android:visibility="visible"/>
+
+                            </LinearLayout>
+                        </LinearLayout>
+
+
+                        <Button
+                            android:id="@+id/button_trans"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="bottom|center_horizontal"
+                            android:layout_marginBottom="5dp"
+                            android:background="@drawable/btn_trans_background"
+                            android:enabled="false"
+                            android:minHeight="32dp"
+                            android:text="@string/btn_translate_text"
+                            android:textColor="#ffffff"
+                            android:textSize="10dp"
+                            android:textStyle="bold"
                             />
+                    </LinearLayout>
+
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginBottom="5dp"
+                    android:background="@drawable/text_background"
+                    android:orientation="horizontal"
+                    android:id="@+id/lin_layout_link_ya"
+                    >
+
+                    <TextView
+                        android:id="@+id/textViewLinkYandex"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_gravity="center"
+                        android:layout_marginRight="40dp"
+                        android:autoLink="web"
+                        android:linksClickable="true"
+                        android:onClick="textViewLinkYandex_onClick"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:textColor="#2a32d0"
+                        />
+
+                    <ImageButton
+                        android:layout_width="100dp"
+                        android:layout_height="50dp"
+                        android:layout_weight="1"
+                        android:layout_gravity="center_vertical"
+                        android:background="@drawable/round_grey_background"
+                        android:id="@+id/btn_swap"
+                        />
+                </LinearLayout>
+
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginBottom="5dp"
+                    android:background="@drawable/text_background">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="0dp"
+                                android:layout_marginLeft="10dp"
+                                android:text="@string/text_result"
+                                android:textAppearance="?android:attr/textAppearanceMedium"
+                                />
+
+                            <ImageButton
+                                android:id="@+id/buttonEdit"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="20dp"
+                                android:layout_marginRight="30dp"
+                                android:background="@android:color/transparent"
+                                android:onClick="buttonEdit_onClick"
+                                android:src="@drawable/edit_btn_foreground"
+                                />
+
+                            <ImageButton
+                                android:id="@+id/btn_clean2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/btn_close_background"
+                                android:contentDescription="@string/content_describt"
+                                />
+
+                        </LinearLayout>
 
 
                         <LinearLayout
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="right"
-                            android:orientation="vertical">
+                            android:orientation="horizontal">
 
-                            <ImageButton
-                                android:id="@+id/btn_speech"
+                            <EditText
+                                android:id="@+id/textViewResult"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="bottom|start"
+                                android:layout_weight="0.1"
+                                android:inputType="none"
+                                android:minHeight="100dp"
+                                />
+
+                            <LinearLayout
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:background="@android:color/transparent"
-                                android:contentDescription="@string/content_describt"
-                                android:src="@drawable/sound_btn_foreground"/>
+                                android:layout_gravity="right"
+                                android:orientation="vertical">
 
-                            <ProgressBar
-                                android:id="@+id/progressEn"
-                                android:layout_width="30dp"
-                                android:layout_height="30dp"
-                                android:visibility="visible"/>
+                                <ImageButton
+                                    android:id="@+id/btn_sound2"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:background="@android:color/transparent"
+                                    android:contentDescription="@string/content_describt"
+                                    android:src="@drawable/sound_btn_foreground"/>
 
+                                <ProgressBar
+                                    android:id="@+id/progressRu"
+                                    android:layout_width="30dp"
+                                    android:layout_height="30dp"
+                                    android:visibility="visible"/>
+                            </LinearLayout>
                         </LinearLayout>
                     </LinearLayout>
 
 
-                    <Button
-                        android:id="@+id/button_trans"
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginBottom="5dp"
+                    android:background="@drawable/text_background"
+                    android:orientation="vertical">
+
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="bottom|center_horizontal"
-                        android:layout_marginBottom="5dp"
+                        android:layout_marginLeft="10dp"
+                        android:text="@string/add_to_dict"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        />
+
+                    <Spinner
+                        android:id="@+id/spinn_dict_to"
+                        style="@style/spinner_style"
+                        android:layout_width="match_parent"
+                        android:layout_height="36dp"
+                        android:layout_margin="10dp"
+                        android:prompt="@string/add_to_dict"
+                        android:paddingLeft="5dp"
+                        android:paddingRight="30dp"/>
+
+                    <Button
+                        android:id="@+id/button_add"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minHeight="32dp"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="10dp"
                         android:background="@drawable/btn_trans_background"
                         android:enabled="false"
-                        android:minHeight="32dp"
-                        android:text="@string/btn_translate_text"
+                        android:text="@string/text_add"
                         android:textColor="#ffffff"
                         android:textSize="10dp"
                         android:textStyle="bold"
                         />
                 </LinearLayout>
 
-            </FrameLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_marginBottom="5dp"
-                android:background="@drawable/text_background"
-                android:orientation="horizontal"
-                android:id="@+id/lin_layout_link_ya"
-                >
-
-                <TextView
-                    android:id="@+id/textViewLinkYandex"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_gravity="center"
-                    android:layout_marginRight="40dp"
-                    android:autoLink="web"
-                    android:linksClickable="true"
-                    android:onClick="textViewLinkYandex_onClick"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="#2a32d0"
-                    />
-
-                <ImageButton
-                    android:layout_width="100dp"
-                    android:layout_height="50dp"
-                    android:layout_weight="1"
-                    android:layout_gravity="center_vertical"
-                    android:background="@drawable/round_grey_background"
-                    android:id="@+id/btn_swap"
-                    />
             </LinearLayout>
 
+        </ScrollView>
 
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_marginBottom="5dp"
-                android:background="@drawable/text_background">
-
-                <LinearLayout android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="0dp"
-                            android:layout_marginLeft="10dp"
-                            android:text="@string/text_result"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            />
-
-                        <ImageButton
-                            android:id="@+id/buttonEdit"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="20dp"
-                            android:layout_marginRight="30dp"
-                            android:background="@android:color/transparent"
-                            android:onClick="buttonEdit_onClick"
-                            android:src="@drawable/edit_btn_foreground"
-                            />
-
-                        <ImageButton
-                            android:id="@+id/btn_clean2"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/btn_close_background"
-                            android:contentDescription="@string/content_describt"
-                            />
-
-                    </LinearLayout>
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:id="@+id/banner_frame_aw">
 
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
 
-                        <EditText
-                            android:id="@+id/textViewResult"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="bottom|start"
-                            android:layout_weight="0.1"
-                            android:inputType="none"
-                            android:minHeight="100dp"
-                            />
+        </FrameLayout>
 
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="right"
-                            android:orientation="vertical">
+    </LinearLayout>
 
-                            <ImageButton
-                                android:id="@+id/btn_sound2"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:background="@android:color/transparent"
-                                android:contentDescription="@string/content_describt"
-                                android:src="@drawable/sound_btn_foreground"/>
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminate="false"
+            />
 
-                            <ProgressBar
-                                android:id="@+id/progressRu"
-                                android:layout_width="30dp"
-                                android:layout_height="30dp"
-                                android:visibility="visible"/>
-                        </LinearLayout>
-                    </LinearLayout>
-                </LinearLayout>
-
-
-            </FrameLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_marginBottom="5dp"
-                android:background="@drawable/text_background"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:text="@string/add_to_dict"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    />
-
-                <Spinner
-                    android:id="@+id/spinn_dict_to"
-                    style="@style/spinner_style"
-                    android:layout_width="match_parent"
-                    android:layout_height="36dp"
-                    android:layout_margin="10dp"
-                    android:prompt="@string/add_to_dict"
-                    android:paddingLeft="5dp"
-                    android:paddingRight="30dp"/>
-
-                <Button
-                    android:id="@+id/button_add"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:minHeight="32dp"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginBottom="10dp"
-                    android:background="@drawable/btn_trans_background"
-                    android:enabled="false"
-                    android:text="@string/text_add"
-                    android:textColor="#ffffff"
-                    android:textSize="10dp"
-                    android:textStyle="bold"
-                    />
-            </LinearLayout>
-
-
-        </LinearLayout>
-
-    </ScrollView>
-
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:layout_gravity="center_horizontal"
-        android:indeterminate="false"
-        />
-
-</RelativeLayout>
+</FrameLayout>

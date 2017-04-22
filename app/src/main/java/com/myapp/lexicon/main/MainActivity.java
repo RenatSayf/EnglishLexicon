@@ -179,11 +179,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // TODO: AsyncTaskLoader - 3. инициализация
         getLoaderManager().initLoader(LOADER_GET_ENTRIES, savedInstanceState, this);
 
-        if (savedInstanceState == null)
+        if (appData.isAdMob())
         {
-            if (appData.isAdMob())
+            if (appData.isOnline(this))
             {
-                if (appData.isOnline(this))
+                if (savedInstanceState == null)
                 {
                     MainBannerFragment bannerFragment = new MainBannerFragment();
                     getSupportFragmentManager().beginTransaction().replace(R.id.banner_frame_main, bannerFragment).commit();

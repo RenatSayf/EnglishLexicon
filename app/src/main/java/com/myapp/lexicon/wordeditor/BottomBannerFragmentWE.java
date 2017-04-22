@@ -14,6 +14,7 @@ import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.settings.AppData;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -48,9 +49,9 @@ public class BottomBannerFragmentWE extends Fragment
             final AdView bannerView = (AdView) fragment_view.findViewById(R.id.adView_we);
             bannerView.setVisibility(View.GONE);
             MobileAds.initialize(getActivity(), getString(R.string.main_bottom_banner));
-            AdRequest adRequest = new AdRequest.Builder().build();
-            AdRequest adRequest1 = new AdRequest.Builder().addTestDevice("7162b61eda7337bb").build();
-            bannerView.loadAd(adRequest1);
+            //AdRequest adRequest = new AdRequest.Builder().build();
+            AdRequest adRequest = new AdRequest.Builder().addTestDevice(AppData.getInstance().getTestDeviceID()).build();
+            bannerView.loadAd(adRequest);
             bannerView.setAdListener(new AdListener()
             {
                 @Override

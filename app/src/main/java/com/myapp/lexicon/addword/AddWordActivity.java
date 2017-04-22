@@ -41,6 +41,7 @@ import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.GetTableListLoader2;
 import com.myapp.lexicon.main.SplashScreenActivity;
+import com.myapp.lexicon.settings.AppData;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -178,6 +179,18 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
         }
         getLoaderManager().initLoader(LOADER_GET_TABLE_LIST, savedInstanceState, this);
         getLoaderManager().initLoader(LOADER_GET_TRANSLATE, savedInstanceState, this);
+
+        if (AppData.getInstance().isAdMob())
+        {
+            if (AppData.getInstance().isOnline(this))
+            {
+                if (savedInstanceState == null)
+                {
+                    BannerFragmentAW bannerFragment = new BannerFragmentAW();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.banner_frame_aw, bannerFragment).commit();
+                }
+            }
+        }
     }
 
     @Override
