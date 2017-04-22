@@ -806,9 +806,18 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
                 final ArrayList<String> arrayList = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
                 if (arrayList != null && arrayList.size() > 0)
                 {
-                    ArrayAdapter<String> adapter = new ArrayAdapter<>(AddWordActivity.this, android.R.layout.simple_dropdown_item_1line, arrayList);
+                    final ArrayAdapter<String> adapter = new ArrayAdapter<>(AddWordActivity.this, android.R.layout.simple_dropdown_item_1line, arrayList);
+                    final String oldText = textViewEnter.getText().toString();
                     textViewEnter.setAdapter(adapter);
                     textViewEnter.showDropDown();
+                    textViewEnter.setOnItemClickListener(new AdapterView.OnItemClickListener()
+                    {
+                        @Override
+                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l)
+                        {
+                            textViewEnter.setText(oldText + " " + adapterView.getAdapter().getItem(i).toString());
+                        }
+                    });
                 }
             }
         }
