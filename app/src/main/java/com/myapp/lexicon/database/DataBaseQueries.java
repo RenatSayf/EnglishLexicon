@@ -283,7 +283,6 @@ public class DataBaseQueries
             if (databaseHelper.database.isOpen())
             {
                 databaseHelper.database.delete(DatabaseHelper.TABLE_API_KEY, null, null);
-                dataBaseVacuum(DatabaseHelper.TABLE_API_KEY);
                 rowId = databaseHelper.database.insert(DatabaseHelper.TABLE_API_KEY, null, values);
             }
         }
