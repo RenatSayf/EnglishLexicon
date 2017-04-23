@@ -47,8 +47,14 @@ public class BannerFragmentAW extends Fragment
             final AdView bannerView = (AdView) fragmentView.findViewById(R.id.adView_aw);
             bannerView.setVisibility(View.GONE);
             MobileAds.initialize(getActivity(), getString(R.string.play_list_banner));
-            //AdRequest adRequest = new AdRequest.Builder().build();
-            AdRequest adRequest = new AdRequest.Builder().addTestDevice(AppData.getInstance().getTestDeviceID()).build();
+            AdRequest adRequest;
+            if (AppData.getInstance().testDeviceEnabled())
+            {
+                adRequest = new AdRequest.Builder().addTestDevice(AppData.getInstance().getTestDeviceID()).build();
+            } else
+            {
+                adRequest = new AdRequest.Builder().build();
+            }
             bannerView.loadAd(adRequest);
             bannerView.setAdListener(new AdListener()
             {

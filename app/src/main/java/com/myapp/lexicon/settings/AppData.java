@@ -101,4 +101,9 @@ public class AppData
         return "7162b61eda7337bb";
     }
 
+    public boolean testDeviceEnabled()
+    {
+        return true;
+    }
+
 }
