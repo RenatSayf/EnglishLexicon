@@ -74,6 +74,7 @@
         android:layout_gravity="bottom|center_horizontal"
         android:layout_marginBottom="-5dp"
         android:src="@drawable/ic_more_horiz_white"
-        android:background="@color/colorTransparent"/>
+        android:background="@color/colorTransparent"
+        android:contentDescription="@string/content_describt"/>
 
 </LinearLayout>
