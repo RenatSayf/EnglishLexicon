@@ -116,7 +116,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:text="Переместить в словарь"
+                        android:text="@string/text_move_to_dict"
                         android:id="@+id/check_move"
                         android:textColor="@color/colorWhite"
                         style="@android:style/Widget.Holo.Light.CompoundButton.CheckBox"
@@ -189,10 +189,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="Отмена"
+                    android:text="@string/button_text_cancel"
                     android:textAlignment="center"
                     android:textColor="@color/colorBlack"
-                    android:allowUndo="false"
                     />
             </LinearLayout>
 
@@ -220,10 +219,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="Записать"
+                    android:text="@string/btn_text_write"
                     android:textAlignment="center"
                     android:textColor="@color/colorBlack"
-                    android:allowUndo="false"
                     />
             </LinearLayout>
 
@@ -248,10 +246,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="Удалить"
+                    android:text="@string/btn_text_delete"
                     android:textAlignment="center"
                     android:textColor="@color/colorBlack"
-                    android:allowUndo="false"
                     />
             </LinearLayout>
 
