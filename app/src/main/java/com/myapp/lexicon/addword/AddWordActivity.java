@@ -75,9 +75,9 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
     private final int LOADER_GET_TABLE_LIST = 11;
     private final int LOADER_GET_TRANSLATE = 12;
 
-    private String KEY_SELECT_SPINNER_INDEX = "key_spinner";
-    private String KEY_SPINNER_ITEMS = "key_spinner_items";
-    private String KEY_TEXT_RESULT_ENABLED = "key_text_result_enabled";
+    private final String KEY_SELECT_SPINNER_INDEX = "key_spinner";
+    private final String KEY_SPINNER_ITEMS = "key_spinner_items";
+    private final String KEY_TEXT_RESULT_ENABLED = "key_text_result_enabled";
 
     private static int transCounter = 0;
 

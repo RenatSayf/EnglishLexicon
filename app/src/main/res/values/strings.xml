@@ -166,6 +166,8 @@
     <string name="text_updated_successfully">Словарь успешно обновлен</string>
     <string name="text_write_error">Ошибка записи</string>
     <string name="text_deleting_error">Ошибка удаления</string>
+    <string name="header_dialog_change_pl">Исключить словари из списка воспроизведения?</string>
+    <string name="title_dialog_warning">Незавершенный тест:</string>
 
 
 </resources>

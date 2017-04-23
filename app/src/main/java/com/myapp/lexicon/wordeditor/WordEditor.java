@@ -673,7 +673,6 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
         }
         catch (Exception e)
         {
-            //Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
         finally
