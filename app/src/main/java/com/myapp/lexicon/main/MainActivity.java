@@ -179,11 +179,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // TODO: AsyncTaskLoader - 3. инициализация
         getLoaderManager().initLoader(LOADER_GET_ENTRIES, savedInstanceState, this);
 
-        if (savedInstanceState == null)
+        if (appData.isAdMob())
         {
-            if (appData.isAdMob())
+            if (appData.isOnline(this))
             {
-                if (appData.isOnline(this))
+                if (savedInstanceState == null)
                 {
                     MainBannerFragment bannerFragment = new MainBannerFragment();
                     getSupportFragmentManager().beginTransaction().replace(R.id.banner_frame_main, bannerFragment).commit();
@@ -378,8 +378,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 wordEditorIntent = new Intent(this, WordEditor.class);
             }
             Bundle bundle = new Bundle();
-            bundle.putString(WordEditor.KEY_EXTRA_DICT_NAME, playList.get(AppData.getInstance().getNdict()));
-            wordEditorIntent.replaceExtras(bundle);
+            if (playList.size() > 0)
+            {
+                bundle.putString(WordEditor.KEY_EXTRA_DICT_NAME, playList.get(AppData.getInstance().getNdict()));
+                wordEditorIntent.replaceExtras(bundle);
+            }
             startActivity(wordEditorIntent);
         }
         else if (id == R.id.nav_check_your_self)

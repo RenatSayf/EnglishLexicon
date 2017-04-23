@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.ImageButton;
 
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
 public class Tests extends AppCompatActivity
@@ -33,8 +34,19 @@ public class Tests extends AppCompatActivity
         buttonFindPair = (ImageButton) findViewById(R.id.btn_find_pair);
         buttonListenEndClick = (ImageButton) findViewById(R.id.btn_select_word_test);
         buttonOneOfFive = (ImageButton) findViewById(R.id.btn_test_1of5);
-
         button_OnClick();
+
+        if (AppData.getInstance().isAdMob())
+        {
+            if (AppData.getInstance().isOnline(Tests.this))
+            {
+                if (savedInstanceState == null)
+                {
+                    BannerFragmentTests bannerFragment = new BannerFragmentTests();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.banner_frame_tests, bannerFragment).commit();
+                }
+            }
+        }
     }
 
     private void button_OnClick()

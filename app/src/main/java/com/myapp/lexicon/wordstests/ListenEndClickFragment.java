@@ -661,7 +661,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                                 }
                             } catch (Exception e)
                             {
-                                Toast.makeText(getActivity(), "Ошибка - "+e.getMessage(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getActivity(), "Error - "+e.getMessage(), Toast.LENGTH_SHORT).show();
                             }
                             if (fields.buttonY > 0)
                             {

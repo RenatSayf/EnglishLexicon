@@ -577,7 +577,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                                 }
                             } catch (Exception e)
                             {
-                                Toast.makeText(getActivity(), "Ошибка - "+e.getMessage(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getActivity(), "Error - "+e.getMessage(), Toast.LENGTH_SHORT).show();
                             }
                         }
                         if (fields.buttonY > 0)
@@ -850,8 +850,6 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     public void onPause()
     {
         super.onPause();
-//        Tests.bundleOneOfFiveTest = new Bundle();
-//        onSaveInstanceState(Tests.bundleOneOfFiveTest);
     }
 
     @Override

@@ -22,7 +22,7 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/p_content_play_list"/>
-
+    <include layout="@layout/p_content_play_list"
+             android:id="@+id/include"/>
 
 </android.support.design.widget.CoordinatorLayout>

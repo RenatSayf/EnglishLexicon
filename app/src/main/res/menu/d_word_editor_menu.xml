@@ -11,14 +11,4 @@
         app:showAsAction="collapseActionView|ifRoom"
         android:title="@string/menu_search"/>
 
-    <!--<item android:id="@+id/action_item1"-->
-          <!--android:title="Add Dictionary"-->
-          <!--android:orderInCategory="100"-->
-          <!--app:showAsAction="never"/>-->
-
-    <!--<item android:id="@+id/action_item2"-->
-          <!--android:title="Add Word"-->
-          <!--android:orderInCategory="100"-->
-          <!--app:showAsAction="never"/>-->
-
 </menu>

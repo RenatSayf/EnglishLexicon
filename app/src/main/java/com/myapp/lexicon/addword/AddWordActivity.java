@@ -41,6 +41,7 @@ import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.GetTableListLoader2;
 import com.myapp.lexicon.main.SplashScreenActivity;
+import com.myapp.lexicon.settings.AppData;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -74,9 +75,9 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
     private final int LOADER_GET_TABLE_LIST = 11;
     private final int LOADER_GET_TRANSLATE = 12;
 
-    private String KEY_SELECT_SPINNER_INDEX = "key_spinner";
-    private String KEY_SPINNER_ITEMS = "key_spinner_items";
-    private String KEY_TEXT_RESULT_ENABLED = "key_text_result_enabled";
+    private final String KEY_SELECT_SPINNER_INDEX = "key_spinner";
+    private final String KEY_SPINNER_ITEMS = "key_spinner_items";
+    private final String KEY_TEXT_RESULT_ENABLED = "key_text_result_enabled";
 
     private static int transCounter = 0;
 
@@ -166,7 +167,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
             ArrayList<String> list = savedInstanceState.getStringArrayList(KEY_SPINNER_ITEMS);
             if (list != null  && list.size() > 0)
             {
-                ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(this, R.layout.my_content_spinner_layout, list);
+                ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
                 spinnerListDict.setAdapter(adapterSpinner);
                 spinnerListDict.setSelection(savedInstanceState.getInt(KEY_SELECT_SPINNER_INDEX));
             }
@@ -178,6 +179,18 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
         }
         getLoaderManager().initLoader(LOADER_GET_TABLE_LIST, savedInstanceState, this);
         getLoaderManager().initLoader(LOADER_GET_TRANSLATE, savedInstanceState, this);
+
+        if (AppData.getInstance().isAdMob())
+        {
+            if (AppData.getInstance().isOnline(this))
+            {
+                if (savedInstanceState == null)
+                {
+                    BannerFragmentAW bannerFragment = new BannerFragmentAW();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.banner_frame_aw, bannerFragment).commit();
+                }
+            }
+        }
     }
 
     @Override
@@ -684,7 +697,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
         if (loader.getId() == LOADER_GET_TABLE_LIST)
         {
             ArrayList<String> list = (ArrayList<String>) data;
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.my_content_spinner_layout, list);
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
             spinnerListDict.setAdapter(adapter);
         }
         if (loader.getId() == LOADER_GET_TRANSLATE)
@@ -793,9 +806,18 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
                 final ArrayList<String> arrayList = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
                 if (arrayList != null && arrayList.size() > 0)
                 {
-                    ArrayAdapter<String> adapter = new ArrayAdapter<>(AddWordActivity.this, android.R.layout.simple_dropdown_item_1line, arrayList);
+                    final ArrayAdapter<String> adapter = new ArrayAdapter<>(AddWordActivity.this, android.R.layout.simple_dropdown_item_1line, arrayList);
+                    final String oldText = textViewEnter.getText().toString();
                     textViewEnter.setAdapter(adapter);
                     textViewEnter.showDropDown();
+                    textViewEnter.setOnItemClickListener(new AdapterView.OnItemClickListener()
+                    {
+                        @Override
+                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l)
+                        {
+                            textViewEnter.setText(oldText + " " + adapterView.getAdapter().getItem(i).toString());
+                        }
+                    });
                 }
             }
         }
