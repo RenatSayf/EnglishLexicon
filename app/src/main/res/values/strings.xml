@@ -163,6 +163,9 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="text_updated_successfully">Словарь успешно обновлен</string>
+    <string name="text_write_error">Ошибка записи</string>
+    <string name="text_deleting_error">Ошибка удаления</string>
 
 
 </resources>

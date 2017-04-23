@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.widget.Toast;
 
+import com.myapp.lexicon.R;
 import com.myapp.lexicon.helpers.StringOperations;
 
 import java.sql.SQLException;
@@ -170,11 +171,11 @@ public class DataBaseQueries
 
         if (id != -1)
         {
-            Toast.makeText(context,"Словарь успешно обновлен",Toast.LENGTH_SHORT).show();
+            Toast.makeText(context,R.string.text_updated_successfully,Toast.LENGTH_SHORT).show();
         }
         else
         {
-            Toast.makeText(context,"Ошибка записи",Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, R.string.text_write_error,Toast.LENGTH_SHORT).show();
         }
 
         return id;
@@ -205,11 +206,11 @@ public class DataBaseQueries
         }
         if (id != -1)
         {
-            Toast.makeText(context,"Словарь успешно обновлен",Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, R.string.text_updated_successfully,Toast.LENGTH_SHORT).show();
         }
         else
         {
-            Toast.makeText(context,"Ошибка записи",Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, R.string.text_deleting_error,Toast.LENGTH_SHORT).show();
         }
         return id;
     }
