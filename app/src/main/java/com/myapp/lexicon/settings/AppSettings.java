@@ -63,7 +63,7 @@ public class AppSettings
      */
     public void savePlayList(ArrayList<String> list)
     {
-        if (list != null && list.size() > 0)
+        if (list != null)
         {
             String temp = ObjectSerializer.serialize(list);
             context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putString(KEY_PLAY_LIST_ITEMS, temp).apply();

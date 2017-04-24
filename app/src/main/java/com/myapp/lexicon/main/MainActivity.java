@@ -656,6 +656,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void getNext()
     {
+        if (playList != null && playList.size() == 0)
+        {
+            speechServiceOnStop();
+            return;
+        }
         dataBaseQueries = new DataBaseQueries(this);
         int wordsCount = dataBaseQueries.getCountEntriesSync(playList.get(appData.getNdict()));
         appData.setNword(appData.getNword()+1);
@@ -692,6 +697,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void getPrevious()
     {
+        if (playList != null && playList.size() == 0)
+        {
+            speechServiceOnStop();
+            return;
+        }
         dataBaseQueries = new DataBaseQueries(this);
         playList = appSettings.getPlayList();
 
