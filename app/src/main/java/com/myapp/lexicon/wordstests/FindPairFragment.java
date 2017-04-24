@@ -77,11 +77,13 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
 
     private ProgressBar progressBar;
     private ImageView backImageView;
+    private TextView tvProgressValue;
 
     private LockOrientation lockOrientation;
     private int wordIndex = 1;
     private int wordsCount;
     private int counterRightAnswer = 0;
+    private double progressValue = 0;
 
     private static ArrayList<String> textArrayleft = new ArrayList<>();
     private static ArrayList<String> textArrayRight = new ArrayList<>();
@@ -117,6 +119,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     private final String KEY_CONTROL_LIST = "key_control_list";
     private final String KEY_ADDITIONAL_LIST = "key_additional_list";
     private final String KEY_STORED_DICT_LIST = "key_stored_dict_list";
+    private final String KEY_PROGRESS_VALUE = "key_progress_value";
 
 
     public FindPairFragment()
@@ -150,6 +153,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         outState.putParcelableArrayList(KEY_CONTROL_LIST, controlList);
         outState.putParcelableArrayList(KEY_ADDITIONAL_LIST, additionalList);
         outState.putStringArrayList(KEY_STORED_DICT_LIST, storedListDict);
+        outState.putDouble(KEY_PROGRESS_VALUE, progressValue);
 
         if (isOpen)
         {
@@ -271,6 +275,8 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         spinnListDict = (Spinner) fragment_view.findViewById(R.id.spinner_dict);
 
         progressBar = (ProgressBar) fragment_view.findViewById(R.id.prog_bar_find_pair);
+        tvProgressValue = (TextView) fragment_view.findViewById(R.id.tv_progress_value);
+        setProgressValue(progressValue, wordsCount);
 
         btnLayoutLeft = (LinearLayout) fragment_view.findViewById(R.id.btn_layout_left);
         btnLayoutRight = (LinearLayout) fragment_view.findViewById(R.id.btn_layout_right);
@@ -299,6 +305,8 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             controlList = savedInstanceState.getParcelableArrayList(KEY_CONTROL_LIST);
             additionalList = savedInstanceState.getParcelableArrayList(KEY_ADDITIONAL_LIST);
             storedListDict = savedInstanceState.getStringArrayList(KEY_STORED_DICT_LIST);
+            progressValue = savedInstanceState.getDouble(KEY_PROGRESS_VALUE);
+            setProgressValue(progressBar.getProgress(), progressBar.getMax());
         }
 
         if (savedInstanceState != null)
@@ -444,6 +452,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                 wordsCount = count;
                 progressBar.setMax(count);
                 progressBar.setProgress(wordIndex - 1);
+                setProgressValue(progressBar.getProgress(), progressBar.getMax());
                 hideWordButtons();
                 if (wordsCount < ROWS)
                 {
@@ -573,6 +582,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
 
         if (isFind)
         {
+            setProgressValue(wordIndex, wordsCount);
             wordIndex++;
             progressBar.setProgress(progressBar.getProgress()+1);
             tempButtonLeft.setBackgroundResource(R.drawable.text_btn_for_test_green);
@@ -624,6 +634,16 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                 btnNoRight.setBackgroundResource(R.drawable.text_btn_for_test_red);
                 btnNoRight.startAnimation(animNotRight);
             }
+        }
+    }
+
+    private void setProgressValue(double progressValue, double progressMax)
+    {
+        if (progressMax != 0)
+        {
+            double percentProgress = progressValue / progressMax * 100;
+            String value = String.valueOf(percentProgress) + "%";
+            tvProgressValue.setText(value);
         }
     }
 
