@@ -653,6 +653,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                 if (getIntent().getExtras().containsKey(WordEditor.KEY_ROW_ID))
                 {
                     int index = getIntent().getExtras().getInt(WordEditor.KEY_ROW_ID);
+                    m.rowID = index;
                     DataBaseEntry entry = listViewAdapter.getItem(index-1);
                     if (entry != null)
                     {
