@@ -44,6 +44,7 @@ import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -457,7 +458,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
         if (progressMax != 0)
         {
             double percentProgress = progressValue / progressMax * 100;
-            String value = String.valueOf(percentProgress) + "%";
+            String value = String.valueOf(BigDecimal.valueOf(percentProgress).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue()) + "%";
             tvProgressValue.setText(value);
         }
     }
