@@ -82,6 +82,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     private Spinner spinnListDict;
     private ProgressBar progressBar;
     private Button tempButton;
+    private TextView tvProgressValue;
     private LockOrientation lockOrientation;
     private TestResults testResults;
     private DialogTestComplete dialogTestComplete;
@@ -199,6 +200,9 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
         buttonsLayout = (LinearLayout) fragment_view.findViewById(R.id.layout_1of5);
         textView = (TextView) fragment_view.findViewById(R.id.text_view_1of5);
         progressBar = (ProgressBar) fragment_view.findViewById(R.id.progress_test1of5);
+        tvProgressValue = (TextView) fragment_view.findViewById(R.id.tv_progress_value);
+        setProgressValue(0, fields.wordsCount);
+
         dialogTestComplete = new DialogTestComplete();
         dialogTestComplete.setIDialogCompleteResult(OneOfFiveTest.this);
 
@@ -212,6 +216,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
             textView.setText(savedInstanceState.getString(KEY_TEXT));
             progressBar.setMax(savedInstanceState.getInt(KEY_PROGRESS_MAX));
             progressBar.setProgress(savedInstanceState.getInt(KEY_PROGRESS));
+            setProgressValue(progressBar.getProgress(), progressBar.getMax());
 
             for (int i = 0; i < buttonsLayout.getChildCount(); i++)
             {
@@ -368,6 +373,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                 fillLayoutLeft(fields.wordsCount);
                 progressBar.setMax(fields.wordsCount);
                 progressBar.setProgress(fields.wordIndex - 1);
+                setProgressValue(progressBar.getProgress(), progressBar.getMax());
             }
         });
         if (getCountWordsAsync.getStatus() != AsyncTask.Status.RUNNING)
@@ -446,6 +452,16 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
         });
     }
 
+    private void setProgressValue(double progressValue, double progressMax)
+    {
+        if (progressMax != 0)
+        {
+            double percentProgress = progressValue / progressMax * 100;
+            String value = String.valueOf(percentProgress) + "%";
+            tvProgressValue.setText(value);
+        }
+    }
+
     private void compareWords(String tableName, String enword, String ruword)
     {
         if (enword == null || ruword == null)   return;
@@ -471,6 +487,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                 {
                     fields.listFromDB = entries;
                     progressBar.setProgress(progressBar.getProgress()+1);
+                    setProgressValue(progressBar.getProgress(), fields.wordsCount);
                     HashMap<String, String> hashMap = new HashMap<>();
                     hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "one_of_five_fragm");
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
