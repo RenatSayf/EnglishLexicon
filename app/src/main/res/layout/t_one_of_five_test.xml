@@ -70,16 +70,33 @@
                 />
         </FrameLayout>
 
-        <ProgressBar
-            android:id="@+id/progress_test1of5"
-            style="?android:attr/progressBarStyleHorizontal"
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:layout_marginTop="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_weight="1"
-            android:indeterminate="false"
-            android:visibility="visible"/>
+            >
+
+            <ProgressBar
+                android:id="@+id/progress_test1of5"
+                style="@android:style/Widget.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:indeterminate="false"
+                android:visibility="visible"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:text="50%"
+                android:textColor="@color/colorWhite"
+                android:id="@+id/tv_progress_value"/>
+
+        </FrameLayout>
+
     </LinearLayout>
 
 

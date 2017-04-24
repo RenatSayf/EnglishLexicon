@@ -30,6 +30,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.myapp.lexicon.R;
@@ -44,6 +45,7 @@ import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -76,6 +78,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
     private Spinner spinnListDict;
     private ImageButton buttonSpeech;
     private ProgressBar progressBar;
+    private TextView tvProgressValue;
 
     private static RandomNumberGenerator randomGenerator;
     private LockOrientation lockOrientation;
@@ -175,18 +178,22 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
         View fragment_view = inflater.inflate(R.layout.t_listen_end_click_layout, container, false);
 
         backImage = (ImageView) fragment_view.findViewById(R.id.img_back_listen_layout);
+
         topPanel = (LinearLayout) fragment_view.findViewById(R.id.top_panel);
         topPanelParams = (RelativeLayout.LayoutParams) topPanel.getLayoutParams();
+        topPanelButtonOK = (Button) fragment_view.findViewById(R.id.btn_ok);
+        topPanelButtonFinish = (Button) fragment_view.findViewById(R.id.btn_complete);
+        topPanelButtonThreePoints = (ImageButton) fragment_view.findViewById(R.id.btn_more_horiz);
+        topPanelButtons_OnClick();
+
         LinearLayout linLayout = (LinearLayout) fragment_view.findViewById(R.id.linear_layout);
         spinnListDict = (Spinner) fragment_view.findViewById(R.id.spinner_dict);
         buttonsLayout = (LinearLayout) fragment_view.findViewById(R.id.buttons_layout);
         buttonSpeech = (ImageButton) fragment_view.findViewById(R.id.btn_speech);
         buttonSpeech_OnClick();
         progressBar = (ProgressBar) fragment_view.findViewById(R.id.prog_bar_listen);
-        topPanelButtonOK = (Button) fragment_view.findViewById(R.id.btn_ok);
-        topPanelButtonFinish = (Button) fragment_view.findViewById(R.id.btn_complete);
-        topPanelButtonThreePoints = (ImageButton) fragment_view.findViewById(R.id.btn_more_horiz);
-        topPanelButtons_OnClick();
+        tvProgressValue = (TextView) fragment_view.findViewById(R.id.tv_progress_value);
+        setProgressValue(0, fields.wordsCount);
 
         testResults = new TestResults(getActivity());
         dialogTestComplete = new DialogTestComplete();
@@ -206,6 +213,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
         {
             progressBar.setProgress(savedInstanceState.getInt(KEY_PROGRESS));
             progressBar.setMax(savedInstanceState.getInt(KEY_PROGRESS_MAX));
+            setProgressValue(progressBar.getProgress(), progressBar.getMax());
 
             for (int i = 0; i < buttonsLayout.getChildCount(); i++)
             {
@@ -366,6 +374,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                 fillLayoutLeft();
                 progressBar.setMax(count);
                 progressBar.setProgress(fields.wordIndex - 1);
+                setProgressValue(progressBar.getProgress(), progressBar.getMax());
             }
         });
         if (getCountWordsAsync.getStatus() != AsyncTask.Status.RUNNING)
@@ -440,6 +449,16 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
         });
     }
 
+    private void setProgressValue(double progressValue, double progressMax)
+    {
+        if (progressMax != 0)
+        {
+            double percentProgress = progressValue / progressMax * 100;
+            String value = String.valueOf(BigDecimal.valueOf(percentProgress).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue()) + "%";
+            tvProgressValue.setText(value);
+        }
+    }
+
     private void compareWords(String tableName, String enword, String ruword)
     {
         if (enword == null || ruword == null)   return;
@@ -466,6 +485,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                 {
                     fields.listFromDB = entries;
                     progressBar.setProgress(progressBar.getProgress()+1);
+                    setProgressValue(progressBar.getProgress(), fields.wordsCount);
                     if (tempButton != null)
                     {
                         tempButton.setText(fields.textEn);
