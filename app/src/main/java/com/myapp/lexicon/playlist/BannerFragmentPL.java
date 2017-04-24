@@ -1,4 +1,4 @@
-package com.myapp.lexicon.main;
+package com.myapp.lexicon.playlist;
 
 
 import android.os.Bundle;
@@ -18,11 +18,11 @@ import com.myapp.lexicon.settings.AppData;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MainBannerFragment extends Fragment
+public class BannerFragmentPL extends Fragment
 {
-    private View view = null;
+    private View fragment_view = null;
 
-    public MainBannerFragment()
+    public BannerFragmentPL()
     {
         // Required empty public constructor
     }
@@ -35,18 +35,19 @@ public class MainBannerFragment extends Fragment
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState)
     {
-        if (view == null)
+        if (fragment_view == null)
         {
-            view = inflater.inflate(R.layout.a_fragment_main_banner, container, false);
+            fragment_view = inflater.inflate(R.layout.p_banner_fragment_pl,container, false);
         }
 
         if (savedInstanceState == null)
         {
-            final AdView bannerView = (AdView) view.findViewById(R.id.adView_main);
+            final AdView bannerView = (AdView) fragment_view.findViewById(R.id.adView_pl);
             bannerView.setVisibility(View.GONE);
-            MobileAds.initialize(getActivity(), getString(R.string.main_bottom_banner));
+            MobileAds.initialize(getActivity(), getString(R.string.play_list_banner));
             AdRequest adRequest;
             if (AppData.getInstance().testDeviceEnabled())
             {
@@ -67,7 +68,7 @@ public class MainBannerFragment extends Fragment
             });
         }
 
-        return view;
+        return fragment_view;
     }
 
 }

@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
+import com.myapp.lexicon.R;
 import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.ArrayList;
@@ -47,7 +48,7 @@ public class DialogChangePlayList extends android.support.v4.app.DialogFragment
             choice[i] = true;
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity()).setTitle("Исключить словари из списка воспроизведения?")
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity()).setTitle(R.string.header_dialog_change_pl)
                 .setMultiChoiceItems(items, choice, new DialogInterface.OnMultiChoiceClickListener()
                 {
                     @Override

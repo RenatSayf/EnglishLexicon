@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -39,6 +40,7 @@ import com.myapp.lexicon.database.GetEntriesLoader;
 import com.myapp.lexicon.database.GetTableListLoader;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.StringOperations;
+import com.myapp.lexicon.main.MainBannerFragment;
 import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.settings.AppData;
 
@@ -86,6 +88,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
     private final int LOADER_GET_TABLE_LIST = 2;
     private final int LOADER_GET_ALL_FROM_TABLE = 3;
 
+    private BottomBannerFragmentWE bannerFragment;
 
     private void initViews()
     {
@@ -174,6 +177,8 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
         AppData.getInstance().setListViewAdapter((ListViewAdapter) listView.getAdapter());
     }
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -210,7 +215,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
             ArrayList<String> arrayList = savedInstanceState.getStringArrayList(KEY_SPINNER_ITEMS);
             if (arrayList != null)
             {
-                ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(this, R.layout.my_content_spinner_layout, arrayList);
+                ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, arrayList);
                 spinnerListDict.setAdapter(adapterSpinner);
                 int index = savedInstanceState.getInt(KEY_SPINNER_SELECT_INDEX);
                 if (index < adapterSpinner.getCount())
@@ -222,7 +227,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
             ArrayList<String> arrayList2 = savedInstanceState.getStringArrayList(KEY_SPINNER_2_ITEMS);
             if (arrayList2 != null)
             {
-                ArrayAdapter<String> adapterSpinner2= new ArrayAdapter<>(this, R.layout.my_content_spinner_layout, arrayList2);
+                ArrayAdapter<String> adapterSpinner2= new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, arrayList2);
                 spinnerListDict2.setAdapter(adapterSpinner2);
             }
 
@@ -246,6 +251,21 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
         else
         {
             getLoaderManager().restartLoader(LOADER_GET_TABLE_LIST, null, WordEditor.this).forceLoad();
+        }
+
+
+        AppData appData = AppData.getInstance();
+        if (appData.isAdMob())
+        {
+            if (appData.isOnline(this))
+            {
+                bannerFragment = (BottomBannerFragmentWE) getSupportFragmentManager().findFragmentByTag(BottomBannerFragmentWE.TAG);
+                if (bannerFragment == null)
+                {
+                    bannerFragment = new BottomBannerFragmentWE();
+                }
+                getSupportFragmentManager().beginTransaction().replace(R.id.bottom_banner_frame_we, bannerFragment).commit();
+            }
         }
     }
 
@@ -653,7 +673,6 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
         }
         catch (Exception e)
         {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
         finally
@@ -721,7 +740,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
             }
             if (list.size() > 0)
             {
-                ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(this, R.layout.my_content_spinner_layout, list);
+                ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
                 spinnerListDict.setAdapter(adapterSpinner);
                 int position;
                 if (spinnerDictSelectItem != null)
@@ -741,7 +760,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
 
                 ArrayList<String> list2 = (ArrayList<String>) list.clone();
                 list2.remove(position);
-                ArrayAdapter<String> adapterSpinner2 = new ArrayAdapter<>(this, R.layout.my_content_spinner_layout, list2);
+                ArrayAdapter<String> adapterSpinner2 = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list2);
                 spinnerListDict2.setAdapter(adapterSpinner2);
             }
         }

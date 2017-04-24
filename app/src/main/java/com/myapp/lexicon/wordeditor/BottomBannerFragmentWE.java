@@ -1,4 +1,4 @@
-package com.myapp.lexicon.main;
+package com.myapp.lexicon.wordeditor;
 
 
 import android.os.Bundle;
@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.myapp.lexicon.R;
@@ -18,11 +19,12 @@ import com.myapp.lexicon.settings.AppData;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MainBannerFragment extends Fragment
+public class BottomBannerFragmentWE extends Fragment
 {
-    private View view = null;
+    private View fragment_view = null;
+    public static final String TAG = "banner_fragment_we";
 
-    public MainBannerFragment()
+    public BottomBannerFragmentWE()
     {
         // Required empty public constructor
     }
@@ -37,14 +39,14 @@ public class MainBannerFragment extends Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        if (view == null)
+        if (fragment_view == null)
         {
-            view = inflater.inflate(R.layout.a_fragment_main_banner, container, false);
+            fragment_view = inflater.inflate(R.layout.d_bottom_banner_fragm_we, container, false);
         }
 
         if (savedInstanceState == null)
         {
-            final AdView bannerView = (AdView) view.findViewById(R.id.adView_main);
+            final AdView bannerView = (AdView) fragment_view.findViewById(R.id.adView_we);
             bannerView.setVisibility(View.GONE);
             MobileAds.initialize(getActivity(), getString(R.string.main_bottom_banner));
             AdRequest adRequest;
@@ -67,7 +69,7 @@ public class MainBannerFragment extends Fragment
             });
         }
 
-        return view;
+        return fragment_view;
     }
 
 }

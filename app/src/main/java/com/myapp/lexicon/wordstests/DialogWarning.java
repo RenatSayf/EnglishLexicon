@@ -58,7 +58,7 @@ public class DialogWarning extends DialogFragment
             }
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
-                .setTitle("Незавершенный тест:")
+                .setTitle(R.string.title_dialog_warning)
                 .setMessage(message)
                 .setPositiveButton(textBtnOk, new DialogInterface.OnClickListener()
                 {
@@ -87,7 +87,7 @@ public class DialogWarning extends DialogFragment
 
         if (builder != null && isNeutralBtn)
         {
-            builder.setNeutralButton("Отмена", new DialogInterface.OnClickListener()
+            builder.setNeutralButton(getString(R.string.button_text_cancel), new DialogInterface.OnClickListener()
             {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i)

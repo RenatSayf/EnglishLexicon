@@ -1,4 +1,4 @@
-package com.myapp.lexicon.main;
+package com.myapp.lexicon.addword;
 
 
 import android.os.Bundle;
@@ -18,11 +18,11 @@ import com.myapp.lexicon.settings.AppData;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MainBannerFragment extends Fragment
+public class BannerFragmentAW extends Fragment
 {
-    private View view = null;
+    private View fragmentView = null;
 
-    public MainBannerFragment()
+    public BannerFragmentAW()
     {
         // Required empty public constructor
     }
@@ -37,16 +37,16 @@ public class MainBannerFragment extends Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        if (view == null)
+        if (fragmentView == null)
         {
-            view = inflater.inflate(R.layout.a_fragment_main_banner, container, false);
+            fragmentView = inflater.inflate(R.layout.b_banner_fragment_aw, container, false);
         }
 
         if (savedInstanceState == null)
         {
-            final AdView bannerView = (AdView) view.findViewById(R.id.adView_main);
+            final AdView bannerView = (AdView) fragmentView.findViewById(R.id.adView_aw);
             bannerView.setVisibility(View.GONE);
-            MobileAds.initialize(getActivity(), getString(R.string.main_bottom_banner));
+            MobileAds.initialize(getActivity(), getString(R.string.play_list_banner));
             AdRequest adRequest;
             if (AppData.getInstance().testDeviceEnabled())
             {
@@ -67,7 +67,7 @@ public class MainBannerFragment extends Fragment
             });
         }
 
-        return view;
+        return fragmentView;
     }
 
 }
