@@ -23,10 +23,11 @@ public class BackgroundFragm extends Fragment
     public static int[] imagesId = new int[]
             {
                     R.drawable.img_uk,
+                    R.drawable.img_uk1,
                     R.drawable.img_uk2,
                     R.drawable.img_uk3,
-                    R.drawable.img_uk5,
                     R.drawable.img_uk4,
+                    R.drawable.img_uk5,
                     R.drawable.img_uk6,
                     R.drawable.img_uk7,
                     R.drawable.img_uk8,
@@ -37,6 +38,8 @@ public class BackgroundFragm extends Fragment
                     R.drawable.img_uk13,
                     R.drawable.img_uk14,
                     R.drawable.img_uk15,
+                    R.drawable.img_uk16,
+                    R.drawable.img_uk17,
                     R.drawable.img_usa3,
                     R.drawable.img_usa4
             };

@@ -95,7 +95,6 @@
                     android:gravity="center_horizontal"
                     android:onClick="btnNextBackClick"
                     android:src="@drawable/selector_icon_skip_prev"
-                    android:visibility="visible"
                     />
 
                 <android.support.v4.widget.Space
@@ -146,7 +145,6 @@
                     android:gravity="right"
                     android:onClick="btnNextBackClick"
                     android:src="@drawable/selector_icon_skip_next"
-                    android:visibility="visible"
                     />
 
             </LinearLayout>
