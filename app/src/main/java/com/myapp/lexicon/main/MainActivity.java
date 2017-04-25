@@ -471,6 +471,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 {
                                     try
                                     {
+                                        dataBaseQueries = new DataBaseQueries(MainActivity.this);
                                         result = dataBaseQueries.deleteTableFromDbSync(item);
                                         appSettings.removeItemFromPlayList(item);
                                     } catch (Exception e)
