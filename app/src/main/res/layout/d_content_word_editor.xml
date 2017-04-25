@@ -22,13 +22,28 @@
             android:layout_height="match_parent"
             android:layout_margin="0dp">
 
-            <TextView
-                android:id="@+id/spinner_header"
-                android:layout_width="match_parent"
+            <FrameLayout android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:text="@string/text_dictionary"
-                android:textColor="@color/colorWhite"/>
+                android:id="@+id/header_frame">
+
+                <TextView
+                    android:id="@+id/spinner_header"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:text="@string/text_dictionary"
+                    android:textColor="@color/colorWhite"/>
+
+                <TextView
+                    android:id="@+id/tv_amount_words"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginRight="10dp"
+                    android:textColor="@color/colorWhite"/>
+
+            </FrameLayout>
+
 
             <Spinner
                 android:layout_width="match_parent"
@@ -37,7 +52,7 @@
                 android:layout_marginRight="10dp"
                 android:id="@+id/spinner"
                 style="@style/spinner_style"
-                android:layout_below="@id/spinner_header"
+                android:layout_below="@id/header_frame"
                 />
 
             <SearchView
