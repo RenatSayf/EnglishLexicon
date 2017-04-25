@@ -675,6 +675,8 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
             {
                 listView.setAdapter(null);
                 progressBar.setVisibility(View.GONE);
+                m.amountWords = 0;
+                tvAmountWords.setText(getString(R.string.text_words) + "  " + String.valueOf(m.amountWords));
             }
         }
         catch (Exception e)

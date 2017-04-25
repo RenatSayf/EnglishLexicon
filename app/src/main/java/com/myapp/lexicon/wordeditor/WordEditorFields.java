@@ -14,7 +14,7 @@ class WordEditorFields implements Parcelable
     String oldTextRu;
     String oldCurrentDict;
     int oldCountRepeat;
-    int amountWords;
+    int amountWords = 0;
     boolean[] searchIsVisible;
 
     private WordEditorFields(Parcel in)
