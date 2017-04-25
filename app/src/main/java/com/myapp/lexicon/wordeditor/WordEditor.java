@@ -61,6 +61,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
     private ImageButton buttonDelete;
     private ImageButton buttonCancel;
     private EditText editTextEn, editTextRu;
+    private TextView tvAmountWords;
     private Spinner spinnerCountRepeat, spinnerListDict2;
     private CheckBox checkCopy, checkMove;
     private LinearLayout layoutSpinner;
@@ -123,6 +124,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
 
         buttonCancel = (ImageButton) findViewById(R.id.btn_cancel);
 
+        tvAmountWords = (TextView) findViewById(R.id.tv_amount_words);
         editTextEn = (EditText) findViewById(R.id.edit_text_en);
         editTextRu = (EditText) findViewById(R.id.edit_text_ru);
         spinnerCountRepeat = (Spinner) findViewById(R.id.spinn_cout_repeat);
@@ -247,6 +249,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
             {
                 layoutSpinner.setVisibility(View.GONE);
             }
+            tvAmountWords.setText(getString(R.string.text_words)+ "  " + String.valueOf(m.amountWords));
         }
         else
         {
@@ -649,6 +652,8 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                 listViewAdapter = new ListViewAdapter(entriesFromDB, WordEditor.this, R.id.search_view);
                 listView.setAdapter(listViewAdapter); // TODO: ListView setAdapter
                 progressBar.setVisibility(View.GONE);
+                m.amountWords = entriesFromDB.size();
+                tvAmountWords.setText(getString(R.string.text_words) + "  " + String.valueOf(m.amountWords));
 
                 if (getIntent().getExtras().containsKey(WordEditor.KEY_ROW_ID))
                 {
