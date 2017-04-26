@@ -26,4 +26,11 @@
         android:textSize="35sp"
         android:textStyle="normal|bold"/>
 
+    <ProgressBar
+        android:id="@+id/progressBar2"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"/>
+
 </LinearLayout>
