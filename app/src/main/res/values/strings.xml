@@ -72,8 +72,6 @@
     <string name="label_count_repeat">Количество повторов</string>
     <string name="label_copy">Копировать</string>
     <string name="msg_wrong_text">В одном из полей ввода текст не соответствует языку</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="header.correctfragment">Выбери правильно в словаре:</string>
     <string name="text_excellent">Отлично</string>
     <string name="text_good">Хорошо</string>
@@ -94,8 +92,6 @@
     <string name="key_play_order">key_play_order</string>
     <string name="speech_error">Error of speech synthesis</string>
     <string name="is_one_time">is_one_time</string>
-    <string name="text_ru_off">Ru Выкл</string>
-    <string name="text_ru_on">Ru Вкл</string>
     <string name="text_added_new_dict">"Добавлен новый словарь: "</string>
     <string name="btn_text_setup">Установить</string>
     <string name="start_speech_en">lets go</string>
@@ -157,12 +153,7 @@
     <string name="word_editor_bottom_banner">ca-app-pub-4071145618173901/4585515071</string>
     <string name="play_list_banner">ca-app-pub-4071145618173901/5801236277</string>
     <string name="tests_banner">ca-app-pub-4071145618173901/5962686672</string>
-
     <string name="text_ru">Ru</string>
-    <string name="text_dict">Словарь</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="text_updated_successfully">Словарь успешно обновлен</string>
     <string name="text_write_error">Ошибка записи</string>
     <string name="text_deleting_error">Ошибка удаления</string>
@@ -172,6 +163,8 @@
     <string name="btn_text_write">Записать</string>
     <string name="btn_text_delete">Удалить</string>
     <string name="text_words">Слов:</string>
+    <string name="text_ru_speech_on">Русскоязычное озвучивание включено</string>
+    <string name="text_ru_speech_off">Русскоязычное озвучивание отключено</string>
 
 
 </resources>

@@ -467,19 +467,19 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     {
         if (enword == null || ruword == null)   return;
 
+        boolean isRight = false;
         for (int i = 0; i < fields.controlList.size(); i++)
         {
-            if (fields.controlList.get(i).getEnglish().equals(enword))
+            if (fields.controlList.get(i).getEnglish().toLowerCase().equals(enword.toLowerCase()) &&
+                    fields.controlList.get(i).getTranslate().toLowerCase().equals(ruword.toLowerCase()))
             {
+                isRight = true;
                 fields.indexEn = i;
-            }
-            if (fields.controlList.get(i).getTranslate().equals(ruword))
-            {
-                fields.indexRu = i;
+                break;
             }
         }
 
-        if (fields.indexEn == fields.indexRu && fields.indexEn != -1 && fields.indexRu != -1)
+        if (isRight)
         {
             GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), tableName, fields.wordIndex, fields.wordIndex, new GetEntriesFromDbAsync.GetEntriesListener()
             {

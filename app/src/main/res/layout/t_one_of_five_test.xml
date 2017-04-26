@@ -14,32 +14,32 @@
         android:scaleType="centerCrop"
         android:contentDescription="@string/descript_image_background"/>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
-        android:orientation="vertical"
-        android:visibility="gone">
+    <!--<LinearLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_marginLeft="30dp"-->
+        <!--android:layout_marginRight="30dp"-->
+        <!--android:orientation="vertical"-->
+        <!--android:visibility="gone">-->
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="10dp"
-            android:text="@string/header.correctfragment"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textSize="14sp"
+        <!--<TextView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="center_horizontal"-->
+            <!--android:layout_marginTop="10dp"-->
+            <!--android:text="@string/header.correctfragment"-->
+            <!--android:textAppearance="?android:attr/textAppearanceLarge"-->
+            <!--android:textSize="14sp"-->
 
-            />
+            <!--/>-->
 
-        <Spinner
-            android:id="@+id/spinn_1of5"
-            style="@style/spinner_style"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            />
-    </LinearLayout>
+        <!--<Spinner-->
+            <!--android:id="@+id/spinn_1of5"-->
+            <!--style="@style/spinner_style"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--/>-->
+    <!--</LinearLayout>-->
 
 
     <LinearLayout
@@ -50,7 +50,7 @@
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="36dp"
+            android:layout_height="54dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginTop="30dp"
@@ -64,9 +64,10 @@
                 android:layout_gravity="center"
                 android:layout_margin="2dp"
                 android:gravity="center_horizontal"
-                android:textSize="22sp"
+                android:textSize="18sp"
                 android:textColor="@color/eng_text_color"
                 android:textStyle="bold"
+                android:padding="2dp"
                 />
         </FrameLayout>
 
@@ -91,7 +92,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
-                android:text="50%"
+                android:text="0%"
                 android:textColor="@color/colorWhite"
                 android:id="@+id/tv_progress_value"/>
 
@@ -112,7 +113,7 @@
         <Button
             android:id="@+id/btn_0"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="36dp"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
             android:layout_marginBottom="5dp"
@@ -127,7 +128,7 @@
         <Button
             android:id="@+id/btn_1"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="36dp"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
             android:layout_marginBottom="5dp"
@@ -142,7 +143,7 @@
         <Button
             android:id="@+id/btn_2"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="36dp"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
             android:layout_marginBottom="5dp"
@@ -157,7 +158,7 @@
         <Button
             android:id="@+id/btn_3"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="36dp"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
             android:layout_marginBottom="5dp"
@@ -172,7 +173,7 @@
         <Button
             android:id="@+id/btn_4"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="36dp"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
             android:layout_marginBottom="5dp"
