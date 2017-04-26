@@ -173,6 +173,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             btnPause.setVisibility(savedInstanceState.getInt(KEY_BTN_PAUSE_VISIBLE));
             btnNext.setVisibility(savedInstanceState.getInt(KEY_BTN_NEXT_VISIBLE));
             btnPrevious.setVisibility(savedInstanceState.getInt(KEY_BTN_BACK_VISIBLE));
+
+            int play = savedInstanceState.getInt(KEY_BTN_PLAY_VISIBLE);
+            int stop = savedInstanceState.getInt(KEY_BTN_STOP_VISIBLE);
+            int pause = savedInstanceState.getInt(KEY_BTN_PAUSE_VISIBLE);
+            int next = savedInstanceState.getInt(KEY_BTN_NEXT_VISIBLE);
+            int back = savedInstanceState.getInt(KEY_BTN_BACK_VISIBLE);
+
             progressBar.setVisibility(savedInstanceState.getInt(KEY_PROG_BAR_VISIBLE));
         }
 
