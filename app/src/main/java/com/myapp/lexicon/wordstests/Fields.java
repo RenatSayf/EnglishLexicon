@@ -18,7 +18,6 @@ class Fields implements Parcelable
     float buttonY;
     float buttonX;
     int indexEn = -1;
-    int indexRu = -1;
     int counterRightAnswer = 0;
     int tempButtonId;
     int oldControlListSize = 0;
@@ -83,7 +82,6 @@ class Fields implements Parcelable
         parcel.writeFloat(buttonX);
         parcel.writeFloat(buttonY);
         parcel.writeInt(indexEn);
-        parcel.writeInt(indexRu);
         parcel.writeInt(counterRightAnswer);
         parcel.writeInt(tempButtonId);
         parcel.writeInt(oldControlListSize);

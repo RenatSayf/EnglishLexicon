@@ -20,7 +20,7 @@ import java.sql.SQLException;
 public class DatabaseHelper extends SQLiteOpenHelper
 {
     private static final String DB_PATH = "/data/com.myapp.lexicon/databases/";
-    private static final String DB_NAME = "lexiconDB"; // название бд
+    private static final String DB_NAME = "lexicon_DB"; // название бд
     private static final int version = 1; // версия базы данных
 
     // названия столбцов

@@ -72,8 +72,6 @@
     <string name="label_count_repeat">Количество повторов</string>
     <string name="label_copy">Копировать</string>
     <string name="msg_wrong_text">В одном из полей ввода текст не соответствует языку</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="header.correctfragment">Выбери правильно в словаре:</string>
     <string name="text_excellent">Отлично</string>
     <string name="text_good">Хорошо</string>
@@ -155,10 +153,7 @@
     <string name="word_editor_bottom_banner">ca-app-pub-4071145618173901/4585515071</string>
     <string name="play_list_banner">ca-app-pub-4071145618173901/5801236277</string>
     <string name="tests_banner">ca-app-pub-4071145618173901/5962686672</string>
-
     <string name="text_ru">Ru</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="text_updated_successfully">Словарь успешно обновлен</string>
     <string name="text_write_error">Ошибка записи</string>
     <string name="text_deleting_error">Ошибка удаления</string>
