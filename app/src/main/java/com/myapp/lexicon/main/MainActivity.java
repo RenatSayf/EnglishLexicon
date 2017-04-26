@@ -86,6 +86,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private AppSettings appSettings;
     private AppData appData;
     private ArrayList<String> playList = new ArrayList<>();
+    private DataBaseQueries dataBaseQueries;
 
     private final String KEY_ENG_TEXT = "eng_text";
     private final String KEY_RU_TEXT = "ru_text";
@@ -97,6 +98,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private final String KEY_BTN_NEXT_VISIBLE = "btn_next_visible";
     private final String KEY_BTN_BACK_VISIBLE = "btn_back_visible";
     private final String KEY_PROG_BAR_VISIBLE = "prog_bar_visible";
+
+    private final int LOADER_GET_ENTRIES = 113336564;
 
     protected PowerManager.WakeLock wakeLock;
 
@@ -173,13 +176,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             btnPause.setVisibility(savedInstanceState.getInt(KEY_BTN_PAUSE_VISIBLE));
             btnNext.setVisibility(savedInstanceState.getInt(KEY_BTN_NEXT_VISIBLE));
             btnPrevious.setVisibility(savedInstanceState.getInt(KEY_BTN_BACK_VISIBLE));
-
-            int play = savedInstanceState.getInt(KEY_BTN_PLAY_VISIBLE);
-            int stop = savedInstanceState.getInt(KEY_BTN_STOP_VISIBLE);
-            int pause = savedInstanceState.getInt(KEY_BTN_PAUSE_VISIBLE);
-            int next = savedInstanceState.getInt(KEY_BTN_NEXT_VISIBLE);
-            int back = savedInstanceState.getInt(KEY_BTN_BACK_VISIBLE);
-
             progressBar.setVisibility(savedInstanceState.getInt(KEY_PROG_BAR_VISIBLE));
         }
 
@@ -199,7 +195,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
     }
-
 
     private void initViews()
     {
@@ -459,7 +454,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     public void onClick(DialogInterface dialog, int which, boolean isChecked)
                     {
                         delete_items.add(items[which]);
-                        //Toast.makeText(a_MainActivity.this, "Добавлен элемент - " + delete_items.get(delete_items.size()-1), Toast.LENGTH_SHORT).show();
                     }
                 }).setPositiveButton(R.string.button_text_delete, new DialogInterface.OnClickListener()
         {
@@ -580,8 +574,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             btnPlay.setVisibility(View.GONE);
             btnStop.setVisibility(View.VISIBLE);
             btnPause.setVisibility(View.VISIBLE);
-            btnNext.setVisibility(View.VISIBLE);
-            btnPrevious.setVisibility(View.VISIBLE);
+            btnNext.setVisibility(View.GONE);
+            btnPrevious.setVisibility(View.GONE);
             textViewRu.setText(null);
         } else
         {
@@ -602,7 +596,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Toast toast = Toast.makeText(this, R.string.message_about_pause,Toast.LENGTH_SHORT);
         toast.show();
         speechServiceOnPause();
-
     }
 
     private void speechServiceOnPause()
@@ -615,6 +608,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         btnPause.setVisibility(View.GONE);
         btnPlay.setVisibility(View.VISIBLE);
+        btnStop.setVisibility(View.VISIBLE);
+        btnNext.setVisibility(View.VISIBLE);
+        btnPrevious.setVisibility(View.VISIBLE);
         progressBar.setVisibility(View.GONE);
     }
 
@@ -643,8 +639,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         appData.setNdict(0);
         appData.setNword(1);
     }
-
-    private DataBaseQueries dataBaseQueries;
 
     public void btnNextBackClick(View view)
     {
@@ -762,13 +756,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 {
                     appSettings.setEnglishSpeechOnly(true);
                     SpeechService.setEnglishOnly(appSettings.isEnglishSpeechOnly());
-                    Toast.makeText(MainActivity.this,"Русскоязычное озвучивание включено",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, R.string.text_ru_speech_on,Toast.LENGTH_SHORT).show();
                 }
                 else
                 {
                     appSettings.setEnglishSpeechOnly(false);
                     SpeechService.setEnglishOnly(appSettings.isEnglishSpeechOnly());
-                    Toast.makeText(MainActivity.this,"Русскоязычное озвучивание отключено",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, R.string.text_ru_speech_off,Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -792,7 +786,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     // TODO: AsyncTaskLoader - 1. MainActivity реализует интерфейс LoaderManager.LoaderCallbacks
-    private final int LOADER_GET_ENTRIES = 113336564;
+
     @Override
     public Loader onCreateLoader(int id, Bundle bundle)
     {

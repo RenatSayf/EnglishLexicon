@@ -172,6 +172,8 @@
     <string name="btn_text_write">Записать</string>
     <string name="btn_text_delete">Удалить</string>
     <string name="text_words">Слов:</string>
+    <string name="text_ru_speech_on">Русскоязычное озвучивание включено</string>
+    <string name="text_ru_speech_off">Русскоязычное озвучивание отключено</string>
 
 
 </resources>
