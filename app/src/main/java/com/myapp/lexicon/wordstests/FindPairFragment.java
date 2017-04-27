@@ -56,7 +56,6 @@ import java.util.HashMap;
 public class FindPairFragment extends Fragment implements DialogTestComplete.IDialogComplete_Result
 {
     public static final String TAG = "tag_find_pair";
-
     public final int ROWS = 5;
 
     private static RelativeLayout.LayoutParams saveTopPanelParams;
@@ -84,7 +83,6 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     private int wordIndex = 1;
     private int wordsCount;
     private int counterRightAnswer = 0;
-    //private double progressValue = 0;
 
     private static ArrayList<String> textArrayleft = new ArrayList<>();
     private static ArrayList<String> textArrayRight = new ArrayList<>();
