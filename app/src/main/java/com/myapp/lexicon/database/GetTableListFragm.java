@@ -46,7 +46,7 @@ public class GetTableListFragm extends Fragment
                     databaseHelper.open();
                     if (databaseHelper.database.isOpen())
                     {
-                        cursor = databaseHelper.database.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null);
+                        cursor = databaseHelper.database.rawQuery("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name", null);
                     }
 
                     if (cursor != null && cursor.getCount() > 0)
