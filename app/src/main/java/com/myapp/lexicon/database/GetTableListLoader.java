@@ -34,7 +34,7 @@ public class GetTableListLoader extends AsyncTaskLoader<Cursor>
             databaseHelper.open();
             if (databaseHelper.database.isOpen())
             {
-                cursor = databaseHelper.database.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null);
+                cursor = databaseHelper.database.rawQuery("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name", null);
             }
         }
         catch (Exception e)
