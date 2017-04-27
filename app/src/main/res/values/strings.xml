@@ -94,8 +94,8 @@
     <string name="is_one_time">is_one_time</string>
     <string name="text_added_new_dict">"Добавлен новый словарь: "</string>
     <string name="btn_text_setup">Установить</string>
-    <string name="start_speech_en">lets go</string>
-    <string name="start_speech_ru">Поехали</string>
+    <string name="start_speech_en">Lets start!</string>
+    <string name="start_speech_ru">Начнем!</string>
     <string name="dialog_title_warning">Предупреждение:</string>
     <string name="btn_text_continue">Продолжить без</string>
     <string name="nav_words_editor">Редактор слов</string>
