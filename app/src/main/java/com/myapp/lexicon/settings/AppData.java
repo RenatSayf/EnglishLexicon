@@ -103,7 +103,7 @@ public class AppData
 
     public boolean testDeviceEnabled()
     {
-        return true;
+        return false;
     }
 
 }
