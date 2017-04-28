@@ -27,6 +27,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -250,9 +251,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         super.onPause();
         appData.saveAllSettings(this);
-        if (!isActivityOnTop())
+        if (getInchesDisplay() < 7)
         {
-            speechServiceOnPause();
+            if (!isActivityOnTop())
+            {
+                speechServiceOnPause();
+            }
         }
     }
 
@@ -285,11 +289,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onDestroy();
         unregisterReceiver(mUpdateBroadcastReceiver);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
-
-        if (!isActivityOnTop())
-        {
-            speechServiceOnPause();
-        }
     }
 
     @Override
@@ -869,6 +868,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    private double getInchesDisplay()
+    {
+        double screenInches = 0;
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int widthPixels = displayMetrics.widthPixels;
+        int heightPixels = displayMetrics.heightPixels;
+        int densityDpi = displayMetrics.densityDpi;
+        double width = (double) widthPixels/(double) densityDpi;
+        double height = (double) heightPixels/(double) densityDpi;
+        double x = Math.pow(width,2);
+        double y = Math.pow(height,2);
+        screenInches = Math.sqrt(x+y);
+        return screenInches;
+    }
 
     public class UpdateBroadcastReceiver extends BroadcastReceiver
     {
