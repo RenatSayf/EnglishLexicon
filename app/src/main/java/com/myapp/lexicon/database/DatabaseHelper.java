@@ -108,6 +108,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
                 {
                     stringPathDB = pathToDB.getPath();
                 }
+                else
+                {
+                    stringPathDB = Environment.getDataDirectory().toString() + DB_PATH;
+                }
             }
             else
             {
