@@ -1,8 +1,11 @@
 package com.myapp.lexicon.database;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteCursorDriver;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteQuery;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
@@ -69,7 +72,15 @@ public class DatabaseHelper extends SQLiteOpenHelper
             if (!fileDb.exists())
             {
                 Boolean res = directoryDb.mkdirs();
-                this.database = SQLiteDatabase.openOrCreateDatabase(fileDb, null);
+                try
+                {
+                    this.database = SQLiteDatabase.openOrCreateDatabase(fileDb, null);
+                } catch (Exception e)
+                {
+                    e.printStackTrace();
+                    Toast.makeText(context, R.string.msg_error_creating_database, Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 //получаем локальную бд как поток
                 myInput = context.getAssets().open(DB_NAME + ".db");
                 // Открываем пустую бд
@@ -121,6 +132,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
         } catch (Exception e)
         {
             e.printStackTrace();
+            stringPathDB = Environment.getDataDirectory().toString() + DB_PATH;
         }
         return stringPathDB;
     }
