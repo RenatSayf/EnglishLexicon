@@ -48,6 +48,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 
 
 /**
@@ -586,6 +587,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             tempButtonRight.setBackgroundResource(R.drawable.text_btn_for_test_green);
             HashMap<String, String> hashMap = new HashMap<>();
             hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "find_pair_fragm");
+            SplashScreenActivity.speech.setLanguage(Locale.US);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
             {
                 SplashScreenActivity.speech.speak(enword, TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
