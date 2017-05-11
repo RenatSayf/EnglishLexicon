@@ -555,6 +555,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void btnPlayClick(View view)
     {
+        playList = appSettings.getPlayList();
         if (playList.size() > 0)
         {
             if (isFirstTime)
@@ -641,6 +642,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void btnNextBackClick(View view)
     {
+        playList = appSettings.getPlayList();
         speechServiceOnPause();
         int id = view.getId();
         if (id == R.id.btn_next)
