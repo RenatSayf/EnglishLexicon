@@ -100,6 +100,7 @@
     <orderEntry type="library" exported="" name="support-core-ui-25.3.1" level="project" />
     <orderEntry type="library" exported="" name="cardview-v7-25.3.1" level="project" />
     <orderEntry type="library" exported="" name="firebase-common-10.0.0" level="project" />
+    <orderEntry type="library" exported="" name="firebase-appindexing-10.0.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-clearcut-10.0.0" level="project" />
     <orderEntry type="library" exported="" name="firebase-iid-10.0.0" level="project" />
     <orderEntry type="library" exported="" name="support-core-utils-25.3.1" level="project" />
