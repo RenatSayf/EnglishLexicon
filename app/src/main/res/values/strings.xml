@@ -165,6 +165,8 @@
     <string name="text_words">Слов:</string>
     <string name="text_ru_speech_on">Русскоязычное озвучивание включено</string>
     <string name="text_ru_speech_off">Русскоязычное озвучивание отключено</string>
+    <string name="app_indexing_name">Английский лексикон</string>
+    <string name="app_indexing_text">Учим английские слова и фразы</string>
 
 
 </resources>
