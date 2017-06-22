@@ -24,6 +24,12 @@
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar"
             android:parentActivityName=".main.SplashScreenActivity">
+            <intent-filter android:label="@string/app_name" android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" android:host="com.myapp.lexicon" android:pathPrefix="/lexicon"/>
+            </intent-filter>
          </activity>
 
         <activity
@@ -86,6 +92,16 @@
             android:name=".main.SpeechService"
             android:enabled="true"
             android:exported="false">
+        </service>
+
+        <!--suppress AndroidDomInspection -->
+        <service android:name=".appindex.AppIndexingService"
+                 android:enabled="true"
+                 android:exported="true"
+                 android:permission="com.google.android.gms.permission.APPINDEXING">
+            <intent-filter>
+                <action android:name="com.google.firebase.appindexing.UPDATE_INDEX" />
+            </intent-filter>
         </service>
 
     </application>
