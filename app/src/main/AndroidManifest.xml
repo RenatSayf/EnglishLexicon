@@ -99,7 +99,6 @@
             android:exported="false">
         </service>
 
-        <!--suppress AndroidDomInspection -->
         <service android:name=".appindex.AppIndexingService"
                  android:enabled="true"
                  android:exported="true"
