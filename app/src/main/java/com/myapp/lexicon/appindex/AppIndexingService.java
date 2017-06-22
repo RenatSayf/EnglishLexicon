@@ -18,7 +18,7 @@ import java.util.ArrayList;
 
 public class AppIndexingService extends IntentService
 {
-    public AppIndexingService(String name)
+    public AppIndexingService()
     {
         super("LexiconIndexingService");
     }
