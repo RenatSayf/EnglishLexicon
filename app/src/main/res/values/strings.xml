@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Lexicon</string>
+    <string name="app_name">English Lexicon</string>
     <string name="app_link">https://play.google.com/store/apps/details?id=com.myapp.lexicon&amp;hl=ru</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
