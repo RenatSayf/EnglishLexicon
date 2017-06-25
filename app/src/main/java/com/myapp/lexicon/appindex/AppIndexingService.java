@@ -29,12 +29,49 @@ public class AppIndexingService extends IntentService
         ArrayList<Indexable> indexableNotes = new ArrayList<>();
 
         Indexable noteToIndex = Indexables.noteDigitalDocumentBuilder()
-                    .setName(getString(R.string.app_indexing_name))
-                    .setText(getString(R.string.app_indexing_text))
-                    .setUrl(getString(R.string.app_link))
-                    .build();
+                .setName(getString(R.string.app_indexing_name))
+                .setText(getString(R.string.app_indexing_text))
+                .setDescription("Запоминай английские слова легко")
+                .setUrl(getString(R.string.app_link))
+                .build();
 
-            indexableNotes.add(noteToIndex);
+        indexableNotes.add(noteToIndex);
+
+        noteToIndex = Indexables.noteDigitalDocumentBuilder()
+                .setName("Английский разговорник")
+                .setText("Английский разговорник")
+                .setDescription("отображает на экране английские слова или целые фразы с переводом и озвучивает их")
+                .setUrl(getString(R.string.app_link))
+                .build();
+
+        indexableNotes.add(noteToIndex);
+
+        noteToIndex = Indexables.noteDigitalDocumentBuilder()
+                .setName("английский язык для начинающих")
+                .setText("английский язык для начинающих")
+                .setDescription("отображает на экране английские слова или целые фразы с переводом и озвучивает их")
+                .setUrl(getString(R.string.app_link))
+                .build();
+
+        indexableNotes.add(noteToIndex);
+
+        noteToIndex = Indexables.noteDigitalDocumentBuilder()
+                .setName("изучай английский язык")
+                .setText("изучай английский язык")
+                .setDescription("отображает на экране английские слова или целые фразы с переводом и озвучивает их")
+                .setUrl(getString(R.string.app_link))
+                .build();
+
+        indexableNotes.add(noteToIndex);
+
+        noteToIndex = Indexables.noteDigitalDocumentBuilder()
+                .setName("англо-русский переводчик")
+                .setText("англо-русский переводчик")
+                .setDescription("англо-русский, русско-английский переводчик")
+                .setUrl(getString(R.string.app_link))
+                .build();
+
+        indexableNotes.add(noteToIndex);
 
 
         if (indexableNotes.size() > 0)
