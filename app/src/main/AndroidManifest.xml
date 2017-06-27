@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="com.myapp.lexicon"
+<manifest xmlns:tools="http://schemas.android.com/tools"
+          package="com.myapp.lexicon"
           xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -28,8 +29,10 @@
             android:name=".main.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar"
-            android:parentActivityName=".main.SplashScreenActivity">
-            <intent-filter android:label="@string/app_name" android:autoVerify="true">
+            android:parentActivityName=".main.SplashScreenActivity"
+            tools:targetApi="jelly_bean">
+            <intent-filter android:label="@string/app_name" android:autoVerify="true"
+                           tools:targetApi="m">
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
@@ -42,7 +45,8 @@
             android:label="@string/title_activity_add_word"
             android:parentActivityName=".main.MainActivity"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden"> <!-- TODO КЛАВИАТУРА. Прячем клавиатуру при запуске активити-->
+            android:windowSoftInputMode="stateHidden"
+            tools:targetApi="jelly_bean">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".main.MainActivity"/>
@@ -54,7 +58,8 @@
             android:parentActivityName=".main.MainActivity"
             android:screenOrientation="unspecified"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden">
+            android:windowSoftInputMode="stateHidden"
+            tools:targetApi="jelly_bean">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".main.MainActivity"
@@ -65,7 +70,8 @@
             android:name=".wordstests.Tests"
             android:label="@string/title_activity_check_self"
             android:parentActivityName=".main.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            tools:targetApi="jelly_bean">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".main.MainActivity"/>
@@ -78,7 +84,7 @@
             android:screenOrientation="unspecified"
             android:theme="@style/AppTheme.NoActionBar"
             android:configChanges="keyboardHidden|orientation"
-            >
+            tools:targetApi="jelly_bean">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".main.MainActivity"/>

@@ -64,6 +64,7 @@ public class AppIndexingService extends IntentService
 
         indexableNotes.add(noteToIndex);
 
+
         noteToIndex = Indexables.noteDigitalDocumentBuilder()
                 .setName("англо-русский переводчик")
                 .setText("англо-русский переводчик")
@@ -73,6 +74,14 @@ public class AppIndexingService extends IntentService
 
         indexableNotes.add(noteToIndex);
 
+        noteToIndex = Indexables.noteDigitalDocumentBuilder()
+                .setName("английский язык обучение аудио для начинающих")
+                .setText("английский язык обучение аудио для начинающих")
+                .setDescription("Английские слова и фразы запоминай легко и быстро")
+                .setUrl(getString(R.string.app_link))
+                .build();
+
+        indexableNotes.add(noteToIndex);
 
         if (indexableNotes.size() > 0)
         {
