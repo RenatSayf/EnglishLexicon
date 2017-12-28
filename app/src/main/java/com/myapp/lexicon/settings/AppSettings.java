@@ -54,7 +54,7 @@ public class AppSettings
      */
     public boolean isEnglishSpeechOnly()
     {
-        return context.getSharedPreferences(KEY_ENG_ONLY, MODE_PRIVATE).getBoolean(KEY_ENG_ONLY, false);
+        return context.getSharedPreferences(KEY_ENG_ONLY, MODE_PRIVATE).getBoolean(KEY_ENG_ONLY, true);
     }
 
     /**
