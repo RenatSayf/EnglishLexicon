@@ -6,7 +6,7 @@
               android:layout_margin="12dp"
               android:padding="0dp"
               android:orientation="vertical"
-              android:background="@drawable/side_nav_bar"
+              android:background="@color/colorPopAppBody"
               tools:context="com.myapp.lexicon.service.ModalFragment">
 
     <LinearLayout

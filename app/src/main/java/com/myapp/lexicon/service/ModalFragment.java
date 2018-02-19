@@ -13,6 +13,7 @@ import android.widget.ImageButton;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.main.MainActivity;
+import com.myapp.lexicon.main.SplashScreenActivity;
 
 
 public class ModalFragment extends Fragment
@@ -85,7 +86,7 @@ public class ModalFragment extends Fragment
             @Override
             public void onClick(View view)
             {
-                getActivity().startActivity(new Intent(getContext(), MainActivity.class));
+                getActivity().startActivity(new Intent(getContext(), SplashScreenActivity.class));
                 getActivity().finish();
             }
         });
