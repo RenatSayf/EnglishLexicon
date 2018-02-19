@@ -51,6 +51,7 @@ import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.database.GetEntriesLoader;
 import com.myapp.lexicon.database.GetTableListFragm;
 import com.myapp.lexicon.playlist.PlayList;
+import com.myapp.lexicon.service.LexiconService;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 import com.myapp.lexicon.wordeditor.WordEditor;
@@ -83,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ProgressBar progressBar;
     private CheckBox checkBoxRuSpeak;
     private static Intent speechIntentService;
+    public static Intent serviceIntent;
     private UpdateBroadcastReceiver mUpdateBroadcastReceiver;
     private boolean isFirstTime = true;
     private AppSettings appSettings;
@@ -770,12 +772,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
+    @Override
+    public void onAttachedToWindow()
+    {
+        super.onAttachedToWindow();
+        if (serviceIntent != null)
+        {
+            stopService(serviceIntent);
+        }
+    }
+
+    @Override
+    public void onDetachedFromWindow()
+    {
+        super.onDetachedFromWindow();
+        serviceIntent = new Intent(this, LexiconService.class);
+        startService(serviceIntent);
+    }
+
     // TODO: ActivityManager.RunningAppProcessInfo Проверка, что активити находится на верху стека
     public boolean isActivityOnTop()
     {
         final ActivityManager activityManager = (ActivityManager) getSystemService(Service.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningAppProcessInfo> runningAppProcesses = activityManager.getRunningAppProcesses();
-        if (runningAppProcesses.size() > 0)
+        List<ActivityManager.RunningAppProcessInfo> runningAppProcesses = null;
+        if (activityManager != null)
+        {
+            runningAppProcesses = activityManager.getRunningAppProcesses();
+        }
+        if (runningAppProcesses != null && runningAppProcesses.size() > 0)
         {
             String processName = runningAppProcesses.get(0).processName;
             String packageName = getApplicationInfo().packageName;

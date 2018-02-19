@@ -1,0 +1,126 @@
+<!--TODO ModalFragment fragment layout-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:layout_margin="12dp"
+              android:padding="0dp"
+              android:orientation="vertical"
+              android:background="@drawable/side_nav_bar"
+              tools:context="com.myapp.lexicon.service.ModalFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="5dp"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/btn_open_app"
+            style="@style/Base.Widget.AppCompat.Toolbar.Button.Navigation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableTop="@drawable/selector_lexicon_icon"
+            android:background="@drawable/transparent_background"
+            android:textColor="@drawable/selector_white_to_orange_color"
+            android:text="@string/last_app_name"
+            />
+
+        <android.support.v4.widget.Space
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+
+        <Button
+            android:id="@+id/btn_stop_service"
+            style="@style/Base.Widget.AppCompat.Toolbar.Button.Navigation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/transparent_background"
+            android:drawableTop="@drawable/selector_icon_power"
+            android:textColor="@drawable/selector_white_to_orange_color"
+            android:text="Выкл"
+            />
+
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/en_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:layout_weight="6"
+        android:gravity="center"
+        android:textSize="26sp"
+        android:textStyle="normal|bold"
+        android:textColor="@color/colorWhite"
+        android:text="English"/>
+
+
+
+    <TextView
+        android:id="@+id/ru_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:layout_weight="6"
+        android:gravity="center"
+        android:textSize="26sp"
+        android:textStyle="normal|bold"
+        android:textColor="@color/colorLightGreen"
+        android:text="Русский"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_weight="1">
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/Widget.AppCompat.CompoundButton.CheckBox"
+            android:textColor="@drawable/selector_white_to_orange_color"
+            android:background="@drawable/transparent_background"
+            android:buttonTint="#FFFF"
+            android:text="@string/text_ru"/>
+
+        <android.support.v4.widget.Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+
+        <ImageButton
+            android:id="@+id/btn_sound"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="?android:attr/buttonStyleSmall"
+            android:background="@drawable/transparent_background"
+            android:textColor="@drawable/selector_white_to_orange_color"
+            android:src="@drawable/selector_sound_icon"
+            />
+
+        <android.support.v4.widget.Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+
+        <ImageButton
+            android:id="@+id/btn_close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            style="?android:attr/buttonStyleSmall"
+            android:background="@drawable/transparent_background"
+            android:src="@drawable/selector_close_icon"
+            android:textColor="@drawable/selector_white_to_orange_color"
+            />
+
+
+    </LinearLayout>
+
+</LinearLayout>

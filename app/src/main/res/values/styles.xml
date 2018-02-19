@@ -25,6 +25,9 @@
         <!--<item name="android:paddingBottom">4dp</item>-->
     </style>
 
-
+    <!--TODO overridden theme for popapp-->
+    <style name="popAppWindow" parent="@style/Theme.AppCompat.Dialog.Alert">
+        <item name="android:colorBackground">#192b45</item>
+    </style>
 
 </resources>

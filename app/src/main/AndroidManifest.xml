@@ -1,52 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:tools="http://schemas.android.com/tools"
-          package="com.myapp.lexicon"
-          xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest package="com.myapp.lexicon"
+          xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application
         android:allowBackup="true"
+        android:fullBackupContent="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        android:fullBackupContent="true">
-
+        android:theme="@style/AppTheme">
         <activity
             android:name=".main.SplashScreenActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-            <intent-filter android:label="Английские слова" android:autoVerify="true"
-                           tools:targetApi="m">
+            <intent-filter
+                android:autoVerify="true"
+                android:label="Английские слова"
+                tools:targetApi="m">
                 <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="http" android:host="com.myapp.lexicon" android:pathPrefix="/lexicon"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+
+                <data
+                    android:host="com.myapp.lexicon"
+                    android:pathPrefix="/lexicon"
+                    android:scheme="http"/>
             </intent-filter>
         </activity>
-
         <activity
             android:name=".main.MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar"
             android:parentActivityName=".main.SplashScreenActivity"
+            android:theme="@style/AppTheme.NoActionBar"
             tools:targetApi="jelly_bean">
-            <intent-filter android:label="Английский изучай" android:autoVerify="true"
-                           tools:targetApi="m">
+            <intent-filter
+                android:autoVerify="true"
+                android:label="Английский изучай"
+                tools:targetApi="m">
                 <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="http" android:host="com.myapp.lexicon" android:pathPrefix="/lexicon"/>
-            </intent-filter>
-         </activity>
 
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+
+                <data
+                    android:host="com.myapp.lexicon"
+                    android:pathPrefix="/lexicon"
+                    android:scheme="http"/>
+            </intent-filter>
+        </activity>
         <activity
             android:name=".addword.AddWordActivity"
             android:label="@string/title_activity_add_word"
@@ -54,18 +66,25 @@
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden"
             tools:targetApi="jelly_bean">
-            <intent-filter android:label="Англо-русский переводчик, добавляй слова" android:autoVerify="true"
-                           tools:targetApi="m">
+            <intent-filter
+                android:autoVerify="true"
+                android:label="Англо-русский переводчик, добавляй слова"
+                tools:targetApi="m">
                 <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="http" android:host="com.myapp.lexicon" android:pathPrefix="/lexicon"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+
+                <data
+                    android:host="com.myapp.lexicon"
+                    android:pathPrefix="/lexicon"
+                    android:scheme="http"/>
             </intent-filter>
+
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".main.MainActivity"/>
         </activity>
-
         <activity
             android:name=".wordeditor.WordEditor"
             android:label="@string/title_activity_word_editor"
@@ -74,57 +93,81 @@
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden"
             tools:targetApi="jelly_bean">
-            <intent-filter android:label="Англо-русский переводчик" android:autoVerify="true"
-                           tools:targetApi="m">
+            <intent-filter
+                android:autoVerify="true"
+                android:label="Англо-русский переводчик"
+                tools:targetApi="m">
                 <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="http" android:host="com.myapp.lexicon" android:pathPrefix="/lexicon"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+
+                <data
+                    android:host="com.myapp.lexicon"
+                    android:pathPrefix="/lexicon"
+                    android:scheme="http"/>
             </intent-filter>
+
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".main.MainActivity"
-                />
+                android:value=".main.MainActivity"/>
         </activity>
-
         <activity
             android:name=".wordstests.Tests"
             android:label="@string/title_activity_check_self"
             android:parentActivityName=".main.MainActivity"
             android:theme="@style/AppTheme.NoActionBar"
             tools:targetApi="jelly_bean">
-            <intent-filter android:label="Проверь знания английских слов" android:autoVerify="true"
-                           tools:targetApi="m">
+            <intent-filter
+                android:autoVerify="true"
+                android:label="Проверь знания английских слов"
+                tools:targetApi="m">
                 <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="http" android:host="com.myapp.lexicon" android:pathPrefix="/lexicon"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+
+                <data
+                    android:host="com.myapp.lexicon"
+                    android:pathPrefix="/lexicon"
+                    android:scheme="http"/>
             </intent-filter>
+
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".main.MainActivity"/>
         </activity>
-
         <activity
             android:name=".playlist.PlayList"
+            android:configChanges="keyboardHidden|orientation"
             android:label="@string/title_activity_play_list"
             android:parentActivityName=".main.MainActivity"
             android:screenOrientation="unspecified"
             android:theme="@style/AppTheme.NoActionBar"
-            android:configChanges="keyboardHidden|orientation"
             tools:targetApi="jelly_bean">
-            <intent-filter android:label="Плей-лист английских слов" android:autoVerify="true"
-                           tools:targetApi="m">
+            <intent-filter
+                android:autoVerify="true"
+                android:label="Плей-лист английских слов"
+                tools:targetApi="m">
                 <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="http" android:host="com.myapp.lexicon" android:pathPrefix="/lexicon"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+
+                <data
+                    android:host="com.myapp.lexicon"
+                    android:pathPrefix="/lexicon"
+                    android:scheme="http"/>
             </intent-filter>
+
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".main.MainActivity"/>
         </activity>
-
+        <activity android:name=".service.ServiceDialog"
+            android:theme="@style/popAppWindow"
+            android:label="@string/app_name">
+        </activity>
 
         <!--
              ATTENTION: This was auto-generated to add Google Play services to your project for
@@ -139,16 +182,20 @@
             android:enabled="true"
             android:exported="false">
         </service>
-
-        <service android:name=".appindex.AppIndexingService"
-                 android:enabled="true"
-                 android:exported="true"
-                 android:permission="com.google.android.gms.permission.APPINDEXING">
+        <service
+            android:name=".appindex.AppIndexingService"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="com.google.android.gms.permission.APPINDEXING">
             <intent-filter>
-                <action android:name="com.google.firebase.appindexing.UPDATE_INDEX" />
+                <action android:name="com.google.firebase.appindexing.UPDATE_INDEX"/>
             </intent-filter>
         </service>
-
+        <service
+            android:name=".service.LexiconService"
+            android:enabled="true"
+            android:exported="true">
+        </service>
     </application>
 
 </manifest>
