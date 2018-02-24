@@ -18,7 +18,7 @@ public class ServiceDialog extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.service_dialog_activity);
 
-        ModalFragment modalFragment = ModalFragment.newInstance(null, null);
+        ModalFragment modalFragment = ModalFragment.newInstance();
         getSupportFragmentManager().beginTransaction().add(R.id.fragment_frame, modalFragment).commit();
     }
 }

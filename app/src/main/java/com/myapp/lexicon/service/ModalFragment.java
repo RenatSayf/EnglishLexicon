@@ -27,11 +27,6 @@ import java.util.ArrayList;
 
 public class ModalFragment extends Fragment
 {
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    private String mParam1;
-    private String mParam2;
     private AppSettings appSettings;
     private AppData appData;
 
@@ -41,27 +36,18 @@ public class ModalFragment extends Fragment
         // Required empty public constructor
     }
 
-    public static ModalFragment newInstance(String param1, String param2)
+    public static ModalFragment newInstance()
     {
-        ModalFragment fragment = new ModalFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+        return new ModalFragment();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null)
-        {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
         appSettings = new AppSettings(getContext());
         appData = AppData.getInstance();
+        appData.initAllSettings(getActivity());
     }
 
     @Override
@@ -71,15 +57,20 @@ public class ModalFragment extends Fragment
         final TextView enTextView = fragmentView.findViewById(R.id.en_text_view);
         final TextView ruTextView = fragmentView.findViewById(R.id.ru_text_view);
 
-        int wordNumber = appSettings.getWordNumber();
-        String currentDict = appSettings.getPlayList().get(appData.getNdict());
-        GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), currentDict, appSettings.getWordNumber(), appSettings.getWordNumber(), new GetEntriesFromDbAsync.GetEntriesListener()
+        int wordNumber = appData.getNword();
+        int dictNumber = appData.getNdict();
+        String currentDict = appSettings.getPlayList().get(dictNumber);
+
+        GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), currentDict, wordNumber, wordNumber, new GetEntriesFromDbAsync.GetEntriesListener()
         {
             @Override
             public void getEntriesListener(ArrayList<DataBaseEntry> entries)
             {
-                enTextView.setText(entries.get(0).getEnglish());
-                ruTextView.setText(entries.get(0).getTranslate());
+                if (entries.size() > 0)
+                {
+                    enTextView.setText(entries.get(0).getEnglish());
+                    ruTextView.setText(entries.get(0).getTranslate());
+                }
             }
         });
         if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
@@ -109,6 +100,49 @@ public class ModalFragment extends Fragment
             @Override
             public void onClick(View view)
             {
+                final int nextWord = appData.getNword() + 1;
+                String currentDict = appSettings.getPlayList().get(appData.getNdict());
+                GetCountWordsAsync getCountWordsAsync = new GetCountWordsAsync(getActivity(), currentDict, new GetCountWordsAsync.GetCountListener()
+                {
+                    @Override
+                    public void onTaskComplete(int count)
+                    {
+                        if (appSettings.getPlayList().size() == 1)
+                        {
+                            if (nextWord > count)
+                            {
+                                appData.setNword(1);
+                            }
+                            else if (nextWord <= count)
+                            {
+                                appData.setNword(nextWord);
+                            }
+                        }
+                        if (appSettings.getPlayList().size() > 1)
+                        {
+                            int dictNumber = appData.getNdict();
+                            if (nextWord > count)
+                            {
+                                appData.setNword(1);
+                                appData.setNdict(dictNumber + 1);
+                                if (appData.getNdict() > appSettings.getPlayList().size() - 1)
+                                {
+                                    appData.setNdict(0);
+                                }
+                            }
+                            else if (nextWord <= count)
+                            {
+                                appData.setNword(nextWord);
+                                appData.setNdict(dictNumber);
+                            }
+                        }
+                        appData.saveAllSettings(getActivity());
+                    }
+                });
+                if (getCountWordsAsync.getStatus() != AsyncTask.Status.RUNNING)
+                {
+                    getCountWordsAsync.execute();
+                }
                 getActivity().finish();
             }
         });
@@ -128,48 +162,14 @@ public class ModalFragment extends Fragment
     }
 
     @Override
+    public void onPause()
+    {
+        super.onPause();
+    }
+
+    @Override
     public void onDestroy()
     {
         super.onDestroy();
-        int orderPlay = appSettings.getOrderPlay();
-        int tempNextWord = 0;
-        switch (orderPlay)
-        {
-            case 0:
-                tempNextWord = appSettings.getWordNumber() + 1;
-                break;
-            case 1:
-                tempNextWord = appSettings.getWordNumber() - 1;
-                break;
-            default:
-                tempNextWord = appSettings.getWordNumber() + 1;
-                break;
-        }
-        final int nextWord = tempNextWord;
-        String currentDict = appSettings.getPlayList().get(appSettings.getDictNumber());
-
-        GetCountWordsAsync getCountWordsAsync = new GetCountWordsAsync(getActivity(), currentDict, new GetCountWordsAsync.GetCountListener()
-        {
-            @Override
-            public void onTaskComplete(int count)
-            {
-                if (nextWord > count)
-                {
-                    appSettings.setWordNumber(1);
-                }
-                else if (nextWord < 1)
-                {
-                    appSettings.setWordNumber(count);
-                }
-                else
-                {
-                    appSettings.setWordNumber(nextWord);
-                }
-            }
-        });
-        if (getCountWordsAsync.getStatus() != AsyncTask.Status.RUNNING)
-        {
-            getCountWordsAsync.execute();
-        }
     }
 }
