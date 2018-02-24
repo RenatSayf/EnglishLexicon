@@ -5,7 +5,7 @@ android {
     buildToolsVersion '26.0.2'
     defaultConfig {
         applicationId "com.myapp.lexicon"
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 26
         versionCode 12
         versionName '1.1'

@@ -64,6 +64,7 @@ public class ModalFragment extends Fragment
                 FragmentActivity activity = getActivity();
                 if (activity != null)
                 {
+                    LexiconService.isStop = true;
                     activity.stopService(MainActivity.serviceIntent);
                     activity.finish();
                 }
