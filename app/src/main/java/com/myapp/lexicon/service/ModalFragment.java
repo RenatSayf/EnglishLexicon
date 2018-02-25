@@ -11,6 +11,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -34,6 +36,7 @@ public class ModalFragment extends Fragment
     private AppData appData;
     private TextView enTextView;
     private TextView ruTextView;
+    private CheckBox checkBoxRu;
     private TextToSpeech speech;
     private HashMap<String, String> map = new HashMap<>();
 
@@ -185,7 +188,22 @@ public class ModalFragment extends Fragment
         ImageButton btnSound = fragmentView.findViewById(R.id.btn_sound_modal);
         btnSound_OnClick(btnSound);
 
+        checkBoxRu = fragmentView.findViewById(R.id.check_box_ru_speak_modal);
+        checkBoxRu_OnCheckedChange(checkBoxRu);
+
         return fragmentView;
+    }
+
+    private void checkBoxRu_OnCheckedChange(CheckBox checkBoxRu)
+    {
+        checkBoxRu.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
+        {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked)
+            {
+
+            }
+        });
     }
 
     @Override
@@ -213,6 +231,7 @@ public class ModalFragment extends Fragment
                 {
                     speech.speak(enText, TextToSpeech.QUEUE_ADD, map);
                 }
+                checkBoxRu.isChecked();
             }
         });
 
