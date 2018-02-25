@@ -4,6 +4,7 @@ package com.myapp.lexicon.service;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
@@ -12,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
@@ -24,13 +24,18 @@ import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Locale;
 
 
 public class ModalFragment extends Fragment
 {
     private AppSettings appSettings;
     private AppData appData;
-    private ImageButton btnSound;
+    private TextView enTextView;
+    private TextView ruTextView;
+    private TextToSpeech speech;
+    private HashMap<String, String> map = new HashMap<>();
 
     public ModalFragment()
     {
@@ -49,14 +54,32 @@ public class ModalFragment extends Fragment
         appSettings = new AppSettings(getContext());
         appData = AppData.getInstance();
         appData.initAllSettings(getActivity());
+
+        speech = new TextToSpeech(getActivity(), new TextToSpeech.OnInitListener()
+        {
+            @Override
+            public void onInit(int status)
+            {
+                if (status == TextToSpeech.SUCCESS)
+                {
+                    int resultEn = speech.isLanguageAvailable(Locale.US);
+                    if (resultEn != TextToSpeech.LANG_AVAILABLE)
+                    {
+                        map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.US.getDisplayLanguage());
+                        speech.setLanguage(Locale.US);
+                    }
+                }
+            }
+        });
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         final View fragmentView = inflater.inflate(R.layout.s_fragment_modal, container, false);
-        final TextView enTextView = fragmentView.findViewById(R.id.en_text_view);
-        final TextView ruTextView = fragmentView.findViewById(R.id.ru_text_view);
+
+        enTextView = fragmentView.findViewById(R.id.en_text_view);
+        ruTextView = fragmentView.findViewById(R.id.ru_text_view);
 
         int wordNumber = appData.getNword();
         int dictNumber = appData.getNdict();
@@ -137,15 +160,14 @@ public class ModalFragment extends Fragment
                                 appData.setNdict(dictNumber);
                             }
                         }
-                        FragmentActivity activity = getActivity();
-                        appData.saveAllSettings(activity);
+                        appData.saveAllSettings(getActivity());
+                        getActivity().finish();
                     }
                 });
                 if (getCountWordsAsync.getStatus() != AsyncTask.Status.RUNNING)
                 {
                     getCountWordsAsync.execute();
                 }
-                getActivity().finish();
             }
         });
 
@@ -160,7 +182,7 @@ public class ModalFragment extends Fragment
             }
         });
 
-        btnSound = fragmentView.findViewById(R.id.btn_sound_modal);
+        ImageButton btnSound = fragmentView.findViewById(R.id.btn_sound_modal);
         btnSound_OnClick(btnSound);
 
         return fragmentView;
@@ -176,6 +198,7 @@ public class ModalFragment extends Fragment
     public void onDestroy()
     {
         super.onDestroy();
+        speech.shutdown();
     }
 
     public void btnSound_OnClick(ImageButton button)
@@ -185,7 +208,11 @@ public class ModalFragment extends Fragment
             @Override
             public void onClick(View view)
             {
-                Toast.makeText(getActivity(), "btnSound_OnClick()", Toast.LENGTH_SHORT).show();
+                String enText = enTextView.getText().toString();
+                if (!enText.equals(""))
+                {
+                    speech.speak(enText, TextToSpeech.QUEUE_ADD, map);
+                }
             }
         });
 

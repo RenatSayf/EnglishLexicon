@@ -21,4 +21,5 @@ public class ServiceDialog extends AppCompatActivity
         ModalFragment modalFragment = ModalFragment.newInstance();
         getSupportFragmentManager().beginTransaction().add(R.id.fragment_frame, modalFragment).commit();
     }
+
 }

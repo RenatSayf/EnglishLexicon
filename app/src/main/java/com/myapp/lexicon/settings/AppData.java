@@ -1,6 +1,5 @@
 package com.myapp.lexicon.settings;
 
-import android.app.Application;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -11,7 +10,7 @@ import com.myapp.lexicon.wordeditor.ListViewAdapter;
  * Storing intermediate data of the application
  */
 
-public class AppData extends Application
+public class AppData
 {
     private static final AppData ourInstance = new AppData();
     private int ndict;
@@ -71,24 +70,18 @@ public class AppData extends Application
 
     public void saveAllSettings(Context context)
     {
-        if (context != null)
-        {
-            AppSettings appSettings = new AppSettings(context);
-            appSettings.setPause(isPause);
-            appSettings.setDictNumber(ndict);
-            appSettings.setWordNumber(nword);
-        }
+        AppSettings appSettings = new AppSettings(context);
+        appSettings.setPause(isPause);
+        appSettings.setDictNumber(ndict);
+        appSettings.setWordNumber(nword);
     }
 
     public void initAllSettings(Context context)
     {
-        if (context != null)
-        {
-            AppSettings appSettings = new AppSettings(context);
-            isPause = appSettings.isPause();
-            ndict = appSettings.getDictNumber();
-            nword = appSettings.getWordNumber();
-        }
+        AppSettings appSettings = new AppSettings(context);
+        isPause = appSettings.isPause();
+        ndict = appSettings.getDictNumber();
+        nword = appSettings.getWordNumber();
     }
 
     public boolean isAdMob()
@@ -99,7 +92,11 @@ public class AppData extends Application
     public boolean isOnline(Context context)
     {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        NetworkInfo netInfo = null;
+        if (cm != null)
+        {
+            netInfo = cm.getActiveNetworkInfo();
+        }
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 

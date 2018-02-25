@@ -76,8 +76,10 @@ public class LexiconService extends Service
     public void onTaskRemoved(Intent rootIntent)
     {
         super.onTaskRemoved(rootIntent);
+        onCreate();
         return;
     }
+
 
     public class PhoneUnlockedReceiver extends BroadcastReceiver
     {
