@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
@@ -29,7 +30,7 @@ public class ModalFragment extends Fragment
 {
     private AppSettings appSettings;
     private AppData appData;
-
+    private ImageButton btnSound;
 
     public ModalFragment()
     {
@@ -53,7 +54,7 @@ public class ModalFragment extends Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        View fragmentView = inflater.inflate(R.layout.s_fragment_modal, container, false);
+        final View fragmentView = inflater.inflate(R.layout.s_fragment_modal, container, false);
         final TextView enTextView = fragmentView.findViewById(R.id.en_text_view);
         final TextView ruTextView = fragmentView.findViewById(R.id.ru_text_view);
 
@@ -136,7 +137,8 @@ public class ModalFragment extends Fragment
                                 appData.setNdict(dictNumber);
                             }
                         }
-                        appData.saveAllSettings(getActivity());
+                        FragmentActivity activity = getActivity();
+                        appData.saveAllSettings(activity);
                     }
                 });
                 if (getCountWordsAsync.getStatus() != AsyncTask.Status.RUNNING)
@@ -158,6 +160,9 @@ public class ModalFragment extends Fragment
             }
         });
 
+        btnSound = fragmentView.findViewById(R.id.btn_sound_modal);
+        btnSound_OnClick(btnSound);
+
         return fragmentView;
     }
 
@@ -171,5 +176,18 @@ public class ModalFragment extends Fragment
     public void onDestroy()
     {
         super.onDestroy();
+    }
+
+    public void btnSound_OnClick(ImageButton button)
+    {
+        button.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                Toast.makeText(getActivity(), "btnSound_OnClick()", Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 }

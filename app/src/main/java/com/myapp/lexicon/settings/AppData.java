@@ -1,5 +1,6 @@
 package com.myapp.lexicon.settings;
 
+import android.app.Application;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -10,7 +11,7 @@ import com.myapp.lexicon.wordeditor.ListViewAdapter;
  * Storing intermediate data of the application
  */
 
-public class AppData
+public class AppData extends Application
 {
     private static final AppData ourInstance = new AppData();
     private int ndict;
@@ -70,18 +71,24 @@ public class AppData
 
     public void saveAllSettings(Context context)
     {
-        AppSettings appSettings = new AppSettings(context);
-        appSettings.setPause(isPause);
-        appSettings.setDictNumber(ndict);
-        appSettings.setWordNumber(nword);
+        if (context != null)
+        {
+            AppSettings appSettings = new AppSettings(context);
+            appSettings.setPause(isPause);
+            appSettings.setDictNumber(ndict);
+            appSettings.setWordNumber(nword);
+        }
     }
 
     public void initAllSettings(Context context)
     {
-        AppSettings appSettings = new AppSettings(context);
-        isPause = appSettings.isPause();
-        ndict = appSettings.getDictNumber();
-        nword = appSettings.getWordNumber();
+        if (context != null)
+        {
+            AppSettings appSettings = new AppSettings(context);
+            isPause = appSettings.isPause();
+            ndict = appSettings.getDictNumber();
+            nword = appSettings.getWordNumber();
+        }
     }
 
     public boolean isAdMob()
