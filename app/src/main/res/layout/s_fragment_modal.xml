@@ -40,7 +40,7 @@
             android:background="@drawable/transparent_background"
             android:drawableTop="@drawable/selector_icon_power"
             android:textColor="@drawable/selector_white_to_orange_color"
-            android:text="Выкл"
+            android:text="@string/text_off"
             />
 
     </LinearLayout>
@@ -57,7 +57,7 @@
         android:textSize="26sp"
         android:textStyle="normal|bold"
         android:textColor="@color/colorWhite"
-        android:text="English"/>
+        android:text="@string/text_en"/>
 
 
 
@@ -71,39 +71,40 @@
         android:textSize="26sp"
         android:textStyle="normal|bold"
         android:textColor="@color/colorLightGreen"
-        android:text="Русский"/>
+        android:text="@string/text_ru"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_weight="1"
         android:gravity="center"
-        android:layout_weight="1">
+        android:orientation="horizontal">
 
         <CheckBox
             android:id="@+id/check_box_ru_speak_modal"
+            style="@style/Widget.AppCompat.CompoundButton.CheckBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/Widget.AppCompat.CompoundButton.CheckBox"
-            android:textColor="@drawable/selector_white_to_orange_color"
             android:background="@drawable/transparent_background"
             android:buttonTint="#FFFF"
-            android:text="@string/text_ru"/>
+            android:text="@string/text_ru"
+            android:textColor="@drawable/selector_white_to_orange_color"/>
 
         <android.support.v4.widget.Space
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            />
 
         <ImageButton
             android:id="@+id/btn_sound_modal"
+            style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="?android:attr/buttonStyleSmall"
             android:background="@drawable/transparent_background"
-            android:textColor="@drawable/selector_white_to_orange_color"
+            android:contentDescription="@string/btn_sound_discribtion"
             android:src="@drawable/selector_sound_icon"
-            android:contentDescription="TODO"
+            android:textColor="@drawable/selector_white_to_orange_color"
             />
 
         <android.support.v4.widget.Space
@@ -113,14 +114,14 @@
 
         <ImageButton
             android:id="@+id/btn_close"
+            style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0"
-            style="?android:attr/buttonStyleSmall"
             android:background="@drawable/transparent_background"
+            android:contentDescription="@string/btn_close_discribtion"
             android:src="@drawable/selector_close_icon"
-            android:textColor="@drawable/selector_white_to_orange_color"
-            />
+            android:textColor="@drawable/selector_white_to_orange_color"/>
 
 
     </LinearLayout>

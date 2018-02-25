@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
@@ -189,6 +190,7 @@ public class ModalFragment extends Fragment
         btnSound_OnClick(btnSound);
 
         checkBoxRu = fragmentView.findViewById(R.id.check_box_ru_speak_modal);
+        checkBoxRu.setChecked(appSettings.isRuSpeechInModal());
         checkBoxRu_OnCheckedChange(checkBoxRu);
 
         return fragmentView;
@@ -201,7 +203,7 @@ public class ModalFragment extends Fragment
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked)
             {
-
+                appSettings.setRuSpeechInModal(isChecked);
             }
         });
     }
@@ -226,14 +228,44 @@ public class ModalFragment extends Fragment
             @Override
             public void onClick(View view)
             {
+                if (speech.isSpeaking())
+                {
+                    return;
+                }
                 String enText = enTextView.getText().toString();
+                final String ruText = ruTextView.getText().toString();
                 if (!enText.equals(""))
                 {
+                    map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.US.getDisplayLanguage());
+                    speech.setLanguage(Locale.US);
                     speech.speak(enText, TextToSpeech.QUEUE_ADD, map);
                 }
-                checkBoxRu.isChecked();
+                speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+                {
+                    @Override
+                    public void onStart(String s)
+                    {
+
+                    }
+
+                    @Override
+                    public void onDone(String s)
+                    {
+                        if (checkBoxRu.isChecked() && !ruText.equals("") && s.equals(Locale.US.getDisplayLanguage()))
+                        {
+                            speech.setLanguage(Locale.getDefault());
+                            map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "");
+                            speech.speak(ruText, TextToSpeech.QUEUE_ADD, map);
+                        }
+                    }
+
+                    @Override
+                    public void onError(String s)
+                    {
+
+                    }
+                });
             }
         });
-
     }
 }

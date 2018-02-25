@@ -68,7 +68,6 @@ public class LexiconService extends Service
         {
             Toast.makeText(this, "Приложение " + getString(R.string.app_name) + " закрыто", Toast.LENGTH_SHORT).show();
             isStop = false;
-            return;
         }
     }
 
@@ -77,9 +76,7 @@ public class LexiconService extends Service
     {
         super.onTaskRemoved(rootIntent);
         onCreate();
-        return;
     }
-
 
     public class PhoneUnlockedReceiver extends BroadcastReceiver
     {

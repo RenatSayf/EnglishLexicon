@@ -20,6 +20,7 @@ public class AppSettings
     private Context context;
 
     private final String KEY_ENG_ONLY = "eng_only";
+    private final String KEY_ENG_ONLY_MODAL = "eng_only_modal";
     private final String KEY_PLAY_LIST = "play_list";
     private final String KEY_PLAY_LIST_ITEMS = "play_list_items";
     private final String KEY_ORDER_PLAY = "order_play";
@@ -55,6 +56,30 @@ public class AppSettings
     public boolean isEnglishSpeechOnly()
     {
         return context.getSharedPreferences(KEY_ENG_ONLY, MODE_PRIVATE).getBoolean(KEY_ENG_ONLY, true);
+    }
+
+    /**
+     * set the russian speech in the modal window
+     * @param isEngOnly
+     */
+    public void setRuSpeechInModal(boolean isEngOnly)
+    {
+        if (isEngOnly)
+        {
+            context.getSharedPreferences(KEY_ENG_ONLY_MODAL, MODE_PRIVATE).edit().putBoolean(KEY_ENG_ONLY_MODAL, true).apply();
+        } else
+        {
+            context.getSharedPreferences(KEY_ENG_ONLY_MODAL, MODE_PRIVATE).edit().putBoolean(KEY_ENG_ONLY_MODAL, false).apply();
+        }
+    }
+
+    /**
+     *
+     * @return true if set english and russian speech, otherwise false
+     */
+    public boolean isRuSpeechInModal()
+    {
+        return context.getSharedPreferences(KEY_ENG_ONLY_MODAL, MODE_PRIVATE).getBoolean(KEY_ENG_ONLY_MODAL, false);
     }
 
     /**
