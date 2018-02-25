@@ -64,14 +64,18 @@ public class ModalFragment extends Fragment
             @Override
             public void onInit(int status)
             {
-                if (status == TextToSpeech.SUCCESS)
+                if (status != TextToSpeech.SUCCESS )
                 {
                     int resultEn = speech.isLanguageAvailable(Locale.US);
-                    if (resultEn != TextToSpeech.LANG_AVAILABLE)
+                    if (resultEn == TextToSpeech.LANG_COUNTRY_AVAILABLE)
                     {
                         map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.US.getDisplayLanguage());
                         speech.setLanguage(Locale.US);
                     }
+                }
+                if (status == TextToSpeech.LANG_NOT_SUPPORTED || status == TextToSpeech.LANG_MISSING_DATA)
+                {
+                    getActivity().finish();
                 }
             }
         });
@@ -253,9 +257,13 @@ public class ModalFragment extends Fragment
                     {
                         if (checkBoxRu.isChecked() && !ruText.equals("") && s.equals(Locale.US.getDisplayLanguage()))
                         {
-                            speech.setLanguage(Locale.getDefault());
-                            map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "");
-                            speech.speak(ruText, TextToSpeech.QUEUE_ADD, map);
+                            int res = speech.isLanguageAvailable(Locale.getDefault());
+                            if (res == TextToSpeech.LANG_COUNTRY_AVAILABLE)
+                            {
+                                speech.setLanguage(Locale.getDefault());
+                                map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "");
+                                speech.speak(ruText, TextToSpeech.QUEUE_ADD, map);
+                            }
                         }
                     }
 
