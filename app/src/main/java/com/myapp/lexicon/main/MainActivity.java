@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.os.PowerManager;
 import android.provider.Settings;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
@@ -50,6 +51,7 @@ import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.database.GetEntriesLoader;
 import com.myapp.lexicon.database.GetTableListFragm;
 import com.myapp.lexicon.playlist.PlayList;
+import com.myapp.lexicon.service.LexiconService;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 import com.myapp.lexicon.wordeditor.WordEditor;
@@ -82,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ProgressBar progressBar;
     private CheckBox checkBoxRuSpeak;
     private static Intent speechIntentService;
+    public static Intent serviceIntent;
     private UpdateBroadcastReceiver mUpdateBroadcastReceiver;
     private boolean isFirstTime = true;
     private AppSettings appSettings;
@@ -769,12 +772,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
+    @Override
+    public void onAttachedToWindow()
+    {
+        super.onAttachedToWindow();
+        if (serviceIntent != null)
+        {
+            stopService(serviceIntent);
+        }
+    }
+
+    @Override
+    public void onDetachedFromWindow()
+    {
+        super.onDetachedFromWindow();
+        serviceIntent = new Intent(this, LexiconService.class);
+        startService(serviceIntent);
+    }
+
     // TODO: ActivityManager.RunningAppProcessInfo Проверка, что активити находится на верху стека
     public boolean isActivityOnTop()
     {
         final ActivityManager activityManager = (ActivityManager) getSystemService(Service.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningAppProcessInfo> runningAppProcesses = activityManager.getRunningAppProcesses();
-        if (runningAppProcesses.size() > 0)
+        List<ActivityManager.RunningAppProcessInfo> runningAppProcesses = null;
+        if (activityManager != null)
+        {
+            runningAppProcesses = activityManager.getRunningAppProcesses();
+        }
+        if (runningAppProcesses != null && runningAppProcesses.size() > 0)
         {
             String processName = runningAppProcesses.get(0).processName;
             String packageName = getApplicationInfo().packageName;
@@ -832,7 +857,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             textViewRu.setText(dataBaseEntry.getTranslate());
             textViewDict.setText(playList.get(appData.getNdict()));
 
-            HashMap<String, String> hashMap = new HashMap<>();
+            final HashMap<String, String> hashMap = new HashMap<>();
             hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "main_activity");
             SplashScreenActivity.speech.setLanguage(Locale.US);
             //SplashScreenActivity.speech.setSpeechRate(0.5f);
@@ -845,6 +870,40 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             {
                 SplashScreenActivity.speech.speak(dataBaseEntry.getEnglish(), TextToSpeech.QUEUE_ADD, hashMap);
             }
+
+            final DataBaseEntry finalDataBaseEntry = dataBaseEntry;
+            SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+            {
+                @Override
+                public void onStart(String utteranceId)
+                {
+
+                }
+
+                @Override
+                public void onDone(String utteranceId)
+                {
+                    boolean englishSpeechOnly = appSettings.isEnglishSpeechOnly();
+                    if (utteranceId.equals("main_activity") && appSettings.isEnglishSpeechOnly())
+                    {
+                        SplashScreenActivity.speech.setLanguage(Locale.getDefault());
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                        {
+                            SplashScreenActivity.speech.speak(finalDataBaseEntry.getTranslate(), TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+                        } else
+                        {
+                            SplashScreenActivity.speech.speak(finalDataBaseEntry.getTranslate(), TextToSpeech.QUEUE_ADD, hashMap);
+                        }
+                    }
+                    SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
+                }
+
+                @Override
+                public void onError(String utteranceId)
+                {
+
+                }
+            });
         }
     }
 
@@ -857,7 +916,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void btnSpeak_OnClick(View view)
     {
         speechServiceOnPause();
-        HashMap<String, String> hashMap = new HashMap<>();
+        final HashMap<String, String> hashMap = new HashMap<>();
         hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "btn_speak_onclick");
         SplashScreenActivity.speech.setLanguage(Locale.US);
         SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
@@ -868,6 +927,37 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             SplashScreenActivity.speech.speak(textViewEn.getText().toString(), TextToSpeech.QUEUE_ADD, hashMap);
         }
+        SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+        {
+            @Override
+            public void onStart(String utteranceId)
+            {
+
+            }
+
+            @Override
+            public void onDone(String utteranceId)
+            {
+                if (utteranceId.equals("btn_speak_onclick") && appSettings.isEnglishSpeechOnly())
+                {
+                    SplashScreenActivity.speech.setLanguage(Locale.getDefault());
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                    {
+                        SplashScreenActivity.speech.speak(textViewRu.getText().toString(), TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+                    } else
+                    {
+                        SplashScreenActivity.speech.speak(textViewRu.getText().toString(), TextToSpeech.QUEUE_ADD, hashMap);
+                    }
+                }
+                SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
+            }
+
+            @Override
+            public void onError(String s)
+            {
+
+            }
+        });
     }
 
     private double getInchesDisplay()
