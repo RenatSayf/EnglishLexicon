@@ -64,13 +64,14 @@ public class ModalFragment extends Fragment
             @Override
             public void onInit(int status)
             {
-                if (status != TextToSpeech.SUCCESS )
+                if (status == TextToSpeech.SUCCESS )
                 {
                     int resultEn = speech.isLanguageAvailable(Locale.US);
                     if (resultEn == TextToSpeech.LANG_COUNTRY_AVAILABLE)
                     {
                         map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.US.getDisplayLanguage());
                         speech.setLanguage(Locale.US);
+                        speech.stop();
                     }
                 }
                 if (status == TextToSpeech.LANG_NOT_SUPPORTED || status == TextToSpeech.LANG_MISSING_DATA)
@@ -240,8 +241,6 @@ public class ModalFragment extends Fragment
                 final String ruText = ruTextView.getText().toString();
                 if (!enText.equals(""))
                 {
-                    map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.US.getDisplayLanguage());
-                    speech.setLanguage(Locale.US);
                     speech.speak(enText, TextToSpeech.QUEUE_ADD, map);
                 }
                 speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
@@ -261,9 +260,15 @@ public class ModalFragment extends Fragment
                             if (res == TextToSpeech.LANG_COUNTRY_AVAILABLE)
                             {
                                 speech.setLanguage(Locale.getDefault());
-                                map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "");
+                                map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.getDefault().getDisplayLanguage());
                                 speech.speak(ruText, TextToSpeech.QUEUE_ADD, map);
                             }
+                        }
+                        if (s.equals(Locale.getDefault().getDisplayLanguage()))
+                        {
+                            speech.stop();
+                            map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.US.getDisplayLanguage());
+                            speech.setLanguage(Locale.US);
                         }
                     }
 
