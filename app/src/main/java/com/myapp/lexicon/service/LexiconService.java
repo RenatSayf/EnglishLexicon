@@ -8,14 +8,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.IBinder;
+import android.speech.tts.TextToSpeech;
 import android.widget.Toast;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.main.SplashScreenActivity;
 
+import java.util.HashMap;
+import java.util.Locale;
+
 public class LexiconService extends Service
 {
     public static boolean isStop = false;
+    public static TextToSpeech speech;
+    public static HashMap<String, String> map = new HashMap<>();
+
     private PhoneUnlockedReceiver receiver;
     private int appId = 542389;
 
@@ -51,6 +58,28 @@ public class LexiconService extends Service
         filter.addAction(Intent.ACTION_USER_PRESENT);
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         registerReceiver(receiver, filter);
+
+        speech = new TextToSpeech(this, new TextToSpeech.OnInitListener()
+        {
+            @Override
+            public void onInit(int status)
+            {
+                if (status == TextToSpeech.SUCCESS )
+                {
+                    int resultEn = speech.isLanguageAvailable(Locale.US);
+                    if (resultEn == TextToSpeech.LANG_COUNTRY_AVAILABLE)
+                    {
+                        map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.US.getDisplayLanguage());
+                        speech.setLanguage(Locale.US);
+                        speech.stop();
+                    }
+                }
+                if (status == TextToSpeech.LANG_NOT_SUPPORTED || status == TextToSpeech.LANG_MISSING_DATA)
+                {
+                    stopSelf();
+                }
+            }
+        });
     }
 
     @Override
@@ -64,6 +93,7 @@ public class LexiconService extends Service
     {
         super.onDestroy();
         unregisterReceiver(receiver);
+        speech.shutdown();
         if (isStop)
         {
             Toast.makeText(this, "Приложение " + getString(R.string.app_name) + " закрыто", Toast.LENGTH_SHORT).show();

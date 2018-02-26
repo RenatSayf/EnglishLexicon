@@ -27,7 +27,6 @@ import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Locale;
 
 
@@ -38,8 +37,6 @@ public class ModalFragment extends Fragment
     private TextView enTextView;
     private TextView ruTextView;
     private CheckBox checkBoxRu;
-    private TextToSpeech speech;
-    private HashMap<String, String> map = new HashMap<>();
 
     public ModalFragment()
     {
@@ -58,28 +55,6 @@ public class ModalFragment extends Fragment
         appSettings = new AppSettings(getContext());
         appData = AppData.getInstance();
         appData.initAllSettings(getActivity());
-
-        speech = new TextToSpeech(getActivity(), new TextToSpeech.OnInitListener()
-        {
-            @Override
-            public void onInit(int status)
-            {
-                if (status == TextToSpeech.SUCCESS )
-                {
-                    int resultEn = speech.isLanguageAvailable(Locale.US);
-                    if (resultEn == TextToSpeech.LANG_COUNTRY_AVAILABLE)
-                    {
-                        map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.US.getDisplayLanguage());
-                        speech.setLanguage(Locale.US);
-                        speech.stop();
-                    }
-                }
-                if (status == TextToSpeech.LANG_NOT_SUPPORTED || status == TextToSpeech.LANG_MISSING_DATA)
-                {
-                    getActivity().finish();
-                }
-            }
-        });
     }
 
     @Override
@@ -223,7 +198,6 @@ public class ModalFragment extends Fragment
     public void onDestroy()
     {
         super.onDestroy();
-        speech.shutdown();
     }
 
     public void btnSound_OnClick(ImageButton button)
@@ -233,7 +207,7 @@ public class ModalFragment extends Fragment
             @Override
             public void onClick(View view)
             {
-                if (speech.isSpeaking())
+                if (LexiconService.speech.isSpeaking())
                 {
                     return;
                 }
@@ -241,9 +215,9 @@ public class ModalFragment extends Fragment
                 final String ruText = ruTextView.getText().toString();
                 if (!enText.equals(""))
                 {
-                    speech.speak(enText, TextToSpeech.QUEUE_ADD, map);
+                    LexiconService.speech.speak(enText, TextToSpeech.QUEUE_ADD, LexiconService.map);
                 }
-                speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+                LexiconService.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
                 {
                     @Override
                     public void onStart(String s)
@@ -256,19 +230,19 @@ public class ModalFragment extends Fragment
                     {
                         if (checkBoxRu.isChecked() && !ruText.equals("") && s.equals(Locale.US.getDisplayLanguage()))
                         {
-                            int res = speech.isLanguageAvailable(Locale.getDefault());
+                            int res = LexiconService.speech.isLanguageAvailable(Locale.getDefault());
                             if (res == TextToSpeech.LANG_COUNTRY_AVAILABLE)
                             {
-                                speech.setLanguage(Locale.getDefault());
-                                map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.getDefault().getDisplayLanguage());
-                                speech.speak(ruText, TextToSpeech.QUEUE_ADD, map);
+                                LexiconService.speech.setLanguage(Locale.getDefault());
+                                LexiconService.map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.getDefault().getDisplayLanguage());
+                                LexiconService.speech.speak(ruText, TextToSpeech.QUEUE_ADD, LexiconService.map);
                             }
                         }
                         if (s.equals(Locale.getDefault().getDisplayLanguage()))
                         {
-                            speech.stop();
-                            map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.US.getDisplayLanguage());
-                            speech.setLanguage(Locale.US);
+                            LexiconService.speech.stop();
+                            LexiconService.map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.US.getDisplayLanguage());
+                            LexiconService.speech.setLanguage(Locale.US);
                         }
                     }
 
