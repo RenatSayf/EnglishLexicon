@@ -37,6 +37,8 @@ public class ModalFragment extends Fragment
     private TextView enTextView;
     private TextView ruTextView;
     private CheckBox checkBoxRu;
+    private TextView nameDictTV;
+    private TextView wordsNumberTV;
 
     public ModalFragment()
     {
@@ -65,9 +67,21 @@ public class ModalFragment extends Fragment
         enTextView = fragmentView.findViewById(R.id.en_text_view);
         ruTextView = fragmentView.findViewById(R.id.ru_text_view);
 
+        nameDictTV = fragmentView.findViewById(R.id.name_dict_tv);
+        wordsNumberTV = fragmentView.findViewById(R.id.words_number_tv_modal_sv);
+
         int wordNumber = appData.getNword();
         int dictNumber = appData.getNdict();
         String currentDict = appSettings.getPlayList().get(dictNumber);
+
+        nameDictTV.setText(currentDict);
+        try
+        {
+            wordsNumberTV.setText(Integer.toString(wordNumber));
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
 
         GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), currentDict, wordNumber, wordNumber, new GetEntriesFromDbAsync.GetEntriesListener()
         {
