@@ -37,8 +37,8 @@ public class ModalFragment extends Fragment
     private TextView enTextView;
     private TextView ruTextView;
     private CheckBox checkBoxRu;
-    private TextView nameDictTV;
     private TextView wordsNumberTV;
+    private int wordsCount;
 
     public ModalFragment()
     {
@@ -67,21 +67,15 @@ public class ModalFragment extends Fragment
         enTextView = fragmentView.findViewById(R.id.en_text_view);
         ruTextView = fragmentView.findViewById(R.id.ru_text_view);
 
-        nameDictTV = fragmentView.findViewById(R.id.name_dict_tv);
+        TextView nameDictTV = fragmentView.findViewById(R.id.name_dict_tv);
         wordsNumberTV = fragmentView.findViewById(R.id.words_number_tv_modal_sv);
 
-        int wordNumber = appData.getNword();
-        int dictNumber = appData.getNdict();
+        final int wordNumber = appData.getNword();
+        final int dictNumber = appData.getNdict();
         String currentDict = appSettings.getPlayList().get(dictNumber);
 
         nameDictTV.setText(currentDict);
-        try
-        {
-            wordsNumberTV.setText(Integer.toString(wordNumber));
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-        }
+
 
         GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), currentDict, wordNumber, wordNumber, new GetEntriesFromDbAsync.GetEntriesListener()
         {
@@ -99,6 +93,27 @@ public class ModalFragment extends Fragment
         {
             getEntriesFromDbAsync.execute();
         }
+
+        GetCountWordsAsync getCountWordsAsync = new GetCountWordsAsync(getActivity(), currentDict, new GetCountWordsAsync.GetCountListener()
+        {
+            @Override
+            public void onTaskComplete(int count)
+            {
+                wordsCount = count;
+                try
+                {
+                    wordsNumberTV.setText(Integer.toString(wordNumber).concat(" / ").concat(Integer.toString(wordsCount)));
+                } catch (Exception e)
+                {
+                    wordsNumberTV.setText("???");
+                }
+            }
+        });
+        if (getCountWordsAsync.getStatus() != AsyncTask.Status.RUNNING)
+        {
+            getCountWordsAsync.execute();
+        }
+
 
         Button btnStop = fragmentView.findViewById(R.id.btn_stop_service);
         btnStop.setOnClickListener(new View.OnClickListener()
@@ -122,50 +137,36 @@ public class ModalFragment extends Fragment
             @Override
             public void onClick(View view)
             {
-                final int nextWord = appData.getNword() + 1;
-                String currentDict = appSettings.getPlayList().get(appData.getNdict());
-                GetCountWordsAsync getCountWordsAsync = new GetCountWordsAsync(getActivity(), currentDict, new GetCountWordsAsync.GetCountListener()
+                int nextWord = appData.getNword() + 1;
+                if (appSettings.getPlayList().size() == 1)
                 {
-                    @Override
-                    public void onTaskComplete(int count)
+                    if (nextWord > wordsCount)
                     {
-                        if (appSettings.getPlayList().size() == 1)
-                        {
-                            if (nextWord > count)
-                            {
-                                appData.setNword(1);
-                            }
-                            else if (nextWord <= count)
-                            {
-                                appData.setNword(nextWord);
-                            }
-                        }
-                        if (appSettings.getPlayList().size() > 1)
-                        {
-                            int dictNumber = appData.getNdict();
-                            if (nextWord > count)
-                            {
-                                appData.setNword(1);
-                                appData.setNdict(dictNumber + 1);
-                                if (appData.getNdict() > appSettings.getPlayList().size() - 1)
-                                {
-                                    appData.setNdict(0);
-                                }
-                            }
-                            else if (nextWord <= count)
-                            {
-                                appData.setNword(nextWord);
-                                appData.setNdict(dictNumber);
-                            }
-                        }
-                        appData.saveAllSettings(getActivity());
-                        getActivity().finish();
+                        appData.setNword(1);
+                    } else if (nextWord <= wordsCount)
+                    {
+                        appData.setNword(nextWord);
                     }
-                });
-                if (getCountWordsAsync.getStatus() != AsyncTask.Status.RUNNING)
-                {
-                    getCountWordsAsync.execute();
                 }
+                if (appSettings.getPlayList().size() > 1)
+                {
+                    int dictNumber = appData.getNdict();
+                    if (nextWord > wordsCount)
+                    {
+                        appData.setNword(1);
+                        appData.setNdict(dictNumber + 1);
+                        if (appData.getNdict() > appSettings.getPlayList().size() - 1)
+                        {
+                            appData.setNdict(0);
+                        }
+                    } else if (nextWord <= wordsCount)
+                    {
+                        appData.setNword(nextWord);
+                        appData.setNdict(dictNumber);
+                    }
+                }
+                appData.saveAllSettings(getActivity());
+                getActivity().finish();
             }
         });
 
