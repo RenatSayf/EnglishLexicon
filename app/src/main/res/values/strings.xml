@@ -176,6 +176,7 @@
     <string name="btn_close_discribtion">btn_close</string>
     <string name="text_en">En</string>
     <string name="text_off">Выкл</string>
+    <string name="text_version_name">v. 1</string>
 
 
 </resources>

@@ -28,6 +28,17 @@
         android:textStyle="normal|bold"/>
 
     <TextView
+        android:id="@+id/version_name_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:textAlignment="center"
+        android:textColor="@android:color/holo_orange_light"
+        android:textStyle="bold"
+        android:text="@string/text_version_name"
+        />
+
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"

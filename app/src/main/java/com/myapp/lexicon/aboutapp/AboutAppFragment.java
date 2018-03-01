@@ -2,6 +2,8 @@ package com.myapp.lexicon.aboutapp;
 
 
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -10,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.myapp.lexicon.R;
 
@@ -18,7 +21,7 @@ import com.myapp.lexicon.R;
  */
 public class AboutAppFragment extends Fragment
 {
-    View fragment_view = null;
+    private View fragment_view = null;
 
     public AboutAppFragment()
     {
@@ -40,7 +43,17 @@ public class AboutAppFragment extends Fragment
             fragment_view = inflater.inflate(R.layout.fragment_about_app, container, false);
         }
 
-        Button buttonEvaluate = (Button) fragment_view.findViewById(R.id.btn_evaluate);
+        TextView versionNameTV = fragment_view.findViewById(R.id.version_name_tv);
+        try
+        {
+            PackageInfo packageInfo = getActivity().getPackageManager().getPackageInfo(getActivity().getPackageName(), 0);
+            versionNameTV.setText("v.".concat(packageInfo.versionName));
+        } catch (PackageManager.NameNotFoundException e)
+        {
+            versionNameTV.setText("???");
+        }
+
+        Button buttonEvaluate = fragment_view.findViewById(R.id.btn_evaluate);
         buttonEvaluate.setOnClickListener(new View.OnClickListener()
         {
             @Override
