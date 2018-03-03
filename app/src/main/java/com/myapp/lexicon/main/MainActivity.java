@@ -786,8 +786,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onDetachedFromWindow()
     {
         super.onDetachedFromWindow();
-        serviceIntent = new Intent(this, LexiconService.class);
-        startService(serviceIntent);
+        if (appSettings.getPlayList().size() > 0)
+        {
+            serviceIntent = new Intent(this, LexiconService.class);
+            startService(serviceIntent);
+        }
     }
 
     // TODO: ActivityManager.RunningAppProcessInfo Проверка, что активити находится на верху стека
