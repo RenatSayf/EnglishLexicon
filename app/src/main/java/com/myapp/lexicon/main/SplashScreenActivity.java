@@ -16,6 +16,7 @@ import android.speech.tts.UtteranceProgressListener;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.settings.AppSettings;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 
@@ -41,6 +42,12 @@ public class SplashScreenActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a_layout_splash_screen);
 
+        String language = getResources().getConfiguration().locale.getLanguage();
+        String country = getResources().getConfiguration().locale.getCountry();
+        String deviceLangCode = language.concat("_").concat(country);
+        String appLangCode = appSettings.getTranslateLang();
+        ArrayList<String> transLangList = appSettings.getTransLangList();
+
         //region TODO: UpdateBroadcastReceiver. 5 - Регистрируем приёмник
         broadcastReceiver = new UpdateBroadcastReceiver();
         IntentFilter updateIntentFilter = new IntentFilter(ACTION_UPDATE);
@@ -54,6 +61,13 @@ public class SplashScreenActivity extends Activity
             finish();
         }
         //endregion
+
+        String displayLanguage = getResources().getConfiguration().locale.getDisplayLanguage();
+        String displayName = getResources().getConfiguration().locale.getDisplayName();
+        String iso3Country = getResources().getConfiguration().locale.getISO3Country();
+        String iso3Language = getResources().getConfiguration().locale.getISO3Language();
+
+        String displayVariant = this.getResources().getConfiguration().locale.getDisplayVariant();
 
         speech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener()
         {
@@ -71,6 +85,7 @@ public class SplashScreenActivity extends Activity
                     }
                     else
                     {
+                        int ukUa = speech.isLanguageAvailable(new Locale("uk_UA"));
                         map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.US.getDisplayLanguage());
                         speech.setLanguage(Locale.US);
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
@@ -109,7 +124,8 @@ public class SplashScreenActivity extends Activity
                 if (utteranceId.equals(Locale.US.getDisplayLanguage()))
                 {
                     map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.getDefault().getDisplayLanguage());
-                    speech.setLanguage(Locale.getDefault());
+                    //speech.setLanguage(Locale.getDefault());
+                    speech.setLanguage(new Locale(appSettings.getTransLangList().get(0)));
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                     {
                         speech.speak(getString(R.string.start_speech_ru), TextToSpeech.QUEUE_ADD, null, map.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));

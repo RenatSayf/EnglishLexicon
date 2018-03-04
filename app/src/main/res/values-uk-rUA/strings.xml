@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="first_app_name">English</string>
     <string name="last_app_name">Lexicon</string>
@@ -7,13 +8,13 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <string name="add_word">Добавить слово</string>
-    <string name="add_dict">Добавить словарь</string>
-    <string name="edit_word">Изменить слово</string>
-    <string name="check_your_self">Тесты</string>
+    <string name="add_word">Додати слово</string>
+    <string name="add_dict">Додати словник</string>
+    <string name="edit_word">Змінені слова</string>
+    <string name="check_your_self">Тести</string>
     <string name="exit">Выход</string>
-    <string name="title_activity_add_word">Добавить слово</string>
-    <string name="title_activity_check_self">Тесты</string>
+    <string name="title_activity_add_word">Додати слово</string>
+    <string name="title_activity_check_self">Тести</string>
 
     <string-array name="not_move">
         <item>Не перемещать</item>
@@ -33,7 +34,7 @@
         <item>10</item>
     </string-array>
 
-    <string name="title_activity_word_editor">Редактор слов</string>
+    <string name="title_activity_word_editor">Редактор слів</string>
     <string name="title_activity_play_list">Список воспроизведения</string>
     <string name="delete_dict">Удалить словарь</string>
     <string name="spinner_order_play_header">Порядок воспроизведения:</string>

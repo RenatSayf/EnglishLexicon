@@ -28,10 +28,17 @@ public class AppSettings
     private final String KEY_N_WORD = "N_word";
     private final String KEY_CURRENT_DICT = "current_dict";
     private final String KEY_IS_PAUSE = "is_pause";
+    private final String KEY_TRANSLATE_LANG = "translate_lang";
+    private final String KEY_TRANS_LANG_LIST = "trans_lang_list";
+
+    private ArrayList<String> transLangList;
 
     public AppSettings(Context context)
     {
         this.context = context;
+        transLangList = new ArrayList<>();
+        transLangList.add("ru_RU");
+        transLangList.add("uk_UA");
     }
 
     /**
@@ -238,6 +245,21 @@ public class AppSettings
         bundle.putInt(KEY_COUNTER_RIGHT_ANSWER, sharedPreferences.getInt(KEY_COUNTER_RIGHT_ANSWER, 0));
 
         return bundle;
+    }
+
+    public void setTranslateLang(String langCode)
+    {
+        context.getSharedPreferences(KEY_TRANSLATE_LANG, MODE_PRIVATE).edit().putString(KEY_TRANSLATE_LANG, null).apply();
+    }
+
+    public String getTranslateLang()
+    {
+        return context.getSharedPreferences(KEY_TRANSLATE_LANG, MODE_PRIVATE).getString(KEY_TRANSLATE_LANG, null);
+    }
+
+    public ArrayList<String> getTransLangList()
+    {
+        return transLangList;
     }
 
 
