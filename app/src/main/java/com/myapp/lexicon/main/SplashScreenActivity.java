@@ -56,6 +56,14 @@ public class SplashScreenActivity extends Activity
         }
         //endregion
 
+        boolean isAppLang = checkAppLang();
+        if (!isAppLang)
+        {
+            ChoiceLangDialog choiceLangDialog = new ChoiceLangDialog();
+            choiceLangDialog.show(getFragmentManager(), ChoiceLangDialog.TAG);
+            return;
+        }
+
         String displayLanguage = getResources().getConfiguration().locale.getDisplayLanguage();
         String displayName = getResources().getConfiguration().locale.getDisplayName();
         String iso3Country = getResources().getConfiguration().locale.getISO3Country();
@@ -70,7 +78,6 @@ public class SplashScreenActivity extends Activity
             {
                 if (status == TextToSpeech.SUCCESS)
                 {
-                    boolean isAppLang = checkAppLang();
                     int resultRu = speech.isLanguageAvailable(Locale.getDefault());
                     if (resultRu == TextToSpeech.LANG_MISSING_DATA || resultRu == TextToSpeech.LANG_NOT_SUPPORTED)
                     {
@@ -246,7 +253,6 @@ public class SplashScreenActivity extends Activity
         String deviceLangCode = language.concat("_").concat(country);
         String appLangCode = appSettings.getTranslateLang();
         ArrayList<String> appLangList = appSettings.getTransLangList();
-        int languageAvailable = speech.isLanguageAvailable(new Locale(deviceLangCode));
 
         if (appLangList.contains(deviceLangCode))
         {

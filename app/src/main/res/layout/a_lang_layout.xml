@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:id="@+id/lang_layout"
+              xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="horizontal">
+
+    <ImageView
+        android:id="@+id/country_flag_img_view"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:contentDescription="@string/btn_close_discribtion"
+        android:src="@drawable/ic_check_your_self"/>
+
+    <TextView
+        android:id="@+id/lang_name_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_weight="1"
+        android:text="Language name"/>
+
+    <CheckBox
+        android:id="@+id/lang_choice_check_box"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|end"
+        android:layout_weight="0.2"
+        />
+
+</LinearLayout>
