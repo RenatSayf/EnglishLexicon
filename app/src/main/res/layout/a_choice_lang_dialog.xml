@@ -19,18 +19,28 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_margin="10dp"
-                android:drawableEnd="@drawable/ic_check_your_self"
-                android:drawableRight="@drawable/ic_check_your_self"
-                android:text="       Language name"/>
+                android:paddingStart="25dp"
+                android:paddingLeft="25dp"
+                android:paddingRight="10dp"
+                android:paddingEnd="10dp"
+                android:drawableEnd="@drawable/ic_russian_flag"
+                android:drawableRight="@drawable/ic_russian_flag"
+                android:text="@string/lang_russian"
+                android:textSize="24sp"/>
 
             <RadioButton
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_margin="10dp"
-                android:drawableEnd="@drawable/ic_check_your_self"
-                android:drawableRight="@drawable/ic_check_your_self"
-                android:text="       Language name"
+                android:paddingStart="25dp"
+                android:paddingLeft="25dp"
+                android:paddingRight="10dp"
+                android:paddingEnd="10dp"
+                android:drawableEnd="@drawable/ic_ukraine_flag"
+                android:drawableRight="@drawable/ic_ukraine_flag"
+                android:text="@string/lang_ukraine"
+                android:textSize="24sp"
                 />
 
         </RadioGroup>
