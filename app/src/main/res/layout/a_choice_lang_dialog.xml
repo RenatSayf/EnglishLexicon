@@ -4,13 +4,38 @@
               android:layout_height="match_parent"
               android:orientation="vertical">
 
-    <ListView
-        android:id="@+id/lang_list_view"
-        android:layout_width="match_parent"
+    <ScrollView android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
 
-    </ListView>
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:scrollbars="vertical">
+
+            <RadioButton
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="10dp"
+                android:drawableEnd="@drawable/ic_check_your_self"
+                android:drawableRight="@drawable/ic_check_your_self"
+                android:text="       Language name"/>
+
+            <RadioButton
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="10dp"
+                android:drawableEnd="@drawable/ic_check_your_self"
+                android:drawableRight="@drawable/ic_check_your_self"
+                android:text="       Language name"
+                />
+
+        </RadioGroup>
+    </ScrollView>
+
 
     <Button
         android:id="@+id/dialog_btn_ok"
