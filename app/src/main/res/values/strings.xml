@@ -171,6 +171,7 @@
     <string name="text_version_name">v. 1</string>
     <string name="lang_russian">       Russian</string>
     <string name="lang_ukraine">Ukraine</string>
+    <string name="data_base_name">lexicon_DB</string>
 
 
 </resources>

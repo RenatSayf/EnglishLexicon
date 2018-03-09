@@ -249,12 +249,13 @@ public class AppSettings
 
     public void setTranslateLang(String langCode)
     {
-        context.getSharedPreferences(KEY_TRANSLATE_LANG, MODE_PRIVATE).edit().putString(KEY_TRANSLATE_LANG, null).apply();
+        context.getSharedPreferences(KEY_TRANSLATE_LANG, MODE_PRIVATE).edit().putString(KEY_TRANSLATE_LANG, langCode).apply();
     }
 
     public String getTranslateLang()
     {
-        return context.getSharedPreferences(KEY_TRANSLATE_LANG, MODE_PRIVATE).getString(KEY_TRANSLATE_LANG, null);
+        String defaultLangCode = getTransLangList().get(0);
+        return context.getSharedPreferences(KEY_TRANSLATE_LANG, MODE_PRIVATE).getString(KEY_TRANSLATE_LANG, defaultLangCode);
     }
 
     public ArrayList<String> getTransLangList()

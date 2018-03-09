@@ -9,12 +9,14 @@
         android:layout_weight="1">
 
         <RadioGroup
+            android:id="@+id/lang_list_RG"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:scrollbars="vertical">
 
             <RadioButton
+                android:id="@+id/btn_ru_lang"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -29,6 +31,7 @@
                 android:textSize="24sp"/>
 
             <RadioButton
+                android:id="@+id/btn_ua_lang"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"

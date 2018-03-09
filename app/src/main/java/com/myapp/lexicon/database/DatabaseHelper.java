@@ -1,13 +1,9 @@
 package com.myapp.lexicon.database;
 
 import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteCursorDriver;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteQuery;
 import android.os.Environment;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.myapp.lexicon.R;
@@ -23,7 +19,7 @@ import java.sql.SQLException;
 public class DatabaseHelper extends SQLiteOpenHelper
 {
     private static final String DB_PATH = "/data/com.myapp.lexicon/databases/";
-    private static final String DB_NAME = "lexicon_DB"; // название бд
+    private static String DB_NAME; // название бд
     private static final int version = 1; // версия базы данных
 
     // названия столбцов
@@ -45,6 +41,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
     {
         super(context, DB_NAME, null, version);
         this.context = context;
+        DB_NAME = context.getString(R.string.data_base_name);
     }
 
     @Override

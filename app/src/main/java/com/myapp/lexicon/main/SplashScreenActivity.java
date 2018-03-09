@@ -57,19 +57,18 @@ public class SplashScreenActivity extends Activity
         //endregion
 
         boolean isAppLang = checkAppLang();
+        String translateLang = appSettings.getTranslateLang();
         if (!isAppLang)
         {
-            ChoiceLangDialog choiceLangDialog = new ChoiceLangDialog();
-            choiceLangDialog.show(getFragmentManager(), ChoiceLangDialog.TAG);
-            return;
+            appSettings.setTranslateLang(appSettings.getTransLangList().get(0));
         }
-
-        String displayLanguage = getResources().getConfiguration().locale.getDisplayLanguage();
-        String displayName = getResources().getConfiguration().locale.getDisplayName();
-        String iso3Country = getResources().getConfiguration().locale.getISO3Country();
-        String iso3Language = getResources().getConfiguration().locale.getISO3Language();
-
-        String displayVariant = this.getResources().getConfiguration().locale.getDisplayVariant();
+        else
+        {
+            String language = getResources().getConfiguration().locale.getLanguage();
+            String country = getResources().getConfiguration().locale.getCountry();
+            String deviceLangCode = language.concat("_").concat(country);
+            appSettings.setTranslateLang(deviceLangCode);
+        }
 
         speech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener()
         {
@@ -78,12 +77,13 @@ public class SplashScreenActivity extends Activity
             {
                 if (status == TextToSpeech.SUCCESS)
                 {
-                    int resultRu = speech.isLanguageAvailable(Locale.getDefault());
+                    //int resultRu = speech.isLanguageAvailable(Locale.getDefault());
+                    int resultRu = speech.isLanguageAvailable(new Locale(appSettings.getTranslateLang()));
                     if (resultRu == TextToSpeech.LANG_MISSING_DATA || resultRu == TextToSpeech.LANG_NOT_SUPPORTED)
                     {
                         Intent installTTSdata = new Intent();
                         installTTSdata.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
-                        dialogErrorTTS(installTTSdata, Locale.getDefault().getDisplayCountry() + " not supported", false);
+                        dialogErrorTTS(installTTSdata, Locale.getDefault().getDisplayCountry() + " not supported", true);
                         return;
                     }
 
@@ -135,8 +135,8 @@ public class SplashScreenActivity extends Activity
                 if (utteranceId.equals(Locale.US.getDisplayLanguage()))
                 {
                     map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.getDefault().getDisplayLanguage());
-                    speech.setLanguage(Locale.getDefault());
-                    //speech.setLanguage(new Locale(appSettings.getTransLangList().get(0)));
+                    //speech.setLanguage(Locale.getDefault());
+                    speech.setLanguage(new Locale(appSettings.getTranslateLang()));
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                     {
                         speech.speak(getString(R.string.start_speech_ru), TextToSpeech.QUEUE_ADD, null, map.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
@@ -251,15 +251,9 @@ public class SplashScreenActivity extends Activity
         String language = getResources().getConfiguration().locale.getLanguage();
         String country = getResources().getConfiguration().locale.getCountry();
         String deviceLangCode = language.concat("_").concat(country);
-        String appLangCode = appSettings.getTranslateLang();
         ArrayList<String> appLangList = appSettings.getTransLangList();
 
-        if (appLangList.contains(deviceLangCode))
-        {
-            return true;
-        }
-
-        return false;
+        return appLangList.contains(deviceLangCode);
     }
 
 
