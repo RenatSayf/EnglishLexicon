@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import com.myapp.lexicon.R;
 import com.myapp.lexicon.helpers.ObjectSerializer;
 
 import java.util.ArrayList;
@@ -37,8 +38,8 @@ public class AppSettings
     {
         this.context = context;
         transLangList = new ArrayList<>();
-        transLangList.add("ru_RU");
-        transLangList.add("uk_UA");
+        transLangList.add(context.getString(R.string.lang_code_ru));
+        transLangList.add(context.getString(R.string.lang_code_uk));
     }
 
     /**

@@ -42,6 +42,8 @@ public class SplashScreenActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a_layout_splash_screen);
 
+        appSettings = new AppSettings(SplashScreenActivity.this);
+
         //region TODO: UpdateBroadcastReceiver. 5 - Регистрируем приёмник
         broadcastReceiver = new UpdateBroadcastReceiver();
         IntentFilter updateIntentFilter = new IntentFilter(ACTION_UPDATE);
@@ -168,10 +170,6 @@ public class SplashScreenActivity extends Activity
                 }
             }
         });
-    }
-
-    {
-        appSettings = new AppSettings(SplashScreenActivity.this);
     }
 
     private void dialogErrorTTS(final Intent intent, String message, boolean isContinue)

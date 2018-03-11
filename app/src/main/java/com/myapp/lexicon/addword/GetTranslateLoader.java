@@ -4,8 +4,8 @@ import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.os.Bundle;
 
+import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseQueries;
-import com.myapp.lexicon.helpers.RandomNumberGenerator;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,10 +27,9 @@ import java.util.Random;
 
 public class GetTranslateLoader extends AsyncTaskLoader
 {
-    public static final String KEY_TEXT_ENTERED = "text_entered";
+    static final String KEY_TEXT_ENTERED = "text_entered";
 
-    private String langSystem;
-    private String textEntered;
+    private String enteredText;
     private DataBaseQueries dataBaseQueries;
     private String[] apiKeys = new String[]
             {
@@ -43,13 +42,15 @@ public class GetTranslateLoader extends AsyncTaskLoader
                     "trnsl.1.1.20170423T121720Z.23f1ac5940850aeb.41f79bbea45ddc51abaf7482e12584fba14798b4"
             };
     private Random generator;
+    private String[] translateLang;
 
-    public GetTranslateLoader(Context context, Bundle bundle)
+    GetTranslateLoader(Context context, Bundle bundle)
     {
         super(context);
         if (bundle != null)
         {
-            textEntered = bundle.getString(KEY_TEXT_ENTERED);
+            enteredText = bundle.getString(KEY_TEXT_ENTERED);
+            translateLang = getLangTranslate(context, enteredText);
         }
         dataBaseQueries = new DataBaseQueries(context);
         generator = new Random(new Date().getTime());
@@ -58,14 +59,14 @@ public class GetTranslateLoader extends AsyncTaskLoader
     @Override
     public Object loadInBackground()
     {
-        String result = getContentFromTranslator(textEntered);
+        String result = getContentFromTranslator(enteredText);
         return getWordFromJson(result);
     }
 
     private String getContentFromTranslator(String text)
     {
-        String lang = getLangTranslate(text)[0];
-        String ui = getLangTranslate(text)[1];
+        String lang = translateLang[0];
+        String ui = translateLang[1];
         String undefined = "{\"text\":[\"undefined\"]}";
         if (lang == null || ui == null)
         {
@@ -132,31 +133,38 @@ public class GetTranslateLoader extends AsyncTaskLoader
         }
     }
 
-    private String[] getLangTranslate(String text)
+    private String[] getLangTranslate(Context context, String text)
     {
         String[] lang = new String[2];
-        for (int i = 0; i < text.length(); i++)
+        try
         {
-            int char_first = text.codePointAt(0);
-            if ((char_first >= 33 && char_first <= 64) || (text.codePointAt(i) >= 91 && text.codePointAt(i) <= 96) || (text.codePointAt(i) >= 123 && text.codePointAt(i) <= 126))
+            for (int i = 0; i < text.length(); i++)
             {
-                continue;
+
+                int char_first = text.codePointAt(0);
+                if ((char_first >= 33 && char_first <= 64) || (text.codePointAt(i) >= 91 && text.codePointAt(i) <= 96) || (text.codePointAt(i) >= 123 && text.codePointAt(i) <= 126))
+                {
+                    continue;
+                }
+                if (text.codePointAt(i) >= 1025 && text.codePointAt(i) <= 1105)
+                {
+                    lang[0] = context.getString(R.string.translate_direct_ru_en);
+                    lang[1] = context.getString(R.string.translate_lang_ru);
+                }
+                else if (text.codePointAt(i) >= 65 && text.codePointAt(i) <= 122)
+                {
+                    lang[0] = context.getString(R.string.translate_direct_en_ru);
+                    lang[1] = context.getString(R.string.translate_lang_en);
+                }
+                else
+                {
+                    lang[0] = null;
+                    lang[1] = null;
+                }
             }
-            if (text.codePointAt(i) >= 1025 && text.codePointAt(i) <= 1105)
-            {
-                lang[0] = "ru-en";
-                lang[1] = "ru";
-            }
-            else if (text.codePointAt(i) >= 65 && text.codePointAt(i) <= 122)
-            {
-                lang[0] = "en-ru";
-                lang[1] = "en";
-            }
-            else
-            {
-                lang[0] = null;
-                lang[1] = null;
-            }
+        } catch (Exception e)
+        {
+            e.printStackTrace();
         }
         return lang;
     }

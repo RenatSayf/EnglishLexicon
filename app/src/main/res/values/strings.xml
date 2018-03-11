@@ -172,6 +172,12 @@
     <string name="lang_russian">       Russian</string>
     <string name="lang_ukraine">Ukraine</string>
     <string name="data_base_name">lexicon_DB</string>
+    <string name="lang_code_ru">ru_RU</string>
+    <string name="lang_code_uk">uk_UA</string>
+    <string name="translate_direct_ru_en">ru-en</string>
+    <string name="translate_lang_ru">ru</string>
+    <string name="translate_direct_en_ru">en-ru</string>
+    <string name="translate_lang_en">en</string>
 
 
 </resources>
