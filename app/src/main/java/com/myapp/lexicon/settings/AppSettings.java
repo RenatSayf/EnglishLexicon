@@ -96,7 +96,7 @@ public class AppSettings
      */
     public void savePlayList(ArrayList<String> list)
     {
-        if (list != null)
+        if (list != null && list.size() > 0)
         {
             String temp = ObjectSerializer.serialize(list);
             context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putString(KEY_PLAY_LIST_ITEMS, temp).apply();
@@ -112,6 +112,15 @@ public class AppSettings
                 appData.setNdict(0);
                 appData.setNword(1);
             }
+        }
+        else if (list != null && list.size() == 0)
+        {
+            AppData appData = AppData.getInstance();
+            appData.setNdict(0);
+            setDictNumber(0);
+            appData.setNword(1);
+            setWordNumber(1);
+            context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putString(KEY_PLAY_LIST_ITEMS, ObjectSerializer.serialize(list)).apply();
         }
     }
 
@@ -160,6 +169,14 @@ public class AppSettings
             list = (ArrayList<String>) ObjectSerializer.deserialize(play_list_items);
         }
         return list;
+    }
+
+    /***
+     *
+     */
+    public void cleanPlayList()
+    {
+        savePlayList(new ArrayList<String>());
     }
 
     /**

@@ -7,12 +7,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Configuration;
 import android.os.IBinder;
 import android.speech.tts.TextToSpeech;
 import android.widget.Toast;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.main.SplashScreenActivity;
+import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -106,6 +108,20 @@ public class LexiconService extends Service
     {
         super.onTaskRemoved(rootIntent);
         onCreate();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig)
+    {
+        super.onConfigurationChanged(newConfig);
+        Locale newLocale = newConfig.locale;
+        Locale oldLocale = getResources().getConfiguration().locale;
+        if (oldLocale != newLocale)
+        {
+            AppSettings appSettings = new AppSettings(this);
+            appSettings.cleanPlayList();
+            stopSelf();
+        }
     }
 
     public class PhoneUnlockedReceiver extends BroadcastReceiver
