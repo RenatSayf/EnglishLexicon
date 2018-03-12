@@ -178,6 +178,7 @@
     <string name="translate_lang_ru">ru</string>
     <string name="translate_direct_en_ru">en-ru</string>
     <string name="translate_lang_en">en</string>
+    <string name="text_settings">Настройки</string>
 
 
 </resources>

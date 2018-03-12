@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="@string/text_settings"
+    >
+
+    <CheckBoxPreference
+        android:key="auto_run"
+        android:title="Автозапуск"
+        android:summary="Запускать фоновую службу показа слов при разблокировке экрана, после перезагрузки устройства"
+        android:defaultValue="true" />
+
+</PreferenceScreen>

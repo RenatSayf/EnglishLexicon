@@ -18,6 +18,7 @@ import android.os.PowerManager;
 import android.provider.Settings;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
@@ -54,6 +55,7 @@ import com.myapp.lexicon.playlist.PlayList;
 import com.myapp.lexicon.service.LexiconService;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
+import com.myapp.lexicon.settings.SettingsFragment;
 import com.myapp.lexicon.wordeditor.WordEditor;
 import com.myapp.lexicon.wordstests.Tests;
 
@@ -352,7 +354,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item)
+    public boolean onNavigationItemSelected(@NonNull MenuItem item)
     {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
@@ -404,6 +406,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 playListIntent = new Intent(this, PlayList.class);
             }
             startActivity(playListIntent);
+        }
+        else if (id == R.id.nav_settings)
+        {
+            getFragmentManager().beginTransaction().replace(R.id.settings_fragment, new SettingsFragment()).addToBackStack(null).commit();
         }
         else if (id == R.id.nav_evaluate_app)
         {
