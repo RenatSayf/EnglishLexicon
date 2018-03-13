@@ -7,9 +7,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 
@@ -59,7 +61,6 @@ public class SplashScreenActivity extends Activity
         //endregion
 
         boolean isAppLang = checkAppLang();
-        String translateLang = appSettings.getTranslateLang();
         if (!isAppLang)
         {
             appSettings.setTranslateLang(appSettings.getTransLangList().get(0));
@@ -98,15 +99,24 @@ public class SplashScreenActivity extends Activity
                     }
                     else
                     {
-                        int ukUa = speech.isLanguageAvailable(new Locale("uk_UA"));
-                        map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.US.getDisplayLanguage());
-                        speech.setLanguage(Locale.US);
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(SplashScreenActivity.this);
+                        boolean isStartSpeech = preferences.getBoolean("is_start_speech", true);
+                        if (isStartSpeech)
                         {
-                            speech.speak(getString(R.string.start_speech_en), TextToSpeech.QUEUE_ADD, null, map.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+                            map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.US.getDisplayLanguage());
+                            speech.setLanguage(Locale.US);
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                            {
+                                speech.speak(getString(R.string.start_speech_en), TextToSpeech.QUEUE_ADD, null, map.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+                            } else
+                            {
+                                speech.speak(getString(R.string.start_speech_en),TextToSpeech.QUEUE_ADD,map);
+                            }
                         } else
                         {
-                            speech.speak(getString(R.string.start_speech_en),TextToSpeech.QUEUE_ADD,map);
+                            Intent intent = new Intent(SplashScreenActivity.this, MainActivity.class);
+                            SplashScreenActivity.this.startActivity(intent);
+                            SplashScreenActivity.this.finish();
                         }
                     }
                 }else

@@ -7,6 +7,13 @@
         android:key="service"
         android:title="@string/title_service"
         android:summary="@string/summary_service"
-        android:defaultValue="true" />
+        android:defaultValue="true"
+        />
+
+    <CheckBoxPreference
+        android:key="is_start_speech"
+        android:title="@string/title_is_start_speech"
+        android:defaultValue="true"
+        />
 
 </PreferenceScreen>
