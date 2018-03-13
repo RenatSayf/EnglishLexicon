@@ -3,6 +3,8 @@ package com.myapp.lexicon.service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 import com.myapp.lexicon.settings.AppSettings;
 
@@ -22,8 +24,13 @@ public class BroadcastReceiverOnBootComplete extends BroadcastReceiver
             {
                 if (appSettings.getPlayList() != null && appSettings.getPlayList().size() > 0)
                 {
-                    Intent serviceIntent = new Intent(context, LexiconService.class);
-                    context.startService(serviceIntent);
+                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+                    boolean isUseService = preferences.getBoolean("service", true);
+                    if (isUseService)
+                    {
+                        Intent serviceIntent = new Intent(context, LexiconService.class);
+                        context.startService(serviceIntent);
+                    }
                 }
             }
         } catch (Exception e)

@@ -4,9 +4,9 @@
     >
 
     <CheckBoxPreference
-        android:key="auto_run"
-        android:title="Автозапуск"
-        android:summary="Запускать фоновую службу показа слов при разблокировке экрана, после перезагрузки устройства"
+        android:key="service"
+        android:title="@string/title_service"
+        android:summary="@string/summary_service"
         android:defaultValue="true" />
 
 </PreferenceScreen>

@@ -10,11 +10,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
@@ -792,7 +794,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onDetachedFromWindow()
     {
         super.onDetachedFromWindow();
-        if (appSettings.getPlayList().size() > 0)
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean isUseService = preferences.getBoolean("service", true);
+        if (appSettings.getPlayList().size() > 0 && isUseService)
         {
             serviceIntent = new Intent(this, LexiconService.class);
             startService(serviceIntent);

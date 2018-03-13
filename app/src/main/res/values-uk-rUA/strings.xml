@@ -178,6 +178,8 @@
     <string name="translate_direct_en_ru">en-uk</string>
     <string name="translate_lang_en">en</string>
     <string name="text_settings">Настройки</string>
+    <string name="summary_service">Использовать фоновую службу для показа слов при разблокировке экрана</string>
+    <string name="title_service">Фоновая служба</string>
 
 
 </resources>
