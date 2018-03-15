@@ -13,6 +13,7 @@
     <CheckBoxPreference
         android:key="is_start_speech"
         android:title="@string/title_is_start_speech"
+        android:summary="@string/summary_is_start_speech"
         android:defaultValue="true"
         />
 
