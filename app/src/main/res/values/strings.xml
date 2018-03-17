@@ -15,10 +15,6 @@
     <string name="title_activity_add_word">Добавить слово</string>
     <string name="title_activity_check_self">Тесты</string>
 
-    <!-- Strings related to Settings -->
-
-    <!-- Example General settings -->
-
     <string-array name="not_move">
         <item>Не перемещать</item>
     </string-array>
@@ -36,10 +32,6 @@
         <item>9</item>
         <item>10</item>
     </string-array>
-
-    <!-- Example settings for Data & Sync -->
-
-    <!-- Example settings for Notifications -->
 
     <string name="title_activity_word_editor">Редактор слов</string>
     <string name="title_activity_play_list">Список воспроизведения</string>
@@ -177,6 +169,20 @@
     <string name="text_en">En</string>
     <string name="text_off">Выкл</string>
     <string name="text_version_name">v. 1</string>
+    <string name="lang_russian">       Russian</string>
+    <string name="lang_ukraine">Ukraine</string>
+    <string name="data_base_name">lexicon_DB</string>
+    <string name="lang_code_ru">ru_RU</string>
+    <string name="lang_code_uk">uk_UA</string>
+    <string name="translate_direct_ru_en">ru-en</string>
+    <string name="translate_lang_ru">ru</string>
+    <string name="translate_direct_en_ru">en-ru</string>
+    <string name="translate_lang_en">en</string>
+    <string name="text_settings">Настройки</string>
+    <string name="summary_service">Использовать фоновую службу для показа слов при разблокировке экрана</string>
+    <string name="title_service">Фоновая служба</string>
+    <string name="title_is_start_speech">Озвучивать при запуске</string>
+    <string name="summary_is_start_speech">Озвучивать вступительную фразу при запуске приложения</string>
 
 
 </resources>

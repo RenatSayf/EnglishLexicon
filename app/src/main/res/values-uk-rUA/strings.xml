@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="first_app_name">English</string>
+    <string name="last_app_name">Lexicon</string>
+    <string name="app_name">English Lexicon</string>
+    <string name="app_link">https://play.google.com/store/apps/details?id=com.myapp.lexicon&amp;hl=ru</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="add_word">Додати слово</string>
+    <string name="add_dict">Додати словник</string>
+    <string name="edit_word">Змінені слова</string>
+    <string name="check_your_self">Тести</string>
+    <string name="exit">Вихід</string>
+    <string name="title_activity_add_word">Додати слово</string>
+    <string name="title_activity_check_self">Тести</string>
+
+    <string-array name="not_move">
+        <item>Не переміщати</item>
+    </string-array>
+
+    <string-array name="count_repeat">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+    </string-array>
+
+    <string name="title_activity_word_editor">Редактор слів</string>
+    <string name="title_activity_play_list">Список відтворення</string>
+    <string name="delete_dict">Видалити словник</string>
+    <string name="spinner_order_play_header">Порядок відтворення:</string>
+    <string name="play_list_header">Список відтворення:</string>
+    <string name="add">Додати</string>
+    <string name="access_dict">Доступні словники</string>
+    <string name="no_playlist">Не заданий список відтворення</string>
+    <string name="message_about_pause">Пауза</string>
+    <string name="message_about_start">Почекайте трохи зараз почнемо</string>
+    <string name="title_del_dict">Вкажіть видаляється словник</string>
+    <string name="button_text_delete">Видалити</string>
+    <string name="button_text_cancel">Скасування</string>
+    <string name="button_text_yes">Так</string>
+    <string name="button_text_no">Ні</string>
+    <string name="msg_selected_dict_removed">Вибрані словники видалені!</string>
+    <string name="dialog_are_you_sure">Ви впевнені?</string>
+    <string name="nav_play_list">Плей лист</string>
+    <string name="text_enter">Введіть текст</string>
+    <string name="text_result">Результат</string>
+    <string name="link_to_yandex_trans">Переведено сервісом <![CDATA[<u>«Яндекс.Переводчик»</u>]]></string>
+    <string name="translate_yandex_ru">https://translate.yandex.ru</string>
+    <string name="msg_not_internet">Немає з`єднання з інтернетом. Онлайн переклад недоступний</string>
+    <string name="btn_translate_text">Перевести</string>
+    <string name="add_to_dict">Додати до словника:</string>
+    <string name="text_add">Додати</string>
+    <string name="new_word_is_added">" додано нове слово"</string>
+    <string name="in_dictionary">"У словник "</string>
+    <string name="label_english">English</string>
+    <string name="label_russian">Український</string>
+    <string name="label_count_repeat">Кількість повторів</string>
+    <string name="label_copy">Копіювати</string>
+    <string name="msg_wrong_text">В одному з полів вводу текст не відповідає мові</string>
+    <string name="header.correctfragment">Вибери правильно в словнику:</string>
+    <string name="text_excellent">Відмінно</string>
+    <string name="text_good">Добре</string>
+    <string name="text_bad">Погано</string>
+    <string name="text_out_of">" із "</string>
+    <string name="message_inst_tts_data">На Вашому пристрої відсутня підтримка англійської(США) мови. Щоб виправити це необхідно встановити голосові функції для англійської(США) мови </string>
+    <string name="message_inst_tts_data_ru">На Вашому пристрої відсутня підтримка української(UA) мови. Щоб виправити це необхідно встановити голосові функції для української(UA) мови</string>
+    <string name="message_inst_tts_engine">На Вашому пристрої відсутня підтримка синтезу мови. Необхідно перейти в Google Play і встановити "Синтезатор мови Google"</string>
+    <string name="url_google_tts"><![CDATA[https://play.google.com/store/apps/details?id=com.google.android.tts&hl=ru]]></string>
+    <string name="title_new_dictionary">Новий словник</string>
+    <string name="btn_text_add">Додати</string>
+    <string name="btn_text_cancel">Скасування</string>
+    <string name="text_set_dict_name">Задайте ім`я словника</string>
+    <string name="menu_search">Знайти</string>
+    <string name="dialog_title_confirm_action">Підтвердіть ваші дії</string>
+    <string name="dialog_msg_delete_word">"Ви дійсно хочете видалити слово зі словника - "</string>
+    <string name="msg_data_base_error">"Помилка бази даних - "</string>
+    <string name="key_play_order">key_play_order</string>
+    <string name="speech_error">Error of speech synthesis</string>
+    <string name="is_one_time">is_one_time</string>
+    <string name="text_added_new_dict">"Доданий новий словник: "</string>
+    <string name="btn_text_setup">Установити</string>
+    <string name="start_speech_en">Lets start!</string>
+    <string name="start_speech_ru">Почнемо!</string>
+    <string name="dialog_title_warning">Попередження:</string>
+    <string name="btn_text_continue">Продовжити без</string>
+    <string name="nav_words_editor">Редактор слів</string>
+    <string name="text_listen_and_click">Послухай і натисни</string>
+    <string name="text_one_of_five">1 із 5</string>
+    <string name="text_find_pair">Знайди пару</string>
+    <string name="text_choice_test">Виберіть тест</string>
+    <string name="text_find_pair_words">Знайди парні слова</string>
+    <string name="text_recognize_words_by_sight">Розпізнай слова на слух</string>
+    <string name="text_dictionary">Словник:</string>
+    <string name="text_ok">OK</string>
+    <string name="text_complete">Завершити</string>
+    <string name="text_choose_correctly">Вибери правильно</string>
+    <string name="description_sound_button">sound_button</string>
+    <string name="text_finish">Завершити</string>
+    <string name="text_repeat">Повтор</string>
+    <string name="text_next">Наступний</string>
+    <string name="text_50_50">50 із 50</string>
+    <string name="text_correctly">Вірно:</string>
+    <string name="text_test_is_finish">Тест завершений</string>
+    <string name="descript_image_background">image_background</string>
+    <string name="msg_error_creating_database">Не вдалося створити базу даних</string>
+    <string name="http_error_413">Перевищений максимально допустимий розмір тексту</string>
+    <string name="http_error_422">Текст не може бути переведений</string>
+    <string name="http_error_501">Заданий напрямок перекладу не підтримується</string>
+    <string name="http_error_401">Неправильний API ключ</string>
+    <string name="http_error_402">API ключ заблокований</string>
+    <string name="http_error_404">Перевищено добове обмеження на обсяг перекладеного тексту</string>
+    <string name="title_yandex_translate">Яндекс.Переводчик:</string>
+    <string name="menu_text_api_key">Ввести ключ API</string>
+    <string name="dialog_error_text_0">Якщо у Вас є API ключ введіть його в поле нижче, або натисніть кнопку \"Вставити\" якщо він скопійований, потім натисніть \"Зберегти\".</string>
+    <string name="dialog_option_text_0">Якщо у Вас немає ключа, Ви можете отримати безкоштовний API ключ натиснувши кнопку"Отримати\".</string>
+    <string name="tech.yandex.ru_translate">https://tech.yandex.ru/translate/</string>
+    <string name="text_api_key">API ключ:</string>
+    <string name="text_paste">Вставити</string>
+    <string name="text_save">Зберегти</string>
+    <string name="text_get">Одержати</string>
+    <string name="text_cancel">Скасування</string>
+    <string name="text_evaluate_app">Оцінити програму</string>
+    <string name="text_about_app">Про програму</string>
+    <string name="content_describt">image_view</string>
+    <string name="text_developer_name">Розробка: RenatSayf</string>
+    <string name="text_developer_email">E-mail: renatsayf@gmail.com</string>
+    <string name="text_evaluate">Оцінити</string>
+    <string name="you_have_uncompleted_test">У Вас є незавершений тест. Ви хочете продовжити перевірку або почати тест спочатку</string>
+    <string name="text_continue">Продовжити</string>
+    <string name="text_from_the_beginning">Спочатку</string>
+    <string name="text_not_finished_test">Ви не завершили тест. Зробити закладку, щоб потім продовжити з того ж місця?</string>
+    <string name="text_speech_settings">Голосові параметри</string>
+    <string name="text_speech_recogniz_not_support">Вибачте! Розпізнавання мови не підтримується на цьому пристрої.</string>
+    <string name="text_say_something">Говорите...</string>
+    <string name="text_voice_input_not_available">Немає з`єднання з інтернетом. Голосове введення недоступний</string>
+    <string name="main_bottom_banner">ca-app-pub-4071145618173901/8422115477</string>
+    <string name="add_word_bottom_banner">ca-app-pub-4071145618173901/9155315479</string>
+    <string name="word_editor_bottom_banner">ca-app-pub-4071145618173901/4585515071</string>
+    <string name="play_list_banner">ca-app-pub-4071145618173901/5801236277</string>
+    <string name="tests_banner">ca-app-pub-4071145618173901/5962686672</string>
+    <string name="text_ru">Uk</string>
+    <string name="text_updated_successfully">Словник успішно оновлено</string>
+    <string name="text_write_error">Помилка запису</string>
+    <string name="text_deleting_error">Помилка видалення</string>
+    <string name="header_dialog_change_pl">Виключити словники зі списку навчання?</string>
+    <string name="title_dialog_warning">Незавершений тест:</string>
+    <string name="text_move_to_dict">Перемістити до словника</string>
+    <string name="btn_text_write">Записати</string>
+    <string name="btn_text_delete">Видалити</string>
+    <string name="text_words">Слів:</string>
+    <string name="text_ru_speech_on">Українське озвучення включено</string>
+    <string name="text_ru_speech_off">Українське озвучування вимкнено</string>
+    <string name="app_indexing_name">Англійський лексикон</string>
+    <string name="app_indexing_text">Вчимо англійські слова і фрази</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="notify_content_text">Натисніть, щоб відкрити програму</string>
+    <string name="btn_sound_discribtion">btn_sound</string>
+    <string name="btn_close_discribtion">btn_close</string>
+    <string name="text_en">En</string>
+    <string name="text_off">Вимк</string>
+    <string name="text_version_name">v. 1</string>
+    <string name="data_base_name">lexicon_uk_DB</string>
+    <string name="lang_code_ru">ru_RU</string>
+    <string name="lang_code_uk">uk_UA</string>
+    <string name="translate_direct_ru_en">uk-en</string>
+    <string name="translate_lang_ru">uk</string>
+    <string name="translate_direct_en_ru">en-uk</string>
+    <string name="translate_lang_en">en</string>
+    <string name="text_settings">Параметри</string>
+    <string name="summary_service">Показувати слова розблокування екрану</string>
+    <string name="title_service">Фонова служба</string>
+    <string name="title_is_start_speech">Озвучувати при запуску</string>
+    <string name="summary_is_start_speech">Озвучувати вступну фразу при запуску програми</string>
+
+
+</resources>

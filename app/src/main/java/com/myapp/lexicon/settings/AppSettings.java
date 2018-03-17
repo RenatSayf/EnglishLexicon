@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import com.myapp.lexicon.R;
 import com.myapp.lexicon.helpers.ObjectSerializer;
 
 import java.util.ArrayList;
@@ -28,10 +29,17 @@ public class AppSettings
     private final String KEY_N_WORD = "N_word";
     private final String KEY_CURRENT_DICT = "current_dict";
     private final String KEY_IS_PAUSE = "is_pause";
+    private final String KEY_TRANSLATE_LANG = "translate_lang";
+    private final String KEY_TRANS_LANG_LIST = "trans_lang_list";
+
+    private ArrayList<String> transLangList;
 
     public AppSettings(Context context)
     {
         this.context = context;
+        transLangList = new ArrayList<>();
+        transLangList.add(context.getString(R.string.lang_code_ru));
+        transLangList.add(context.getString(R.string.lang_code_uk));
     }
 
     /**
@@ -88,7 +96,7 @@ public class AppSettings
      */
     public void savePlayList(ArrayList<String> list)
     {
-        if (list != null)
+        if (list != null && list.size() > 0)
         {
             String temp = ObjectSerializer.serialize(list);
             context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putString(KEY_PLAY_LIST_ITEMS, temp).apply();
@@ -104,6 +112,15 @@ public class AppSettings
                 appData.setNdict(0);
                 appData.setNword(1);
             }
+        }
+        else if (list != null && list.size() == 0)
+        {
+            AppData appData = AppData.getInstance();
+            appData.setNdict(0);
+            setDictNumber(0);
+            appData.setNword(1);
+            setWordNumber(1);
+            context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putString(KEY_PLAY_LIST_ITEMS, ObjectSerializer.serialize(list)).apply();
         }
     }
 
@@ -152,6 +169,14 @@ public class AppSettings
             list = (ArrayList<String>) ObjectSerializer.deserialize(play_list_items);
         }
         return list;
+    }
+
+    /***
+     *
+     */
+    public void cleanPlayList()
+    {
+        savePlayList(new ArrayList<String>());
     }
 
     /**
@@ -238,6 +263,22 @@ public class AppSettings
         bundle.putInt(KEY_COUNTER_RIGHT_ANSWER, sharedPreferences.getInt(KEY_COUNTER_RIGHT_ANSWER, 0));
 
         return bundle;
+    }
+
+    public void setTranslateLang(String langCode)
+    {
+        context.getSharedPreferences(KEY_TRANSLATE_LANG, MODE_PRIVATE).edit().putString(KEY_TRANSLATE_LANG, langCode).apply();
+    }
+
+    public String getTranslateLang()
+    {
+        String defaultLangCode = getTransLangList().get(0);
+        return context.getSharedPreferences(KEY_TRANSLATE_LANG, MODE_PRIVATE).getString(KEY_TRANSLATE_LANG, defaultLangCode);
+    }
+
+    public ArrayList<String> getTransLangList()
+    {
+        return transLangList;
     }
 
 

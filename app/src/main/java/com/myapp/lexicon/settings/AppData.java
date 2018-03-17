@@ -17,6 +17,7 @@ public class AppData
     private int nword = 1;
     private boolean isPause = false;
     private ListViewAdapter listViewAdapter;
+    private String langCode;
 
     public static AppData getInstance()
     {
@@ -68,12 +69,23 @@ public class AppData
         this.listViewAdapter = listViewAdapter;
     }
 
+    public void setTranslateLangCode(String langCode)
+    {
+        this.langCode = langCode;
+    }
+
+    public String getTranslateLangCode()
+    {
+        return langCode;
+    }
+
     public void saveAllSettings(Context context)
     {
         AppSettings appSettings = new AppSettings(context);
         appSettings.setPause(isPause);
         appSettings.setDictNumber(ndict);
         appSettings.setWordNumber(nword);
+        appSettings.setTranslateLang(langCode);
     }
 
     public void initAllSettings(Context context)
@@ -82,6 +94,7 @@ public class AppData
         isPause = appSettings.isPause();
         ndict = appSettings.getDictNumber();
         nword = appSettings.getWordNumber();
+        langCode = appSettings.getTranslateLang();
     }
 
     public boolean isAdMob()
