@@ -182,7 +182,7 @@
     <string name="summary_service">Использовать фоновую службу для показа слов при разблокировке экрана</string>
     <string name="title_service">Фоновая служба</string>
     <string name="title_is_start_speech">Озвучивать при запуске</string>
-    <string name="summary_is_start_speech">Озвучивать вступительную фразу призапуске приложения</string>
+    <string name="summary_is_start_speech">Озвучивать вступительную фразу при запуске приложения</string>
 
 
 </resources>
