@@ -45,6 +45,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.appindexing.Action;
+import com.google.firebase.appindexing.FirebaseAppIndex;
+import com.google.firebase.appindexing.FirebaseUserActions;
+import com.google.firebase.appindexing.builders.Actions;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.AddWordActivity;
@@ -204,6 +208,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+    public Action getAction()
+    {
+        return Actions.newView(getResources().getString(R.string.app_name), getResources().getString(R.string.app_link));
+    }
+
+    @Override
+    protected void onStart()
+    {
+        super.onStart();
+        FirebaseAppIndex.getInstance().update();
+        FirebaseUserActions.getInstance().start(getAction());
+    }
+
     private void initViews()
     {
         textViewEn = (TextView) findViewById(R.id.enTextView);
@@ -270,8 +287,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onStop()
     {
-        super.onStop();
         progressBar.setVisibility(View.GONE);
+        FirebaseUserActions.getInstance().end(getAction());
+        super.onStop();
     }
 
     @Override
