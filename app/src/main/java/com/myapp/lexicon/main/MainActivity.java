@@ -349,17 +349,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (id == R.id.edit_word)
         {
-            if (wordEditorIntent == null)
+            if (playList != null && playList.size() > 0)
             {
-                wordEditorIntent = new Intent(this, WordEditor.class);
-            }
-            speechServiceOnPause();
-            Bundle bundle = new Bundle();
-            bundle.putString(WordEditor.KEY_EXTRA_DICT_NAME, playList.get(AppData.getInstance().getNdict()));
-            bundle.putInt(WordEditor.KEY_ROW_ID, appData.getNword());
-            wordEditorIntent.replaceExtras(bundle);
+                if (wordEditorIntent == null)
+                {
+                    wordEditorIntent = new Intent(this, WordEditor.class);
+                }
+                speechServiceOnPause();
+                Bundle bundle = new Bundle();
+                bundle.putString(WordEditor.KEY_EXTRA_DICT_NAME, playList.get(AppData.getInstance().getNdict()));
+                bundle.putInt(WordEditor.KEY_ROW_ID, appData.getNword());
+                wordEditorIntent.replaceExtras(bundle);
 
-            startActivity(wordEditorIntent);
+                startActivity(wordEditorIntent);
+            }
+            else
+            {
+                Toast toast = Toast.makeText(this, R.string.no_playlist, Toast.LENGTH_SHORT);
+                toast.setGravity(Gravity.CENTER,0,0);
+                toast.show();
+                if (playListIntent == null)
+                {
+                    playListIntent = new Intent(this, PlayList.class);
+                }
+                startActivity(playListIntent);
+            }
         }
         if (id == R.id.edit_speech_data)
         {
