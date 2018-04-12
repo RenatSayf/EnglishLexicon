@@ -1,5 +1,7 @@
 package com.myapp.lexicon.addword;
 
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.app.LoaderManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -40,6 +42,7 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.GetTableListLoader2;
+import com.myapp.lexicon.dialogs.NewDictDialog;
 import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.settings.AppData;
 
@@ -57,7 +60,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
     private LinearLayout layoutLinkYa;
     private TextView textViewLinkYandex;
     private EditText textViewResult;
-    private Button buttonTrans;
+    private Button buttonTrans, btnNewDict;
     private ProgressBar progressBar;
     private ProgressBar progressBarEn;
     private ProgressBar progressBarRu;
@@ -135,6 +138,8 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
         buttonClean1 = (ImageButton) findViewById(R.id.btn_clean1);
         buttonClean2 = (ImageButton) findViewById(R.id.btn_clean2);
         buttonClean_onClick();
+        btnNewDict = findViewById(R.id.btn_new_dict);
+        btnNewDict_onClick();
     }
 
     @Override
@@ -821,5 +826,27 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
                 }
             }
         }
+    }
+
+    private void btnNewDict_onClick()
+    {
+        btnNewDict.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+                Fragment fragmentByTag = getFragmentManager().findFragmentByTag(NewDictDialog.TAG);
+                if (fragmentByTag != null)
+                {
+                    fragmentTransaction.remove(fragmentByTag);
+                }
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
+                NewDictDialog newDictDialog = NewDictDialog.newInstance();
+                newDictDialog.show(getSupportFragmentManager(), NewDictDialog.TAG);
+
+            }
+        });
     }
 }

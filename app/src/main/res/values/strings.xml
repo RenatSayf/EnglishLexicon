@@ -183,6 +183,7 @@
     <string name="title_service">Фоновая служба</string>
     <string name="title_is_start_speech">Озвучивать при запуске</string>
     <string name="summary_is_start_speech">Озвучивать вступительную фразу при запуске приложения</string>
+    <string name="btn_text_new">Новый</string>
 
 
 </resources>

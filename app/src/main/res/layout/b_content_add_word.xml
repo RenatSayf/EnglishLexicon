@@ -117,7 +117,7 @@
                                     android:id="@+id/progressEn"
                                     android:layout_width="30dp"
                                     android:layout_height="30dp"
-                                    android:visibility="visible"/>
+                                    android:visibility="invisible"/>
 
                             </LinearLayout>
                         </LinearLayout>
@@ -261,7 +261,7 @@
                                     android:id="@+id/progressRu"
                                     android:layout_width="30dp"
                                     android:layout_height="30dp"
-                                    android:visibility="visible"/>
+                                    android:visibility="invisible"/>
                             </LinearLayout>
                         </LinearLayout>
                     </LinearLayout>
@@ -287,15 +287,37 @@
                         android:textAppearance="?android:attr/textAppearanceMedium"
                         />
 
-                    <Spinner
-                        android:id="@+id/spinn_dict_to"
-                        style="@style/spinner_style"
-                        android:layout_width="match_parent"
-                        android:layout_height="36dp"
-                        android:layout_margin="10dp"
-                        android:prompt="@string/add_to_dict"
-                        android:paddingLeft="5dp"
-                        android:paddingRight="30dp"/>
+                    <LinearLayout android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <Spinner
+                            android:id="@+id/spinn_dict_to"
+                            style="@style/spinner_style"
+                            android:layout_width="match_parent"
+                            android:layout_height="36dp"
+                            android:layout_weight="1"
+                            android:layout_margin="10dp"
+                            android:prompt="@string/add_to_dict"
+                            android:paddingLeft="5dp"
+                            android:paddingRight="30dp"/>
+
+                        <Button
+                            android:id="@+id/btn_new_dict"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="3"
+                            android:layout_marginRight="10dp"
+                            style="@style/Base.Widget.AppCompat.ButtonBar"
+                            android:src="@drawable/selector_icon_add"
+                            android:background="@drawable/transparent_background"
+                            android:contentDescription="@string/btn_close_discribtion"
+                            android:drawableRight="@drawable/icon_add_blue"
+                            android:text="@string/btn_text_new"
+                            />
+
+                    </LinearLayout>
+
 
                     <Button
                         android:id="@+id/button_add"
