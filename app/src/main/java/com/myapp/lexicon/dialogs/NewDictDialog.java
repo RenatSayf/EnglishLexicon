@@ -8,10 +8,8 @@ import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseQueries;
@@ -21,6 +19,7 @@ public class NewDictDialog extends android.support.v4.app.DialogFragment
     public static final String TAG = "new_dict_dialog";
     private DataBaseQueries dataBaseQueries;
     private static NewDictDialog newDictDialog = null;
+    public static INewDictDialogResult iNewDictDialogResult;
     public static NewDictDialog newInstance()
     {
         if (newDictDialog == null)
@@ -28,6 +27,16 @@ public class NewDictDialog extends android.support.v4.app.DialogFragment
             newDictDialog = new NewDictDialog();
         }
         return newDictDialog;
+    }
+
+    public interface INewDictDialogResult
+    {
+        void newDictDialogResult(boolean res, String dictName);
+    }
+
+    public void setNewDictDialogListener(INewDictDialogResult listener)
+    {
+        iNewDictDialogResult = listener;
     }
 
     @NonNull
@@ -51,14 +60,18 @@ public class NewDictDialog extends android.support.v4.app.DialogFragment
                             try
                             {
                                 dataBaseQueries = new DataBaseQueries(getActivity());
-                                dataBaseQueries.addTableToDbSync(dictName);
+                                boolean res = dataBaseQueries.addTableToDbSync(dictName);
+                                if (iNewDictDialogResult != null)
+                                {
+                                    iNewDictDialogResult.newDictDialogResult(res, dictName);
+                                }
                             } catch (Exception e)
                             {
                                 e.printStackTrace();
                             }
-                            Toast toast = Toast.makeText(getActivity(), getString(R.string.text_added_new_dict)+dictName, Toast.LENGTH_LONG);
-                            toast.setGravity(Gravity.CENTER, 0, 0);
-                            toast.show();
+//                            Toast toast = Toast.makeText(getActivity(), getString(R.string.text_added_new_dict)+dictName, Toast.LENGTH_LONG);
+//                            toast.setGravity(Gravity.CENTER, 0, 0);
+//                            toast.show();
                         }
                     }
                 })

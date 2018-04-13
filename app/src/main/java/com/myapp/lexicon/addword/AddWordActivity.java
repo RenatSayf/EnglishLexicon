@@ -35,6 +35,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,7 +55,7 @@ import java.util.regex.Pattern;
 
 import static android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE;
 
-public class AddWordActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks
+public class AddWordActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks, NewDictDialog.INewDictDialogResult
 {
     private AutoCompleteTextView textViewEnter;
     private LinearLayout layoutLinkYa;
@@ -844,9 +845,38 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
                 fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.commit();
                 NewDictDialog newDictDialog = NewDictDialog.newInstance();
+                newDictDialog.setNewDictDialogListener(AddWordActivity.this);
                 newDictDialog.show(getSupportFragmentManager(), NewDictDialog.TAG);
 
             }
         });
+    }
+
+    @Override
+    public void newDictDialogResult(boolean res, String dictName)
+    {
+        if (res && !dictName.equals(""))
+        {
+            ArrayList<String> dictList = new ArrayList<>();
+            SpinnerAdapter oldAdapter = spinnerListDict.getAdapter();
+            dictList.add(dictName);
+            for (int i = 0; i < oldAdapter.getCount(); i++)
+            {
+                dictList.add(oldAdapter.getItem(i).toString());
+            }
+            ArrayAdapter<String> adapter= new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, dictList);
+            spinnerListDict.setAdapter(adapter);
+            spinnerListDict.setSelection(0);
+
+            Toast toast = Toast.makeText(this, getString(R.string.text_added_new_dict)+dictName, Toast.LENGTH_LONG);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.show();
+        }
+        else
+        {
+            Toast toast = Toast.makeText(this, getString(R.string.text_create_dict_fails), Toast.LENGTH_LONG);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.show();
+        }
     }
 }

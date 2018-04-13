@@ -184,6 +184,7 @@
     <string name="title_is_start_speech">Озвучивать при запуске</string>
     <string name="summary_is_start_speech">Озвучивать вступительную фразу при запуске приложения</string>
     <string name="btn_text_new">Новый</string>
+    <string name="text_create_dict_fails">Не удалось создать словарь</string>
 
 
 </resources>
