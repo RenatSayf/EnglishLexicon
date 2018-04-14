@@ -877,7 +877,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
         } catch (Exception e)
         {
             e.printStackTrace();
-            Toast toast = Toast.makeText(this, getString(R.string.text_create_dict_fails), Toast.LENGTH_LONG);
+            Toast toast = Toast.makeText(this, getString(R.string.text_create_dict_fails) + "\n" + e.getMessage(), Toast.LENGTH_LONG);
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
         }
