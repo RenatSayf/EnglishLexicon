@@ -35,7 +35,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -855,25 +854,29 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
     @Override
     public void newDictDialogResult(boolean res, String dictName)
     {
-        if (res && !dictName.equals(""))
+        try
         {
-            ArrayList<String> dictList = new ArrayList<>();
-            SpinnerAdapter oldAdapter = spinnerListDict.getAdapter();
-            dictList.add(dictName);
-            for (int i = 0; i < oldAdapter.getCount(); i++)
+            if (res && !dictName.equals(""))
             {
-                dictList.add(oldAdapter.getItem(i).toString());
-            }
-            ArrayAdapter<String> adapter= new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, dictList);
-            spinnerListDict.setAdapter(adapter);
-            spinnerListDict.setSelection(0);
+                ArrayAdapter adapter = (ArrayAdapter) spinnerListDict.getAdapter();
+                adapter.insert(dictName, 0);
+                spinnerListDict.setAdapter(adapter);
+                int position = ((ArrayAdapter) spinnerListDict.getAdapter()).getPosition(dictName);
+                spinnerListDict.setSelection(position);
 
-            Toast toast = Toast.makeText(this, getString(R.string.text_added_new_dict)+dictName, Toast.LENGTH_LONG);
-            toast.setGravity(Gravity.CENTER, 0, 0);
-            toast.show();
-        }
-        else
+                Toast toast = Toast.makeText(this, getString(R.string.text_added_new_dict)+dictName, Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
+            }
+            else
+            {
+                Toast toast = Toast.makeText(this, getString(R.string.text_create_dict_fails), Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
+            }
+        } catch (Exception e)
         {
+            e.printStackTrace();
             Toast toast = Toast.makeText(this, getString(R.string.text_create_dict_fails), Toast.LENGTH_LONG);
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
