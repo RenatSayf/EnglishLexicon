@@ -69,9 +69,6 @@ public class NewDictDialog extends android.support.v4.app.DialogFragment
                             {
                                 e.printStackTrace();
                             }
-//                            Toast toast = Toast.makeText(getActivity(), getString(R.string.text_added_new_dict)+dictName, Toast.LENGTH_LONG);
-//                            toast.setGravity(Gravity.CENTER, 0, 0);
-//                            toast.show();
                         }
                     }
                 })
