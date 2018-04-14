@@ -178,10 +178,12 @@
     <string name="translate_direct_en_ru">en-uk</string>
     <string name="translate_lang_en">en</string>
     <string name="text_settings">Параметри</string>
-    <string name="summary_service">Показувати слова розблокування екрану</string>
-    <string name="title_service">Фонова служба</string>
+    <string name="summary_service">Показувати чергове слово при кожному розблокуванні екрану</string>
+    <string name="title_service">При розблокуванні екрану</string>
     <string name="title_is_start_speech">Озвучувати при запуску</string>
     <string name="summary_is_start_speech">Озвучувати вступну фразу при запуску програми</string>
+    <string name="btn_text_new">Новий</string>
+    <string name="text_create_dict_fails">Не вдалося створити словник</string>
 
 
 </resources>

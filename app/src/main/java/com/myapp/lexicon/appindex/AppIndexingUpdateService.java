@@ -1,8 +1,9 @@
 package com.myapp.lexicon.appindex;
 
-import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
+import android.support.v4.app.JobIntentService;
 
 import com.google.firebase.appindexing.FirebaseAppIndex;
 import com.google.firebase.appindexing.Indexable;
@@ -15,15 +16,17 @@ import java.util.ArrayList;
  * Created by Renat.
  */
 
-public class AppIndexingService extends IntentService
+public class AppIndexingUpdateService extends JobIntentService
 {
-    public AppIndexingService()
+    private static final int UNIQUE_JOB_ID = 1335455442;
+
+    public static void enqueueWork(Context context)
     {
-        super("LexiconIndexingService");
+        enqueueWork(context, AppIndexingUpdateService.class, UNIQUE_JOB_ID, new Intent());
     }
 
     @Override
-    protected void onHandleIntent(@Nullable Intent intent)
+    protected void onHandleWork(@NonNull Intent intent)
     {
         ArrayList<Indexable> indexableNotes = new ArrayList<>();
 

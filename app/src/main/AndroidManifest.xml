@@ -38,7 +38,7 @@
                 <category android:name="android.intent.category.BROWSABLE"/>
 
                 <data
-                    android:host="com.myapp.lexicon"
+                    android:host="https://play.google.com/store/apps/details?id=com.myapp.lexicon"
                     android:pathPrefix="/lexicon"
                     android:scheme="http"/>
             </intent-filter>
@@ -48,7 +48,7 @@
             android:label="@string/app_name"
             android:parentActivityName=".main.SplashScreenActivity"
             android:theme="@style/AppTheme.NoActionBar"
-            tools:targetApi="jelly_bean">
+            >
             <intent-filter
                 android:autoVerify="true"
                 android:label="Английский изучай"
@@ -59,7 +59,7 @@
                 <category android:name="android.intent.category.BROWSABLE"/>
 
                 <data
-                    android:host="com.myapp.lexicon"
+                    android:host="https://play.google.com/store/apps/details?id=com.myapp.lexicon"
                     android:pathPrefix="/lexicon"
                     android:scheme="http"/>
             </intent-filter>
@@ -202,6 +202,21 @@
             android:exported="true"
             android:permission="">
         </service>
+    <service
+        android:name=".appindex.AppIndexingUpdateService"
+        android:enabled="true"
+        android:exported="true"
+        android:permission="android.permission.BIND_JOB_SERVICE">
+    </service>
+
+    <receiver android:name=".appindex.AppIndexingUpdateReceiver"
+        android:exported="true"
+        android:permission="com.google.android.gms.permission.APPINDEXING"
+        >
+        <intent-filter>
+            <action android:name="com.google.firebase.appindexing.UPDATE_INDEX"/>
+        </intent-filter>
+    </receiver>
 
     <receiver
         android:name=".service.BroadcastReceiverOnBootComplete"

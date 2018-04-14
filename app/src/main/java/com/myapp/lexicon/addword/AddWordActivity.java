@@ -1,5 +1,7 @@
 package com.myapp.lexicon.addword;
 
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.app.LoaderManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -40,6 +42,7 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.GetTableListLoader2;
+import com.myapp.lexicon.dialogs.NewDictDialog;
 import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.settings.AppData;
 
@@ -51,13 +54,13 @@ import java.util.regex.Pattern;
 
 import static android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE;
 
-public class AddWordActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks
+public class AddWordActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks, NewDictDialog.INewDictDialogResult
 {
     private AutoCompleteTextView textViewEnter;
     private LinearLayout layoutLinkYa;
     private TextView textViewLinkYandex;
     private EditText textViewResult;
-    private Button buttonTrans;
+    private Button buttonTrans, btnNewDict;
     private ProgressBar progressBar;
     private ProgressBar progressBarEn;
     private ProgressBar progressBarRu;
@@ -135,6 +138,8 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
         buttonClean1 = (ImageButton) findViewById(R.id.btn_clean1);
         buttonClean2 = (ImageButton) findViewById(R.id.btn_clean2);
         buttonClean_onClick();
+        btnNewDict = findViewById(R.id.btn_new_dict);
+        btnNewDict_onClick();
     }
 
     @Override
@@ -820,6 +825,61 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
                     });
                 }
             }
+        }
+    }
+
+    private void btnNewDict_onClick()
+    {
+        btnNewDict.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+                Fragment fragmentByTag = getFragmentManager().findFragmentByTag(NewDictDialog.TAG);
+                if (fragmentByTag != null)
+                {
+                    fragmentTransaction.remove(fragmentByTag);
+                }
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
+                NewDictDialog newDictDialog = NewDictDialog.newInstance();
+                newDictDialog.setNewDictDialogListener(AddWordActivity.this);
+                newDictDialog.show(getSupportFragmentManager(), NewDictDialog.TAG);
+
+            }
+        });
+    }
+
+    @Override
+    public void newDictDialogResult(boolean res, String dictName)
+    {
+        try
+        {
+            if (res && !dictName.equals(""))
+            {
+                ArrayAdapter adapter = (ArrayAdapter) spinnerListDict.getAdapter();
+                adapter.insert(dictName, 0);
+                spinnerListDict.setAdapter(adapter);
+                int position = ((ArrayAdapter) spinnerListDict.getAdapter()).getPosition(dictName);
+                spinnerListDict.setSelection(position);
+
+                Toast toast = Toast.makeText(this, getString(R.string.text_added_new_dict)+dictName, Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
+            }
+            else
+            {
+                Toast toast = Toast.makeText(this, getString(R.string.text_create_dict_fails), Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
+            }
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+            Toast toast = Toast.makeText(this, getString(R.string.text_create_dict_fails) + "\n" + e.getMessage(), Toast.LENGTH_LONG);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.show();
         }
     }
 }
