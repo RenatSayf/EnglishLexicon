@@ -10,23 +10,26 @@
         android:defaultValue="true"
         />
 
-    <CheckBoxPreference
-        android:key="service"
-        android:title="@string/title_service"
-        android:summary="@string/summary_service"
-        android:defaultValue="true"
-        />
+    <PreferenceCategory android:title="@string/title_service_group"
+        android:key="service_group">
+        <CheckBoxPreference
+            android:key="service"
+            android:title="@string/title_service"
+            android:summary="@string/summary_service"
+            android:defaultValue="true"
+            />
 
-    <ListPreference
-        android:key="list_display_mode"
-        android:title="@string/title_display_mode"
-        android:summary="@string/summary_display_mode"
-        android:entries="@array/display_mode"
-        android:entryValues="@array/display_values"
-        android:defaultValue="0"
-        >
+        <ListPreference
+            android:key="list_display_mode"
+            android:title="@string/title_display_mode"
+            android:summary="@string/summary_display_mode"
+            android:entries="@array/display_mode"
+            android:entryValues="@array/display_values"
+            android:defaultValue="0"
+            >
 
-    </ListPreference>
+        </ListPreference>
+    </PreferenceCategory>
 
 
 </PreferenceScreen>

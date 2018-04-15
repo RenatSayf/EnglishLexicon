@@ -179,7 +179,7 @@
     <string name="translate_lang_en">en</string>
     <string name="text_settings">Параметри</string>
     <string name="summary_service">Показувати чергове слово при кожному розблокуванні екрану</string>
-    <string name="title_service">При розблокуванні екрану</string>
+    <string name="title_service_group">При розблокуванні екрану</string>
     <string name="title_is_start_speech">Озвучувати при запуску</string>
     <string name="summary_is_start_speech">Озвучувати вступну фразу при запуску програми</string>
     <string name="btn_text_new">Новий</string>
@@ -187,6 +187,7 @@
 
     <string name="title_display_mode">Показувати слова в режимі:</string>
     <string name="summary_display_mode">Повтор</string>
+    <string name="title_service">Показувати слово</string>
 
     <string-array name="display_mode">
         <item>Повтор</item>

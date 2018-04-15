@@ -180,7 +180,7 @@
     <string name="translate_lang_en">en</string>
     <string name="text_settings">Настройки</string>
     <string name="summary_service">Показывать очередное слово при каждом разблокировании экрана</string>
-    <string name="title_service">При разблокировании экрана</string>
+    <string name="title_service_group">При разблокировании экрана</string>
     <string name="title_is_start_speech">Озвучивать при запуске</string>
     <string name="summary_is_start_speech">Озвучивать вступительную фразу при запуске приложения</string>
     <string name="btn_text_new">Новый</string>
@@ -188,6 +188,7 @@
 
     <string name="title_display_mode">Показывать слова в режиме:</string>
     <string name="summary_display_mode">Повтор</string>
+    <string name="title_service">Показывать слово</string>
 
     <string-array name="display_mode">
         <item>Повтор</item>
