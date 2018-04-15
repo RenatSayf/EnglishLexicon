@@ -185,5 +185,16 @@
     <string name="btn_text_new">Новий</string>
     <string name="text_create_dict_fails">Не вдалося створити словник</string>
 
+    <string name="title_display_mode">Показувати слова в режимі:</string>
+    <string name="summary_display_mode">Повтор</string>
+
+    <string-array name="display_mode">
+        <item>Повтор</item>
+        <item>Тест</item>
+    </string-array>
+    <string-array name="display_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
 
 </resources>

@@ -88,8 +88,6 @@
         android:textColor="@color/colorWhite"
         android:text="@string/text_en"/>
 
-
-
     <TextView
         android:id="@+id/ru_text_view"
         android:layout_width="match_parent"
