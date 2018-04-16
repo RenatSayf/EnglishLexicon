@@ -18,6 +18,7 @@ public class AppData
     private boolean isPause = false;
     private ListViewAdapter listViewAdapter;
     private String langCode;
+    private int serviceMode = 0;
 
     public static AppData getInstance()
     {
@@ -121,6 +122,16 @@ public class AppData
     public boolean testDeviceEnabled()
     {
         return false;
+    }
+
+    public int getServiceMode()
+    {
+        return serviceMode;
+    }
+
+    public void setServiceMode(int serviceMode)
+    {
+        this.serviceMode = serviceMode;
     }
 
 }

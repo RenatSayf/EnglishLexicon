@@ -188,6 +188,8 @@
     <string name="title_display_mode">Показувати слова в режимі:</string>
     <string name="summary_display_mode">Повтор</string>
     <string name="title_service">Показувати слово</string>
+    <string name="key_service">service</string>
+    <string name="key_list_display_mode">list_display_mode</string>
 
     <string-array name="display_mode">
         <item>Повтор</item>
