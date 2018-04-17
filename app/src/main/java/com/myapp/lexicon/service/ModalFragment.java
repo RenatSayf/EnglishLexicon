@@ -62,7 +62,7 @@ public class ModalFragment extends Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        final View fragmentView = inflater.inflate(R.layout.s_fragment_modal, container, false);
+        final View fragmentView = inflater.inflate(R.layout.s_repeat_modal_fragment, container, false);
 
         enTextView = fragmentView.findViewById(R.id.en_text_view);
         ruTextView = fragmentView.findViewById(R.id.ru_text_view);
