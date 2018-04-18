@@ -1,5 +1,6 @@
 package com.myapp.lexicon.database;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -24,6 +25,7 @@ public class GetTableListFragm extends Fragment
         // Required empty public constructor
     }
 
+    @SuppressLint("StaticFieldLeak")
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState)
     {
@@ -32,6 +34,7 @@ public class GetTableListFragm extends Fragment
 
         databaseHelper = new DatabaseHelper(getActivity());
         databaseHelper.create_db();
+
 
         AsyncTask<Void, Void, ArrayList<String>> asyncTask = new AsyncTask<Void, Void, ArrayList<String>>()
         {
@@ -53,9 +56,9 @@ public class GetTableListFragm extends Fragment
                     {
                         if (cursor.moveToFirst())
                         {
-                            while ( !cursor.isAfterLast() )
+                            while (!cursor.isAfterLast())
                             {
-                                nameNotDict = cursor.getString( cursor.getColumnIndex("name"));
+                                nameNotDict = cursor.getString(cursor.getColumnIndex("name"));
                                 if (!nameNotDict.equals(DatabaseHelper.TABLE_METADATA) && !nameNotDict.equals(DatabaseHelper.TABLE_SEQUENCE) && !nameNotDict.equals(DatabaseHelper.TABLE_API_KEY))
                                 {
                                     String table_name = cursor.getString(cursor.getColumnIndex("name"));
@@ -66,12 +69,10 @@ public class GetTableListFragm extends Fragment
                             }
                         }
                     }
-                }
-                catch (Exception e)
+                } catch (Exception e)
                 {
                     e.printStackTrace();
-                }
-                finally
+                } finally
                 {
                     if (cursor != null)
                     {
