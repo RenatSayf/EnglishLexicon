@@ -15,7 +15,6 @@ import android.widget.TextView;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.GetCountWordsAsync;
-import com.myapp.lexicon.database.GetEntriesAsyncFragm;
 import com.myapp.lexicon.database.GetEntriesFromDbAsync;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
 import com.myapp.lexicon.settings.AppData;
@@ -25,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 
-public class TestModalFragment extends Fragment implements GetEntriesAsyncFragm.OnGetEntriesFinishListener
+public class TestModalFragment extends Fragment
 {
     private AppSettings appSettings;
     private AppData appData;
@@ -35,6 +34,7 @@ public class TestModalFragment extends Fragment implements GetEntriesAsyncFragm.
     private CheckBox checkBoxRu;
     private TextView wordsNumberTV;
     private int wordsCount;
+    private ArrayList<DataBaseEntry> compareList;
 
     public TestModalFragment()
     {
@@ -69,37 +69,18 @@ public class TestModalFragment extends Fragment implements GetEntriesAsyncFragm.
         View fragmentView = inflater.inflate(R.layout.s_test_modal_fragment, container, false);
         enTextView = fragmentView.findViewById(R.id.en_text_view);
         ruBtn1 = fragmentView.findViewById(R.id.ru_btn_1);
+        ruBtn1_OnClick(ruBtn1);
         ruBtn2 = fragmentView.findViewById(R.id.ru_btn_2);
+        ruBtn2_OnClick(ruBtn2);
 
         TextView nameDictTV = fragmentView.findViewById(R.id.name_dict_tv);
         wordsNumberTV = fragmentView.findViewById(R.id.words_number_tv_modal_sv);
 
         final int wordNumber = appData.getNword();
         final int dictNumber = appData.getNdict();
-        String currentDict = appSettings.getPlayList().get(dictNumber);
+        final String currentDict = appSettings.getPlayList().get(dictNumber);
 
         nameDictTV.setText(currentDict);
-
-        GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), currentDict, wordNumber, wordNumber + 1, new GetEntriesFromDbAsync.GetEntriesListener()
-        {
-            @Override
-            public void getEntriesListener(ArrayList<DataBaseEntry> entries)
-            {
-                if (entries.size() > 0)
-                {
-                    RandomNumberGenerator numberGenerator = new RandomNumberGenerator(entries.size(), (int) new Date().getTime());
-                    int i = numberGenerator.generate();
-                    int j = numberGenerator.generate();
-                    enTextView.setText(entries.get(0).getEnglish());
-                    ruBtn1.setText(entries.get(i).getTranslate());
-                    ruBtn2.setText(entries.get(j).getTranslate());
-                }
-            }
-        });
-        if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
-        {
-            getEntriesFromDbAsync.execute();
-        }
 
         GetCountWordsAsync getCountWordsAsync = new GetCountWordsAsync(getActivity(), currentDict, new GetCountWordsAsync.GetCountListener()
         {
@@ -110,6 +91,36 @@ public class TestModalFragment extends Fragment implements GetEntriesAsyncFragm.
                 try
                 {
                     wordsNumberTV.setText(Integer.toString(wordNumber).concat(" / ").concat(Integer.toString(wordsCount)));
+
+                    int endId = wordNumber + 5;
+                    if (endId > wordsCount)
+                    {
+                        endId = wordsCount - wordNumber;
+                    }
+                    GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), currentDict, wordNumber, endId, new GetEntriesFromDbAsync.GetEntriesListener()
+                    {
+                        @Override
+                        public void getEntriesListener(ArrayList<DataBaseEntry> entries)
+                        {
+                            compareList = new ArrayList<>();
+                            compareList.add(entries.get(0));
+                            compareList.add(entries.get(entries.size() - 1));
+                            if (compareList.size() > 0)
+                            {
+                                RandomNumberGenerator numberGenerator = new RandomNumberGenerator(compareList.size(), (int) new Date().getTime());
+                                int i = numberGenerator.generate();
+                                int j = numberGenerator.generate();
+                                enTextView.setText(entries.get(0).getEnglish());
+                                ruBtn1.setText(compareList.get(i).getTranslate());
+                                ruBtn2.setText(compareList.get(j).getTranslate());
+                            }
+                        }
+                    });
+                    if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
+                    {
+                        getEntriesFromDbAsync.execute();
+                    }
+
                 } catch (Exception e)
                 {
                     wordsNumberTV.setText("???");
@@ -124,9 +135,51 @@ public class TestModalFragment extends Fragment implements GetEntriesAsyncFragm.
         return fragmentView;
     }
 
-    @Override
-    public void onGetEntriesFinish(ArrayList<DataBaseEntry> arrayList)
+
+    public void ruBtn1_OnClick(View view)
     {
-        return;
+        view.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                Button button = (Button) view;
+                String trnslate = button.getText().toString().toLowerCase();
+                String english = enTextView.getText().toString().toLowerCase();
+                compareWords(compareList, english, trnslate);
+
+            }
+        });
+    }
+
+    public void ruBtn2_OnClick(View view)
+    {
+        view.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                Button button = (Button) view;
+                String trnslate = button.getText().toString().toLowerCase();
+                String english = enTextView.getText().toString().toLowerCase();
+                compareWords(compareList, english, trnslate);
+            }
+        });
+    }
+
+    private boolean compareWords(ArrayList<DataBaseEntry> compareList, String english, String translate)
+    {
+        boolean result = false;
+        for (int i = 0; i < compareList.size(); i++)
+        {
+            String enText = compareList.get(i).getEnglish().toLowerCase();
+            String ruText = compareList.get(i).getTranslate().toLowerCase();
+            if (enText.equals(english.toLowerCase()) && ruText.equals(translate.toLowerCase()))
+            {
+                result = true;
+                break;
+            }
+        }
+        return result;
     }
 }
