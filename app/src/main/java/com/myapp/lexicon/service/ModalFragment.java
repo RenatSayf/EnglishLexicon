@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
@@ -21,12 +22,14 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.GetCountWordsAsync;
 import com.myapp.lexicon.database.GetEntriesFromDbAsync;
+import com.myapp.lexicon.helpers.RandomNumberGenerator;
 import com.myapp.lexicon.main.MainActivity;
 import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Locale;
 
 
@@ -54,13 +57,21 @@ public class ModalFragment extends Fragment
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        appSettings = new AppSettings(getContext());
-        appData = AppData.getInstance();
-        appData.initAllSettings(getActivity());
+        setRetainInstance(true);
+        if (getActivity() != null)
+        {
+            appSettings = new AppSettings(getActivity());
+            appData = AppData.getInstance();
+            appData.initAllSettings(getActivity());
+        } else
+        {
+            onDestroy();
+            onDetach();
+        }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         final View fragmentView = inflater.inflate(R.layout.s_repeat_modal_fragment, container, false);
 
@@ -165,8 +176,15 @@ public class ModalFragment extends Fragment
                         appData.setNdict(dictNumber);
                     }
                 }
-                appData.saveAllSettings(getActivity());
-                getActivity().finish();
+                if (getActivity() != null)
+                {
+                    appData.saveAllSettings(getActivity());
+                    getActivity().finish();
+                } else
+                {
+                    onDestroy();
+                    onDetach();
+                }
             }
         });
 
@@ -176,8 +194,11 @@ public class ModalFragment extends Fragment
             @Override
             public void onClick(View view)
             {
-                getActivity().startActivity(new Intent(getContext(), SplashScreenActivity.class));
-                getActivity().finish();
+                if (getActivity() != null)
+                {
+                    getActivity().startActivity(new Intent(getContext(), SplashScreenActivity.class));
+                    getActivity().finish();
+                }
             }
         });
 
