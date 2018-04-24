@@ -12,6 +12,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.myapp.lexicon.R;
@@ -120,7 +121,7 @@ public class TestModalFragment extends Fragment
                                     RandomNumberGenerator numberGenerator = new RandomNumberGenerator(compareList.size(), (int) new Date().getTime());
                                     int i = numberGenerator.generate();
                                     int j = numberGenerator.generate();
-                                    enTextView.setText(entries.get(wordNumber - 1).getEnglish());
+                                    enTextView.setText(compareList.get(0).getEnglish());
                                     ruBtn1.setText(compareList.get(i).getTranslate());
                                     ruBtn2.setText(compareList.get(j).getTranslate());
                                 }
@@ -142,6 +143,19 @@ public class TestModalFragment extends Fragment
         {
             getCountWordsAsync.execute();
         }
+
+        ImageButton btnClose = fragmentView.findViewById(R.id.modal_btn_close);
+        btnClose.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                if (getActivity() != null)
+                {
+                    getActivity().finish();
+                }
+            }
+        });
 
         return fragmentView;
     }
