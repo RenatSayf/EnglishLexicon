@@ -8,6 +8,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
@@ -146,8 +148,20 @@ public class TestModalFragment extends Fragment
                 Button button = (Button) view;
                 String trnslate = button.getText().toString().toLowerCase();
                 String english = enTextView.getText().toString().toLowerCase();
-                compareWords(compareList, english, trnslate);
-
+                boolean result = compareWords(compareList, english, trnslate);
+                if (result)
+                {
+                    if (getActivity() != null)
+                    {
+                        button.setBackgroundColor(getActivity().getResources().getColor(R.color.colorGreen));
+                        button.setTextColor(getActivity().getResources().getColor(R.color.colorWhite));
+                    }
+                    nextWord();
+                }
+                else
+                {
+                    noRightAnswerAnim(button);
+                }
             }
         });
     }
@@ -181,5 +195,76 @@ public class TestModalFragment extends Fragment
             }
         }
         return result;
+    }
+
+    private void nextWord()
+    {
+        int nextWord = appData.getNword() + 1;
+        if (appSettings.getPlayList().size() == 1)
+        {
+            if (nextWord > wordsCount)
+            {
+                appData.setNword(1);
+            } else if (nextWord <= wordsCount)
+            {
+                appData.setNword(nextWord);
+            }
+        }
+        if (appSettings.getPlayList().size() > 1)
+        {
+            int dictNumber = appData.getNdict();
+            if (nextWord > wordsCount)
+            {
+                appData.setNword(1);
+                appData.setNdict(dictNumber + 1);
+                if (appData.getNdict() > appSettings.getPlayList().size() - 1)
+                {
+                    appData.setNdict(0);
+                }
+            } else if (nextWord <= wordsCount)
+            {
+                appData.setNword(nextWord);
+                appData.setNdict(dictNumber);
+            }
+        }
+        if (getActivity() != null)
+        {
+            appData.saveAllSettings(getActivity());
+            getActivity().finish();
+        } else
+        {
+            onDestroy();
+            onDetach();
+        }
+    }
+
+    private void noRightAnswerAnim(final Button button)
+    {
+        Animation animNotRight = AnimationUtils.loadAnimation(getActivity(), R.anim.anim_not_right);
+        animNotRight.setAnimationListener(new Animation.AnimationListener()
+        {
+            @Override
+            public void onAnimationStart(Animation animation)
+            {
+                if (getActivity() != null)
+                {
+                    button.setBackgroundColor(getActivity().getResources().getColor(R.color.colorLightRed));
+                    button.setTextColor(getActivity().getResources().getColor(R.color.colorWhite));
+                }
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation)
+            {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation)
+            {
+
+            }
+        });
+        button.startAnimation(animNotRight);
     }
 }
