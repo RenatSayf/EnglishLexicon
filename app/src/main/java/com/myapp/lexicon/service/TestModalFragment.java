@@ -93,28 +93,37 @@ public class TestModalFragment extends Fragment
                 try
                 {
                     wordsNumberTV.setText(Integer.toString(wordNumber).concat(" / ").concat(Integer.toString(wordsCount)));
-
+                    int startId = wordNumber;
                     int endId = wordNumber + 5;
                     if (endId > wordsCount)
                     {
                         endId = wordsCount - wordNumber;
+                        if (endId < wordNumber)
+                        {
+                            int temp = endId;
+                            endId = wordNumber;
+                            startId = temp;
+                        }
                     }
-                    GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), currentDict, wordNumber, endId, new GetEntriesFromDbAsync.GetEntriesListener()
+                    GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), currentDict, startId, endId + 1, new GetEntriesFromDbAsync.GetEntriesListener()
                     {
                         @Override
                         public void getEntriesListener(ArrayList<DataBaseEntry> entries)
                         {
-                            compareList = new ArrayList<>();
-                            compareList.add(entries.get(0));
-                            compareList.add(entries.get(entries.size() - 1));
-                            if (compareList.size() > 0)
+                            if (entries != null && entries.size() > 0)
                             {
-                                RandomNumberGenerator numberGenerator = new RandomNumberGenerator(compareList.size(), (int) new Date().getTime());
-                                int i = numberGenerator.generate();
-                                int j = numberGenerator.generate();
-                                enTextView.setText(entries.get(0).getEnglish());
-                                ruBtn1.setText(compareList.get(i).getTranslate());
-                                ruBtn2.setText(compareList.get(j).getTranslate());
+                                compareList = new ArrayList<>();
+                                compareList.add(entries.get(0));
+                                compareList.add(entries.get(entries.size() - 1));
+                                if (compareList.size() > 0 && wordNumber > 0)
+                                {
+                                    RandomNumberGenerator numberGenerator = new RandomNumberGenerator(compareList.size(), (int) new Date().getTime());
+                                    int i = numberGenerator.generate();
+                                    int j = numberGenerator.generate();
+                                    enTextView.setText(entries.get(wordNumber - 1).getEnglish());
+                                    ruBtn1.setText(compareList.get(i).getTranslate());
+                                    ruBtn2.setText(compareList.get(j).getTranslate());
+                                }
                             }
                         }
                     });
@@ -151,12 +160,7 @@ public class TestModalFragment extends Fragment
                 boolean result = compareWords(compareList, english, trnslate);
                 if (result)
                 {
-                    if (getActivity() != null)
-                    {
-                        button.setBackgroundResource(R.drawable.btn_for_test_modal_green);
-                        button.setTextColor(getActivity().getResources().getColor(R.color.colorWhite));
-                    }
-                    nextWord();
+                    rightAnswerAnim(button);
                 }
                 else
                 {
@@ -179,12 +183,7 @@ public class TestModalFragment extends Fragment
                 boolean result = compareWords(compareList, english, trnslate);
                 if (result)
                 {
-                    if (getActivity() != null)
-                    {
-                        button.setBackgroundResource(R.drawable.btn_for_test_modal_green);
-                        button.setTextColor(getActivity().getResources().getColor(R.color.colorWhite));
-                    }
-                    nextWord();
+                    rightAnswerAnim(button);
                 }
                 else
                 {
@@ -197,15 +196,22 @@ public class TestModalFragment extends Fragment
     private boolean compareWords(ArrayList<DataBaseEntry> compareList, String english, String translate)
     {
         boolean result = false;
-        for (int i = 0; i < compareList.size(); i++)
+        if (compareList != null && compareList.size() > 0)
         {
-            String enText = compareList.get(i).getEnglish().toLowerCase();
-            String ruText = compareList.get(i).getTranslate().toLowerCase();
-            if (enText.equals(english.toLowerCase()) && ruText.equals(translate.toLowerCase()))
+            for (int i = 0; i < compareList.size(); i++)
             {
-                result = true;
-                break;
+                String enText = compareList.get(i).getEnglish().toLowerCase();
+                String ruText = compareList.get(i).getTranslate().toLowerCase();
+                if (enText.equals(english.toLowerCase()) && ruText.equals(translate.toLowerCase()))
+                {
+                    result = true;
+                    break;
+                }
             }
+        }
+        else
+        {
+            result = true;
         }
         return result;
     }
@@ -249,6 +255,41 @@ public class TestModalFragment extends Fragment
             onDestroy();
             onDetach();
         }
+    }
+
+    private void rightAnswerAnim(final Button button)
+    {
+        Animation animRight = AnimationUtils.loadAnimation(getActivity(), R.anim.anim_right);
+        animRight.setAnimationListener(new Animation.AnimationListener()
+        {
+            @Override
+            public void onAnimationStart(Animation animation)
+            {
+                if (getActivity() != null)
+                {
+                    button.setBackgroundResource(R.drawable.btn_for_test_modal_green);
+                    button.setTextColor(getActivity().getResources().getColor(R.color.colorWhite));
+                }
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation)
+            {
+                if (getActivity() != null)
+                {
+                    button.setBackgroundResource(R.drawable.btn_for_test_modal_transp);
+                    button.setTextColor(getActivity().getResources().getColor(R.color.colorLightGreen));
+                    nextWord();
+                }
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation)
+            {
+
+            }
+        });
+        button.startAnimation(animRight);
     }
 
     private void noRightAnswerAnim(final Button button)
