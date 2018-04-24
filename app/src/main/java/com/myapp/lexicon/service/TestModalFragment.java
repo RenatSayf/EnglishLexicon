@@ -153,7 +153,7 @@ public class TestModalFragment extends Fragment
                 {
                     if (getActivity() != null)
                     {
-                        button.setBackgroundColor(getActivity().getResources().getColor(R.color.colorGreen));
+                        button.setBackgroundResource(R.drawable.btn_for_test_modal_green);
                         button.setTextColor(getActivity().getResources().getColor(R.color.colorWhite));
                     }
                     nextWord();
@@ -176,7 +176,20 @@ public class TestModalFragment extends Fragment
                 Button button = (Button) view;
                 String trnslate = button.getText().toString().toLowerCase();
                 String english = enTextView.getText().toString().toLowerCase();
-                compareWords(compareList, english, trnslate);
+                boolean result = compareWords(compareList, english, trnslate);
+                if (result)
+                {
+                    if (getActivity() != null)
+                    {
+                        button.setBackgroundResource(R.drawable.btn_for_test_modal_green);
+                        button.setTextColor(getActivity().getResources().getColor(R.color.colorWhite));
+                    }
+                    nextWord();
+                }
+                else
+                {
+                    noRightAnswerAnim(button);
+                }
             }
         });
     }
@@ -248,7 +261,7 @@ public class TestModalFragment extends Fragment
             {
                 if (getActivity() != null)
                 {
-                    button.setBackgroundColor(getActivity().getResources().getColor(R.color.colorLightRed));
+                    button.setBackgroundResource(R.drawable.btn_for_test_modal_red);
                     button.setTextColor(getActivity().getResources().getColor(R.color.colorWhite));
                 }
             }
@@ -256,7 +269,11 @@ public class TestModalFragment extends Fragment
             @Override
             public void onAnimationEnd(Animation animation)
             {
-
+                if (getActivity() != null)
+                {
+                    button.setBackgroundResource(R.drawable.btn_for_test_modal_transp);
+                    button.setTextColor(getActivity().getResources().getColor(R.color.colorLightGreen));
+                }
             }
 
             @Override

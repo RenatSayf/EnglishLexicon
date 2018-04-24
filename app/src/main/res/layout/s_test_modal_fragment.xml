@@ -80,24 +80,35 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
         android:layout_marginTop="20dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
         android:layout_weight="6"
         android:gravity="center"
         android:text="@string/text_en"
         android:textColor="@color/colorWhite"
         android:textSize="26sp"
-        android:textStyle="normal|bold"/>
+        android:textStyle="normal|bold"
+        />
 
     <Button
         android:id="@+id/ru_btn_1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="5dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
         android:layout_weight="6"
         android:gravity="center"
         android:text="@string/text_ru"
         android:textColor="@color/colorLightGreen"
         android:textSize="26sp"
         android:textStyle="normal|bold"
+        android:background="@drawable/btn_for_test_modal_transp"
+        style="@style/Base.Widget.AppCompat.ButtonBar"
         />
 
     <Button
@@ -105,12 +116,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
         android:layout_weight="6"
         android:gravity="center"
         android:text="@string/text_ru"
         android:textColor="@color/colorLightGreen"
         android:textSize="26sp"
         android:textStyle="normal|bold"
+        android:background="@drawable/btn_for_test_modal_transp"
+        style="@style/Base.Widget.AppCompat.ButtonBar"
         />
 
     <LinearLayout
