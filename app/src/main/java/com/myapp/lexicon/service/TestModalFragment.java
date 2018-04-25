@@ -94,19 +94,16 @@ public class TestModalFragment extends Fragment
                 try
                 {
                     wordsNumberTV.setText(Integer.toString(wordNumber).concat(" / ").concat(Integer.toString(wordsCount)));
-                    int startId = wordNumber;
-                    int endId = wordNumber + 5;
-                    if (endId > wordsCount)
+                    int endId;
+
+                    RandomNumberGenerator numberGenerator = new RandomNumberGenerator(1, wordsCount, (int) new Date().getTime());
+                    endId = numberGenerator.generate();
+                    while (wordNumber == endId)
                     {
-                        endId = wordsCount - wordNumber;
-                        if (endId < wordNumber)
-                        {
-                            int temp = endId;
-                            endId = wordNumber;
-                            startId = temp;
-                        }
+                        endId = numberGenerator.generate();
                     }
-                    GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), currentDict, startId, endId + 1, new GetEntriesFromDbAsync.GetEntriesListener()
+                    int[] idArray = {wordNumber, endId};
+                    GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), currentDict, idArray, new GetEntriesFromDbAsync.GetEntriesListener()
                     {
                         @Override
                         public void getEntriesListener(ArrayList<DataBaseEntry> entries)

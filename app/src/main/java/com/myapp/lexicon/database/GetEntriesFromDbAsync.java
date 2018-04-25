@@ -19,9 +19,7 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
     private GetEntriesListener listener;
     private LockOrientation lockOrientation;
     private DatabaseHelper databaseHelper;
-    private String tableName;
-    private int startId;
-    private int endId;
+    private String cmd;
 
     public GetEntriesFromDbAsync(Activity activity, String tableName, int startId, int endId, GetEntriesListener listener)
     {
@@ -30,9 +28,44 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
         lockOrientation = new LockOrientation(this.activity);
         databaseHelper = new DatabaseHelper(this.activity);
         databaseHelper.create_db();
-        this.tableName = StringOperations.getInstance().spaceToUnderscore(tableName);
-        this.startId = startId;
-        this.endId = endId;
+        tableName =  StringOperations.getInstance().spaceToUnderscore(tableName);
+        this.cmd = "SELECT * FROM " + tableName + " WHERE RowID BETWEEN " + startId +" AND " + endId;
+    }
+
+    public GetEntriesFromDbAsync(Activity activity, String tableName, int[] rowId, GetEntriesListener listener)
+    {
+        setListener(listener);
+        this.activity = activity;
+        lockOrientation = new LockOrientation(this.activity);
+        databaseHelper = new DatabaseHelper(this.activity);
+        databaseHelper.create_db();
+        tableName = StringOperations.getInstance().spaceToUnderscore(tableName);
+        String idSequence = "";
+        for (int i = 0; i < rowId.length; i++)
+        {
+            int item = rowId[i];
+            if (i != rowId.length - 1)
+            {
+                idSequence = idSequence.concat(item + ",");
+            }
+            if (i == rowId.length - 1)
+            {
+                idSequence = idSequence.concat(item + "");
+            }
+        }
+        String orderBy = "";
+        if (rowId.length > 1)
+        {
+            if (rowId[1] > rowId[0])
+            {
+                orderBy = "ASC";
+            }
+            else if (rowId[0] > rowId[1])
+            {
+                orderBy = "DESC";
+            }
+        }
+        this.cmd = "SELECT * FROM " + tableName + " WHERE RowID IN(" + idSequence + ") ORDER BY Translate " + orderBy + ";";
     }
 
     public interface GetEntriesListener
@@ -52,6 +85,7 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
         if (activity != null)
         {
             lockOrientation.lock();
+            activity = null;
         }
     }
 
@@ -66,7 +100,7 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
             databaseHelper.open();
             if (databaseHelper.database.isOpen())
             {
-                cursor = databaseHelper.database.rawQuery("SELECT * FROM " + tableName + " WHERE RowID BETWEEN " + startId +" AND " + endId, null);
+                cursor = databaseHelper.database.rawQuery(cmd, null);
                 if (cursor.moveToFirst())
                 {
                     while (!cursor.isAfterLast())
@@ -92,6 +126,7 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
                 cursor.close();
             }
             databaseHelper.database.close();
+            activity = null;
         }
         return entriesFromDB;
     }
@@ -107,6 +142,7 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
         if (activity != null)
         {
             lockOrientation.unLock();
+            activity = null;
         }
     }
 
@@ -117,6 +153,7 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
         if (activity != null)
         {
             lockOrientation.unLock();
+            activity = null;
         }
     }
 }
