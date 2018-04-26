@@ -22,14 +22,12 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.GetCountWordsAsync;
 import com.myapp.lexicon.database.GetEntriesFromDbAsync;
-import com.myapp.lexicon.helpers.RandomNumberGenerator;
 import com.myapp.lexicon.main.MainActivity;
 import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Locale;
 
 
@@ -81,42 +79,46 @@ public class ModalFragment extends Fragment
         TextView nameDictTV = fragmentView.findViewById(R.id.name_dict_tv);
         wordsNumberTV = fragmentView.findViewById(R.id.words_number_tv_modal_sv);
 
-        final int wordNumber = appData.getNword();
+
         final int dictNumber = appData.getNdict();
-        String currentDict = appSettings.getPlayList().get(dictNumber);
+        final String currentDict = appSettings.getPlayList().get(dictNumber);
 
         nameDictTV.setText(currentDict);
 
-
-        GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), currentDict, wordNumber, wordNumber, new GetEntriesFromDbAsync.GetEntriesListener()
-        {
-            @Override
-            public void getEntriesListener(ArrayList<DataBaseEntry> entries)
-            {
-                if (entries.size() > 0)
-                {
-                    enTextView.setText(entries.get(0).getEnglish());
-                    ruTextView.setText(entries.get(0).getTranslate());
-                }
-            }
-        });
-        if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
-        {
-            getEntriesFromDbAsync.execute();
-        }
-
         GetCountWordsAsync getCountWordsAsync = new GetCountWordsAsync(getActivity(), currentDict, new GetCountWordsAsync.GetCountListener()
         {
+            int wordNumber = appData.getNword();
             @Override
             public void onTaskComplete(int count)
             {
                 wordsCount = count;
+                if (wordsCount < wordNumber)
+                {
+                    wordNumber = 1;
+                    appData.setNword(wordNumber);
+                }
                 try
                 {
                     wordsNumberTV.setText(Integer.toString(wordNumber).concat(" / ").concat(Integer.toString(wordsCount)));
                 } catch (Exception e)
                 {
                     wordsNumberTV.setText("???");
+                }
+                GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), currentDict, wordNumber, wordNumber, new GetEntriesFromDbAsync.GetEntriesListener()
+                {
+                    @Override
+                    public void getEntriesListener(ArrayList<DataBaseEntry> entries)
+                    {
+                        if (entries.size() > 0)
+                        {
+                            enTextView.setText(entries.get(0).getEnglish());
+                            ruTextView.setText(entries.get(0).getTranslate());
+                        }
+                    }
+                });
+                if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
+                {
+                    getEntriesFromDbAsync.execute();
                 }
             }
         });

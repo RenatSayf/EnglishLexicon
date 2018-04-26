@@ -65,7 +65,7 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
                 orderBy = "DESC";
             }
         }
-        this.cmd = "SELECT * FROM " + tableName + " WHERE RowID IN(" + idSequence + ") ORDER BY Translate " + orderBy + ";";
+        this.cmd = "SELECT * FROM " + tableName + " WHERE RowID IN(" + idSequence + ") ORDER BY RowId " + orderBy + ";";
     }
 
     public interface GetEntriesListener
