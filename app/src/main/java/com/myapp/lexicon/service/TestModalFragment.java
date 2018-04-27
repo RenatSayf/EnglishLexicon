@@ -1,17 +1,19 @@
 package com.myapp.lexicon.service;
 
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -20,6 +22,8 @@ import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.GetCountWordsAsync;
 import com.myapp.lexicon.database.GetEntriesFromDbAsync;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
+import com.myapp.lexicon.main.MainActivity;
+import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
@@ -34,7 +38,6 @@ public class TestModalFragment extends Fragment
     private TextView enTextView;
     private Button ruBtn1, ruBtn2;
 
-    private CheckBox checkBoxRu;
     private TextView wordsNumberTV;
     private int wordsCount;
     private ArrayList<DataBaseEntry> compareList;
@@ -79,6 +82,9 @@ public class TestModalFragment extends Fragment
         TextView nameDictTV = fragmentView.findViewById(R.id.name_dict_tv);
         wordsNumberTV = fragmentView.findViewById(R.id.words_number_tv_modal_sv);
 
+        ImageButton speakButton = fragmentView.findViewById(R.id.btn_sound_modal);
+        speakButton_OnClick(speakButton);
+
         final int wordNumber = appData.getNword();
         final int dictNumber = appData.getNdict();
         final String currentDict = appSettings.getPlayList().get(dictNumber);
@@ -93,7 +99,7 @@ public class TestModalFragment extends Fragment
                 wordsCount = count;
                 try
                 {
-                    wordsNumberTV.setText(Integer.toString(wordNumber).concat(" / ").concat(Integer.toString(wordsCount)));
+                    wordsNumberTV.setText((wordNumber + "").concat(" / ").concat(Integer.toString(wordsCount)));
                     int endId;
 
                     RandomNumberGenerator numberGenerator = new RandomNumberGenerator(1, wordsCount, (int) new Date().getTime());
@@ -154,9 +160,14 @@ public class TestModalFragment extends Fragment
             }
         });
 
+        Button btnOpenApp = fragmentView.findViewById(R.id.btn_open_app);
+        btnOpenApp_OnClick(btnOpenApp);
+
+        Button btnStopService = fragmentView.findViewById(R.id.btn_stop_service);
+        btnStopService_OnClick(btnStopService);
+
         return fragmentView;
     }
-
 
     public void ruBtn1_OnClick(View view)
     {
@@ -336,4 +347,60 @@ public class TestModalFragment extends Fragment
         });
         button.startAnimation(animNotRight);
     }
+
+    private void speakButton_OnClick(View view)
+    {
+        view.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                if (LexiconService.speech.isSpeaking())
+                {
+                    return;
+                }
+                String enText = enTextView.getText().toString();
+                if (!enText.equals(""))
+                {
+                    LexiconService.speech.speak(enText, TextToSpeech.QUEUE_ADD, LexiconService.map);
+                }
+            }
+        });
+    }
+
+    private void btnOpenApp_OnClick(View view)
+    {
+        view.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                if (getActivity() != null)
+                {
+                    getActivity().startActivity(new Intent(getContext(), SplashScreenActivity.class));
+                    getActivity().finish();
+                }
+            }
+        });
+    }
+
+    private void btnStopService_OnClick(Button button)
+    {
+        button.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                FragmentActivity activity = getActivity();
+                if (activity != null)
+                {
+                    LexiconService.isStop = true;
+                    activity.stopService(MainActivity.serviceIntent);
+                    activity.finish();
+                }
+            }
+        });
+    }
+
+
 }

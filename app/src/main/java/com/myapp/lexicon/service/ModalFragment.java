@@ -99,7 +99,7 @@ public class ModalFragment extends Fragment
                 }
                 try
                 {
-                    wordsNumberTV.setText(Integer.toString(wordNumber).concat(" / ").concat(Integer.toString(wordsCount)));
+                    wordsNumberTV.setText((wordNumber + "").concat(" / ").concat(Integer.toString(wordsCount)));
                 } catch (Exception e)
                 {
                     wordsNumberTV.setText("???");

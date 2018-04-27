@@ -15,7 +15,6 @@ import java.util.ArrayList;
 
 public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<DataBaseEntry>>
 {
-    private Activity activity;
     private GetEntriesListener listener;
     private LockOrientation lockOrientation;
     private DatabaseHelper databaseHelper;
@@ -24,9 +23,8 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
     public GetEntriesFromDbAsync(Activity activity, String tableName, int startId, int endId, GetEntriesListener listener)
     {
         setListener(listener);
-        this.activity = activity;
-        lockOrientation = new LockOrientation(this.activity);
-        databaseHelper = new DatabaseHelper(this.activity);
+        lockOrientation = new LockOrientation(activity);
+        databaseHelper = new DatabaseHelper(activity);
         databaseHelper.create_db();
         tableName =  StringOperations.getInstance().spaceToUnderscore(tableName);
         this.cmd = "SELECT * FROM " + tableName + " WHERE RowID BETWEEN " + startId +" AND " + endId;
@@ -35,9 +33,8 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
     public GetEntriesFromDbAsync(Activity activity, String tableName, int[] rowId, GetEntriesListener listener)
     {
         setListener(listener);
-        this.activity = activity;
-        lockOrientation = new LockOrientation(this.activity);
-        databaseHelper = new DatabaseHelper(this.activity);
+        lockOrientation = new LockOrientation(activity);
+        databaseHelper = new DatabaseHelper(activity);
         databaseHelper.create_db();
         tableName = StringOperations.getInstance().spaceToUnderscore(tableName);
         String idSequence = "";
@@ -81,12 +78,7 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
     @Override
     protected void onPreExecute()
     {
-        super.onPreExecute();
-        if (activity != null)
-        {
-            lockOrientation.lock();
-            activity = null;
-        }
+        lockOrientation.lock();
     }
 
     @Override
@@ -126,7 +118,6 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
                 cursor.close();
             }
             databaseHelper.database.close();
-            activity = null;
         }
         return entriesFromDB;
     }
@@ -139,21 +130,13 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
         {
             listener.getEntriesListener(entries);
         }
-        if (activity != null)
-        {
-            lockOrientation.unLock();
-            activity = null;
-        }
+        lockOrientation.unLock();
     }
 
     @Override
     protected void onCancelled()
     {
         super.onCancelled();
-        if (activity != null)
-        {
-            lockOrientation.unLock();
-            activity = null;
-        }
+        lockOrientation.unLock();
     }
 }
