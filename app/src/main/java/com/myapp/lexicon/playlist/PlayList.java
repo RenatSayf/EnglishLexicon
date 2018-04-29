@@ -17,13 +17,12 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.database.GetTableListLoader;
 import com.myapp.lexicon.helpers.StringOperations;
-import com.myapp.lexicon.main.MainBannerFragment;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.ArrayList;
 
-public class PlayList extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>
+public class PlayList extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, ListViewAdapter.IPlayListChangeListener, AppSettings.ICurrentDictChanged
 {
     private ListView listViewDict;
     private ListViewAdapter lictViewAdapter;
@@ -48,6 +47,7 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
         }
 
         appSettings = new AppSettings(PlayList.this);
+        appSettings.setCurrentDictChangeListener(PlayList.this);
 
         if (databaseHelper == null)
         {
@@ -95,19 +95,29 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
             listViewDict.setAdapter(lictViewAdapter);
         }
 
-        listViewDict.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
-        {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
-            {
+//        listViewDict.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
+//        {
+//            @Override
+//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+//            {
+//                return;
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> parent)
+//            {
+//            }
+//        });
+//
+//        listViewDict.setOnItemClickListener(new AdapterView.OnItemClickListener()
+//        {
+//            @Override
+//            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l)
+//            {
+//                return;
+//            }
+//        });
 
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent)
-            {
-            }
-        });
         getLoaderManager().initLoader(LOADER_GET_TABLE_LIST, savedInstanceState, this);
 
         if (savedInstanceState == null)
@@ -190,12 +200,6 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
         }
     }
 
-    public void onClickCheckBoxItem(View view)
-    {
-        lictViewAdapter = new ListViewAdapter(playList, PlayList.this);
-        listViewDict.setAdapter(lictViewAdapter);
-    }
-
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args)
     {
@@ -262,5 +266,33 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
     public void onLoaderReset(Loader<Cursor> loader)
     {
 
+    }
+
+    @Override
+    public void onPlayListChanged(ArrayList<String> list)
+    {
+        try
+        {
+            String newCurrentDict = playList.get(AppData.getInstance().getNdict());
+        } catch (Exception e)
+        {
+            if (list.size() > 0)
+            {
+                AppData.getInstance().setNdict(0);
+            }
+        }
+        lictViewAdapter = new ListViewAdapter(list, PlayList.this);
+        listViewDict.setAdapter(lictViewAdapter);
+
+
+        appSettings.savePlayList(list);
+        appSettings.setDictNumber(AppData.getInstance().getNdict());
+    }
+
+    @Override
+    public void currentDictOnChanged(String dictName)
+    {
+        //String currentDict = playList.get(AppData.getInstance().getNdict());
+        return;
     }
 }

@@ -33,6 +33,7 @@ public class AppSettings
     private final String KEY_TRANS_LANG_LIST = "trans_lang_list";
 
     private ArrayList<String> transLangList;
+    private ICurrentDictChanged iCurrentDictChanged;
 
     public AppSettings(Context context)
     {
@@ -105,11 +106,13 @@ public class AppSettings
             while (appData.getNdict() > list.size()-1)
             {
                 appData.setNdict(appData.getNdict()-1);
+                setDictNumber(appData.getNdict() - 1);
                 appData.setNword(1);
             }
             if (appData.getNdict() < 0)
             {
                 appData.setNdict(0);
+                setDictNumber(0);
                 appData.setNword(1);
             }
         }
@@ -203,9 +206,34 @@ public class AppSettings
         return context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getInt(KEY_N_WORD, 1);
     }
 
+    public interface ICurrentDictChanged
+    {
+        void currentDictOnChanged(String dictName);
+    }
+
+    public void setCurrentDictChangeListener(Context context)
+    {
+        iCurrentDictChanged = (ICurrentDictChanged) context;
+    }
+
     public void setDictNumber(int number)
     {
         context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putInt(KEY_N_DICT, number).apply();
+        ArrayList<String> list = getPlayList();
+        if (list != null && list.size() > 0)
+        {
+            try
+            {
+                setCurrentDict(list.get(number));
+            } catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+            if (iCurrentDictChanged != null)
+            {
+                iCurrentDictChanged.currentDictOnChanged(list.get(number));
+            }
+        }
     }
 
     public int getDictNumber()
@@ -213,7 +241,7 @@ public class AppSettings
         return context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getInt(KEY_N_DICT, 0);
     }
 
-    public void setCurrentDict(String name)
+    private void setCurrentDict(String name)
     {
         context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putString(KEY_CURRENT_DICT, name).apply();
     }

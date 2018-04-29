@@ -1,7 +1,6 @@
 package com.myapp.lexicon.playlist;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,8 +14,6 @@ import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.ArrayList;
 
-import static android.content.Context.MODE_PRIVATE;
-
 /**
  * Created by Ренат on 05.04.2016.
  */
@@ -25,12 +22,14 @@ public class ListViewAdapter extends BaseAdapter
     private Context context;
     private ArrayList<String> list;
     private AppSettings appSettings;
+    private IPlayListChangeListener listener;
 
-    public ListViewAdapter(ArrayList<String> list, Context context)
+    ListViewAdapter(ArrayList<String> list, Context context)
     {
         this.list = list;
         this.context = context;
         appSettings = new AppSettings(this.context);
+        this.listener = (IPlayListChangeListener) context;
     }
     @Override
     public int getCount()
@@ -59,11 +58,21 @@ public class ListViewAdapter extends BaseAdapter
             dictView= LayoutInflater.from(context).inflate(R.layout.p_listview_item, null);
         }
         final String item =  this.list.get(position);
-        TextView dictName = (TextView) dictView.findViewById(R.id.textView_item);
+        TextView dictName = dictView.findViewById(R.id.textView_item);
         dictName.setText(item);
 
-        final CheckBox isSelected = (CheckBox) dictView.findViewById(R.id.checkBox_item);
+        final CheckBox isSelected = dictView.findViewById(R.id.checkBox_item);
         isSelected.setChecked(true);
+
+        dictName.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                isSelected.setChecked(false);
+            }
+        });
+
         isSelected.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
         {
             @Override
@@ -71,11 +80,21 @@ public class ListViewAdapter extends BaseAdapter
             {
                 if (!isChecked)
                 {
-                    appSettings.removeItemFromPlayList(list, position);
+                    //appSettings.removeItemFromPlayList(list, position);
+                    list.remove(position);
+                    if (listener != null)
+                    {
+                        listener.onPlayListChanged(list);
+                    }
                 }
             }
         });
         return dictView;
+    }
+
+    public interface IPlayListChangeListener
+    {
+        void onPlayListChanged(ArrayList<String> list);
     }
 
 }
