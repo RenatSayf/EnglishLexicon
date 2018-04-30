@@ -33,7 +33,6 @@ public class AppSettings
     private final String KEY_TRANS_LANG_LIST = "trans_lang_list";
 
     private ArrayList<String> transLangList;
-    private ICurrentDictChanged iCurrentDictChanged;
 
     public AppSettings(Context context)
     {
@@ -69,7 +68,7 @@ public class AppSettings
 
     /**
      * set the russian speech in the modal window
-     * @param isEngOnly
+     * @param isEngOnly true
      */
     public void setRuSpeechInModal(boolean isEngOnly)
     {
@@ -116,7 +115,7 @@ public class AppSettings
                 appData.setNword(1);
             }
         }
-        else if (list != null && list.size() == 0)
+        else if (list != null)
         {
             AppData appData = AppData.getInstance();
             appData.setNdict(0);
@@ -206,21 +205,11 @@ public class AppSettings
         return context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getInt(KEY_N_WORD, 1);
     }
 
-    public interface ICurrentDictChanged
-    {
-        void currentDictOnChanged(String dictName);
-    }
-
-    public void setCurrentDictChangeListener(Context context)
-    {
-        iCurrentDictChanged = (ICurrentDictChanged) context;
-    }
-
     public void setDictNumber(int number)
     {
         context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putInt(KEY_N_DICT, number).apply();
         ArrayList<String> list = getPlayList();
-        if (list != null && list.size() > 0)
+        if (list != null && list.size() > 0 && number >= 0)
         {
             try
             {
@@ -229,10 +218,10 @@ public class AppSettings
             {
                 e.printStackTrace();
             }
-            if (iCurrentDictChanged != null)
-            {
-                iCurrentDictChanged.currentDictOnChanged(list.get(number));
-            }
+//            if (iCurrentDictChanged != null && number >= 0)
+//            {
+//                iCurrentDictChanged.currentDictOnChanged(list.get(number));
+//            }
         }
     }
 

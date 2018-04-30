@@ -22,7 +22,7 @@ import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.ArrayList;
 
-public class PlayList extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, ListViewAdapter.IPlayListChangeListener, AppSettings.ICurrentDictChanged
+public class PlayList extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, ListViewAdapter.IPlayListChangeListener
 {
     private ListView listViewDict;
     private ListViewAdapter lictViewAdapter;
@@ -38,7 +38,7 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.p_layout_play_list);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         if (getSupportActionBar() != null)
@@ -47,7 +47,6 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
         }
 
         appSettings = new AppSettings(PlayList.this);
-        appSettings.setCurrentDictChangeListener(PlayList.this);
 
         if (databaseHelper == null)
         {
@@ -55,8 +54,8 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
             databaseHelper.create_db();
         }
 
-        listViewDict = (ListView) findViewById(R.id.listView_playList);
-        Spinner spinneOrderPlay = (Spinner) findViewById(R.id.spinner_order_play);
+        listViewDict = findViewById(R.id.listView_playList);
+        Spinner spinneOrderPlay = findViewById(R.id.spinner_order_play);
         if (spinneOrderPlay != null)
         {
             spinneOrderPlay.setSelection(appSettings.getOrderPlay());
@@ -94,29 +93,6 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
             lictViewAdapter = new ListViewAdapter(playList, PlayList.this);
             listViewDict.setAdapter(lictViewAdapter);
         }
-
-//        listViewDict.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
-//        {
-//            @Override
-//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
-//            {
-//                return;
-//            }
-//
-//            @Override
-//            public void onNothingSelected(AdapterView<?> parent)
-//            {
-//            }
-//        });
-//
-//        listViewDict.setOnItemClickListener(new AdapterView.OnItemClickListener()
-//        {
-//            @Override
-//            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l)
-//            {
-//                return;
-//            }
-//        });
 
         getLoaderManager().initLoader(LOADER_GET_TABLE_LIST, savedInstanceState, this);
 
@@ -274,25 +250,21 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
         try
         {
             String newCurrentDict = playList.get(AppData.getInstance().getNdict());
+            String oldCurrentDict = appSettings.getCurrentDict();
+            if (!oldCurrentDict.equals(newCurrentDict))
+            {
+                AppData.getInstance().setNword(1);
+                appSettings.setWordNumber(1);
+            }
         } catch (Exception e)
         {
-            if (list.size() > 0)
-            {
-                AppData.getInstance().setNdict(0);
-            }
+            e.printStackTrace();
         }
         lictViewAdapter = new ListViewAdapter(list, PlayList.this);
         listViewDict.setAdapter(lictViewAdapter);
-
 
         appSettings.savePlayList(list);
         appSettings.setDictNumber(AppData.getInstance().getNdict());
     }
 
-    @Override
-    public void currentDictOnChanged(String dictName)
-    {
-        //String currentDict = playList.get(AppData.getInstance().getNdict());
-        return;
-    }
 }
