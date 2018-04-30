@@ -41,6 +41,7 @@ public class TestModalFragment extends Fragment
     private TextView wordsNumberTV;
     private int wordsCount;
     private ArrayList<DataBaseEntry> compareList;
+    private int repeatCount;
 
     public TestModalFragment()
     {
@@ -85,14 +86,39 @@ public class TestModalFragment extends Fragment
         ImageButton speakButton = fragmentView.findViewById(R.id.btn_sound_modal);
         speakButton_OnClick(speakButton);
 
-        final int wordNumber = appData.getNword();
-        final int dictNumber = appData.getNdict();
-        final String currentDict = appSettings.getPlayList().get(dictNumber);
+        final String currentDict = appSettings.getPlayList().get(appData.getNdict());
 
         nameDictTV.setText(currentDict);
 
+        getWordsFromDB(currentDict);
+
+        ImageButton btnClose = fragmentView.findViewById(R.id.modal_btn_close);
+        btnClose.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                if (getActivity() != null)
+                {
+                    getActivity().finish();
+                }
+            }
+        });
+
+        Button btnOpenApp = fragmentView.findViewById(R.id.btn_open_app);
+        btnOpenApp_OnClick(btnOpenApp);
+
+        Button btnStopService = fragmentView.findViewById(R.id.btn_stop_service);
+        btnStopService_OnClick(btnStopService);
+
+        return fragmentView;
+    }
+
+    private void getWordsFromDB(final String currentDict)
+    {
         GetCountWordsAsync getCountWordsAsync = new GetCountWordsAsync(getActivity(), currentDict, new GetCountWordsAsync.GetCountListener()
         {
+            int wordNumber = appData.getNword();
             @Override
             public void onTaskComplete(int count)
             {
@@ -116,6 +142,20 @@ public class TestModalFragment extends Fragment
                         {
                             if (entries != null && entries.size() > 0)
                             {
+                                try
+                                {
+                                    repeatCount = Integer.parseInt(entries.get(0).getCountRepeat());
+                                } catch (NumberFormatException e)
+                                {
+                                    repeatCount = 1;
+                                }
+                                if (repeatCount == 0)
+                                {
+                                    nextWord();
+                                    getWordsFromDB(currentDict);
+                                    return;
+                                }
+
                                 compareList = new ArrayList<>();
                                 compareList.add(entries.get(0));
                                 compareList.add(entries.get(entries.size() - 1));
@@ -146,27 +186,6 @@ public class TestModalFragment extends Fragment
         {
             getCountWordsAsync.execute();
         }
-
-        ImageButton btnClose = fragmentView.findViewById(R.id.modal_btn_close);
-        btnClose.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-                if (getActivity() != null)
-                {
-                    getActivity().finish();
-                }
-            }
-        });
-
-        Button btnOpenApp = fragmentView.findViewById(R.id.btn_open_app);
-        btnOpenApp_OnClick(btnOpenApp);
-
-        Button btnStopService = fragmentView.findViewById(R.id.btn_stop_service);
-        btnStopService_OnClick(btnStopService);
-
-        return fragmentView;
     }
 
     public void ruBtn1_OnClick(View view)
@@ -268,15 +287,15 @@ public class TestModalFragment extends Fragment
                 appData.setNdict(dictNumber);
             }
         }
-        if (getActivity() != null)
-        {
-            appData.saveAllSettings(getActivity());
-            getActivity().finish();
-        } else
-        {
-            onDestroy();
-            onDetach();
-        }
+//        if (getActivity() != null)
+//        {
+//            appData.saveAllSettings(getActivity());
+//            getActivity().finish();
+//        } else
+//        {
+//            onDestroy();
+//            onDetach();
+//        }
     }
 
     private void rightAnswerAnim(final Button button)
@@ -301,7 +320,29 @@ public class TestModalFragment extends Fragment
                 {
                     button.setBackgroundResource(R.drawable.btn_for_test_modal_transp);
                     button.setTextColor(getActivity().getResources().getColor(R.color.colorLightGreen));
-                    nextWord();
+
+                    if (AppData.getInstance().getDoneRepeat() >= repeatCount)
+                    {
+                        AppData.getInstance().setDoneRepeat(1);
+                        nextWord();
+                    }
+                    else
+                    {
+                        AppData.getInstance().setDoneRepeat(AppData.getInstance().getDoneRepeat() + 1);
+                    }
+
+                    if (getActivity() != null)
+                    {
+
+                        appData.saveAllSettings(getActivity());
+                        getActivity().finish();
+                    } else
+                    {
+                        onDestroy();
+                        onDetach();
+                    }
+
+                    //nextWord();
                 }
             }
 
