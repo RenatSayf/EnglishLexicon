@@ -19,6 +19,7 @@ public class AppData
     private ListViewAdapter listViewAdapter;
     private String langCode;
     private int serviceMode = 0;
+    private int doneRepeat = 1;
 
     public static AppData getInstance()
     {
@@ -134,4 +135,13 @@ public class AppData
         this.serviceMode = serviceMode;
     }
 
+    public int getDoneRepeat()
+    {
+        return doneRepeat;
+    }
+
+    public void setDoneRepeat(int doneRepeat)
+    {
+        this.doneRepeat = doneRepeat;
+    }
 }

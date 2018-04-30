@@ -97,7 +97,7 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
                 {
                     while (!cursor.isAfterLast())
                     {
-                        dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1));
+                        dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1), cursor.getString(3));
                         entriesFromDB.add(dataBaseEntry);
                         cursor.moveToNext();
                     }

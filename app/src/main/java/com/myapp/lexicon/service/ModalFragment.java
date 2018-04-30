@@ -40,6 +40,7 @@ public class ModalFragment extends Fragment
     private CheckBox checkBoxRu;
     private TextView wordsNumberTV;
     private int wordsCount;
+    private int repeatCount;
 
     public ModalFragment()
     {
@@ -79,54 +80,12 @@ public class ModalFragment extends Fragment
         TextView nameDictTV = fragmentView.findViewById(R.id.name_dict_tv);
         wordsNumberTV = fragmentView.findViewById(R.id.words_number_tv_modal_sv);
 
-
         final int dictNumber = appData.getNdict();
         final String currentDict = appSettings.getPlayList().get(dictNumber);
 
         nameDictTV.setText(currentDict);
 
-        GetCountWordsAsync getCountWordsAsync = new GetCountWordsAsync(getActivity(), currentDict, new GetCountWordsAsync.GetCountListener()
-        {
-            int wordNumber = appData.getNword();
-            @Override
-            public void onTaskComplete(int count)
-            {
-                wordsCount = count;
-                if (wordsCount < wordNumber)
-                {
-                    wordNumber = 1;
-                    appData.setNword(wordNumber);
-                }
-                try
-                {
-                    wordsNumberTV.setText((wordNumber + "").concat(" / ").concat(Integer.toString(wordsCount)));
-                } catch (Exception e)
-                {
-                    wordsNumberTV.setText("???");
-                }
-                GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), currentDict, wordNumber, wordNumber, new GetEntriesFromDbAsync.GetEntriesListener()
-                {
-                    @Override
-                    public void getEntriesListener(ArrayList<DataBaseEntry> entries)
-                    {
-                        if (entries.size() > 0)
-                        {
-                            enTextView.setText(entries.get(0).getEnglish());
-                            ruTextView.setText(entries.get(0).getTranslate());
-                        }
-                    }
-                });
-                if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
-                {
-                    getEntriesFromDbAsync.execute();
-                }
-            }
-        });
-        if (getCountWordsAsync.getStatus() != AsyncTask.Status.RUNNING)
-        {
-            getCountWordsAsync.execute();
-        }
-
+        getWordsFromDB(currentDict);
 
         Button btnStop = fragmentView.findViewById(R.id.btn_stop_service);
         btnStop.setOnClickListener(new View.OnClickListener()
@@ -150,36 +109,18 @@ public class ModalFragment extends Fragment
             @Override
             public void onClick(View view)
             {
-                int nextWord = appData.getNword() + 1;
-                if (appSettings.getPlayList().size() == 1)
+                if (AppData.getInstance().getDoneRepeat() >= repeatCount)
                 {
-                    if (nextWord > wordsCount)
-                    {
-                        appData.setNword(1);
-                    } else if (nextWord <= wordsCount)
-                    {
-                        appData.setNword(nextWord);
-                    }
+                    AppData.getInstance().setDoneRepeat(1);
+                    nextWord();
                 }
-                if (appSettings.getPlayList().size() > 1)
+                else
                 {
-                    int dictNumber = appData.getNdict();
-                    if (nextWord > wordsCount)
-                    {
-                        appData.setNword(1);
-                        appData.setNdict(dictNumber + 1);
-                        if (appData.getNdict() > appSettings.getPlayList().size() - 1)
-                        {
-                            appData.setNdict(0);
-                        }
-                    } else if (nextWord <= wordsCount)
-                    {
-                        appData.setNword(nextWord);
-                        appData.setNdict(dictNumber);
-                    }
+                    AppData.getInstance().setDoneRepeat(AppData.getInstance().getDoneRepeat() + 1);
                 }
                 if (getActivity() != null)
                 {
+
                     appData.saveAllSettings(getActivity());
                     getActivity().finish();
                 } else
@@ -212,6 +153,95 @@ public class ModalFragment extends Fragment
         checkBoxRu_OnCheckedChange(checkBoxRu);
 
         return fragmentView;
+    }
+
+    private void getWordsFromDB(final String currentDict)
+    {
+        final GetCountWordsAsync getCountWordsAsync = new GetCountWordsAsync(getActivity(), currentDict, new GetCountWordsAsync.GetCountListener()
+        {
+            int wordNumber = appData.getNword();
+            @Override
+            public void onTaskComplete(int count)
+            {
+                wordsCount = count;
+                if (wordsCount < wordNumber)
+                {
+                    wordNumber = 1;
+                    appData.setNword(wordNumber);
+                }
+                try
+                {
+                    wordsNumberTV.setText((wordNumber + "").concat(" / ").concat(Integer.toString(wordsCount)));
+                } catch (Exception e)
+                {
+                    wordsNumberTV.setText("???");
+                }
+                final GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), currentDict, wordNumber, wordNumber, new GetEntriesFromDbAsync.GetEntriesListener()
+                {
+                    @Override
+                    public void getEntriesListener(ArrayList<DataBaseEntry> entries)
+                    {
+                        if (entries.size() > 0)
+                        {
+                            try
+                            {
+                                repeatCount = Integer.parseInt(entries.get(0).getCountRepeat());
+                            } catch (NumberFormatException e)
+                            {
+                                repeatCount = 1;
+                            }
+                            if (repeatCount == 0)
+                            {
+                                nextWord();
+                                getWordsFromDB(currentDict);
+                            }
+                            enTextView.setText(entries.get(0).getEnglish());
+                            ruTextView.setText(entries.get(0).getTranslate());
+                        }
+                    }
+                });
+                if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
+                {
+                    getEntriesFromDbAsync.execute();
+                }
+            }
+        });
+        if (getCountWordsAsync.getStatus() != AsyncTask.Status.RUNNING)
+        {
+            getCountWordsAsync.execute();
+        }
+    }
+
+    private void nextWord()
+    {
+        int nextWord = appData.getNword() + 1;
+        if (appSettings.getPlayList().size() == 1)
+        {
+            if (nextWord > wordsCount)
+            {
+                appData.setNword(1);
+            } else if (nextWord <= wordsCount)
+            {
+                appData.setNword(nextWord);
+            }
+        }
+        if (appSettings.getPlayList().size() > 1)
+        {
+            int dictNumber = appData.getNdict();
+            if (nextWord > wordsCount)
+            {
+                appData.setNword(1);
+                appData.setNdict(dictNumber + 1);
+                if (appData.getNdict() > appSettings.getPlayList().size() - 1)
+                {
+                    appData.setNdict(0);
+                }
+            } else if (nextWord <= wordsCount)
+            {
+                appData.setNword(nextWord);
+                appData.setNdict(dictNumber);
+            }
+        }
     }
 
     private void checkBoxRu_OnCheckedChange(CheckBox checkBoxRu)
