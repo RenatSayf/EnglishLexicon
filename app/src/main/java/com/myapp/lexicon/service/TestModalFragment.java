@@ -14,6 +14,8 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -42,6 +44,7 @@ public class TestModalFragment extends Fragment
     private int wordsCount;
     private ArrayList<DataBaseEntry> compareList;
     private int repeatCount;
+    private boolean wordIsStudied = false;
 
     public TestModalFragment()
     {
@@ -110,6 +113,8 @@ public class TestModalFragment extends Fragment
 
         Button btnStopService = fragmentView.findViewById(R.id.btn_stop_service);
         btnStopService_OnClick(btnStopService);
+
+        checkStudied_OnCheckedChange((CheckBox) fragmentView.findViewById(R.id.check_box_studied));
 
         return fragmentView;
     }
@@ -287,15 +292,6 @@ public class TestModalFragment extends Fragment
                 appData.setNdict(dictNumber);
             }
         }
-//        if (getActivity() != null)
-//        {
-//            appData.saveAllSettings(getActivity());
-//            getActivity().finish();
-//        } else
-//        {
-//            onDestroy();
-//            onDetach();
-//        }
     }
 
     private void rightAnswerAnim(final Button button)
@@ -310,6 +306,11 @@ public class TestModalFragment extends Fragment
                 {
                     button.setBackgroundResource(R.drawable.btn_for_test_modal_green);
                     button.setTextColor(getActivity().getResources().getColor(R.color.colorWhite));
+                    if (wordIsStudied)
+                    {
+                        int nword = AppData.getInstance().getNword();
+                        String dict = appSettings.getPlayList().get(AppData.getInstance().getNdict());
+                    }
                 }
             }
 
@@ -341,8 +342,6 @@ public class TestModalFragment extends Fragment
                         onDestroy();
                         onDetach();
                     }
-
-                    //nextWord();
                 }
             }
 
@@ -367,6 +366,7 @@ public class TestModalFragment extends Fragment
                 {
                     button.setBackgroundResource(R.drawable.btn_for_test_modal_red);
                     button.setTextColor(getActivity().getResources().getColor(R.color.colorWhite));
+                    wordIsStudied = false;
                 }
             }
 
@@ -442,6 +442,19 @@ public class TestModalFragment extends Fragment
             }
         });
     }
+
+    private void checkStudied_OnCheckedChange(CheckBox checkBox)
+    {
+        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
+        {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked)
+            {
+                wordIsStudied = isChecked;
+            }
+        });
+    }
+
 
 
 }

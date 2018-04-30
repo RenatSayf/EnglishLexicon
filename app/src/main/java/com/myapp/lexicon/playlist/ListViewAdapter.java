@@ -10,7 +10,6 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.ArrayList;
 
@@ -21,14 +20,12 @@ public class ListViewAdapter extends BaseAdapter
 {
     private Context context;
     private ArrayList<String> list;
-    private AppSettings appSettings;
     private IPlayListChangeListener listener;
 
     ListViewAdapter(ArrayList<String> list, Context context)
     {
         this.list = list;
         this.context = context;
-        appSettings = new AppSettings(this.context);
         this.listener = (IPlayListChangeListener) context;
     }
     @Override
@@ -80,7 +77,6 @@ public class ListViewAdapter extends BaseAdapter
             {
                 if (!isChecked)
                 {
-                    //appSettings.removeItemFromPlayList(list, position);
                     list.remove(position);
                     if (listener != null)
                     {

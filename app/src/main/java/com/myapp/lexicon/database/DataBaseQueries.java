@@ -9,7 +9,6 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.helpers.StringOperations;
 
 import java.sql.SQLException;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Synchronous queries to database
@@ -58,7 +57,7 @@ public class DataBaseQueries
         return countEntries;
     }
 
-    public boolean addTableToDbSync(final String tableName) throws ExecutionException, InterruptedException
+    public boolean addTableToDbSync(final String tableName)
     {
         String table_name = StringOperations.getInstance().spaceToUnderscore(tableName);
         String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + table_name +
@@ -140,7 +139,7 @@ public class DataBaseQueries
         return id;
     }
 
-    public long updateWordInTableSync(String tableName, long rowId, DataBaseEntry entry) throws Exception
+    public long updateWordInTableSync(String tableName, long rowId, DataBaseEntry entry)
     {
         String table_name = StringOperations.getInstance().spaceToUnderscore(tableName);
         long id = -1;

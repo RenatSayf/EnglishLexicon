@@ -190,6 +190,7 @@
     <string name="title_service">Показувати слово</string>
     <string name="key_service">service</string>
     <string name="key_list_display_mode">list_display_mode</string>
+    <string name="text_studied">Вивчено</string>
 
     <string-array name="display_mode">
         <item>Повтор</item>
