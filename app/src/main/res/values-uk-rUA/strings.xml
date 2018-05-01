@@ -141,7 +141,7 @@
     <string name="text_not_finished_test">Ви не завершили тест. Зробити закладку, щоб потім продовжити з того ж місця?</string>
     <string name="text_speech_settings">Голосові параметри</string>
     <string name="text_speech_recogniz_not_support">Вибачте! Розпізнавання мови не підтримується на цьому пристрої.</string>
-    <string name="text_say_something">Говорите...</string>
+    <string name="text_say_something">Говорите…</string>
     <string name="text_voice_input_not_available">Немає з`єднання з інтернетом. Голосове введення недоступний</string>
     <string name="main_bottom_banner">ca-app-pub-4071145618173901/8422115477</string>
     <string name="add_word_bottom_banner">ca-app-pub-4071145618173901/9155315479</string>
@@ -191,6 +191,7 @@
     <string name="key_service">service</string>
     <string name="key_list_display_mode">list_display_mode</string>
     <string name="text_studied">Вивчено</string>
+    <string name="text_word_is_not_show">Слово більше не буде показуватися. Змінити це можна в редакторі слів.</string>
 
     <string-array name="display_mode">
         <item>Повтор</item>

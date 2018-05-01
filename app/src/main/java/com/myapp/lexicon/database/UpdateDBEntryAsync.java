@@ -11,13 +11,14 @@ public class UpdateDBEntryAsync extends AsyncTask<Void, Void, Integer>
 {
     private LockOrientation lockOrientation;
     private DatabaseHelper databaseHelper;
-    private String cmd;
     private ContentValues values;
     private String table_name;
-    private int rowId = -1;
+    private int rowId;
+    private IUpdateDBListener iUpdateDBListener;
 
-    public UpdateDBEntryAsync(Activity activity, String tableName, int rowId, DataBaseEntry entry)
+    public UpdateDBEntryAsync(Activity activity, String tableName, int rowId, DataBaseEntry entry, IUpdateDBListener listener)
     {
+        iUpdateDBListener = listener;
         lockOrientation = new LockOrientation(activity);
         databaseHelper = new DatabaseHelper(activity);
         databaseHelper.create_db();
@@ -28,6 +29,11 @@ public class UpdateDBEntryAsync extends AsyncTask<Void, Void, Integer>
         values.put(DatabaseHelper.COLUMN_TRANS, entry.getTranslate());
         values.put(DatabaseHelper.COLUMN_IMAGE, "");
         values.put(DatabaseHelper.COLUMN_Count_REPEAT, entry.getCountRepeat());
+    }
+
+    public interface IUpdateDBListener
+    {
+        void updateDBEntry_OnComplete(int rows);
     }
 
     @Override
@@ -66,7 +72,10 @@ public class UpdateDBEntryAsync extends AsyncTask<Void, Void, Integer>
     protected void onPostExecute(Integer integer)
     {
         super.onPostExecute(integer);
-
+        if (iUpdateDBListener != null)
+        {
+            iUpdateDBListener.updateDBEntry_OnComplete(integer);
+        }
         lockOrientation.unLock();
     }
 

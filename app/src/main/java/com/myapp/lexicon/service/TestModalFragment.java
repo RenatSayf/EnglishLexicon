@@ -18,11 +18,13 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.GetCountWordsAsync;
 import com.myapp.lexicon.database.GetEntriesFromDbAsync;
+import com.myapp.lexicon.database.UpdateDBEntryAsync;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
 import com.myapp.lexicon.main.MainActivity;
 import com.myapp.lexicon.main.SplashScreenActivity;
@@ -310,6 +312,22 @@ public class TestModalFragment extends Fragment
                     {
                         int nword = AppData.getInstance().getNword();
                         String dict = appSettings.getPlayList().get(AppData.getInstance().getNdict());
+                        DataBaseEntry entry = new DataBaseEntry(enTextView.getText().toString(), button.getText().toString(), "0");
+                        UpdateDBEntryAsync updateDBEntryAsync = new UpdateDBEntryAsync(getActivity(), dict, nword, entry, new UpdateDBEntryAsync.IUpdateDBListener()
+                        {
+                            @Override
+                            public void updateDBEntry_OnComplete(int rows)
+                            {
+                                if (rows > 0)
+                                {
+                                    Toast.makeText(getActivity(), R.string.text_word_is_not_show, Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        });
+                        if (updateDBEntryAsync.getStatus() != AsyncTask.Status.RUNNING)
+                        {
+                            updateDBEntryAsync.execute();
+                        }
                     }
                 }
             }
@@ -334,7 +352,6 @@ public class TestModalFragment extends Fragment
 
                     if (getActivity() != null)
                     {
-
                         appData.saveAllSettings(getActivity());
                         getActivity().finish();
                     } else
