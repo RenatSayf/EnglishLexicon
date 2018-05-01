@@ -27,7 +27,17 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
         databaseHelper = new DatabaseHelper(activity);
         databaseHelper.create_db();
         tableName =  StringOperations.getInstance().spaceToUnderscore(tableName);
-        this.cmd = "SELECT * FROM " + tableName + " WHERE RowID BETWEEN " + startId +" AND " + endId;
+        this.cmd = "SELECT RowId, English, Translate, CountRepeat FROM " + tableName + " WHERE RowID BETWEEN " + startId +" AND " + endId;
+    }
+
+    public GetEntriesFromDbAsync(Activity activity, String tableName, int rowId, GetEntriesListener listener)
+    {
+        setListener(listener);
+        lockOrientation = new LockOrientation(activity);
+        databaseHelper = new DatabaseHelper(activity);
+        databaseHelper.create_db();
+        tableName = StringOperations.getInstance().spaceToUnderscore(tableName);
+        this.cmd = "SELECT RowId, English, Translate, CountRepeat FROM " + tableName + " WHERE RowId >= " + rowId + " And CountRepeat <> 0 ORDER BY RowId ASC LIMIT 2";
     }
 
     public GetEntriesFromDbAsync(Activity activity, String tableName, int[] rowId, GetEntriesListener listener)
@@ -62,7 +72,7 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
                 orderBy = "DESC";
             }
         }
-        this.cmd = "SELECT * FROM " + tableName + " WHERE RowID IN(" + idSequence + ") ORDER BY RowId " + orderBy + ";";
+        this.cmd = "SELECT RowId, English, Translate, CountRepeat FROM " + tableName + " WHERE RowID IN(" + idSequence + ") ORDER BY RowId " + orderBy + ";";
     }
 
     public interface GetEntriesListener
@@ -97,7 +107,7 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
                 {
                     while (!cursor.isAfterLast())
                     {
-                        dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1), cursor.getString(3));
+                        dataBaseEntry = new DataBaseEntry(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3));
                         entriesFromDB.add(dataBaseEntry);
                         cursor.moveToNext();
                     }
