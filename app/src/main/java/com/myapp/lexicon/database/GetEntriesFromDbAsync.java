@@ -75,6 +75,22 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
         this.cmd = "SELECT RowId, English, Translate, CountRepeat FROM " + tableName + " WHERE RowID IN(" + idSequence + ") ORDER BY RowId " + orderBy + ";";
     }
 
+    public GetEntriesFromDbAsync(Activity activity, String tableName, int firstId, int randomId, boolean x, GetEntriesListener listener)
+    {
+        setListener(listener);
+        lockOrientation = new LockOrientation(activity);
+        databaseHelper = new DatabaseHelper(activity);
+        databaseHelper.create_db();
+        tableName = StringOperations.getInstance().spaceToUnderscore(tableName);
+        int secondId = firstId + 1;
+        this.cmd = "SELECT RowId, English, Translate, CountRepeat FROM " + tableName + " WHERE RowId IN" +
+                    "(" +
+                        "(SELECT RowId FROM " + tableName + " WHERE RowId >= " + firstId + " AND CountRepeat <> 0)," +
+                        "(SELECT RowId FROM " + tableName + " WHERE RowId >= " + secondId + " AND CountRepeat <> 0)," +
+                        "(SELECT RowId FROM " + tableName + " WHERE RowId = " + randomId + ")" +
+                    ")";
+    }
+
     public interface GetEntriesListener
     {
         void getEntriesListener(ArrayList<DataBaseEntry> entries);
@@ -112,14 +128,11 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
                         cursor.moveToNext();
                     }
                 }
-            } else
-            {
-                entriesFromDB.add(new DataBaseEntry(null,null));
             }
         }
         catch (Exception e)
         {
-            entriesFromDB.add(new DataBaseEntry(null,null));
+            e.printStackTrace();
         }
         finally
         {

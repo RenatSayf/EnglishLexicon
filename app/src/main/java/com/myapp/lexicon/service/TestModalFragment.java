@@ -95,7 +95,8 @@ public class TestModalFragment extends Fragment
 
         nameDictTV.setText(currentDict);
 
-        getWordsFromDB(currentDict);
+        //getWordsFromDB(currentDict);
+        getWordsFromDB2(currentDict);
 
         ImageButton btnClose = fragmentView.findViewById(R.id.modal_btn_close);
         btnClose.setOnClickListener(new View.OnClickListener()
@@ -184,6 +185,140 @@ public class TestModalFragment extends Fragment
                     }
 
                 } catch (Exception e)
+                {
+                    wordsNumberTV.setText("???");
+                }
+            }
+        });
+        if (getCountWordsAsync.getStatus() != AsyncTask.Status.RUNNING)
+        {
+            getCountWordsAsync.execute();
+        }
+    }
+
+    private void getWordsFromDB2(final String currentDict)
+    {
+        GetCountWordsAsync getCountWordsAsync = new GetCountWordsAsync(getActivity(), currentDict, new GetCountWordsAsync.GetCountListener()
+        {
+            int firstId = appData.getNword();
+
+            @Override
+            public void onTaskComplete(int count)
+            {
+                int randomId;
+                try
+                {
+                    wordsNumberTV.setText((firstId + "").concat(" / ").concat(Integer.toString(count)));
+                    RandomNumberGenerator numberGenerator = new RandomNumberGenerator(1, count, (int) new Date().getTime());
+                    randomId = numberGenerator.generate();
+                    if (count >= 2)
+                    {
+                        while (firstId == randomId)
+                        {
+                            randomId = numberGenerator.generate();
+                        }
+                    }
+                    else if (count > 0)
+                    {
+                        randomId = numberGenerator.generate();
+                    }
+
+                    if (count > 0)
+                    {
+                        final int finalRandomId = randomId;
+                        GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), currentDict, firstId, randomId, true, new GetEntriesFromDbAsync.GetEntriesListener()
+                        {
+                            @Override
+                            public void getEntriesListener(ArrayList<DataBaseEntry> entries)
+                            {
+                                compareList = entries;
+                                if (entries.size() == 1)
+                                {
+                                    enTextView.setText(entries.get(0).getEnglish());
+                                    ruBtn1.setText(entries.get(0).getTranslate());
+                                    ruBtn2.setText(entries.get(0).getTranslate());
+                                    appData.setNword(1);
+                                    if (appData.getNdict() < appSettings.getPlayList().size() - 1)
+                                    {
+                                        int ndict = appData.getNdict();
+                                        appData.setNdict(ndict + 1);
+                                    }
+                                    else
+                                    {
+                                        appData.setNdict(0);
+                                    }
+                                }
+                                if (entries.size() == 2)
+                                {
+                                    RandomNumberGenerator numberGenerator = new RandomNumberGenerator(2, (int) new Date().getTime());
+                                    int i = numberGenerator.generate();
+                                    int j = numberGenerator.generate();
+                                    for (DataBaseEntry item : entries)
+                                    {
+                                        if (item.getRowId() == firstId) enTextView.setText(item.getEnglish());
+                                        if (item.getRowId() == firstId + 1)
+                                        {
+                                            appData.setNword(firstId + 1);
+                                        }
+                                        else
+                                        {
+                                            appData.setNword(1);
+                                        }
+                                    }
+                                    ruBtn1.setText(entries.get(i).getTranslate());
+                                    ruBtn2.setText(entries.get(j).getTranslate());
+
+                                    if (appData.getNdict() < appSettings.getPlayList().size() - 1)
+                                    {
+                                        int ndict = appData.getNdict();
+                                        appData.setNdict(ndict + 1);
+                                    }
+                                    else
+                                    {
+                                        appData.setNdict(0);
+                                    }
+                                }
+                                if (entries.size() == 3)
+                                {
+                                    RandomNumberGenerator numberGenerator = new RandomNumberGenerator(2, (int) new Date().getTime());
+                                    int i = numberGenerator.generate();
+                                    int j = numberGenerator.generate();
+                                    for (DataBaseEntry item : entries)
+                                    {
+                                        if (item.getRowId() == firstId)
+                                        {
+                                            enTextView.setText(item.getEnglish());
+                                            if (i == 0 && j == 1)
+                                                ruBtn1.setText(item.getTranslate());
+                                            else
+                                                ruBtn2.setText(item.getTranslate());
+                                        }
+                                        if (item.getRowId() == finalRandomId)
+                                        {
+                                            if (i == 0 && j == 1)
+                                            {
+                                                ruBtn2.setText(item.getTranslate());
+                                            }
+                                            else
+                                            {
+                                                ruBtn1.setText(item.getTranslate());
+                                            }
+                                        }
+                                        if (item.getRowId() > firstId && item.getRowId() != finalRandomId && appSettings.getOrderPlay() == 0)
+                                        {
+                                            appData.setNword(item.getRowId());
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                        if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
+                        {
+                            getEntriesFromDbAsync.execute();
+                        }
+                    }
+                }
+                catch (Exception e)
                 {
                     wordsNumberTV.setText("???");
                 }
@@ -343,7 +478,7 @@ public class TestModalFragment extends Fragment
                     if (AppData.getInstance().getDoneRepeat() >= repeatCount)
                     {
                         AppData.getInstance().setDoneRepeat(1);
-                        nextWord();
+                        //nextWord();
                     }
                     else
                     {

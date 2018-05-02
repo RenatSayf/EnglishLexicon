@@ -132,6 +132,7 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
         try
         {
             boolean[] choice = new boolean[dictArray.length];
+            final ArrayList<String> newPlayList = this.playList;
             new AlertDialog.Builder(this).setTitle(R.string.access_dict)
                     .setMultiChoiceItems(dictArray, choice, new DialogInterface.OnMultiChoiceClickListener()
                     {
@@ -140,16 +141,16 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
                         {
                             if (isChecked)
                             {
-                                if (!playList.contains(dictArray[which]))
+                                if (!PlayList.this.playList.contains(dictArray[which]))
                                 {
-                                    playList.add(dictArray[which]);
+                                    newPlayList.add(dictArray[which]);
                                 }
                             }
                             else
                             {
-                                if (playList.contains(dictArray[which]))
+                                if (PlayList.this.playList.contains(dictArray[which]))
                                 {
-                                    playList.remove(dictArray[which]);
+                                    newPlayList.remove(dictArray[which]);
                                 }
                             }
                         }
@@ -161,9 +162,10 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
                         {
                             try
                             {
-                                lictViewAdapter = new ListViewAdapter(playList, PlayList.this);
-                                listViewDict.setAdapter(lictViewAdapter);
-                                appSettings.savePlayList(playList);
+                                onPlayListChanged(newPlayList);
+//                                lictViewAdapter = new ListViewAdapter(playList, PlayList.this);
+//                                listViewDict.setAdapter(lictViewAdapter);
+//                                appSettings.savePlayList(playList);
                             } catch (Exception e)
                             {
                                 e.printStackTrace();
@@ -245,26 +247,68 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
     }
 
     @Override
-    public void onPlayListChanged(ArrayList<String> list)
+    public void onPlayListChanged(ArrayList<String> newPlayList)
     {
-        try
+        String newCurrentDict = null;
+        String oldCurrentDict = appSettings.getCurrentDict();
+
+        if (newPlayList.size() > 0)
         {
-            String newCurrentDict = playList.get(AppData.getInstance().getNdict());
-            String oldCurrentDict = appSettings.getCurrentDict();
-            if (!oldCurrentDict.equals(newCurrentDict))
+            if (!newPlayList.contains(oldCurrentDict))
             {
-                AppData.getInstance().setNword(1);
+                appSettings.setDictNumber(0);
                 appSettings.setWordNumber(1);
             }
-        } catch (Exception e)
-        {
-            e.printStackTrace();
+            else
+            {
+                int nDict = newPlayList.indexOf(oldCurrentDict);
+                if (AppData.getInstance().getNdict() != nDict)
+                {
+                    appSettings.setDictNumber(nDict);
+                    appSettings.setWordNumber(1);
+                }
+            }
         }
-        lictViewAdapter = new ListViewAdapter(list, PlayList.this);
+//        if (newPlayList.size() > 0)
+//        {
+//            if (!newPlayList.contains(oldCurrentDict))
+//            {
+//                appSettings.setDictNumber(0);
+//                appSettings.setWordNumber(1);
+//            }
+//            else
+//            {
+//                int nDict = newPlayList.indexOf(oldCurrentDict);
+//                appSettings.setDictNumber(nDict);
+//                appSettings.setWordNumber(1);
+//            }
+//        }
+
+//        try
+//        {
+//            newCurrentDict = playList.get(AppData.getInstance().getNdict());
+//
+//        } catch (IndexOutOfBoundsException e)
+//        {
+//            //e.printStackTrace();
+//            if (newPlayList.size() > 0)
+//            {
+//                newCurrentDict = newPlayList.get(0);
+//                AppData.getInstance().setNdict(0);
+//            }
+//        }
+//
+//        if (!oldCurrentDict.equals(newCurrentDict))
+//        {
+//            AppData.getInstance().setNword(1);
+//            appSettings.setWordNumber(1);
+//        }
+
+        lictViewAdapter = new ListViewAdapter(newPlayList, PlayList.this);
         listViewDict.setAdapter(lictViewAdapter);
 
-        appSettings.savePlayList(list);
-        appSettings.setDictNumber(AppData.getInstance().getNdict());
+        appSettings.savePlayList(newPlayList);
+        //appSettings.setDictNumber(AppData.getInstance().getNdict());
     }
 
 }
