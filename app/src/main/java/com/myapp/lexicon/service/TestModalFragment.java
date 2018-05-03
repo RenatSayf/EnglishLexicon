@@ -203,7 +203,7 @@ public class TestModalFragment extends Fragment
             int firstId = appData.getNword();
 
             @Override
-            public void onTaskComplete(int count)
+            public void onTaskComplete(final int count)
             {
                 int randomId;
                 try
@@ -237,15 +237,25 @@ public class TestModalFragment extends Fragment
                                     enTextView.setText(entries.get(0).getEnglish());
                                     ruBtn1.setText(entries.get(0).getTranslate());
                                     ruBtn2.setText(entries.get(0).getTranslate());
-                                    appData.setNword(1);
-                                    if (appData.getNdict() < appSettings.getPlayList().size() - 1)
+                                    if (appData.getNword() + 1 <= count)
                                     {
-                                        int ndict = appData.getNdict();
-                                        appData.setNdict(ndict + 1);
+                                        appData.setNword(appData.getNword() + 1);
                                     }
                                     else
                                     {
-                                        appData.setNdict(0);
+                                        appData.setNword(1);
+                                        if (appData.getNdict() + 1 > appSettings.getPlayList().size() - 1)
+                                        {
+                                            appData.setNdict(0);
+                                        }
+                                        else if (appData.getNdict() >= 0 && appData.getNdict() <  appSettings.getPlayList().size() - 1)
+                                        {
+                                            appData.setNdict(appData.getNdict() + 1);
+                                        }
+                                        else
+                                        {
+                                            appData.setNdict(appData.getNdict());
+                                        }
                                     }
                                 }
                                 if (entries.size() == 2)
@@ -256,26 +266,29 @@ public class TestModalFragment extends Fragment
                                     for (DataBaseEntry item : entries)
                                     {
                                         if (item.getRowId() == firstId) enTextView.setText(item.getEnglish());
-                                        if (item.getRowId() == firstId + 1)
-                                        {
-                                            appData.setNword(firstId + 1);
-                                        }
-                                        else
-                                        {
-                                            appData.setNword(1);
-                                        }
                                     }
                                     ruBtn1.setText(entries.get(i).getTranslate());
                                     ruBtn2.setText(entries.get(j).getTranslate());
 
-                                    if (appData.getNdict() < appSettings.getPlayList().size() - 1)
+                                    if (appData.getNword() + 1 <= count)
                                     {
-                                        int ndict = appData.getNdict();
-                                        appData.setNdict(ndict + 1);
+                                        appData.setNword(appData.getNword() + 1);
                                     }
                                     else
                                     {
-                                        appData.setNdict(0);
+                                        appData.setNword(1);
+                                        if (appData.getNdict() + 1 > appSettings.getPlayList().size() - 1)
+                                        {
+                                            appData.setNdict(0);
+                                        }
+                                        else if (appData.getNdict() >= 0 && appData.getNdict() <  appSettings.getPlayList().size() - 1)
+                                        {
+                                            appData.setNdict(appData.getNdict() + 1);
+                                        }
+                                        else
+                                        {
+                                            appData.setNdict(appData.getNdict());
+                                        }
                                     }
                                 }
                                 if (entries.size() == 3)

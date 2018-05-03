@@ -5,6 +5,7 @@ import android.app.LoaderManager;
 import android.content.DialogInterface;
 import android.content.Loader;
 import android.database.Cursor;
+import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -92,6 +93,14 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
         {
             lictViewAdapter = new ListViewAdapter(playList, PlayList.this);
             listViewDict.setAdapter(lictViewAdapter);
+            lictViewAdapter.registerDataSetObserver(new DataSetObserver()
+            {
+                @Override
+                public void onChanged()
+                {
+                    super.onChanged();
+                }
+            });
         }
 
         getLoaderManager().initLoader(LOADER_GET_TABLE_LIST, savedInstanceState, this);
@@ -250,6 +259,9 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
     public void onPlayListChanged(ArrayList<String> newPlayList)
     {
         String newCurrentDict = null;
+
+
+
         String oldCurrentDict = appSettings.getCurrentDict();
 
         if (newPlayList.size() > 0)
@@ -310,5 +322,7 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
         appSettings.savePlayList(newPlayList);
         //appSettings.setDictNumber(AppData.getInstance().getNdict());
     }
+
+
 
 }
