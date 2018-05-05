@@ -120,13 +120,8 @@ public class ModalFragment extends Fragment
                 }
                 if (getActivity() != null)
                 {
-
                     appData.saveAllSettings(getActivity());
                     getActivity().finish();
-                } else
-                {
-                    onDestroy();
-                    onDetach();
                 }
             }
         });

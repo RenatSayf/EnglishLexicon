@@ -198,13 +198,17 @@ public class TestModalFragment extends Fragment
 
     private void getWordsFromDB2(final String currentDict)
     {
-        GetCountWordsAsync getCountWordsAsync = new GetCountWordsAsync(getActivity(), currentDict, new GetCountWordsAsync.GetCountListener()
+        GetCountWordsAsync getCountWordsAsync = new GetCountWordsAsync(getActivity(), currentDict, false, new GetCountWordsAsync.GetCountListener()
         {
             int firstId = appData.getNword();
 
             @Override
             public void onTaskComplete(final int count)
             {
+                if (count == 0 && getActivity() != null)
+                {
+                    getActivity().finish();
+                }
                 int randomId;
                 try
                 {
@@ -232,7 +236,7 @@ public class TestModalFragment extends Fragment
                             public void getEntriesListener(ArrayList<DataBaseEntry> entries)
                             {
                                 compareList = entries;
-                                if (entries.size() == 1)
+                                if (entries.size() == 1 && !entries.get(0).getCountRepeat().equals("0"))
                                 {
                                     enTextView.setText(entries.get(0).getEnglish());
                                     ruBtn1.setText(entries.get(0).getTranslate());
@@ -461,12 +465,12 @@ public class TestModalFragment extends Fragment
                         int nword = AppData.getInstance().getNword();
                         String dict = appSettings.getPlayList().get(AppData.getInstance().getNdict());
                         DataBaseEntry entry = new DataBaseEntry(enTextView.getText().toString(), button.getText().toString(), "0");
-                        UpdateDBEntryAsync updateDBEntryAsync = new UpdateDBEntryAsync(getActivity(), dict, nword, entry, new UpdateDBEntryAsync.IUpdateDBListener()
+                        UpdateDBEntryAsync updateDBEntryAsync = new UpdateDBEntryAsync(getActivity(), dict, entry, new UpdateDBEntryAsync.IUpdateDBListener()
                         {
                             @Override
                             public void updateDBEntry_OnComplete(int rows)
                             {
-                                if (rows > 0)
+                                if (rows > 0 && getActivity() != null)
                                 {
                                     Toast.makeText(getActivity(), R.string.text_word_is_not_show, Toast.LENGTH_LONG).show();
                                 }

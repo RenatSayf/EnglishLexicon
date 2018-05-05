@@ -12,18 +12,18 @@ public class UpdateDBEntryAsync extends AsyncTask<Void, Void, Integer>
     private LockOrientation lockOrientation;
     private DatabaseHelper databaseHelper;
     private ContentValues values;
+    private DataBaseEntry entry;
     private String table_name;
-    private int rowId;
     private IUpdateDBListener iUpdateDBListener;
 
-    public UpdateDBEntryAsync(Activity activity, String tableName, int rowId, DataBaseEntry entry, IUpdateDBListener listener)
+    public UpdateDBEntryAsync(Activity activity, String tableName, DataBaseEntry entry, IUpdateDBListener listener)
     {
         iUpdateDBListener = listener;
         lockOrientation = new LockOrientation(activity);
         databaseHelper = new DatabaseHelper(activity);
         databaseHelper.create_db();
+        this.entry = entry;
         this.table_name =  StringOperations.getInstance().spaceToUnderscore(tableName);
-        this.rowId = rowId;
         values = new ContentValues();
         values.put(DatabaseHelper.COLUMN_ENGLISH, entry.getEnglish());
         values.put(DatabaseHelper.COLUMN_TRANS, entry.getTranslate());
@@ -52,7 +52,7 @@ public class UpdateDBEntryAsync extends AsyncTask<Void, Void, Integer>
             if (databaseHelper.database.isOpen())
             {
                 databaseHelper.database.beginTransaction();
-                rows = databaseHelper.database.update(table_name, values, "RowID = " + rowId, null);
+                rows = databaseHelper.database.update(table_name, values, "English = ? AND Translate = ?", new String[]{entry.getEnglish(), entry.getTranslate()});
                 databaseHelper.database.setTransactionSuccessful();
                 databaseHelper.database.endTransaction();
             }

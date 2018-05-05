@@ -13,7 +13,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
 
 
 public class DatabaseHelper extends SQLiteOpenHelper
@@ -134,7 +133,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
         return stringPathDB;
     }
 
-    public void open() throws SQLException
+    public void open()
     {
         String path = actualPathDb;
         try

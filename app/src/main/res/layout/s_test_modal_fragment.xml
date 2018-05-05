@@ -41,7 +41,7 @@
                 android:id="@+id/name_dict_tv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Name dict"
+                android:text="@string/text_name_dict"
                 android:textColor="@color/colorWhite"/>
 
             <TextView
@@ -155,13 +155,14 @@
 
         <CheckBox
             android:id="@+id/check_box_studied"
-            style="@style/Widget.AppCompat.CompoundButton.CheckBox"
+            style="@android:style/Widget.Holo.Light.CompoundButton.CheckBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/transparent_background"
-            android:buttonTint="#FFFF"
+            android:buttonTint="@color/colorWhite"
             android:text="@string/text_studied"
-            android:textColor="@drawable/selector_white_to_orange_color"/>
+            android:textColor="@drawable/selector_white_to_orange_color"
+            />
 
         <android.support.v4.widget.Space
             android:layout_width="wrap_content"

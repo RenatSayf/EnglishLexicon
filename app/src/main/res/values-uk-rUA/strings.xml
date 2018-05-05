@@ -192,6 +192,7 @@
     <string name="key_list_display_mode">list_display_mode</string>
     <string name="text_studied">Вивчено</string>
     <string name="text_word_is_not_show">Слово більше не буде показуватися. Змінити це можна в редакторі слів.</string>
+    <string name="text_name_dict">Name dict</string>
 
     <string-array name="display_mode">
         <item>Повтор</item>

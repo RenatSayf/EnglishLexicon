@@ -8,8 +8,6 @@ import android.widget.Toast;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.helpers.StringOperations;
 
-import java.sql.SQLException;
-
 /**
  * Synchronous queries to database
  */
@@ -100,7 +98,7 @@ public class DataBaseQueries
             {
                 databaseHelper.database.execSQL(DELETE_TABLE);
             }
-        } catch (SQLException e)
+        } catch (Exception e)
         {
             result = false;
             e.printStackTrace();
@@ -128,7 +126,7 @@ public class DataBaseQueries
             {
                 id = databaseHelper.database.insert(table_name, null, values);
             }
-        } catch (SQLException e)
+        } catch (Exception e)
         {
             e.printStackTrace();
         }

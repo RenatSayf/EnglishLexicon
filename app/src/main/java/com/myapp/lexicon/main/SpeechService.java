@@ -17,7 +17,6 @@ import com.myapp.lexicon.helpers.StringOperations;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
@@ -78,7 +77,7 @@ public class SpeechService extends IntentService
         try
         {
             databaseHelper.open();
-        } catch (SQLException e)
+        } catch (Exception e)
         {
             e.printStackTrace();
         }
@@ -305,6 +304,7 @@ public class SpeechService extends IntentService
     private void speakWord(final DataBaseEntry entries, boolean engOnly)
     {
         final boolean[] speek_done = {false};
+        if (SplashScreenActivity.speech == null)  return;
         SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
         {
             @Override
