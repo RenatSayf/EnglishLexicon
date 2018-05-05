@@ -25,7 +25,7 @@ public class GetCountWordsAsync2 extends AsyncTask<String, Void, Integer[]>
 
     public interface GetCountListener
     {
-        void onTaskComplete(Integer[] count);
+        void onTaskComplete(Integer[] resArray);
     }
 
     private void setTaskCompleteListener(GetCountListener listener)
@@ -60,8 +60,6 @@ public class GetCountWordsAsync2 extends AsyncTask<String, Void, Integer[]>
                         cursor.moveToNext();
                     }
                 }
-
-
             }
         }
         catch (Exception e)
