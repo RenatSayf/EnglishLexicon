@@ -152,12 +152,16 @@ public class ModalFragment extends Fragment
 
     private void getWordsFromDB(final String currentDict)
     {
-        final GetCountWordsAsync getCountWordsAsync = new GetCountWordsAsync(getActivity(), currentDict, new GetCountWordsAsync.GetCountListener()
+        final GetCountWordsAsync getCountWordsAsync = new GetCountWordsAsync(getActivity(), currentDict, false, new GetCountWordsAsync.GetCountListener()
         {
             int wordNumber = appData.getNword();
             @Override
             public void onTaskComplete(int count)
             {
+                if (count == 0 && getActivity() != null)
+                {
+                    getActivity().finish();
+                }
                 wordsCount = count;
                 if (wordsCount < wordNumber)
                 {

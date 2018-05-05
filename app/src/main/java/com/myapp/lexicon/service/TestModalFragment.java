@@ -462,7 +462,6 @@ public class TestModalFragment extends Fragment
                     button.setTextColor(getActivity().getResources().getColor(R.color.colorWhite));
                     if (wordIsStudied)
                     {
-                        int nword = AppData.getInstance().getNword();
                         String dict = appSettings.getPlayList().get(AppData.getInstance().getNdict());
                         DataBaseEntry entry = new DataBaseEntry(enTextView.getText().toString(), button.getText().toString(), "0");
                         UpdateDBEntryAsync updateDBEntryAsync = new UpdateDBEntryAsync(getActivity(), dict, entry, new UpdateDBEntryAsync.IUpdateDBListener()
@@ -495,7 +494,6 @@ public class TestModalFragment extends Fragment
                     if (AppData.getInstance().getDoneRepeat() >= repeatCount)
                     {
                         AppData.getInstance().setDoneRepeat(1);
-                        //nextWord();
                     }
                     else
                     {

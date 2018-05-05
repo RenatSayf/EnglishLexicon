@@ -172,9 +172,6 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
                             try
                             {
                                 onPlayListChanged(newPlayList);
-//                                lictViewAdapter = new ListViewAdapter(playList, PlayList.this);
-//                                listViewDict.setAdapter(lictViewAdapter);
-//                                appSettings.savePlayList(playList);
                             } catch (Exception e)
                             {
                                 e.printStackTrace();
@@ -258,10 +255,6 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
     @Override
     public void onPlayListChanged(ArrayList<String> newPlayList)
     {
-        String newCurrentDict = null;
-
-
-
         String oldCurrentDict = appSettings.getCurrentDict();
 
         if (newPlayList.size() > 0)
@@ -281,46 +274,11 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
                 }
             }
         }
-//        if (newPlayList.size() > 0)
-//        {
-//            if (!newPlayList.contains(oldCurrentDict))
-//            {
-//                appSettings.setDictNumber(0);
-//                appSettings.setWordNumber(1);
-//            }
-//            else
-//            {
-//                int nDict = newPlayList.indexOf(oldCurrentDict);
-//                appSettings.setDictNumber(nDict);
-//                appSettings.setWordNumber(1);
-//            }
-//        }
-
-//        try
-//        {
-//            newCurrentDict = playList.get(AppData.getInstance().getNdict());
-//
-//        } catch (IndexOutOfBoundsException e)
-//        {
-//            //e.printStackTrace();
-//            if (newPlayList.size() > 0)
-//            {
-//                newCurrentDict = newPlayList.get(0);
-//                AppData.getInstance().setNdict(0);
-//            }
-//        }
-//
-//        if (!oldCurrentDict.equals(newCurrentDict))
-//        {
-//            AppData.getInstance().setNword(1);
-//            appSettings.setWordNumber(1);
-//        }
 
         lictViewAdapter = new ListViewAdapter(newPlayList, PlayList.this);
         listViewDict.setAdapter(lictViewAdapter);
 
         appSettings.savePlayList(newPlayList);
-        //appSettings.setDictNumber(AppData.getInstance().getNdict());
     }
 
 
