@@ -50,14 +50,20 @@ public class GetCountWordsAsync2 extends AsyncTask<String, Void, Integer[]>
             databaseHelper.open();
             if (databaseHelper.database.isOpen())
             {
-                cursor = databaseHelper.database.query(tableName, new String[]{"max(RowId)", "count(RowId)"}, "CountRepeat <> 0", null, null, null, null);
+                String cmd = "SELECT max(rowId) FROM " + tableName + " UNION SELECT count(RowId) FROM " + tableName + " WHERE (CountRepeat <> 0)";
+                cursor = databaseHelper.database.rawQuery(cmd, null);
                 if (cursor.moveToFirst())
                 {
+                    int i = 0;
                     while (!cursor.isAfterLast())
                     {
-                        count[0] = cursor.getInt(0);
-                        count[1] = cursor.getInt(1);
+                        count[i] = cursor.getInt(0);
                         cursor.moveToNext();
+                        i++;
+                    }
+                    if (count[0] != null && count[1] == null)
+                    {
+                        count[1] = count[0];
                     }
                 }
             }

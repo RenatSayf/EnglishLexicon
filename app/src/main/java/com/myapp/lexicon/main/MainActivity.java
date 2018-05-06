@@ -133,8 +133,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         final PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        this.wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"my_tag");
-        this.wakeLock.acquire();
+        if (powerManager != null)
+        {
+            this.wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"my_tag");
+        }
+        this.wakeLock.acquire(1000);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

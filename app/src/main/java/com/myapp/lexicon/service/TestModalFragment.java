@@ -22,7 +22,6 @@ import android.widget.Toast;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
-import com.myapp.lexicon.database.GetCountWordsAsync;
 import com.myapp.lexicon.database.GetCountWordsAsync2;
 import com.myapp.lexicon.database.GetEntriesFromDbAsync;
 import com.myapp.lexicon.database.UpdateDBEntryAsync;
@@ -42,11 +41,9 @@ public class TestModalFragment extends Fragment
     private AppData appData;
     private TextView enTextView;
     private Button ruBtn1, ruBtn2;
-
+    TextView nameDictTV;
     private TextView wordsNumberTV;
-    private int wordsCount;
     private ArrayList<DataBaseEntry> compareList;
-    private int repeatCount;
     private boolean wordIsStudied = false;
 
     public TestModalFragment()
@@ -86,7 +83,8 @@ public class TestModalFragment extends Fragment
         ruBtn2 = fragmentView.findViewById(R.id.ru_btn_2);
         ruBtn2_OnClick(ruBtn2);
 
-        TextView nameDictTV = fragmentView.findViewById(R.id.name_dict_tv);
+
+        nameDictTV = fragmentView.findViewById(R.id.name_dict_tv);
         wordsNumberTV = fragmentView.findViewById(R.id.words_number_tv_modal_sv);
 
         ImageButton speakButton = fragmentView.findViewById(R.id.btn_sound_modal);
@@ -96,8 +94,6 @@ public class TestModalFragment extends Fragment
 
         nameDictTV.setText(currentDict);
 
-        //getWordsFromDB(currentDict);
-        //getWordsFromDB2(currentDict);
         getWordsFromDB3(currentDict);
 
         ImageButton btnClose = fragmentView.findViewById(R.id.modal_btn_close);
@@ -124,231 +120,6 @@ public class TestModalFragment extends Fragment
         return fragmentView;
     }
 
-    private void getWordsFromDB(final String currentDict)
-    {
-        GetCountWordsAsync getCountWordsAsync = new GetCountWordsAsync(getActivity(), currentDict, new GetCountWordsAsync.GetCountListener()
-        {
-            int wordNumber = appData.getNword();
-            @Override
-            public void onTaskComplete(int count)
-            {
-                wordsCount = count;
-                try
-                {
-                    wordsNumberTV.setText((wordNumber + "").concat(" / ").concat(Integer.toString(wordsCount)));
-                    int endId;
-
-                    RandomNumberGenerator numberGenerator = new RandomNumberGenerator(1, wordsCount, (int) new Date().getTime());
-                    endId = numberGenerator.generate();
-                    while (wordNumber == endId)
-                    {
-                        endId = numberGenerator.generate();
-                    }
-                    int[] idArray = {wordNumber, endId};
-                    GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), currentDict, idArray, new GetEntriesFromDbAsync.GetEntriesListener()
-                    {
-                        @Override
-                        public void getEntriesListener(ArrayList<DataBaseEntry> entries)
-                        {
-                            if (entries != null && entries.size() > 0)
-                            {
-                                try
-                                {
-                                    repeatCount = Integer.parseInt(entries.get(0).getCountRepeat());
-                                } catch (NumberFormatException e)
-                                {
-                                    repeatCount = 1;
-                                }
-                                if (repeatCount == 0)
-                                {
-                                    nextWord();
-                                    getWordsFromDB(currentDict);
-                                    return;
-                                }
-
-                                compareList = new ArrayList<>();
-                                compareList.add(entries.get(0));
-                                compareList.add(entries.get(entries.size() - 1));
-                                if (compareList.size() > 0 && wordNumber > 0)
-                                {
-                                    RandomNumberGenerator numberGenerator = new RandomNumberGenerator(compareList.size(), (int) new Date().getTime());
-                                    int i = numberGenerator.generate();
-                                    int j = numberGenerator.generate();
-                                    enTextView.setText(compareList.get(0).getEnglish());
-                                    ruBtn1.setText(compareList.get(i).getTranslate());
-                                    ruBtn2.setText(compareList.get(j).getTranslate());
-                                }
-                            }
-                        }
-                    });
-                    if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
-                    {
-                        getEntriesFromDbAsync.execute();
-                    }
-
-                } catch (Exception e)
-                {
-                    wordsNumberTV.setText("???");
-                }
-            }
-        });
-        if (getCountWordsAsync.getStatus() != AsyncTask.Status.RUNNING)
-        {
-            getCountWordsAsync.execute();
-        }
-    }
-
-    private void getWordsFromDB2(final String currentDict)
-    {
-        GetCountWordsAsync getCountWordsAsync = new GetCountWordsAsync(getActivity(), currentDict, false, new GetCountWordsAsync.GetCountListener()
-        {
-            int firstId = appData.getNword();
-
-            @Override
-            public void onTaskComplete(final int count)
-            {
-                if (count == 0 && getActivity() != null)
-                {
-                    getActivity().finish();
-                }
-                int randomId;
-                try
-                {
-                    wordsNumberTV.setText((firstId + "").concat(" / ").concat(Integer.toString(count)));
-                    RandomNumberGenerator numberGenerator = new RandomNumberGenerator(1, count, (int) new Date().getTime());
-                    randomId = numberGenerator.generate();
-                    if (count >= 2)
-                    {
-                        while (firstId == randomId)
-                        {
-                            randomId = numberGenerator.generate();
-                        }
-                    }
-                    else if (count > 0)
-                    {
-                        randomId = numberGenerator.generate();
-                    }
-
-                    if (count > 0)
-                    {
-                        final int finalRandomId = randomId;
-                        GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), currentDict, firstId, randomId, true, new GetEntriesFromDbAsync.GetEntriesListener()
-                        {
-                            @Override
-                            public void getEntriesListener(ArrayList<DataBaseEntry> entries)
-                            {
-                                compareList = entries;
-                                if (entries.size() == 1 && !entries.get(0).getCountRepeat().equals("0"))
-                                {
-                                    enTextView.setText(entries.get(0).getEnglish());
-                                    ruBtn1.setText(entries.get(0).getTranslate());
-                                    ruBtn2.setText(entries.get(0).getTranslate());
-                                    if (appData.getNword() + 1 <= count)
-                                    {
-                                        appData.setNword(appData.getNword() + 1);
-                                    }
-                                    else
-                                    {
-                                        appData.setNword(1);
-                                        if (appData.getNdict() + 1 > appSettings.getPlayList().size() - 1)
-                                        {
-                                            appData.setNdict(0);
-                                        }
-                                        else if (appData.getNdict() >= 0 && appData.getNdict() <  appSettings.getPlayList().size() - 1)
-                                        {
-                                            appData.setNdict(appData.getNdict() + 1);
-                                        }
-                                        else
-                                        {
-                                            appData.setNdict(appData.getNdict());
-                                        }
-                                    }
-                                }
-                                if (entries.size() == 2)
-                                {
-                                    RandomNumberGenerator numberGenerator = new RandomNumberGenerator(2, (int) new Date().getTime());
-                                    int i = numberGenerator.generate();
-                                    int j = numberGenerator.generate();
-                                    for (DataBaseEntry item : entries)
-                                    {
-                                        if (item.getRowId() == firstId) enTextView.setText(item.getEnglish());
-                                    }
-                                    ruBtn1.setText(entries.get(i).getTranslate());
-                                    ruBtn2.setText(entries.get(j).getTranslate());
-
-                                    if (appData.getNword() + 1 <= count)
-                                    {
-                                        appData.setNword(appData.getNword() + 1);
-                                    }
-                                    else
-                                    {
-                                        appData.setNword(1);
-                                        if (appData.getNdict() + 1 > appSettings.getPlayList().size() - 1)
-                                        {
-                                            appData.setNdict(0);
-                                        }
-                                        else if (appData.getNdict() >= 0 && appData.getNdict() <  appSettings.getPlayList().size() - 1)
-                                        {
-                                            appData.setNdict(appData.getNdict() + 1);
-                                        }
-                                        else
-                                        {
-                                            appData.setNdict(appData.getNdict());
-                                        }
-                                    }
-                                }
-                                if (entries.size() == 3)
-                                {
-                                    RandomNumberGenerator numberGenerator = new RandomNumberGenerator(2, (int) new Date().getTime());
-                                    int i = numberGenerator.generate();
-                                    int j = numberGenerator.generate();
-                                    for (DataBaseEntry item : entries)
-                                    {
-                                        if (item.getRowId() == firstId)
-                                        {
-                                            enTextView.setText(item.getEnglish());
-                                            if (i == 0 && j == 1)
-                                                ruBtn1.setText(item.getTranslate());
-                                            else
-                                                ruBtn2.setText(item.getTranslate());
-                                        }
-                                        if (item.getRowId() == finalRandomId)
-                                        {
-                                            if (i == 0 && j == 1)
-                                            {
-                                                ruBtn2.setText(item.getTranslate());
-                                            }
-                                            else
-                                            {
-                                                ruBtn1.setText(item.getTranslate());
-                                            }
-                                        }
-                                        if (item.getRowId() > firstId && item.getRowId() != finalRandomId && appSettings.getOrderPlay() == 0)
-                                        {
-                                            appData.setNword(item.getRowId());
-                                        }
-                                    }
-                                }
-                            }
-                        });
-                        if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
-                        {
-                            getEntriesFromDbAsync.execute();
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    wordsNumberTV.setText("???");
-                }
-            }
-        });
-        if (getCountWordsAsync.getStatus() != AsyncTask.Status.RUNNING)
-        {
-            getCountWordsAsync.execute();
-        }
-    }
-
     private void getWordsFromDB3(final String currentDict)
     {
         GetCountWordsAsync2 getCountWordsAsync2 = new GetCountWordsAsync2(getActivity(), currentDict, new GetCountWordsAsync2.GetCountListener()
@@ -360,31 +131,38 @@ public class TestModalFragment extends Fragment
             {
                 if (resArray != null && resArray.length > 1)
                 {
-                    final int maxCount = resArray[0];
-                    final int count = resArray[1];
-                    if (count == 0 && getActivity() != null)
+                    final int maxCount = resArray[1];
+                    final int notStudied = resArray[0];
+                    if (notStudied == 0 && getActivity() != null)
                     {
+                        appSettings.removeItemFromPlayList(currentDict);
+                        int ndict = appData.getNdict() + 1;
+                        if (ndict > appSettings.getPlayList().size() - 1)
+                        {
+                            appSettings.setDictNumber(0);
+                            appSettings.setWordNumber(1);
+                        }
                         getActivity().finish();
                     }
                     int randomId;
                     try
                     {
-                        wordsNumberTV.setText((firstId + "").concat(" / ").concat(Integer.toString(maxCount)).concat(" " + getString(R.string.text_studied ) + " " + (maxCount - count)));
-                        RandomNumberGenerator numberGenerator = new RandomNumberGenerator(1, count, (int) new Date().getTime());
+                        wordsNumberTV.setText((firstId + "").concat(" / ").concat(Integer.toString(maxCount)).concat(" " + getString(R.string.text_studied ) + " " + (maxCount - notStudied)));
+                        RandomNumberGenerator numberGenerator = new RandomNumberGenerator(1, notStudied, (int) new Date().getTime());
                         randomId = numberGenerator.generate();
-                        if (count >= 2)
+                        if (notStudied >= 2)
                         {
                             while (firstId == randomId)
                             {
                                 randomId = numberGenerator.generate();
                             }
                         }
-                        else if (count > 0)
+                        else if (notStudied > 0)
                         {
                             randomId = numberGenerator.generate();
                         }
 
-                        if (count > 0)
+                        if (notStudied > 0)
                         {
                             final int finalRandomId = randomId;
                             GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), currentDict, firstId, randomId, true, new GetEntriesFromDbAsync.GetEntriesListener()
@@ -398,7 +176,7 @@ public class TestModalFragment extends Fragment
                                         enTextView.setText(entries.get(0).getEnglish());
                                         ruBtn1.setText(entries.get(0).getTranslate());
                                         ruBtn2.setText(entries.get(0).getTranslate());
-                                        if (appData.getNword() + 1 <= count)
+                                        if (appData.getNword() + 1 <= notStudied)
                                         {
                                             appData.setNword(appData.getNword() + 1);
                                         }
@@ -431,7 +209,7 @@ public class TestModalFragment extends Fragment
                                         ruBtn1.setText(entries.get(i).getTranslate());
                                         ruBtn2.setText(entries.get(j).getTranslate());
 
-                                        if (appData.getNword() + 1 <= count)
+                                        if (appData.getNword() + 1 <= notStudied)
                                         {
                                             appData.setNword(appData.getNword() + 1);
                                         }
@@ -574,38 +352,6 @@ public class TestModalFragment extends Fragment
         return result;
     }
 
-    private void nextWord()
-    {
-        int nextWord = appData.getNword() + 1;
-        if (appSettings.getPlayList().size() == 1)
-        {
-            if (nextWord > wordsCount)
-            {
-                appData.setNword(1);
-            } else if (nextWord <= wordsCount)
-            {
-                appData.setNword(nextWord);
-            }
-        }
-        if (appSettings.getPlayList().size() > 1)
-        {
-            int dictNumber = appData.getNdict();
-            if (nextWord > wordsCount)
-            {
-                appData.setNword(1);
-                appData.setNdict(dictNumber + 1);
-                if (appData.getNdict() > appSettings.getPlayList().size() - 1)
-                {
-                    appData.setNdict(0);
-                }
-            } else if (nextWord <= wordsCount)
-            {
-                appData.setNword(nextWord);
-                appData.setNdict(dictNumber);
-            }
-        }
-    }
-
     private void rightAnswerAnim(final Button button)
     {
         Animation animRight = AnimationUtils.loadAnimation(getActivity(), R.anim.anim_right);
@@ -620,7 +366,7 @@ public class TestModalFragment extends Fragment
                     button.setTextColor(getActivity().getResources().getColor(R.color.colorWhite));
                     if (wordIsStudied)
                     {
-                        String dict = appSettings.getPlayList().get(AppData.getInstance().getNdict());
+                        String dict = nameDictTV.getText().toString();
                         DataBaseEntry entry = new DataBaseEntry(enTextView.getText().toString(), button.getText().toString(), "0");
                         UpdateDBEntryAsync updateDBEntryAsync = new UpdateDBEntryAsync(getActivity(), dict, entry, new UpdateDBEntryAsync.IUpdateDBListener()
                         {
@@ -630,6 +376,31 @@ public class TestModalFragment extends Fragment
                                 if (rows > 0 && getActivity() != null)
                                 {
                                     Toast.makeText(getActivity(), R.string.text_word_is_not_show, Toast.LENGTH_LONG).show();
+                                    final String currentDict = nameDictTV.getText().toString();
+                                    GetCountWordsAsync2 getCountWordsAsync = new GetCountWordsAsync2(getActivity(), currentDict, new GetCountWordsAsync2.GetCountListener()
+                                    {
+                                        @Override
+                                        public void onTaskComplete(Integer[] resArray)
+                                        {
+                                            if (resArray.length > 1)
+                                            {
+                                                int notStudied = resArray[0];
+                                                if (notStudied == 0)
+                                                {
+                                                    Toast.makeText(getActivity(), getString(R.string.text_all_words_is_studied) + " " + currentDict, Toast.LENGTH_LONG).show();
+                                                    appSettings.removeItemFromPlayList(currentDict);
+                                                    if (appSettings.getPlayList() == null || appSettings.getPlayList().size() == 0)
+                                                    {
+                                                        getActivity().stopService(MainActivity.serviceIntent);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    });
+                                    if (getCountWordsAsync.getStatus() != AsyncTask.Status.RUNNING)
+                                    {
+                                        getCountWordsAsync.execute();
+                                    }
                                 }
                             }
                         });
@@ -648,16 +419,6 @@ public class TestModalFragment extends Fragment
                 {
                     button.setBackgroundResource(R.drawable.btn_for_test_modal_transp);
                     button.setTextColor(getActivity().getResources().getColor(R.color.colorLightGreen));
-
-                    if (AppData.getInstance().getDoneRepeat() >= repeatCount)
-                    {
-                        AppData.getInstance().setDoneRepeat(1);
-                    }
-                    else
-                    {
-                        AppData.getInstance().setDoneRepeat(AppData.getInstance().getDoneRepeat() + 1);
-                    }
-
                     if (getActivity() != null)
                     {
                         appData.saveAllSettings(getActivity());
