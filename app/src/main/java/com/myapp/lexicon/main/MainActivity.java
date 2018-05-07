@@ -137,9 +137,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             this.wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"my_tag");
         }
-        this.wakeLock.acquire(1000);
+        this.wakeLock.acquire();
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_word_editor);
         setSupportActionBar(toolbar);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);

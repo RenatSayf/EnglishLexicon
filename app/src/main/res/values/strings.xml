@@ -195,6 +195,7 @@
     <string name="text_word_is_not_show">Слово больше не будет показываться. Изменить это можно в редакторе слов.</string>
     <string name="text_name_dict">Name dict</string>
     <string name="text_all_words_is_studied">Все слова изучены в словаре</string>
+    <string name="text_turn_on_all_words">Включить все слова</string>
 
     <string-array name="display_mode">
         <item>Повтор</item>

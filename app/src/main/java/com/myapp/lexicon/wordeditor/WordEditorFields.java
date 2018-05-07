@@ -16,6 +16,7 @@ class WordEditorFields implements Parcelable
     int oldCountRepeat;
     int amountWords = 0;
     boolean[] searchIsVisible;
+    String queryString;
 
     private WordEditorFields(Parcel in)
     {
@@ -25,6 +26,7 @@ class WordEditorFields implements Parcelable
     WordEditorFields()
     {
         searchIsVisible = new boolean[1];
+        searchIsVisible[0] = true;
     }
 
     public static final Creator<WordEditorFields> CREATOR = new Creator<WordEditorFields>()
@@ -55,6 +57,7 @@ class WordEditorFields implements Parcelable
         parcel.writeString(oldTextEn);
         parcel.writeString(oldTextRu);
         parcel.writeString(oldCurrentDict);
+        parcel.writeString(queryString);
         parcel.writeInt(oldCountRepeat);
         parcel.writeInt(amountWords);
         parcel.writeBooleanArray(searchIsVisible);

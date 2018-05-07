@@ -1,6 +1,7 @@
 package com.myapp.lexicon.service;
 
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -22,6 +23,7 @@ import android.widget.Toast;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
+import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.database.GetCountWordsAsync2;
 import com.myapp.lexicon.database.GetEntriesFromDbAsync;
 import com.myapp.lexicon.database.UpdateDBEntryAsync;
@@ -368,7 +370,9 @@ public class TestModalFragment extends Fragment
                     {
                         String dict = nameDictTV.getText().toString();
                         DataBaseEntry entry = new DataBaseEntry(enTextView.getText().toString(), button.getText().toString(), "0");
-                        UpdateDBEntryAsync updateDBEntryAsync = new UpdateDBEntryAsync(getActivity(), dict, entry, new UpdateDBEntryAsync.IUpdateDBListener()
+                        ContentValues values = new ContentValues();
+                        values.put(DatabaseHelper.COLUMN_Count_REPEAT, 0);
+                        UpdateDBEntryAsync updateDBEntryAsync = new UpdateDBEntryAsync(getActivity(), dict, values, "English = ? AND Translate = ?", new String[]{entry.getEnglish(), entry.getTranslate()}, new UpdateDBEntryAsync.IUpdateDBListener()
                         {
                             @Override
                             public void updateDBEntry_OnComplete(int rows)

@@ -147,7 +147,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.b_layout_add_word);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_word_editor);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 

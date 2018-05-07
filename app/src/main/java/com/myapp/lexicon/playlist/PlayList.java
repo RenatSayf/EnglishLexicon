@@ -39,7 +39,7 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.p_layout_play_list);
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar_word_editor);
         setSupportActionBar(toolbar);
 
         if (getSupportActionBar() != null)
