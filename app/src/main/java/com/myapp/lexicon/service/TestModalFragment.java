@@ -49,6 +49,7 @@ public class TestModalFragment extends Fragment
     private ArrayList<DataBaseEntry> compareList;
     private boolean wordIsStudied = false;
     private boolean isWordsEnded = false;
+    private WordsEndedDialog endedDialog = null;
 
     public TestModalFragment()
     {
@@ -401,7 +402,8 @@ public class TestModalFragment extends Fragment
                                                         {
                                                             getFragmentManager().beginTransaction().remove(fragmentByTag).commit();
                                                         }
-                                                        WordsEndedDialog endedDialog = WordsEndedDialog.getInstance(currentDict, new WordsEndedDialog.IWordEndedDialogResult()
+
+                                                        endedDialog = WordsEndedDialog.getInstance(currentDict, new WordsEndedDialog.IWordEndedDialogResult()
                                                         {
                                                             @Override
                                                             public void wordEndedDialogResult(int res)
@@ -412,6 +414,7 @@ public class TestModalFragment extends Fragment
                                                                         appSettings.removeItemFromPlayList(currentDict);
                                                                         if (appSettings.getPlayList() == null || appSettings.getPlayList().size() == 0)
                                                                         {
+                                                                            endedDialog.dismiss();
                                                                             getActivity().stopService(MainActivity.serviceIntent);
                                                                             getActivity().finish();
                                                                         }
@@ -424,7 +427,11 @@ public class TestModalFragment extends Fragment
                                                                             @Override
                                                                             public void updateDBEntry_OnComplete(int rows)
                                                                             {
-
+                                                                                endedDialog.dismiss();
+                                                                                if (getActivity() != null)
+                                                                                {
+                                                                                    getActivity().finish();
+                                                                                }
                                                                             }
                                                                         });
                                                                         if (updateDBEntryAsync.getStatus() != AsyncTask.Status.RUNNING)
