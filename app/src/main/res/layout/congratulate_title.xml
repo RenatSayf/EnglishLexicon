@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+    android:orientation="horizontal"
+              android:background="@drawable/side_nav_bar"
+    >
+
+    <TextView
+        style="@style/Widget.AppCompat.TextView.SpinnerItem"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/text_congratulate"
+        android:textAlignment="center"
+        android:textColor="@android:color/holo_orange_dark"
+        android:textSize="24sp"
+        android:layout_margin="10dp"
+        android:drawableLeft="@drawable/icon_smiling_face"
+        android:drawableStart="@drawable/icon_smiling_face"/>
+
+</LinearLayout>

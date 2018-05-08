@@ -27,6 +27,7 @@ import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.database.GetCountWordsAsync2;
 import com.myapp.lexicon.database.GetEntriesFromDbAsync;
 import com.myapp.lexicon.database.UpdateDBEntryAsync;
+import com.myapp.lexicon.dialogs.WordsEndedDialog;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
 import com.myapp.lexicon.main.MainActivity;
 import com.myapp.lexicon.main.SplashScreenActivity;
@@ -47,6 +48,7 @@ public class TestModalFragment extends Fragment
     private TextView wordsNumberTV;
     private ArrayList<DataBaseEntry> compareList;
     private boolean wordIsStudied = false;
+    private boolean isWordsEnded = false;
 
     public TestModalFragment()
     {
@@ -391,12 +393,58 @@ public class TestModalFragment extends Fragment
                                                 int notStudied = resArray[0];
                                                 if (notStudied == 0)
                                                 {
-                                                    Toast.makeText(getActivity(), getString(R.string.text_all_words_is_studied) + " " + currentDict, Toast.LENGTH_LONG).show();
-                                                    appSettings.removeItemFromPlayList(currentDict);
-                                                    if (appSettings.getPlayList() == null || appSettings.getPlayList().size() == 0)
+                                                    isWordsEnded = true;
+                                                    if (getFragmentManager() != null)
                                                     {
-                                                        getActivity().stopService(MainActivity.serviceIntent);
+                                                        Fragment fragmentByTag = getFragmentManager().findFragmentByTag(WordsEndedDialog.TAG);
+                                                        if (fragmentByTag != null)
+                                                        {
+                                                            getFragmentManager().beginTransaction().remove(fragmentByTag).commit();
+                                                        }
+                                                        WordsEndedDialog endedDialog = WordsEndedDialog.getInstance(currentDict, new WordsEndedDialog.IWordEndedDialogResult()
+                                                        {
+                                                            @Override
+                                                            public void wordEndedDialogResult(int res)
+                                                            {
+                                                                switch (res)
+                                                                {
+                                                                    case 0:
+                                                                        appSettings.removeItemFromPlayList(currentDict);
+                                                                        if (appSettings.getPlayList() == null || appSettings.getPlayList().size() == 0)
+                                                                        {
+                                                                            getActivity().stopService(MainActivity.serviceIntent);
+                                                                            getActivity().finish();
+                                                                        }
+                                                                        break;
+                                                                    case 1:
+                                                                        ContentValues values = new ContentValues();
+                                                                        values.put(DatabaseHelper.COLUMN_Count_REPEAT, 1);
+                                                                        UpdateDBEntryAsync updateDBEntryAsync = new UpdateDBEntryAsync(getActivity(), currentDict, values, null, null, new UpdateDBEntryAsync.IUpdateDBListener()
+                                                                        {
+                                                                            @Override
+                                                                            public void updateDBEntry_OnComplete(int rows)
+                                                                            {
+
+                                                                            }
+                                                                        });
+                                                                        if (updateDBEntryAsync.getStatus() != AsyncTask.Status.RUNNING)
+                                                                        {
+                                                                            updateDBEntryAsync.execute();
+                                                                        }
+                                                                        break;
+                                                                }
+
+                                                            }
+                                                        });
+                                                        getFragmentManager().beginTransaction().add(endedDialog, WordsEndedDialog.TAG).commit();
                                                     }
+
+                                                    //Toast.makeText(getActivity(), getString(R.string.text_all_words_is_studied) + " " + currentDict, Toast.LENGTH_LONG).show();
+//                                                    appSettings.removeItemFromPlayList(currentDict);
+//                                                    if (appSettings.getPlayList() == null || appSettings.getPlayList().size() == 0)
+//                                                    {
+//                                                        getActivity().stopService(MainActivity.serviceIntent);
+//                                                    }
                                                 }
                                             }
                                         }
@@ -423,7 +471,7 @@ public class TestModalFragment extends Fragment
                 {
                     button.setBackgroundResource(R.drawable.btn_for_test_modal_transp);
                     button.setTextColor(getActivity().getResources().getColor(R.color.colorLightGreen));
-                    if (getActivity() != null)
+                    if (getActivity() != null && !isWordsEnded)
                     {
                         appData.saveAllSettings(getActivity());
                         getActivity().finish();

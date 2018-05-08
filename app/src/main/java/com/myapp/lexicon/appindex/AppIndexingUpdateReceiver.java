@@ -15,10 +15,16 @@ public class AppIndexingUpdateReceiver extends BroadcastReceiver
     @Override
     public void onReceive(Context context, Intent intent)
     {
-        if (intent != null && FirebaseAppIndex.ACTION_UPDATE_INDEX.equals(intent.getAction()))
+        try
         {
-            AppIndexingUpdateService.enqueueWork(context);
-            context.startService(new Intent(context, AppIndexingService.class));
+            if (context != null && intent != null && FirebaseAppIndex.ACTION_UPDATE_INDEX.equals(intent.getAction()))
+            {
+                AppIndexingUpdateService.enqueueWork(context);
+                context.startService(new Intent(context, AppIndexingService.class));
+            }
+        } catch (Exception e)
+        {
+            e.printStackTrace();
         }
     }
 }

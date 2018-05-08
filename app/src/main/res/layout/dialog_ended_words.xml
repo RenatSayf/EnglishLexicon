@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:theme="@style/Theme.AppCompat.Light"
+    android:background="@color/colorWhite">
+
+    <!--<TextView-->
+        <!--style="@style/Widget.AppCompat.TextView.SpinnerItem"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:padding="3dp"-->
+        <!--android:text="Поздравляем!!!"-->
+        <!--android:textAlignment="center"-->
+        <!--android:textColor="@android:color/holo_orange_dark"-->
+        <!--android:textSize="24dp"/>-->
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="3dp"
+        android:text="Вы изучили все слова в словаре:"
+        android:textAlignment="center"
+        />
+
+    <TextView
+        android:id="@+id/dict_name_dialog_ended"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="3dp"
+        android:text="DictName"
+        android:textAlignment="center"
+        android:textColor="@android:color/holo_green_dark"
+        android:textSize="18dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="3dp"
+        android:text="@string/header_dialog_change_pl"
+        android:textAlignment="center"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="20dp"
+        >
+
+        <Button
+            android:id="@+id/btn_cancel_ended_dialog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/text_cancel"
+            style="@style/Base.Widget.AppCompat.ButtonBar"
+            android:background="@drawable/transparent_background"/>
+
+        <Button
+            android:id="@+id/btn_ok_ended_dialog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/text_ok"
+            style="@style/Base.Widget.AppCompat.ButtonBar"
+            android:background="@drawable/transparent_background"/>
+
+    </LinearLayout>
+
+</LinearLayout>

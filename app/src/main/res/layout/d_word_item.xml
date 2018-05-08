@@ -73,6 +73,7 @@
                         android:background="@drawable/text_button_for_test"
                         android:paddingLeft="10dp"
                         android:paddingRight="10dp"
+                        android:inputType="text"
                         />
 
                     <TextView

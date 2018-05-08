@@ -195,6 +195,7 @@
     <string name="text_name_dict">Name dict</string>
     <string name="text_all_words_is_studied">Всі слова вивчені в словнику</string>
     <string name="text_turn_on_all_words">Включити всі слова</string>
+    <string name="text_congratulate">Вітаємо!!!</string>
 
     <string-array name="display_mode">
         <item>Повтор</item>
