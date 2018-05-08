@@ -69,6 +69,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
     private CheckBox checkCopy, checkMove;
     private LinearLayout layoutSpinner;
     private ListViewAdapter listViewAdapter;
+    //private ArrayList<String> dictList;
     private ProgressBar progressBar;
     private DataBaseQueries dataBaseQueries;
     private ViewSwitcher switcher;
@@ -340,7 +341,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                     m.oldCountRepeat = 1;
                 }
 
-                ArrayList<String> list2 = new ArrayList<>(list);
+                ArrayList<String> list2 = new ArrayList<>(m.dictNames);
                 list2.remove(dictListSpinner.getSelectedItem().toString());
                 ArrayAdapter<String> adapterSpinner2 = new ArrayAdapter<>(WordEditor.this, android.R.layout.simple_list_item_1, list2);
                 spinnerDictToMove.setAdapter(adapterSpinner2);
@@ -746,12 +747,12 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
             }
         }
     }
-    private ArrayList<String> list;
+
     private void loadDbTableListHandler(Cursor cursor)
     {
         String nameNotDict;
 
-        list = new ArrayList<>();
+        m.dictNames.clear();
         try
         {
             if (cursor != null && cursor.getCount() > 0)
@@ -765,15 +766,15 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                         {
                             String table_name = cursor.getString(cursor.getColumnIndex("name"));
                             table_name = StringOperations.getInstance().underscoreToSpace(table_name);
-                            list.add( table_name );
+                            m.dictNames.add( table_name );
                         }
                         cursor.moveToNext();
                     }
                 }
             }
-            if (list.size() > 0)
+            if (m.dictNames.size() > 0)
             {
-                ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
+                ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, m.dictNames);
                 dictListSpinner.setAdapter(adapterSpinner);
                 int position = 0;
 //                if (spinnerDictSelectItem != null)
@@ -802,7 +803,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                 }
                 dictListSpinner.setSelection(position);
 
-                ArrayList<String> list2 = new ArrayList<>(list);
+                ArrayList<String> list2 = new ArrayList<>(m.dictNames);
                 list2.remove(dictListSpinner.getSelectedItem().toString());
                 ArrayAdapter<String> adapterSpinner2 = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list2);
                 spinnerDictToMove.setAdapter(adapterSpinner2);
