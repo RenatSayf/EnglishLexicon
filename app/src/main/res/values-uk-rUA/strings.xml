@@ -198,6 +198,7 @@
     <string name="text_congratulate">Вітаємо!!!</string>
     <string name="text_learned_all_words_in_dict">Ви вивчили всі слова в словнику:</string>
     <string name="dictname">DictName</string>
+    <string name="text_key_is_added">Ключ успішно додано</string>
 
     <string-array name="display_mode">
         <item>Повтор</item>

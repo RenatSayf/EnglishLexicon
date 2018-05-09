@@ -1,6 +1,5 @@
 package com.myapp.lexicon.database;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -18,11 +17,7 @@ public class GetEntriesAsyncFragm extends Fragment
     public static final String KEY_TABLE_NAME = "table_name";
     public static final String KEY_START_ID = "start_id";
     public static final String KEY_END_ID = "end_id";
-    private DatabaseHelper databaseHelper;
-    private OnGetEntriesFinishListener mListener;
-    private String tableName;
-    private int startId;
-    private int endId;
+    private static OnGetEntriesFinishListener mListener;
 
     public GetEntriesAsyncFragm()
     {
@@ -40,78 +35,22 @@ public class GetEntriesAsyncFragm extends Fragment
         return asyncFragm;
     }
 
-    @SuppressLint("StaticFieldLeak")
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
 
-        databaseHelper = new DatabaseHelper(getActivity());
+        DatabaseHelper databaseHelper = new DatabaseHelper(getActivity());
         databaseHelper.create_db();
 
         if (getArguments() != null)
         {
-            tableName = StringOperations.getInstance().spaceToUnderscore(getArguments().getString(KEY_TABLE_NAME));
-            startId = getArguments().getInt(KEY_START_ID);
-            endId = getArguments().getInt(KEY_END_ID);
+            String tableName = StringOperations.getInstance().spaceToUnderscore(getArguments().getString(KEY_TABLE_NAME));
+            int startId = getArguments().getInt(KEY_START_ID);
+            int endId = getArguments().getInt(KEY_END_ID);
 
-            AsyncTask<Void, Void, ArrayList<DataBaseEntry>> asyncTask = new AsyncTask<Void, Void, ArrayList<DataBaseEntry>>()
-            {
-                @Override
-                protected ArrayList<DataBaseEntry> doInBackground(Void... params)
-                {
-                    ArrayList<DataBaseEntry> entriesFromDB = new ArrayList<>();
-                    DataBaseEntry dataBaseEntry;
-                    Cursor cursor = null;
-                    try
-                    {
-                        databaseHelper.open();
-                        if (databaseHelper.database.isOpen())
-                        {
-                            cursor = databaseHelper.database.rawQuery("SELECT * FROM " + tableName + " WHERE RowID IN (" + startId + ", " + endId + ")", null);
-                            if (cursor.moveToFirst())
-                            {
-                                while (!cursor.isAfterLast())
-                                {
-                                    dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1));
-                                    entriesFromDB.add(dataBaseEntry);
-                                    cursor.moveToNext();
-                                }
-                            }
-                        } else
-                        {
-                            entriesFromDB.add(new DataBaseEntry(null, null));
-                        }
-                    } catch (Exception e)
-                    {
-                        entriesFromDB.add(new DataBaseEntry(null, null));
-                    } finally
-                    {
-                        if (cursor != null)
-                        {
-                            cursor.close();
-                        }
-                        databaseHelper.database.close();
-                    }
-                    return entriesFromDB;
-                }
-
-                @Override
-                protected void onPostExecute(ArrayList<DataBaseEntry> arrayList)
-                {
-                    super.onPostExecute(arrayList);
-                    if (mListener != null)
-                    {
-                        mListener.onGetEntriesFinish(arrayList);
-                    }
-                }
-            };
-
-            if (asyncTask.getStatus() != AsyncTask.Status.RUNNING)
-            {
-                asyncTask.execute();
-            }
+            getEntriesAsync(databaseHelper, tableName, startId, endId);
         }
     }
 
@@ -135,5 +74,65 @@ public class GetEntriesAsyncFragm extends Fragment
     public interface OnGetEntriesFinishListener
     {
         void onGetEntriesFinish(ArrayList<DataBaseEntry> arrayList);
+    }
+
+    private static void getEntriesAsync(final DatabaseHelper databaseHelper, final String tableName, final int startId, final int endId)
+    {
+        AsyncTask<Void, Void, ArrayList<DataBaseEntry>> asyncTask = new AsyncTask<Void, Void, ArrayList<DataBaseEntry>>()
+        {
+            @Override
+            protected ArrayList<DataBaseEntry> doInBackground(Void... params)
+            {
+                ArrayList<DataBaseEntry> entriesFromDB = new ArrayList<>();
+                DataBaseEntry dataBaseEntry;
+                Cursor cursor = null;
+                try
+                {
+                    databaseHelper.open();
+                    if (databaseHelper.database.isOpen())
+                    {
+                        cursor = databaseHelper.database.rawQuery("SELECT * FROM " + tableName + " WHERE RowID IN (" + startId + ", " + endId + ")", null);
+                        if (cursor.moveToFirst())
+                        {
+                            while (!cursor.isAfterLast())
+                            {
+                                dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1));
+                                entriesFromDB.add(dataBaseEntry);
+                                cursor.moveToNext();
+                            }
+                        }
+                    } else
+                    {
+                        entriesFromDB.add(new DataBaseEntry(null, null));
+                    }
+                } catch (Exception e)
+                {
+                    entriesFromDB.add(new DataBaseEntry(null, null));
+                } finally
+                {
+                    if (cursor != null)
+                    {
+                        cursor.close();
+                    }
+                    databaseHelper.database.close();
+                }
+                return entriesFromDB;
+            }
+
+            @Override
+            protected void onPostExecute(ArrayList<DataBaseEntry> arrayList)
+            {
+                super.onPostExecute(arrayList);
+                if (mListener != null)
+                {
+                    mListener.onGetEntriesFinish(arrayList);
+                }
+            }
+        };
+
+        if (asyncTask.getStatus() != AsyncTask.Status.RUNNING)
+        {
+            asyncTask.execute();
+        }
     }
 }

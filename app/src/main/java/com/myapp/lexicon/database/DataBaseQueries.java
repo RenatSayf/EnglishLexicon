@@ -3,9 +3,7 @@ package com.myapp.lexicon.database;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.widget.Toast;
 
-import com.myapp.lexicon.R;
 import com.myapp.lexicon.helpers.StringOperations;
 
 /**
@@ -14,11 +12,9 @@ import com.myapp.lexicon.helpers.StringOperations;
 public class DataBaseQueries
 {
     private DatabaseHelper databaseHelper;
-    private Context context;
 
     public DataBaseQueries(Context context)
     {
-        this.context = context;
         databaseHelper = new DatabaseHelper(context);
         databaseHelper.create_db();
     }
@@ -26,7 +22,7 @@ public class DataBaseQueries
     public int getCountEntriesSync(final String tableName)
     {
         String table_name = StringOperations.getInstance().spaceToUnderscore(tableName);
-        int countEntries = 0;
+        int countEntries;
         Cursor cursor = null;
         try
         {
@@ -166,14 +162,14 @@ public class DataBaseQueries
             databaseHelper.close();
         }
 
-        if (id != -1)
-        {
-            Toast.makeText(context,R.string.text_updated_successfully,Toast.LENGTH_SHORT).show();
-        }
-        else
-        {
-            Toast.makeText(context, R.string.text_write_error,Toast.LENGTH_SHORT).show();
-        }
+//        if (id != -1)
+//        {
+//            Toast.makeText(context,R.string.text_updated_successfully,Toast.LENGTH_SHORT).show();
+//        }
+//        else
+//        {
+//            Toast.makeText(context, R.string.text_write_error,Toast.LENGTH_SHORT).show();
+//        }
 
         return id;
     }
@@ -201,14 +197,14 @@ public class DataBaseQueries
         {
             databaseHelper.close();
         }
-        if (id != -1)
-        {
-            Toast.makeText(context, R.string.text_updated_successfully,Toast.LENGTH_SHORT).show();
-        }
-        else
-        {
-            Toast.makeText(context, R.string.text_deleting_error,Toast.LENGTH_SHORT).show();
-        }
+//        if (id != -1)
+//        {
+//            Toast.makeText(context, R.string.text_updated_successfully,Toast.LENGTH_SHORT).show();
+//        }
+//        else
+//        {
+//            Toast.makeText(context, R.string.text_deleting_error,Toast.LENGTH_SHORT).show();
+//        }
         return id;
     }
 

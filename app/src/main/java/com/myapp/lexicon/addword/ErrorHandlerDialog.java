@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseQueries;
@@ -87,7 +88,15 @@ public class ErrorHandlerDialog extends DialogFragment
                     DataBaseQueries dataBaseQueries = new DataBaseQueries(getActivity());
                     if (!editText.getText().toString().equals("") && editText.getText().toString().length() > 70)
                     {
-                        dataBaseQueries.addUpdateApiKey(editText.getText().toString());
+                        long res = dataBaseQueries.addUpdateApiKey(editText.getText().toString());
+                        if (res != -1)
+                        {
+                            Toast.makeText(getActivity(), R.string.text_key_is_added, Toast.LENGTH_SHORT).show();
+                        }
+                        else
+                        {
+                            Toast.makeText(getActivity(), R.string.text_write_error, Toast.LENGTH_SHORT).show();
+                        }
                     }
                     dismiss();
                 }

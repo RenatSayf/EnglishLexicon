@@ -3,7 +3,6 @@ package com.myapp.lexicon.database;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.database.Cursor;
-import android.os.Bundle;
 
 /**
  * Created by Renat on 01.03.2017.

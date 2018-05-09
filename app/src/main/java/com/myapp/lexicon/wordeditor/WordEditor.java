@@ -449,24 +449,45 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                     DataBaseEntry baseEntry = new DataBaseEntry(editTextEn.getText().toString(), editTextRu.getText().toString(), spinnerCountRepeat.getSelectedItem().toString());
                     if (!checkMove.isChecked())
                     {
-                        try
+                        long res = dataBaseQueries.updateWordInTableSync(tableName, m.rowID, baseEntry);
+                        if (res >= 0)
                         {
-                            dataBaseQueries.updateWordInTableSync(tableName, m.rowID, baseEntry);
-                        } catch (Exception e)
-                        {
-                            Toast.makeText(WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(WordEditor.this, R.string.text_updated_successfully, Toast.LENGTH_SHORT).show();
                         }
+                        else
+                        {
+                            Toast.makeText(WordEditor.this, R.string.text_write_error,Toast.LENGTH_SHORT).show();
+                        }
+
+//                        try
+//                        {
+//                            dataBaseQueries.updateWordInTableSync(tableName, m.rowID, baseEntry);
+//                        } catch (Exception e)
+//                        {
+//                            Toast.makeText(WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
+//                        }
                     }
                     else if (checkMove.isChecked() && !checkCopy.isChecked())
                     {
-                        try
+                        long res = dataBaseQueries.deleteWordInTableSync(tableName, m.rowID);
+                        dataBaseQueries.dataBaseVacuum(tableName);
+                        if (res >= 0)
                         {
-                            dataBaseQueries.deleteWordInTableSync(tableName, m.rowID);
-                            dataBaseQueries.dataBaseVacuum(tableName);
-                        } catch (Exception e)
-                        {
-                            Toast.makeText(WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(WordEditor.this, R.string.text_updated_successfully, Toast.LENGTH_SHORT).show();
                         }
+                        else
+                        {
+                            Toast.makeText(WordEditor.this, R.string.text_deleting_error,Toast.LENGTH_SHORT).show();
+                        }
+
+//                        try
+//                        {
+//                            dataBaseQueries.deleteWordInTableSync(tableName, m.rowID);
+//                            dataBaseQueries.dataBaseVacuum(tableName);
+//                        } catch (Exception e)
+//                        {
+//                            Toast.makeText(WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
+//                        }
                         dataBaseQueries.insertWordInTableSync(new_table_name, baseEntry);
                     }
                     else if (checkMove.isChecked() && checkCopy.isChecked())

@@ -102,8 +102,4 @@ public class DataBaseEntry implements Parcelable, Serializable
         return rowId;
     }
 
-    public void setRowId(int rowId)
-    {
-        this.rowId = rowId;
-    }
 }
