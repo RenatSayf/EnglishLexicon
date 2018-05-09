@@ -2,6 +2,7 @@ package com.myapp.lexicon.wordeditor;
 
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -10,7 +11,6 @@ import android.view.ViewGroup;
 
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.myapp.lexicon.R;
@@ -37,7 +37,7 @@ public class BottomBannerFragmentWE extends Fragment
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         if (fragment_view == null)
         {
@@ -46,7 +46,7 @@ public class BottomBannerFragmentWE extends Fragment
 
         if (savedInstanceState == null)
         {
-            final AdView bannerView = (AdView) fragment_view.findViewById(R.id.adView_we);
+            final AdView bannerView = fragment_view.findViewById(R.id.adView_we);
             bannerView.setVisibility(View.GONE);
             MobileAds.initialize(getActivity(), getString(R.string.main_bottom_banner));
             AdRequest adRequest;

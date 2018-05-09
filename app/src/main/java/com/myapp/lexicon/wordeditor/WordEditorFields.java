@@ -21,7 +21,7 @@ class WordEditorFields implements Parcelable
     String queryString;
     ArrayList<String> dictNames;
 
-    private WordEditorFields(Parcel in)
+    private WordEditorFields(@SuppressWarnings("unused") Parcel in)
     {
 
     }
