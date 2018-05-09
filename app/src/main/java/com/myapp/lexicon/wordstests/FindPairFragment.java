@@ -1,6 +1,7 @@
 package com.myapp.lexicon.wordstests;
 
 
+import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -234,6 +235,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
@@ -252,7 +254,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
 
         topPanel = fragment_view.findViewById(R.id.top_panel);
         topPanelParams = (RelativeLayout.LayoutParams) topPanel.getLayoutParams();
-        LinearLayout linLayout = (OverriddenPerformClickLinLayout) fragment_view.findViewById(R.id.lin_layout_find_pair);
+        LinearLayout linLayout = fragment_view.findViewById(R.id.lin_layout_find_pair);
         TextView headerTopPanel = fragment_view.findViewById(R.id.header_top_panel);
         headerTopPanel.setText(R.string.text_find_pair_words);
         topPanelButtonOK = fragment_view.findViewById(R.id.btn_ok);
