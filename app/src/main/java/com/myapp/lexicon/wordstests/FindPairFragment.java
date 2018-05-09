@@ -267,15 +267,13 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             public boolean onTouch(View v, MotionEvent event)
             {
                 if (event.getAction() == MotionEvent.ACTION_DOWN)
-            {
-                touchDown = event.getY();
-            }
-            else if (event.getAction() == MotionEvent.ACTION_UP)
-            {
-                touchUp = event.getY();
-            }
+                {
+                    touchDown = event.getY();
+                } else if (event.getAction() == MotionEvent.ACTION_UP)
+                {
+                    touchUp = event.getY();
+                }
                 topPanelVisible(touchDown, touchUp, isOpen);
-                v.performClick();
                 return true;
             }
         });
