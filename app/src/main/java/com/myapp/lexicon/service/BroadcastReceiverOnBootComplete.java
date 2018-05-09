@@ -21,16 +21,19 @@ public class BroadcastReceiverOnBootComplete extends BroadcastReceiver
         AppSettings appSettings = new AppSettings(context);
         try
         {
-            if (intent.getAction().equalsIgnoreCase(Intent.ACTION_BOOT_COMPLETED))
+            if (intent != null && intent.getAction() != null)
             {
-                if (appSettings.getPlayList() != null && appSettings.getPlayList().size() > 0)
+                if (intent.getAction().equalsIgnoreCase(Intent.ACTION_BOOT_COMPLETED))
                 {
-                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-                    boolean isUseService = preferences.getBoolean(context.getString(R.string.key_service), true);
-                    if (isUseService)
+                    if (appSettings.getPlayList() != null && appSettings.getPlayList().size() > 0)
                     {
-                        Intent serviceIntent = new Intent(context, LexiconService.class);
-                        context.startService(serviceIntent);
+                        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+                        boolean isUseService = preferences.getBoolean(context.getString(R.string.key_service), true);
+                        if (isUseService)
+                        {
+                            Intent serviceIntent = new Intent(context, LexiconService.class);
+                            context.startService(serviceIntent);
+                        }
                     }
                 }
             }
