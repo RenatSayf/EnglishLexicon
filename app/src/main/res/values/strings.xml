@@ -151,7 +151,7 @@
     <string name="text_updated_successfully">Словарь успешно обновлен</string>
     <string name="text_write_error">Ошибка записи</string>
     <string name="text_deleting_error">Ошибка удаления</string>
-    <string name="header_dialog_change_pl">Исключить словари из списка воспроизведения?</string>
+    <string name="header_dialog_change_pl">Исключить словари из списка обучения?</string>
     <string name="title_dialog_warning">Незавершенный тест:</string>
     <string name="text_move_to_dict">Переместить в словарь</string>
     <string name="btn_text_write">Записать</string>
@@ -197,6 +197,8 @@
     <string name="text_all_words_is_studied">Все слова изучены в словаре</string>
     <string name="text_turn_on_all_words">Включить все слова</string>
     <string name="text_congratulate">Поздравляем!!!</string>
+    <string name="text_learned_all_words_in_dict">Вы изучили все слова в словаре:</string>
+    <string name="dictname">DictName</string>
 
     <string-array name="display_mode">
         <item>Повтор</item>

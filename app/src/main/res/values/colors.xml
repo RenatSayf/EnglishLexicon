@@ -16,4 +16,5 @@
     <color name="trans_text_color">#0b9404</color>
     <color name="colorLightGreen">#90fd75</color>
     <color name="colorPopAppBody">#3b5e91</color>
+    <color name="colorLightGrey">#e9ebec</color>
 </resources>

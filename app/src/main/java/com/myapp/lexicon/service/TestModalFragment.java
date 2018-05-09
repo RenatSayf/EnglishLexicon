@@ -445,13 +445,6 @@ public class TestModalFragment extends Fragment
                                                         });
                                                         getFragmentManager().beginTransaction().add(endedDialog, WordsEndedDialog.TAG).commit();
                                                     }
-
-                                                    //Toast.makeText(getActivity(), getString(R.string.text_all_words_is_studied) + " " + currentDict, Toast.LENGTH_LONG).show();
-//                                                    appSettings.removeItemFromPlayList(currentDict);
-//                                                    if (appSettings.getPlayList() == null || appSettings.getPlayList().size() == 0)
-//                                                    {
-//                                                        getActivity().stopService(MainActivity.serviceIntent);
-//                                                    }
                                                 }
                                             }
                                         }

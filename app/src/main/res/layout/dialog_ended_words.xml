@@ -6,22 +6,14 @@
     android:theme="@style/Theme.AppCompat.Light"
     android:background="@color/colorWhite">
 
-    <!--<TextView-->
-        <!--style="@style/Widget.AppCompat.TextView.SpinnerItem"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:padding="3dp"-->
-        <!--android:text="Поздравляем!!!"-->
-        <!--android:textAlignment="center"-->
-        <!--android:textColor="@android:color/holo_orange_dark"-->
-        <!--android:textSize="24dp"/>-->
-
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:padding="3dp"
-        android:text="Вы изучили все слова в словаре:"
+        android:text="@string/text_learned_all_words_in_dict"
         android:textAlignment="center"
+        android:textSize="16sp"
         />
 
     <TextView
@@ -29,17 +21,19 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="3dp"
-        android:text="DictName"
+        android:text="@string/dictname"
         android:textAlignment="center"
         android:textColor="@android:color/holo_green_dark"
-        android:textSize="18dp"/>
+        android:textSize="18sp"
+        android:textStyle="bold"/>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="3dp"
+        android:padding="5dp"
         android:text="@string/header_dialog_change_pl"
         android:textAlignment="center"
+        android:textSize="16sp"
         />
 
     <LinearLayout
@@ -47,6 +41,8 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginTop="20dp"
+        android:padding="10dp"
+        android:background="@color/colorLightGrey"
         >
 
         <Button
@@ -55,8 +51,11 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/text_cancel"
+            android:textColor="@drawable/selector_color_gold_to_white"
             style="@style/Base.Widget.AppCompat.ButtonBar"
-            android:background="@drawable/transparent_background"/>
+            android:background="@drawable/transparent_background"
+            android:textStyle="bold"
+            android:textSize="18sp"/>
 
         <Button
             android:id="@+id/btn_ok_ended_dialog"
@@ -64,8 +63,11 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/text_ok"
+            android:textColor="@drawable/selector_color_green_to_white"
             style="@style/Base.Widget.AppCompat.ButtonBar"
-            android:background="@drawable/transparent_background"/>
+            android:background="@drawable/transparent_background"
+            android:textStyle="bold"
+            android:textSize="18sp"/>
 
     </LinearLayout>
 

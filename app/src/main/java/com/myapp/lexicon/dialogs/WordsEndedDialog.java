@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.myapp.lexicon.R;
@@ -42,7 +43,7 @@ public class WordsEndedDialog extends android.support.v4.app.DialogFragment
         AlertDialog.Builder builder = null;
         if (getActivity() != null)
         {
-            View dialogView = getActivity().getLayoutInflater().inflate(R.layout.dialog_ended_words, null);
+            View dialogView = getActivity().getLayoutInflater().inflate(R.layout.dialog_ended_words, new LinearLayout(getContext()), false);
             TextView dictNameTV = dialogView.findViewById(R.id.dict_name_dialog_ended);
             Button btnOk = dialogView.findViewById(R.id.btn_ok_ended_dialog);
             btnOk_OnClick(btnOk);
@@ -52,7 +53,7 @@ public class WordsEndedDialog extends android.support.v4.app.DialogFragment
             {
                 dictNameTV.setText(getArguments().getString(DICT_NAME));
             }
-            View title = getActivity().getLayoutInflater().inflate(R.layout.congratulate_title, null);
+            View title = getActivity().getLayoutInflater().inflate(R.layout.congratulate_title, new LinearLayout(getContext()), false);
 
             builder = new AlertDialog.Builder(getActivity())
                     .setCustomTitle(title)
