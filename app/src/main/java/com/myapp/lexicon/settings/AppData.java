@@ -15,7 +15,7 @@ public class AppData
     private static final AppData ourInstance = new AppData();
     private int ndict;
     private int nword = 1;
-    private boolean isPause = false;
+    private boolean is_pause = false;
     private ListViewAdapter listViewAdapter;
     private String langCode;
     private int serviceMode = 0;
@@ -53,12 +53,12 @@ public class AppData
 
     public boolean isPause()
     {
-        return isPause;
+        return is_pause;
     }
 
     public void setPause(boolean pause)
     {
-        isPause = pause;
+        is_pause = pause;
     }
 
     public ListViewAdapter getListViewAdapter()
@@ -84,7 +84,7 @@ public class AppData
     public void saveAllSettings(Context context)
     {
         AppSettings appSettings = new AppSettings(context);
-        appSettings.setPause(isPause);
+        appSettings.setPause(is_pause);
         appSettings.setDictNumber(ndict);
         appSettings.setWordNumber(nword);
         appSettings.setTranslateLang(langCode);
@@ -93,7 +93,7 @@ public class AppData
     public void initAllSettings(Context context)
     {
         AppSettings appSettings = new AppSettings(context);
-        isPause = appSettings.isPause();
+        is_pause = appSettings.isPause();
         ndict = appSettings.getDictNumber();
         nword = appSettings.getWordNumber();
         langCode = appSettings.getTranslateLang();

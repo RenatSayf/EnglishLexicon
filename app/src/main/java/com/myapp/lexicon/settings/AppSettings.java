@@ -30,7 +30,6 @@ public class AppSettings
     private final String KEY_CURRENT_DICT = "current_dict";
     private final String KEY_IS_PAUSE = "is_pause";
     private final String KEY_TRANSLATE_LANG = "translate_lang";
-    private final String KEY_TRANS_LANG_LIST = "trans_lang_list";
 
     private ArrayList<String> transLangList;
 
@@ -168,6 +167,7 @@ public class AppSettings
 
         if (play_list_items != null && play_list_items.length() > 0)
         {
+            //noinspection unchecked
             list = (ArrayList<String>) ObjectSerializer.deserialize(play_list_items);
         }
         return list;
