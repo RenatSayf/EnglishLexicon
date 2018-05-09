@@ -15,7 +15,6 @@ import java.util.ArrayList;
 
 public class GetTableListAsync extends AsyncTask<Void, Void, ArrayList<String>>
 {
-    private Activity activity;
     private GetTableListListener listener;
     private LockOrientation lockOrientation;
     private DatabaseHelper databaseHelper;
@@ -23,9 +22,8 @@ public class GetTableListAsync extends AsyncTask<Void, Void, ArrayList<String>>
     public GetTableListAsync(Activity activity, GetTableListListener listener)
     {
         setListener(listener);
-        this.activity = activity;
-        lockOrientation = new LockOrientation(this.activity);
-        databaseHelper = new DatabaseHelper(this.activity);
+        lockOrientation = new LockOrientation(activity);
+        databaseHelper = new DatabaseHelper(activity);
         databaseHelper.create_db();
     }
 
@@ -43,10 +41,7 @@ public class GetTableListAsync extends AsyncTask<Void, Void, ArrayList<String>>
     protected void onPreExecute()
     {
         super.onPreExecute();
-        if (activity != null)
-        {
-            lockOrientation.lock();
-        }
+        lockOrientation.lock();
     }
 
     @Override
@@ -103,19 +98,13 @@ public class GetTableListAsync extends AsyncTask<Void, Void, ArrayList<String>>
         {
             listener.getTableListListener(list);
         }
-        if (activity != null)
-        {
-            lockOrientation.unLock();
-        }
+        lockOrientation.unLock();
     }
 
     @Override
     protected void onCancelled()
     {
         super.onCancelled();
-        if (activity != null)
-        {
-            lockOrientation.unLock();
-        }
+        lockOrientation.unLock();
     }
 }

@@ -2,13 +2,17 @@ package com.myapp.lexicon.wordstests;
 
 
 import android.animation.Animator;
+import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -102,7 +106,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState)
+    public void onSaveInstanceState(@NonNull Bundle outState)
     {
         super.onSaveInstanceState(outState);
         outState.putInt(KEY_PROGRESS, progressBar.getProgress());
@@ -142,10 +146,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
 
         Collection<String> stringCollection = sortBtnsLayout.values();
         fields.textArray.clear();
-        for (String item : stringCollection)
-        {
-            fields.textArray.add(item);
-        }
+        fields.textArray.addAll(stringCollection);
     }
 
     @Override
@@ -164,36 +165,38 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState)
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        Display display = getActivity().getWindowManager().getDefaultDisplay();
-        displayMetrics = new DisplayMetrics();
-        display.getMetrics(displayMetrics);
-
+        if (getActivity() != null)
+        {
+            Display display = getActivity().getWindowManager().getDefaultDisplay();
+            displayMetrics = new DisplayMetrics();
+            display.getMetrics(displayMetrics);
+        }
         lockOrientation = new LockOrientation(getActivity());
         appSettings = new AppSettings(getActivity());
         appData = AppData.getInstance();
 
         View fragment_view = inflater.inflate(R.layout.t_listen_end_click_layout, container, false);
 
-        backImage = (ImageView) fragment_view.findViewById(R.id.img_back_listen_layout);
+        backImage = fragment_view.findViewById(R.id.img_back_listen_layout);
 
-        topPanel = (LinearLayout) fragment_view.findViewById(R.id.top_panel);
+        topPanel = fragment_view.findViewById(R.id.top_panel);
         topPanelParams = (RelativeLayout.LayoutParams) topPanel.getLayoutParams();
-        topPanelButtonOK = (Button) fragment_view.findViewById(R.id.btn_ok);
-        topPanelButtonFinish = (Button) fragment_view.findViewById(R.id.btn_complete);
-        topPanelButtonThreePoints = (ImageButton) fragment_view.findViewById(R.id.btn_more_horiz);
+        topPanelButtonOK = fragment_view.findViewById(R.id.btn_ok);
+        topPanelButtonFinish = fragment_view.findViewById(R.id.btn_complete);
+        topPanelButtonThreePoints = fragment_view.findViewById(R.id.btn_more_horiz);
         topPanelButtons_OnClick();
 
-        LinearLayout linLayout = (LinearLayout) fragment_view.findViewById(R.id.linear_layout);
-        spinnListDict = (Spinner) fragment_view.findViewById(R.id.spinner_dict);
-        buttonsLayout = (LinearLayout) fragment_view.findViewById(R.id.buttons_layout);
-        buttonSpeech = (ImageButton) fragment_view.findViewById(R.id.btn_speech);
+        LinearLayout linLayout = fragment_view.findViewById(R.id.linear_layout);
+        spinnListDict = fragment_view.findViewById(R.id.spinner_dict);
+        buttonsLayout = fragment_view.findViewById(R.id.buttons_layout);
+        buttonSpeech = fragment_view.findViewById(R.id.btn_speech);
         buttonSpeech_OnClick();
-        progressBar = (ProgressBar) fragment_view.findViewById(R.id.prog_bar_listen);
-        tvProgressValue = (TextView) fragment_view.findViewById(R.id.tv_progress_value);
+        progressBar = fragment_view.findViewById(R.id.prog_bar_listen);
+        tvProgressValue = fragment_view.findViewById(R.id.tv_progress_value);
         setProgressValue(0, fields.wordsCount);
 
         testResults = new TestResults(getActivity());
@@ -248,9 +251,9 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                 }
 
                 topPanelVisible(touchDown, touchUp, fields.isOpen[0]);
-
                 return true;
             }
+
         });
 
         spinnListDict_OnItemSelectedListener();
@@ -285,9 +288,12 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
     {
         if (fields.storedListDict.size() > 0)
         {
-            ArrayAdapter<String> spinnAdapter = new ArrayAdapter<>(getActivity().getApplicationContext(), R.layout.my_content_spinner_layout, fields.storedListDict);
-            spinnListDict.setAdapter(spinnAdapter);
-            return;
+            if (getActivity() != null)
+            {
+                ArrayAdapter<String> spinnAdapter = new ArrayAdapter<>(getActivity(), R.layout.my_content_spinner_layout, fields.storedListDict);
+                spinnListDict.setAdapter(spinnAdapter);
+                return;
+            }
         }
 
         GetTableListAsync getTableListAsync = new GetTableListAsync(getActivity(), new GetTableListAsync.GetTableListListener()
@@ -295,8 +301,11 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
             @Override
             public void getTableListListener(ArrayList<String> arrayList)
             {
-                ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(getActivity().getApplicationContext(), R.layout.my_content_spinner_layout, arrayList);
-                spinnListDict.setAdapter(adapterSpinner);
+                if (getActivity() != null)
+                {
+                    ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(getActivity(), R.layout.my_content_spinner_layout, arrayList);
+                    spinnListDict.setAdapter(adapterSpinner);
+                }
                 ArrayList<String> playList = appSettings.getPlayList();
                 if (playList != null && playList.size() > 0)
                 {
@@ -402,10 +411,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                 fields.controlList = entries;
                 fields.additionalList = new ArrayList<>();
                 fields.additonalCount = 0;
-                for (DataBaseEntry entry : entries)
-                {
-                    fields.additionalList.add(entry);
-                }
+                fields.additionalList.addAll(entries);
                 fields.oldControlListSize = fields.controlList.size();
                 randomGenerator = new RandomNumberGenerator(fields.oldControlListSize, (int) new Date().getTime());
                 long start_delay = 0;
@@ -537,7 +543,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
         else
         {
             fields.counterRightAnswer--;
-            Animation animNotRight = AnimationUtils.loadAnimation(getActivity().getApplicationContext(), R.anim.anim_not_right);
+            Animation animNotRight = AnimationUtils.loadAnimation(getActivity(), R.anim.anim_not_right);
             animNotRight.setAnimationListener(new Animation.AnimationListener()
             {
                 @Override
@@ -639,10 +645,15 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                     public void onAnimationEnd(Animator animation)
                     {
                         tempButton.setY(0);
-                        Display display = getActivity().getWindowManager().getDefaultDisplay();
-                        DisplayMetrics metrics = new DisplayMetrics();
-                        display.getMetrics(metrics);
-                        button.setX(metrics.widthPixels+10);
+                        DisplayMetrics metrics;
+                        if (getActivity() != null)
+                        {
+                            Display display = getActivity().getWindowManager().getDefaultDisplay();
+                            metrics = new DisplayMetrics();
+                            display.getMetrics(metrics);
+                            button.setX(metrics.widthPixels+10);
+                        }
+
                         if (fields.listFromDB.size() > 0)
                         {
                             fields.controlList.set(fields.indexEn, fields.listFromDB.get(0));
@@ -668,7 +679,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                                 animButtonFromRigth(tempButton);
                             }
                         }
-                        else if (fields.listFromDB.size() == 0 && fields.controlList.size() <= ROWS)
+                        else if (fields.controlList.size() <= ROWS)
                         {
                             try
                             {
@@ -765,14 +776,25 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                 if (fields.textEn.equals(""))
                 {
                     ArrayList<String> list = new ArrayList<>();
-                    list.add(testResults.getOverallResult(fields.counterRightAnswer, fields.wordsCount));
-                    list.add(fields.counterRightAnswer + getActivity().getString(R.string.text_out_of) + fields.wordsCount);
                     Bundle bundle = new Bundle();
+                    if (getActivity() != null)
+                    {
+                        list.add(testResults.getOverallResult(fields.counterRightAnswer, fields.wordsCount));
+                        list.add(fields.counterRightAnswer + getActivity().getString(R.string.text_out_of) + fields.wordsCount);
+
+                    } else
+                    {
+                        list.add(testResults.getOverallResult(fields.counterRightAnswer, fields.wordsCount));
+                        list.add(fields.counterRightAnswer + " / " + fields.wordsCount);
+                    }
                     bundle.putString(dialogTestComplete.KEY_RESULT, list.get(0));
                     bundle.putString(dialogTestComplete.KEY_ERRORS, list.get(1));
                     dialogTestComplete.setArguments(bundle);
                     dialogTestComplete.setCancelable(false);
-                    dialogTestComplete.show(getFragmentManager(), "dialog_complete_lexicon");
+                    if (getFragmentManager() != null)
+                    {
+                        dialogTestComplete.show(getFragmentManager(), "dialog_complete_lexicon");
+                    }
                 }
             }
 
@@ -819,10 +841,14 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
         if (res < 0)
         {
             addToStudiedList();
-
             spinnListDict.setSelection(-1);
             fields.spinnSelectedIndex = -1;
-            getActivity().onBackPressed();
+            FragmentActivity activity = getActivity();
+            if (activity != null)
+            {
+                getActivity().onBackPressed();
+            }
+
             if (fields.arrStudiedDict.size() > 0)
             {
                 DialogChangePlayList dialogChangePlayList = new DialogChangePlayList();
@@ -830,7 +856,11 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                 bundle.putStringArrayList(dialogChangePlayList.KEY_LIST_DICT, fields.arrStudiedDict);
                 dialogChangePlayList.setArguments(bundle);
                 dialogChangePlayList.setCancelable(false);
-                dialogChangePlayList.show(getFragmentManager(), "dialog_change_pl_lexicon");
+                FragmentManager fragmentManager = getFragmentManager();
+                if (fragmentManager != null)
+                {
+                    dialogChangePlayList.show(fragmentManager, "dialog_change_pl_lexicon");
+                }
             }
         }
     }
@@ -941,7 +971,10 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                 topPanelVisible(1, 0, fields.isOpen[0]);
                 spinnListDict.setSelection(-1);
                 fields.spinnSelectedIndex = -1;
-                getActivity().onBackPressed();
+                if (getActivity() != null)
+                {
+                    getActivity().onBackPressed();
+                }
             }
         });
         topPanelButtonThreePoints.setOnClickListener(new View.OnClickListener()
@@ -967,35 +1000,38 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
         if (isRemoving() && fields.wordIndex -1 - ROWS < fields.wordsCount && fields.counterRightAnswer > 1 && fields.wordsCount >= ROWS)
         {
             fields.spinnSelectedIndex = -1;
-            DialogWarning dialogWarning = new DialogWarning();
-
-            Bundle bundle = new Bundle();
-            bundle.putString(dialogWarning.KEY_MESSAGE, getString(R.string.text_not_finished_test));
-            bundle.putString(dialogWarning.KEY_TEXT_OK_BUTTON, getString(R.string.button_text_yes));
-            bundle.putString(dialogWarning.KEY_TEXT_NO_BUTTON, getString(R.string.button_text_no));
-
-            dialogWarning.setArguments(bundle);
-            dialogWarning.setCancelable(false);
-            dialogWarning.show(getActivity().getSupportFragmentManager(), dialogWarning.TAG);
-            dialogWarning.setListener(new DialogWarning.IDialogResult()
+            if (getActivity() != null)
             {
-                @Override
-                public void dialogListener(boolean result)
+                DialogWarning dialogWarning = new DialogWarning();
+
+                Bundle bundle = new Bundle();
+                bundle.putString(dialogWarning.KEY_MESSAGE, getString(R.string.text_not_finished_test));
+                bundle.putString(dialogWarning.KEY_TEXT_OK_BUTTON, getString(R.string.button_text_yes));
+                bundle.putString(dialogWarning.KEY_TEXT_NO_BUTTON, getString(R.string.button_text_no));
+
+                dialogWarning.setArguments(bundle);
+                dialogWarning.setCancelable(false);
+                dialogWarning.show(getActivity().getSupportFragmentManager(), dialogWarning.TAG);
+                dialogWarning.setListener(new DialogWarning.IDialogResult()
                 {
-                    if (result)
+                    @Override
+                    public void dialogListener(boolean result)
                     {
-                        Bundle bundle = new Bundle();
-                        bundle.putString(appSettings.KEY_SPINN_SELECT_ITEM, fields.spinnSelectedItem);
-                        bundle.putInt(appSettings.KEY_WORD_INDEX, fields.wordIndex - ROWS);
-                        bundle.putInt(appSettings.KEY_COUNTER_RIGHT_ANSWER, fields.counterRightAnswer);
-                        appSettings.saveTestFragmentState(TAG, bundle);
+                        if (result)
+                        {
+                            Bundle bundle = new Bundle();
+                            bundle.putString(appSettings.KEY_SPINN_SELECT_ITEM, fields.spinnSelectedItem);
+                            bundle.putInt(appSettings.KEY_WORD_INDEX, fields.wordIndex - ROWS);
+                            bundle.putInt(appSettings.KEY_COUNTER_RIGHT_ANSWER, fields.counterRightAnswer);
+                            appSettings.saveTestFragmentState(TAG, bundle);
+                        }
+                        else
+                        {
+                            appSettings.saveTestFragmentState(TAG, null);
+                        }
                     }
-                    else
-                    {
-                        appSettings.saveTestFragmentState(TAG, null);
-                    }
-                }
-            });
+                });
+            }
         }
     }
 

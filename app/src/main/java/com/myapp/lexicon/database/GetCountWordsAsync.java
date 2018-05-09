@@ -13,20 +13,29 @@ import com.myapp.lexicon.helpers.StringOperations;
 
 public class GetCountWordsAsync extends AsyncTask<String, Void, Integer>
 {
-    private Activity activity;
     private GetCountListener listener;
     private LockOrientation lockOrientation;
     private DatabaseHelper databaseHelper;
     private String tableName;
+    private boolean allEnries = true;
 
     public GetCountWordsAsync(Activity activity, String tableName, GetCountListener listener)
     {
         setTaskCompleteListener(listener);
-        this.activity = activity;
-        lockOrientation = new LockOrientation(this.activity);
-        databaseHelper = new DatabaseHelper(this.activity);
+        lockOrientation = new LockOrientation(activity);
+        databaseHelper = new DatabaseHelper(activity);
         databaseHelper.create_db();
         this.tableName = StringOperations.getInstance().spaceToUnderscore(tableName);
+    }
+
+    public GetCountWordsAsync(Activity activity, String tableName, boolean allEnries, GetCountListener listener)
+    {
+        setTaskCompleteListener(listener);
+        lockOrientation = new LockOrientation(activity);
+        databaseHelper = new DatabaseHelper(activity);
+        databaseHelper.create_db();
+        this.tableName = StringOperations.getInstance().spaceToUnderscore(tableName);
+        this.allEnries = allEnries;
     }
 
     public interface GetCountListener
@@ -43,10 +52,7 @@ public class GetCountWordsAsync extends AsyncTask<String, Void, Integer>
     protected void onPreExecute()
     {
         super.onPreExecute();
-        if (activity != null)
-        {
-            lockOrientation.lock();
-        }
+        lockOrientation.lock();
     }
 
     @Override
@@ -59,7 +65,13 @@ public class GetCountWordsAsync extends AsyncTask<String, Void, Integer>
             databaseHelper.open();
             if (databaseHelper.database.isOpen())
             {
-                cursor=databaseHelper.database.query(tableName, null, null, null, null, null, null);
+                if (!this.allEnries)
+                {
+                    cursor = databaseHelper.database.query(tableName, null, "CountRepeat <> 0", null, null, null, null);
+                } else
+                {
+                    cursor = databaseHelper.database.query(tableName, null, null, null, null, null, null);
+                }
                 count = cursor.getCount();
             }
         }
@@ -86,19 +98,13 @@ public class GetCountWordsAsync extends AsyncTask<String, Void, Integer>
         {
             listener.onTaskComplete(count);
         }
-        if (activity != null)
-        {
-            lockOrientation.unLock();
-        }
+        lockOrientation.unLock();
     }
 
     @Override
     protected void onCancelled()
     {
         super.onCancelled();
-        if (activity != null)
-        {
-            lockOrientation.unLock();
-        }
+        lockOrientation.unLock();
     }
 }

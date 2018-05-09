@@ -30,7 +30,6 @@ public class AppSettings
     private final String KEY_CURRENT_DICT = "current_dict";
     private final String KEY_IS_PAUSE = "is_pause";
     private final String KEY_TRANSLATE_LANG = "translate_lang";
-    private final String KEY_TRANS_LANG_LIST = "trans_lang_list";
 
     private ArrayList<String> transLangList;
 
@@ -68,7 +67,7 @@ public class AppSettings
 
     /**
      * set the russian speech in the modal window
-     * @param isEngOnly
+     * @param isEngOnly true
      */
     public void setRuSpeechInModal(boolean isEngOnly)
     {
@@ -105,15 +104,17 @@ public class AppSettings
             while (appData.getNdict() > list.size()-1)
             {
                 appData.setNdict(appData.getNdict()-1);
+                setDictNumber(appData.getNdict() - 1);
                 appData.setNword(1);
             }
             if (appData.getNdict() < 0)
             {
                 appData.setNdict(0);
+                setDictNumber(0);
                 appData.setNword(1);
             }
         }
-        else if (list != null && list.size() == 0)
+        else if (list != null)
         {
             AppData appData = AppData.getInstance();
             appData.setNdict(0);
@@ -166,6 +167,7 @@ public class AppSettings
 
         if (play_list_items != null && play_list_items.length() > 0)
         {
+            //noinspection unchecked
             list = (ArrayList<String>) ObjectSerializer.deserialize(play_list_items);
         }
         return list;
@@ -206,6 +208,21 @@ public class AppSettings
     public void setDictNumber(int number)
     {
         context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putInt(KEY_N_DICT, number).apply();
+        ArrayList<String> list = getPlayList();
+        if (list != null && list.size() > 0 && number >= 0)
+        {
+            try
+            {
+                setCurrentDict(list.get(number));
+            } catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+//            if (iCurrentDictChanged != null && number >= 0)
+//            {
+//                iCurrentDictChanged.currentDictOnChanged(list.get(number));
+//            }
+        }
     }
 
     public int getDictNumber()
@@ -213,7 +230,7 @@ public class AppSettings
         return context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getInt(KEY_N_DICT, 0);
     }
 
-    public void setCurrentDict(String name)
+    private void setCurrentDict(String name)
     {
         context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putString(KEY_CURRENT_DICT, name).apply();
     }

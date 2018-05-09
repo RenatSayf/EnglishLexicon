@@ -88,8 +88,6 @@
         android:textColor="@color/colorWhite"
         android:text="@string/text_en"/>
 
-
-
     <TextView
         android:id="@+id/ru_text_view"
         android:layout_width="match_parent"
@@ -111,13 +109,14 @@
 
         <CheckBox
             android:id="@+id/check_box_ru_speak_modal"
-            style="@style/Widget.AppCompat.CompoundButton.CheckBox"
+            style="@android:style/Widget.Holo.Light.CompoundButton.CheckBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/transparent_background"
-            android:buttonTint="#FFFF"
+            android:buttonTint="@color/colorWhite"
             android:text="@string/text_ru"
-            android:textColor="@drawable/selector_white_to_orange_color"/>
+            android:textColor="@drawable/selector_white_to_orange_color"
+            android:background="@drawable/transparent_background"
+            android:checked="false"/>
 
         <android.support.v4.widget.Space
             android:layout_width="wrap_content"

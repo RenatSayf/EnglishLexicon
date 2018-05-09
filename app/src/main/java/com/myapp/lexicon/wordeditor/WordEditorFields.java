@@ -3,6 +3,8 @@ package com.myapp.lexicon.wordeditor;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
+
 /**
  * Created by Renat.
  */
@@ -16,8 +18,10 @@ class WordEditorFields implements Parcelable
     int oldCountRepeat;
     int amountWords = 0;
     boolean[] searchIsVisible;
+    String queryString;
+    ArrayList<String> dictNames;
 
-    private WordEditorFields(Parcel in)
+    private WordEditorFields(@SuppressWarnings("unused") Parcel in)
     {
 
     }
@@ -25,6 +29,8 @@ class WordEditorFields implements Parcelable
     WordEditorFields()
     {
         searchIsVisible = new boolean[1];
+        searchIsVisible[0] = true;
+        dictNames = new ArrayList<>();
     }
 
     public static final Creator<WordEditorFields> CREATOR = new Creator<WordEditorFields>()
@@ -55,8 +61,10 @@ class WordEditorFields implements Parcelable
         parcel.writeString(oldTextEn);
         parcel.writeString(oldTextRu);
         parcel.writeString(oldCurrentDict);
+        parcel.writeString(queryString);
         parcel.writeInt(oldCountRepeat);
         parcel.writeInt(amountWords);
         parcel.writeBooleanArray(searchIsVisible);
+        parcel.writeStringList(dictNames);
     }
 }

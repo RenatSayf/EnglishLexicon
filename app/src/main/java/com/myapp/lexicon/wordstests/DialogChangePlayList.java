@@ -19,23 +19,27 @@ public class DialogChangePlayList extends android.support.v4.app.DialogFragment
 {
     public final String TAG = "dialog_change_pl_lexicon";
     public final String KEY_LIST_DICT = "listdict";
-    public IChangePlayList changePlayList;
-
-    public interface IChangePlayList
-    {
-        void dialogResult();
-    }
-
-    public void setDialogResult(IChangePlayList changePlayList)
-    {
-        this.changePlayList = changePlayList;
-    }
+//    public IChangePlayList changePlayList;
+//
+//    public interface IChangePlayList
+//    {
+//        void dialogResult();
+//    }
+//
+//    public void setDialogResult(IChangePlayList changePlayList)
+//    {
+//        this.changePlayList = changePlayList;
+//    }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
-        ArrayList<String> listDict = getArguments().getStringArrayList(KEY_LIST_DICT);
+        ArrayList<String> listDict = null;
+        if (getArguments() != null)
+        {
+            listDict = getArguments().getStringArrayList(KEY_LIST_DICT);
+        }
         if (listDict == null)
         {
             return super.onCreateDialog(savedInstanceState);
@@ -67,7 +71,10 @@ public class DialogChangePlayList extends android.support.v4.app.DialogFragment
                     {
                         for (String item : items)
                         {
-                            new AppSettings(getContext()).removeItemFromPlayList(item);
+                            if (getActivity() != null)
+                            {
+                                new AppSettings(getActivity()).removeItemFromPlayList(item);
+                            }
                         }
                         dismiss();
                     }

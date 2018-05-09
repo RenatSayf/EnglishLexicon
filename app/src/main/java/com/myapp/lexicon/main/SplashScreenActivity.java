@@ -16,6 +16,7 @@ import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.ArrayList;
@@ -32,11 +33,11 @@ public class SplashScreenActivity extends Activity
 
     private UpdateBroadcastReceiver broadcastReceiver; // TODO: UpdateBroadcastReceiver. 1 - объявление экземпляра UpdateBroadcastReceiver
     private Intent messageErrorIntent;  // TODO: UpdateBroadcastReceiver. 2 - объявление экземпляра Intent
-    public String EXTRA_KEY_ERROR_MSG = "key_error_message";    // TODO: UpdateBroadcastReceiver. 3 - определение ключа для приемника
     public String EXTRA_KEY_MSG_ID = "key_msg_id";              // TODO: UpdateBroadcastReceiver. 3 - определение ключа для приемника
     public String ACTION_UPDATE = "com.myapp.lexicon.main.a_SplashScreenActivity";   // TODO: UpdateBroadcastReceiver. 4 - определения действия
 
     private AppSettings appSettings;
+    private SharedPreferences preferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -44,7 +45,11 @@ public class SplashScreenActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a_layout_splash_screen);
 
+        preferences = PreferenceManager.getDefaultSharedPreferences(SplashScreenActivity.this);
+        int serviceMode = Integer.parseInt(preferences.getString(getString(R.string.key_list_display_mode), "0"));
         appSettings = new AppSettings(SplashScreenActivity.this);
+        AppData appData = AppData.getInstance();
+        appData.setServiceMode(serviceMode);
 
         //region TODO: UpdateBroadcastReceiver. 5 - Регистрируем приёмник
         broadcastReceiver = new UpdateBroadcastReceiver();
@@ -99,7 +104,6 @@ public class SplashScreenActivity extends Activity
                     }
                     else
                     {
-                        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(SplashScreenActivity.this);
                         boolean isStartSpeech = preferences.getBoolean("is_start_speech", true);
                         if (isStartSpeech)
                         {

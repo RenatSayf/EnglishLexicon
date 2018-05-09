@@ -15,24 +15,80 @@ import java.util.ArrayList;
 
 public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<DataBaseEntry>>
 {
-    private Activity activity;
     private GetEntriesListener listener;
     private LockOrientation lockOrientation;
     private DatabaseHelper databaseHelper;
-    private String tableName;
-    private int startId;
-    private int endId;
+    private String cmd;
 
     public GetEntriesFromDbAsync(Activity activity, String tableName, int startId, int endId, GetEntriesListener listener)
     {
         setListener(listener);
-        this.activity = activity;
-        lockOrientation = new LockOrientation(this.activity);
-        databaseHelper = new DatabaseHelper(this.activity);
+        lockOrientation = new LockOrientation(activity);
+        databaseHelper = new DatabaseHelper(activity);
         databaseHelper.create_db();
-        this.tableName = StringOperations.getInstance().spaceToUnderscore(tableName);
-        this.startId = startId;
-        this.endId = endId;
+        tableName =  StringOperations.getInstance().spaceToUnderscore(tableName);
+        this.cmd = "SELECT RowId, English, Translate, CountRepeat FROM " + tableName + " WHERE RowID BETWEEN " + startId +" AND " + endId;
+    }
+
+    public GetEntriesFromDbAsync(Activity activity, String tableName, int rowId, GetEntriesListener listener)
+    {
+        setListener(listener);
+        lockOrientation = new LockOrientation(activity);
+        databaseHelper = new DatabaseHelper(activity);
+        databaseHelper.create_db();
+        tableName = StringOperations.getInstance().spaceToUnderscore(tableName);
+        this.cmd = "SELECT RowId, English, Translate, CountRepeat FROM " + tableName + " WHERE RowId >= " + rowId + " And CountRepeat <> 0 ORDER BY RowId ASC LIMIT 2";
+    }
+
+    public GetEntriesFromDbAsync(Activity activity, String tableName, int[] rowId, GetEntriesListener listener)
+    {
+        setListener(listener);
+        lockOrientation = new LockOrientation(activity);
+        databaseHelper = new DatabaseHelper(activity);
+        databaseHelper.create_db();
+        tableName = StringOperations.getInstance().spaceToUnderscore(tableName);
+        String idSequence = "";
+        for (int i = 0; i < rowId.length; i++)
+        {
+            int item = rowId[i];
+            if (i != rowId.length - 1)
+            {
+                idSequence = idSequence.concat(item + ",");
+            }
+            if (i == rowId.length - 1)
+            {
+                idSequence = idSequence.concat(item + "");
+            }
+        }
+        String orderBy = "";
+        if (rowId.length > 1)
+        {
+            if (rowId[1] > rowId[0])
+            {
+                orderBy = "ASC";
+            }
+            else if (rowId[0] > rowId[1])
+            {
+                orderBy = "DESC";
+            }
+        }
+        this.cmd = "SELECT RowId, English, Translate, CountRepeat FROM " + tableName + " WHERE RowID IN(" + idSequence + ") ORDER BY RowId " + orderBy + ";";
+    }
+
+    public GetEntriesFromDbAsync(Activity activity, String tableName, int firstId, int randomId, boolean x, GetEntriesListener listener)
+    {
+        setListener(listener);
+        lockOrientation = new LockOrientation(activity);
+        databaseHelper = new DatabaseHelper(activity);
+        databaseHelper.create_db();
+        tableName = StringOperations.getInstance().spaceToUnderscore(tableName);
+        int secondId = firstId + 1;
+        this.cmd = "SELECT RowId, English, Translate, CountRepeat FROM " + tableName + " WHERE RowId IN" +
+                    "(" +
+                        "(SELECT RowId FROM " + tableName + " WHERE RowId >= " + firstId + " AND CountRepeat <> 0)," +
+                        "(SELECT RowId FROM " + tableName + " WHERE RowId >= " + secondId + " AND CountRepeat <> 0)," +
+                        "(SELECT RowId FROM " + tableName + " WHERE RowId = " + randomId + ")" +
+                    ")";
     }
 
     public interface GetEntriesListener
@@ -48,11 +104,7 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
     @Override
     protected void onPreExecute()
     {
-        super.onPreExecute();
-        if (activity != null)
-        {
-            lockOrientation.lock();
-        }
+        lockOrientation.lock();
     }
 
     @Override
@@ -66,24 +118,21 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
             databaseHelper.open();
             if (databaseHelper.database.isOpen())
             {
-                cursor = databaseHelper.database.rawQuery("SELECT * FROM " + tableName + " WHERE RowID BETWEEN " + startId +" AND " + endId, null);
+                cursor = databaseHelper.database.rawQuery(cmd, null);
                 if (cursor.moveToFirst())
                 {
                     while (!cursor.isAfterLast())
                     {
-                        dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1));
+                        dataBaseEntry = new DataBaseEntry(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3));
                         entriesFromDB.add(dataBaseEntry);
                         cursor.moveToNext();
                     }
                 }
-            } else
-            {
-                entriesFromDB.add(new DataBaseEntry(null,null));
             }
         }
         catch (Exception e)
         {
-            entriesFromDB.add(new DataBaseEntry(null,null));
+            e.printStackTrace();
         }
         finally
         {
@@ -104,19 +153,13 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
         {
             listener.getEntriesListener(entries);
         }
-        if (activity != null)
-        {
-            lockOrientation.unLock();
-        }
+        lockOrientation.unLock();
     }
 
     @Override
     protected void onCancelled()
     {
         super.onCancelled();
-        if (activity != null)
-        {
-            lockOrientation.unLock();
-        }
+        lockOrientation.unLock();
     }
 }

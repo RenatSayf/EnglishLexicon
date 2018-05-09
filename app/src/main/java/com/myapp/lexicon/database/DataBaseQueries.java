@@ -3,13 +3,8 @@ package com.myapp.lexicon.database;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.widget.Toast;
 
-import com.myapp.lexicon.R;
 import com.myapp.lexicon.helpers.StringOperations;
-
-import java.sql.SQLException;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Synchronous queries to database
@@ -17,11 +12,9 @@ import java.util.concurrent.ExecutionException;
 public class DataBaseQueries
 {
     private DatabaseHelper databaseHelper;
-    private Context context;
 
     public DataBaseQueries(Context context)
     {
-        this.context = context;
         databaseHelper = new DatabaseHelper(context);
         databaseHelper.create_db();
     }
@@ -29,7 +22,7 @@ public class DataBaseQueries
     public int getCountEntriesSync(final String tableName)
     {
         String table_name = StringOperations.getInstance().spaceToUnderscore(tableName);
-        int countEntries = 0;
+        int countEntries;
         Cursor cursor = null;
         try
         {
@@ -58,7 +51,7 @@ public class DataBaseQueries
         return countEntries;
     }
 
-    public boolean addTableToDbSync(final String tableName) throws ExecutionException, InterruptedException
+    public boolean addTableToDbSync(final String tableName)
     {
         String table_name = StringOperations.getInstance().spaceToUnderscore(tableName);
         String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + table_name +
@@ -101,7 +94,7 @@ public class DataBaseQueries
             {
                 databaseHelper.database.execSQL(DELETE_TABLE);
             }
-        } catch (SQLException e)
+        } catch (Exception e)
         {
             result = false;
             e.printStackTrace();
@@ -129,7 +122,7 @@ public class DataBaseQueries
             {
                 id = databaseHelper.database.insert(table_name, null, values);
             }
-        } catch (SQLException e)
+        } catch (Exception e)
         {
             e.printStackTrace();
         }
@@ -140,7 +133,7 @@ public class DataBaseQueries
         return id;
     }
 
-    public long updateWordInTableSync(String tableName, long rowId, DataBaseEntry entry) throws Exception
+    public long updateWordInTableSync(String tableName, long rowId, DataBaseEntry entry)
     {
         String table_name = StringOperations.getInstance().spaceToUnderscore(tableName);
         long id = -1;
@@ -169,14 +162,14 @@ public class DataBaseQueries
             databaseHelper.close();
         }
 
-        if (id != -1)
-        {
-            Toast.makeText(context,R.string.text_updated_successfully,Toast.LENGTH_SHORT).show();
-        }
-        else
-        {
-            Toast.makeText(context, R.string.text_write_error,Toast.LENGTH_SHORT).show();
-        }
+//        if (id != -1)
+//        {
+//            Toast.makeText(context,R.string.text_updated_successfully,Toast.LENGTH_SHORT).show();
+//        }
+//        else
+//        {
+//            Toast.makeText(context, R.string.text_write_error,Toast.LENGTH_SHORT).show();
+//        }
 
         return id;
     }
@@ -204,14 +197,14 @@ public class DataBaseQueries
         {
             databaseHelper.close();
         }
-        if (id != -1)
-        {
-            Toast.makeText(context, R.string.text_updated_successfully,Toast.LENGTH_SHORT).show();
-        }
-        else
-        {
-            Toast.makeText(context, R.string.text_deleting_error,Toast.LENGTH_SHORT).show();
-        }
+//        if (id != -1)
+//        {
+//            Toast.makeText(context, R.string.text_updated_successfully,Toast.LENGTH_SHORT).show();
+//        }
+//        else
+//        {
+//            Toast.makeText(context, R.string.text_deleting_error,Toast.LENGTH_SHORT).show();
+//        }
         return id;
     }
 

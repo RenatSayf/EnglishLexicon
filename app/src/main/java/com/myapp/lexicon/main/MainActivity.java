@@ -1,5 +1,6 @@
 package com.myapp.lexicon.main;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.LoaderManager;
@@ -41,6 +42,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -118,6 +120,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private GetTableListFragm getTableListFragm;
     private FragmentManager fragmentManager;
 
+    @SuppressLint("WakelockTimeout")
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -133,10 +136,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         final PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        this.wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"my_tag");
+        if (powerManager != null)
+        {
+            this.wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"my_tag");
+        }
         this.wakeLock.acquire();
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar_word_editor);
         setSupportActionBar(toolbar);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -160,11 +166,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             e.printStackTrace();
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        //noinspection deprecation
         drawer.setDrawerListener(toggle);
         toggle.syncState();
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
         if (navigationView != null)
         {
             navigationView.setNavigationItemSelectedListener(this);
@@ -223,33 +230,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void initViews()
     {
-        textViewEn = (TextView) findViewById(R.id.enTextView);
-        textViewRu = (TextView) findViewById(R.id.ruTextView);
-        textViewDict = (TextView) findViewById(R.id.textViewDict);
-        tvWordsCounter = (TextView) findViewById(R.id.tv_words_counter);
-        btnPlay = (ImageButton) findViewById(R.id.btn_play);
-        btnStop = (ImageButton) findViewById(R.id.btn_stop);
+        textViewEn = findViewById(R.id.enTextView);
+        textViewRu = findViewById(R.id.ruTextView);
+        textViewDict = findViewById(R.id.textViewDict);
+        tvWordsCounter = findViewById(R.id.tv_words_counter);
+        btnPlay = findViewById(R.id.btn_play);
+        btnStop = findViewById(R.id.btn_stop);
         if (btnStop != null)
         {
             btnStop.setVisibility(View.GONE);
         }
-        btnPause = (ImageButton) findViewById(R.id.btn_pause);
+        btnPause = findViewById(R.id.btn_pause);
         if (btnPause != null)
         {
             btnPause.setVisibility(View.GONE);
         }
-        btnPrevious = (ImageButton) findViewById(R.id.btn_previous);
+        btnPrevious = findViewById(R.id.btn_previous);
         if (btnPrevious != null)
         {
             btnPrevious.setVisibility(View.GONE);
         }
-        btnNext = (ImageButton) findViewById(R.id.btn_next);
+        btnNext = findViewById(R.id.btn_next);
         if (btnNext != null)
         {
             btnNext.setVisibility(View.GONE);
         }
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        checkBoxRuSpeak = (CheckBox) findViewById(R.id.check_box_ru_speak);
+        progressBar = findViewById(R.id.progressBar);
+        checkBoxRuSpeak = findViewById(R.id.check_box_ru_speak);
         checkBoxRuSpeak.setChecked(appSettings.isEnglishSpeechOnly());
         switchRuSound_OnCheckedChange();
     }
@@ -322,7 +329,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
         speechServiceOnPause();
         appData.saveAllSettings(this);
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer != null)
         {
             if (drawer.isDrawerOpen(GravityCompat.START))
@@ -465,7 +472,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             this.finish();
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer != null)
         {
             drawer.closeDrawer(GravityCompat.START);
@@ -481,7 +488,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             fragmentManager.beginTransaction().remove(getTableListFragm).commit();
         }
-        ArrayList<String> arrayList = (ArrayList<String>) object;
+        @SuppressWarnings("unchecked") ArrayList<String> arrayList = (ArrayList<String>) object;
         final ArrayList<String> delete_items = new ArrayList<>();
         final String[] items = new  String[arrayList.size()];
         for (int i = 0; i < arrayList.size(); i++)
@@ -534,8 +541,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void dialogAddDict()
     {
-        final View view = getLayoutInflater().inflate(R.layout.a_dialog_add_dict, null);
-        final EditText editText = (EditText) view.findViewById(R.id.dialog_add_dict);
+        final View view = getLayoutInflater().inflate(R.layout.a_dialog_add_dict, new LinearLayout(this), false);
+        final EditText editText = view.findViewById(R.id.dialog_add_dict);
         editText.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
         new AlertDialog.Builder(this).setTitle(R.string.title_new_dictionary).setIcon(R.drawable.icon_book)
                 .setPositiveButton(R.string.btn_text_add, new DialogInterface.OnClickListener()
@@ -848,16 +855,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             String processName = runningAppProcesses.get(0).processName;
             String packageName = getApplicationInfo().packageName;
-            if (processName.equals(packageName))
-            {
-                return true;
-            }
+            return processName.equals(packageName);
         }
         return false;
     }
 
     // TODO: AsyncTaskLoader - 1. MainActivity реализует интерфейс LoaderManager.LoaderCallbacks
 
+    @SuppressWarnings("unchecked")
     @Override
     public Loader onCreateLoader(int id, Bundle bundle)
     {
@@ -928,7 +933,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 @Override
                 public void onDone(String utteranceId)
                 {
-                    boolean englishSpeechOnly = appSettings.isEnglishSpeechOnly();
+                    //boolean englishSpeechOnly = appSettings.isEnglishSpeechOnly();
                     if (utteranceId.equals("main_activity") && appSettings.isEnglishSpeechOnly())
                     {
                         SplashScreenActivity.speech.setLanguage(Locale.getDefault());
@@ -1007,7 +1012,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private double getInchesDisplay()
     {
-        double screenInches = 0;
+        double screenInches;
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         int widthPixels = displayMetrics.widthPixels;

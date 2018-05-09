@@ -4,17 +4,33 @@
     >
 
     <CheckBoxPreference
-        android:key="service"
-        android:title="@string/title_service"
-        android:summary="@string/summary_service"
-        android:defaultValue="true"
-        />
-
-    <CheckBoxPreference
         android:key="is_start_speech"
         android:title="@string/title_is_start_speech"
         android:summary="@string/summary_is_start_speech"
         android:defaultValue="true"
         />
+
+    <PreferenceCategory android:title="@string/title_service_group"
+        android:key="service_group">
+
+        <CheckBoxPreference
+            android:key="@string/key_service"
+            android:title="@string/title_service"
+            android:summary="@string/summary_service"
+            android:defaultValue="true"
+            />
+
+        <ListPreference
+            android:key="@string/key_list_display_mode"
+            android:title="@string/title_display_mode"
+            android:summary="@string/summary_display_mode"
+            android:entries="@array/display_mode"
+            android:entryValues="@array/display_values"
+            android:defaultValue="0"
+            >
+
+        </ListPreference>
+    </PreferenceCategory>
+
 
 </PreferenceScreen>

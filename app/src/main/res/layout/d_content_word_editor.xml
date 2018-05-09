@@ -55,19 +55,6 @@
                 android:layout_below="@id/header_frame"
                 />
 
-            <SearchView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_marginBottom="-5dp"
-                android:id="@+id/search_view"
-                android:iconifiedByDefault="false"
-                android:layout_below="@+id/spinner"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                />
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -77,7 +64,7 @@
                 android:layout_alignParentLeft="false"
                 android:layout_alignParentRight="false"
                 android:layout_alignParentStart="false"
-                android:layout_below="@id/search_view"
+                android:layout_below="@id/spinner"
                 android:layout_centerHorizontal="false"
                 android:layout_centerInParent="false"
                 android:layout_centerVertical="false"

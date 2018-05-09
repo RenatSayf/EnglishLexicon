@@ -39,7 +39,10 @@ public class GetTranslateLoader extends AsyncTaskLoader
                     "trnsl.1.1.20170423T121414Z.3240e7971183355e.e2d03076a138b1ee0324ae8e6db4aa072ddc3390",
                     "trnsl.1.1.20170423T121504Z.806c486ec21aa245.7d9eba215a558252d45d446cf7c9ace081ee2a97",
                     "trnsl.1.1.20170423T121559Z.11399a044f857e17.8a31fb51a77ca0877235350e67334b587a5eee75",
-                    "trnsl.1.1.20170423T121720Z.23f1ac5940850aeb.41f79bbea45ddc51abaf7482e12584fba14798b4"
+                    "trnsl.1.1.20170423T121720Z.23f1ac5940850aeb.41f79bbea45ddc51abaf7482e12584fba14798b4",
+                    "trnsl.1.1.20180509T102655Z.763ae7eb3667e3db.6af5b43528f55e15c2d0f1180495e58d4f41f23e",
+                    "trnsl.1.1.20180509T102734Z.dbead781c0030547.74f87c9d5d547bfa668c19750720d09aa4b85dfe",
+                    "trnsl.1.1.20180509T102810Z.084fc45ba7e93720.f83f7d103835eaae205f6644bdb8adbb94a5dd80"
             };
     private Random generator;
     private String[] translateLang;

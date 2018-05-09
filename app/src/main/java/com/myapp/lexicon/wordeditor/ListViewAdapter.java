@@ -25,7 +25,7 @@ public class ListViewAdapter extends ArrayAdapter implements Filterable
     private ArrayList<DataBaseEntry> tempEntries;
     private Context context;
 
-    public ListViewAdapter(ArrayList<DataBaseEntry> entries, Context context, int resource)
+    ListViewAdapter(ArrayList<DataBaseEntry> entries, Context context, int resource)
     {
         super(context, resource);
         this.entries = entries;
@@ -63,13 +63,13 @@ public class ListViewAdapter extends ArrayAdapter implements Filterable
 
         DataBaseEntry dataBaseEntry = entries.get(position);
 
-        TextView textEnglish = (TextView) wordView.findViewById(R.id.english);
+        TextView textEnglish = wordView.findViewById(R.id.english);
         textEnglish.setText(dataBaseEntry.getEnglish());
 
-        TextView textTranslate = (TextView) wordView.findViewById(R.id.translate);
+        TextView textTranslate = wordView.findViewById(R.id.translate);
         textTranslate.setText(dataBaseEntry.getTranslate());
 
-        TextView textCountRepeat = (TextView) wordView.findViewById(R.id.count_repeat);
+        TextView textCountRepeat = wordView.findViewById(R.id.count_repeat);
         textCountRepeat.setText(dataBaseEntry.getCountRepeat());
 
         return wordView;
@@ -79,7 +79,7 @@ public class ListViewAdapter extends ArrayAdapter implements Filterable
     @Override
     public Filter getFilter() //// TODO: ListView Фильтрацтя
     {
-        Filter filter = new Filter()
+        return new Filter()
         {
             @Override
             protected FilterResults performFiltering(CharSequence constraint)
@@ -114,6 +114,5 @@ public class ListViewAdapter extends ArrayAdapter implements Filterable
                 notifyDataSetChanged();
             }
         };
-        return filter;
     }
 }

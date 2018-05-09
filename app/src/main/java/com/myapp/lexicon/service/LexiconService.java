@@ -26,7 +26,6 @@ public class LexiconService extends Service
     public static HashMap<String, String> map = new HashMap<>();
 
     private PhoneUnlockedReceiver receiver;
-    private int appId = 542389;
 
     public LexiconService()
     {
@@ -53,6 +52,7 @@ public class LexiconService extends Service
                 .setContentIntent(pendingIntent); // TODO: запуск MainActivity при клике на Notification
         Notification notification;
         notification = builder.build();
+        int appId = 542389;
         startForeground(appId, notification); //TODO запуск сервиса на переднем плане, чтобы сервис не убивала система
 
         receiver = new PhoneUnlockedReceiver();
@@ -133,16 +133,16 @@ public class LexiconService extends Service
             if (intent != null)
             {
                 String action = intent.getAction();
-                String actionUserPresent = Intent.ACTION_USER_PRESENT;
+                //String actionUserPresent = Intent.ACTION_USER_PRESENT;
                 String actionScreenOff = Intent.ACTION_SCREEN_OFF;
-                String actionScreenOn = Intent.ACTION_SCREEN_ON;
+                //String actionScreenOn = Intent.ACTION_SCREEN_ON;
 
                 if (action != null)
                 {
-                    if (action.equals(actionUserPresent))
-                    {
-
-                    }
+//                    if (action.equals(actionUserPresent))
+//                    {
+//
+//                    }
                     if (action.equals(actionScreenOff))
                     {
                         Intent intentAct = new Intent("android.intent.action.MAIN");
@@ -150,10 +150,10 @@ public class LexiconService extends Service
                         intentAct.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(intentAct);
                     }
-                    if (action.equals(actionScreenOn))
-                    {
-
-                    }
+//                    if (action.equals(actionScreenOn))
+//                    {
+//
+//                    }
                 }
             }
         }

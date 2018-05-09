@@ -7,7 +7,6 @@ import android.os.AsyncTask;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.StringOperations;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 /**
@@ -18,12 +17,10 @@ public class GetEntriesAsync extends AsyncTask<String, Void, Cursor>
 {
     private AsyncTaskListener listener;
     private LockOrientation lockOrientation;
-    private Activity activity;
     private DatabaseHelper databaseHelper;
 
     public GetEntriesAsync(Activity activity, AsyncTaskListener listener)
     {
-        this.activity = activity;
         lockOrientation = new LockOrientation(activity);
         setTaskCompleteListener(listener);
         databaseHelper = new DatabaseHelper(activity.getApplicationContext());
@@ -44,10 +41,7 @@ public class GetEntriesAsync extends AsyncTask<String, Void, Cursor>
     protected void onPreExecute()
     {
         super.onPreExecute();
-        if (activity != null)
-        {
-            lockOrientation.lock();
-        }
+        lockOrientation.lock();
     }
 
     @Override
@@ -62,7 +56,6 @@ public class GetEntriesAsync extends AsyncTask<String, Void, Cursor>
                 String table_name = StringOperations.getInstance().spaceToUnderscore(params[0]);
                 cursor = databaseHelper.database.rawQuery("SELECT max(RowId) FROM " + table_name, null);
                 cursor.moveToFirst();
-                long rowId = cursor.getLong(0);
                 cursor = databaseHelper.database.rawQuery("SELECT * FROM " + table_name + " WHERE RowID BETWEEN " + params[1] +" AND " + params[2], null);
             }
         }
@@ -105,10 +98,7 @@ public class GetEntriesAsync extends AsyncTask<String, Void, Cursor>
                     cursor.close();
                 }
                 listener.onTaskComplete(entries);
-                if (activity != null)
-                {
-                    lockOrientation.unLock();
-                }
+                lockOrientation.unLock();
             }
         }
     }
@@ -117,9 +107,6 @@ public class GetEntriesAsync extends AsyncTask<String, Void, Cursor>
     protected void onCancelled()
     {
         super.onCancelled();
-        if (activity != null)
-        {
-            lockOrientation.unLock();
-        }
+        lockOrientation.unLock();
     }
 }

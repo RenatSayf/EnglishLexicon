@@ -12,7 +12,7 @@ public class TestResults
 {
     private final Context context;
 
-    public TestResults(Context context)
+    TestResults(Context context)
     {
         this.context = context;
     }
@@ -20,7 +20,7 @@ public class TestResults
     public String getOverallResult(float right, float total)
     {
         String result = context.getString(R.string.text_excellent);
-        float precent = 0;
+        float precent;
         try
         {
             precent = (right / total) * 100;
@@ -43,9 +43,4 @@ public class TestResults
         return result;
     }
 
-    public String getAmountErrors(int counterRightAnswer, int wordsCount)
-    {
-        String result = " из ";
-        return counterRightAnswer + result + wordsCount;
-    }
 }

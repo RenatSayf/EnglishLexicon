@@ -13,7 +13,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
 
 
 public class DatabaseHelper extends SQLiteOpenHelper
@@ -23,7 +22,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
     private static final int version = 1; // версия базы данных
 
     // названия столбцов
-    //public static final String COLUMN_ID = "_id";
     public static final String COLUMN_ENGLISH = "English";
     public static final String COLUMN_TRANS = "Translate";
     public static final String COLUMN_IMAGE = "Image";
@@ -65,10 +63,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
             File directoryDb = new File(DB_PATH);
             actualPathDb = directoryDb.getAbsolutePath() + "/" + DB_NAME;
             File fileDb = new File(actualPathDb);
-            boolean exists = fileDb.exists();
+            //boolean exists = fileDb.exists();
             if (!fileDb.exists())
             {
-                Boolean res = directoryDb.mkdirs();
+                //Boolean res = directoryDb.mkdirs();
                 try
                 {
                     this.database = SQLiteDatabase.openOrCreateDatabase(fileDb, null);
@@ -105,7 +103,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
     private String getDbPath()
     {
-        String stringPathDB = "";
+        String stringPathDB;
         File pathToDB;
         try
         {
@@ -134,9 +132,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
         return stringPathDB;
     }
 
-    public void open() throws SQLException
+    public void open()
     {
-        String path = actualPathDb;
         try
         {
             database = SQLiteDatabase.openDatabase(actualPathDb, null, SQLiteDatabase.NO_LOCALIZED_COLLATORS);

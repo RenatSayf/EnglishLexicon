@@ -6,7 +6,8 @@
               android:layout_height="wrap_content"
               android:gravity="center"
               android:orientation="horizontal"
-    >
+              android:clickable="true"
+              android:focusable="true">
 
     <TextView
         android:layout_width="match_parent"
@@ -14,7 +15,9 @@
         android:layout_weight="1"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:id="@+id/textView_item"
-        android:textColor="@color/colorWhite"/>
+        android:textColor="@color/colorWhite"
+        android:clickable="true"
+        android:focusable="true"/>
 
     <CheckBox
         android:layout_width="wrap_content"
@@ -22,7 +25,6 @@
         android:layout_weight="0"
         android:id="@+id/checkBox_item"
         android:checked="false"
-        android:onClick="onClickCheckBoxItem"
         android:textColor="@color/colorWhite"
         style="@android:style/Widget.Holo.Light.CompoundButton.CheckBox"
         app:buttonTint="@color/colorWhite"/>

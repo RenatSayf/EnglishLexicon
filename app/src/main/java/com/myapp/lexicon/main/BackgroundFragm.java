@@ -2,13 +2,13 @@ package com.myapp.lexicon.main;
 
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterViewFlipper;
-import android.widget.Chronometer;
 
 import com.myapp.lexicon.R;
 
@@ -69,7 +69,7 @@ public class BackgroundFragm extends Fragment
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         if (fragmentView == null)   // TODO: Fragment 4. Обязательная проверка, что бы не раздувать новый макет при повороте экрана
         {
@@ -78,7 +78,7 @@ public class BackgroundFragm extends Fragment
 
         if (savedInstanceState == null) // проверка, что бы не перезапускался AdapterViewFlipper каждый раз при повороте экрана
         {
-            adapterViewFlipper = (AdapterViewFlipper) fragmentView.findViewById(R.id.adapter_view_flipper);
+            adapterViewFlipper = fragmentView.findViewById(R.id.adapter_view_flipper);
 
             // TODO: AdapterViewFlipper: 7. создание адаптера и запуск анимации
             FlipperAdapter flipperAdapter = new FlipperAdapter(getActivity(), imagesId);

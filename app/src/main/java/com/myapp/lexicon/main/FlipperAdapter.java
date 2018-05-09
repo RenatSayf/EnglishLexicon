@@ -22,7 +22,7 @@ public class FlipperAdapter extends BaseAdapter
     private int[] images;
     private RandomNumberGenerator generator; // генератор случайных чисел из диапазона без повторяющихся значений
 
-    public FlipperAdapter(Context context, int[] images)
+    FlipperAdapter(Context context, int[] images)
     {
         this.context = context;
         this.images = images;
@@ -56,7 +56,7 @@ public class FlipperAdapter extends BaseAdapter
         if (adapterView == null)
         {
             // предварительно создать макет адаптера в директории res/layout
-            adapterView = LayoutInflater.from(context).inflate(R.layout.a_images_layout, null);
+            adapterView = LayoutInflater.from(context).inflate(R.layout.a_images_layout, viewGroup, false);
         }
 
         int index = generator.generate(); // генерация случайного индекса
@@ -67,7 +67,7 @@ public class FlipperAdapter extends BaseAdapter
             index = generator.generate();
         }
 
-        ImageView imageView1 = (ImageView) adapterView.findViewById(R.id.image_background_1);
+        ImageView imageView1 = adapterView.findViewById(R.id.image_background_1);
         imageView1.setImageResource(images[index]);
 
         return adapterView;

@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
-import android.os.Build;
 
 /**
  * Created by Ренат on 05.08.2016.
@@ -12,50 +11,40 @@ import android.os.Build;
 public class LockOrientation
 {
     private Activity activity;
+
     public LockOrientation(Activity activity)
     {
         this.activity = activity;
     }
+
     @SuppressLint("InlinedApi")
     public void lock()
     {
+        int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
         switch (activity.getResources().getConfiguration().orientation)
         {
             case Configuration.ORIENTATION_PORTRAIT:
-                if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.FROYO)
+                if (rotation == android.view.Surface.ROTATION_90 || rotation == android.view.Surface.ROTATION_180)
                 {
-                    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
                 }
                 else
                 {
-                    int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
-                    if (rotation == android.view.Surface.ROTATION_90 || rotation == android.view.Surface.ROTATION_180)
-                    {
-                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
-                    }
-                    else
-                    {
-                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                    }
+                    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
                 }
                 break;
             case Configuration.ORIENTATION_LANDSCAPE:
-                if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.FROYO)
+            {
+                rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
+                if (rotation == android.view.Surface.ROTATION_0 || rotation == android.view.Surface.ROTATION_90)
                 {
                     activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
                 }
                 else
                 {
-                    int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
-                    if (rotation == android.view.Surface.ROTATION_0 || rotation == android.view.Surface.ROTATION_90)
-                    {
-                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                    }
-                    else
-                    {
-                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
-                    }
+                    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
                 }
+            }
                 break;
         }
     }

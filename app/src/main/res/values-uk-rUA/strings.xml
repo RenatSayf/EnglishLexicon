@@ -141,7 +141,7 @@
     <string name="text_not_finished_test">Ви не завершили тест. Зробити закладку, щоб потім продовжити з того ж місця?</string>
     <string name="text_speech_settings">Голосові параметри</string>
     <string name="text_speech_recogniz_not_support">Вибачте! Розпізнавання мови не підтримується на цьому пристрої.</string>
-    <string name="text_say_something">Говорите...</string>
+    <string name="text_say_something">Говорите…</string>
     <string name="text_voice_input_not_available">Немає з`єднання з інтернетом. Голосове введення недоступний</string>
     <string name="main_bottom_banner">ca-app-pub-4071145618173901/8422115477</string>
     <string name="add_word_bottom_banner">ca-app-pub-4071145618173901/9155315479</string>
@@ -179,11 +179,34 @@
     <string name="translate_lang_en">en</string>
     <string name="text_settings">Параметри</string>
     <string name="summary_service">Показувати чергове слово при кожному розблокуванні екрану</string>
-    <string name="title_service">При розблокуванні екрану</string>
+    <string name="title_service_group">При розблокуванні екрану</string>
     <string name="title_is_start_speech">Озвучувати при запуску</string>
     <string name="summary_is_start_speech">Озвучувати вступну фразу при запуску програми</string>
     <string name="btn_text_new">Новий</string>
     <string name="text_create_dict_fails">Не вдалося створити словник</string>
 
+    <string name="title_display_mode">Показувати слова в режимі:</string>
+    <string name="summary_display_mode">Повтор</string>
+    <string name="title_service">Показувати слово</string>
+    <string name="key_service">service</string>
+    <string name="key_list_display_mode">list_display_mode</string>
+    <string name="text_studied">Вивчено</string>
+    <string name="text_word_is_not_show">Слово більше не буде показуватися. Змінити це можна в редакторі слів.</string>
+    <string name="text_name_dict">Name dict</string>
+    <string name="text_all_words_is_studied">Всі слова вивчені в словнику</string>
+    <string name="text_turn_on_all_words">Включити всі слова</string>
+    <string name="text_congratulate">Вітаємо!!!</string>
+    <string name="text_learned_all_words_in_dict">Ви вивчили всі слова в словнику:</string>
+    <string name="dictname">DictName</string>
+    <string name="text_key_is_added">Ключ успішно додано</string>
+
+    <string-array name="display_mode">
+        <item>Повтор</item>
+        <item>Тест</item>
+    </string-array>
+    <string-array name="display_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
 
 </resources>
