@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 
 import com.myapp.lexicon.R;
@@ -29,7 +30,7 @@ public class ChoiceLangDialog extends DialogFragment
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
         appSettings = new AppSettings(getActivity());
-        View dialogView = getActivity().getLayoutInflater().inflate(R.layout.a_choice_lang_dialog, null);
+        View dialogView = getActivity().getLayoutInflater().inflate(R.layout.a_choice_lang_dialog, new LinearLayout(getActivity()), false);
         RadioGroup langListRG = dialogView.findViewById(R.id.lang_list_RG);
         langListRG.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener()
         {
