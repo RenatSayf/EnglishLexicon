@@ -97,6 +97,13 @@ public class DialogWarning extends DialogFragment
             });
         }
 
-        return builder.create();
+        if (builder != null)
+        {
+            return builder.create();
+        }
+        else
+        {
+            return super.onCreateDialog(null);
+        }
     }
 }

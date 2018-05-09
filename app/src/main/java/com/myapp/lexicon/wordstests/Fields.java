@@ -35,7 +35,7 @@ class Fields implements Parcelable
     ArrayList<DataBaseEntry> additionalList;
     ArrayList<String> storedListDict;
 
-    private Fields(Parcel in)
+    private Fields(@SuppressWarnings("unused") Parcel in)
     {
     }
 

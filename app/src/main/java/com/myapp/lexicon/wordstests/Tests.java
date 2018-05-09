@@ -26,14 +26,17 @@ public class Tests extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.t_layout_tests);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_word_editor);
+        Toolbar toolbar = findViewById(R.id.toolbar_word_editor);
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null)
+        {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
-        buttonFindPair = (ImageButton) findViewById(R.id.btn_find_pair);
-        buttonListenEndClick = (ImageButton) findViewById(R.id.btn_select_word_test);
-        buttonOneOfFive = (ImageButton) findViewById(R.id.btn_test_1of5);
+        buttonFindPair = findViewById(R.id.btn_find_pair);
+        buttonListenEndClick = findViewById(R.id.btn_select_word_test);
+        buttonOneOfFive = findViewById(R.id.btn_test_1of5);
         button_OnClick();
 
         if (AppData.getInstance().isAdMob())

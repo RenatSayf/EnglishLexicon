@@ -2,6 +2,7 @@ package com.myapp.lexicon.wordstests;
 
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -35,7 +36,7 @@ public class BannerFragmentTests extends Fragment
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         if (fragmentView == null)
         {
@@ -44,7 +45,7 @@ public class BannerFragmentTests extends Fragment
 
         if (savedInstanceState == null)
         {
-            final AdView bannerView = (AdView) fragmentView.findViewById(R.id.adView_tests);
+            final AdView bannerView = fragmentView.findViewById(R.id.adView_tests);
             bannerView.setVisibility(View.GONE);
             MobileAds.initialize(getActivity(), getString(R.string.play_list_banner));
             AdRequest adRequest;
