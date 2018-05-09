@@ -86,14 +86,14 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
 
     private void initViews()
     {
-        textViewEnter = (AutoCompleteTextView) findViewById(R.id.textViewEnter);
+        textViewEnter = findViewById(R.id.textViewEnter);
         textViewEnter_onChange();
-        layoutLinkYa = (LinearLayout) findViewById(R.id.lin_layout_link_ya);
+        layoutLinkYa = findViewById(R.id.lin_layout_link_ya);
         if (layoutLinkYa != null)
         {
             layoutLinkYa.setVisibility(View.GONE);
         }
-        textViewLinkYandex = (TextView) findViewById(R.id.textViewLinkYandex);
+        textViewLinkYandex = findViewById(R.id.textViewLinkYandex);
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N)
         {
             textViewLinkYandex.setText(Html.fromHtml(getResources().getString(R.string.link_to_yandex_trans), Html.FROM_HTML_MODE_COMPACT));
@@ -101,42 +101,42 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
         {
             textViewLinkYandex.setText(Html.fromHtml(getResources().getString(R.string.link_to_yandex_trans)));
         }
-        textViewResult = (EditText) findViewById(R.id.textViewResult);
+        textViewResult = findViewById(R.id.textViewResult);
         textViewResult.setEnabled(false);
         if (textViewResult != null)
         {
             textViewResult.setRawInputType(TYPE_TEXT_FLAG_MULTI_LINE);
         }
         textViewResult_onChange();
-        buttonTrans = (Button) findViewById(R.id.button_trans);
+        buttonTrans = findViewById(R.id.button_trans);
         buttonTrans_onClick();
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar = findViewById(R.id.progressBar);
         if (progressBar != null)
         {
             progressBar.setVisibility(View.GONE);
         }
-        progressBarEn = (ProgressBar) findViewById(R.id.progressEn);
+        progressBarEn = findViewById(R.id.progressEn);
         if (progressBarEn != null)
         {
             progressBarEn.setVisibility(View.GONE);
         }
-        progressBarRu = (ProgressBar) findViewById(R.id.progressRu);
+        progressBarRu = findViewById(R.id.progressRu);
         if (progressBarRu != null)
         {
             progressBarRu.setVisibility(View.GONE);
         }
-        spinnerListDict = (Spinner) findViewById(R.id.spinn_dict_to);
+        spinnerListDict = findViewById(R.id.spinn_dict_to);
         spinnerListDict_onItemSelected();
-        buttonAddWord = (Button) findViewById(R.id.button_add);
+        buttonAddWord = findViewById(R.id.button_add);
         buttonAddWord_onClick();
-        button_sound1 = (ImageButton) findViewById(R.id.btn_speech);
-        button_sound2 = (ImageButton) findViewById(R.id.btn_sound2);
+        button_sound1 = findViewById(R.id.btn_speech);
+        button_sound2 = findViewById(R.id.btn_sound2);
         button_sound1_onClick();
         button_sound2_onClick();
-        button_swap = (ImageButton) findViewById(R.id.btn_swap);
+        button_swap = findViewById(R.id.btn_swap);
         buttonSwap_onClick();
-        buttonClean1 = (ImageButton) findViewById(R.id.btn_clean1);
-        buttonClean2 = (ImageButton) findViewById(R.id.btn_clean2);
+        buttonClean1 = findViewById(R.id.btn_clean1);
+        buttonClean2 = findViewById(R.id.btn_clean2);
         buttonClean_onClick();
         btnNewDict = findViewById(R.id.btn_new_dict);
         btnNewDict_onClick();
@@ -147,9 +147,12 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.b_layout_add_word);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_word_editor);
+        Toolbar toolbar = findViewById(R.id.toolbar_word_editor);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null)
+        {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         initViews();
 
@@ -246,8 +249,14 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
     private boolean isOnline(Context context)
     {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        return netInfo != null && netInfo.isConnectedOrConnecting();
+        if (cm != null)
+        {
+            NetworkInfo netInfo = cm.getActiveNetworkInfo();
+            return netInfo != null && netInfo.isConnectedOrConnecting();
+        } else
+        {
+            return false;
+        }
     }
 
     public void buttonEdit_onClick(View view)
@@ -701,13 +710,13 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
     {
         if (loader.getId() == LOADER_GET_TABLE_LIST)
         {
-            ArrayList<String> list = (ArrayList<String>) data;
+            @SuppressWarnings("unchecked") ArrayList<String> list = (ArrayList<String>) data;
             ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
             spinnerListDict.setAdapter(adapter);
         }
         if (loader.getId() == LOADER_GET_TRANSLATE)
         {
-            ArrayList<String> list = (ArrayList<String>) data;
+            @SuppressWarnings("unchecked") ArrayList<String> list = (ArrayList<String>) data;
             if (list.size() > 1)
             {
                 textViewResult.setText(list.get(1));
@@ -725,7 +734,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
 
     private void httpErrorHandler(String error)
     {
-        String message = "";
+        String message;
         if (error != null && error.equals("200"))
         {
             return;
@@ -820,7 +829,8 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
                         @Override
                         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l)
                         {
-                            textViewEnter.setText(oldText + " " + adapterView.getAdapter().getItem(i).toString());
+                            String text = oldText + " " + adapterView.getAdapter().getItem(i).toString();
+                            textViewEnter.setText(text);
                         }
                     });
                 }
@@ -858,11 +868,10 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
         {
             if (res && !dictName.equals(""))
             {
-                ArrayAdapter adapter = (ArrayAdapter) spinnerListDict.getAdapter();
-                adapter.insert(dictName, 0);
-                spinnerListDict.setAdapter(adapter);
-                int position = ((ArrayAdapter) spinnerListDict.getAdapter()).getPosition(dictName);
-                spinnerListDict.setSelection(position);
+                spinnerItems.add(0, dictName);
+                ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, spinnerItems);
+                spinnerListDict.setAdapter(adapterSpinner);
+                spinnerListDict.setSelection(0);
 
                 Toast toast = Toast.makeText(this, getString(R.string.text_added_new_dict)+dictName, Toast.LENGTH_LONG);
                 toast.setGravity(Gravity.CENTER, 0, 0);

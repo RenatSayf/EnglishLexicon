@@ -24,12 +24,12 @@ public class GetTableListLoader2 extends AsyncTaskLoader
     }
 
     @Override
-    public Object loadInBackground()
+    public ArrayList<String> loadInBackground()
     {
         return GetTableListFromDB();
     }
 
-    private Object GetTableListFromDB()
+    private ArrayList<String> GetTableListFromDB()
     {
         String nameNotDict;
         Cursor cursor = null;
