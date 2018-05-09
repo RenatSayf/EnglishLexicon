@@ -2,7 +2,6 @@ package com.myapp.lexicon.helpers;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -13,8 +12,6 @@ import java.io.Serializable;
 
 public class ObjectSerializer
 {
-    //private static final Log log = LogFactory.getLog(ObjectSerializer.class);
-
     public static String serialize(Serializable obj)
     {
         if (obj == null) return "";
@@ -51,12 +48,12 @@ public class ObjectSerializer
 
     private static String encodeBytes(byte[] bytes)
     {
-        StringBuffer strBuf = new StringBuffer();
+        StringBuilder strBuf = new StringBuilder();
 
-        for (int i = 0; i < bytes.length; i++)
+        for (byte aByte : bytes)
         {
-            strBuf.append((char) (((bytes[i] >> 4) & 0xF) + ((int) 'a')));
-            strBuf.append((char) (((bytes[i]) & 0xF) + ((int) 'a')));
+            strBuf.append((char) (((aByte >> 4) & 0xF) + ((int) 'a')));
+            strBuf.append((char) (((aByte) & 0xF) + ((int) 'a')));
         }
 
         return strBuf.toString();
