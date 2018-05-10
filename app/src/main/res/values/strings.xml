@@ -200,6 +200,7 @@
     <string name="text_learned_all_words_in_dict">Вы изучили все слова в словаре:</string>
     <string name="dictname">DictName</string>
     <string name="text_key_is_added">Ключ успешно добавлен</string>
+    <string name="modal_bottom_banner">ca-app-pub-4071145618173901/4711718169</string>
 
     <string-array name="display_mode">
         <item>Повтор</item>

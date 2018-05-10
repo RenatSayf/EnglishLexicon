@@ -5,7 +5,8 @@
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:orientation="vertical">
+              android:orientation="vertical"
+              tools:context="com.myapp.lexicon.service.ServiceDialog">
 
     <FrameLayout
         android:id="@+id/fragment_frame"
@@ -13,7 +14,6 @@
         android:layout_height="wrap_content"
         android:layout_margin="0dp"
         android:layout_weight="1"
-        tools:context="com.myapp.lexicon.service.ServiceDialog"
         >
     </FrameLayout>
 

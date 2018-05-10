@@ -3,17 +3,17 @@
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:layout_margin="12dp"
-              android:padding="0dp"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_margin="22dp"
               android:orientation="vertical"
-              android:background="@color/colorPopAppBody"
+              android:background="@drawable/side_nav_bar"
               tools:context="com.myapp.lexicon.service.ModalFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="5dp"
+        android:layout_margin="5dp"
         android:gravity="center">
 
         <Button
@@ -42,7 +42,7 @@
                 android:id="@+id/name_dict_tv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Name dict"
+                android:text="@string/text_name_dict"
                 android:textColor="@color/colorWhite"/>
 
             <TextView
@@ -104,6 +104,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:layout_marginLeft="6dp"
+        android:layout_marginStart="6dp"
+        android:layout_marginRight="6dp"
+        android:layout_marginEnd="6dp"
         android:gravity="center"
         android:orientation="horizontal">
 
@@ -112,7 +116,7 @@
             style="@android:style/Widget.Holo.Light.CompoundButton.CheckBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:buttonTint="@color/colorWhite"
+            app:buttonTint="@color/colorWhite"
             android:text="@string/text_ru"
             android:textColor="@drawable/selector_white_to_orange_color"
             android:background="@drawable/transparent_background"
@@ -149,8 +153,8 @@
             android:background="@drawable/transparent_background"
             android:contentDescription="@string/btn_close_discribtion"
             android:src="@drawable/selector_close_icon"
-            android:textColor="@drawable/selector_white_to_orange_color"/>
-
+            android:textColor="@drawable/selector_white_to_orange_color"
+            />
 
     </LinearLayout>
 
