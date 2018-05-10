@@ -95,11 +95,17 @@ public class TestModalFragment extends Fragment
         ImageButton speakButton = fragmentView.findViewById(R.id.btn_sound_modal);
         speakButton_OnClick(speakButton);
 
-        final String currentDict = appSettings.getPlayList().get(appData.getNdict());
+        try
+        {
+            final String currentDict = appSettings.getPlayList().get(appData.getNdict());
 
-        nameDictTV.setText(currentDict);
+            nameDictTV.setText(currentDict);
 
-        getWordsFromDB3(currentDict);
+            getWordsFromDB3(currentDict);
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
 
         ImageButton btnClose = fragmentView.findViewById(R.id.modal_btn_close);
         btnClose.setOnClickListener(new View.OnClickListener()

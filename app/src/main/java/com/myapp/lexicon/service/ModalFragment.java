@@ -81,11 +81,14 @@ public class ModalFragment extends Fragment
         wordsNumberTV = fragmentView.findViewById(R.id.words_number_tv_modal_sv);
 
         final int dictNumber = appData.getNdict();
-        final String currentDict = appSettings.getPlayList().get(dictNumber);
+        if (appSettings.getPlayList() != null && appSettings.getPlayList().size() > dictNumber)
+        {
+            final String currentDict = appSettings.getPlayList().get(dictNumber);
 
-        nameDictTV.setText(currentDict);
+            nameDictTV.setText(currentDict);
 
-        getWordsFromDB(currentDict);
+            getWordsFromDB(currentDict);
+        }
 
         Button btnStop = fragmentView.findViewById(R.id.btn_stop_service);
         btnStop.setOnClickListener(new View.OnClickListener()
