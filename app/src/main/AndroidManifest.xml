@@ -174,8 +174,9 @@
                 android:value=".main.MainActivity"/>
         </activity>
         <activity android:name=".service.ServiceDialog"
-            android:theme="@style/popAppWindow"
-            android:label="@string/app_name">
+            android:theme="@style/Theme.AppCompat.Translucent"
+            android:label="@string/app_name"
+            >
         </activity>
 
         <!--

@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.main.MainBannerFragment;
 import com.myapp.lexicon.settings.AppData;
 
 /**
@@ -30,6 +31,18 @@ public class ServiceDialog extends AppCompatActivity
         {
             TestModalFragment testModalFragment = TestModalFragment.newInstance();
             getSupportFragmentManager().beginTransaction().add(R.id.fragment_frame, testModalFragment).commit();
+        }
+
+        if (AppData.getInstance().isAdMob())
+        {
+            if (AppData.getInstance().isOnline(this))
+            {
+                if (savedInstanceState == null)
+                {
+                    MainBannerFragment bannerFragment = new MainBannerFragment();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.banner_frame_service, bannerFragment).commit();
+                }
+            }
         }
     }
 
