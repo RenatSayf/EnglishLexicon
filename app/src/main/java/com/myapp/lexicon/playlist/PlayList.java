@@ -19,6 +19,7 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.database.GetCountWordsAsync2;
 import com.myapp.lexicon.database.GetTableListLoader;
+import com.myapp.lexicon.dialogs.InclusionDialog;
 import com.myapp.lexicon.helpers.StringOperations;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
@@ -259,11 +260,11 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
     @Override
     public void onPlayListChanged(final ArrayList<String> newPlayList)
     {
-        String oldCurrentDict = appSettings.getCurrentDict();
+        final String oldCurrentDict = appSettings.getCurrentDict();
         studiedDictList = new ArrayList<>();
         for (final String item : newPlayList)
         {
-            GetCountWordsAsync2 getCountWordsAsync = new GetCountWordsAsync2(PlayList.this, item, new GetCountWordsAsync2.GetCountListener()
+            final GetCountWordsAsync2 getCountWordsAsync = new GetCountWordsAsync2(PlayList.this, item, new GetCountWordsAsync2.GetCountListener()
             {
                 @Override
                 public void onTaskComplete(Integer[] resArray)
@@ -275,6 +276,51 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
                             studiedDictList.add(item);
                         }
                         counter++;
+                        if (counter > newPlayList.size() - 1)
+                        {
+                            if (studiedDictList.size() > 0)
+                            {
+                                InclusionDialog dialog = InclusionDialog.getInstance(studiedDictList);
+                                dialog.setResultListener(new InclusionDialog.IInclusionDialog()
+                                {
+                                    @Override
+                                    public void inclusionDialogResult(int result)
+                                    {
+                                        return;
+                                    }
+                                });
+//                                if (getSupportFragmentManager().findFragmentByTag(InclusionDialog.TAG) != null)
+//                                {
+//                                    getSupportFragmentManager().beginTransaction().remove(dialog).commit();
+//                                }
+                                dialog.show(getSupportFragmentManager(), InclusionDialog.TAG);
+                            }
+                            else
+                            {
+                                if (newPlayList.size() > 0)
+                                {
+                                    if (!newPlayList.contains(oldCurrentDict))
+                                    {
+                                        appSettings.setDictNumber(0);
+                                        appSettings.setWordNumber(1);
+                                    }
+                                    else
+                                    {
+                                        int nDict = newPlayList.indexOf(oldCurrentDict);
+                                        if (AppData.getInstance().getNdict() != nDict)
+                                        {
+                                            appSettings.setDictNumber(nDict);
+                                            appSettings.setWordNumber(1);
+                                        }
+                                    }
+                                }
+
+                                lictViewAdapter = new ListViewAdapter(newPlayList, PlayList.this);
+                                listViewDict.setAdapter(lictViewAdapter);
+
+                                appSettings.savePlayList(newPlayList);
+                            }
+                        }
                     }
 
                 }
@@ -285,28 +331,7 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
             }
         }
 
-        if (newPlayList.size() > 0)
-        {
-            if (!newPlayList.contains(oldCurrentDict))
-            {
-                appSettings.setDictNumber(0);
-                appSettings.setWordNumber(1);
-            }
-            else
-            {
-                int nDict = newPlayList.indexOf(oldCurrentDict);
-                if (AppData.getInstance().getNdict() != nDict)
-                {
-                    appSettings.setDictNumber(nDict);
-                    appSettings.setWordNumber(1);
-                }
-            }
-        }
 
-        lictViewAdapter = new ListViewAdapter(newPlayList, PlayList.this);
-        listViewDict.setAdapter(lictViewAdapter);
-
-        appSettings.savePlayList(newPlayList);
     }
 
 
