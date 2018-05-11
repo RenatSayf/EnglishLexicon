@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Loader;
 import android.database.Cursor;
 import android.database.DataSetObserver;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -16,6 +17,7 @@ import android.widget.Spinner;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DatabaseHelper;
+import com.myapp.lexicon.database.GetCountWordsAsync2;
 import com.myapp.lexicon.database.GetTableListLoader;
 import com.myapp.lexicon.helpers.StringOperations;
 import com.myapp.lexicon.settings.AppData;
@@ -252,10 +254,36 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
 
     }
 
+    ArrayList<String> studiedDictList;
+    int counter;
     @Override
-    public void onPlayListChanged(ArrayList<String> newPlayList)
+    public void onPlayListChanged(final ArrayList<String> newPlayList)
     {
         String oldCurrentDict = appSettings.getCurrentDict();
+        studiedDictList = new ArrayList<>();
+        for (final String item : newPlayList)
+        {
+            GetCountWordsAsync2 getCountWordsAsync = new GetCountWordsAsync2(PlayList.this, item, new GetCountWordsAsync2.GetCountListener()
+            {
+                @Override
+                public void onTaskComplete(Integer[] resArray)
+                {
+                    if (resArray != null && resArray.length > 1)
+                    {
+                        if (resArray[0] == 0)
+                        {
+                            studiedDictList.add(item);
+                        }
+                        counter++;
+                    }
+
+                }
+            });
+            if (getCountWordsAsync.getStatus() != AsyncTask.Status.RUNNING)
+            {
+                getCountWordsAsync.execute();
+            }
+        }
 
         if (newPlayList.size() > 0)
         {
