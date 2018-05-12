@@ -17,6 +17,7 @@ import java.util.ArrayList;
  */
 public class GetTableListFragm extends Fragment
 {
+    public static final String TAG = "get_table_list_frag_tag";
     private static OnTableListListener mListener;
 
     public GetTableListFragm()

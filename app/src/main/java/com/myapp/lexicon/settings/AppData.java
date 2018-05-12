@@ -6,6 +6,7 @@ import android.net.NetworkInfo;
 
 import com.myapp.lexicon.wordeditor.ListViewAdapter;
 
+
 /**
  * Storing intermediate data of the application
  */

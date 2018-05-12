@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.helpers.LockOrientation;
 
 import java.util.ArrayList;
 
@@ -20,7 +21,8 @@ public class InclusionDialog extends DialogFragment
     public static final String TAG = "inclusion_dialog";
     private static final String KEY_DICT_NAMES = "key_dict_names_inclusion_dialog";
     private static InclusionDialog instance = new InclusionDialog();
-    public  static IInclusionDialog iInclusionDialog;
+    public static IInclusionDialog iInclusionDialog;
+    private LockOrientation lockOrientation;
 
     public interface IInclusionDialog
     {
@@ -51,6 +53,8 @@ public class InclusionDialog extends DialogFragment
         FragmentActivity activity = getActivity();
         if (activity != null && getArguments() != null)
         {
+            lockOrientation = new LockOrientation(getActivity());
+            lockOrientation.lock();
             View dialogView = getActivity().getLayoutInflater().inflate(R.layout.dialog_inclusion, new LinearLayout(getContext()), false);
             View title = getActivity().getLayoutInflater().inflate(R.layout.dialog_title_inclusion, new LinearLayout(getContext()), false);
             TextView dictNameTV = dialogView.findViewById(R.id.dict_name_dialog_inclusion);
@@ -81,6 +85,13 @@ public class InclusionDialog extends DialogFragment
         {
             return super.onCreateDialog(savedInstanceState);
         }
+    }
+
+    @Override
+    public void onDestroy()
+    {
+        super.onDestroy();
+        lockOrientation.unLock();
     }
 
     private void btnCancel_OnClick(Button button)
