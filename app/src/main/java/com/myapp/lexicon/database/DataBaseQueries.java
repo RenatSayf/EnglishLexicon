@@ -6,6 +6,8 @@ import android.database.Cursor;
 
 import com.myapp.lexicon.helpers.StringOperations;
 
+import java.util.ArrayList;
+
 /**
  * Synchronous queries to database
  */
@@ -289,6 +291,60 @@ public class DataBaseQueries
             databaseHelper.close();
         }
         return rowId;
+    }
+
+    public ArrayList<String> getStudiedDicts(ArrayList<String> dicts)
+    {
+        ArrayList<String> studiedDicts = new ArrayList<>();
+        Cursor cursor = null;
+        String cmd = "";
+        for (int i = 0; i < dicts.size(); i++)
+        {
+            cmd = cmd.concat("SELECT (count(RowId)) FROM " + dicts.get(i) + " WHERE (CountRepeat == 0)");
+            if (i < dicts.size() - 1)
+            {
+                cmd = cmd.concat(" UNION ALL ");
+            }
+        }
+        try
+        {
+            databaseHelper.open();
+            if (databaseHelper.database.isOpen())
+            {
+                cursor = databaseHelper.database.rawQuery(cmd, null);
+            }
+            if (cursor != null && cursor.getCount() > 0)
+            {
+                if (cursor.moveToFirst())
+                {
+                    int i = 0;
+                    while ( !cursor.isAfterLast() )
+                    {
+                        int countStudiedWords = cursor.getInt(0);
+                        if (countStudiedWords > 0)
+                        {
+                            studiedDicts.add(dicts.get(i));
+                        }
+                        i++;
+                        cursor.moveToNext();
+                    }
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            if (cursor != null)
+            {
+                cursor.close();
+            }
+            databaseHelper.close();
+        }
+
+        return studiedDicts;
     }
 
 }

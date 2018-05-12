@@ -75,7 +75,7 @@ public class ListViewAdapter extends BaseAdapter
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
             {
-                if (!isChecked)
+                if (!isChecked && position < list.size())
                 {
                     list.remove(position);
                     if (listener != null)

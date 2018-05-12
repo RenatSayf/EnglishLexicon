@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Loader;
 import android.database.Cursor;
 import android.database.DataSetObserver;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -16,8 +15,8 @@ import android.widget.ListView;
 import android.widget.Spinner;
 
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.DatabaseHelper;
-import com.myapp.lexicon.database.GetCountWordsAsync2;
 import com.myapp.lexicon.database.GetTableListLoader;
 import com.myapp.lexicon.dialogs.InclusionDialog;
 import com.myapp.lexicon.helpers.StringOperations;
@@ -262,78 +261,69 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
     {
         final String oldCurrentDict = appSettings.getCurrentDict();
         studiedDictList = new ArrayList<>();
-        for (final String item : newPlayList)
+        DataBaseQueries dataBaseQueries = new DataBaseQueries(this);
+        final ArrayList<String> studiedDicts = dataBaseQueries.getStudiedDicts(newPlayList);
+        if (studiedDicts.size() > 0)
         {
-            final GetCountWordsAsync2 getCountWordsAsync = new GetCountWordsAsync2(PlayList.this, item, new GetCountWordsAsync2.GetCountListener()
+            counter = 0;
+            final InclusionDialog dialog = InclusionDialog.getInstance(studiedDictList);
+            dialog.setResultListener(new InclusionDialog.IInclusionDialog()
             {
                 @Override
-                public void onTaskComplete(Integer[] resArray)
+                public void inclusionDialogResult(int result)
                 {
-                    if (resArray != null && resArray.length > 1)
+                    switch (result)
                     {
-                        if (resArray[0] == 0)
-                        {
-                            studiedDictList.add(item);
-                        }
-                        counter++;
-                        if (counter > newPlayList.size() - 1)
-                        {
-                            if (studiedDictList.size() > 0)
+                        case -1:
+                            for (String item : studiedDictList)
                             {
-                                InclusionDialog dialog = InclusionDialog.getInstance(studiedDictList);
-                                dialog.setResultListener(new InclusionDialog.IInclusionDialog()
-                                {
-                                    @Override
-                                    public void inclusionDialogResult(int result)
-                                    {
-                                        return;
-                                    }
-                                });
-//                                if (getSupportFragmentManager().findFragmentByTag(InclusionDialog.TAG) != null)
-//                                {
-//                                    getSupportFragmentManager().beginTransaction().remove(dialog).commit();
-//                                }
-                                dialog.show(getSupportFragmentManager(), InclusionDialog.TAG);
+                                newPlayList.remove(item);
                             }
-                            else
-                            {
-                                if (newPlayList.size() > 0)
-                                {
-                                    if (!newPlayList.contains(oldCurrentDict))
-                                    {
-                                        appSettings.setDictNumber(0);
-                                        appSettings.setWordNumber(1);
-                                    }
-                                    else
-                                    {
-                                        int nDict = newPlayList.indexOf(oldCurrentDict);
-                                        if (AppData.getInstance().getNdict() != nDict)
-                                        {
-                                            appSettings.setDictNumber(nDict);
-                                            appSettings.setWordNumber(1);
-                                        }
-                                    }
-                                }
+                            lictViewAdapter = new ListViewAdapter(studiedDicts, PlayList.this);
+                            listViewDict.setAdapter(lictViewAdapter);
+                            appSettings.savePlayList(newPlayList);
+                            break;
+                        case 0:
 
-                                lictViewAdapter = new ListViewAdapter(newPlayList, PlayList.this);
-                                listViewDict.setAdapter(lictViewAdapter);
+                            break;
+                        case 1:
 
-                                appSettings.savePlayList(newPlayList);
-                            }
-                        }
+                            break;
+                        default:
+                            break;
                     }
-
+                    dialog.dismiss();
+                    return;
                 }
             });
-            if (getCountWordsAsync.getStatus() != AsyncTask.Status.RUNNING)
+            dialog.show(getSupportFragmentManager(), InclusionDialog.TAG);
+        } else
+        {
+            if (newPlayList.size() > 0)
             {
-                getCountWordsAsync.execute();
+                if (!newPlayList.contains(oldCurrentDict))
+                {
+                    appSettings.setDictNumber(0);
+                    appSettings.setWordNumber(1);
+                } else
+                {
+                    int nDict = newPlayList.indexOf(oldCurrentDict);
+                    if (AppData.getInstance().getNdict() != nDict)
+                    {
+                        appSettings.setDictNumber(nDict);
+                        appSettings.setWordNumber(1);
+                    }
+                }
             }
+
+            lictViewAdapter = new ListViewAdapter(newPlayList, PlayList.this);
+            listViewDict.setAdapter(lictViewAdapter);
+
+            appSettings.savePlayList(newPlayList);
         }
 
 
     }
-
 
 
 }
