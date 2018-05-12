@@ -1,13 +1,13 @@
 package com.myapp.lexicon.dialogs;
 
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -68,47 +68,50 @@ public class InclusionDialog extends DialogFragment
                 }
             }
             dictNameTV.setText(text);
+            Button btnOk = dialogView.findViewById(R.id.btn_ok_dialog_inclusion);
+            btnOk_OnClick(btnOk);
+            Button btnCancel = dialogView.findViewById(R.id.btn_cancel_dialog_inclusion);
+            btnCancel_OnClick(btnCancel);
             AlertDialog.Builder builder = new AlertDialog.Builder(activity);
             builder.setCustomTitle(title)
                     .setView(dialogView)
-                    .setNegativeButton(R.string.text_cancel, new DialogInterface.OnClickListener()
-                    {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i)
-                        {
-                            if (iInclusionDialog != null)
-                            {
-                                iInclusionDialog.inclusionDialogResult(-1);
-                            }
-                        }
-                    })
-                    .setNeutralButton("Продожить без", new DialogInterface.OnClickListener()
-                    {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i)
-                        {
-                            if (iInclusionDialog != null)
-                            {
-                                iInclusionDialog.inclusionDialogResult(0);
-                            }
-                        }
-                    })
-                    .setPositiveButton(R.string.text_ok, new DialogInterface.OnClickListener()
-                    {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i)
-                        {
-                            if (iInclusionDialog != null)
-                            {
-                                iInclusionDialog.inclusionDialogResult(1);
-                            }
-                        }
-                    })
                     .setCancelable(false);
             return builder.create();
         } else
         {
             return super.onCreateDialog(savedInstanceState);
         }
+    }
+
+    private void btnCancel_OnClick(Button button)
+    {
+        button.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                if (iInclusionDialog != null)
+                {
+                    iInclusionDialog.inclusionDialogResult(-1);
+                }
+                dismiss();
+            }
+        });
+    }
+
+    private void btnOk_OnClick(Button button)
+    {
+        button.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                if (iInclusionDialog != null)
+                {
+                    iInclusionDialog.inclusionDialogResult(1);
+                }
+                dismiss();
+            }
+        });
     }
 }

@@ -25,7 +25,7 @@ import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.ArrayList;
 
-public class PlayList extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, ListViewAdapter.IPlayListChangeListener
+public class PlayList extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, ListViewAdapter.IPlayListChangeListener, InclusionDialog.IInclusionDialog
 {
     private ListView listViewDict;
     private ListViewAdapter lictViewAdapter;
@@ -130,7 +130,7 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
     protected void onDestroy()
     {
         super.onDestroy();
-        appSettings.savePlayList(playList);
+        //appSettings.savePlayList(playList);
     }
 
     public void buttonAddClick(View view)
@@ -254,48 +254,48 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
 
     }
 
-    ArrayList<String> studiedDictList;
-    int counter;
+    ArrayList<String> studiedDicts;
+    ArrayList<String> newPlayList;
+    InclusionDialog dialog;
+
     @Override
     public void onPlayListChanged(final ArrayList<String> newPlayList)
     {
+        this.newPlayList = newPlayList;
         final String oldCurrentDict = appSettings.getCurrentDict();
-        studiedDictList = new ArrayList<>();
         DataBaseQueries dataBaseQueries = new DataBaseQueries(this);
-        final ArrayList<String> studiedDicts = dataBaseQueries.getStudiedDicts(newPlayList);
+
+        studiedDicts = dataBaseQueries.getStudiedDicts(newPlayList);
         if (studiedDicts.size() > 0)
         {
-            counter = 0;
-            final InclusionDialog dialog = InclusionDialog.getInstance(studiedDictList);
-            dialog.setResultListener(new InclusionDialog.IInclusionDialog()
-            {
-                @Override
-                public void inclusionDialogResult(int result)
-                {
-                    switch (result)
-                    {
-                        case -1:
-                            for (String item : studiedDictList)
-                            {
-                                newPlayList.remove(item);
-                            }
-                            lictViewAdapter = new ListViewAdapter(studiedDicts, PlayList.this);
-                            listViewDict.setAdapter(lictViewAdapter);
-                            appSettings.savePlayList(newPlayList);
-                            break;
-                        case 0:
-
-                            break;
-                        case 1:
-
-                            break;
-                        default:
-                            break;
-                    }
-                    dialog.dismiss();
-                    return;
-                }
-            });
+            dialog = InclusionDialog.getInstance(studiedDicts);
+            dialog.setResultListener(this);
+//            dialog.setResultListener(new InclusionDialog.IInclusionDialog()
+//            {
+//                @Override
+//                public void inclusionDialogResult(int result)
+//                {
+//                    switch (result)
+//                    {
+//                        case -1:
+//                            for (String item : studiedDicts)
+//                            {
+//                                newPlayList.remove(item);
+//                            }
+//                            lictViewAdapter = new ListViewAdapter(newPlayList, PlayList.this);
+//                            listViewDict.setAdapter(lictViewAdapter);
+//                            appSettings.savePlayList(newPlayList);
+//                            break;
+//                        case 1:
+//
+//                            break;
+//                        default:
+//                            break;
+//                    }
+//                    InclusionDialog.getInstance(newPlayList).dismiss();
+//                    return;
+//                }
+//            });
             dialog.show(getSupportFragmentManager(), InclusionDialog.TAG);
         } else
         {
@@ -326,4 +326,26 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
     }
 
 
+    @Override
+    public void inclusionDialogResult(int result)
+    {
+        switch (result)
+        {
+            case -1:
+                for (String item : studiedDicts)
+                {
+                    newPlayList.remove(item);
+                }
+                lictViewAdapter = new ListViewAdapter(newPlayList, PlayList.this);
+                listViewDict.setAdapter(lictViewAdapter);
+                appSettings.savePlayList(newPlayList);
+                break;
+            case 1:
+
+                break;
+            default:
+                break;
+        }
+        return;
+    }
 }
