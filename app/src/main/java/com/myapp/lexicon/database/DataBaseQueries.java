@@ -300,7 +300,8 @@ public class DataBaseQueries
         String cmd = "";
         for (int i = 0; i < dicts.size(); i++)
         {
-            cmd = cmd.concat("SELECT (count(RowId)) FROM " + dicts.get(i) + " WHERE (CountRepeat == 0)");
+            String tableName = StringOperations.getInstance().spaceToUnderscore(dicts.get(i));
+            cmd = cmd.concat("SELECT (count(RowId)) FROM " + tableName + " WHERE (CountRepeat == 0)");
             if (i < dicts.size() - 1)
             {
                 cmd = cmd.concat(" UNION ALL ");

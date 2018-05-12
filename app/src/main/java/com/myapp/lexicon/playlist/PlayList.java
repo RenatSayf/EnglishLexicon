@@ -25,7 +25,7 @@ import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.ArrayList;
 
-public class PlayList extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, ListViewAdapter.IPlayListChangeListener//, InclusionDialog.IInclusionDialog
+public class PlayList extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, ListViewAdapter.IPlayListChangeListener, InclusionDialog.IInclusionDialog
 {
     private ListView listViewDict;
     private ListViewAdapter lictViewAdapter;
@@ -33,8 +33,10 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
     private DatabaseHelper databaseHelper;
     private AppSettings appSettings;
     private String[] dictArray;
+    private PlayListFields m;
 
     private final int LOADER_GET_TABLE_LIST = 2423144;
+    private final String KEY_FIELDS = "key_fields";
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -43,6 +45,15 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
         setContentView(R.layout.p_layout_play_list);
         Toolbar toolbar = findViewById(R.id.toolbar_word_editor);
         setSupportActionBar(toolbar);
+
+        if (savedInstanceState == null)
+        {
+            m = new PlayListFields();
+        }
+        else
+        {
+            m = savedInstanceState.getParcelable(KEY_FIELDS);
+        }
 
         if (getSupportActionBar() != null)
         {
@@ -105,10 +116,11 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
             });
         }
 
-        getLoaderManager().initLoader(LOADER_GET_TABLE_LIST, savedInstanceState, this);
+        //getLoaderManager().initLoader(LOADER_GET_TABLE_LIST, savedInstanceState, this);
 
         if (savedInstanceState == null)
         {
+            getLoaderManager().initLoader(LOADER_GET_TABLE_LIST, null, this);
             if (AppData.getInstance().isAdMob())
             {
                 if (AppData.getInstance().isOnline(this))
@@ -121,6 +133,13 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState)
+    {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(KEY_FIELDS, m);
+    }
+
+    @Override
     protected void onPause()
     {
         super.onPause();
@@ -130,6 +149,7 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
     protected void onDestroy()
     {
         super.onDestroy();
+
         //appSettings.savePlayList(playList);
     }
 
@@ -143,7 +163,7 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
         try
         {
             boolean[] choice = new boolean[dictArray.length];
-            final ArrayList<String> newPlayList = this.playList;
+            final ArrayList<String> newPlayList = playList;
             new AlertDialog.Builder(this).setTitle(R.string.access_dict)
                     .setMultiChoiceItems(dictArray, choice, new DialogInterface.OnMultiChoiceClickListener()
                     {
@@ -152,14 +172,14 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
                         {
                             if (isChecked)
                             {
-                                if (!PlayList.this.playList.contains(dictArray[which]))
+                                if (!playList.contains(dictArray[which]))
                                 {
                                     newPlayList.add(dictArray[which]);
                                 }
                             }
                             else
                             {
-                                if (PlayList.this.playList.contains(dictArray[which]))
+                                if (playList.contains(dictArray[which]))
                                 {
                                     newPlayList.remove(dictArray[which]);
                                 }
@@ -173,7 +193,8 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
                         {
                             try
                             {
-                                onPlayListChanged(newPlayList);
+                                m.newPlayList = newPlayList;
+                                onPlayListChanged(m.newPlayList);
                             } catch (Exception e)
                             {
                                 e.printStackTrace();
@@ -244,6 +265,7 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
                     cursor.close();
                 }
             }
+
             dialogAddDictShow();
         }
     }
@@ -254,47 +276,50 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
 
     }
 
-//    ArrayList<String> studiedDicts;
-//    ArrayList<String> newPlayList;
-//    InclusionDialog dialog;
+    ArrayList<String> studiedDicts;
+    ArrayList<String> newPlayList;
+    InclusionDialog dialog;
 
     @Override
     public void onPlayListChanged(final ArrayList<String> newPlayList)
     {
-        //this.newPlayList = newPlayList;
+        int hashCode = listViewDict.hashCode();
+        int activitiHashCode = PlayList.this.hashCode();
+        this.newPlayList = newPlayList;
         final String oldCurrentDict = appSettings.getCurrentDict();
         DataBaseQueries dataBaseQueries = new DataBaseQueries(this);
 
-        final ArrayList<String> studiedDicts = dataBaseQueries.getStudiedDicts(newPlayList);
+        studiedDicts = dataBaseQueries.getStudiedDicts(newPlayList);
         if (studiedDicts.size() > 0)
         {
-            InclusionDialog dialog = InclusionDialog.getInstance(studiedDicts);
-            dialog.setResultListener(new InclusionDialog.IInclusionDialog()
-            {
-                @Override
-                public void inclusionDialogResult(int result)
-                {
-                    switch (result)
-                    {
-                        case -1:
-                            for (String item : studiedDicts)
-                            {
-                                newPlayList.remove(item);
-                            }
-                            lictViewAdapter = new ListViewAdapter(newPlayList, PlayList.this);
-                            listViewDict = findViewById(R.id.listView_playList);
-                            listViewDict.setAdapter(lictViewAdapter);
-                            appSettings.savePlayList(newPlayList);
-                            break;
-                        case 1:
-
-                            break;
-                        default:
-                            break;
-                    }
-                    return;
-                }
-            });
+            dialog = InclusionDialog.getInstance(studiedDicts);
+            dialog.setResultListener(this);
+//            dialog.setResultListener(new InclusionDialog.IInclusionDialog()
+//            {
+//                @Override
+//                public void inclusionDialogResult(int result)
+//                {
+//                    switch (result)
+//                    {
+//                        case -1:
+//                            for (String item : studiedDicts)
+//                            {
+//                                newPlayList.remove(item);
+//                            }
+//                            lictViewAdapter = new ListViewAdapter(newPlayList, PlayList.this);
+//                            listViewDict.setAdapter(lictViewAdapter);
+//                            appSettings.savePlayList(newPlayList);
+//                            break;
+//                        case 1:
+//
+//                            break;
+//                        default:
+//                            break;
+//                    }
+//                    InclusionDialog.getInstance(newPlayList).dismiss();
+//                    return;
+//                }
+//            });
             dialog.show(getSupportFragmentManager(), InclusionDialog.TAG);
         } else
         {
@@ -325,4 +350,30 @@ public class PlayList extends AppCompatActivity implements LoaderManager.LoaderC
     }
 
 
+    @Override
+    public void inclusionDialogResult(int result)
+    {
+        switch (result)
+        {
+            case -1:
+                for (String item : studiedDicts)
+                {
+                    m.newPlayList.remove(item);
+                }
+                int activitiHashCode = PlayList.this.hashCode();
+                lictViewAdapter = new ListViewAdapter(m.newPlayList, PlayList.this);
+                int hashCode = listViewDict.hashCode();
+                listViewDict.setAdapter(lictViewAdapter);
+                listViewDict.refreshDrawableState();
+                appSettings.savePlayList(m.newPlayList);
+                //PlayList.this.recreate();
+                break;
+            case 1:
+
+                break;
+            default:
+                break;
+        }
+        return;
+    }
 }
