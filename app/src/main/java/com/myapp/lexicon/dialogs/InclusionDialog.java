@@ -26,7 +26,7 @@ public class InclusionDialog extends DialogFragment
 
     public interface IInclusionDialog
     {
-        void inclusionDialogResult(int result);
+        void inclusionDialogResult(ArrayList<String> dictNames, int result);
     }
 
     public void setResultListener(IInclusionDialog listener)
@@ -101,9 +101,10 @@ public class InclusionDialog extends DialogFragment
             @Override
             public void onClick(View view)
             {
-                if (iInclusionDialog != null)
+                if (iInclusionDialog != null && getArguments() != null)
                 {
-                    iInclusionDialog.inclusionDialogResult(-1);
+                    ArrayList<String> dictNames = getArguments().getStringArrayList(KEY_DICT_NAMES);
+                    iInclusionDialog.inclusionDialogResult(dictNames,-1);
                 }
                 dismiss();
             }
@@ -117,9 +118,10 @@ public class InclusionDialog extends DialogFragment
             @Override
             public void onClick(View view)
             {
-                if (iInclusionDialog != null)
+                if (iInclusionDialog != null && getArguments() != null)
                 {
-                    iInclusionDialog.inclusionDialogResult(1);
+                    ArrayList<String> dictNames = getArguments().getStringArrayList(KEY_DICT_NAMES);
+                    iInclusionDialog.inclusionDialogResult(dictNames,1);
                 }
                 dismiss();
             }

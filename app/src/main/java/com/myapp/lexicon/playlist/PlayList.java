@@ -1,7 +1,9 @@
 package com.myapp.lexicon.playlist;
 
 import android.app.AlertDialog;
+import android.content.ContentValues;
 import android.content.DialogInterface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
@@ -10,11 +12,13 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.database.GetTableListFragm;
+import com.myapp.lexicon.database.UpdateDBEntryAsync;
 import com.myapp.lexicon.dialogs.InclusionDialog;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.settings.AppData;
@@ -31,7 +35,6 @@ public class PlayList extends AppCompatActivity implements ListViewAdapter.IPlay
     private AppSettings appSettings;
     private String[] dictArray;
     private PlayListFields m;
-    private ArrayList<String> studiedDicts;
     private LockOrientation lockOrientation;
 
     private final String KEY_FIELDS = "key_fields";
@@ -211,7 +214,7 @@ public class PlayList extends AppCompatActivity implements ListViewAdapter.IPlay
         final String oldCurrentDict = appSettings.getCurrentDict();
         DataBaseQueries dataBaseQueries = new DataBaseQueries(this);
 
-        studiedDicts = dataBaseQueries.getStudiedDicts(newPlayList);
+        ArrayList<String> studiedDicts = dataBaseQueries.getStudiedDicts(newPlayList);
         if (studiedDicts.size() > 0)
         {
             InclusionDialog dialog = InclusionDialog.getInstance(studiedDicts);
@@ -243,8 +246,9 @@ public class PlayList extends AppCompatActivity implements ListViewAdapter.IPlay
         }
     }
 
+    private int updateCounter;
     @Override
-    public void inclusionDialogResult(int result)
+    public void inclusionDialogResult(final ArrayList<String> studiedDicts, int result)
     {
         switch (result)
         {
@@ -258,7 +262,37 @@ public class PlayList extends AppCompatActivity implements ListViewAdapter.IPlay
                 appSettings.savePlayList(m.newPlayList);
                 break;
             case 1:
-
+                ContentValues values = new ContentValues();
+                values.put(DatabaseHelper.COLUMN_Count_REPEAT, 1);
+                updateCounter = 0;
+                for (final String item : studiedDicts)
+                {
+                    UpdateDBEntryAsync updateDBEntryAsync = new UpdateDBEntryAsync(PlayList.this, item, values, null, null, new UpdateDBEntryAsync.IUpdateDBListener()
+                    {
+                        @Override
+                        public void updateDBEntry_OnComplete(int rows)
+                        {
+                            if (rows >= 0)
+                            {
+                                updateCounter++;
+                                if (updateCounter == studiedDicts.size())
+                                {
+                                    lictViewAdapter = new ListViewAdapter(m.newPlayList, PlayList.this);
+                                    listViewDict.setAdapter(lictViewAdapter);
+                                    appSettings.savePlayList(m.newPlayList);
+                                }
+                                else
+                                {
+                                    Toast.makeText(PlayList.this, R.string.text_not_all_words_were_included, Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        }
+                    });
+                    if (updateDBEntryAsync.getStatus() != AsyncTask.Status.RUNNING)
+                    {
+                        updateDBEntryAsync.execute();
+                    }
+                }
                 break;
             default:
                 break;
