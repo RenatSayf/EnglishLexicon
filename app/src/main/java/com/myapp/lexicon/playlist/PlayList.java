@@ -16,6 +16,7 @@ import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.database.GetTableListFragm;
 import com.myapp.lexicon.dialogs.InclusionDialog;
+import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
@@ -31,6 +32,7 @@ public class PlayList extends AppCompatActivity implements ListViewAdapter.IPlay
     private String[] dictArray;
     private PlayListFields m;
     private ArrayList<String> studiedDicts;
+    private LockOrientation lockOrientation;
 
     private final String KEY_FIELDS = "key_fields";
 
@@ -41,6 +43,8 @@ public class PlayList extends AppCompatActivity implements ListViewAdapter.IPlay
         setContentView(R.layout.p_layout_play_list);
         Toolbar toolbar = findViewById(R.id.toolbar_word_editor);
         setSupportActionBar(toolbar);
+
+        lockOrientation = new LockOrientation(this);
 
         if (savedInstanceState == null)
         {
@@ -134,6 +138,7 @@ public class PlayList extends AppCompatActivity implements ListViewAdapter.IPlay
     protected void onDestroy()
     {
         super.onDestroy();
+        lockOrientation.unLock();
     }
 
     public void buttonAddClick(View view)
@@ -151,6 +156,7 @@ public class PlayList extends AppCompatActivity implements ListViewAdapter.IPlay
     {
         try
         {
+            lockOrientation.lock();
             boolean[] choice = new boolean[dictArray.length];
             final ArrayList<String> newPlayList = playList;
             new AlertDialog.Builder(this).setTitle(R.string.access_dict)
@@ -188,14 +194,16 @@ public class PlayList extends AppCompatActivity implements ListViewAdapter.IPlay
                             {
                                 e.printStackTrace();
                             }
+                            lockOrientation.unLock();
                         }
-                    }).create().show();
+                    })
+                    .create().show();
         } catch (Exception e)
         {
             e.printStackTrace();
+            lockOrientation.unLock();
         }
     }
-    //InclusionDialog dialog;
 
     @Override
     public void onPlayListChanged(final ArrayList<String> newPlayList)
