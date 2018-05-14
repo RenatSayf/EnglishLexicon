@@ -93,6 +93,7 @@ public class SpeechService extends IntentService
         try
         {
             databaseHelper.close();
+            SplashScreenActivity.speech.stop();
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -144,155 +145,72 @@ public class SpeechService extends IntentService
             {
                 if (playList.size() > 0)
                 {
-                    if (!appData.isPause()) appData.setNdict(0);
-                    for (int i = appData.getNdict(); i < playList.size(); i++)
+                    String playListItem = playList.get(appData.getNdict());
+                    textDict = playListItem;
+                    int wordsCountInTable = getWordsCount(playListItem);
+                    if (wordsCountInTable > 0)
                     {
-                        String playListItem = playList.get(i);
-                        textDict = playListItem;
-                        appData.setNdict(i);
-                        int wordsCountInTable = getWordsCount(playListItem);
-                        if (wordsCountInTable > 0)
+                        ArrayList<DataBaseEntry> list = getEntriesFromDB(playListItem, appData.getNword(), 1);
+                        if (list.size() < 2)
                         {
-                            if (!appData.isPause())
+                            appData.setNword(1);
+                            appData.setNdict(appData.getNdict() + 1);
+                            if (appData.getNdict() >= playList.size())
                             {
-                                appData.setNword(1);
+                                appData.setNdict(0);
                             }
-                            for (int j = appData.getNword(); j <= wordsCountInTable; j++)
-                            {
-                                appData.setNword(j);
-                                ArrayList<DataBaseEntry> list = getEntriesFromDB(playListItem, j, j);
-                                if (list.size() == 0)
-                                {
-                                    continue;
-                                }
+                        }
+                        if (list.size() == 2)
+                        {
+                            appData.setNword(list.get(1).getRowId());
+                        }
+                        if (list.size() == 0)
+                        {
+                            continue;
+                        }
 
-                                int repeat;
+                        int repeat;
+                        try
+                        {
+                            repeat = Integer.parseInt(list.get(0).getCountRepeat());
+                        } catch (NumberFormatException e)
+                        {
+                            repeat = 1;
+                        }
+                        countRepeat = repeat;
+
+                        if (isEngOnly)
+                        {
+                            for (int t = 0; t < repeat; t++)
+                            {
                                 try
                                 {
-                                    repeat = Integer.parseInt(list.get(0).getCountRepeat());
-                                } catch (NumberFormatException e)
+                                    speakWord(list.get(0), true);
+                                } catch (Exception e)
                                 {
-                                    repeat = 1;
+                                    Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    e.printStackTrace();
+                                    break;
                                 }
-                                countRepeat = repeat;
-
-                                if (isEngOnly)
-                                {
-                                    for (int t = 0; t < repeat; t++)
-                                    {
-                                        try
-                                        {
-                                            speakWord(list.get(0), true);
-                                        } catch (Exception e)
-                                        {
-                                            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                                            e.printStackTrace();
-                                            break;
-                                        }
-                                    }
-                                } else
-                                {
-                                    try
-                                    {
-                                        for (int t = 0; t < repeat; t++)
-                                        {
-                                            speakWord(list.get(0), false);
-                                        }
-                                    } catch (Exception e)
-                                    {
-                                        e.printStackTrace();
-                                    }
-                                }
-                                appData.setNword(j);
                             }
                         } else
                         {
-                            break;
+                            try
+                            {
+                                for (int t = 0; t < repeat; t++)
+                                {
+                                    speakWord(list.get(0), false);
+                                }
+                            } catch (Exception e)
+                            {
+                                e.printStackTrace();
+                            }
                         }
-                        appData.setNdict(i);
-                        appData.setPause(false);
-                    }
-                } else
-                {
-                    break;
-                }
-            }
-        }
-
-        if (order == 1)
-        {
-            while (!stop)
-            {
-                if (playList.size() > 0)
-                {
-                    if (!appData.isPause()) appData.setNdict(0);
-                    for (int i = appData.getNdict(); i < playList.size(); i++)
+                    } else
                     {
-                        String playListItem = playList.get(i);
-                        textDict = playListItem;
-                        appData.setNdict(i);
-                        int wordsCountInTable = getWordsCount(playListItem);
-                        if (wordsCountInTable > 0)
-                        {
-                            if (!appData.isPause())
-                            {
-                                appData.setNword(wordsCountInTable);
-                            }
-                            for (int j = appData.getNword(); j >= 1; j--)
-                            {
-                                appData.setNword(j);
-                                ArrayList<DataBaseEntry> list = getEntriesFromDB(playListItem, j, j);
-                                if (list.size() == 0)
-                                {
-                                    continue;
-                                }
-
-                                int repeat;
-                                try
-                                {
-                                    repeat = Integer.parseInt(list.get(0).getCountRepeat());
-                                } catch (NumberFormatException e)
-                                {
-                                    repeat = 1;
-                                }
-                                countRepeat = repeat;
-
-                                if (isEngOnly)
-                                {
-                                    for (int t = 0; t < repeat; t++)
-                                    {
-                                        try
-                                        {
-                                            speakWord(list.get(0), true);
-                                        } catch (Exception e)
-                                        {
-                                            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                                            e.printStackTrace();
-                                            break;
-                                        }
-                                    }
-                                } else
-                                {
-                                    try
-                                    {
-                                        for (int t = 0; t < repeat; t++)
-                                        {
-                                            speakWord(list.get(0), false);
-                                        }
-                                    } catch (Exception e)
-                                    {
-                                        e.printStackTrace();
-                                    }
-                                }
-                                appData.setNword(j);
-                            }
-                        } else
-                        {
-                            break;
-                        }
-                        appData.setNdict(i);
-                        appData.setPause(false);
+                        break;
                     }
+
                 } else
                 {
                     break;
@@ -318,7 +236,7 @@ public class SpeechService extends IntentService
                 updateIntent.putExtra(EXTRA_KEY_RU, textRu);
                 updateIntent.putExtra(EXTRA_KEY_DICT, textDict);
                 updateIntent.putExtra(EXTRA_KEY_COUNT_REPEAT, countRepeat);
-                updateIntent.putExtra(EXTRA_KEY_WORDS_COUNTER, appData.getNword());
+                updateIntent.putExtra(EXTRA_KEY_WORDS_COUNTER, entries.getRowId());
                 sendBroadcast(updateIntent);
             }
 
@@ -365,6 +283,8 @@ public class SpeechService extends IntentService
                 speek_done[0] = true;
             }
         });
+
+
 
         HashMap<String,String> mapEn = new HashMap<>();
         if (engOnly)
@@ -426,22 +346,35 @@ public class SpeechService extends IntentService
         return count;
     }
 
-    public ArrayList<DataBaseEntry> getEntriesFromDB(String tableName, int startId, int endId)
+    public ArrayList<DataBaseEntry> getEntriesFromDB(String tableName, int rowId, int direction)
     {
         String table_name = StringOperations.getInstance().spaceToUnderscore(tableName);
         ArrayList<DataBaseEntry> entriesFromDB = new ArrayList<>();
         Cursor cursor = null;
+        String cmd;
+        if (direction < 0)
+        {
+            cmd = "SELECT RowId, English, Translate, CountRepeat FROM " + table_name + " WHERE RowId <= " + rowId + " And CountRepeat <> 0 ORDER BY RowId DESC LIMIT 2";
+        }
+        else if (direction > 0)
+        {
+            cmd = "SELECT RowId, English, Translate, CountRepeat FROM " + table_name + " WHERE RowId >= " + rowId + " And CountRepeat <> 0 ORDER BY RowId ASC LIMIT 2";
+        }
+        else
+        {
+            cmd = "SELECT RowId, English, Translate, CountRepeat FROM " + table_name + " ORDER BY random() LIMIT 1";
+        }
         try
         {
             databaseHelper.open();
             if (databaseHelper.database.isOpen())
             {
-                cursor = databaseHelper.database.rawQuery("SELECT * FROM " + table_name + " WHERE RowID BETWEEN " + startId +" AND " + endId, null);
+                cursor = databaseHelper.database.rawQuery(cmd, null);
                 if (cursor.moveToFirst())
                 {
                     while (!cursor.isAfterLast())
                     {
-                        DataBaseEntry dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1), cursor.getString(3));
+                        DataBaseEntry dataBaseEntry = new DataBaseEntry(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3));
                         entriesFromDB.add(dataBaseEntry);
                         cursor.moveToNext();
                     }
