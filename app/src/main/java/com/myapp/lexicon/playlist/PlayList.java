@@ -239,10 +239,8 @@ public class PlayList extends AppCompatActivity implements ListViewAdapter.IPlay
                     }
                 }
             }
-
             lictViewAdapter = new ListViewAdapter(newPlayList, PlayList.this);
             listViewDict.setAdapter(lictViewAdapter);
-
             appSettings.savePlayList(newPlayList);
         }
     }

@@ -297,37 +297,39 @@ public class DataBaseQueries
     {
         ArrayList<String> studiedDicts = new ArrayList<>();
         Cursor cursor = null;
-        String cmd = "";
-        for (int i = 0; i < dicts.size(); i++)
-        {
-            String tableName = StringOperations.getInstance().spaceToUnderscore(dicts.get(i));
-            cmd = cmd.concat("SELECT (count(RowId)) FROM " + tableName + " WHERE (CountRepeat == 0)");
-            if (i < dicts.size() - 1)
-            {
-                cmd = cmd.concat(" UNION ALL ");
-            }
-        }
+        String tableName = null;
         try
         {
             databaseHelper.open();
-            if (databaseHelper.database.isOpen())
+            for (int i = 0; i < dicts.size(); i++)
             {
-                cursor = databaseHelper.database.rawQuery(cmd, null);
-            }
-            if (cursor != null && cursor.getCount() > 0)
-            {
-                if (cursor.moveToFirst())
+                if (databaseHelper.database.isOpen())
                 {
-                    int i = 0;
-                    while ( !cursor.isAfterLast() )
+                    tableName = StringOperations.getInstance().spaceToUnderscore(dicts.get(i));
+                    String cmd = "SELECT (count(RowId)) FROM " + tableName + " WHERE (CountRepeat == 0) " +
+                                    "UNION ALL" +
+                                    " SELECT (count(RowId)) FROM " + tableName;
+                    cursor = databaseHelper.database.rawQuery(cmd, null);
+                }
+                if (cursor != null && cursor.getCount() > 0)
+                {
+                    int[]resArray = new int[cursor.getCount()];
+                    if (cursor.moveToFirst())
                     {
-                        int countStudiedWords = cursor.getInt(0);
-                        if (countStudiedWords > 0)
+                        int j = 0;
+                        while ( !cursor.isAfterLast() )
                         {
-                            studiedDicts.add(dicts.get(i));
+                            resArray[j] = cursor.getInt(0);
+                            j++;
+                            cursor.moveToNext();
                         }
-                        i++;
-                        cursor.moveToNext();
+                    }
+                    if (resArray.length > 1)
+                    {
+                        if (resArray[1] - resArray[0] == 0)
+                        {
+                            studiedDicts.add(tableName);
+                        }
                     }
                 }
             }
