@@ -30,10 +30,10 @@ public class PlayList extends AppCompatActivity implements ListViewAdapter.IPlay
 {
     private ListView listViewDict;
     private ListViewAdapter lictViewAdapter;
-    private ArrayList<String> playList = new ArrayList<>();
+    //private ArrayList<String> playList = new ArrayList<>();
     private DatabaseHelper databaseHelper;
     private AppSettings appSettings;
-    private String[] dictArray;
+    //private String[] dictArray;
     private PlayListFields m;
     private LockOrientation lockOrientation;
 
@@ -103,13 +103,13 @@ public class PlayList extends AppCompatActivity implements ListViewAdapter.IPlay
             });
         }
 
-        playList = appSettings.getPlayList();
+        m.newPlayList = appSettings.getPlayList();
 
-        if (playList.size() > 0)
+        if (m.newPlayList.size() > 0)
         {
-            //onPlayListChanged(playList);
-            lictViewAdapter = new ListViewAdapter(playList, PlayList.this);
-            listViewDict.setAdapter(lictViewAdapter);
+            onPlayListChanged(m.newPlayList);
+//            lictViewAdapter = new ListViewAdapter(playList, PlayList.this);
+//            listViewDict.setAdapter(lictViewAdapter);
         }
 
         if (savedInstanceState == null)
@@ -156,13 +156,17 @@ public class PlayList extends AppCompatActivity implements ListViewAdapter.IPlay
         getSupportFragmentManager().beginTransaction().add(getTableListFragm, GetTableListFragm.TAG).commit();
     }
 
-    private void dialogAddDictShow()
+    private void dialogAddDictShow(final ArrayList<String> dictsList)
     {
         try
         {
             lockOrientation.lock();
-            boolean[] choice = new boolean[dictArray.length];
-            final ArrayList<String> newPlayList = playList;
+            boolean[] choice = new boolean[dictsList.size()];
+            final String[] dictArray = new String[dictsList.size()];
+            for (int i = 0; i < dictsList.size(); i++)
+            {
+                dictArray[i] = dictsList.get(i);
+            }
             new AlertDialog.Builder(this).setTitle(R.string.access_dict)
                     .setMultiChoiceItems(dictArray, choice, new DialogInterface.OnMultiChoiceClickListener()
                     {
@@ -171,16 +175,16 @@ public class PlayList extends AppCompatActivity implements ListViewAdapter.IPlay
                         {
                             if (isChecked)
                             {
-                                if (!playList.contains(dictArray[which]))
+                                if (!m.newPlayList.contains(dictArray[which]))
                                 {
-                                    newPlayList.add(dictArray[which]);
+                                    m.newPlayList.add(dictArray[which]);
                                 }
                             }
                             else
                             {
-                                if (playList.contains(dictArray[which]))
+                                if (m.newPlayList.contains(dictArray[which]))
                                 {
-                                    newPlayList.remove(dictArray[which]);
+                                    m.newPlayList.remove(dictArray[which]);
                                 }
                             }
                         }
@@ -192,7 +196,6 @@ public class PlayList extends AppCompatActivity implements ListViewAdapter.IPlay
                         {
                             try
                             {
-                                m.newPlayList = newPlayList;
                                 onPlayListChanged(m.newPlayList);
                             } catch (Exception e)
                             {
@@ -302,11 +305,7 @@ public class PlayList extends AppCompatActivity implements ListViewAdapter.IPlay
     public void onGetTableListListener(Object object)
     {
         @SuppressWarnings("unchecked") ArrayList<String> arrayList = (ArrayList<String>) object;
-        dictArray = new String[arrayList.size()];
-        for (int i = 0; i < arrayList.size(); i++)
-        {
-            dictArray[i] = arrayList.get(i);
-        }
-        dialogAddDictShow();
+
+        dialogAddDictShow(arrayList);
     }
 }
