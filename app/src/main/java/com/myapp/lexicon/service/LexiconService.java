@@ -24,6 +24,7 @@ public class LexiconService extends Service
     public static boolean isStop = false;
     public static TextToSpeech speech;
     public static HashMap<String, String> map = new HashMap<>();
+    private Locale oldLocale;
 
     private PhoneUnlockedReceiver receiver;
 
@@ -41,6 +42,8 @@ public class LexiconService extends Service
     public void onCreate()
     {
         super.onCreate();
+
+        oldLocale = getResources().getConfiguration().locale;
 
         Intent intent = new Intent(this, SplashScreenActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, intent, PendingIntent.FLAG_ONE_SHOT);
@@ -115,8 +118,7 @@ public class LexiconService extends Service
     {
         super.onConfigurationChanged(newConfig);
         Locale newLocale = newConfig.locale;
-        Locale oldLocale = getResources().getConfiguration().locale;
-        if (oldLocale != newLocale)
+        if (!oldLocale.getLanguage().equals(newLocale.getLanguage()))
         {
             AppSettings appSettings = new AppSettings(this);
             appSettings.cleanPlayList();
