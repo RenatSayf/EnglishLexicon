@@ -76,7 +76,6 @@
 
     </LinearLayout>
 
-
     <TextView
         android:id="@+id/en_text_view"
         android:layout_width="match_parent"
@@ -121,12 +120,6 @@
             android:background="@drawable/transparent_background_straight_angle"
             android:checked="false"/>
 
-        <!--<android.support.v4.widget.Space-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_weight="1"-->
-            <!--/>-->
-
         <ImageButton
             android:id="@+id/btn_sound_modal"
             style="?android:attr/buttonStyleSmall"
@@ -138,11 +131,6 @@
             android:src="@drawable/selector_sound_icon"
             android:textColor="@drawable/selector_white_to_orange_color"
             />
-
-        <!--<android.support.v4.widget.Space-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_weight="1"/>-->
 
         <ImageButton
             android:id="@+id/btn_close"
