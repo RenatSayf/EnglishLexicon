@@ -30,10 +30,8 @@ public class PlayList extends AppCompatActivity implements ListViewAdapter.IPlay
 {
     private ListView listViewDict;
     private ListViewAdapter lictViewAdapter;
-    //private ArrayList<String> playList = new ArrayList<>();
     private DatabaseHelper databaseHelper;
     private AppSettings appSettings;
-    //private String[] dictArray;
     private PlayListFields m;
     private LockOrientation lockOrientation;
 
@@ -108,8 +106,6 @@ public class PlayList extends AppCompatActivity implements ListViewAdapter.IPlay
         if (m.newPlayList.size() > 0)
         {
             onPlayListChanged(m.newPlayList);
-//            lictViewAdapter = new ListViewAdapter(playList, PlayList.this);
-//            listViewDict.setAdapter(lictViewAdapter);
         }
 
         if (savedInstanceState == null)
@@ -305,7 +301,6 @@ public class PlayList extends AppCompatActivity implements ListViewAdapter.IPlay
     public void onGetTableListListener(Object object)
     {
         @SuppressWarnings("unchecked") ArrayList<String> arrayList = (ArrayList<String>) object;
-
         dialogAddDictShow(arrayList);
     }
 }
