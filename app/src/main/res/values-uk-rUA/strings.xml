@@ -201,6 +201,10 @@
     <string name="text_key_is_added">Ключ успішно додано</string>
     <string name="modal_bottom_banner">ca-app-pub-4071145618173901/4711718169</string>
     <string name="text_not_all_words_were_included">Не всі слова були включені</string>
+    <string name="text_in_dict">У словнику</string>
+    <string name="text_all_words_is_sdudied">всі слова вивчені.</string>
+    <string name="text_words_must_be_included">Щоб додати словник в список навчання, необхідно включити слова</string>
+    <string name="text_turn_on">Включити</string>
 
     <string-array name="display_mode">
         <item>Повтор</item>

@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:padding="3dp"
-        android:text="В словаре"
+        android:text="@string/text_in_dict"
         android:textAlignment="center"
         android:textSize="16sp"
         />
@@ -29,7 +29,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="5dp"
-        android:text="все слова изучены."
+        android:text="@string/text_all_words_is_sdudied"
         android:textAlignment="center"
         android:textSize="16sp"
         />
@@ -37,7 +37,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="5dp"
-        android:text="Чтобы добавить словарь в список обучения, необходимо включить слова"
+        android:text="@string/text_words_must_be_included"
         android:textAlignment="center"
         android:textSize="16sp"
         />
@@ -47,31 +47,30 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginTop="20dp"
-        android:padding="10dp"
         android:background="@color/colorLightGrey"
         >
 
         <Button
             android:id="@+id/btn_cancel_dialog_inclusion"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="@string/text_cancel"
             android:textColor="@drawable/selector_color_gold_to_white"
             style="@style/Base.Widget.AppCompat.ButtonBar"
-            android:background="@drawable/transparent_background"
+            android:background="@drawable/transparent_background_straight_angle"
             android:textStyle="bold"
             android:textSize="18sp"/>
 
         <Button
             android:id="@+id/btn_ok_dialog_inclusion"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="Включить"
+            android:text="@string/text_turn_on"
             android:textColor="@drawable/selector_color_green_to_white"
             style="@style/Base.Widget.AppCompat.ButtonBar"
-            android:background="@drawable/transparent_background"
+            android:background="@drawable/transparent_background_straight_angle"
             android:textStyle="bold"
             android:textSize="18sp"/>
 

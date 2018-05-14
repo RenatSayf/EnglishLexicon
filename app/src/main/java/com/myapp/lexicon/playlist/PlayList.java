@@ -107,6 +107,7 @@ public class PlayList extends AppCompatActivity implements ListViewAdapter.IPlay
 
         if (playList.size() > 0)
         {
+            //onPlayListChanged(playList);
             lictViewAdapter = new ListViewAdapter(playList, PlayList.this);
             listViewDict.setAdapter(lictViewAdapter);
         }
