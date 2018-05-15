@@ -263,14 +263,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switchRuSound_OnCheckedChange();
 
         orderPlayIconIV = findViewById(R.id.order_play_icon_iv);
-        if (appSettings.getOrderPlay() == 0)
-        {
-            orderPlayIconIV.setImageDrawable(getResources().getDrawable(R.drawable.ic_repeat_white));
-        }
-        if (appSettings.getOrderPlay() == 1)
-        {
-            orderPlayIconIV.setImageDrawable(getResources().getDrawable(R.drawable.ic_shuffle_white));
-        }
+        return;
     }
 
     @Override
@@ -325,6 +318,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         playList = appSettings.getPlayList();
         appData = AppData.getInstance();
         appData.initAllSettings(this);
+        if (appSettings.getOrderPlay() == 0)
+        {
+            orderPlayIconIV.setImageResource(R.drawable.ic_repeat_white);
+        }
+        if (appSettings.getOrderPlay() == 1)
+        {
+            orderPlayIconIV.setImageResource(R.drawable.ic_shuffle_white);
+        }
+        if (playList.size() > 0 && appData.getNdict() < playList.size())
+        {
+            textViewDict.setText(playList.get(appData.getNdict()));
+        }
+        else
+        {
+            textViewDict.setText("");
+        }
     }
 
     @Override

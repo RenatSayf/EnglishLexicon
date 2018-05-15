@@ -37,23 +37,33 @@
             <TextView
                 android:id="@+id/textViewDict"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
                 android:layout_gravity="start"
-                android:minWidth="80dp"
+                android:gravity="center_vertical"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/colorWhite"
+                android:text="@string/text_name_dict"
                 />
 
-            <android.support.v4.widget.Space
-                android:layout_width="0dp"
+            <ImageView
+                android:id="@+id/order_play_icon_iv"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"/>
+                android:layout_weight="0"
+                android:contentDescription="@string/btn_close_discribtion"
+                android:src="@drawable/ic_repeat_white"/>
 
             <TextView
                 android:id="@+id/tv_words_counter"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="0"
+                android:gravity="center_vertical"
+                android:layout_marginLeft="15dp"
+                android:layout_marginStart="15dp"
                 android:textAppearance="?android:attr/textAppearanceSmall"
+                android:layout_gravity="end"
                 android:textColor="@color/colorWhite"
                 />
 
@@ -142,7 +152,7 @@
                     android:layout_height="45dp"
                     android:background="@drawable/selector_transp_to_white_back"
                     android:contentDescription="@string/content_describt"
-                    android:gravity="right"
+                    android:gravity="end"
                     android:onClick="btnNextBackClick"
                     android:src="@drawable/selector_icon_skip_next"
                     />
@@ -192,6 +202,7 @@
                 android:layout_height="45dp"
                 android:layout_gravity="center_vertical|center_horizontal"
                 android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
                 android:background="@drawable/selector_transp_to_white_back"
                 android:contentDescription="@string/content_describt"
                 android:onClick="btnPauseClick"
