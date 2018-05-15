@@ -263,7 +263,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switchRuSound_OnCheckedChange();
 
         orderPlayIconIV = findViewById(R.id.order_play_icon_iv);
-        return;
     }
 
     @Override

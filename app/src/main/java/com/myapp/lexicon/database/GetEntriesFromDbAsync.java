@@ -40,39 +40,14 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
         this.cmd = "SELECT RowId, English, Translate, CountRepeat FROM " + tableName + " WHERE RowId >= " + rowId + " And CountRepeat <> 0 ORDER BY RowId ASC LIMIT 2";
     }
 
-    public GetEntriesFromDbAsync(Activity activity, String tableName, int[] rowId, GetEntriesListener listener)
+    public GetEntriesFromDbAsync(Activity activity, String tableName, String limit, GetEntriesListener listener)
     {
         setListener(listener);
         lockOrientation = new LockOrientation(activity);
         databaseHelper = new DatabaseHelper(activity);
         databaseHelper.create_db();
         tableName = StringOperations.getInstance().spaceToUnderscore(tableName);
-        String idSequence = "";
-        for (int i = 0; i < rowId.length; i++)
-        {
-            int item = rowId[i];
-            if (i != rowId.length - 1)
-            {
-                idSequence = idSequence.concat(item + ",");
-            }
-            if (i == rowId.length - 1)
-            {
-                idSequence = idSequence.concat(item + "");
-            }
-        }
-        String orderBy = "";
-        if (rowId.length > 1)
-        {
-            if (rowId[1] > rowId[0])
-            {
-                orderBy = "ASC";
-            }
-            else if (rowId[0] > rowId[1])
-            {
-                orderBy = "DESC";
-            }
-        }
-        this.cmd = "SELECT RowId, English, Translate, CountRepeat FROM " + tableName + " WHERE RowID IN(" + idSequence + ") ORDER BY RowId " + orderBy + ";";
+        this.cmd = "SELECT RowId, English, Translate, CountRepeat FROM " + tableName + " WHERE CountRepeat <> 0 ORDER BY random() LIMIT " + limit;
     }
 
     public GetEntriesFromDbAsync(Activity activity, String tableName, int firstId, int randomId, boolean x, GetEntriesListener listener)

@@ -87,6 +87,8 @@ public class PlayList extends AppCompatActivity implements ListViewAdapter.IPlay
                             break;
                         case 1:
                             appSettings.setOrderPlay(1);
+                            appSettings.setWordNumber(1);
+                            appSettings.setDictNumber(0);
                             break;
                         case 2:
 

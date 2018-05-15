@@ -171,7 +171,7 @@ public class SpeechService extends IntentService
                 if (wordsCountInTable > 0)
                 {
                     words = getEntriesFromDB(playListItem, appData.getNword(), order);
-                    if (words.size() < 2)
+                    if (words.size() < 2 && order != 1)
                     {
                         appData.setNword(1);
                         appData.setNdict(appData.getNdict() + 1);
@@ -180,7 +180,7 @@ public class SpeechService extends IntentService
                             appData.setNdict(0);
                         }
                     }
-                    if (words.size() == 2)
+                    if (words.size() == 2 && order != 1)
                     {
                         appData.setNword(words.get(1).getRowId());
                     }

@@ -158,7 +158,6 @@ public class TestModalFragment extends Fragment
                     int randomId;
                     try
                     {
-                        wordsNumberTV.setText((firstId + "").concat(" / ").concat(Integer.toString(maxCount)).concat(" " + getString(R.string.text_studied ) + " " + (maxCount - notStudied)));
                         RandomNumberGenerator numberGenerator = new RandomNumberGenerator(1, notStudied, (int) new Date().getTime());
                         randomId = numberGenerator.generate();
                         if (notStudied >= 2)
@@ -215,7 +214,10 @@ public class TestModalFragment extends Fragment
                                         int j = numberGenerator.generate();
                                         for (DataBaseEntry item : entries)
                                         {
-                                            if (item.getRowId() == firstId) enTextView.setText(item.getEnglish());
+                                            if (item.getRowId() == firstId)
+                                            {
+                                                enTextView.setText(item.getEnglish());
+                                            }
                                         }
                                         ruBtn1.setText(entries.get(i).getTranslate());
                                         ruBtn2.setText(entries.get(j).getTranslate());
@@ -272,6 +274,11 @@ public class TestModalFragment extends Fragment
                                                 appData.setNword(item.getRowId());
                                             }
                                         }
+                                    }
+                                    if (entries.size() > 0)
+                                    {
+                                        String strRowId = entries.get(0).getRowId() + "";
+                                        wordsNumberTV.setText((strRowId + "").concat(" / ").concat(Integer.toString(maxCount)).concat(" " + getString(R.string.text_studied ) + " " + (maxCount - notStudied)));
                                     }
                                 }
                             });
