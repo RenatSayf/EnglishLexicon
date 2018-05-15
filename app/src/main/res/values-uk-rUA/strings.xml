@@ -34,6 +34,12 @@
         <item>10</item>
     </string-array>
 
+    <string-array name="order_play_items">
+        <item value="0">По порядку</item>
+        <!--<item>В обратном порядке</item>-->
+        <item value="1">Випадковий вибір</item>
+    </string-array>
+
     <string name="title_activity_word_editor">Редактор слів</string>
     <string name="title_activity_play_list">Список відтворення</string>
     <string name="delete_dict">Видалити словник</string>

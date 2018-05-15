@@ -13,11 +13,13 @@ import android.widget.Toast;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DatabaseHelper;
+import com.myapp.lexicon.helpers.RandomNumberGenerator;
 import com.myapp.lexicon.helpers.StringOperations;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -36,6 +38,7 @@ public class SpeechService extends IntentService
     private int countRepeat;
     private Handler toastHandler;
     private static boolean isEngOnly = false;
+    private static RandomNumberGenerator numberGenerator;
 
     public static final String ACTION_UPDATE = "com.myapp.lexicon.UPDATE";
     public static final String EXTRA_KEY_EN = "EXTRA_UPDATE_EN";
@@ -61,6 +64,10 @@ public class SpeechService extends IntentService
         }
         appSettings = new AppSettings(this);
         appData = AppData.getInstance();
+        if (numberGenerator == null)
+        {
+            numberGenerator = new RandomNumberGenerator(appSettings.getPlayList().size(), (int) new Date().getTime());
+        }
     }
 
     @Override
@@ -136,85 +143,97 @@ public class SpeechService extends IntentService
         updateIntent.addCategory(Intent.CATEGORY_DEFAULT);
 
         ArrayList<String> playList = appSettings.getPlayList();
+        ArrayList<DataBaseEntry> words;
 
         if (playList.size() == 0) return;
 
-        if (order == 0)
+        while (!stop)
         {
-            while (!stop)
+            if (playList.size() > 0)
             {
-                if (playList.size() > 0)
+                String playListItem = null;
+                if (order == 0)
                 {
-                    String playListItem = playList.get(appData.getNdict());
-                    textDict = playListItem;
-                    int wordsCountInTable = getWordsCount(playListItem);
-                    if (wordsCountInTable > 0)
+                    playListItem = playList.get(appData.getNdict());
+                }
+                if (order == 1)
+                {
+                    int random = numberGenerator.generate();
+                    if (random < 0)
                     {
-                        ArrayList<DataBaseEntry> list = getEntriesFromDB(playListItem, appData.getNword(), 1);
-                        if (list.size() < 2)
+                        numberGenerator = new RandomNumberGenerator(playList.size(), (int) new Date().getTime());
+                        random = numberGenerator.generate();
+                    }
+                    playListItem = playList.get(random);
+                }
+                textDict = playListItem;
+                int wordsCountInTable = getWordsCount(playListItem);
+                if (wordsCountInTable > 0)
+                {
+                    words = getEntriesFromDB(playListItem, appData.getNword(), order);
+                    if (words.size() < 2)
+                    {
+                        appData.setNword(1);
+                        appData.setNdict(appData.getNdict() + 1);
+                        if (appData.getNdict() >= playList.size())
                         {
-                            appData.setNword(1);
-                            appData.setNdict(appData.getNdict() + 1);
-                            if (appData.getNdict() >= playList.size())
-                            {
-                                appData.setNdict(0);
-                            }
+                            appData.setNdict(0);
                         }
-                        if (list.size() == 2)
-                        {
-                            appData.setNword(list.get(1).getRowId());
-                        }
-                        if (list.size() == 0)
-                        {
-                            continue;
-                        }
+                    }
+                    if (words.size() == 2)
+                    {
+                        appData.setNword(words.get(1).getRowId());
+                    }
+                    if (words.size() == 0)
+                    {
+                        continue;
+                    }
 
-                        int repeat;
-                        try
-                        {
-                            repeat = Integer.parseInt(list.get(0).getCountRepeat());
-                        } catch (NumberFormatException e)
-                        {
-                            repeat = 1;
-                        }
-                        countRepeat = repeat;
+                    int repeat;
+                    try
+                    {
+                        repeat = Integer.parseInt(words.get(0).getCountRepeat());
+                    } catch (NumberFormatException e)
+                    {
+                        repeat = 1;
+                    }
+                    countRepeat = repeat;
 
-                        if (isEngOnly)
-                        {
-                            for (int t = 0; t < repeat; t++)
-                            {
-                                try
-                                {
-                                    speakWord(list.get(0), true);
-                                } catch (Exception e)
-                                {
-                                    Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                                    e.printStackTrace();
-                                    break;
-                                }
-                            }
-                        } else
+                    if (isEngOnly)
+                    {
+                        for (int t = 0; t < repeat; t++)
                         {
                             try
                             {
-                                for (int t = 0; t < repeat; t++)
-                                {
-                                    speakWord(list.get(0), false);
-                                }
+                                speakWord(words.get(0), true);
                             } catch (Exception e)
                             {
+                                Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                                 e.printStackTrace();
+                                break;
                             }
                         }
                     } else
                     {
-                        break;
+                        try
+                        {
+                            for (int t = 0; t < repeat; t++)
+                            {
+                                speakWord(words.get(0), false);
+                            }
+                        } catch (Exception e)
+                        {
+                            e.printStackTrace();
+                        }
                     }
-
                 } else
                 {
                     break;
                 }
+
+            } else
+            {
+                break;
             }
         }
     }
@@ -283,8 +302,6 @@ public class SpeechService extends IntentService
                 speek_done[0] = true;
             }
         });
-
-
 
         HashMap<String,String> mapEn = new HashMap<>();
         if (engOnly)
@@ -358,11 +375,11 @@ public class SpeechService extends IntentService
         }
         else if (direction > 0)
         {
-            cmd = "SELECT RowId, English, Translate, CountRepeat FROM " + table_name + " WHERE RowId >= " + rowId + " And CountRepeat <> 0 ORDER BY RowId ASC LIMIT 2";
+            cmd = "SELECT RowId, English, Translate, CountRepeat FROM " + table_name + " WHERE CountRepeat <> 0 ORDER BY random() LIMIT 1";
         }
         else
         {
-            cmd = "SELECT RowId, English, Translate, CountRepeat FROM " + table_name + " ORDER BY random() LIMIT 1";
+            cmd = "SELECT RowId, English, Translate, CountRepeat FROM " + table_name + " WHERE RowId >= " + rowId + " And CountRepeat <> 0 ORDER BY RowId ASC LIMIT 2";
         }
         try
         {

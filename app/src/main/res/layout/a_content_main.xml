@@ -43,23 +43,39 @@
                 <TextView
                     android:id="@+id/textViewDict"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
                     android:layout_gravity="start"
-                    android:minWidth="80dp"
                     android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textAlignment="textStart"
                     android:textColor="@color/colorWhite"
                     />
 
                 <android.support.v4.widget.Space
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"/>
+                    android:layout_weight="0"/>
+
+                <ImageView
+                    android:id="@+id/order_play_icon_iv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_repeat_white"
+                    android:contentDescription="@string/btn_close_discribtion"/>
+
+                <android.support.v4.widget.Space
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0"/>
 
                 <TextView
                     android:id="@+id/tv_words_counter"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
                     android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textAlignment="viewEnd"
+                    android:layout_gravity="end"
                     android:textColor="@color/colorWhite"
                     />
 

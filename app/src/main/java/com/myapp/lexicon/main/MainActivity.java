@@ -42,6 +42,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -93,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ImageButton btnPrevious;
     private ProgressBar progressBar;
     private CheckBox checkBoxRuSpeak;
+    private ImageView orderPlayIconIV;
     private static Intent speechIntentService;
     public static Intent serviceIntent;
     private UpdateBroadcastReceiver mUpdateBroadcastReceiver;
@@ -259,6 +261,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         checkBoxRuSpeak = findViewById(R.id.check_box_ru_speak);
         checkBoxRuSpeak.setChecked(appSettings.isEnglishSpeechOnly());
         switchRuSound_OnCheckedChange();
+
+        orderPlayIconIV = findViewById(R.id.order_play_icon_iv);
+        if (appSettings.getOrderPlay() == 0)
+        {
+            orderPlayIconIV.setImageDrawable(getResources().getDrawable(R.drawable.ic_repeat_white));
+        }
+        if (appSettings.getOrderPlay() == 1)
+        {
+            orderPlayIconIV.setImageDrawable(getResources().getDrawable(R.drawable.ic_shuffle_white));
+        }
     }
 
     @Override
@@ -364,8 +376,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
                 speechServiceOnPause();
                 Bundle bundle = new Bundle();
-                bundle.putString(WordEditor.KEY_EXTRA_DICT_NAME, playList.get(AppData.getInstance().getNdict()));
-                bundle.putInt(WordEditor.KEY_ROW_ID, appData.getNword());
+                bundle.putString(WordEditor.KEY_EXTRA_DICT_NAME, textViewDict.getText().toString());
+                bundle.putInt(WordEditor.KEY_ROW_ID, Integer.parseInt(tvWordsCounter.getText().toString()));
                 wordEditorIntent.replaceExtras(bundle);
 
                 startActivity(wordEditorIntent);

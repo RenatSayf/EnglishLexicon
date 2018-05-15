@@ -33,14 +33,20 @@
         <item>10</item>
     </string-array>
 
+    <string-array name="order_play_items">
+        <item value="0">По порядку</item>
+        <!--<item>В обратном порядке</item>-->
+        <item value="1">Случайный выбор</item>
+    </string-array>
+
     <string name="title_activity_word_editor">Редактор слов</string>
-    <string name="title_activity_play_list">Список воспроизведения</string>
+    <string name="title_activity_play_list">Список обучения</string>
     <string name="delete_dict">Удалить словарь</string>
-    <string name="spinner_order_play_header">Порядок воспроизведения:</string>
-    <string name="play_list_header">Список воспроизведения:</string>
+    <string name="spinner_order_play_header">Порядок обучения:</string>
+    <string name="play_list_header">Список обучения:</string>
     <string name="add">Добавить</string>
     <string name="access_dict">Доступные словари</string>
-    <string name="no_playlist">Не задан список воспроизведения</string>
+    <string name="no_playlist">Не задан список обучения</string>
     <string name="message_about_pause">Пауза</string>
     <string name="message_about_start">Подождите немного сейчас начнем</string>
     <string name="title_del_dict">Укажите удаляемый словарь</string>
@@ -50,7 +56,7 @@
     <string name="button_text_no">Нет</string>
     <string name="msg_selected_dict_removed">Выбранные словари удалены!</string>
     <string name="dialog_are_you_sure">Вы уверены?</string>
-    <string name="nav_play_list">Плей лист</string>
+    <string name="nav_play_list">Список обучения</string>
     <string name="text_enter">Введите текст</string>
     <string name="text_result">Результат</string>
     <string name="link_to_yandex_trans">Переведено сервисом <![CDATA[<u>«Яндекс.Переводчик»</u>]]></string>
