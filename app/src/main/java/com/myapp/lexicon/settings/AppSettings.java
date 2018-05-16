@@ -202,7 +202,12 @@ public class AppSettings
 
     public int getWordNumber()
     {
-        return context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getInt(KEY_N_WORD, 1);
+        int wordNumber = context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getInt(KEY_N_WORD, 1);
+        if (wordNumber <= 0)
+        {
+            wordNumber = 1;
+        }
+        return wordNumber;
     }
 
     public void setDictNumber(int number)
@@ -224,7 +229,7 @@ public class AppSettings
     public int getDictNumber()
     {
         int dictNumber = context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getInt(KEY_N_DICT, 0);
-        if (dictNumber < 0)
+        if (dictNumber < 0 || dictNumber > getPlayList().size() - 1)
         {
             dictNumber = 0;
         }
