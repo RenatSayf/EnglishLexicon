@@ -49,8 +49,7 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
         databaseHelper = new DatabaseHelper(activity);
         databaseHelper.create_db();
         tableName = StringOperations.getInstance().spaceToUnderscore(tableName);
-        this.cmd = "SELECT RowId, English, Translate, CountRepeat FROM " + tableName + " WHERE CountRepeat <> 0 ORDER BY random() LIMIT 1";
-        this.additionalCmd = "SELECT RowId, English, Translate, CountRepeat FROM " + tableName + " ORDER BY random() LIMIT 1";
+        this.cmd = "SELECT RowId, English, Translate, CountRepeat FROM " + tableName + " WHERE CountRepeat <> 0 ORDER BY random() LIMIT 2";
     }
 
     public GetEntriesFromDbAsync(Activity activity, String tableName, int firstId, int randomId, boolean x, GetEntriesListener listener)

@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,7 +45,8 @@ public class TestModalFragment extends Fragment
     private AppData appData;
     private TextView enTextView;
     private Button ruBtn1, ruBtn2;
-    TextView nameDictTV;
+    private ImageView orderPlayIcon;
+    private TextView nameDictTV;
     private TextView wordsNumberTV;
     private ArrayList<DataBaseEntry> compareList;
     private boolean wordIsStudied = false;
@@ -113,7 +115,17 @@ public class TestModalFragment extends Fragment
         try
         {
             nameDictTV.setText(currentDict);
-            getWordsFromDBbyOrder(currentDict);
+            int orderPlay = appSettings.getOrderPlay();
+            switch (orderPlay)
+            {
+                case 0:
+                    getWordsFromDBbyOrder(currentDict);
+                    break;
+                case 1:
+                    getRandomWordsFromDB();
+                    break;
+            }
+
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -140,7 +152,23 @@ public class TestModalFragment extends Fragment
 
         checkStudied_OnCheckedChange((CheckBox) fragmentView.findViewById(R.id.check_box_studied));
 
+        orderPlayIcon = fragmentView.findViewById(R.id.order_play_icon_iv_test_modal);
+
         return fragmentView;
+    }
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+        if (appSettings.getOrderPlay() == 0)
+        {
+            orderPlayIcon.setImageResource(R.drawable.ic_repeat_white);
+        }
+        if (appSettings.getOrderPlay() == 1)
+        {
+            orderPlayIcon.setImageResource(R.drawable.ic_shuffle_white);
+        }
     }
 
     private void getWordsFromDBbyOrder(final String currentDict)
@@ -275,21 +303,67 @@ public class TestModalFragment extends Fragment
 
     public void getRandomWordsFromDB()
     {
-        RandomNumberGenerator numberGenerator = new RandomNumberGenerator(appSettings.getPlayList().size(), (int) new Date().getTime());
-        int nDict = numberGenerator.generate();
-        String tableName = appSettings.getPlayList().get(nDict);
-        if (tableName == null) return;
-        GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), tableName, new GetEntriesFromDbAsync.GetEntriesListener()
+        if (appSettings.getPlayList().size() > 0)
         {
-            @Override
-            public void getEntriesListener(ArrayList<DataBaseEntry> entries)
-            {
+            RandomNumberGenerator numberGenerator = new RandomNumberGenerator(appSettings.getPlayList().size(), (int) new Date().getTime());
+            int nDict = numberGenerator.generate();
+            final String tableName = appSettings.getPlayList().get(nDict);
+            if (tableName == null) return;
 
+            GetStudiedWordsCount getStudiedWordsCount = new GetStudiedWordsCount(getActivity(), tableName, new GetStudiedWordsCount.GetCountListener()
+            {
+                @Override
+                public void onTaskComplete(Integer[] resArray)
+                {
+                    if (resArray != null && resArray.length > 1)
+                    {
+                        final int maxCount = resArray[1];
+                        final int notStudied = resArray[0];
+                        if (notStudied == 0 && getActivity() != null)
+                        {
+                            appSettings.removeItemFromPlayList(tableName);
+                            getActivity().finish();
+                        }
+
+                        GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), tableName, new GetEntriesFromDbAsync.GetEntriesListener()
+                        {
+                            @Override
+                            public void getEntriesListener(ArrayList<DataBaseEntry> entries)
+                            {
+                                compareList = entries;
+                                int wordsNumber = 0;
+                                if (entries.size() == 1)
+                                {
+                                    wordsNumber = entries.get(0).getRowId();
+                                    enTextView.setText(entries.get(0).getEnglish());
+                                    ruBtn1.setText(entries.get(0).getTranslate());
+                                    ruBtn2.setText(entries.get(0).getTranslate());
+                                }
+                                if (entries.size() > 1)
+                                {
+                                    RandomNumberGenerator numberGenerator = new RandomNumberGenerator(2, (int) new Date().getTime());
+                                    int i = numberGenerator.generate();
+                                    int j = numberGenerator.generate();
+                                    wordsNumber = entries.get(0).getRowId();
+                                    enTextView.setText(entries.get(0).getEnglish());
+                                    ruBtn1.setText(entries.get(i).getTranslate());
+                                    ruBtn2.setText(entries.get(j).getTranslate());
+                                }
+                                nameDictTV.setText(tableName);
+                                wordsNumberTV.setText((wordsNumber + "").concat(" / ").concat(Integer.toString(maxCount)).concat(" " + getString(R.string.text_studied ) + " " + (maxCount - notStudied)));
+                            }
+                        });
+                        if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
+                        {
+                            getEntriesFromDbAsync.execute();
+                        }
+                    }
+                }
+            });
+            if (getStudiedWordsCount.getStatus() != AsyncTask.Status.RUNNING)
+            {
+                getStudiedWordsCount.execute();
             }
-        });
-        if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
-        {
-            getEntriesFromDbAsync.execute();
         }
     }
 
