@@ -19,6 +19,7 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
     private LockOrientation lockOrientation;
     private DatabaseHelper databaseHelper;
     private String cmd;
+    private String additionalCmd = null;
 
     public GetEntriesFromDbAsync(Activity activity, String tableName, int startId, int endId, GetEntriesListener listener)
     {
@@ -38,6 +39,7 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
         databaseHelper.create_db();
         tableName = StringOperations.getInstance().spaceToUnderscore(tableName);
         this.cmd = "SELECT RowId, English, Translate, CountRepeat FROM " + tableName + " WHERE RowId >= " + rowId + " And CountRepeat <> 0 ORDER BY RowId ASC LIMIT 2";
+        this.additionalCmd = "SELECT RowId, English, Translate, CountRepeat FROM " + tableName + " ORDER BY random() LIMIT 1";
     }
 
     public GetEntriesFromDbAsync(Activity activity, String tableName, String limit, GetEntriesListener listener)
@@ -101,6 +103,19 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
                         dataBaseEntry = new DataBaseEntry(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3));
                         entriesFromDB.add(dataBaseEntry);
                         cursor.moveToNext();
+                    }
+                }
+                if (additionalCmd != null)
+                {
+                    cursor = databaseHelper.database.rawQuery(additionalCmd, null);
+                    if (cursor.moveToFirst())
+                    {
+                        while (!cursor.isAfterLast())
+                        {
+                            dataBaseEntry = new DataBaseEntry(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3));
+                            entriesFromDB.add(dataBaseEntry);
+                            cursor.moveToNext();
+                        }
                     }
                 }
             }

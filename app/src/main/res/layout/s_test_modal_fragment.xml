@@ -51,26 +51,38 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:orientation="vertical"
-        android:layout_marginTop="10dp">
+        android:orientation="horizontal"
+        android:layout_margin="5dp">
 
         <TextView
-            android:id="@+id/name_dict_tv"
+            android:id="@+id/name_dict_tv_test_modal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            android:gravity="start"
             android:text="@string/text_name_dict"
             android:textColor="@color/colorWhite"/>
 
+        <ImageView
+            android:id="@+id/order_play_icon_iv_test_modal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:contentDescription="@string/btn_close_discribtion"
+            android:src="@drawable/ic_repeat_white"/>
+
         <TextView
-            android:id="@+id/words_number_tv_modal_sv"
+            android:id="@+id/words_number_tv_test_modal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text=""
+            android:layout_weight="1"
+            android:gravity="end"
+            android:layout_gravity="center_vertical"
+            android:text="12"
             android:textColor="@color/colorWhite"
             />
 

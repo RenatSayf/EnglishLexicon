@@ -89,8 +89,8 @@ public class TestModalFragment extends Fragment
         ruBtn2_OnClick(ruBtn2);
 
 
-        nameDictTV = fragmentView.findViewById(R.id.name_dict_tv);
-        wordsNumberTV = fragmentView.findViewById(R.id.words_number_tv_modal_sv);
+        nameDictTV = fragmentView.findViewById(R.id.name_dict_tv_test_modal);
+        wordsNumberTV = fragmentView.findViewById(R.id.words_number_tv_test_modal);
 
         ImageButton speakButton = fragmentView.findViewById(R.id.btn_sound_modal);
         speakButton_OnClick(speakButton);
@@ -167,34 +167,18 @@ public class TestModalFragment extends Fragment
                         }
                         getActivity().finish();
                     }
-                    int randomId;
                     try
                     {
-                        RandomNumberGenerator numberGenerator = new RandomNumberGenerator(1, notStudied, (int) new Date().getTime());
-                        randomId = numberGenerator.generate();
-                        if (notStudied >= 2)
-                        {
-                            while (firstId == randomId)
-                            {
-                                randomId = numberGenerator.generate();
-                            }
-                        }
-                        else if (notStudied > 0)
-                        {
-                            randomId = numberGenerator.generate();
-                        }
-
                         if (notStudied > 0)
                         {
-                            final int finalRandomId = randomId;
-                            GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), currentDict, firstId, randomId, true, new GetEntriesFromDbAsync.GetEntriesListener()
+                            GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), currentDict, firstId, new GetEntriesFromDbAsync.GetEntriesListener()
                             {
                                 @Override
                                 public void getEntriesListener(ArrayList<DataBaseEntry> entries)
                                 {
                                     int wordsNumber = 0;
                                     compareList = entries;
-                                    if (entries.size() == 1 && !entries.get(0).getCountRepeat().equals("0"))
+                                    if (entries.size() == 1)
                                     {
                                         wordsNumber = entries.get(0).getRowId();
                                         enTextView.setText(entries.get(0).getEnglish());
@@ -226,14 +210,8 @@ public class TestModalFragment extends Fragment
                                         RandomNumberGenerator numberGenerator = new RandomNumberGenerator(2, (int) new Date().getTime());
                                         int i = numberGenerator.generate();
                                         int j = numberGenerator.generate();
-                                        for (DataBaseEntry item : entries)
-                                        {
-                                            if (item.getRowId() == firstId)
-                                            {
-                                                wordsNumber = item.getRowId();
-                                                enTextView.setText(item.getEnglish());
-                                            }
-                                        }
+                                        wordsNumber = entries.get(0).getRowId();
+                                        enTextView.setText(entries.get(0).getEnglish());
                                         ruBtn1.setText(entries.get(i).getTranslate());
                                         ruBtn2.setText(entries.get(j).getTranslate());
 
@@ -263,33 +241,12 @@ public class TestModalFragment extends Fragment
                                         RandomNumberGenerator numberGenerator = new RandomNumberGenerator(2, (int) new Date().getTime());
                                         int i = numberGenerator.generate();
                                         int j = numberGenerator.generate();
-                                        for (DataBaseEntry item : entries)
-                                        {
-                                            if (item.getRowId() == firstId)
-                                            {
-                                                wordsNumber = item.getRowId();
-                                                enTextView.setText(item.getEnglish());
-                                                if (i == 0 && j == 1)
-                                                    ruBtn1.setText(item.getTranslate());
-                                                else
-                                                    ruBtn2.setText(item.getTranslate());
-                                            }
-                                            if (item.getRowId() == finalRandomId)
-                                            {
-                                                if (i == 0 && j == 1)
-                                                {
-                                                    ruBtn2.setText(item.getTranslate());
-                                                }
-                                                else
-                                                {
-                                                    ruBtn1.setText(item.getTranslate());
-                                                }
-                                            }
-                                            if (item.getRowId() > firstId && item.getRowId() != finalRandomId && appSettings.getOrderPlay() == 0)
-                                            {
-                                                appData.setNword(item.getRowId());
-                                            }
-                                        }
+
+                                        wordsNumber = entries.get(0).getRowId();
+                                        enTextView.setText(entries.get(0).getEnglish());
+                                        ruBtn1.setText(entries.get(i).getTranslate());
+                                        ruBtn2.setText(entries.get(j).getTranslate());
+                                        appData.setNword(entries.get(1).getRowId());
                                     }
                                     if (entries.size() > 0)
                                     {

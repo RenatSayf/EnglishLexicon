@@ -41,31 +41,30 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginTop="20dp"
-        android:padding="10dp"
         android:background="@color/colorLightGrey"
         >
 
         <Button
             android:id="@+id/btn_cancel_ended_dialog"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="@string/text_cancel"
             android:textColor="@drawable/selector_color_gold_to_white"
             style="@style/Base.Widget.AppCompat.ButtonBar"
-            android:background="@drawable/transparent_background"
+            android:background="@drawable/transparent_background_straight_angle"
             android:textStyle="bold"
             android:textSize="18sp"/>
 
         <Button
             android:id="@+id/btn_ok_ended_dialog"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="@string/text_ok"
             android:textColor="@drawable/selector_color_green_to_white"
             style="@style/Base.Widget.AppCompat.ButtonBar"
-            android:background="@drawable/transparent_background"
+            android:background="@drawable/transparent_background_straight_angle"
             android:textStyle="bold"
             android:textSize="18sp"/>
 
