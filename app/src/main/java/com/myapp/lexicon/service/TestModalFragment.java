@@ -24,7 +24,7 @@ import android.widget.Toast;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DatabaseHelper;
-import com.myapp.lexicon.database.GetCountWordsAsync2;
+import com.myapp.lexicon.database.GetStudiedWordsCount;
 import com.myapp.lexicon.database.GetEntriesFromDbAsync;
 import com.myapp.lexicon.database.UpdateDBEntryAsync;
 import com.myapp.lexicon.dialogs.WordsEndedDialog;
@@ -101,7 +101,7 @@ public class TestModalFragment extends Fragment
 
             nameDictTV.setText(currentDict);
 
-            getWordsFromDB3(currentDict);
+            getWordsFromDBbyOrder(currentDict);
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -131,9 +131,9 @@ public class TestModalFragment extends Fragment
         return fragmentView;
     }
 
-    private void getWordsFromDB3(final String currentDict)
+    private void getWordsFromDBbyOrder(final String currentDict)
     {
-        GetCountWordsAsync2 getCountWordsAsync2 = new GetCountWordsAsync2(getActivity(), currentDict, new GetCountWordsAsync2.GetCountListener()
+        GetStudiedWordsCount getStudiedWordsCount = new GetStudiedWordsCount(getActivity(), currentDict, new GetStudiedWordsCount.GetCountListener()
         {
             int firstId = appData.getNword();
 
@@ -180,9 +180,11 @@ public class TestModalFragment extends Fragment
                                 @Override
                                 public void getEntriesListener(ArrayList<DataBaseEntry> entries)
                                 {
+                                    int wordsNumber = 0;
                                     compareList = entries;
                                     if (entries.size() == 1 && !entries.get(0).getCountRepeat().equals("0"))
                                     {
+                                        wordsNumber = entries.get(0).getRowId();
                                         enTextView.setText(entries.get(0).getEnglish());
                                         ruBtn1.setText(entries.get(0).getTranslate());
                                         ruBtn2.setText(entries.get(0).getTranslate());
@@ -216,6 +218,7 @@ public class TestModalFragment extends Fragment
                                         {
                                             if (item.getRowId() == firstId)
                                             {
+                                                wordsNumber = item.getRowId();
                                                 enTextView.setText(item.getEnglish());
                                             }
                                         }
@@ -252,6 +255,7 @@ public class TestModalFragment extends Fragment
                                         {
                                             if (item.getRowId() == firstId)
                                             {
+                                                wordsNumber = item.getRowId();
                                                 enTextView.setText(item.getEnglish());
                                                 if (i == 0 && j == 1)
                                                     ruBtn1.setText(item.getTranslate());
@@ -277,8 +281,7 @@ public class TestModalFragment extends Fragment
                                     }
                                     if (entries.size() > 0)
                                     {
-                                        String strRowId = entries.get(0).getRowId() + "";
-                                        wordsNumberTV.setText((strRowId + "").concat(" / ").concat(Integer.toString(maxCount)).concat(" " + getString(R.string.text_studied ) + " " + (maxCount - notStudied)));
+                                        wordsNumberTV.setText((wordsNumber + "").concat(" / ").concat(Integer.toString(maxCount)).concat(" " + getString(R.string.text_studied ) + " " + (maxCount - notStudied)));
                                     }
                                 }
                             });
@@ -295,9 +298,9 @@ public class TestModalFragment extends Fragment
                 }
             }
         });
-        if (getCountWordsAsync2.getStatus() != AsyncTask.Status.RUNNING)
+        if (getStudiedWordsCount.getStatus() != AsyncTask.Status.RUNNING)
         {
-            getCountWordsAsync2.execute();
+            getStudiedWordsCount.execute();
         }
     }
 
@@ -397,7 +400,7 @@ public class TestModalFragment extends Fragment
                                 {
                                     Toast.makeText(getActivity(), R.string.text_word_is_not_show, Toast.LENGTH_LONG).show();
                                     final String currentDict = nameDictTV.getText().toString();
-                                    GetCountWordsAsync2 getCountWordsAsync = new GetCountWordsAsync2(getActivity(), currentDict, new GetCountWordsAsync2.GetCountListener()
+                                    GetStudiedWordsCount getCountWordsAsync = new GetStudiedWordsCount(getActivity(), currentDict, new GetStudiedWordsCount.GetCountListener()
                                     {
                                         @Override
                                         public void onTaskComplete(Integer[] resArray)
@@ -427,10 +430,9 @@ public class TestModalFragment extends Fragment
                                                                         appSettings.removeItemFromPlayList(currentDict);
                                                                         if (appSettings.getPlayList() == null || appSettings.getPlayList().size() == 0)
                                                                         {
-                                                                            endedDialog.dismiss();
                                                                             getActivity().stopService(MainActivity.serviceIntent);
-                                                                            getActivity().finish();
                                                                         }
+                                                                        getActivity().finish();
                                                                         break;
                                                                     case 1:
                                                                         ContentValues values = new ContentValues();
@@ -440,7 +442,6 @@ public class TestModalFragment extends Fragment
                                                                             @Override
                                                                             public void updateDBEntry_OnComplete(int rows)
                                                                             {
-                                                                                endedDialog.dismiss();
                                                                                 if (getActivity() != null)
                                                                                 {
                                                                                     getActivity().finish();

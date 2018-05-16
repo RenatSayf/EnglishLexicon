@@ -218,16 +218,17 @@ public class AppSettings
             {
                 e.printStackTrace();
             }
-//            if (iCurrentDictChanged != null && number >= 0)
-//            {
-//                iCurrentDictChanged.currentDictOnChanged(list.get(number));
-//            }
         }
     }
 
     public int getDictNumber()
     {
-        return context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getInt(KEY_N_DICT, 0);
+        int dictNumber = context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getInt(KEY_N_DICT, 0);
+        if (dictNumber < 0)
+        {
+            dictNumber = 0;
+        }
+        return dictNumber;
     }
 
     private void setCurrentDict(String name)
