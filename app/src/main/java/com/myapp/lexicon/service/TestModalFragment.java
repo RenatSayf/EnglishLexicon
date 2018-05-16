@@ -273,6 +273,26 @@ public class TestModalFragment extends Fragment
         }
     }
 
+    public void getRandomWordsFromDB()
+    {
+        RandomNumberGenerator numberGenerator = new RandomNumberGenerator(appSettings.getPlayList().size(), (int) new Date().getTime());
+        int nDict = numberGenerator.generate();
+        String tableName = appSettings.getPlayList().get(nDict);
+        if (tableName == null) return;
+        GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), tableName, new GetEntriesFromDbAsync.GetEntriesListener()
+        {
+            @Override
+            public void getEntriesListener(ArrayList<DataBaseEntry> entries)
+            {
+
+            }
+        });
+        if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
+        {
+            getEntriesFromDbAsync.execute();
+        }
+    }
+
     public void ruBtn1_OnClick(View view)
     {
         view.setOnClickListener(new View.OnClickListener()
