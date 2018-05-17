@@ -3,16 +3,13 @@ package com.myapp.lexicon.main;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.app.LoaderManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.Loader;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -58,7 +55,6 @@ import com.myapp.lexicon.addword.AddWordActivity;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.DatabaseHelper;
-import com.myapp.lexicon.database.GetEntriesLoader;
 import com.myapp.lexicon.database.GetTableListFragm;
 import com.myapp.lexicon.playlist.PlayList;
 import com.myapp.lexicon.service.LexiconService;
@@ -75,7 +71,7 @@ import java.util.Locale;
 
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
-        LoaderManager.LoaderCallbacks<Cursor>,
+        //LoaderManager.LoaderCallbacks<Cursor>,
         GetTableListFragm.OnTableListListener
 {
     public DatabaseHelper databaseHelper;
@@ -97,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ImageView orderPlayIconIV;
     private static Intent speechIntentService;
     public static Intent serviceIntent;
-    private UpdateBroadcastReceiver mUpdateBroadcastReceiver;
+    private SpeechServiceReceiver speechServiceReceiver;
     private boolean isFirstTime = true;
     private AppSettings appSettings;
     private AppData appData;
@@ -115,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private final String KEY_BTN_BACK_VISIBLE = "btn_back_visible";
     private final String KEY_PROG_BAR_VISIBLE = "prog_bar_visible";
 
-    private final int LOADER_GET_ENTRIES = 113336564;
+    //private final int LOADER_GET_ENTRIES = 113336564;
 
     protected PowerManager.WakeLock wakeLock;
 
@@ -157,12 +153,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initViews();
 
         // Регистрируем приёмник
-        mUpdateBroadcastReceiver = new UpdateBroadcastReceiver();
+        speechServiceReceiver = new SpeechServiceReceiver();
         IntentFilter updateIntentFilter = new IntentFilter(SpeechService.ACTION_UPDATE);
         updateIntentFilter.addCategory(Intent.CATEGORY_DEFAULT);
         try
         {
-            registerReceiver(mUpdateBroadcastReceiver, updateIntentFilter);
+            registerReceiver(speechServiceReceiver, updateIntentFilter);
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -199,9 +195,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             btnPrevious.setVisibility(savedInstanceState.getInt(KEY_BTN_BACK_VISIBLE));
             progressBar.setVisibility(savedInstanceState.getInt(KEY_PROG_BAR_VISIBLE));
         }
-
-        // TODO: AsyncTaskLoader - 3. инициализация
-        getLoaderManager().initLoader(LOADER_GET_ENTRIES, savedInstanceState, this);
 
         if (appData.isAdMob())
         {
@@ -339,7 +332,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onDestroy()
     {
         super.onDestroy();
-        unregisterReceiver(mUpdateBroadcastReceiver);
+        unregisterReceiver(speechServiceReceiver);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
     }
 
@@ -734,38 +727,79 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             speechServiceOnStop();
             return;
         }
-        dataBaseQueries = new DataBaseQueries(this);
-        int wordsCount = dataBaseQueries.getCountEntriesSync(playList.get(appData.getNdict()));
-        appData.setNword(appData.getNword()+1);
-        if (playList.size() > 1)
+
+        appData.getNextNword(this, new AppData.IGetWordListerner()
         {
-            if (appData.getNword() > wordsCount)
+            @Override
+            public void getWordComplete(ArrayList<DataBaseEntry> entries)
             {
-                appData.setNword(1);
-                appData.setNdict(appData.getNdict()+1);
-                if (appData.getNdict() > playList.size()-1)
+                if (entries.size() > 0)
                 {
-                    appData.setNdict(0);
+                    DataBaseEntry dataBaseEntry = entries.get(0);
+                    if (entries.size() == 1)
+                    {
+                        appData.setNword(1);
+                        appData.setNdict(appData.getNdict() + 1);
+                        if (appData.getNdict() > playList.size() - 1)
+                        {
+                            appData.setNdict(0);
+                        }
+                    }
+                    if (entries.size() > 1)
+                    {
+                        appData.setNword(entries.get(1).getRowId());
+                    }
+                    textViewEn.setText(dataBaseEntry.getEnglish());
+                    textViewRu.setText(dataBaseEntry.getTranslate());
+                    textViewDict.setText(playList.get(appData.getNdict()));
+                    String rowId = dataBaseEntry.getRowId() + "";
+                    tvWordsCounter.setText(rowId);
+
+                    final HashMap<String, String> hashMap = new HashMap<>();
+                    hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "main_activity");
+                    SplashScreenActivity.speech.setLanguage(Locale.US);
+                    SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                    {
+                        SplashScreenActivity.speech.speak(textViewEn.getText().toString(), TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+                    } else
+                    {
+                        SplashScreenActivity.speech.speak(textViewEn.getText().toString(), TextToSpeech.QUEUE_ADD, hashMap);
+                    }
+                    SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+                    {
+                        @Override
+                        public void onStart(String utteranceId)
+                        {
+
+                        }
+
+                        @Override
+                        public void onDone(String utteranceId)
+                        {
+                            if (utteranceId.equals("main_activity") && appSettings.isEnglishSpeechOnly())
+                            {
+                                SplashScreenActivity.speech.setLanguage(Locale.getDefault());
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                                {
+                                    SplashScreenActivity.speech.speak(textViewRu.getText().toString(), TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+                                } else
+                                {
+                                    SplashScreenActivity.speech.speak(textViewRu.getText().toString(), TextToSpeech.QUEUE_ADD, hashMap);
+                                }
+                            }
+                            SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
+                        }
+
+                        @Override
+                        public void onError(String utteranceId)
+                        {
+
+                        }
+                    });
                 }
             }
-        }
-        else if (playList.size() == 1)
-        {
-            if (appData.getNword() > wordsCount)
-            {
-                appData.setNword(1);
-            }
-        }
-
-        // TODO: AsyncTaskLoader - 4. Передача параметров в AsyncTaskLoader
-        Bundle loaderBundle = new Bundle();
-        loaderBundle.putString(GetEntriesLoader.KEY_TABLE_NAME, playList.get(appData.getNdict()));
-        loaderBundle.putInt(GetEntriesLoader.KEY_START_ID, appData.getNword());
-        loaderBundle.putInt(GetEntriesLoader.KEY_END_ID, appData.getNword());
-
-        // TODO: AsyncTaskLoader - 5. Запуск загрузки данных
-        Loader<Cursor> dbLoader = getLoaderManager().restartLoader(LOADER_GET_ENTRIES, loaderBundle, this);
-        dbLoader.forceLoad();
+        });
     }
 
     private void getPrevious()
@@ -775,45 +809,76 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             speechServiceOnStop();
             return;
         }
-        dataBaseQueries = new DataBaseQueries(this);
-        playList = appSettings.getPlayList();
 
-        if (playList.size() > 1)
+        appData.getPreviousNword(this, new AppData.IGetWordListerner()
         {
-            appData.setNword(appData.getNword()-1);
-            if (appData.getNword() < 1)
+            @Override
+            public void getWordComplete(ArrayList<DataBaseEntry> entries)
             {
-                appData.setNdict(appData.getNdict()-1);
-                if (appData.getNdict() < 0)
+                DataBaseEntry dataBaseEntry = entries.get(0);
+                if (entries.size() == 1)
                 {
-                    appData.setNdict(playList.size()-1);
+                    appData.setNword(100000);
+                    appData.setNdict(appData.getNdict() - 1);
+                    if (appData.getNdict() < 0)
+                    {
+                        appData.setNdict(playList.size() - 1);
+                    }
                 }
-                int wordsCount = dataBaseQueries.getCountEntriesSync(playList.get(appData.getNdict()));
-                appData.setNword(wordsCount);
-            }
-        }
-        if (playList.size() == 1)
-        {
-            if (appData.getNword() <= 1)
-            {
-                int wordsCount = dataBaseQueries.getCountEntriesSync(playList.get(appData.getNdict()));
-                appData.setNword(wordsCount);
-            }
-            else
-            {
-                appData.setNword(appData.getNword()-1);
-            }
-        }
+                if (entries.size() > 1)
+                {
+                    appData.setNword(entries.get(1).getRowId());
+                }
+                textViewEn.setText(dataBaseEntry.getEnglish());
+                textViewRu.setText(dataBaseEntry.getTranslate());
+                textViewDict.setText(playList.get(appData.getNdict()));
+                String rowId = dataBaseEntry.getRowId() + "";
+                tvWordsCounter.setText(rowId);
 
-        // TODO: AsyncTaskLoader - 4. Передача параметров в AsyncTaskLoader
-        Bundle loaderBundle = new Bundle();
-        loaderBundle.putString(GetEntriesLoader.KEY_TABLE_NAME, playList.get(appData.getNdict()));
-        loaderBundle.putInt(GetEntriesLoader.KEY_START_ID, appData.getNword());
-        loaderBundle.putInt(GetEntriesLoader.KEY_END_ID, appData.getNword());
+                final HashMap<String, String> hashMap = new HashMap<>();
+                hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "main_activity");
+                SplashScreenActivity.speech.setLanguage(Locale.US);
+                SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                {
+                    SplashScreenActivity.speech.speak(textViewEn.getText().toString(), TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+                } else
+                {
+                    SplashScreenActivity.speech.speak(textViewEn.getText().toString(), TextToSpeech.QUEUE_ADD, hashMap);
+                }
+                SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+                {
+                    @Override
+                    public void onStart(String utteranceId)
+                    {
 
-        // TODO: AsyncTaskLoader - 5. Запуск загрузки данных
-        Loader<Cursor> dbLoader = getLoaderManager().restartLoader(LOADER_GET_ENTRIES, loaderBundle, this);
-        dbLoader.forceLoad();
+                    }
+
+                    @Override
+                    public void onDone(String utteranceId)
+                    {
+                        if (utteranceId.equals("main_activity") && appSettings.isEnglishSpeechOnly())
+                        {
+                            SplashScreenActivity.speech.setLanguage(Locale.getDefault());
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                            {
+                                SplashScreenActivity.speech.speak(textViewRu.getText().toString(), TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+                            } else
+                            {
+                                SplashScreenActivity.speech.speak(textViewRu.getText().toString(), TextToSpeech.QUEUE_ADD, hashMap);
+                            }
+                        }
+                        SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
+                    }
+
+                    @Override
+                    public void onError(String utteranceId)
+                    {
+
+                    }
+                });
+            }
+        });
     }
 
     public void switchRuSound_OnCheckedChange()
@@ -880,109 +945,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return false;
     }
 
-    // TODO: AsyncTaskLoader - 1. MainActivity реализует интерфейс LoaderManager.LoaderCallbacks
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Loader onCreateLoader(int id, Bundle bundle)
-    {
-        Loader<Cursor> loader = null;
-        switch (id)
-        {
-            case LOADER_GET_ENTRIES:
-                loader = new GetEntriesLoader(this, bundle);
-            default:
-                break;
-        }
-        return loader;
-    }
-
-    @Override   // TODO: AsyncTaskLoader - 2. Реализация интерфейса LoaderManager.LoaderCallbacks
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor)
-    {
-        DataBaseEntry dataBaseEntry = null;
-        try
-        {
-            if (cursor != null && cursor.getCount() > 0)
-            {
-                cursor.moveToFirst();
-                dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1), cursor.getString(3));
-            }
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        finally
-        {
-            if (cursor != null)
-            {
-                cursor.close();
-            }
-        }
-
-        if (dataBaseEntry != null)
-        {
-            textViewEn.setText(dataBaseEntry.getEnglish());
-            textViewRu.setText(dataBaseEntry.getTranslate());
-            textViewDict.setText(playList.get(appData.getNdict()));
-
-            final HashMap<String, String> hashMap = new HashMap<>();
-            hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "main_activity");
-            SplashScreenActivity.speech.setLanguage(Locale.US);
-            //SplashScreenActivity.speech.setSpeechRate(0.5f);
-
-            SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-            {
-                SplashScreenActivity.speech.speak(dataBaseEntry.getEnglish(), TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
-            } else
-            {
-                SplashScreenActivity.speech.speak(dataBaseEntry.getEnglish(), TextToSpeech.QUEUE_ADD, hashMap);
-            }
-
-            final DataBaseEntry finalDataBaseEntry = dataBaseEntry;
-            SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
-            {
-                @Override
-                public void onStart(String utteranceId)
-                {
-
-                }
-
-                @Override
-                public void onDone(String utteranceId)
-                {
-                    //boolean englishSpeechOnly = appSettings.isEnglishSpeechOnly();
-                    if (utteranceId.equals("main_activity") && appSettings.isEnglishSpeechOnly())
-                    {
-                        SplashScreenActivity.speech.setLanguage(Locale.getDefault());
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                        {
-                            SplashScreenActivity.speech.speak(finalDataBaseEntry.getTranslate(), TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
-                        } else
-                        {
-                            SplashScreenActivity.speech.speak(finalDataBaseEntry.getTranslate(), TextToSpeech.QUEUE_ADD, hashMap);
-                        }
-                    }
-                    SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
-                }
-
-                @Override
-                public void onError(String utteranceId)
-                {
-
-                }
-            });
-        }
-    }
-
-    @Override
-    public void onLoaderReset(Loader loader)
-    {
-
-    }
-
     public void btnSpeak_OnClick(View view)
     {
         speechServiceOnPause();
@@ -1046,7 +1008,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return screenInches;
     }
 
-    public class UpdateBroadcastReceiver extends BroadcastReceiver
+    public class SpeechServiceReceiver extends BroadcastReceiver
     {
         @Override
         public void onReceive(Context context, Intent intent)

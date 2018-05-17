@@ -1,10 +1,17 @@
 package com.myapp.lexicon.settings;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 
+import com.myapp.lexicon.database.DataBaseEntry;
+import com.myapp.lexicon.database.DataBaseQueries;
+import com.myapp.lexicon.database.GetEntriesFromDbAsync;
 import com.myapp.lexicon.wordeditor.ListViewAdapter;
+
+import java.util.ArrayList;
 
 
 /**
@@ -13,7 +20,8 @@ import com.myapp.lexicon.wordeditor.ListViewAdapter;
 
 public class AppData
 {
-    private static final AppData ourInstance = new AppData();
+    private static AppData instance = null;
+    private ArrayList<String> playList;
     private int ndict;
     private int nword = 1;
     private boolean is_pause = false;
@@ -24,7 +32,12 @@ public class AppData
 
     public static AppData getInstance()
     {
-        return ourInstance;
+        if (instance == null)
+        {
+            instance = new AppData();
+        }
+
+        return instance;
     }
 
     private AppData()
@@ -52,6 +65,85 @@ public class AppData
         this.nword = nword;
     }
 
+    public IGetWordListerner iGetWordListerner;
+    public interface IGetWordListerner
+    {
+        void getWordComplete(ArrayList<DataBaseEntry> entries);
+    }
+
+    public void getNextNword(Activity activity, IGetWordListerner listerner)
+    {
+        if (playList.size() > 0)
+        {
+            iGetWordListerner = listerner;
+            if (this.ndict > playList.size() - 1 || this.ndict < 0)
+            {
+                this.ndict = 0;
+            }
+            int countEntries = new DataBaseQueries(activity).getCountEntriesSync(playList.get(ndict));
+            if (this.nword > countEntries)
+            {
+                this.nword = 1;
+                this.ndict++;
+                if (this.ndict > playList.size() - 1 || this.ndict < 0)
+                {
+                    this.ndict = 0;
+                }
+            }
+            GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(activity, playList.get(ndict), nword, 1, true, new GetEntriesFromDbAsync.GetEntriesListener()
+            {
+                @Override
+                public void getEntriesListener(ArrayList<DataBaseEntry> entries)
+                {
+                    if (iGetWordListerner != null)
+                    {
+                        iGetWordListerner.getWordComplete(entries);
+                    }
+                }
+            });
+            if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
+            {
+                getEntriesFromDbAsync.execute();
+            }
+
+        }
+    }
+
+    public void getPreviousNword(Activity activity, IGetWordListerner listerner)
+    {
+        iGetWordListerner = listerner;
+        if (playList.size() > 0)
+        {
+            if (this.ndict > playList.size() - 1 || this.ndict < 0)
+            {
+                this.ndict = playList.size() - 1;
+            }
+            if (this.nword < 1)
+            {
+                this.ndict--;
+                if (this.ndict > playList.size() - 1 || this.ndict < 0)
+                {
+                    this.ndict = playList.size() - 1;
+                    this.nword = new DataBaseQueries(activity).getCountEntriesSync(playList.get(ndict));
+                }
+            }
+            GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(activity, playList.get(ndict), nword, -1, true, new GetEntriesFromDbAsync.GetEntriesListener()
+            {
+                @Override
+                public void getEntriesListener(ArrayList<DataBaseEntry> entries)
+                {
+                    if (iGetWordListerner != null)
+                    {
+                        iGetWordListerner.getWordComplete(entries);
+                    }
+                }
+            });
+            if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
+            {
+                getEntriesFromDbAsync.execute();
+            }
+        }
+    }
     public boolean isPause()
     {
         return is_pause;
@@ -85,6 +177,7 @@ public class AppData
     public void saveAllSettings(Context context)
     {
         AppSettings appSettings = new AppSettings(context);
+        //appSettings.savePlayList(playList);
         appSettings.setPause(is_pause);
         appSettings.setDictNumber(ndict);
         appSettings.setWordNumber(nword);
@@ -94,6 +187,7 @@ public class AppData
     public void initAllSettings(Context context)
     {
         AppSettings appSettings = new AppSettings(context);
+        playList = appSettings.getPlayList();
         is_pause = appSettings.isPause();
         ndict = appSettings.getDictNumber();
         nword = appSettings.getWordNumber();
