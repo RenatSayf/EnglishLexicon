@@ -712,6 +712,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         playList = appSettings.getPlayList();
         speechServiceOnPause();
+        SplashScreenActivity.speech.stop();
         int id = view.getId();
         if (id == R.id.btn_next)
         {
