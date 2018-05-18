@@ -46,6 +46,7 @@ public class SpeechService extends IntentService
     public static final String EXTRA_KEY_DICT = "EXTRA_UPDATE_DICT";
     public static final String EXTRA_KEY_COUNT_REPEAT = "extra_key_count_repeat";
     public static final String EXTRA_KEY_WORDS_COUNTER = "extra_words_counter";
+    private Locale localeDefault;
 
     public SpeechService()
     {
@@ -89,6 +90,7 @@ public class SpeechService extends IntentService
             e.printStackTrace();
         }
         toastHandler = new Handler();   // TODO: IntentService - создание Handler для показа Toast
+        localeDefault = new Locale(appSettings.getTranslateLang());
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -272,7 +274,7 @@ public class SpeechService extends IntentService
                     textRu = entries.getTranslate();
                     HashMap<String,String> mapRu = new HashMap<>();
                     mapRu.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "ru");
-                    SplashScreenActivity.speech.setLanguage(Locale.getDefault());
+                    SplashScreenActivity.speech.setLanguage(localeDefault);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                     {
                         SplashScreenActivity.speech.speak(textRu, TextToSpeech.QUEUE_ADD, null, mapRu.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));

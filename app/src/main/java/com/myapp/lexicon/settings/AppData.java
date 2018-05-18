@@ -65,7 +65,7 @@ public class AppData
         this.nword = nword;
     }
 
-    public IGetWordListerner iGetWordListerner;
+    private IGetWordListerner iGetWordListerner;
     public interface IGetWordListerner
     {
         void getWordComplete(ArrayList<DataBaseEntry> entries);

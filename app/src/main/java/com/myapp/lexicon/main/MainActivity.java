@@ -99,6 +99,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private AppData appData;
     private ArrayList<String> playList = new ArrayList<>();
     private DataBaseQueries dataBaseQueries;
+    private Locale localeDefault;
+    private int stepDirect = 0;
 
     private final String KEY_ENG_TEXT = "eng_text";
     private final String KEY_RU_TEXT = "ru_text";
@@ -110,8 +112,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private final String KEY_BTN_NEXT_VISIBLE = "btn_next_visible";
     private final String KEY_BTN_BACK_VISIBLE = "btn_back_visible";
     private final String KEY_PROG_BAR_VISIBLE = "prog_bar_visible";
-
-    //private final int LOADER_GET_ENTRIES = 113336564;
+    private final String KEY_STEP_DIRECT = "step_direct";
 
     protected PowerManager.WakeLock wakeLock;
 
@@ -194,6 +195,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             btnNext.setVisibility(savedInstanceState.getInt(KEY_BTN_NEXT_VISIBLE));
             btnPrevious.setVisibility(savedInstanceState.getInt(KEY_BTN_BACK_VISIBLE));
             progressBar.setVisibility(savedInstanceState.getInt(KEY_PROG_BAR_VISIBLE));
+            stepDirect = savedInstanceState.getInt(KEY_STEP_DIRECT);
         }
 
         if (appData.isAdMob())
@@ -272,6 +274,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         outState.putInt(KEY_BTN_NEXT_VISIBLE, btnNext.getVisibility());
         outState.putInt(KEY_BTN_BACK_VISIBLE, btnPrevious.getVisibility());
         outState.putInt(KEY_PROG_BAR_VISIBLE, progressBar.getVisibility());
+        outState.putInt(KEY_STEP_DIRECT, stepDirect);
     }
 
     @Override
@@ -326,6 +329,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             textViewDict.setText("");
         }
+        localeDefault = new Locale(appSettings.getTranslateLang());
     }
 
     @Override
@@ -618,6 +622,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void btnPlayClick(View view)
     {
+        stepDirect = 0;
         playList = appSettings.getPlayList();
         if (playList.size() > 0)
         {
@@ -710,14 +715,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = view.getId();
         if (id == R.id.btn_next)
         {
+            if (stepDirect <= 0)
+            {
+                appData.setNword(appData.getNword() + 1);
+                stepDirect = 1;
+            }
             getNext();
         }
 
         if (id == R.id.btn_previous)
         {
+            if (stepDirect >= 0)
+            {
+                appData.setNword(appData.getNword() - 1);
+                stepDirect = -1;
+            }
             getPrevious();
         }
-        tvWordsCounter.setText(String.valueOf(appData.getNword()));
     }
 
     private void getNext()
@@ -736,6 +750,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if (entries.size() > 0)
                 {
                     DataBaseEntry dataBaseEntry = entries.get(0);
+
+                    textViewEn.setText(dataBaseEntry.getEnglish());
+                    textViewRu.setText(dataBaseEntry.getTranslate());
+                    textViewDict.setText(playList.get(appData.getNdict()));
+                    String rowId = dataBaseEntry.getRowId() + "";
+                    tvWordsCounter.setText(rowId);
+
                     if (entries.size() == 1)
                     {
                         appData.setNword(1);
@@ -749,11 +770,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     {
                         appData.setNword(entries.get(1).getRowId());
                     }
-                    textViewEn.setText(dataBaseEntry.getEnglish());
-                    textViewRu.setText(dataBaseEntry.getTranslate());
-                    textViewDict.setText(playList.get(appData.getNdict()));
-                    String rowId = dataBaseEntry.getRowId() + "";
-                    tvWordsCounter.setText(rowId);
 
                     final HashMap<String, String> hashMap = new HashMap<>();
                     hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "main_activity");
@@ -779,7 +795,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         {
                             if (utteranceId.equals("main_activity") && appSettings.isEnglishSpeechOnly())
                             {
-                                SplashScreenActivity.speech.setLanguage(Locale.getDefault());
+                                SplashScreenActivity.speech.setLanguage(localeDefault);
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                                 {
                                     SplashScreenActivity.speech.speak(textViewRu.getText().toString(), TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
@@ -815,68 +831,73 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void getWordComplete(ArrayList<DataBaseEntry> entries)
             {
-                DataBaseEntry dataBaseEntry = entries.get(0);
-                if (entries.size() == 1)
+                if (entries.size() > 0)
                 {
-                    appData.setNword(100000);
-                    appData.setNdict(appData.getNdict() - 1);
-                    if (appData.getNdict() < 0)
-                    {
-                        appData.setNdict(playList.size() - 1);
-                    }
-                }
-                if (entries.size() > 1)
-                {
-                    appData.setNword(entries.get(1).getRowId());
-                }
-                textViewEn.setText(dataBaseEntry.getEnglish());
-                textViewRu.setText(dataBaseEntry.getTranslate());
-                textViewDict.setText(playList.get(appData.getNdict()));
-                String rowId = dataBaseEntry.getRowId() + "";
-                tvWordsCounter.setText(rowId);
+                    DataBaseEntry dataBaseEntry = entries.get(0);
 
-                final HashMap<String, String> hashMap = new HashMap<>();
-                hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "main_activity");
-                SplashScreenActivity.speech.setLanguage(Locale.US);
-                SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                {
-                    SplashScreenActivity.speech.speak(textViewEn.getText().toString(), TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
-                } else
-                {
-                    SplashScreenActivity.speech.speak(textViewEn.getText().toString(), TextToSpeech.QUEUE_ADD, hashMap);
-                }
-                SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
-                {
-                    @Override
-                    public void onStart(String utteranceId)
-                    {
+                    textViewEn.setText(dataBaseEntry.getEnglish());
+                    textViewRu.setText(dataBaseEntry.getTranslate());
+                    textViewDict.setText(playList.get(appData.getNdict()));
+                    String rowId = dataBaseEntry.getRowId() + "";
+                    tvWordsCounter.setText(rowId);
 
-                    }
-
-                    @Override
-                    public void onDone(String utteranceId)
+                    if (entries.size() == 1)
                     {
-                        if (utteranceId.equals("main_activity") && appSettings.isEnglishSpeechOnly())
+                        appData.setNword(100000);
+                        appData.setNdict(appData.getNdict() - 1);
+                        if (appData.getNdict() < 0)
                         {
-                            SplashScreenActivity.speech.setLanguage(Locale.getDefault());
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                            {
-                                SplashScreenActivity.speech.speak(textViewRu.getText().toString(), TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
-                            } else
-                            {
-                                SplashScreenActivity.speech.speak(textViewRu.getText().toString(), TextToSpeech.QUEUE_ADD, hashMap);
-                            }
+                            appData.setNdict(playList.size() - 1);
                         }
-                        SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
                     }
-
-                    @Override
-                    public void onError(String utteranceId)
+                    if (entries.size() > 1)
                     {
-
+                        appData.setNword(entries.get(1).getRowId());
                     }
-                });
+
+                    final HashMap<String, String> hashMap = new HashMap<>();
+                    hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "main_activity");
+                    SplashScreenActivity.speech.setLanguage(Locale.US);
+                    SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                    {
+                        SplashScreenActivity.speech.speak(textViewEn.getText().toString(), TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+                    } else
+                    {
+                        SplashScreenActivity.speech.speak(textViewEn.getText().toString(), TextToSpeech.QUEUE_ADD, hashMap);
+                    }
+                    SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+                    {
+                        @Override
+                        public void onStart(String utteranceId)
+                        {
+
+                        }
+
+                        @Override
+                        public void onDone(String utteranceId)
+                        {
+                            if (utteranceId.equals("main_activity") && appSettings.isEnglishSpeechOnly())
+                            {
+                                SplashScreenActivity.speech.setLanguage(localeDefault);
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                                {
+                                    SplashScreenActivity.speech.speak(textViewRu.getText().toString(), TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+                                } else
+                                {
+                                    SplashScreenActivity.speech.speak(textViewRu.getText().toString(), TextToSpeech.QUEUE_ADD, hashMap);
+                                }
+                            }
+                            SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
+                        }
+
+                        @Override
+                        public void onError(String utteranceId)
+                        {
+
+                        }
+                    });
+                }
             }
         });
     }
@@ -972,7 +993,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             {
                 if (utteranceId.equals("btn_speak_onclick") && appSettings.isEnglishSpeechOnly())
                 {
-                    SplashScreenActivity.speech.setLanguage(Locale.getDefault());
+                    SplashScreenActivity.speech.setLanguage(localeDefault);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                     {
                         SplashScreenActivity.speech.speak(textViewRu.getText().toString(), TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
