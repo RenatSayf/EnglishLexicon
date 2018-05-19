@@ -199,7 +199,7 @@ public class TestModalFragment extends Fragment
                     {
                         if (notStudied > 0)
                         {
-                            GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), currentDict, firstId, new GetEntriesFromDbAsync.GetEntriesListener()
+                            GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), GetEntriesFromDbAsync.KEY_GET_TWO_DISTINCT_WORDS, currentDict, firstId, new GetEntriesFromDbAsync.GetEntriesListener()
                             {
                                 @Override
                                 public void getEntriesListener(ArrayList<DataBaseEntry> entries)

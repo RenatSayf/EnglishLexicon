@@ -15,11 +15,15 @@ import java.util.ArrayList;
 
 public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<DataBaseEntry>>
 {
+    public static final String KEY_GET_TWO_DISTINCT_WORDS = "GET_TWO_DISTINCT_WORDS";
     private GetEntriesListener listener;
     private LockOrientation lockOrientation;
     private DatabaseHelper databaseHelper;
     private String cmd;
     private String additionalCmd = null;
+    private String tableName = null;
+    private int rowId = 0;
+    private String key = "";
 
     public GetEntriesFromDbAsync(Activity activity, String tableName, int startId, int endId, GetEntriesListener listener)
     {
@@ -31,15 +35,15 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
         this.cmd = "SELECT RowId, English, Translate, CountRepeat FROM " + tableName + " WHERE RowID BETWEEN " + startId +" AND " + endId;
     }
 
-    public GetEntriesFromDbAsync(Activity activity, String tableName, int rowId, GetEntriesListener listener)
+    public GetEntriesFromDbAsync(Activity activity, String key, String tableName, int rowId, GetEntriesListener listener)
     {
         setListener(listener);
         lockOrientation = new LockOrientation(activity);
         databaseHelper = new DatabaseHelper(activity);
         databaseHelper.create_db();
-        tableName = StringOperations.getInstance().spaceToUnderscore(tableName);
-        this.cmd = "SELECT RowId, English, Translate, CountRepeat FROM " + tableName + " WHERE RowId >= " + rowId + " And CountRepeat <> 0 ORDER BY RowId ASC LIMIT 2";
-        this.additionalCmd = "SELECT RowId, English, Translate, CountRepeat FROM " + tableName + " WHERE RowId <> " + rowId + " ORDER BY random() LIMIT 1";
+        this.key = key;
+        this.tableName = StringOperations.getInstance().spaceToUnderscore(tableName);
+        this.rowId = rowId;
     }
 
     public GetEntriesFromDbAsync(Activity activity, String tableName, GetEntriesListener listener)
@@ -89,25 +93,15 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
     {
         ArrayList<DataBaseEntry> entriesFromDB = new ArrayList<>();
         DataBaseEntry dataBaseEntry;
-        Cursor cursor = null;
-        try
+        if (key.equals(""))
         {
-            databaseHelper.open();
-            if (databaseHelper.database.isOpen())
+            Cursor cursor = null;
+            try
             {
-                cursor = databaseHelper.database.rawQuery(cmd, null);
-                if (cursor.moveToFirst())
+                databaseHelper.open();
+                if (databaseHelper.database.isOpen())
                 {
-                    while (!cursor.isAfterLast())
-                    {
-                        dataBaseEntry = new DataBaseEntry(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3));
-                        entriesFromDB.add(dataBaseEntry);
-                        cursor.moveToNext();
-                    }
-                }
-                if (additionalCmd != null)
-                {
-                    cursor = databaseHelper.database.rawQuery(additionalCmd, null);
+                    cursor = databaseHelper.database.rawQuery(cmd, null);
                     if (cursor.moveToFirst())
                     {
                         while (!cursor.isAfterLast())
@@ -117,21 +111,41 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
                             cursor.moveToNext();
                         }
                     }
+                    if (additionalCmd != null)
+                    {
+                        cursor = databaseHelper.database.rawQuery(additionalCmd, null);
+                        if (cursor.moveToFirst())
+                        {
+                            while (!cursor.isAfterLast())
+                            {
+                                dataBaseEntry = new DataBaseEntry(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3));
+                                entriesFromDB.add(dataBaseEntry);
+                                cursor.moveToNext();
+                            }
+                        }
+                    }
                 }
             }
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        finally
-        {
-            if (cursor != null)
+            catch (Exception e)
             {
-                cursor.close();
+                e.printStackTrace();
             }
-            databaseHelper.database.close();
+            finally
+            {
+                if (cursor != null)
+                {
+                    cursor.close();
+                }
+                databaseHelper.database.close();
+            }
+            return entriesFromDB;
         }
+
+        if (key.equals(KEY_GET_TWO_DISTINCT_WORDS))
+        {
+            entriesFromDB = getTwoDistinctWords(tableName, rowId);
+        }
+
         return entriesFromDB;
     }
 
@@ -151,5 +165,54 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
     {
         super.onCancelled();
         lockOrientation.unLock();
+    }
+
+    private ArrayList<DataBaseEntry> getTwoDistinctWords(String tableName, int rowId)
+    {
+        ArrayList<DataBaseEntry> entriesFromDB = new ArrayList<>();
+        DataBaseEntry dataBaseEntry = new DataBaseEntry(0, null, null, null);
+        Cursor cursor = null;
+        try
+        {
+            databaseHelper.open();
+            if (databaseHelper.database.isOpen())
+            {
+                String cmd1 = "SELECT RowId, English, Translate, CountRepeat FROM " + tableName + " WHERE RowId >= " + rowId + " And CountRepeat <> 0 ORDER BY RowId ASC LIMIT 2";
+                cursor = databaseHelper.database.rawQuery(cmd1, null);
+                if (cursor.moveToFirst())
+                {
+                    while (!cursor.isAfterLast())
+                    {
+                        dataBaseEntry = new DataBaseEntry(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3));
+                        entriesFromDB.add(dataBaseEntry);
+                        cursor.moveToNext();
+                    }
+                }
+                String cmd2 = "SELECT RowId, English, Translate, CountRepeat FROM " + tableName + " WHERE RowId <> " + dataBaseEntry.getRowId() + " ORDER BY random() LIMIT 1";
+                cursor = databaseHelper.database.rawQuery(cmd2, null);
+                if (cursor.moveToFirst())
+                {
+                    while (!cursor.isAfterLast())
+                    {
+                        dataBaseEntry = new DataBaseEntry(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3));
+                        entriesFromDB.add(dataBaseEntry);
+                        cursor.moveToNext();
+                    }
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            if (cursor != null)
+            {
+                cursor.close();
+            }
+            databaseHelper.database.close();
+        }
+        return entriesFromDB;
     }
 }

@@ -706,6 +706,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         appData.setNdict(0);
         appData.setNword(1);
+        stepDirect = 0;
     }
 
     public void btnNextBackClick(View view)
