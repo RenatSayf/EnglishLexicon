@@ -55,7 +55,7 @@
                 <ImageView
                     android:id="@+id/order_play_icon_iv"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_weight="0"
                     android:contentDescription="@string/btn_close_discribtion"
                     android:src="@drawable/ic_repeat_white"/>
