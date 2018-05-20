@@ -21,6 +21,12 @@ import java.util.ArrayList;
 public class AppData
 {
     private static AppData instance = null;
+
+    public ArrayList<String> getPlayList()
+    {
+        return playList;
+    }
+
     private ArrayList<String> playList;
     private int ndict;
     private int nword = 1;

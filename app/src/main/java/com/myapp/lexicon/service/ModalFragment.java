@@ -22,6 +22,7 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.GetCountWordsAsync;
 import com.myapp.lexicon.database.GetEntriesFromDbAsync;
+import com.myapp.lexicon.database.GetStudiedWordsCount;
 import com.myapp.lexicon.main.MainActivity;
 import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.settings.AppData;
@@ -39,8 +40,11 @@ public class ModalFragment extends Fragment
     private TextView ruTextView;
     private CheckBox checkBoxRu;
     private TextView wordsNumberTV;
+    private TextView nameDictTV;
     private int wordsCount;
     private int repeatCount;
+    private int totalWords;
+    private int notStudiedWords;
 
     public ModalFragment()
     {
@@ -77,7 +81,7 @@ public class ModalFragment extends Fragment
         enTextView = fragmentView.findViewById(R.id.en_text_view);
         ruTextView = fragmentView.findViewById(R.id.ru_text_view);
 
-        TextView nameDictTV = fragmentView.findViewById(R.id.name_dict_tv);
+        nameDictTV = fragmentView.findViewById(R.id.name_dict_tv);
         wordsNumberTV = fragmentView.findViewById(R.id.words_number_tv_modal_sv);
 
         final int dictNumber = appData.getNdict();
@@ -87,7 +91,24 @@ public class ModalFragment extends Fragment
 
             nameDictTV.setText(currentDict);
 
-            getWordsFromDB(currentDict);
+            //getWordsFromDB(currentDict);
+            GetStudiedWordsCount getStudiedWordsCount = new GetStudiedWordsCount(getActivity(), currentDict, new GetStudiedWordsCount.GetCountListener()
+            {
+                @Override
+                public void onTaskComplete(Integer[] resArray)
+                {
+                    if (resArray != null && resArray.length > 1)
+                    {
+                        notStudiedWords = resArray[0];
+                        totalWords = resArray[1];
+                        getNextWord();
+                    }
+                }
+            });
+            if (getStudiedWordsCount.getStatus() != AsyncTask.Status.RUNNING)
+            {
+                getStudiedWordsCount.execute();
+            }
         }
 
         Button btnStop = fragmentView.findViewById(R.id.btn_stop_service);
@@ -115,7 +136,7 @@ public class ModalFragment extends Fragment
                 if (AppData.getInstance().getDoneRepeat() >= repeatCount)
                 {
                     AppData.getInstance().setDoneRepeat(1);
-                    nextWord();
+                    //nextWord();
                 }
                 else
                 {
@@ -212,6 +233,42 @@ public class ModalFragment extends Fragment
         {
             getCountWordsAsync.execute();
         }
+    }
+
+    private void getNextWord()
+    {
+        appData.getNextNword(getActivity(), new AppData.IGetWordListerner()
+        {
+            @Override
+            public void getWordComplete(ArrayList<DataBaseEntry> entries)
+            {
+                if (entries.size() > 0)
+                {
+                    DataBaseEntry dataBaseEntry = entries.get(0);
+
+                    enTextView.setText(dataBaseEntry.getEnglish());
+                    ruTextView.setText(dataBaseEntry.getTranslate());
+                    nameDictTV.setText(appData.getPlayList().get(appData.getNdict()));
+                    String concatText = (dataBaseEntry.getRowId() + "").concat(" / ").concat(Integer.toString(totalWords)).concat("  " + getString(R.string.text_studied) + " " + (totalWords - notStudiedWords));
+                    wordsNumberTV.setText(concatText);
+
+                    if (entries.size() == 1)
+                    {
+                        appData.setNword(1);
+                        appData.setNdict(appData.getNdict() + 1);
+                        if (appData.getNdict() > appData.getPlayList().size() - 1)
+                        {
+                            appData.setNdict(0);
+                        }
+                    }
+                    if (entries.size() > 1)
+                    {
+                        appData.setNword(entries.get(1).getRowId());
+                    }
+
+                }
+            }
+        });
     }
 
     private void nextWord()
