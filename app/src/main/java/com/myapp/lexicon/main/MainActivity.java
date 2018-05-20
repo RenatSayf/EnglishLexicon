@@ -1039,11 +1039,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             String updateEN = intent.getStringExtra(SpeechService.EXTRA_KEY_EN);
             String updateRU = intent.getStringExtra(SpeechService.EXTRA_KEY_RU);
             String updateDict = intent.getStringExtra(SpeechService.EXTRA_KEY_DICT);
-            int nword = intent.getIntExtra(SpeechService.EXTRA_KEY_WORDS_COUNTER, 0);
+            String nword = intent.getStringExtra(SpeechService.EXTRA_KEY_WORDS_COUNTER);
             textViewEn.setText(updateEN);
             textViewRu.setText(updateRU);
             textViewDict.setText(updateDict);
-            tvWordsCounter.setText(String.valueOf(nword));
+            tvWordsCounter.setText(nword);
             if (!textViewEn.getText().equals(""))
             {
                 progressBar.setVisibility(View.GONE);

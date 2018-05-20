@@ -39,6 +39,8 @@ public class SpeechService extends IntentService
     private Handler toastHandler;
     private static boolean isEngOnly = false;
     private static RandomNumberGenerator numberGenerator;
+    private int totalWords;
+    private int notStudiedWords;
 
     public static final String ACTION_UPDATE = "com.myapp.lexicon.UPDATE";
     public static final String EXTRA_KEY_EN = "EXTRA_UPDATE_EN";
@@ -169,7 +171,10 @@ public class SpeechService extends IntentService
                     playListItem = playList.get(random);
                 }
                 textDict = playListItem;
-                int wordsCountInTable = getWordsCount(playListItem);
+                Integer[] wordsCount = getWordsCount(playListItem);
+                int wordsCountInTable = wordsCount[1];
+                totalWords = wordsCountInTable;
+                notStudiedWords = wordsCount[0];
                 if (wordsCountInTable > 0)
                 {
                     words = getEntriesFromDB(playListItem, appData.getNword(), order);
@@ -257,7 +262,8 @@ public class SpeechService extends IntentService
                 updateIntent.putExtra(EXTRA_KEY_RU, textRu);
                 updateIntent.putExtra(EXTRA_KEY_DICT, textDict);
                 updateIntent.putExtra(EXTRA_KEY_COUNT_REPEAT, countRepeat);
-                updateIntent.putExtra(EXTRA_KEY_WORDS_COUNTER, entries.getRowId());
+                String concatText = (entries.getRowId() + "").concat(" / ").concat(Integer.toString(totalWords)).concat("  " + getString(R.string.text_studied) + " " + (totalWords - notStudiedWords));
+                updateIntent.putExtra(EXTRA_KEY_WORDS_COUNTER, concatText);
                 sendBroadcast(updateIntent);
             }
 
@@ -337,23 +343,35 @@ public class SpeechService extends IntentService
         }
     }
 
-    private int getWordsCount(String tableName)
+    private Integer[] getWordsCount(String tableName)
     {
         String table_name = StringOperations.getInstance().spaceToUnderscore(tableName);
-        int count = 0;
+        Integer[] countArray = null;
         Cursor cursor = null;
         try
         {
+            databaseHelper.open();
             if (databaseHelper.database.isOpen())
             {
 
-                cursor = databaseHelper.database.query(table_name, null, null, null, null, null, null);
-                count = cursor.getCount();
+                String cmd = "SELECT count(RowId) FROM " + table_name + " WHERE (CountRepeat <> 0) UNION ALL SELECT count(rowId) FROM " + table_name;
+                cursor = databaseHelper.database.rawQuery(cmd, null);
+                if (cursor.moveToFirst())
+                {
+                    countArray = new Integer[cursor.getCount()];
+                    int i = 0;
+                    while (!cursor.isAfterLast())
+                    {
+                        countArray[i] = cursor.getInt(0);
+                        cursor.moveToNext();
+                        i++;
+                    }
+                }
             }
         }
         catch (Exception e)
         {
-            count = 0;
+            e.printStackTrace();
         }
         finally
         {
@@ -362,7 +380,7 @@ public class SpeechService extends IntentService
                 cursor.close();
             }
         }
-        return count;
+        return countArray;
     }
 
     public ArrayList<DataBaseEntry> getEntriesFromDB(String tableName, int rowId, int direction)
