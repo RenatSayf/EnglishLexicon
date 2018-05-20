@@ -71,7 +71,7 @@ import java.util.Locale;
 
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
-        //LoaderManager.LoaderCallbacks<Cursor>,
+        AppData.IDictNumChangeListener,
         GetTableListFragm.OnTableListListener
 {
     public DatabaseHelper databaseHelper;
@@ -313,6 +313,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         playList = appSettings.getPlayList();
         appData = AppData.getInstance();
         appData.initAllSettings(this);
+        appData.setDictNumberChangeListener(this);
         if (appSettings.getOrderPlay() == 0)
         {
             orderPlayIconIV.setImageResource(R.drawable.ic_repeat_white);
@@ -330,6 +331,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             textViewDict.setText("");
         }
         localeDefault = new Locale(appSettings.getTranslateLang());
+        dataBaseQueries = new DataBaseQueries(this);
     }
 
     @Override
@@ -747,17 +749,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         appData.getNextNword(this, new AppData.IGetWordListerner()
         {
             @Override
-            public void getWordComplete(ArrayList<DataBaseEntry> entries)
+            public void getWordComplete(ArrayList<DataBaseEntry> entries, Integer[] dictSize)
             {
                 if (entries.size() > 0)
                 {
                     DataBaseEntry dataBaseEntry = entries.get(0);
-
                     textViewEn.setText(dataBaseEntry.getEnglish());
                     textViewRu.setText(dataBaseEntry.getTranslate());
                     textViewDict.setText(playList.get(appData.getNdict()));
-                    String rowId = dataBaseEntry.getRowId() + "";
-                    tvWordsCounter.setText(rowId);
+                    String concatText = (dataBaseEntry.getRowId() + "").concat(" / ").concat(Integer.toString(dictSize[1])).concat("  " + getString(R.string.text_studied) + " " + (dictSize[1] - dictSize[0]));
+                    tvWordsCounter.setText(concatText);
 
                     if (entries.size() == 1)
                     {
@@ -831,7 +832,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         appData.getPreviousNword(this, new AppData.IGetWordListerner()
         {
             @Override
-            public void getWordComplete(ArrayList<DataBaseEntry> entries)
+            public void getWordComplete(ArrayList<DataBaseEntry> entries, Integer[] dictSize)
             {
                 if (entries.size() > 0)
                 {
@@ -840,8 +841,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     textViewEn.setText(dataBaseEntry.getEnglish());
                     textViewRu.setText(dataBaseEntry.getTranslate());
                     textViewDict.setText(playList.get(appData.getNdict()));
-                    String rowId = dataBaseEntry.getRowId() + "";
-                    tvWordsCounter.setText(rowId);
+                    String concatText = (dataBaseEntry.getRowId() + "").concat(" / ").concat(Integer.toString(dictSize[1])).concat("  " + getString(R.string.text_studied) + " " + (dictSize[1] - dictSize[0]));
+                    tvWordsCounter.setText(concatText);
 
                     if (entries.size() == 1)
                     {
@@ -1029,6 +1030,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         double y = Math.pow(height,2);
         screenInches = Math.sqrt(x+y);
         return screenInches;
+    }
+
+    @Override
+    public void dictNumberOnChanged(int ndict)
+    {
+
     }
 
     public class SpeechServiceReceiver extends BroadcastReceiver

@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.GetEntriesFromDbAsync;
+import com.myapp.lexicon.database.GetStudiedWordsCount;
 import com.myapp.lexicon.wordeditor.ListViewAdapter;
 
 import java.util.ArrayList;
@@ -36,6 +37,9 @@ public class AppData
     private int serviceMode = 0;
     private int doneRepeat = 1;
 
+    private IGetWordListerner iGetWordListerner;
+    private IDictNumChangeListener iDictNumChangeListener;
+
     public static AppData getInstance()
     {
         if (instance == null)
@@ -59,6 +63,20 @@ public class AppData
     public void setNdict(int ndict)
     {
         this.ndict = ndict;
+        if (iDictNumChangeListener != null)
+        {
+            iDictNumChangeListener.dictNumberOnChanged(this.ndict);
+        }
+    }
+
+    public interface IDictNumChangeListener
+    {
+        void dictNumberOnChanged(int ndict);
+    }
+
+    public void setDictNumberChangeListener(Context context)
+    {
+        iDictNumChangeListener = (IDictNumChangeListener) context;
     }
 
     public int getNword()
@@ -71,13 +89,12 @@ public class AppData
         this.nword = nword;
     }
 
-    private IGetWordListerner iGetWordListerner;
     public interface IGetWordListerner
     {
-        void getWordComplete(ArrayList<DataBaseEntry> entries);
+        void getWordComplete(ArrayList<DataBaseEntry> entries, Integer[] dictSize);
     }
 
-    public void getNextNword(Activity activity, IGetWordListerner listerner)
+    public void getNextNword(final Activity activity, IGetWordListerner listerner)
     {
         if (playList.size() > 0)
         {
@@ -86,67 +103,89 @@ public class AppData
             {
                 this.ndict = 0;
             }
-            int countEntries = new DataBaseQueries(activity).getCountEntriesSync(playList.get(ndict));
-            if (this.nword > countEntries)
-            {
-                this.nword = 1;
-                this.ndict++;
-                if (this.ndict > playList.size() - 1 || this.ndict < 0)
-                {
-                    this.ndict = 0;
-                }
-            }
-            GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(activity, playList.get(ndict), nword, 1, true, new GetEntriesFromDbAsync.GetEntriesListener()
+            GetStudiedWordsCount getStudiedWordsCount = new GetStudiedWordsCount(activity, playList.get(ndict), new GetStudiedWordsCount.GetCountListener()
             {
                 @Override
-                public void getEntriesListener(ArrayList<DataBaseEntry> entries)
+                public void onTaskComplete(Integer[] resArray)
                 {
-                    if (iGetWordListerner != null)
+                    final Integer[] countEntries = resArray;
+                    if (nword > countEntries[1])
                     {
-                        iGetWordListerner.getWordComplete(entries);
+                        nword = 1;
+                        ndict++;
+                        if (ndict > playList.size() - 1 || ndict < 0)
+                        {
+                            ndict = 0;
+                        }
+                    }
+                    GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(activity, playList.get(ndict), nword, 1, true, new GetEntriesFromDbAsync.GetEntriesListener()
+                    {
+                        @Override
+                        public void getEntriesListener(ArrayList<DataBaseEntry> entries)
+                        {
+                            if (iGetWordListerner != null)
+                            {
+                                iGetWordListerner.getWordComplete(entries, countEntries);
+                            }
+                        }
+                    });
+                    if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
+                    {
+                        getEntriesFromDbAsync.execute();
                     }
                 }
             });
-            if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
+            if (getStudiedWordsCount.getStatus() != AsyncTask.Status.RUNNING)
             {
-                getEntriesFromDbAsync.execute();
+                getStudiedWordsCount.execute();
             }
-
         }
     }
 
-    public void getPreviousNword(Activity activity, IGetWordListerner listerner)
+    public void getPreviousNword(final Activity activity, IGetWordListerner listerner)
     {
-        iGetWordListerner = listerner;
         if (playList.size() > 0)
         {
+            iGetWordListerner = listerner;
             if (this.ndict > playList.size() - 1 || this.ndict < 0)
             {
                 this.ndict = playList.size() - 1;
             }
-            if (this.nword < 1)
-            {
-                this.ndict--;
-                if (this.ndict > playList.size() - 1 || this.ndict < 0)
-                {
-                    this.ndict = playList.size() - 1;
-                    this.nword = new DataBaseQueries(activity).getCountEntriesSync(playList.get(ndict));
-                }
-            }
-            GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(activity, playList.get(ndict), nword, -1, true, new GetEntriesFromDbAsync.GetEntriesListener()
+            GetStudiedWordsCount getStudiedWordsCount = new GetStudiedWordsCount(activity, playList.get(ndict), new GetStudiedWordsCount.GetCountListener()
             {
                 @Override
-                public void getEntriesListener(ArrayList<DataBaseEntry> entries)
+                public void onTaskComplete(Integer[] resArray)
                 {
-                    if (iGetWordListerner != null)
+                    final Integer[] countEntries = resArray;
+                    if (nword < 1)
                     {
-                        iGetWordListerner.getWordComplete(entries);
+                        ndict--;
+                        if (ndict > playList.size() - 1 || ndict < 0)
+                        {
+                            ndict = playList.size() - 1;
+                            nword = new DataBaseQueries(activity).getCountEntriesSync(playList.get(ndict));
+                        }
+                    }
+                    GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(activity, playList.get(ndict), nword, -1, true, new GetEntriesFromDbAsync.GetEntriesListener()
+                    {
+                        @Override
+                        public void getEntriesListener(ArrayList<DataBaseEntry> entries)
+                        {
+                            if (iGetWordListerner != null)
+                            {
+                                iGetWordListerner.getWordComplete(entries, countEntries);
+                            }
+                        }
+                    });
+                    if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
+                    {
+                        getEntriesFromDbAsync.execute();
                     }
                 }
             });
-            if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
+            if (getStudiedWordsCount.getStatus() != null)
             {
-                getEntriesFromDbAsync.execute();
+                getStudiedWordsCount.execute();
             }
         }
     }

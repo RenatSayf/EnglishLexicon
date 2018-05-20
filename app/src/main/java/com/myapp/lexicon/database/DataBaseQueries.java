@@ -31,7 +31,6 @@ public class DataBaseQueries
             databaseHelper.open();
             if (databaseHelper.database.isOpen())
             {
-                //cursor = databaseHelper.database.rawQuery("SELECT count(RowId) FROM " + table_name + " WHERE CountRepeat <> 0", null);
                 cursor = databaseHelper.database.rawQuery("SELECT count(RowId) FROM " + table_name, null);
                 cursor.moveToFirst();
                 countEntries = cursor.getInt(0);
