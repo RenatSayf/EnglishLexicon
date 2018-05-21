@@ -136,7 +136,7 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
                 {
                     cursor.close();
                 }
-                databaseHelper.database.close();
+                databaseHelper.close();
             }
             return entriesFromDB;
         }
@@ -164,6 +164,7 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
     protected void onCancelled()
     {
         super.onCancelled();
+        databaseHelper.close();
         lockOrientation.unLock();
     }
 
@@ -204,6 +205,7 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
         catch (Exception e)
         {
             e.printStackTrace();
+            databaseHelper.close();
         }
         finally
         {
@@ -211,7 +213,7 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
             {
                 cursor.close();
             }
-            databaseHelper.database.close();
+            databaseHelper.close();
         }
         return entriesFromDB;
     }

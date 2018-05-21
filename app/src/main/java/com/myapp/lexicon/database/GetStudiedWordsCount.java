@@ -69,6 +69,7 @@ public class GetStudiedWordsCount extends AsyncTask<String, Void, Integer[]>
         catch (Exception e)
         {
             e.printStackTrace();
+            databaseHelper.close();
             lockOrientation.unLock();
         }
         finally
@@ -77,6 +78,7 @@ public class GetStudiedWordsCount extends AsyncTask<String, Void, Integer[]>
             {
                 cursor.close();
             }
+            databaseHelper.close();
         }
         return countArray;
     }
@@ -96,6 +98,7 @@ public class GetStudiedWordsCount extends AsyncTask<String, Void, Integer[]>
     protected void onCancelled()
     {
         super.onCancelled();
+        databaseHelper.close();
         lockOrientation.unLock();
     }
 }

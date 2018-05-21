@@ -372,6 +372,7 @@ public class SpeechService extends IntentService
         catch (Exception e)
         {
             e.printStackTrace();
+            databaseHelper.close();
         }
         finally
         {
@@ -379,6 +380,7 @@ public class SpeechService extends IntentService
             {
                 cursor.close();
             }
+            databaseHelper.close();
         }
         return countArray;
     }
@@ -421,6 +423,7 @@ public class SpeechService extends IntentService
         catch (Exception e)
         {
             entriesFromDB.add(new DataBaseEntry(null,null, null));
+            databaseHelper.close();
         }
         finally
         {
@@ -428,6 +431,7 @@ public class SpeechService extends IntentService
             {
                 cursor.close();
             }
+            databaseHelper.close();
         }
         return entriesFromDB;
     }

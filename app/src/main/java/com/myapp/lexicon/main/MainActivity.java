@@ -13,7 +13,6 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.speech.tts.TextToSpeech;
@@ -114,8 +113,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private final String KEY_PROG_BAR_VISIBLE = "prog_bar_visible";
     private final String KEY_STEP_DIRECT = "step_direct";
 
-    protected PowerManager.WakeLock wakeLock;
-
     private GetTableListFragm getTableListFragm;
     private FragmentManager fragmentManager;
 
@@ -134,17 +131,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             getSupportFragmentManager().beginTransaction().replace(R.id.background_fragment, backgroundFragm).commit();
         }
 
-        final PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        if (powerManager != null)
-        {
-            this.wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"my_tag");
-        }
-        this.wakeLock.acquire();
-
         Toolbar toolbar = findViewById(R.id.toolbar_word_editor);
         setSupportActionBar(toolbar);
-
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         appSettings = new AppSettings(this);
         playList = appSettings.getPlayList();
@@ -338,8 +326,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onDestroy()
     {
         super.onDestroy();
+        if (databaseHelper != null)
+        {
+            databaseHelper.close();
+        }
         unregisterReceiver(speechServiceReceiver);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
     }
 
     @Override
@@ -486,8 +477,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             SplashScreenActivity.speech.stop();
             SplashScreenActivity.speech.shutdown();
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
-            wakeLock.release();
             this.finish();
         }
 
@@ -622,6 +611,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
+    @SuppressLint("WakelockTimeout")
     public void btnPlayClick(View view)
     {
         stepDirect = 0;
