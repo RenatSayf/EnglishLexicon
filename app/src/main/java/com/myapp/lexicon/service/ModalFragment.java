@@ -270,28 +270,12 @@ public class ModalFragment extends Fragment
                                 if (entries.size() > 0)
                                 {
                                     DataBaseEntry dataBaseEntry = entries.get(0);
-
                                     enTextView.setText(dataBaseEntry.getEnglish());
                                     ruTextView.setText(dataBaseEntry.getTranslate());
                                     nameDictTV.setText(appData.getPlayList().get(appData.getNdict()));
                                     String concatText = (dataBaseEntry.getRowId() + "").concat(" / ").concat(Integer.toString(totalWords)).concat("  " + getString(R.string.text_studied) + " " + (totalWords - notStudiedWords));
                                     wordsNumberTV.setText(concatText);
                                     repeatCount = Integer.parseInt(dataBaseEntry.getCountRepeat());
-
-                                    if (entries.size() == 1)
-                                    {
-                                        appData.setNword(1);
-                                        appData.setNdict(appData.getNdict() + 1);
-                                        if (appData.getNdict() > appData.getPlayList().size() - 1)
-                                        {
-                                            appData.setNdict(0);
-                                        }
-                                    }
-                                    if (entries.size() > 1)
-                                    {
-                                        appData.setNword(entries.get(1).getRowId());
-                                    }
-
                                 }
                             }
                         });

@@ -106,10 +106,9 @@ public class AppData
             GetStudiedWordsCount getStudiedWordsCount = new GetStudiedWordsCount(activity, playList.get(ndict), new GetStudiedWordsCount.GetCountListener()
             {
                 @Override
-                public void onTaskComplete(Integer[] resArray)
+                public void onTaskComplete(final Integer[] resArray)
                 {
-                    final Integer[] countEntries = resArray;
-                    if (nword > countEntries[1])
+                    if (nword > resArray[1])
                     {
                         nword = 1;
                         ndict++;
@@ -138,7 +137,7 @@ public class AppData
                                 {
                                     setNword(entries.get(1).getRowId());
                                 }
-                                iGetWordListerner.getWordComplete(entries, countEntries);
+                                iGetWordListerner.getWordComplete(entries, resArray);
                             }
                         }
                     });
