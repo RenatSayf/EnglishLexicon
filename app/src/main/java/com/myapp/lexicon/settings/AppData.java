@@ -125,6 +125,19 @@ public class AppData
                         {
                             if (iGetWordListerner != null)
                             {
+                                if (entries.size() <= 1)
+                                {
+                                    setNword(1);
+                                    setNdict(getNdict() + 1);
+                                    if (getNdict() > playList.size() - 1)
+                                    {
+                                        setNdict(0);
+                                    }
+                                }
+                                if (entries.size() > 1)
+                                {
+                                    setNword(entries.get(1).getRowId());
+                                }
                                 iGetWordListerner.getWordComplete(entries, countEntries);
                             }
                         }
@@ -173,6 +186,20 @@ public class AppData
                         {
                             if (iGetWordListerner != null)
                             {
+                                if (entries.size() <= 1)
+                                {
+                                    setNword(countEntries[1]);
+                                    setNdict(getNdict() - 1);
+                                    if (getNdict() < 0)
+                                    {
+                                        setNdict(playList.size() - 1);
+                                    }
+                                }
+                                if (entries.size() > 1)
+                                {
+                                    setNword(entries.get(1).getRowId());
+                                }
+
                                 iGetWordListerner.getWordComplete(entries, countEntries);
                             }
                         }

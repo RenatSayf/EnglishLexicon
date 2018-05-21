@@ -709,21 +709,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = view.getId();
         if (id == R.id.btn_next)
         {
-            if (stepDirect <= 0)
+            if (stepDirect < 0)
             {
                 appData.setNword(appData.getNword() + 1);
-                stepDirect = 1;
             }
+            stepDirect = 1;
             getNext();
         }
 
         if (id == R.id.btn_previous)
         {
-            if (stepDirect >= 0)
+            if (stepDirect > 0)
             {
                 appData.setNword(appData.getNword() - 1);
-                stepDirect = -1;
             }
+            stepDirect = -1;
             getPrevious();
         }
     }
@@ -749,20 +749,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     textViewDict.setText(playList.get(appData.getNdict()));
                     String concatText = (dataBaseEntry.getRowId() + "").concat(" / ").concat(Integer.toString(dictSize[1])).concat("  " + getString(R.string.text_studied) + " " + (dictSize[1] - dictSize[0]));
                     tvWordsCounter.setText(concatText);
-
-                    if (entries.size() == 1)
-                    {
-                        appData.setNword(1);
-                        appData.setNdict(appData.getNdict() + 1);
-                        if (appData.getNdict() > playList.size() - 1)
-                        {
-                            appData.setNdict(0);
-                        }
-                    }
-                    if (entries.size() > 1)
-                    {
-                        appData.setNword(entries.get(1).getRowId());
-                    }
 
                     final HashMap<String, String> hashMap = new HashMap<>();
                     hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "main_activity");
@@ -833,20 +819,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     textViewDict.setText(playList.get(appData.getNdict()));
                     String concatText = (dataBaseEntry.getRowId() + "").concat(" / ").concat(Integer.toString(dictSize[1])).concat("  " + getString(R.string.text_studied) + " " + (dictSize[1] - dictSize[0]));
                     tvWordsCounter.setText(concatText);
-
-                    if (entries.size() == 1)
-                    {
-                        appData.setNword(100000);
-                        appData.setNdict(appData.getNdict() - 1);
-                        if (appData.getNdict() < 0)
-                        {
-                            appData.setNdict(playList.size() - 1);
-                        }
-                    }
-                    if (entries.size() > 1)
-                    {
-                        appData.setNword(entries.get(1).getRowId());
-                    }
 
                     final HashMap<String, String> hashMap = new HashMap<>();
                     hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "main_activity");
