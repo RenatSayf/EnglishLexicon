@@ -231,15 +231,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             btnPause.setVisibility(View.GONE);
         }
         btnPrevious = findViewById(R.id.btn_previous);
-        if (btnPrevious != null)
-        {
-            btnPrevious.setVisibility(View.GONE);
-        }
         btnNext = findViewById(R.id.btn_next);
-        if (btnNext != null)
-        {
-            btnNext.setVisibility(View.GONE);
-        }
         progressBar = findViewById(R.id.progressBar);
         checkBoxRuSpeak = findViewById(R.id.check_box_ru_speak);
         checkBoxRuSpeak.setChecked(appSettings.isEnglishSpeechOnly());
@@ -669,8 +661,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         btnPause.setVisibility(View.GONE);
         btnPlay.setVisibility(View.VISIBLE);
         btnStop.setVisibility(View.VISIBLE);
-        btnNext.setVisibility(View.VISIBLE);
-        btnPrevious.setVisibility(View.VISIBLE);
         progressBar.setVisibility(View.GONE);
     }
 
@@ -687,13 +677,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         textViewEn.setText(null);
         textViewRu.setText(null);
-        textViewDict.setText(null);
-        tvWordsCounter.setText(null);
         btnPlay.setVisibility(View.VISIBLE);
         btnStop.setVisibility(View.GONE);
         btnPause.setVisibility(View.GONE);
-        btnNext.setVisibility(View.GONE);
-        btnPrevious.setVisibility(View.GONE);
         progressBar.setVisibility(View.GONE);
 
         appData.setNdict(0);
@@ -704,6 +690,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void btnNextBackClick(View view)
     {
         playList = appSettings.getPlayList();
+        if (playList == null || playList.size() == 0)
+        {
+            Toast toast = Toast.makeText(this, R.string.no_playlist, Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.CENTER,0,0);
+            toast.show();
+            if (playListIntent == null)
+            {
+                playListIntent = new Intent(this, PlayList.class);
+            }
+            startActivity(playListIntent);
+        }
         speechServiceOnPause();
         SplashScreenActivity.speech.stop();
         int id = view.getId();
