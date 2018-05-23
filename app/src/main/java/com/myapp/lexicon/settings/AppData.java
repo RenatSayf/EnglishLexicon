@@ -103,6 +103,7 @@ public class AppData
             if (nword > maxNotStudiedRowId)
             {
                 ndict++;
+                nword = 1;
                 if (ndict > playList.size() - 1)
                 {
                     ndict = 0;

@@ -197,7 +197,7 @@ public class TestModalFragment extends Fragment
                     }
                     try
                     {
-                        if (studiedCount > 0)
+                        if (maxCount - studiedCount > 0)
                         {
                             GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), GetEntriesFromDbAsync.KEY_GET_TWO_DISTINCT_WORDS, currentDict, firstId, new GetEntriesFromDbAsync.GetEntriesListener()
                             {

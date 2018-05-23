@@ -726,7 +726,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     textViewEn.setText(dataBaseEntry.getEnglish());
                     textViewRu.setText(dataBaseEntry.getTranslate());
                     textViewDict.setText(playList.get(appData.getNdict()));
-                    String concatText = (dataBaseEntry.getRowId() + "").concat(" / ").concat(Integer.toString(dictSize[1])).concat("  " + getString(R.string.text_studied) + " " + (dictSize[1] - dictSize[0]));
+                    String concatText = (dataBaseEntry.getRowId() + "").concat(" / ").concat(Integer.toString(dictSize[1])).concat("  " + getString(R.string.text_studied) + " " + dictSize[2]);
                     tvWordsCounter.setText(concatText);
 
                     final HashMap<String, String> hashMap = new HashMap<>();
@@ -796,7 +796,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     textViewEn.setText(dataBaseEntry.getEnglish());
                     textViewRu.setText(dataBaseEntry.getTranslate());
                     textViewDict.setText(playList.get(appData.getNdict()));
-                    String concatText = (dataBaseEntry.getRowId() + "").concat(" / ").concat(Integer.toString(dictSize[1])).concat("  " + getString(R.string.text_studied) + " " + (dictSize[1] - dictSize[0]));
+                    String concatText = (dataBaseEntry.getRowId() + "").concat(" / ").concat(Integer.toString(dictSize[1])).concat("  " + getString(R.string.text_studied) + " " + dictSize[2]);
                     tvWordsCounter.setText(concatText);
 
                     final HashMap<String, String> hashMap = new HashMap<>();
