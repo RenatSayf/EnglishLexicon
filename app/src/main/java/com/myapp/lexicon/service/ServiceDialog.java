@@ -36,12 +36,19 @@ public class ServiceDialog extends AppCompatActivity
         }
         else return;
 
-        if (AppData.getInstance().isAdMob())
+        AppData appData = AppData.getInstance();
+
+        int count = appData.getUnLookPhoneCount();
+        count++;
+        appData.setUnLookPhoneCount(count);
+
+        if (appData.isAdMob())
         {
-            if (AppData.getInstance().isOnline(this))
+            if (appData.isOnline(this) && appData.getUnLookPhoneCount() > 10)
             {
                 if (savedInstanceState == null)
                 {
+                    appData.setUnLookPhoneCount(0);
                     ModalBannerFragment bannerFragment = new ModalBannerFragment();
                     getSupportFragmentManager().beginTransaction().replace(R.id.banner_frame_service, bannerFragment).commit();
                 }

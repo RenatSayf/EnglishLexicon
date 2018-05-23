@@ -37,6 +37,7 @@ public class AppData
     private int doneRepeat = 1;
     private int maxNotStudiedRowId = 10000000;
     private int minNotStudiedRowId = 0;
+    private int unLookPhoneCount = 0;
 
     private IGetWordListerner iGetWordListerner;
     private IDictNumChangeListener iDictNumChangeListener;
@@ -297,5 +298,15 @@ public class AppData
     public void setDoneRepeat(int doneRepeat)
     {
         this.doneRepeat = doneRepeat;
+    }
+
+    public int getUnLookPhoneCount()
+    {
+        return unLookPhoneCount;
+    }
+
+    public void setUnLookPhoneCount(int unLookPhoneCount)
+    {
+        this.unLookPhoneCount = unLookPhoneCount;
     }
 }
