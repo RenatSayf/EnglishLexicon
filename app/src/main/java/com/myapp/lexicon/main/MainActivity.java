@@ -180,8 +180,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             btnPlay.setVisibility(savedInstanceState.getInt(KEY_BTN_PLAY_VISIBLE));
             btnStop.setVisibility(savedInstanceState.getInt(KEY_BTN_STOP_VISIBLE));
             btnPause.setVisibility(savedInstanceState.getInt(KEY_BTN_PAUSE_VISIBLE));
-            btnNext.setVisibility(savedInstanceState.getInt(KEY_BTN_NEXT_VISIBLE));
-            btnPrevious.setVisibility(savedInstanceState.getInt(KEY_BTN_BACK_VISIBLE));
+            //btnNext.setVisibility(savedInstanceState.getInt(KEY_BTN_NEXT_VISIBLE));
+            //btnPrevious.setVisibility(savedInstanceState.getInt(KEY_BTN_BACK_VISIBLE));
             progressBar.setVisibility(savedInstanceState.getInt(KEY_PROG_BAR_VISIBLE));
             stepDirect = savedInstanceState.getInt(KEY_STEP_DIRECT);
         }
@@ -251,8 +251,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         outState.putInt(KEY_BTN_PLAY_VISIBLE, btnPlay.getVisibility());
         outState.putInt(KEY_BTN_STOP_VISIBLE, btnStop.getVisibility());
         outState.putInt(KEY_BTN_PAUSE_VISIBLE, btnPause.getVisibility());
-        outState.putInt(KEY_BTN_NEXT_VISIBLE, btnNext.getVisibility());
-        outState.putInt(KEY_BTN_BACK_VISIBLE, btnPrevious.getVisibility());
+        //outState.putInt(KEY_BTN_NEXT_VISIBLE, btnNext.getVisibility());
+        //outState.putInt(KEY_BTN_BACK_VISIBLE, btnPrevious.getVisibility());
         outState.putInt(KEY_PROG_BAR_VISIBLE, progressBar.getVisibility());
         outState.putInt(KEY_STEP_DIRECT, stepDirect);
     }
@@ -367,7 +367,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 speechServiceOnPause();
                 Bundle bundle = new Bundle();
                 bundle.putString(WordEditor.KEY_EXTRA_DICT_NAME, textViewDict.getText().toString());
-                bundle.putInt(WordEditor.KEY_ROW_ID, Integer.parseInt(tvWordsCounter.getText().toString()));
+                String text = tvWordsCounter.getText().toString();
+                try
+                {
+                    String[] splitArray = text.split(" ");
+                    if (splitArray.length > 0)
+                    {
+                        bundle.putInt(WordEditor.KEY_ROW_ID, Integer.parseInt(splitArray[0]));
+                    }
+
+                } catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
                 wordEditorIntent.replaceExtras(bundle);
 
                 startActivity(wordEditorIntent);
@@ -626,8 +638,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             btnPlay.setVisibility(View.GONE);
             btnStop.setVisibility(View.VISIBLE);
             btnPause.setVisibility(View.VISIBLE);
-            btnNext.setVisibility(View.GONE);
-            btnPrevious.setVisibility(View.GONE);
+            //btnNext.setVisibility(View.GONE);
+            //btnPrevious.setVisibility(View.GONE);
             textViewRu.setText(null);
         } else
         {
