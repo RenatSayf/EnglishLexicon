@@ -85,8 +85,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ImageButton btnPlay;
     private ImageButton btnStop;
     private ImageButton btnPause;
-    private ImageButton btnNext;
-    private ImageButton btnPrevious;
     private ProgressBar progressBar;
     private CheckBox checkBoxRuSpeak;
     private ImageView orderPlayIconIV;
@@ -99,7 +97,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ArrayList<String> playList = new ArrayList<>();
     private DataBaseQueries dataBaseQueries;
     private Locale localeDefault;
-    private int stepDirect = 0;
 
     private final String KEY_ENG_TEXT = "eng_text";
     private final String KEY_RU_TEXT = "ru_text";
@@ -108,10 +105,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private final String KEY_BTN_PLAY_VISIBLE = "btn_play_visible";
     private final String KEY_BTN_PAUSE_VISIBLE = "btn_pause_visible";
     private final String KEY_BTN_STOP_VISIBLE = "btn_stop_visible";
-    private final String KEY_BTN_NEXT_VISIBLE = "btn_next_visible";
-    private final String KEY_BTN_BACK_VISIBLE = "btn_back_visible";
     private final String KEY_PROG_BAR_VISIBLE = "prog_bar_visible";
-    private final String KEY_STEP_DIRECT = "step_direct";
 
     private GetTableListFragm getTableListFragm;
     private FragmentManager fragmentManager;
@@ -180,10 +174,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             btnPlay.setVisibility(savedInstanceState.getInt(KEY_BTN_PLAY_VISIBLE));
             btnStop.setVisibility(savedInstanceState.getInt(KEY_BTN_STOP_VISIBLE));
             btnPause.setVisibility(savedInstanceState.getInt(KEY_BTN_PAUSE_VISIBLE));
-            //btnNext.setVisibility(savedInstanceState.getInt(KEY_BTN_NEXT_VISIBLE));
-            //btnPrevious.setVisibility(savedInstanceState.getInt(KEY_BTN_BACK_VISIBLE));
             progressBar.setVisibility(savedInstanceState.getInt(KEY_PROG_BAR_VISIBLE));
-            stepDirect = savedInstanceState.getInt(KEY_STEP_DIRECT);
         }
 
         if (appData.isAdMob())
@@ -230,8 +221,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             btnPause.setVisibility(View.GONE);
         }
-        btnPrevious = findViewById(R.id.btn_previous);
-        btnNext = findViewById(R.id.btn_next);
         progressBar = findViewById(R.id.progressBar);
         checkBoxRuSpeak = findViewById(R.id.check_box_ru_speak);
         checkBoxRuSpeak.setChecked(appSettings.isEnglishSpeechOnly());
@@ -251,10 +240,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         outState.putInt(KEY_BTN_PLAY_VISIBLE, btnPlay.getVisibility());
         outState.putInt(KEY_BTN_STOP_VISIBLE, btnStop.getVisibility());
         outState.putInt(KEY_BTN_PAUSE_VISIBLE, btnPause.getVisibility());
-        //outState.putInt(KEY_BTN_NEXT_VISIBLE, btnNext.getVisibility());
-        //outState.putInt(KEY_BTN_BACK_VISIBLE, btnPrevious.getVisibility());
         outState.putInt(KEY_PROG_BAR_VISIBLE, progressBar.getVisibility());
-        outState.putInt(KEY_STEP_DIRECT, stepDirect);
     }
 
     @Override
@@ -411,7 +397,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item)
     {
-        // Handle navigation view item clicks here.
         int id = item.getItemId();
         speechServiceOnPause();
 
@@ -615,10 +600,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
-    @SuppressLint("WakelockTimeout")
     public void btnPlayClick(View view)
     {
-        stepDirect = 0;
         playList = appSettings.getPlayList();
         if (playList.size() > 0)
         {
@@ -635,11 +618,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             speechIntentService.putExtra(getString(R.string.is_one_time), false);
             startService(speechIntentService);
 
-            btnPlay.setVisibility(View.GONE);
+            btnPlay.setVisibility(View.INVISIBLE);
             btnStop.setVisibility(View.VISIBLE);
             btnPause.setVisibility(View.VISIBLE);
-            //btnNext.setVisibility(View.GONE);
-            //btnPrevious.setVisibility(View.GONE);
             textViewRu.setText(null);
         } else
         {
@@ -696,7 +677,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         appData.setNdict(0);
         appData.setNword(1);
-        stepDirect = 0;
     }
 
     public void btnNextBackClick(View view)
@@ -718,21 +698,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = view.getId();
         if (id == R.id.btn_next)
         {
-            if (stepDirect < 0)
-            {
-                appData.setNword(appData.getNword() + 1);
-            }
-            stepDirect = 1;
             getNext();
         }
 
         if (id == R.id.btn_previous)
         {
-            if (stepDirect > 0)
-            {
-                appData.setNword(appData.getNword() - 1);
-            }
-            stepDirect = -1;
             getPrevious();
         }
     }

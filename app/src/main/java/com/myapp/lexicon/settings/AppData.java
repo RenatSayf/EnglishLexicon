@@ -7,7 +7,6 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 
 import com.myapp.lexicon.database.DataBaseEntry;
-import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.GetEntriesFromDbAsync;
 import com.myapp.lexicon.database.GetStudiedWordsCount;
 import com.myapp.lexicon.wordeditor.ListViewAdapter;
@@ -29,13 +28,15 @@ public class AppData
     }
 
     private ArrayList<String> playList;
-    private int ndict;
-    private int nword = 1;
+    private int ndict = -1;
+    private int nword = 0;
     private boolean is_pause = false;
     private ListViewAdapter listViewAdapter;
     private String langCode;
     private int serviceMode = 0;
     private int doneRepeat = 1;
+    private int maxNotStudiedRowId = 10000000;
+    private int minNotStudiedRowId = 0;
 
     private IGetWordListerner iGetWordListerner;
     private IDictNumChangeListener iDictNumChangeListener;
@@ -98,24 +99,26 @@ public class AppData
     {
         if (playList.size() > 0)
         {
-            iGetWordListerner = listerner;
-            if (this.ndict > playList.size() - 1 || this.ndict < 0)
+            nword++;
+            if (nword > maxNotStudiedRowId)
             {
-                this.ndict = 0;
+                ndict++;
+                if (ndict > playList.size() - 1)
+                {
+                    ndict = 0;
+                }
             }
+            iGetWordListerner = listerner;
             GetStudiedWordsCount getStudiedWordsCount = new GetStudiedWordsCount(activity, playList.get(ndict), new GetStudiedWordsCount.GetCountListener()
             {
                 @Override
                 public void onTaskComplete(final Integer[] resArray)
                 {
-                    if (nword > resArray[1])
+                    minNotStudiedRowId = resArray[0];
+                    maxNotStudiedRowId = resArray[1];
+                    if (nword > maxNotStudiedRowId)
                     {
-                        nword = 1;
-                        ndict++;
-                        if (ndict > playList.size() - 1 || ndict < 0)
-                        {
-                            ndict = 0;
-                        }
+                        nword = minNotStudiedRowId;
                     }
                     GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(activity, playList.get(ndict), nword, 1, true, new GetEntriesFromDbAsync.GetEntriesListener()
                     {
@@ -124,18 +127,9 @@ public class AppData
                         {
                             if (iGetWordListerner != null)
                             {
-                                if (entries.size() <= 1)
+                                if (entries.size() > 0)
                                 {
-                                    setNword(1);
-                                    setNdict(getNdict() + 1);
-                                    if (getNdict() > playList.size() - 1)
-                                    {
-                                        setNdict(0);
-                                    }
-                                }
-                                if (entries.size() > 1)
-                                {
-                                    setNword(entries.get(1).getRowId());
+                                    setNword(entries.get(0).getRowId());
                                 }
                                 iGetWordListerner.getWordComplete(entries, resArray);
                             }
@@ -158,25 +152,28 @@ public class AppData
     {
         if (playList.size() > 0)
         {
-            iGetWordListerner = listerner;
-            if (this.ndict > playList.size() - 1 || this.ndict < 0)
+            nword--;
+            if (nword < minNotStudiedRowId)
             {
-                this.ndict = playList.size() - 1;
+                ndict--;
+                nword = 0;
+                if (ndict < 0)
+                {
+                    ndict = playList.size() - 1;
+                }
             }
+            iGetWordListerner = listerner;
             GetStudiedWordsCount getStudiedWordsCount = new GetStudiedWordsCount(activity, playList.get(ndict), new GetStudiedWordsCount.GetCountListener()
             {
                 @Override
                 public void onTaskComplete(Integer[] resArray)
                 {
+                    minNotStudiedRowId = resArray[0];
+                    maxNotStudiedRowId = resArray[1];
                     final Integer[] countEntries = resArray;
-                    if (nword < 1)
+                    if (nword < minNotStudiedRowId)
                     {
-                        ndict--;
-                        if (ndict > playList.size() - 1 || ndict < 0)
-                        {
-                            ndict = playList.size() - 1;
-                            nword = new DataBaseQueries(activity).getCountEntriesSync(playList.get(ndict));
-                        }
+                        nword = maxNotStudiedRowId;
                     }
                     GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(activity, playList.get(ndict), nword, -1, true, new GetEntriesFromDbAsync.GetEntriesListener()
                     {
@@ -185,20 +182,10 @@ public class AppData
                         {
                             if (iGetWordListerner != null)
                             {
-                                if (entries.size() <= 1)
+                                if (entries.size() > 0)
                                 {
-                                    setNword(countEntries[1]);
-                                    setNdict(getNdict() - 1);
-                                    if (getNdict() < 0)
-                                    {
-                                        setNdict(playList.size() - 1);
-                                    }
+                                    setNword(entries.get(0).getRowId());
                                 }
-                                if (entries.size() > 1)
-                                {
-                                    setNword(entries.get(1).getRowId());
-                                }
-
                                 iGetWordListerner.getWordComplete(entries, countEntries);
                             }
                         }

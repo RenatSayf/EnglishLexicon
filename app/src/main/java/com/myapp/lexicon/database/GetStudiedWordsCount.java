@@ -51,7 +51,7 @@ public class GetStudiedWordsCount extends AsyncTask<String, Void, Integer[]>
             if (databaseHelper.database.isOpen())
             {
 
-                String cmd = "SELECT count(RowId) FROM " + tableName + " WHERE (CountRepeat <> 0) UNION ALL SELECT count(rowId) FROM " + tableName;
+                String cmd = "SELECT min(RowId) FROM " + tableName + " WHERE (CountRepeat <> 0) UNION ALL SELECT max(RowId) FROM " + tableName + " WHERE (CountRepeat <> 0) UNION ALL SELECT count(rowId) FROM " + tableName;
                 cursor = databaseHelper.database.rawQuery(cmd, null);
                 if (cursor.moveToFirst())
                 {
@@ -59,7 +59,13 @@ public class GetStudiedWordsCount extends AsyncTask<String, Void, Integer[]>
                     int i = 0;
                     while (!cursor.isAfterLast())
                     {
-                        countArray[i] = cursor.getInt(0);
+                        try
+                        {
+                            countArray[i] = cursor.getInt(0);
+                        } catch (Exception e)
+                        {
+                            countArray[i] = 0;
+                        }
                         cursor.moveToNext();
                         i++;
                     }
