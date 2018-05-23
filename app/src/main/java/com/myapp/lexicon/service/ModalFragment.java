@@ -206,7 +206,7 @@ public class ModalFragment extends Fragment
                     if (resArray != null && resArray.length > 1)
                     {
                         final int totalWords = resArray[3];
-                        final int studiedWords = resArray[0];
+                        final int studiedWords = resArray[2];
                         if (studiedWords == totalWords && getActivity() != null)
                         {
                             appSettings.removeItemFromPlayList(tableName);
