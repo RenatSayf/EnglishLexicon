@@ -182,9 +182,9 @@ public class TestModalFragment extends Fragment
             {
                 if (resArray != null && resArray.length > 1)
                 {
-                    final int maxCount = resArray[1];
-                    final int notStudied = resArray[0];
-                    if (notStudied == 0 && getActivity() != null)
+                    final int maxCount = resArray[3];
+                    final int studiedCount = resArray[2];
+                    if (studiedCount == maxCount && getActivity() != null)
                     {
                         appSettings.removeItemFromPlayList(currentDict);
                         int ndict = appData.getNdict() + 1;
@@ -197,7 +197,7 @@ public class TestModalFragment extends Fragment
                     }
                     try
                     {
-                        if (notStudied > 0)
+                        if (studiedCount > 0)
                         {
                             GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), GetEntriesFromDbAsync.KEY_GET_TWO_DISTINCT_WORDS, currentDict, firstId, new GetEntriesFromDbAsync.GetEntriesListener()
                             {
@@ -212,7 +212,7 @@ public class TestModalFragment extends Fragment
                                         enTextView.setText(entries.get(0).getEnglish());
                                         ruBtn1.setText(entries.get(0).getTranslate());
                                         ruBtn2.setText(entries.get(0).getTranslate());
-                                        if (appData.getNword() + 1 <= notStudied)
+                                        if (appData.getNword() + 1 <= studiedCount)
                                         {
                                             appData.setNword(appData.getNword() + 1);
                                         }
@@ -243,7 +243,7 @@ public class TestModalFragment extends Fragment
                                         ruBtn1.setText(entries.get(i).getTranslate());
                                         ruBtn2.setText(entries.get(j).getTranslate());
 
-                                        if (appData.getNword() + 1 <= notStudied)
+                                        if (appData.getNword() + 1 <= studiedCount)
                                         {
                                             appData.setNword(appData.getNword() + 1);
                                         }
@@ -278,7 +278,7 @@ public class TestModalFragment extends Fragment
                                     }
                                     if (entries.size() > 0)
                                     {
-                                        wordsNumberTV.setText((wordsNumber + "").concat(" / ").concat(Integer.toString(maxCount)).concat(" " + getString(R.string.text_studied ) + " " + (maxCount - notStudied)));
+                                        wordsNumberTV.setText((wordsNumber + "").concat(" / ").concat(Integer.toString(maxCount)).concat(" " + getString(R.string.text_studied ) + " " + studiedCount));
                                     }
                                 }
                             });
@@ -317,9 +317,9 @@ public class TestModalFragment extends Fragment
                 {
                     if (resArray != null && resArray.length > 1)
                     {
-                        final int maxCount = resArray[1];
-                        final int notStudied = resArray[0];
-                        if (notStudied == 0 && getActivity() != null)
+                        final int totalWords = resArray[3];
+                        final int studiedWords = resArray[2];
+                        if (studiedWords == totalWords && getActivity() != null)
                         {
                             appSettings.removeItemFromPlayList(tableName);
                             getActivity().finish();
@@ -350,7 +350,7 @@ public class TestModalFragment extends Fragment
                                     ruBtn2.setText(entries.get(j).getTranslate());
                                 }
                                 nameDictTV.setText(tableName);
-                                wordsNumberTV.setText((wordsNumber + "").concat(" / ").concat(Integer.toString(maxCount)).concat(" " + getString(R.string.text_studied ) + " " + (maxCount - notStudied)));
+                                wordsNumberTV.setText((wordsNumber + "").concat(" / ").concat(Integer.toString(totalWords)).concat(" " + getString(R.string.text_studied ) + " " + studiedWords));
                             }
                         });
                         if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)

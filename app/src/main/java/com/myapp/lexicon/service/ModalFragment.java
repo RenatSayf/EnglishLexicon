@@ -205,9 +205,9 @@ public class ModalFragment extends Fragment
                 {
                     if (resArray != null && resArray.length > 1)
                     {
-                        final int maxCount = resArray[1];
-                        final int notStudied = resArray[0];
-                        if (notStudied == 0 && getActivity() != null)
+                        final int totalWords = resArray[3];
+                        final int studiedWords = resArray[0];
+                        if (studiedWords == totalWords && getActivity() != null)
                         {
                             appSettings.removeItemFromPlayList(tableName);
                             getActivity().finish();
@@ -232,7 +232,7 @@ public class ModalFragment extends Fragment
                                     ruTextView.setText(entries.get(0).getTranslate());
                                 }
                                 nameDictTV.setText(tableName);
-                                wordsNumberTV.setText((wordsNumber + "").concat(" / ").concat(Integer.toString(maxCount)).concat(" " + getString(R.string.text_studied ) + " " + (maxCount - notStudied)));
+                                wordsNumberTV.setText((wordsNumber + "").concat(" / ").concat(Integer.toString(totalWords)).concat(" " + getString(R.string.text_studied ) + " " + studiedWords));
                             }
                         });
                         if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
@@ -260,8 +260,8 @@ public class ModalFragment extends Fragment
                 {
                     if (resArray != null && resArray.length > 1)
                     {
-                        final int notStudiedWords = resArray[0];
-                        final int totalWords = resArray[1];
+                        final int studiedWords = resArray[2];
+                        final int totalWords = resArray[3];
                         appData.getNextNword(getActivity(), new AppData.IGetWordListerner()
                         {
                             @Override
@@ -273,7 +273,7 @@ public class ModalFragment extends Fragment
                                     enTextView.setText(dataBaseEntry.getEnglish());
                                     ruTextView.setText(dataBaseEntry.getTranslate());
                                     nameDictTV.setText(appData.getPlayList().get(appData.getNdict()));
-                                    String concatText = (dataBaseEntry.getRowId() + "").concat(" / ").concat(Integer.toString(totalWords)).concat("  " + getString(R.string.text_studied) + " " + (totalWords - notStudiedWords));
+                                    String concatText = (dataBaseEntry.getRowId() + "").concat(" / ").concat(Integer.toString(totalWords)).concat("  " + getString(R.string.text_studied) + " " + studiedWords);
                                     wordsNumberTV.setText(concatText);
                                     repeatCount = Integer.parseInt(dataBaseEntry.getCountRepeat());
                                 }

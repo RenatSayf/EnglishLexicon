@@ -14,6 +14,12 @@ public class GetStudiedWordsCount extends AsyncTask<String, Void, Integer[]>
     private DatabaseHelper databaseHelper;
     private String tableName;
 
+
+    /**
+     * @param activity Activity activity
+     * @param tableName String tableName
+     * @param listener GetCountListener listener
+     */
     public GetStudiedWordsCount(Activity activity, String tableName, GetCountListener listener)
     {
         setTaskCompleteListener(listener);
@@ -25,6 +31,14 @@ public class GetStudiedWordsCount extends AsyncTask<String, Void, Integer[]>
 
     public interface GetCountListener
     {
+        /**
+         *
+         * @param resArray
+         * resArray[0] - minimum RowId Where CountRepeat != 0
+         * resArray[1] - maximum RowId Where CountRepeat != 0
+         * resArray[2] - studied word amount
+         * resArray[3] - total word amount
+         */
         void onTaskComplete(Integer[] resArray);
     }
 
@@ -51,7 +65,7 @@ public class GetStudiedWordsCount extends AsyncTask<String, Void, Integer[]>
             if (databaseHelper.database.isOpen())
             {
 
-                String cmd = "SELECT min(RowId) FROM " + tableName + " WHERE (CountRepeat <> 0) UNION ALL SELECT max(RowId) FROM " + tableName + " WHERE (CountRepeat <> 0) UNION ALL SELECT count(rowId) FROM " + tableName;
+                String cmd = "SELECT min(RowId) FROM " + tableName + " WHERE (CountRepeat <> 0) UNION ALL SELECT max(RowId) FROM " + tableName + " WHERE (CountRepeat <> 0) UNION ALL SELECT count(rowId) FROM " + tableName +" WHERE CountRepeat == 0 UNION ALL SELECT count(rowId) FROM " + tableName;
                 cursor = databaseHelper.database.rawQuery(cmd, null);
                 if (cursor.moveToFirst())
                 {
