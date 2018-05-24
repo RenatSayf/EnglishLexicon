@@ -198,7 +198,7 @@
             android:name=".service.LexiconService"
             android:enabled="true"
             android:exported="false"
-            android:permission="@android:string/no">
+            android:permission="no">
         </service>
         <service
             android:name=".appindex.AppIndexingUpdateService"

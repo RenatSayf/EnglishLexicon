@@ -440,82 +440,80 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                     return;
                 }
 
-                StringOperations stringOperations = StringOperations.getInstance();
-                if (stringOperations.getLangOfText(editTextEn.getText().toString())[1].equals("en") &&
-                        stringOperations.getLangOfText(editTextRu.getText().toString())[1].equals("ru"))
+                try
                 {
-                    String tableName = dictListSpinner.getSelectedItem().toString();
-                    String new_table_name = spinnerDictToMove.getSelectedItem().toString();
-                    DataBaseEntry baseEntry = new DataBaseEntry(editTextEn.getText().toString(), editTextRu.getText().toString(), spinnerCountRepeat.getSelectedItem().toString());
-                    if (!checkMove.isChecked())
+                    StringOperations stringOperations = StringOperations.getInstance();
+                    if (stringOperations.getLangOfText(editTextEn.getText().toString())[1].equals("en"))
                     {
-                        long res = dataBaseQueries.updateWordInTableSync(tableName, m.rowID, baseEntry);
-                        if (res >= 0)
+                        String tableName = dictListSpinner.getSelectedItem().toString();
+                        String new_table_name = spinnerDictToMove.getSelectedItem().toString();
+                        DataBaseEntry baseEntry = new DataBaseEntry(editTextEn.getText().toString(), editTextRu.getText().toString(), spinnerCountRepeat.getSelectedItem().toString());
+                        if (!checkMove.isChecked())
                         {
-                            Toast.makeText(WordEditor.this, R.string.text_updated_successfully, Toast.LENGTH_SHORT).show();
+                            long res = dataBaseQueries.updateWordInTableSync(tableName, m.rowID, baseEntry);
+                            if (res >= 0)
+                            {
+                                Toast.makeText(WordEditor.this, R.string.text_updated_successfully, Toast.LENGTH_SHORT).show();
+                            }
+                            else
+                            {
+                                Toast.makeText(WordEditor.this, R.string.text_write_error,Toast.LENGTH_SHORT).show();
+                            }
                         }
-                        else
+                        else if (checkMove.isChecked() && !checkCopy.isChecked())
                         {
-                            Toast.makeText(WordEditor.this, R.string.text_write_error,Toast.LENGTH_SHORT).show();
+                            long res = dataBaseQueries.deleteWordInTableSync(tableName, m.rowID);
+                            dataBaseQueries.dataBaseVacuum(tableName);
+                            if (res >= 0)
+                            {
+                                Toast.makeText(WordEditor.this, R.string.text_updated_successfully, Toast.LENGTH_SHORT).show();
+                            }
+                            else
+                            {
+                                Toast.makeText(WordEditor.this, R.string.text_deleting_error,Toast.LENGTH_SHORT).show();
+                            }
+                            dataBaseQueries.insertWordInTableSync(new_table_name, baseEntry);
                         }
+                        else if (checkMove.isChecked() && checkCopy.isChecked())
+                        {
+                            try
+                            {
+                                dataBaseQueries.updateWordInTableSync(tableName, m.rowID, baseEntry);
+                            } catch (Exception e)
+                            {
+                                Toast.makeText(WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                            dataBaseQueries.insertWordInTableSync(new_table_name, baseEntry);
+                        }
+                        listViewSetSource(true);
+                        switcher.showPrevious();
+                    }
+                    else
+                    {
+                        new AlertDialog.Builder(WordEditor.this)
+                                .setMessage(R.string.msg_wrong_text)
+                                .setPositiveButton("Ok", new DialogInterface.OnClickListener()
+                                {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which)
+                                    {
 
-//                        try
-//                        {
-//                            dataBaseQueries.updateWordInTableSync(tableName, m.rowID, baseEntry);
-//                        } catch (Exception e)
-//                        {
-//                            Toast.makeText(WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
-//                        }
+                                    }
+                                }).create().show();
                     }
-                    else if (checkMove.isChecked() && !checkCopy.isChecked())
-                    {
-                        long res = dataBaseQueries.deleteWordInTableSync(tableName, m.rowID);
-                        dataBaseQueries.dataBaseVacuum(tableName);
-                        if (res >= 0)
-                        {
-                            Toast.makeText(WordEditor.this, R.string.text_updated_successfully, Toast.LENGTH_SHORT).show();
-                        }
-                        else
-                        {
-                            Toast.makeText(WordEditor.this, R.string.text_deleting_error,Toast.LENGTH_SHORT).show();
-                        }
-
-//                        try
-//                        {
-//                            dataBaseQueries.deleteWordInTableSync(tableName, m.rowID);
-//                            dataBaseQueries.dataBaseVacuum(tableName);
-//                        } catch (Exception e)
-//                        {
-//                            Toast.makeText(WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
-//                        }
-                        dataBaseQueries.insertWordInTableSync(new_table_name, baseEntry);
-                    }
-                    else if (checkMove.isChecked() && checkCopy.isChecked())
-                    {
-                        try
-                        {
-                            dataBaseQueries.updateWordInTableSync(tableName, m.rowID, baseEntry);
-                        } catch (Exception e)
-                        {
-                            Toast.makeText(WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                        dataBaseQueries.insertWordInTableSync(new_table_name, baseEntry);
-                    }
-                    listViewSetSource(true);
-                    switcher.showPrevious();
-                }
-                else
+                } catch (Exception e)
                 {
+                    e.printStackTrace();
                     new AlertDialog.Builder(WordEditor.this)
                             .setMessage(R.string.msg_wrong_text)
                             .setPositiveButton("Ok", new DialogInterface.OnClickListener()
-                    {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which)
-                        {
+                            {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which)
+                                {
 
-                        }
-                    }).create().show();
+                                }
+                            }).create().show();
                 }
             }
         });
