@@ -16,7 +16,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.speech.tts.TextToSpeech;
@@ -37,7 +36,6 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -115,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private final int LOADER_GET_ENTRIES = 113336564;
 
-    protected PowerManager.WakeLock wakeLock;
+    //protected PowerManager.WakeLock wakeLock;
 
     private GetTableListFragm getTableListFragm;
     private FragmentManager fragmentManager;
@@ -135,17 +133,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             getSupportFragmentManager().beginTransaction().replace(R.id.background_fragment, backgroundFragm).commit();
         }
 
-        final PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        if (powerManager != null)
-        {
-            this.wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"my_tag");
-        }
-        this.wakeLock.acquire();
+//        final PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+//        if (powerManager != null)
+//        {
+//            this.wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"my_tag");
+//        }
+//        this.wakeLock.acquire();
 
         Toolbar toolbar = findViewById(R.id.toolbar_word_editor);
         setSupportActionBar(toolbar);
 
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        //getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         appSettings = new AppSettings(this);
         playList = appSettings.getPlayList();
@@ -320,13 +318,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         super.onDestroy();
         unregisterReceiver(mUpdateBroadcastReceiver);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
+        //getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
     }
 
     @Override
     public void onBackPressed()
     {
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
+        //getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
         speechServiceOnPause();
         appData.saveAllSettings(this);
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -467,8 +465,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             SplashScreenActivity.speech.stop();
             SplashScreenActivity.speech.shutdown();
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
-            wakeLock.release();
+            //getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
+            //wakeLock.release();
             this.finish();
         }
 
