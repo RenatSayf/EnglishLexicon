@@ -7,7 +7,7 @@ android {
         applicationId "com.myapp.lexicon"
         minSdkVersion 16
         targetSdkVersion 27
-        versionCode 17
+        versionCode 16
         versionName '1.4'
     }
     buildTypes {
