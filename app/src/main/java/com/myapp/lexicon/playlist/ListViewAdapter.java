@@ -52,7 +52,7 @@ public class ListViewAdapter extends BaseAdapter
         View dictView=convertView;
         if (dictView == null)
         {
-            dictView= LayoutInflater.from(context).inflate(R.layout.p_listview_item, null);
+            dictView= LayoutInflater.from(context).inflate(R.layout.p_listview_item, parent, false);
         }
         final String item =  this.list.get(position);
         TextView dictName = dictView.findViewById(R.id.textView_item);
@@ -75,7 +75,7 @@ public class ListViewAdapter extends BaseAdapter
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
             {
-                if (!isChecked)
+                if (!isChecked && position < list.size())
                 {
                     list.remove(position);
                     if (listener != null)

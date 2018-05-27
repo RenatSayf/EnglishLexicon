@@ -7,14 +7,20 @@ import android.os.AsyncTask;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.StringOperations;
 
-public class GetCountWordsAsync2 extends AsyncTask<String, Void, Integer[]>
+public class GetStudiedWordsCount extends AsyncTask<String, Void, Integer[]>
 {
     private GetCountListener listener;
     private LockOrientation lockOrientation;
     private DatabaseHelper databaseHelper;
     private String tableName;
 
-    public GetCountWordsAsync2(Activity activity, String tableName, GetCountListener listener)
+
+    /**
+     * @param activity Activity activity
+     * @param tableName String tableName
+     * @param listener GetCountListener listener
+     */
+    public GetStudiedWordsCount(Activity activity, String tableName, GetCountListener listener)
     {
         setTaskCompleteListener(listener);
         lockOrientation = new LockOrientation(activity);
@@ -25,6 +31,14 @@ public class GetCountWordsAsync2 extends AsyncTask<String, Void, Integer[]>
 
     public interface GetCountListener
     {
+        /**
+         *
+         * @param resArray
+         * resArray[0] - minimum RowId Where CountRepeat != 0
+         * resArray[1] - maximum RowId Where CountRepeat != 0
+         * resArray[2] - studied word amount
+         * resArray[3] - total word amount
+         */
         void onTaskComplete(Integer[] resArray);
     }
 
@@ -44,26 +58,30 @@ public class GetCountWordsAsync2 extends AsyncTask<String, Void, Integer[]>
     protected Integer[] doInBackground(String... params)
     {
         Cursor cursor = null;
-        Integer[] count = new Integer[2];
+        Integer[] countArray = null;
         try
         {
             databaseHelper.open();
             if (databaseHelper.database.isOpen())
             {
-                String cmd = "SELECT max(rowId) FROM " + tableName + " UNION SELECT count(RowId) FROM " + tableName + " WHERE (CountRepeat <> 0)";
+
+                String cmd = "SELECT min(RowId) FROM " + tableName + " WHERE (CountRepeat <> 0) UNION ALL SELECT max(RowId) FROM " + tableName + " WHERE (CountRepeat <> 0) UNION ALL SELECT count(rowId) FROM " + tableName +" WHERE CountRepeat == 0 UNION ALL SELECT count(rowId) FROM " + tableName;
                 cursor = databaseHelper.database.rawQuery(cmd, null);
                 if (cursor.moveToFirst())
                 {
+                    countArray = new Integer[cursor.getCount()];
                     int i = 0;
                     while (!cursor.isAfterLast())
                     {
-                        count[i] = cursor.getInt(0);
+                        try
+                        {
+                            countArray[i] = cursor.getInt(0);
+                        } catch (Exception e)
+                        {
+                            countArray[i] = 0;
+                        }
                         cursor.moveToNext();
                         i++;
-                    }
-                    if (count[0] != null && count[1] == null)
-                    {
-                        count[1] = count[0];
                     }
                 }
             }
@@ -71,6 +89,7 @@ public class GetCountWordsAsync2 extends AsyncTask<String, Void, Integer[]>
         catch (Exception e)
         {
             e.printStackTrace();
+            databaseHelper.close();
             lockOrientation.unLock();
         }
         finally
@@ -79,8 +98,9 @@ public class GetCountWordsAsync2 extends AsyncTask<String, Void, Integer[]>
             {
                 cursor.close();
             }
+            databaseHelper.close();
         }
-        return count;
+        return countArray;
     }
 
     @Override
@@ -98,6 +118,7 @@ public class GetCountWordsAsync2 extends AsyncTask<String, Void, Integer[]>
     protected void onCancelled()
     {
         super.onCancelled();
+        databaseHelper.close();
         lockOrientation.unLock();
     }
 }

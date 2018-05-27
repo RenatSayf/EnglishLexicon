@@ -8,7 +8,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
-<application
+    <application
         android:allowBackup="true"
         android:fullBackupContent="true"
         android:icon="@mipmap/ic_launcher"
@@ -109,7 +109,7 @@
             </intent-filter>
 
             <intent-filter>
-                <action android:name="android.intent.action.SEARCH" />
+                <action android:name="android.intent.action.SEARCH"/>
             </intent-filter>
 
             <meta-data
@@ -168,9 +168,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".main.MainActivity"/>
         </activity>
-        <activity android:name=".service.ServiceDialog"
-            android:theme="@style/popAppWindow"
-            android:label="@string/app_name">
+        <activity
+            android:name=".service.ServiceDialog"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.AppCompat.Translucent"
+            >
         </activity>
 
         <!--
@@ -195,45 +197,46 @@
         <service
             android:name=".service.LexiconService"
             android:enabled="true"
-            android:exported="true"
+            android:exported="false"
             android:permission="no">
         </service>
-    <service
-        android:name=".appindex.AppIndexingUpdateService"
-        android:enabled="true"
-        android:exported="true"
-        android:permission="android.permission.BIND_JOB_SERVICE">
-    </service>
+        <service
+            android:name=".appindex.AppIndexingUpdateService"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE">
+        </service>
 
-    <receiver android:name=".appindex.AppIndexingUpdateReceiver"
-        android:exported="true"
-        android:permission="com.google.android.gms.permission.APPINDEXING"
-        >
-        <intent-filter>
-            <action android:name="com.google.firebase.appindexing.UPDATE_INDEX"/>
-        </intent-filter>
-    </receiver>
+        <receiver
+            android:name=".appindex.AppIndexingUpdateReceiver"
+            android:exported="true"
+            android:permission="com.google.android.gms.permission.APPINDEXING"
+            >
+            <intent-filter>
+                <action android:name="com.google.firebase.appindexing.UPDATE_INDEX"/>
+            </intent-filter>
+        </receiver>
 
-    <receiver
-        android:name=".service.BroadcastReceiverOnBootComplete"
-        android:enabled="true"
-        android:exported="false">
+        <receiver
+            android:name=".service.BroadcastReceiverOnBootComplete"
+            android:enabled="true"
+            android:exported="false">
 
-        <intent-filter>
-            <action android:name="android.intent.action.BOOT_COMPLETED"/>
-        </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
 
-        <intent-filter>
-            <action android:name="android.intent.action.PACKAGE_REPLACED"/>
-            <data android:scheme="package"/>
-        </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_REPLACED"/>
+                <data android:scheme="package"/>
+            </intent-filter>
 
-        <intent-filter>
-            <action android:name="android.intent.action.PACKAGE_ADDED"/>
-            <data android:scheme="package"/>
-        </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_ADDED"/>
+                <data android:scheme="package"/>
+            </intent-filter>
 
-    </receiver>
+        </receiver>
 
     </application>
 

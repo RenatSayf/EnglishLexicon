@@ -3,70 +3,47 @@
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:layout_margin="12dp"
-              android:padding="0dp"
+              android:maxWidth="280dp"
+              android:maxHeight="480dp"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_margin="22dp"
               android:orientation="vertical"
-              android:background="@color/colorPopAppBody"
+              android:background="@drawable/side_nav_bar"
               tools:context="com.myapp.lexicon.service.ModalFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="5dp"
-        android:gravity="center">
+        android:layout_margin="0dp"
+        android:gravity="center"
+        android:background="@color/colorPrimary">
 
         <Button
             android:id="@+id/btn_open_app"
             style="@style/Base.Widget.AppCompat.Toolbar.Button.Navigation"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:drawableTop="@drawable/selector_lexicon_icon"
-            android:background="@drawable/transparent_background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:paddingLeft="10dp"
+            android:paddingStart="10dp"
+            android:paddingRight="5dp"
+            android:paddingEnd="5dp"
+            android:drawableStart="@drawable/selector_lexicon_icon"
+            android:drawableLeft="@drawable/selector_lexicon_icon"
+            android:background="@drawable/transparent_background_straight_angle"
             android:textColor="@drawable/selector_white_to_orange_color"
-            android:text="@string/last_app_name"
+            android:text="@string/app_name"
+            android:textSize="18sp"
             />
-
-        <android.support.v4.widget.Space
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"/>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/name_dict_tv"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Name dict"
-                android:textColor="@color/colorWhite"/>
-
-            <TextView
-                android:id="@+id/words_number_tv_modal_sv"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text=""
-                android:textColor="@color/colorWhite"
-                />
-
-        </LinearLayout>
-
-        <android.support.v4.widget.Space
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"/>
 
         <Button
             android:id="@+id/btn_stop_service"
             style="@style/Base.Widget.AppCompat.Toolbar.Button.Navigation"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/transparent_background"
+            android:layout_weight="3"
+            android:background="@drawable/transparent_background_straight_angle"
             android:drawableTop="@drawable/selector_icon_power"
             android:textColor="@drawable/selector_white_to_orange_color"
             android:text="@string/text_off"
@@ -74,6 +51,43 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="horizontal"
+        android:layout_margin="5dp">
+
+        <TextView
+            android:id="@+id/name_dict_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            android:gravity="start"
+            android:text="@string/text_name_dict"
+            android:textColor="@color/colorWhite"
+            android:textAppearance="?android:attr/textAppearanceSmall"/>
+
+        <ImageView
+            android:id="@+id/order_play_icon_iv_modal"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="0"
+            android:contentDescription="@string/btn_close_discribtion"
+            android:src="@drawable/ic_repeat_white"/>
+
+        <TextView
+            android:id="@+id/words_number_tv_modal_sv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:textColor="@color/colorWhite"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            />
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/en_text_view"
@@ -111,46 +125,37 @@
             android:id="@+id/check_box_ru_speak_modal"
             style="@android:style/Widget.Holo.Light.CompoundButton.CheckBox"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:buttonTint="@color/colorWhite"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            app:buttonTint="@color/colorWhite"
             android:text="@string/text_ru"
             android:textColor="@drawable/selector_white_to_orange_color"
-            android:background="@drawable/transparent_background"
+            android:background="@drawable/transparent_background_straight_angle"
             android:checked="false"/>
-
-        <android.support.v4.widget.Space
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            />
 
         <ImageButton
             android:id="@+id/btn_sound_modal"
             style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/transparent_background"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/transparent_background_straight_angle"
             android:contentDescription="@string/btn_sound_discribtion"
             android:src="@drawable/selector_sound_icon"
             android:textColor="@drawable/selector_white_to_orange_color"
             />
 
-        <android.support.v4.widget.Space
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"/>
-
         <ImageButton
             android:id="@+id/btn_close"
             style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0"
-            android:background="@drawable/transparent_background"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/transparent_background_straight_angle"
             android:contentDescription="@string/btn_close_discribtion"
             android:src="@drawable/selector_close_icon"
-            android:textColor="@drawable/selector_white_to_orange_color"/>
-
+            android:textColor="@drawable/selector_white_to_orange_color"
+            />
 
     </LinearLayout>
 

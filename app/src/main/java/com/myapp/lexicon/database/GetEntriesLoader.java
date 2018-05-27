@@ -50,7 +50,7 @@ public class GetEntriesLoader extends AsyncTaskLoader<Cursor>
             databaseHelper.open();
             if (databaseHelper.database.isOpen())
             {
-               cursor = databaseHelper.database.rawQuery("SELECT * FROM " + tableName + " WHERE RowID BETWEEN " + startId +" AND " + endId, null);
+               cursor = databaseHelper.database.rawQuery("SELECT RowId, English, Translate, CountRepeat FROM " + tableName + " WHERE RowId >= " + startId + " And CountRepeat <> 0 ORDER BY RowId ASC LIMIT 2", null);
             }
         }
         catch (Exception e)

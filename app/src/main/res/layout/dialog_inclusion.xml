@@ -2,22 +2,20 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:theme="@style/Theme.AppCompat.Light"
-    android:background="@color/colorWhite">
+    android:orientation="vertical">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:padding="3dp"
-        android:text="@string/text_learned_all_words_in_dict"
+        android:text="@string/text_in_dict"
         android:textAlignment="center"
         android:textSize="16sp"
         />
 
     <TextView
-        android:id="@+id/dict_name_dialog_ended"
+        android:id="@+id/dict_name_dialog_inclusion"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="3dp"
@@ -31,7 +29,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="5dp"
-        android:text="@string/header_dialog_change_pl"
+        android:text="@string/text_all_words_is_sdudied"
+        android:textAlignment="center"
+        android:textSize="16sp"
+        />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:text="@string/text_words_must_be_included"
         android:textAlignment="center"
         android:textSize="16sp"
         />
@@ -45,7 +51,7 @@
         >
 
         <Button
-            android:id="@+id/btn_cancel_ended_dialog"
+            android:id="@+id/btn_cancel_dialog_inclusion"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -57,11 +63,11 @@
             android:textSize="18sp"/>
 
         <Button
-            android:id="@+id/btn_ok_ended_dialog"
+            android:id="@+id/btn_ok_dialog_inclusion"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="@string/text_ok"
+            android:text="@string/text_turn_on"
             android:textColor="@drawable/selector_color_green_to_white"
             style="@style/Base.Widget.AppCompat.ButtonBar"
             android:background="@drawable/transparent_background_straight_angle"

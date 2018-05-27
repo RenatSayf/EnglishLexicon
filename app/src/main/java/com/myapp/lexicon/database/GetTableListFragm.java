@@ -1,6 +1,6 @@
 package com.myapp.lexicon.database;
 
-import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -17,25 +17,50 @@ import java.util.ArrayList;
  */
 public class GetTableListFragm extends Fragment
 {
-    private DatabaseHelper databaseHelper;
-    private OnTableListListener mListener;
+    public static final String TAG = "get_table_list_frag_tag";
+    private static OnTableListListener mListener;
 
     public GetTableListFragm()
     {
         // Required empty public constructor
     }
 
-    @SuppressLint("StaticFieldLeak")
+    //@SuppressLint("StaticFieldLeak")
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+        performAsyncOperation(getActivity());
+    }
 
-        databaseHelper = new DatabaseHelper(getActivity());
-        databaseHelper.create_db();
+    @Override
+    public void onAttach(Context context)
+    {
+        super.onAttach(context);
+        if (context instanceof OnTableListListener)
+        {
+            mListener = (OnTableListListener) context;
+        } else
+        {
+            throw new RuntimeException(context.toString() + " must implement OnGetEntriesFinishListener");
+        }
+    }
 
+    @Override
+    public void onDetach()
+    {
+        super.onDetach();
+        mListener = null;
+    }
 
+     public interface OnTableListListener
+    {
+        void onGetTableListListener(Object object);
+    }
+
+    private static void performAsyncOperation(final Activity activity)
+    {
         AsyncTask<Void, Void, ArrayList<String>> asyncTask = new AsyncTask<Void, Void, ArrayList<String>>()
         {
             @Override
@@ -46,6 +71,8 @@ public class GetTableListFragm extends Fragment
                 ArrayList<String> list = new ArrayList<>();
                 try
                 {
+                    DatabaseHelper databaseHelper = new DatabaseHelper(activity);
+                    databaseHelper.create_db();
                     databaseHelper.open();
                     if (databaseHelper.database.isOpen())
                     {
@@ -96,30 +123,5 @@ public class GetTableListFragm extends Fragment
         {
             asyncTask.execute();
         }
-    }
-
-    @Override
-    public void onAttach(Context context)
-    {
-        super.onAttach(context);
-        if (context instanceof OnTableListListener)
-        {
-            mListener = (OnTableListListener) context;
-        } else
-        {
-            throw new RuntimeException(context.toString() + " must implement OnGetEntriesFinishListener");
-        }
-    }
-
-    @Override
-    public void onDetach()
-    {
-        super.onDetach();
-        mListener = null;
-    }
-
-     public interface OnTableListListener
-    {
-        void onGetTableListListener(Object object);
     }
 }

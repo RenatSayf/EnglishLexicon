@@ -14,7 +14,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,6 +28,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.support.v7.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -443,7 +443,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                 try
                 {
                     StringOperations stringOperations = StringOperations.getInstance();
-                    if (stringOperations.getLangOfText(editTextEn.getText().toString())[1].equals("en"))
+                    if (stringOperations.getLangOfText(WordEditor.this, editTextEn.getText().toString())[1].equals("en") && !stringOperations.getLangOfText(WordEditor.this, editTextRu.getText().toString())[1].equals("en"))
                     {
                         String tableName = dictListSpinner.getSelectedItem().toString();
                         String new_table_name = spinnerDictToMove.getSelectedItem().toString();
@@ -493,13 +493,13 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                         new AlertDialog.Builder(WordEditor.this)
                                 .setMessage(R.string.msg_wrong_text)
                                 .setPositiveButton("Ok", new DialogInterface.OnClickListener()
-                        {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which)
-                            {
+                                {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which)
+                                    {
 
-                            }
-                        }).create().show();
+                                    }
+                                }).create().show();
                     }
                 } catch (Exception e)
                 {

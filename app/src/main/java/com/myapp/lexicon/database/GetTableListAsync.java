@@ -79,6 +79,7 @@ public class GetTableListAsync extends AsyncTask<Void, Void, ArrayList<String>>
         catch (Exception e)
         {
             e.printStackTrace();
+            databaseHelper.close();
         }
         finally
         {
@@ -86,6 +87,7 @@ public class GetTableListAsync extends AsyncTask<Void, Void, ArrayList<String>>
             {
                 cursor.close();
             }
+            databaseHelper.close();
         }
         return list;
     }
@@ -105,6 +107,7 @@ public class GetTableListAsync extends AsyncTask<Void, Void, ArrayList<String>>
     protected void onCancelled()
     {
         super.onCancelled();
+        databaseHelper.close();
         lockOrientation.unLock();
     }
 }

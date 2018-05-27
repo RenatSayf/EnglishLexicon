@@ -31,10 +31,10 @@ public class SplashScreenActivity extends Activity
     public static TextToSpeech speech;
     public HashMap<String, String> map = new HashMap<>();
 
-    private UpdateBroadcastReceiver broadcastReceiver; // TODO: UpdateBroadcastReceiver. 1 - объявление экземпляра UpdateBroadcastReceiver
-    private Intent messageErrorIntent;  // TODO: UpdateBroadcastReceiver. 2 - объявление экземпляра Intent
-    public String EXTRA_KEY_MSG_ID = "key_msg_id";              // TODO: UpdateBroadcastReceiver. 3 - определение ключа для приемника
-    public String ACTION_UPDATE = "com.myapp.lexicon.main.a_SplashScreenActivity";   // TODO: UpdateBroadcastReceiver. 4 - определения действия
+    private UpdateBroadcastReceiver broadcastReceiver; // TODO: SpeechServiceReceiver. 1 - объявление экземпляра SpeechServiceReceiver
+    private Intent messageErrorIntent;  // TODO: SpeechServiceReceiver. 2 - объявление экземпляра Intent
+    public String EXTRA_KEY_MSG_ID = "key_msg_id";              // TODO: SpeechServiceReceiver. 3 - определение ключа для приемника
+    public String ACTION_UPDATE = "com.myapp.lexicon.main.a_SplashScreenActivity";   // TODO: SpeechServiceReceiver. 4 - определения действия
 
     private AppSettings appSettings;
     private SharedPreferences preferences;
@@ -51,7 +51,7 @@ public class SplashScreenActivity extends Activity
         AppData appData = AppData.getInstance();
         appData.setServiceMode(serviceMode);
 
-        //region TODO: UpdateBroadcastReceiver. 5 - Регистрируем приёмник
+        //region TODO: SpeechServiceReceiver. 5 - Регистрируем приёмник
         broadcastReceiver = new UpdateBroadcastReceiver();
         IntentFilter updateIntentFilter = new IntentFilter(ACTION_UPDATE);
         updateIntentFilter.addCategory(Intent.CATEGORY_DEFAULT);
@@ -166,15 +166,15 @@ public class SplashScreenActivity extends Activity
             @Override
             public void onError(String utteranceId)
             {
-                messageErrorIntent = new Intent();  // TODO: UpdateBroadcastReceiver. 8 - создание экземпляра Intent
-                messageErrorIntent.setAction(ACTION_UPDATE);    // TODO: UpdateBroadcastReceiver. 9 - установка действия
-                messageErrorIntent.addCategory(Intent.CATEGORY_DEFAULT);    // TODO: UpdateBroadcastReceiver. 10 - установка категории
+                messageErrorIntent = new Intent();  // TODO: SpeechServiceReceiver. 8 - создание экземпляра Intent
+                messageErrorIntent.setAction(ACTION_UPDATE);    // TODO: SpeechServiceReceiver. 9 - установка действия
+                messageErrorIntent.addCategory(Intent.CATEGORY_DEFAULT);    // TODO: SpeechServiceReceiver. 10 - установка категории
 
                 if (utteranceId.equals(Locale.US.getDisplayLanguage()))
                 {
-                    // TODO: UpdateBroadcastReceiver. 11 - кладем сообщение в Intent
+                    // TODO: SpeechServiceReceiver. 11 - кладем сообщение в Intent
                     messageErrorIntent.putExtra(EXTRA_KEY_MSG_ID, Locale.US.getDisplayLanguage());
-                    // TODO: UpdateBroadcastReceiver. 12 - отправка сообщения приемнику
+                    // TODO: SpeechServiceReceiver. 12 - отправка сообщения приемнику
                     sendBroadcast(messageErrorIntent);
                 }
                 if (utteranceId.equals(Locale.getDefault().getDisplayLanguage()))
@@ -223,22 +223,22 @@ public class SplashScreenActivity extends Activity
     protected void onDestroy()
     {
         super.onDestroy();
-        unregisterReceiver(broadcastReceiver);  // TODO: UpdateBroadcastReceiver. 7 - снятие регистрации приемника
+        unregisterReceiver(broadcastReceiver);  // TODO: SpeechServiceReceiver. 7 - снятие регистрации приемника
     }
 
-    // TODO: UpdateBroadcastReceiver. 6 - определение класса UpdateBroadcastReceiver
+    // TODO: SpeechServiceReceiver. 6 - определение класса SpeechServiceReceiver
     public class UpdateBroadcastReceiver extends BroadcastReceiver
     {
         @Override
         public void onReceive(Context context, Intent intent)
         {
-            // TODO: UpdateBroadcastReceiver. 13 - получение сообщения
+            // TODO: SpeechServiceReceiver. 13 - получение сообщения
             String id = intent.getStringExtra(EXTRA_KEY_MSG_ID);
 
             Intent installTTSdata = new Intent();
             installTTSdata.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
 
-            // TODO: UpdateBroadcastReceiver. 14 - отображение сообщения пользователю... Уфф!!!
+            // TODO: SpeechServiceReceiver. 14 - отображение сообщения пользователю... Уфф!!!
             if (id.equals(Locale.US.getDisplayLanguage()))
             {
                 dialogErrorTTS(installTTSdata, getString(R.string.message_inst_tts_data), false);

@@ -79,6 +79,7 @@ public class WordsEndedDialog extends android.support.v4.app.DialogFragment
                 {
                     idialogResult.wordEndedDialogResult(0);
                 }
+                dismiss();
             }
         });
     }
@@ -94,6 +95,7 @@ public class WordsEndedDialog extends android.support.v4.app.DialogFragment
                 {
                     idialogResult.wordEndedDialogResult(1);
                 }
+                dismiss();
             }
         });
     }

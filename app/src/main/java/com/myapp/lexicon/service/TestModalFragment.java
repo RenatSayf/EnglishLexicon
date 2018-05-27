@@ -18,13 +18,14 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DatabaseHelper;
-import com.myapp.lexicon.database.GetCountWordsAsync2;
+import com.myapp.lexicon.database.GetStudiedWordsCount;
 import com.myapp.lexicon.database.GetEntriesFromDbAsync;
 import com.myapp.lexicon.database.UpdateDBEntryAsync;
 import com.myapp.lexicon.dialogs.WordsEndedDialog;
@@ -44,7 +45,8 @@ public class TestModalFragment extends Fragment
     private AppData appData;
     private TextView enTextView;
     private Button ruBtn1, ruBtn2;
-    TextView nameDictTV;
+    private ImageView orderPlayIcon;
+    private TextView nameDictTV;
     private TextView wordsNumberTV;
     private ArrayList<DataBaseEntry> compareList;
     private boolean wordIsStudied = false;
@@ -89,17 +91,45 @@ public class TestModalFragment extends Fragment
         ruBtn2_OnClick(ruBtn2);
 
 
-        nameDictTV = fragmentView.findViewById(R.id.name_dict_tv);
-        wordsNumberTV = fragmentView.findViewById(R.id.words_number_tv_modal_sv);
+        nameDictTV = fragmentView.findViewById(R.id.name_dict_tv_test_modal);
+        wordsNumberTV = fragmentView.findViewById(R.id.words_number_tv_test_modal);
 
         ImageButton speakButton = fragmentView.findViewById(R.id.btn_sound_modal);
         speakButton_OnClick(speakButton);
 
-        final String currentDict = appSettings.getPlayList().get(appData.getNdict());
+        String currentDict = null;
+        try
+        {
+            currentDict = appSettings.getPlayList().get(appData.getNdict());
+        }
+        catch (IndexOutOfBoundsException e)
+        {
+            appData.setNdict(0);
+            appData.setNword(1);
+            if (appSettings.getPlayList().size() > 0)
+            {
+                currentDict = appSettings.getPlayList().get(appData.getNdict());
+            }
+        }
 
-        nameDictTV.setText(currentDict);
+        try
+        {
+            nameDictTV.setText(currentDict);
+            int orderPlay = appSettings.getOrderPlay();
+            switch (orderPlay)
+            {
+                case 0:
+                    getWordsFromDBbyOrder(currentDict);
+                    break;
+                case 1:
+                    getRandomWordsFromDB();
+                    break;
+            }
 
-        getWordsFromDB3(currentDict);
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
 
         ImageButton btnClose = fragmentView.findViewById(R.id.modal_btn_close);
         btnClose.setOnClickListener(new View.OnClickListener()
@@ -122,12 +152,28 @@ public class TestModalFragment extends Fragment
 
         checkStudied_OnCheckedChange((CheckBox) fragmentView.findViewById(R.id.check_box_studied));
 
+        orderPlayIcon = fragmentView.findViewById(R.id.order_play_icon_iv_test_modal);
+
         return fragmentView;
     }
 
-    private void getWordsFromDB3(final String currentDict)
+    @Override
+    public void onResume()
     {
-        GetCountWordsAsync2 getCountWordsAsync2 = new GetCountWordsAsync2(getActivity(), currentDict, new GetCountWordsAsync2.GetCountListener()
+        super.onResume();
+        if (appSettings.getOrderPlay() == 0)
+        {
+            orderPlayIcon.setImageResource(R.drawable.ic_repeat_white);
+        }
+        if (appSettings.getOrderPlay() == 1)
+        {
+            orderPlayIcon.setImageResource(R.drawable.ic_shuffle_white);
+        }
+    }
+
+    private void getWordsFromDBbyOrder(final String currentDict)
+    {
+        GetStudiedWordsCount getStudiedWordsCount = new GetStudiedWordsCount(getActivity(), currentDict, new GetStudiedWordsCount.GetCountListener()
         {
             int firstId = appData.getNword();
 
@@ -136,9 +182,9 @@ public class TestModalFragment extends Fragment
             {
                 if (resArray != null && resArray.length > 1)
                 {
-                    final int maxCount = resArray[1];
-                    final int notStudied = resArray[0];
-                    if (notStudied == 0 && getActivity() != null)
+                    final int maxCount = resArray[3];
+                    final int studiedCount = resArray[2];
+                    if (studiedCount == maxCount && getActivity() != null)
                     {
                         appSettings.removeItemFromPlayList(currentDict);
                         int ndict = appData.getNdict() + 1;
@@ -149,39 +195,24 @@ public class TestModalFragment extends Fragment
                         }
                         getActivity().finish();
                     }
-                    int randomId;
                     try
                     {
-                        wordsNumberTV.setText((firstId + "").concat(" / ").concat(Integer.toString(maxCount)).concat(" " + getString(R.string.text_studied ) + " " + (maxCount - notStudied)));
-                        RandomNumberGenerator numberGenerator = new RandomNumberGenerator(1, notStudied, (int) new Date().getTime());
-                        randomId = numberGenerator.generate();
-                        if (notStudied >= 2)
+                        if (maxCount - studiedCount > 0)
                         {
-                            while (firstId == randomId)
-                            {
-                                randomId = numberGenerator.generate();
-                            }
-                        }
-                        else if (notStudied > 0)
-                        {
-                            randomId = numberGenerator.generate();
-                        }
-
-                        if (notStudied > 0)
-                        {
-                            final int finalRandomId = randomId;
-                            GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), currentDict, firstId, randomId, true, new GetEntriesFromDbAsync.GetEntriesListener()
+                            GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), GetEntriesFromDbAsync.KEY_GET_TWO_DISTINCT_WORDS, currentDict, firstId, new GetEntriesFromDbAsync.GetEntriesListener()
                             {
                                 @Override
                                 public void getEntriesListener(ArrayList<DataBaseEntry> entries)
                                 {
+                                    int wordsNumber = 0;
                                     compareList = entries;
-                                    if (entries.size() == 1 && !entries.get(0).getCountRepeat().equals("0"))
+                                    if (entries.size() == 1)
                                     {
+                                        wordsNumber = entries.get(0).getRowId();
                                         enTextView.setText(entries.get(0).getEnglish());
                                         ruBtn1.setText(entries.get(0).getTranslate());
                                         ruBtn2.setText(entries.get(0).getTranslate());
-                                        if (appData.getNword() + 1 <= notStudied)
+                                        if (appData.getNword() + 1 <= studiedCount)
                                         {
                                             appData.setNword(appData.getNword() + 1);
                                         }
@@ -207,14 +238,12 @@ public class TestModalFragment extends Fragment
                                         RandomNumberGenerator numberGenerator = new RandomNumberGenerator(2, (int) new Date().getTime());
                                         int i = numberGenerator.generate();
                                         int j = numberGenerator.generate();
-                                        for (DataBaseEntry item : entries)
-                                        {
-                                            if (item.getRowId() == firstId) enTextView.setText(item.getEnglish());
-                                        }
+                                        wordsNumber = entries.get(0).getRowId();
+                                        enTextView.setText(entries.get(0).getEnglish());
                                         ruBtn1.setText(entries.get(i).getTranslate());
                                         ruBtn2.setText(entries.get(j).getTranslate());
 
-                                        if (appData.getNword() + 1 <= notStudied)
+                                        if (appData.getNword() + 1 <= studiedCount)
                                         {
                                             appData.setNword(appData.getNword() + 1);
                                         }
@@ -240,32 +269,16 @@ public class TestModalFragment extends Fragment
                                         RandomNumberGenerator numberGenerator = new RandomNumberGenerator(2, (int) new Date().getTime());
                                         int i = numberGenerator.generate();
                                         int j = numberGenerator.generate();
-                                        for (DataBaseEntry item : entries)
-                                        {
-                                            if (item.getRowId() == firstId)
-                                            {
-                                                enTextView.setText(item.getEnglish());
-                                                if (i == 0 && j == 1)
-                                                    ruBtn1.setText(item.getTranslate());
-                                                else
-                                                    ruBtn2.setText(item.getTranslate());
-                                            }
-                                            if (item.getRowId() == finalRandomId)
-                                            {
-                                                if (i == 0 && j == 1)
-                                                {
-                                                    ruBtn2.setText(item.getTranslate());
-                                                }
-                                                else
-                                                {
-                                                    ruBtn1.setText(item.getTranslate());
-                                                }
-                                            }
-                                            if (item.getRowId() > firstId && item.getRowId() != finalRandomId && appSettings.getOrderPlay() == 0)
-                                            {
-                                                appData.setNword(item.getRowId());
-                                            }
-                                        }
+
+                                        wordsNumber = entries.get(0).getRowId();
+                                        enTextView.setText(entries.get(0).getEnglish());
+                                        ruBtn1.setText(entries.get(i).getTranslate());
+                                        ruBtn2.setText(entries.get(j).getTranslate());
+                                        appData.setNword(entries.get(1).getRowId());
+                                    }
+                                    if (entries.size() > 0)
+                                    {
+                                        wordsNumberTV.setText((wordsNumber + "").concat(" / ").concat(Integer.toString(maxCount)).concat(" " + getString(R.string.text_studied ) + " " + studiedCount));
                                     }
                                 }
                             });
@@ -282,9 +295,75 @@ public class TestModalFragment extends Fragment
                 }
             }
         });
-        if (getCountWordsAsync2.getStatus() != AsyncTask.Status.RUNNING)
+        if (getStudiedWordsCount.getStatus() != AsyncTask.Status.RUNNING)
         {
-            getCountWordsAsync2.execute();
+            getStudiedWordsCount.execute();
+        }
+    }
+
+    public void getRandomWordsFromDB()
+    {
+        if (appSettings.getPlayList().size() > 0)
+        {
+            RandomNumberGenerator numberGenerator = new RandomNumberGenerator(appSettings.getPlayList().size(), (int) new Date().getTime());
+            int nDict = numberGenerator.generate();
+            final String tableName = appSettings.getPlayList().get(nDict);
+            if (tableName == null) return;
+
+            GetStudiedWordsCount getStudiedWordsCount = new GetStudiedWordsCount(getActivity(), tableName, new GetStudiedWordsCount.GetCountListener()
+            {
+                @Override
+                public void onTaskComplete(Integer[] resArray)
+                {
+                    if (resArray != null && resArray.length > 1)
+                    {
+                        final int totalWords = resArray[3];
+                        final int studiedWords = resArray[2];
+                        if (studiedWords == totalWords && getActivity() != null)
+                        {
+                            appSettings.removeItemFromPlayList(tableName);
+                            getActivity().finish();
+                        }
+
+                        GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), tableName, new GetEntriesFromDbAsync.GetEntriesListener()
+                        {
+                            @Override
+                            public void getEntriesListener(ArrayList<DataBaseEntry> entries)
+                            {
+                                compareList = entries;
+                                int wordsNumber = 0;
+                                if (entries.size() == 1)
+                                {
+                                    wordsNumber = entries.get(0).getRowId();
+                                    enTextView.setText(entries.get(0).getEnglish());
+                                    ruBtn1.setText(entries.get(0).getTranslate());
+                                    ruBtn2.setText(entries.get(0).getTranslate());
+                                }
+                                if (entries.size() > 1)
+                                {
+                                    RandomNumberGenerator numberGenerator = new RandomNumberGenerator(2, (int) new Date().getTime());
+                                    int i = numberGenerator.generate();
+                                    int j = numberGenerator.generate();
+                                    wordsNumber = entries.get(0).getRowId();
+                                    enTextView.setText(entries.get(0).getEnglish());
+                                    ruBtn1.setText(entries.get(i).getTranslate());
+                                    ruBtn2.setText(entries.get(j).getTranslate());
+                                }
+                                nameDictTV.setText(tableName);
+                                wordsNumberTV.setText((wordsNumber + "").concat(" / ").concat(Integer.toString(totalWords)).concat(" " + getString(R.string.text_studied ) + " " + studiedWords));
+                            }
+                        });
+                        if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
+                        {
+                            getEntriesFromDbAsync.execute();
+                        }
+                    }
+                }
+            });
+            if (getStudiedWordsCount.getStatus() != AsyncTask.Status.RUNNING)
+            {
+                getStudiedWordsCount.execute();
+            }
         }
     }
 
@@ -384,7 +463,7 @@ public class TestModalFragment extends Fragment
                                 {
                                     Toast.makeText(getActivity(), R.string.text_word_is_not_show, Toast.LENGTH_LONG).show();
                                     final String currentDict = nameDictTV.getText().toString();
-                                    GetCountWordsAsync2 getCountWordsAsync = new GetCountWordsAsync2(getActivity(), currentDict, new GetCountWordsAsync2.GetCountListener()
+                                    GetStudiedWordsCount getCountWordsAsync = new GetStudiedWordsCount(getActivity(), currentDict, new GetStudiedWordsCount.GetCountListener()
                                     {
                                         @Override
                                         public void onTaskComplete(Integer[] resArray)
@@ -414,10 +493,9 @@ public class TestModalFragment extends Fragment
                                                                         appSettings.removeItemFromPlayList(currentDict);
                                                                         if (appSettings.getPlayList() == null || appSettings.getPlayList().size() == 0)
                                                                         {
-                                                                            endedDialog.dismiss();
                                                                             getActivity().stopService(MainActivity.serviceIntent);
-                                                                            getActivity().finish();
                                                                         }
+                                                                        getActivity().finish();
                                                                         break;
                                                                     case 1:
                                                                         ContentValues values = new ContentValues();
@@ -427,7 +505,6 @@ public class TestModalFragment extends Fragment
                                                                             @Override
                                                                             public void updateDBEntry_OnComplete(int rows)
                                                                             {
-                                                                                endedDialog.dismiss();
                                                                                 if (getActivity() != null)
                                                                                 {
                                                                                     getActivity().finish();

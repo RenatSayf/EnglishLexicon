@@ -34,6 +34,12 @@
         <item>10</item>
     </string-array>
 
+    <string-array name="order_play_items">
+        <item value="0">По порядку</item>
+        <!--<item>В обратном порядке</item>-->
+        <item value="1">Випадковий вибір</item>
+    </string-array>
+
     <string name="title_activity_word_editor">Редактор слів</string>
     <string name="title_activity_play_list">Список відтворення</string>
     <string name="delete_dict">Видалити словник</string>
@@ -199,6 +205,12 @@
     <string name="text_learned_all_words_in_dict">Ви вивчили всі слова в словнику:</string>
     <string name="dictname">DictName</string>
     <string name="text_key_is_added">Ключ успішно додано</string>
+    <string name="modal_bottom_banner">ca-app-pub-4071145618173901/4711718169</string>
+    <string name="text_not_all_words_were_included">Не всі слова були включені</string>
+    <string name="text_in_dict">У словнику</string>
+    <string name="text_all_words_is_sdudied">всі слова вивчені.</string>
+    <string name="text_words_must_be_included">Щоб додати словник в список навчання, необхідно включити слова</string>
+    <string name="text_turn_on">Включити</string>
 
     <string-array name="display_mode">
         <item>Повтор</item>

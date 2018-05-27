@@ -6,6 +6,8 @@ import android.database.Cursor;
 
 import com.myapp.lexicon.helpers.StringOperations;
 
+import java.util.ArrayList;
+
 /**
  * Synchronous queries to database
  */
@@ -289,6 +291,63 @@ public class DataBaseQueries
             databaseHelper.close();
         }
         return rowId;
+    }
+
+    public ArrayList<String> getStudiedDicts(ArrayList<String> dicts)
+    {
+        ArrayList<String> studiedDicts = new ArrayList<>();
+        Cursor cursor = null;
+        String tableName = null;
+        try
+        {
+            databaseHelper.open();
+            for (int i = 0; i < dicts.size(); i++)
+            {
+                if (databaseHelper.database.isOpen())
+                {
+                    tableName = StringOperations.getInstance().spaceToUnderscore(dicts.get(i));
+                    String cmd = "SELECT (count(RowId)) FROM " + tableName + " WHERE (CountRepeat == 0) " +
+                                    "UNION ALL" +
+                                    " SELECT (count(RowId)) FROM " + tableName;
+                    cursor = databaseHelper.database.rawQuery(cmd, null);
+                }
+                if (cursor != null && cursor.getCount() > 0)
+                {
+                    int[]resArray = new int[cursor.getCount()];
+                    if (cursor.moveToFirst())
+                    {
+                        int j = 0;
+                        while ( !cursor.isAfterLast() )
+                        {
+                            resArray[j] = cursor.getInt(0);
+                            j++;
+                            cursor.moveToNext();
+                        }
+                    }
+                    if (resArray.length > 1)
+                    {
+                        if (resArray[1] - resArray[0] == 0)
+                        {
+                            studiedDicts.add(tableName);
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            if (cursor != null)
+            {
+                cursor.close();
+            }
+            databaseHelper.close();
+        }
+
+        return studiedDicts;
     }
 
 }
