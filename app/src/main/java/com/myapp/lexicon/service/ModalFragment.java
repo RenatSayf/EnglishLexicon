@@ -89,8 +89,6 @@ public class ModalFragment extends Fragment
         {
             final String currentDict = appSettings.getPlayList().get(dictNumber);
 
-            nameDictTV.setText(currentDict);
-
             try
             {
                 nameDictTV.setText(currentDict);
@@ -102,6 +100,8 @@ public class ModalFragment extends Fragment
                         break;
                     case 1:
                         getRandomWordsFromDB();
+                        break;
+                    default:
                         break;
                 }
 
