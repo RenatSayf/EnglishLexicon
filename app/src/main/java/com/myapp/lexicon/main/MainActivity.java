@@ -1,6 +1,5 @@
 package com.myapp.lexicon.main;
 
-import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Service;
@@ -110,7 +109,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private GetTableListFragm getTableListFragm;
     private FragmentManager fragmentManager;
 
-    @SuppressLint("WakelockTimeout")
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -188,7 +186,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
             }
         }
-
     }
 
     public Action getAction()
@@ -393,7 +390,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item)
     {
@@ -415,7 +411,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         else if (id == R.id.nav_delete_dict)
         {
             getTableListFragm = new GetTableListFragm();
-            fragmentManager.beginTransaction().add(getTableListFragm, "get_table_list").commit();
+            fragmentManager.beginTransaction().add(getTableListFragm, GetTableListFragm.TAG).commit();
         }
         else if (id == R.id.nav_edit)
         {

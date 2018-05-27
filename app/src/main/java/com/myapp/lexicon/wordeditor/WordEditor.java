@@ -443,7 +443,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                 try
                 {
                     StringOperations stringOperations = StringOperations.getInstance();
-                    if (stringOperations.getLangOfText(editTextEn.getText().toString())[1].equals("en"))
+                    if (stringOperations.getLangOfText(editTextEn.getText().toString())[1].equals("en") && !stringOperations.getLangOfText(editTextRu.getText().toString())[1].equals("en"))
                     {
                         String tableName = dictListSpinner.getSelectedItem().toString();
                         String new_table_name = spinnerDictToMove.getSelectedItem().toString();
