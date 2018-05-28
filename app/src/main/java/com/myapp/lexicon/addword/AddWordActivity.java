@@ -15,7 +15,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
-import android.speech.tts.UtteranceProgressListener;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -45,6 +44,7 @@ import com.myapp.lexicon.database.GetTableListLoader2;
 import com.myapp.lexicon.dialogs.NewDictDialog;
 import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.settings.AppData;
+import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -62,8 +62,6 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
     private EditText textViewResult;
     private Button buttonTrans, btnNewDict;
     private ProgressBar progressBar;
-    private ProgressBar progressBarEn;
-    private ProgressBar progressBarRu;
     private Spinner spinnerListDict;
     private ArrayList<String> spinnerItems = new ArrayList<>();
     private Button buttonAddWord;
@@ -74,6 +72,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
     private HashMap<String, String> utterance_Id = new HashMap<>();
     private boolean flag_btn_trans_click = false;
     private ErrorHandlerDialog errorHandlerDialog;
+    private AppSettings appSettings;
 
     private final int LOADER_GET_TABLE_LIST = 11;
     private final int LOADER_GET_TRANSLATE = 12;
@@ -114,16 +113,6 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
         if (progressBar != null)
         {
             progressBar.setVisibility(View.GONE);
-        }
-        progressBarEn = findViewById(R.id.progressEn);
-        if (progressBarEn != null)
-        {
-            progressBarEn.setVisibility(View.GONE);
-        }
-        progressBarRu = findViewById(R.id.progressRu);
-        if (progressBarRu != null)
-        {
-            progressBarRu.setVisibility(View.GONE);
         }
         spinnerListDict = findViewById(R.id.spinn_dict_to);
         spinnerListDict_onItemSelected();
@@ -199,6 +188,13 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
                 }
             }
         }
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        appSettings = new AppSettings(this);
     }
 
     @Override
@@ -473,12 +469,12 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
         Matcher matcherRu = patternRu.matcher(text);
         if (matcherEn.matches())
         {
-            lang = "en";
+            lang = getString(R.string.translate_direct_en_ru);
         }
         else
         if (matcherRu.matches())
         {
-            lang = "ru";
+            lang = getString(R.string.translate_direct_ru_en);
         }
         return lang;
     }
@@ -491,10 +487,15 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
             public void onClick(View v)
             {
                 String text1 = textViewEnter.getText().toString();
-                if (!text1.equals("") && getLangOfText(text1).equals("en"))
+                if (!text1.equals("") && getLangOfText(text1).equals(AddWordActivity.this.getString(R.string.translate_direct_en_ru)))
                 {
-                    progressBarEn.setVisibility(View.VISIBLE);
-                    SplashScreenActivity.speech.setLanguage(Locale.US);
+                    try
+                    {
+                        SplashScreenActivity.speech.setLanguage(Locale.US);
+                    } catch (Exception e)
+                    {
+                        return;
+                    }
                     utterance_Id.clear();
                     utterance_Id.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "add_word_us");
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
@@ -504,31 +505,10 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
                     {
                         SplashScreenActivity.speech.speak(text1, TextToSpeech.QUEUE_ADD, utterance_Id);
                     }
-                    SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
-                    {
-                        @Override
-                        public void onStart(String utteranceId)
-                        {
-                            speechComplete(utteranceId, utterance_Id, progressBarEn);
-                        }
-
-                        @Override
-                        public void onDone(String utteranceId)
-                        {
-                            speechComplete(utteranceId, utterance_Id, progressBarEn);
-                        }
-
-                        @Override
-                        public void onError(String utteranceId)
-                        {
-                            speechComplete(utteranceId, utterance_Id, progressBarEn);
-                        }
-                    });
                 }
-                if (!text1.equals("") && getLangOfText(text1).equals("ru"))
+                if (!text1.equals("") && getLangOfText(text1).equals(AddWordActivity.this.getString(R.string.translate_direct_ru_en)))
                 {
-                    progressBarEn.setVisibility(View.VISIBLE);
-                    SplashScreenActivity.speech.setLanguage(Locale.getDefault());
+                    SplashScreenActivity.speech.setLanguage(new Locale(appSettings.getTransLang()));
                     utterance_Id.clear();
                     utterance_Id.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "add_word_ru");
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
@@ -538,26 +518,6 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
                     {
                         SplashScreenActivity.speech.speak(text1, TextToSpeech.QUEUE_ADD, utterance_Id);
                     }
-                    SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
-                    {
-                        @Override
-                        public void onStart(String utteranceId)
-                        {
-                            speechComplete(utteranceId, utterance_Id, progressBarEn);
-                        }
-
-                        @Override
-                        public void onDone(String utteranceId)
-                        {
-                            speechComplete(utteranceId, utterance_Id, progressBarEn);
-                        }
-
-                        @Override
-                        public void onError(String utteranceId)
-                        {
-                            speechComplete(utteranceId, utterance_Id, progressBarEn);
-                        }
-                    });
                 }
             }
         });
@@ -571,10 +531,15 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
             public void onClick(View v)
             {
                 String text2 = textViewResult.getText().toString();
-                if (!text2.equals("") && getLangOfText(text2).equals("en"))
+                if (!text2.equals("") && getLangOfText(text2).equals(getString(R.string.translate_direct_en_ru)))
                 {
-                    progressBarRu.setVisibility(View.VISIBLE);
-                    SplashScreenActivity.speech.setLanguage(Locale.US);
+                    try
+                    {
+                        SplashScreenActivity.speech.setLanguage(Locale.US);
+                    } catch (Exception e)
+                    {
+                        return;
+                    }
                     utterance_Id.clear();
                     utterance_Id.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "add_word_us");
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
@@ -584,31 +549,10 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
                     {
                         SplashScreenActivity.speech.speak(text2, TextToSpeech.QUEUE_ADD, utterance_Id);
                     }
-                    SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
-                    {
-                        @Override
-                        public void onStart(String utteranceId)
-                        {
-                            speechComplete(utteranceId, utterance_Id, progressBarRu);
-                        }
-
-                        @Override
-                        public void onDone(String utteranceId)
-                        {
-                            speechComplete(utteranceId, utterance_Id, progressBarRu);
-                        }
-
-                        @Override
-                        public void onError(String utteranceId)
-                        {
-                            speechComplete(utteranceId, utterance_Id, progressBarRu);
-                        }
-                    });
                 }
-                if (!text2.equals("") && getLangOfText(text2).equals("ru"))
+                if (!text2.equals("") && getLangOfText(text2).equals(getString(R.string.translate_direct_ru_en)))
                 {
-                    progressBarRu.setVisibility(View.VISIBLE);
-                    SplashScreenActivity.speech.setLanguage(Locale.getDefault());
+                    SplashScreenActivity.speech.setLanguage(new Locale(appSettings.getTransLang()));
                     utterance_Id.clear();
                     utterance_Id.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "add_word_ru");
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
@@ -618,37 +562,9 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
                     {
                         SplashScreenActivity.speech.speak(text2, TextToSpeech.QUEUE_ADD, utterance_Id);
                     }
-                    SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
-                    {
-                        @Override
-                        public void onStart(String utteranceId)
-                        {
-                            speechComplete(utteranceId, utterance_Id, progressBarRu);
-                        }
-
-                        @Override
-                        public void onDone(String utteranceId)
-                        {
-                            speechComplete(utteranceId, utterance_Id, progressBarRu);
-                        }
-
-                        @Override
-                        public void onError(String utteranceId)
-                        {
-                            speechComplete(utteranceId, utterance_Id, progressBarRu);
-                        }
-                    });
                 }
             }
         });
-    }
-
-    private void speechComplete(String utteranceId, HashMap<String, String> utteranceId2, ProgressBar progressBar)
-    {
-        if (utteranceId.equals(utteranceId2.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID)))
-        {
-            progressBar.setVisibility(View.GONE);
-        }
     }
 
     private void buttonSwap_onClick()

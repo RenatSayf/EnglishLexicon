@@ -329,7 +329,13 @@ public class SpeechService extends IntentService
         }
         textEn = entries.getEnglish();
         textRu = "";
-        SplashScreenActivity.speech.setLanguage(Locale.US);
+        try
+        {
+            SplashScreenActivity.speech.setLanguage(Locale.US);
+        } catch (Exception e)
+        {
+            return;
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
         {
             SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, null, mapEn.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));

@@ -727,7 +727,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     final HashMap<String, String> hashMap = new HashMap<>();
                     hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "main_activity");
-                    SplashScreenActivity.speech.setLanguage(Locale.US);
+                    try
+                    {
+                        SplashScreenActivity.speech.setLanguage(Locale.US);
+                    } catch (Exception e)
+                    {
+                        return;
+                    }
                     SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                     {
@@ -797,7 +803,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     final HashMap<String, String> hashMap = new HashMap<>();
                     hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "main_activity");
-                    SplashScreenActivity.speech.setLanguage(Locale.US);
+                    try
+                    {
+                        SplashScreenActivity.speech.setLanguage(Locale.US);
+                    } catch (Exception e)
+                    {
+                        return;
+                    }
                     SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                     {
@@ -911,7 +923,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         speechServiceOnPause();
         final HashMap<String, String> hashMap = new HashMap<>();
         hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "btn_speak_onclick");
-        SplashScreenActivity.speech.setLanguage(Locale.US);
+        try
+        {
+            SplashScreenActivity.speech.setLanguage(Locale.US);
+        } catch (Exception e)
+        {
+            return;
+        }
         SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
         {
