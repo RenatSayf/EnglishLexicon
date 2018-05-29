@@ -168,7 +168,14 @@ public class SpeechService extends IntentService
                         numberGenerator = new RandomNumberGenerator(playList.size(), (int) new Date().getTime());
                         random = numberGenerator.generate();
                     }
-                    playListItem = playList.get(random);
+                    try
+                    {
+                        playListItem = playList.get(random);
+                    } catch (Exception e)
+                    {
+                        e.printStackTrace();
+                        return;
+                    }
                 }
                 textDict = playListItem;
                 Integer[] wordsCount = getWordsCount(playListItem);
