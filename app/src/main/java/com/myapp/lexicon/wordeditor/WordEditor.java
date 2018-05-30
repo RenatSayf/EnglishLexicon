@@ -845,7 +845,13 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
     {
         HashMap<String, String> hashMap = new HashMap<>();
         hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "word_editor_btn_speak_onclick");
-        SplashScreenActivity.speech.setLanguage(Locale.US);
+        try
+        {
+            SplashScreenActivity.speech.setLanguage(Locale.US);
+        } catch (Exception e)
+        {
+            return;
+        }
         SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
         if (!editTextEn.getText().toString().equals(""))
         {
