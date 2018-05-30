@@ -171,7 +171,6 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
     private ArrayList<DataBaseEntry> getTwoDistinctWords(String tableName, int rowId)
     {
         ArrayList<DataBaseEntry> entriesFromDB = new ArrayList<>();
-        DataBaseEntry dataBaseEntry = new DataBaseEntry(0, null, null, null);
         Cursor cursor = null;
         try
         {
@@ -184,20 +183,21 @@ public class GetEntriesFromDbAsync extends AsyncTask<String, Void, ArrayList<Dat
                 {
                     while (!cursor.isAfterLast())
                     {
-                        dataBaseEntry = new DataBaseEntry(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3));
-                        entriesFromDB.add(dataBaseEntry);
+                        entriesFromDB.add(new DataBaseEntry(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3)));
                         cursor.moveToNext();
                     }
                 }
-                String cmd2 = "SELECT RowId, English, Translate, CountRepeat FROM " + tableName + " WHERE RowId <> " + dataBaseEntry.getRowId() + " ORDER BY random() LIMIT 1";
-                cursor = databaseHelper.database.rawQuery(cmd2, null);
-                if (cursor.moveToFirst())
+                if (entriesFromDB.size() > 0)
                 {
-                    while (!cursor.isAfterLast())
+                    String cmd2 = "SELECT RowId, English, Translate, CountRepeat FROM " + tableName + " WHERE RowId != " + entriesFromDB.get(0).getRowId() + " ORDER BY random() LIMIT 1";
+                    cursor = databaseHelper.database.rawQuery(cmd2, null);
+                    if (cursor.moveToFirst())
                     {
-                        dataBaseEntry = new DataBaseEntry(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3));
-                        entriesFromDB.add(dataBaseEntry);
-                        cursor.moveToNext();
+                        while (!cursor.isAfterLast())
+                        {
+                            entriesFromDB.add(new DataBaseEntry(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3)));
+                            cursor.moveToNext();
+                        }
                     }
                 }
             }

@@ -168,7 +168,14 @@ public class SpeechService extends IntentService
                         numberGenerator = new RandomNumberGenerator(playList.size(), (int) new Date().getTime());
                         random = numberGenerator.generate();
                     }
-                    playListItem = playList.get(random);
+                    try
+                    {
+                        playListItem = playList.get(random);
+                    } catch (Exception e)
+                    {
+                        e.printStackTrace();
+                        return;
+                    }
                 }
                 textDict = playListItem;
                 Integer[] wordsCount = getWordsCount(playListItem);
@@ -329,7 +336,13 @@ public class SpeechService extends IntentService
         }
         textEn = entries.getEnglish();
         textRu = "";
-        SplashScreenActivity.speech.setLanguage(Locale.US);
+        try
+        {
+            SplashScreenActivity.speech.setLanguage(Locale.US);
+        } catch (Exception e)
+        {
+            return;
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
         {
             SplashScreenActivity.speech.speak(textEn, TextToSpeech.QUEUE_ADD, null, mapEn.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));

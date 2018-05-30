@@ -241,7 +241,7 @@ public class AppData
         appSettings.setPause(is_pause);
         appSettings.setDictNumber(ndict);
         appSettings.setWordNumber(nword);
-        appSettings.setTranslateLang(langCode);
+        //appSettings.setTranslateLang(langCode);
     }
 
     public void initAllSettings(Context context)

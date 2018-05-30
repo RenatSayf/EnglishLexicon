@@ -272,8 +272,13 @@ public class TestModalFragment extends Fragment
 
                                         wordsNumber = entries.get(0).getRowId();
                                         enTextView.setText(entries.get(0).getEnglish());
-                                        ruBtn1.setText(entries.get(i).getTranslate());
-                                        ruBtn2.setText(entries.get(j).getTranslate());
+                                        ArrayList<Button> buttons = new ArrayList<Button>()
+                                        {{
+                                            add(ruBtn1);
+                                            add(ruBtn2);
+                                        }};
+                                        buttons.get(i).setText(entries.get(0).getTranslate());
+                                        buttons.get(j).setText(entries.get(2).getTranslate());
                                         appData.setNword(entries.get(1).getRowId());
                                     }
                                     if (entries.size() > 0)

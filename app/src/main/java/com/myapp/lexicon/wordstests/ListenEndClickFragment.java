@@ -272,7 +272,13 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                 topPanelVisible(1, 0, fields.isOpen[0]);
                 HashMap<String, String> hashMap = new HashMap<>();
                 hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "btn_speech");
-                SplashScreenActivity.speech.setLanguage(Locale.US);
+                try
+                {
+                    SplashScreenActivity.speech.setLanguage(Locale.US);
+                } catch (Exception e)
+                {
+                    return;
+                }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                 {
                     SplashScreenActivity.speech.speak(fields.textEn, TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
@@ -501,37 +507,44 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                     }
                     final HashMap<String, String> hashMap = new HashMap<>();
                     hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "compare_words");
-                    SplashScreenActivity.speech.setLanguage(Locale.US);
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                    try
                     {
-                        SplashScreenActivity.speech.speak(fields.textEn, TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
-                    } else
-                    {
-                        SplashScreenActivity.speech.speak(fields.textEn, TextToSpeech.QUEUE_ADD, hashMap);
-                    }
-                    SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
-                    {
-                        @Override
-                        public void onStart(String utteranceId)
+                        SplashScreenActivity.speech.setLanguage(Locale.US);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                         {
-
+                            SplashScreenActivity.speech.speak(fields.textEn, TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+                        } else
+                        {
+                            SplashScreenActivity.speech.speak(fields.textEn, TextToSpeech.QUEUE_ADD, hashMap);
                         }
-
-                        @Override
-                        public void onDone(String utteranceId)
+                        SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
                         {
-                            if (utteranceId.equals("compare_words"))
+                            @Override
+                            public void onStart(String utteranceId)
                             {
-                                animButtonToLeft(tempButton);
+
                             }
-                        }
 
-                        @Override
-                        public void onError(String utteranceId)
-                        {
+                            @Override
+                            public void onDone(String utteranceId)
+                            {
+                                if (utteranceId.equals("compare_words"))
+                                {
+                                    animButtonToLeft(tempButton);
+                                }
+                            }
 
-                        }
-                    });
+                            @Override
+                            public void onError(String utteranceId)
+                            {
+
+                            }
+                        });
+                    } catch (Exception e)
+                    {
+                        animButtonToLeft(tempButton);
+                        e.printStackTrace();
+                    }
                     fields.counterRightAnswer++;
                 }
             });

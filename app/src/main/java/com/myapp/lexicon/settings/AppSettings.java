@@ -31,14 +31,12 @@ public class AppSettings
     private final String KEY_IS_PAUSE = "is_pause";
     private final String KEY_TRANSLATE_LANG = "translate_lang";
 
-    private ArrayList<String> transLangList;
+    private String transLang;
 
     public AppSettings(Context context)
     {
         this.context = context;
-        transLangList = new ArrayList<>();
-        transLangList.add(context.getString(R.string.lang_code_ru));
-        transLangList.add(context.getString(R.string.lang_code_uk));
+        transLang = context.getString(R.string.lang_code_translate);
     }
 
     /**
@@ -295,13 +293,13 @@ public class AppSettings
 
     public String getTranslateLang()
     {
-        String defaultLangCode = getTransLangList().get(0);
+        String defaultLangCode = getTransLang();
         return context.getSharedPreferences(KEY_TRANSLATE_LANG, MODE_PRIVATE).getString(KEY_TRANSLATE_LANG, defaultLangCode);
     }
 
-    public ArrayList<String> getTransLangList()
+    public String getTransLang()
     {
-        return transLangList;
+        return transLang;
     }
 
 

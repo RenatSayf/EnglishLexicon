@@ -89,8 +89,6 @@ public class ModalFragment extends Fragment
         {
             final String currentDict = appSettings.getPlayList().get(dictNumber);
 
-            nameDictTV.setText(currentDict);
-
             try
             {
                 nameDictTV.setText(currentDict);
@@ -102,6 +100,8 @@ public class ModalFragment extends Fragment
                         break;
                     case 1:
                         getRandomWordsFromDB();
+                        break;
+                    default:
                         break;
                 }
 
@@ -120,9 +120,16 @@ public class ModalFragment extends Fragment
                 FragmentActivity activity = getActivity();
                 if (activity != null)
                 {
-                    LexiconService.isStop = true;
-                    activity.stopService(MainActivity.serviceIntent);
-                    activity.finish();
+                    try
+                    {
+                        LexiconService.isStop = true;
+                        activity.stopService(MainActivity.serviceIntent);
+                        activity.finish();
+                    } catch (Exception e)
+                    {
+                        activity.finish();
+                        e.printStackTrace();
+                    }
                 }
             }
         });

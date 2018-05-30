@@ -19,7 +19,6 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 
@@ -68,7 +67,7 @@ public class SplashScreenActivity extends Activity
         boolean isAppLang = checkAppLang();
         if (!isAppLang)
         {
-            appSettings.setTranslateLang(appSettings.getTransLangList().get(0));
+            appSettings.setTranslateLang(appSettings.getTransLang());
         }
         else
         {
@@ -107,14 +106,20 @@ public class SplashScreenActivity extends Activity
                         boolean isStartSpeech = preferences.getBoolean("is_start_speech", true);
                         if (isStartSpeech)
                         {
-                            map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.US.getDisplayLanguage());
-                            speech.setLanguage(Locale.US);
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                            try
                             {
-                                speech.speak(getString(R.string.start_speech_en), TextToSpeech.QUEUE_ADD, null, map.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
-                            } else
+                                map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.US.getDisplayLanguage());
+                                speech.setLanguage(Locale.US);
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                                {
+                                    speech.speak(getString(R.string.start_speech_en), TextToSpeech.QUEUE_ADD, null, map.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+                                } else
+                                {
+                                    speech.speak(getString(R.string.start_speech_en),TextToSpeech.QUEUE_ADD,map);
+                                }
+                            } catch (Exception e)
                             {
-                                speech.speak(getString(R.string.start_speech_en),TextToSpeech.QUEUE_ADD,map);
+                                e.printStackTrace();
                             }
                         } else
                         {
@@ -151,8 +156,7 @@ public class SplashScreenActivity extends Activity
                 if (utteranceId.equals(Locale.US.getDisplayLanguage()))
                 {
                     map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.getDefault().getDisplayLanguage());
-                    //speech.setLanguage(Locale.getDefault());
-                    speech.setLanguage(new Locale(appSettings.getTranslateLang()));
+                    speech.setLanguage(new Locale(appSettings.getTransLang()));
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                     {
                         speech.speak(getString(R.string.start_speech_ru), TextToSpeech.QUEUE_ADD, null, map.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
@@ -263,9 +267,9 @@ public class SplashScreenActivity extends Activity
         String language = getResources().getConfiguration().locale.getLanguage();
         String country = getResources().getConfiguration().locale.getCountry();
         String deviceLangCode = language.concat("_").concat(country);
-        ArrayList<String> appLangList = appSettings.getTransLangList();
+        String appLangList = appSettings.getTransLang();
 
-        return appLangList.contains(deviceLangCode);
+        return appLangList.equals(deviceLangCode);
     }
 
 
