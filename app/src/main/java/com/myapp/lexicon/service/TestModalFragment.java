@@ -655,9 +655,15 @@ public class TestModalFragment extends Fragment
                 FragmentActivity activity = getActivity();
                 if (activity != null)
                 {
-                    LexiconService.isStop = true;
-                    activity.stopService(MainActivity.serviceIntent);
-                    activity.finish();
+                    try
+                    {
+                        LexiconService.isStop = true;
+                        activity.stopService(MainActivity.serviceIntent);
+                        activity.finish();
+                    } catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
                 }
             }
         });
