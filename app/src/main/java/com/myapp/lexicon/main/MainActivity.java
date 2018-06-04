@@ -690,7 +690,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             startActivity(playListIntent);
         }
         speechServiceOnPause();
-        SplashScreenActivity.speech.stop();
+        if (SplashScreenActivity.speech != null)
+        {
+            SplashScreenActivity.speech.stop();
+        }
         int id = view.getId();
         if (id == R.id.btn_next)
         {
