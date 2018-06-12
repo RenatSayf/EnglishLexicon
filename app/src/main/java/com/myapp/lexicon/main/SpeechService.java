@@ -179,6 +179,14 @@ public class SpeechService extends IntentService
                 }
                 textDict = playListItem;
                 Integer[] wordsCount = getWordsCount(playListItem);
+                if (wordsCount == null)
+                {
+                    return;
+                }
+                if (wordsCount.length < 2)
+                {
+                    return;
+                }
                 int wordsCountInTable = wordsCount[1];
                 totalWords = wordsCountInTable;
                 notStudiedWords = wordsCount[0];
