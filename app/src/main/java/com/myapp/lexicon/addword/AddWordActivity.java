@@ -447,7 +447,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
 
     private String getLangOfText(String text)
     {
-        String lang = null;
+        String lang = "";
         Pattern patternEn = Pattern.compile(
                         "[" +                   //начало списка допустимых символов
                         "a-zA-Z" +              //буквы английского алфавита
@@ -460,7 +460,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
 
         Pattern patternRu = Pattern.compile(
                         "[" +                   //начало списка допустимых символов
-                        "а-яА-ЯёЁ" +            //буквы русского алфавита
+                        "А-Яа-яЁёЇїІіЄєҐґ" +    //буквы русского и украинского алфавита
                         "\\d" +                 //цифры
                         "\\s" +                 //знаки-разделители (пробел, табуляция и т.д.)
                         "\\p{Punct}" +          //знаки пунктуации
