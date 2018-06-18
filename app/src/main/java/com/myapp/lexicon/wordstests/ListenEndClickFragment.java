@@ -458,6 +458,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                 tempButton = (Button) view;
                 fields.buttonY = tempButton.getY();
                 fields.buttonX = tempButton.getX();
+                lockOrientation.lock();
                 compareWords(fields.spinnSelectedItem, fields.textEn, tempButton.getText().toString());
             }
         });
@@ -757,34 +758,40 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
             {
                 HashMap<String, String> hashMap = new HashMap<>();
                 hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "btn_from_rigth_anim");
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                try
                 {
-                    SplashScreenActivity.speech.speak(fields.textEn, TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
-                } else
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                    {
+                        SplashScreenActivity.speech.speak(fields.textEn, TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+                    } else
+                    {
+                        SplashScreenActivity.speech.speak(fields.textEn, TextToSpeech.QUEUE_ADD, hashMap);
+                    }
+                    SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+                    {
+                        @Override
+                        public void onStart(String utteranceId)
+                        {
+
+                        }
+
+                        @Override
+                        public void onDone(String utteranceId)
+                        {
+                            _animator.setListener(null);
+                        }
+
+                        @Override
+                        public void onError(String utteranceId)
+                        {
+
+                        }
+                    });
+                    lockOrientation.unLock();
+                } catch (Exception e)
                 {
-                    SplashScreenActivity.speech.speak(fields.textEn, TextToSpeech.QUEUE_ADD, hashMap);
+                    lockOrientation.unLock();
                 }
-                SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
-                {
-                    @Override
-                    public void onStart(String utteranceId)
-                    {
-
-                    }
-
-                    @Override
-                    public void onDone(String utteranceId)
-                    {
-                        _animator.setListener(null);
-                    }
-
-                    @Override
-                    public void onError(String utteranceId)
-                    {
-
-                    }
-                });
-                lockOrientation.unLock();
                 fields.isStartAnim[0] = false;
                 if (fields.textEn.equals(""))
                 {
