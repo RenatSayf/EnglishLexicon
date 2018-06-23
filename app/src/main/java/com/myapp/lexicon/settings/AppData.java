@@ -116,30 +116,33 @@ public class AppData
                 @Override
                 public void onTaskComplete(final Integer[] resArray)
                 {
-                    minNotStudiedRowId = resArray[0];
-                    maxNotStudiedRowId = resArray[1];
-                    if (nword > maxNotStudiedRowId)
+                    if (resArray != null && resArray.length >=2)
                     {
-                        nword = minNotStudiedRowId;
-                    }
-                    GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(activity, playList.get(ndict), nword, 1, true, new GetEntriesFromDbAsync.GetEntriesListener()
-                    {
-                        @Override
-                        public void getEntriesListener(ArrayList<DataBaseEntry> entries)
+                        minNotStudiedRowId = resArray[0];
+                        maxNotStudiedRowId = resArray[1];
+                        if (nword > maxNotStudiedRowId)
                         {
-                            if (iGetWordListerner != null)
-                            {
-                                if (entries.size() > 0)
-                                {
-                                    setNword(entries.get(0).getRowId());
-                                }
-                                iGetWordListerner.getWordComplete(entries, resArray);
-                            }
+                            nword = minNotStudiedRowId;
                         }
-                    });
-                    if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
-                    {
-                        getEntriesFromDbAsync.execute();
+                        GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(activity, playList.get(ndict), nword, 1, true, new GetEntriesFromDbAsync.GetEntriesListener()
+                        {
+                            @Override
+                            public void getEntriesListener(ArrayList<DataBaseEntry> entries)
+                            {
+                                if (iGetWordListerner != null)
+                                {
+                                    if (entries.size() > 0)
+                                    {
+                                        setNword(entries.get(0).getRowId());
+                                    }
+                                    iGetWordListerner.getWordComplete(entries, resArray);
+                                }
+                            }
+                        });
+                        if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
+                        {
+                            getEntriesFromDbAsync.execute();
+                        }
                     }
                 }
             });
@@ -170,31 +173,34 @@ public class AppData
                 @Override
                 public void onTaskComplete(Integer[] resArray)
                 {
-                    minNotStudiedRowId = resArray[0];
-                    maxNotStudiedRowId = resArray[1];
-                    final Integer[] countEntries = resArray;
-                    if (nword < minNotStudiedRowId)
+                    if (resArray != null && resArray.length >=2)
                     {
-                        nword = maxNotStudiedRowId;
-                    }
-                    GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(activity, playList.get(ndict), nword, -1, true, new GetEntriesFromDbAsync.GetEntriesListener()
-                    {
-                        @Override
-                        public void getEntriesListener(ArrayList<DataBaseEntry> entries)
+                        minNotStudiedRowId = resArray[0];
+                        maxNotStudiedRowId = resArray[1];
+                        final Integer[] countEntries = resArray;
+                        if (nword < minNotStudiedRowId)
                         {
-                            if (iGetWordListerner != null)
-                            {
-                                if (entries.size() > 0)
-                                {
-                                    setNword(entries.get(0).getRowId());
-                                }
-                                iGetWordListerner.getWordComplete(entries, countEntries);
-                            }
+                            nword = maxNotStudiedRowId;
                         }
-                    });
-                    if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
-                    {
-                        getEntriesFromDbAsync.execute();
+                        GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(activity, playList.get(ndict), nword, -1, true, new GetEntriesFromDbAsync.GetEntriesListener()
+                        {
+                            @Override
+                            public void getEntriesListener(ArrayList<DataBaseEntry> entries)
+                            {
+                                if (iGetWordListerner != null)
+                                {
+                                    if (entries.size() > 0)
+                                    {
+                                        setNword(entries.get(0).getRowId());
+                                    }
+                                    iGetWordListerner.getWordComplete(entries, countEntries);
+                                }
+                            }
+                        });
+                        if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
+                        {
+                            getEntriesFromDbAsync.execute();
+                        }
                     }
                 }
             });

@@ -460,8 +460,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         else if (id == R.id.nav_exit)
         {
-            SplashScreenActivity.speech.stop();
-            SplashScreenActivity.speech.shutdown();
+            if (SplashScreenActivity.speech != null)
+            {
+                SplashScreenActivity.speech.stop();
+                SplashScreenActivity.speech.shutdown();
+            }
             this.finish();
         }
 
