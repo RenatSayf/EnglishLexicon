@@ -283,7 +283,13 @@ public class TestModalFragment extends Fragment
                                     }
                                     if (entries.size() > 0)
                                     {
-                                        wordsNumberTV.setText((wordsNumber + "").concat(" / ").concat(Integer.toString(maxCount)).concat(" " + getString(R.string.text_studied ) + " " + studiedCount));
+                                        try
+                                        {
+                                            wordsNumberTV.setText((wordsNumber + "").concat(" / ").concat(Integer.toString(maxCount)).concat(" " + getString(R.string.text_studied ) + " " + studiedCount));
+                                        } catch (Exception e)
+                                        {
+                                            e.printStackTrace();
+                                        }
                                     }
                                 }
                             });
@@ -355,7 +361,13 @@ public class TestModalFragment extends Fragment
                                     ruBtn2.setText(entries.get(j).getTranslate());
                                 }
                                 nameDictTV.setText(tableName);
-                                wordsNumberTV.setText((wordsNumber + "").concat(" / ").concat(Integer.toString(totalWords)).concat(" " + getString(R.string.text_studied ) + " " + studiedWords));
+                                try
+                                {
+                                    wordsNumberTV.setText((wordsNumber + "").concat(" / ").concat(Integer.toString(totalWords)).concat(" " + getString(R.string.text_studied ) + " " + studiedWords));
+                                } catch (Exception e)
+                                {
+                                    e.printStackTrace();
+                                }
                             }
                         });
                         if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
