@@ -239,7 +239,14 @@ public class ModalFragment extends Fragment
                                     ruTextView.setText(entries.get(0).getTranslate());
                                 }
                                 nameDictTV.setText(tableName);
-                                wordsNumberTV.setText((wordsNumber + "").concat(" / ").concat(Integer.toString(totalWords)).concat(" " + getString(R.string.text_studied ) + " " + studiedWords));
+                                try
+                                {
+                                    String concatText = (wordsNumber + "").concat(" / ").concat(Integer.toString(totalWords)).concat(" " + getString(R.string.text_studied) + " " + studiedWords);
+                                    wordsNumberTV.setText(concatText);
+                                } catch (Exception e)
+                                {
+                                    e.printStackTrace();
+                                }
                             }
                         });
                         if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)

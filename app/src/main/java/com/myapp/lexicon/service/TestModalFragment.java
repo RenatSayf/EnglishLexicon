@@ -363,7 +363,8 @@ public class TestModalFragment extends Fragment
                                 nameDictTV.setText(tableName);
                                 try
                                 {
-                                    wordsNumberTV.setText((wordsNumber + "").concat(" / ").concat(Integer.toString(totalWords)).concat(" " + getString(R.string.text_studied ) + " " + studiedWords));
+                                    String concatText = (wordsNumber + "").concat(" / ").concat(Integer.toString(totalWords)).concat(" " + getString(R.string.text_studied) + " " + studiedWords);
+                                    wordsNumberTV.setText(concatText);
                                 } catch (Exception e)
                                 {
                                     e.printStackTrace();
