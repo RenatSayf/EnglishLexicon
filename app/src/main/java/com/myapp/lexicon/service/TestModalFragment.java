@@ -285,7 +285,8 @@ public class TestModalFragment extends Fragment
                                     {
                                         try
                                         {
-                                            wordsNumberTV.setText((wordsNumber + "").concat(" / ").concat(Integer.toString(maxCount)).concat(" " + getString(R.string.text_studied ) + " " + studiedCount));
+                                            String concatText = (wordsNumber + "").concat(" / ").concat(Integer.toString(maxCount)).concat(" " + getString(R.string.text_studied) + " " + studiedCount);
+                                            wordsNumberTV.setText(concatText);
                                         } catch (Exception e)
                                         {
                                             e.printStackTrace();
