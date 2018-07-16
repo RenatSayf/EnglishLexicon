@@ -13,6 +13,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Locale;
 
 
 public class DatabaseHelper extends SQLiteOpenHelper
@@ -39,7 +40,25 @@ public class DatabaseHelper extends SQLiteOpenHelper
     {
         super(context, DB_NAME, null, version);
         this.context = context;
-        DB_NAME = context.getString(R.string.data_base_name);
+        try
+        {
+            DB_NAME = context.getString(R.string.data_base_name);
+        } catch (Exception e)
+        {
+            Locale locale = Locale.getDefault();
+            switch (locale.getLanguage())
+            {
+                case "ru":
+                    DB_NAME = "lexicon_DB";
+                    break;
+                case "uk":
+                    DB_NAME = "lexicon_uk_DB";
+                    break;
+                default:
+                    DB_NAME = "lexicon_DB";
+                    break;
+            }
+        }
     }
 
     @Override
@@ -53,6 +72,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
     {
 
     }
+
     public void create_db()
     {
         String DB_PATH = getDbPath();
@@ -93,8 +113,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
                 myOutput.close();
                 myInput.close();
             }
-        }
-        catch(IOException ex)
+        } catch (IOException ex)
         {
             ex.printStackTrace();
             Toast.makeText(context, R.string.msg_error_creating_database, Toast.LENGTH_SHORT).show();
@@ -113,13 +132,11 @@ public class DatabaseHelper extends SQLiteOpenHelper
                 if (pathToDB != null)
                 {
                     stringPathDB = pathToDB.getPath();
-                }
-                else
+                } else
                 {
                     stringPathDB = Environment.getDataDirectory().toString() + DB_PATH;
                 }
-            }
-            else
+            } else
             {
                 stringPathDB = Environment.getDataDirectory().toString() + DB_PATH;
             }
@@ -137,13 +154,13 @@ public class DatabaseHelper extends SQLiteOpenHelper
         try
         {
             database = SQLiteDatabase.openDatabase(actualPathDb, null, SQLiteDatabase.NO_LOCALIZED_COLLATORS);
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             e.printStackTrace();
         }
 
     }
+
     @Override
     public synchronized void close()
     {
@@ -154,8 +171,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
                 database.close();
             }
             super.close();
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             e.printStackTrace();
         }

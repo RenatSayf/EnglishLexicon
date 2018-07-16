@@ -239,7 +239,14 @@ public class ModalFragment extends Fragment
                                     ruTextView.setText(entries.get(0).getTranslate());
                                 }
                                 nameDictTV.setText(tableName);
-                                wordsNumberTV.setText((wordsNumber + "").concat(" / ").concat(Integer.toString(totalWords)).concat(" " + getString(R.string.text_studied ) + " " + studiedWords));
+                                try
+                                {
+                                    String concatText = (wordsNumber + "").concat(" / ").concat(Integer.toString(totalWords)).concat(" " + getString(R.string.text_studied) + " " + studiedWords);
+                                    wordsNumberTV.setText(concatText);
+                                } catch (Exception e)
+                                {
+                                    e.printStackTrace();
+                                }
                             }
                         });
                         if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
@@ -280,8 +287,14 @@ public class ModalFragment extends Fragment
                                     enTextView.setText(dataBaseEntry.getEnglish());
                                     ruTextView.setText(dataBaseEntry.getTranslate());
                                     nameDictTV.setText(appData.getPlayList().get(appData.getNdict()));
-                                    String concatText = (dataBaseEntry.getRowId() + "").concat(" / ").concat(Integer.toString(totalWords)).concat("  " + getString(R.string.text_studied) + " " + studiedWords);
-                                    wordsNumberTV.setText(concatText);
+                                    try
+                                    {
+                                        String concatText = (dataBaseEntry.getRowId() + "").concat(" / ").concat(Integer.toString(totalWords)).concat("  " + getString(R.string.text_studied) + " " + studiedWords);
+                                        wordsNumberTV.setText(concatText);
+                                    } catch (Exception e)
+                                    {
+                                        e.printStackTrace();
+                                    }
                                     repeatCount = Integer.parseInt(dataBaseEntry.getCountRepeat());
                                 }
                             }
