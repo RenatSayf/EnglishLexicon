@@ -201,10 +201,6 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
     protected void onSaveInstanceState(Bundle outState)
     {
         super.onSaveInstanceState(outState);
-        for (int i = 0; i < spinnerListDict.getAdapter().getCount(); i++)
-        {
-            spinnerItems.add(spinnerListDict.getAdapter().getItem(i).toString());
-        }
         outState.putStringArrayList(KEY_SPINNER_ITEMS, spinnerItems);
         outState.putInt(KEY_SELECT_SPINNER_INDEX, spinnerListDict.getSelectedItemPosition());
         outState.putBoolean(KEY_TEXT_RESULT_ENABLED, textViewResult.isEnabled());
@@ -626,8 +622,9 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
     {
         if (loader.getId() == LOADER_GET_TABLE_LIST)
         {
-            @SuppressWarnings("unchecked") ArrayList<String> list = (ArrayList<String>) data;
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
+            //noinspection unchecked
+            spinnerItems = (ArrayList<String>) data;
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, spinnerItems);
             spinnerListDict.setAdapter(adapter);
         }
         if (loader.getId() == LOADER_GET_TRANSLATE)
