@@ -10,7 +10,6 @@ import com.myapp.lexicon.R;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Locale;
@@ -83,10 +82,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
             File directoryDb = new File(DB_PATH);
             actualPathDb = directoryDb.getAbsolutePath() + "/" + DB_NAME;
             File fileDb = new File(actualPathDb);
-            //boolean exists = fileDb.exists();
             if (!fileDb.exists())
             {
-                //Boolean res = directoryDb.mkdirs();
                 try
                 {
                     this.database = SQLiteDatabase.openOrCreateDatabase(fileDb, null);
@@ -113,7 +110,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
                 myOutput.close();
                 myInput.close();
             }
-        } catch (IOException ex)
+        } catch (Exception ex)
         {
             ex.printStackTrace();
             Toast.makeText(context, R.string.msg_error_creating_database, Toast.LENGTH_SHORT).show();
