@@ -71,7 +71,7 @@ public class ErrorHandlerDialog extends DialogFragment
                     if (manager != null)
                     {
                         ClipData clip = manager.getPrimaryClip();
-                        if (clip.getItemCount() > 0)
+                        if (clip != null && clip.getItemCount() > 0)
                         {
                             editText.setText(clip.getItemAt(0).getText());
                         }

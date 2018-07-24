@@ -435,13 +435,13 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                     return;
                 }
 
-                if (editTextEn.getText().toString().equals(m.oldTextEn) && editTextRu.getText().toString().equals(m.oldTextRu) && Integer.parseInt(spinnerCountRepeat.getSelectedItem().toString()) == m.oldCountRepeat && spinnerDictToMove.getSelectedItem().toString().equals(m.oldCurrentDict))
-                {
-                    return;
-                }
-
                 try
                 {
+                    if (editTextEn.getText().toString().equals(m.oldTextEn) && editTextRu.getText().toString().equals(m.oldTextRu) && Integer.parseInt(spinnerCountRepeat.getSelectedItem().toString()) == m.oldCountRepeat && spinnerDictToMove.getSelectedItem().toString().equals(m.oldCurrentDict))
+                    {
+                        return;
+                    }
+
                     StringOperations stringOperations = StringOperations.getInstance();
                     if (stringOperations.getLangOfText(WordEditor.this, editTextEn.getText().toString())[1].equals("en") && !stringOperations.getLangOfText(WordEditor.this, editTextRu.getText().toString())[1].equals("en"))
                     {
@@ -511,7 +511,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                                 @Override
                                 public void onClick(DialogInterface dialog, int which)
                                 {
-
+                                    dialog.dismiss();
                                 }
                             }).create().show();
                 }
