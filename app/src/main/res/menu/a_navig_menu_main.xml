@@ -41,6 +41,11 @@
             android:title="@string/text_evaluate_app"/>
 
         <item
+            android:id="@+id/nav_share"
+            android:icon="@drawable/ic_share_blue"
+            android:title="@string/text_share"/>
+
+        <item
             android:id="@+id/nav_about_app"
             android:icon="@drawable/icon_info_blue"
             android:title="@string/text_about_app"

@@ -550,7 +550,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
             searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         }
         searchView_onListeners(searchView);
-        if (m != null)
+        if (m != null && m.searchIsVisible.length > 0)
         {
             searchView.setIconified(m.searchIsVisible[0]);
             searchView.setQuery(m.queryString, false);
