@@ -54,6 +54,7 @@ import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.database.GetTableListFragm;
+import com.myapp.lexicon.helpers.Share;
 import com.myapp.lexicon.playlist.PlayList;
 import com.myapp.lexicon.service.LexiconService;
 import com.myapp.lexicon.settings.AppData;
@@ -385,6 +386,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Intent speechEditorIntent = new Intent(Intent.ACTION_VIEW);
             speechEditorIntent.setAction(Settings.ACTION_SETTINGS);
             startActivity(speechEditorIntent);
+        }
+
+        if (id == R.id.menu_item_share)
+        {
+            new Share().doShare(this);
         }
 
         return super.onOptionsItemSelected(item);

@@ -212,6 +212,8 @@
     <string name="text_all_words_is_sdudied">все слова изучены.</string>
     <string name="text_words_must_be_included">Чтобы добавить словарь в список обучения, необходимо включить слова</string>
     <string name="text_turn_on">Включить</string>
+    <string name="text_excellent_app">Отличное приложение для запоминания английских слов</string>
+    <string name="text_share_using">Поделиться с помощью</string>
 
     <string-array name="display_mode">
         <item>Повтор</item>

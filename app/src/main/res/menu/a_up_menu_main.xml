@@ -14,4 +14,13 @@
         android:title="@string/text_speech_settings"
         app:showAsAction="never"/>
 
+    <item
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/menu_item_share"
+        android:icon="@drawable/icon_share_blue_24dp"
+        android:orderInCategory="100"
+        android:actionProviderClass="android.widget.ShareActionProvider"
+        android:title="Поделиться"
+        app:showAsAction="ifRoom"/>
+
 </menu>
