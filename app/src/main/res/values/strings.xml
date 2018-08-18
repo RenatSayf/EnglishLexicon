@@ -214,6 +214,7 @@
     <string name="text_turn_on">Включить</string>
     <string name="text_excellent_app">Отличное приложение для запоминания английских слов</string>
     <string name="text_share_using">Поделиться с помощью</string>
+    <string name="text_share">Поделиться</string>
 
     <string-array name="display_mode">
         <item>Повтор</item>

@@ -459,6 +459,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             intent.setData(Uri.parse(getString(R.string.app_link)));
             startActivity(intent);
         }
+        else if (id == R.id.nav_share)
+        {
+            new Share().doShare(this);
+        }
         else if (id == R.id.nav_about_app)
         {
             AboutAppFragment aboutAppFragment = new AboutAppFragment();

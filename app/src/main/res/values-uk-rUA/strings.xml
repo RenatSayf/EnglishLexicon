@@ -213,6 +213,7 @@
     <string name="text_turn_on">Включити</string>
     <string name="text_excellent_app">Відмінне додаток для запам\'ятовування англійських слів</string>
     <string name="text_share_using">Поділитися за допомогою</string>
+    <string name="text_share">Поділитися</string>
 
     <string-array name="display_mode">
         <item>Повтор</item>
