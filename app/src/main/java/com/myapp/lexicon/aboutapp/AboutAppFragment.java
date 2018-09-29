@@ -4,6 +4,7 @@ package com.myapp.lexicon.aboutapp;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -65,6 +66,18 @@ public class AboutAppFragment extends Fragment
             {
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setData(Uri.parse(getString(R.string.app_link)));
+                startActivity(intent);
+            }
+        });
+
+        final TextView tvLinkPrivacyPolicy = fragment_view.findViewById(R.id.tvLinkPrivacyPolicy);
+        tvLinkPrivacyPolicy.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                tvLinkPrivacyPolicy.setTextColor(Color.RED);
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.privacy_policy_link)));
                 startActivity(intent);
             }
         });
