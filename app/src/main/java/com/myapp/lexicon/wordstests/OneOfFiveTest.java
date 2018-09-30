@@ -284,7 +284,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
 
     private void setItemsToSpinnListDict()
     {
-        if (fields.storedListDict.size() > 0 && getActivity() != null)
+        if (fields != null && fields.storedListDict.size() > 0 && getActivity() != null)
         {
             ArrayAdapter<String> spinnAdapter = new ArrayAdapter<>(getActivity(), R.layout.my_content_spinner_layout, fields.storedListDict);
             spinnListDict.setAdapter(spinnAdapter);

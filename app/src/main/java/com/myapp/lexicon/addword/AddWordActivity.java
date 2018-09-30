@@ -482,37 +482,47 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
             @Override
             public void onClick(View v)
             {
-                String text1 = textViewEnter.getText().toString();
-                if (!text1.equals("") && getLangOfText(text1).equals(AddWordActivity.this.getString(R.string.translate_direct_en_ru)))
+                if (SplashScreenActivity.speech != null)
                 {
-                    try
+                    String text1 = textViewEnter.getText().toString();
+                    if (!text1.equals("") && getLangOfText(text1).equals(AddWordActivity.this.getString(R.string.translate_direct_en_ru)))
                     {
-                        SplashScreenActivity.speech.setLanguage(Locale.US);
-                    } catch (Exception e)
-                    {
-                        return;
+                        try
+                        {
+                            SplashScreenActivity.speech.setLanguage(Locale.US);
+                        } catch (Exception e)
+                        {
+                            return;
+                        }
+                        utterance_Id.clear();
+                        utterance_Id.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "add_word_us");
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                        {
+                            SplashScreenActivity.speech.speak(text1, TextToSpeech.QUEUE_ADD, null, utterance_Id.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+                        } else
+                        {
+                            SplashScreenActivity.speech.speak(text1, TextToSpeech.QUEUE_ADD, utterance_Id);
+                        }
                     }
-                    utterance_Id.clear();
-                    utterance_Id.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "add_word_us");
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                    if (!text1.equals("") && getLangOfText(text1).equals(AddWordActivity.this.getString(R.string.translate_direct_ru_en)))
                     {
-                        SplashScreenActivity.speech.speak(text1, TextToSpeech.QUEUE_ADD, null, utterance_Id.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
-                    } else
-                    {
-                        SplashScreenActivity.speech.speak(text1, TextToSpeech.QUEUE_ADD, utterance_Id);
-                    }
-                }
-                if (!text1.equals("") && getLangOfText(text1).equals(AddWordActivity.this.getString(R.string.translate_direct_ru_en)))
-                {
-                    SplashScreenActivity.speech.setLanguage(new Locale(appSettings.getTransLang()));
-                    utterance_Id.clear();
-                    utterance_Id.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "add_word_ru");
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                    {
-                        SplashScreenActivity.speech.speak(text1, TextToSpeech.QUEUE_ADD, null, utterance_Id.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
-                    } else
-                    {
-                        SplashScreenActivity.speech.speak(text1, TextToSpeech.QUEUE_ADD, utterance_Id);
+                        try
+                        {
+                            SplashScreenActivity.speech.setLanguage(new Locale(appSettings.getTransLang()));
+                        } catch (Exception e)
+                        {
+                            e.printStackTrace();
+                            SplashScreenActivity.speech.setLanguage(Locale.getDefault());
+                        }
+                        utterance_Id.clear();
+                        utterance_Id.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "add_word_ru");
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                        {
+                            SplashScreenActivity.speech.speak(text1, TextToSpeech.QUEUE_ADD, null, utterance_Id.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+                        } else
+                        {
+                            SplashScreenActivity.speech.speak(text1, TextToSpeech.QUEUE_ADD, utterance_Id);
+                        }
                     }
                 }
             }

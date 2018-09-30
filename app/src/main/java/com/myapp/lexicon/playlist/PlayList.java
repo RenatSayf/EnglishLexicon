@@ -40,86 +40,93 @@ public class PlayList extends AppCompatActivity implements ListViewAdapter.IPlay
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.p_layout_play_list);
-        Toolbar toolbar = findViewById(R.id.toolbar_word_editor);
-        setSupportActionBar(toolbar);
-
-        lockOrientation = new LockOrientation(this);
-
-        if (savedInstanceState == null)
+        try
         {
-            m = new PlayListFields();
-        }
-        else
-        {
-            m = savedInstanceState.getParcelable(KEY_FIELDS);
-        }
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.p_layout_play_list);
+            Toolbar toolbar = findViewById(R.id.toolbar_word_editor);
+            setSupportActionBar(toolbar);
 
-        if (getSupportActionBar() != null)
-        {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
+            lockOrientation = new LockOrientation(this);
 
-        appSettings = new AppSettings(PlayList.this);
-
-        if (databaseHelper == null)
-        {
-            databaseHelper = new DatabaseHelper(this);
-            databaseHelper.create_db();
-        }
-
-        listViewDict = findViewById(R.id.listView_playList);
-        Spinner spinneOrderPlay = findViewById(R.id.spinner_order_play);
-        if (spinneOrderPlay != null)
-        {
-            spinneOrderPlay.setSelection(appSettings.getOrderPlay());
-
-            spinneOrderPlay.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
+            if (savedInstanceState == null)
             {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
-                {
-                    switch (position)
-                    {
-                        case 0:
-                            appSettings.setOrderPlay(0);
-                            break;
-                        case 1:
-                            appSettings.setOrderPlay(1);
-                            appSettings.setWordNumber(1);
-                            appSettings.setDictNumber(0);
-                            break;
-                        case 2:
+                m = new PlayListFields();
+            }
+            else
+            {
+                m = savedInstanceState.getParcelable(KEY_FIELDS);
+            }
 
-                            break;
+            if (getSupportActionBar() != null)
+            {
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            }
+
+            appSettings = new AppSettings(PlayList.this);
+
+            if (databaseHelper == null)
+            {
+                databaseHelper = new DatabaseHelper(this);
+                databaseHelper.create_db();
+            }
+
+            listViewDict = findViewById(R.id.listView_playList);
+            Spinner spinneOrderPlay = findViewById(R.id.spinner_order_play);
+            if (spinneOrderPlay != null)
+            {
+                spinneOrderPlay.setSelection(appSettings.getOrderPlay());
+
+                spinneOrderPlay.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
+                {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+                    {
+                        switch (position)
+                        {
+                            case 0:
+                                appSettings.setOrderPlay(0);
+                                break;
+                            case 1:
+                                appSettings.setOrderPlay(1);
+                                appSettings.setWordNumber(1);
+                                appSettings.setDictNumber(0);
+                                break;
+                            case 2:
+
+                                break;
+                        }
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent)
+                    {
+                    }
+                });
+            }
+
+            m.newPlayList = appSettings.getPlayList();
+
+            if (m.newPlayList.size() > 0)
+            {
+                onPlayListChanged(m.newPlayList);
+            }
+
+            if (savedInstanceState == null)
+            {
+                if (AppData.getInstance().isAdMob())
+                {
+                    if (AppData.getInstance().isOnline(this))
+                    {
+                        BannerFragmentPL bannerFragment = new BannerFragmentPL();
+                        getSupportFragmentManager().beginTransaction().replace(R.id.banner_frame_pl, bannerFragment).commit();
                     }
                 }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> parent)
-                {
-                }
-            });
-        }
-
-        m.newPlayList = appSettings.getPlayList();
-
-        if (m.newPlayList.size() > 0)
-        {
-            onPlayListChanged(m.newPlayList);
-        }
-
-        if (savedInstanceState == null)
-        {
-            if (AppData.getInstance().isAdMob())
-            {
-                if (AppData.getInstance().isOnline(this))
-                {
-                    BannerFragmentPL bannerFragment = new BannerFragmentPL();
-                    getSupportFragmentManager().beginTransaction().replace(R.id.banner_frame_pl, bannerFragment).commit();
-                }
             }
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+            finish();
         }
     }
 
@@ -180,10 +187,7 @@ public class PlayList extends AppCompatActivity implements ListViewAdapter.IPlay
                             }
                             else
                             {
-                                if (m.newPlayList.contains(dictArray[which]))
-                                {
-                                    m.newPlayList.remove(dictArray[which]);
-                                }
+                                m.newPlayList.remove(dictArray[which]);
                             }
                         }
                     })

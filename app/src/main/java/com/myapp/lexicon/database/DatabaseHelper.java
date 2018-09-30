@@ -22,9 +22,9 @@ public class DatabaseHelper extends SQLiteOpenHelper
     private static final int version = 1; // версия базы данных
 
     // названия столбцов
-    public static final String COLUMN_ENGLISH = "English";
-    public static final String COLUMN_TRANS = "Translate";
-    public static final String COLUMN_IMAGE = "Image";
+    static final String COLUMN_ENGLISH = "English";
+    static final String COLUMN_TRANS = "Translate";
+    static final String COLUMN_IMAGE = "Image";
     public static final String COLUMN_Count_REPEAT = "CountRepeat";
     // имена служебных таблиц
     public static final String TABLE_API_KEY = "com_myapp_lexicon_api_keys";
@@ -90,7 +90,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
                 } catch (Exception e)
                 {
                     e.printStackTrace();
-                    Toast.makeText(context, R.string.msg_error_creating_database, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Failed to create database", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 //получаем локальную бд как поток
@@ -113,7 +113,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
         } catch (Exception ex)
         {
             ex.printStackTrace();
-            Toast.makeText(context, R.string.msg_error_creating_database, Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Failed to create database", Toast.LENGTH_SHORT).show();
         }
     }
 
