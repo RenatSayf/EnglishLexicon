@@ -55,6 +55,7 @@ public class Tests extends AppCompatActivity
         } catch (Exception e)
         {
             e.printStackTrace();
+            finish();
         }
     }
 
