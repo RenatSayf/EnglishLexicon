@@ -407,7 +407,15 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                 ArrayList<String> playList = appSettings.getPlayList();
                 if (playList != null && playList.size() > 0)
                 {
-                    String currentDict = playList.get(appData.getNdict());
+                    String currentDict;
+                    try
+                    {
+                        currentDict = playList.get(appData.getNdict());
+                    } catch (Exception e)
+                    {
+                        appData.setNdict(0);
+                        currentDict = playList.get(appData.getNdict());
+                    }
                     if (arrayList.contains(currentDict))
                     {
                         int indexOf = arrayList.indexOf(currentDict);
