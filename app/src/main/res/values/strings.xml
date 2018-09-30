@@ -72,7 +72,6 @@
     <string name="label_count_repeat">Количество повторов</string>
     <string name="label_copy">Копировать</string>
     <string name="msg_wrong_text">В одном из полей ввода текст не соответствует языку</string>
-    <string name="header.correctfragment">Выбери правильно в словаре:</string>
     <string name="text_excellent">Отлично</string>
     <string name="text_good">Хорошо</string>
     <string name="text_bad">Плохо</string>
@@ -128,7 +127,7 @@
     <string name="menu_text_api_key">Ввести API ключ</string>
     <string name="dialog_error_text_0">Если у Вас есть API-ключ введите его в поле ниже или нажмите кнопку \"Вставить\" если он скопирован, затем нажмите \"Сохранить\".</string>
     <string name="dialog_option_text_0">Если у Вас нет ключа, Вы можете получить бесплатный API-ключ нажав кнопку \"Получить\".</string>
-    <string name="tech.yandex.ru_translate">https://tech.yandex.ru/translate/</string>
+    <string name="tech_yandex_ru_translate">https://tech.yandex.ru/translate/</string>
     <string name="text_api_key">API ключ:</string>
     <string name="text_paste">Вставить</string>
     <string name="text_save">Сохранить</string>
@@ -175,8 +174,8 @@
     <string name="text_en">En</string>
     <string name="text_off">Выкл</string>
     <string name="text_version_name">v. 1</string>
-    <string name="lang_russian">       Russian</string>
-    <string name="lang_ukraine">Ukraine</string>
+    <string name="lang_russian" translatable="false">Russian</string>
+    <string name="lang_ukraine" translatable="false">Ukraine</string>
     <string name="data_base_name">lexicon_DB</string>
     <string name="lang_code_translate">ru_RU</string>
     <string name="lang_code_uk">uk_UA</string>
@@ -215,6 +214,8 @@
     <string name="text_excellent_app">Отличное приложение для запоминания английских слов</string>
     <string name="text_share_using">Поделиться с помощью</string>
     <string name="text_share">Поделиться</string>
+    <string name="privacy_policy_link">https://sites.google.com/view/englishlexicon</string>
+    <string name="privacy_policy_text_link">Политика конфиденциальности</string>
 
     <string-array name="display_mode">
         <item>Повтор</item>

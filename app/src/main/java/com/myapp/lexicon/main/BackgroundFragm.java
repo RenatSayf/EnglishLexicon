@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -81,14 +82,18 @@ public class BackgroundFragm extends Fragment
             adapterViewFlipper = fragmentView.findViewById(R.id.adapter_view_flipper);
 
             // TODO: AdapterViewFlipper: 7. создание адаптера и запуск анимации
-            FlipperAdapter flipperAdapter = new FlipperAdapter(getActivity(), imagesId);
-            adapterViewFlipper.setAdapter(flipperAdapter);
-            adapterViewFlipper.setFlipInterval(20000);
+            FragmentActivity activity = getActivity();
+            if (activity != null)
+            {
+                FlipperAdapter flipperAdapter = new FlipperAdapter(activity, imagesId);
+                adapterViewFlipper.setAdapter(flipperAdapter);
+                adapterViewFlipper.setFlipInterval(20000);
 
-            // предварительно создать в директории res новую директорию animator и добавить в нее ресурсы анимации (см. директорию res/animator)
-            adapterViewFlipper.setInAnimation(getActivity(), R.animator.in_animator);
-            adapterViewFlipper.setOutAnimation(getActivity(), R.animator.out_animator);
-            adapterViewFlipper.setAutoStart(true);
+                // предварительно создать в директории res новую директорию animator и добавить в нее ресурсы анимации (см. директорию res/animator)
+                adapterViewFlipper.setInAnimation(getActivity(), R.animator.in_animator);
+                adapterViewFlipper.setOutAnimation(getActivity(), R.animator.out_animator);
+                adapterViewFlipper.setAutoStart(true);
+            }
         }
 
         return fragmentView;

@@ -73,7 +73,6 @@
     <string name="label_count_repeat">Кількість повторів</string>
     <string name="label_copy">Копіювати</string>
     <string name="msg_wrong_text">В одному з полів вводу текст не відповідає мові</string>
-    <string name="header.correctfragment">Вибери правильно в словнику:</string>
     <string name="text_excellent">Відмінно</string>
     <string name="text_good">Добре</string>
     <string name="text_bad">Погано</string>
@@ -129,7 +128,7 @@
     <string name="menu_text_api_key">Ввести ключ API</string>
     <string name="dialog_error_text_0">Якщо у Вас є API ключ введіть його в поле нижче, або натисніть кнопку \"Вставити\" якщо він скопійований, потім натисніть \"Зберегти\".</string>
     <string name="dialog_option_text_0">Якщо у Вас немає ключа, Ви можете отримати безкоштовний API ключ натиснувши кнопку"Отримати\".</string>
-    <string name="tech.yandex.ru_translate">https://tech.yandex.ru/translate/</string>
+    <string name="tech_yandex_ru_translate">https://tech.yandex.ru/translate/</string>
     <string name="text_api_key">API ключ:</string>
     <string name="text_paste">Вставити</string>
     <string name="text_save">Зберегти</string>
@@ -214,6 +213,8 @@
     <string name="text_excellent_app">Відмінне додаток для запам\'ятовування англійських слів</string>
     <string name="text_share_using">Поділитися за допомогою</string>
     <string name="text_share">Поділитися</string>
+    <string name="privacy_policy_link">https://sites.google.com/view/englishlexicon</string>
+    <string name="privacy_policy_text_link">Політика конфіденційності</string>
 
     <string-array name="display_mode">
         <item>Повтор</item>

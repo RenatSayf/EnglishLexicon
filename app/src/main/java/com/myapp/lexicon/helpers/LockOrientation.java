@@ -20,37 +20,45 @@ public class LockOrientation
     @SuppressLint("InlinedApi")
     public void lock()
     {
-        int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
-        switch (activity.getResources().getConfiguration().orientation)
+        if (activity != null)
         {
-            case Configuration.ORIENTATION_PORTRAIT:
-                if (rotation == android.view.Surface.ROTATION_90 || rotation == android.view.Surface.ROTATION_180)
-                {
-                    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
-                }
-                else
-                {
-                    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                }
-                break;
-            case Configuration.ORIENTATION_LANDSCAPE:
+            int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
+            switch (activity.getResources().getConfiguration().orientation)
             {
-                rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
-                if (rotation == android.view.Surface.ROTATION_0 || rotation == android.view.Surface.ROTATION_90)
+                case Configuration.ORIENTATION_PORTRAIT:
+                    if (rotation == android.view.Surface.ROTATION_90 || rotation == android.view.Surface.ROTATION_180)
+                    {
+                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
+                    }
+                    else
+                    {
+                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                    }
+                    break;
+                case Configuration.ORIENTATION_LANDSCAPE:
                 {
-                    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                    rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
+                    if (rotation == android.view.Surface.ROTATION_0 || rotation == android.view.Surface.ROTATION_90)
+                    {
+                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                    }
+                    else
+                    {
+                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
+                    }
                 }
-                else
-                {
-                    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
-                }
+                    break;
+                default:
+                    break;
             }
-                break;
         }
     }
 
     public void unLock()
     {
-        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+        if (activity != null)
+        {
+            activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+        }
     }
 }

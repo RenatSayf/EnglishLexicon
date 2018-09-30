@@ -340,7 +340,7 @@ public class ModalFragment extends Fragment
             @Override
             public void onClick(View view)
             {
-                if (LexiconService.speech.isSpeaking())
+                if (LexiconService.speech == null || LexiconService.speech.isSpeaking())
                 {
                     return;
                 }

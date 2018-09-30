@@ -24,31 +24,38 @@ public class Tests extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.t_layout_tests);
-        Toolbar toolbar = findViewById(R.id.toolbar_word_editor);
-        setSupportActionBar(toolbar);
-
-        if (getSupportActionBar() != null)
+        try
         {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.t_layout_tests);
+            Toolbar toolbar = findViewById(R.id.toolbar_word_editor);
+            setSupportActionBar(toolbar);
 
-        buttonFindPair = findViewById(R.id.btn_find_pair);
-        buttonListenEndClick = findViewById(R.id.btn_select_word_test);
-        buttonOneOfFive = findViewById(R.id.btn_test_1of5);
-        button_OnClick();
-
-        if (AppData.getInstance().isAdMob())
-        {
-            if (AppData.getInstance().isOnline(Tests.this))
+            if (getSupportActionBar() != null)
             {
-                if (savedInstanceState == null)
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            }
+
+            buttonFindPair = findViewById(R.id.btn_find_pair);
+            buttonListenEndClick = findViewById(R.id.btn_select_word_test);
+            buttonOneOfFive = findViewById(R.id.btn_test_1of5);
+            button_OnClick();
+
+            if (AppData.getInstance().isAdMob())
+            {
+                if (AppData.getInstance().isOnline(Tests.this))
                 {
-                    BannerFragmentTests bannerFragment = new BannerFragmentTests();
-                    getSupportFragmentManager().beginTransaction().replace(R.id.banner_frame_tests, bannerFragment).commit();
+                    if (savedInstanceState == null)
+                    {
+                        BannerFragmentTests bannerFragment = new BannerFragmentTests();
+                        getSupportFragmentManager().beginTransaction().replace(R.id.banner_frame_tests, bannerFragment).commit();
+                    }
                 }
             }
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+            finish();
         }
     }
 
