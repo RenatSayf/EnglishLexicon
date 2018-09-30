@@ -527,7 +527,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
             public void onClick(View v)
             {
                 String text2 = textViewResult.getText().toString();
-                if (!text2.equals("") && getLangOfText(text2).equals(getString(R.string.translate_direct_en_ru)))
+                if (!text2.equals("") && getLangOfText(text2).equals(getString(R.string.translate_direct_en_ru)) && SplashScreenActivity.speech != null)
                 {
                     try
                     {
@@ -546,9 +546,15 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
                         SplashScreenActivity.speech.speak(text2, TextToSpeech.QUEUE_ADD, utterance_Id);
                     }
                 }
-                if (!text2.equals("") && getLangOfText(text2).equals(getString(R.string.translate_direct_ru_en)))
+                if (!text2.equals("") && getLangOfText(text2).equals(getString(R.string.translate_direct_ru_en)) && SplashScreenActivity.speech != null)
                 {
-                    SplashScreenActivity.speech.setLanguage(new Locale(appSettings.getTransLang()));
+                    try
+                    {
+                        SplashScreenActivity.speech.setLanguage(new Locale(appSettings.getTransLang()));
+                    } catch (Exception e)
+                    {
+                        SplashScreenActivity.speech.setLanguage(Locale.getDefault());
+                    }
                     utterance_Id.clear();
                     utterance_Id.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "add_word_ru");
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
