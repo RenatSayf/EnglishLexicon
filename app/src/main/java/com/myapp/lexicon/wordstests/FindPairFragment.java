@@ -399,37 +399,39 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             @Override
             public void getTableListListener(ArrayList<String> arrayList)
             {
-                if (getActivity() != null)
+                if (arrayList != null && arrayList.size() > 0)
                 {
-                    ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(getActivity(), R.layout.my_content_spinner_layout, arrayList);
-                    spinnListDict.setAdapter(adapterSpinner);
-                }
-                ArrayList<String> playList = appSettings.getPlayList();
-                if (playList != null && playList.size() > 0)
-                {
-                    String currentDict;
-                    try
+                    if (getActivity() != null)
                     {
-                        currentDict = playList.get(appData.getNdict());
-                    } catch (Exception e)
-                    {
-                        appData.setNdict(0);
-                        currentDict = playList.get(appData.getNdict());
+                        ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(getActivity(), R.layout.my_content_spinner_layout, arrayList);
+                        spinnListDict.setAdapter(adapterSpinner);
                     }
-                    if (arrayList.contains(currentDict))
+                    ArrayList<String> playList = appSettings.getPlayList();
+                    if (playList != null && playList.size() > 0)
                     {
-                        int indexOf = arrayList.indexOf(currentDict);
-                        spinnListDict.setSelection(indexOf);
+                        String currentDict;
+                        try
+                        {
+                            currentDict = playList.get(appData.getNdict());
+                        } catch (ArrayIndexOutOfBoundsException e)
+                        {
+                            appData.setNdict(0);
+                            currentDict = playList.get(appData.getNdict());
+                        }
+                        if (arrayList.contains(currentDict))
+                        {
+                            int indexOf = arrayList.indexOf(currentDict);
+                            spinnListDict.setSelection(indexOf);
+                        }
+                    } else
+                    {
+                        spinnListDict.setSelection(0);
                     }
-                }
-                else
-                {
-                    spinnListDict.setSelection(0);
-                }
-                spinnListDict_OnItemSelectedListener();
-                for (int i = 0; i < spinnListDict.getAdapter().getCount(); i++)
-                {
-                    storedListDict.add(spinnListDict.getAdapter().getItem(i).toString());
+                    spinnListDict_OnItemSelectedListener();
+                    for (int i = 0; i < spinnListDict.getAdapter().getCount(); i++)
+                    {
+                        storedListDict.add(spinnListDict.getAdapter().getItem(i).toString());
+                    }
                 }
             }
         });
