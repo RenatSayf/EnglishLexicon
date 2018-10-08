@@ -113,7 +113,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
         } catch (Exception ex)
         {
             ex.printStackTrace();
-            Toast.makeText(context, "Failed to create database", Toast.LENGTH_SHORT).show();
         }
     }
 
