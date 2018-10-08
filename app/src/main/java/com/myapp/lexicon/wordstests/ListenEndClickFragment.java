@@ -307,29 +307,40 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
             @Override
             public void getTableListListener(ArrayList<String> arrayList)
             {
-                if (getActivity() != null)
+                if (arrayList != null && arrayList.size() > 0)
                 {
-                    ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(getActivity(), R.layout.my_content_spinner_layout, arrayList);
-                    spinnListDict.setAdapter(adapterSpinner);
-                }
-                ArrayList<String> playList = appSettings.getPlayList();
-                if (playList != null && playList.size() > 0)
-                {
-                    String currentDict = playList.get(appData.getNdict());
-                    if (arrayList.contains(currentDict))
+                    if (getActivity() != null)
                     {
-                        int indexOf = arrayList.indexOf(currentDict);
-                        spinnListDict.setSelection(indexOf);
+                        ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(getActivity(), R.layout.my_content_spinner_layout, arrayList);
+                        spinnListDict.setAdapter(adapterSpinner);
                     }
-                }
-                else
-                {
-                    spinnListDict.setSelection(0);
-                }
-                spinnListDict_OnItemSelectedListener();
-                for (int i = 0; i < spinnListDict.getAdapter().getCount(); i++)
-                {
-                    fields.storedListDict.add(spinnListDict.getAdapter().getItem(i).toString());
+                    ArrayList<String> playList = appSettings.getPlayList();
+                    if (playList != null && playList.size() > 0)
+                    {
+                        String currentDict;
+                        try
+                        {
+                            currentDict = playList.get(appData.getNdict());
+                        } catch (ArrayIndexOutOfBoundsException e)
+                        {
+                            appData.setNdict(0);
+                            currentDict = playList.get(appData.getNdict());
+                        }
+                        if (arrayList.contains(currentDict))
+                        {
+                            int indexOf = arrayList.indexOf(currentDict);
+                            spinnListDict.setSelection(indexOf);
+                        }
+                    }
+                    else
+                    {
+                        spinnListDict.setSelection(0);
+                    }
+                    spinnListDict_OnItemSelectedListener();
+                    for (int i = 0; i < spinnListDict.getAdapter().getCount(); i++)
+                    {
+                        fields.storedListDict.add(spinnListDict.getAdapter().getItem(i).toString());
+                    }
                 }
             }
         });
