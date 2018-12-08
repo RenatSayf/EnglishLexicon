@@ -4,6 +4,7 @@
     <string name="last_app_name">Lexicon</string>
     <string name="app_name">English Lexicon</string>
     <string name="app_link">https://play.google.com/store/apps/details?id=com.myapp.lexicon&amp;hl=ru</string>
+    <string name="admob_app_id">ca-app-pub-4071145618173901~5468649072</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
