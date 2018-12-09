@@ -37,6 +37,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
@@ -56,6 +62,8 @@ import static android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE;
 
 public class AddWordActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks, NewDictDialog.INewDictDialogResult
 {
+    public static final int GOOGLE_SIGN_IN_CODE = 10;
+
     private AutoCompleteTextView textViewEnter;
     private LinearLayout layoutLinkYa;
     private TextView textViewLinkYandex;
@@ -227,6 +235,15 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
             errorHandlerDialog.setArguments(bundle);
             errorHandlerDialog.setCancelable(false);
             errorHandlerDialog.show(getSupportFragmentManager(), ErrorHandlerDialog.DIALOG_TAG);
+        }
+        if (item.getItemId() == R.id.save_db_to_google_drive)
+        {
+            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestEmail()
+                    .build();
+            GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(this, gso);
+            Intent signInIntent = googleSignInClient.getSignInIntent();
+            startActivityForResult(signInIntent, GOOGLE_SIGN_IN_CODE);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -764,6 +781,30 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
                     });
                 }
             }
+        }
+        if (requestCode == GOOGLE_SIGN_IN_CODE)
+        {
+            // The Task returned from this call is always completed, no need to attach
+            // a listener.
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            handleSignInResult(task);
+        }
+    }
+
+    public static void handleSignInResult(Task<GoogleSignInAccount> completedTask)
+    {
+        try
+        {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            return;
+            // Signed in successfully, show authenticated UI.
+            //updateUI(account);
+        } catch (ApiException e)
+        {
+            // The ApiException status code indicates the detailed failure reason.
+            // Please refer to the GoogleSignInStatusCodes class reference for more information.
+            //Log.w("XXXXXXX", "signInResult:failed code=" + e.getStatusCode());
+            //updateUI(null);
         }
     }
 
