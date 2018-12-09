@@ -6,7 +6,12 @@
 
     <item android:id="@+id/enter_key"
           android:title="@string/menu_text_api_key"
-          android:orderInCategory="100"
+          android:orderInCategory="1"
+          app:showAsAction="never"/>
+
+    <item android:id="@+id/save_db_to_google_drive"
+          android:title="Сохранить слова на Google Диск"
+          android:orderInCategory="2"
           app:showAsAction="never"/>
 
 </menu>
