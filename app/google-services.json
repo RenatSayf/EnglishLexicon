@@ -1,33 +1,27 @@
 {
   "project_info": {
-    "project_number": "7122115608",
-    "project_id": "lexicon-e0acf"
+    "project_number": "316498154227",
+    "firebase_url": "https://lexicon-b5d1a.firebaseio.com",
+    "project_id": "lexicon-b5d1a",
+    "storage_bucket": "lexicon-b5d1a.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:7122115608:android:3a119a1ee5033d9d",
+        "mobilesdk_app_id": "1:316498154227:android:3a119a1ee5033d9d",
         "android_client_info": {
           "package_name": "com.myapp.lexicon"
         }
       },
       "oauth_client": [
         {
-          "client_id": "7122115608-040j2v4lao8ha1f6fqnuk2m7a6plk1j6.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.myapp.lexicon",
-            "certificate_hash": "eb2703e420ae6b49d6316977f82c567959cd37eb"
-          }
-        },
-        {
-          "client_id": "7122115608-pll8ahrla5ctmng5letl0ikbva0mmv3j.apps.googleusercontent.com",
+          "client_id": "316498154227-g2ie2fd9a2r96k4bjbq3d05hdulpur9n.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAlTFUCHjaQWC9e4ZKd23AvwXGxv1KypSs"
+          "current_key": "AIzaSyCIATq1kmHfhSq0tfd3uxokiJb8RLMCkdU"
         }
       ],
       "services": {
@@ -39,9 +33,10 @@
           "other_platform_oauth_client": []
         },
         "ads_service": {
-          "status": 1
+          "status": 2
         }
-      }
+      },
+      "admob_app_id": "ca-app-pub-4071145618173901~5468649072"
     }
   ],
   "configuration_version": "1"
