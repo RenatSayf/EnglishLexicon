@@ -48,6 +48,8 @@ import com.google.firebase.appindexing.Action;
 import com.google.firebase.appindexing.FirebaseAppIndex;
 import com.google.firebase.appindexing.FirebaseUserActions;
 import com.google.firebase.appindexing.builders.Actions;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.AddWordActivity;
@@ -110,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private GetTableListFragm getTableListFragm;
     private FragmentManager fragmentManager;
+    private FirebaseStorage firebaseStorage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -203,6 +206,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onStart();
         FirebaseAppIndex.getInstance().update();
         FirebaseUserActions.getInstance().start(getAction());
+        firebaseStorage = FirebaseStorage.getInstance();
+        StorageReference storageReference = firebaseStorage.getReference();
     }
 
     private void initViews()
