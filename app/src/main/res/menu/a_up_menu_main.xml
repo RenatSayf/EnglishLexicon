@@ -14,6 +14,11 @@
         android:title="@string/text_speech_settings"
         app:showAsAction="never"/>
 
+    <item android:id="@+id/cloud_storage"
+        android:orderInCategory="100"
+        android:title="Облачное хранилище"
+        app:showAsAction="never"/>
+
     <item
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/menu_item_share"

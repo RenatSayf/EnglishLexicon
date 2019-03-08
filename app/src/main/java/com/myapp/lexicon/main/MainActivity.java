@@ -53,6 +53,7 @@ import com.google.firebase.storage.StorageReference;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.AddWordActivity;
+import com.myapp.lexicon.cloudstorage.StorageFragment;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.DatabaseHelper;
@@ -394,6 +395,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Intent speechEditorIntent = new Intent(Intent.ACTION_VIEW);
             speechEditorIntent.setAction(Settings.ACTION_SETTINGS);
             startActivity(speechEditorIntent);
+        }
+
+        if (id == R.id.cloud_storage)
+        {
+            StorageFragment storageFragment = StorageFragment.newInstance(null, null);
+            fragmentManager.beginTransaction().replace(R.id.storage_frame, storageFragment).addToBackStack(null).commit();
         }
 
         if (id == R.id.menu_item_share)
