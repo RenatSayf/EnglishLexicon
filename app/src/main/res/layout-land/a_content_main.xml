@@ -253,29 +253,12 @@
 
         </LinearLayout>
 
-
-    </FrameLayout>
-
-
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/about_app_fragment"
-        >
     </FrameLayout>
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/settings_fragment"
-        >
-    </FrameLayout>
-
-    <FrameLayout
-        android:id="@+id/storage_frame"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:id="@+id/frame_to_page_fragm"
         >
     </FrameLayout>
 

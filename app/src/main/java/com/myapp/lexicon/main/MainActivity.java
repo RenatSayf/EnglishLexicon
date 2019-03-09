@@ -48,8 +48,6 @@ import com.google.firebase.appindexing.Action;
 import com.google.firebase.appindexing.FirebaseAppIndex;
 import com.google.firebase.appindexing.FirebaseUserActions;
 import com.google.firebase.appindexing.builders.Actions;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.AddWordActivity;
@@ -113,7 +111,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private GetTableListFragm getTableListFragm;
     private FragmentManager fragmentManager;
-    private FirebaseStorage firebaseStorage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -207,8 +204,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onStart();
         FirebaseAppIndex.getInstance().update();
         FirebaseUserActions.getInstance().start(getAction());
-        firebaseStorage = FirebaseStorage.getInstance();
-        StorageReference storageReference = firebaseStorage.getReference();
     }
 
     private void initViews()
@@ -400,7 +395,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (id == R.id.cloud_storage)
         {
             StorageFragment storageFragment = StorageFragment.newInstance(null, null);
-            fragmentManager.beginTransaction().replace(R.id.storage_frame, storageFragment).addToBackStack(null).commit();
+            fragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, storageFragment).addToBackStack(null).commit();
         }
 
         if (id == R.id.menu_item_share)
@@ -466,7 +461,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         else if (id == R.id.nav_settings)
         {
-            getFragmentManager().beginTransaction().replace(R.id.settings_fragment, new SettingsFragment()).addToBackStack(null).commit();
+            getFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, new SettingsFragment()).addToBackStack(null).commit();
         }
         else if (id == R.id.nav_evaluate_app)
         {
@@ -481,7 +476,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         else if (id == R.id.nav_about_app)
         {
             AboutAppFragment aboutAppFragment = new AboutAppFragment();
-            fragmentManager.beginTransaction().replace(R.id.about_app_fragment, aboutAppFragment).addToBackStack(null).commit();
+            fragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, aboutAppFragment).addToBackStack(null).commit();
         }
         else if (id == R.id.nav_exit)
         {

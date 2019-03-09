@@ -216,6 +216,7 @@
     <string name="text_share">Поділитися</string>
     <string name="privacy_policy_link">https://sites.google.com/view/englishlexicon</string>
     <string name="privacy_policy_text_link">Політика конфіденційності</string>
+    <string name="cloud_storage_text">Хмарне сховище</string>
 
     <string-array name="display_mode">
         <item>Повтор</item>

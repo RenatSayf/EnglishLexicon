@@ -8,6 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.myapp.lexicon.R;
 
 /**
@@ -25,7 +27,8 @@ public class StorageFragment extends Fragment
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-    private static StorageFragment fragment;
+
+    private FirebaseStorage firebaseStorage;
 
     public StorageFragment()
     {
@@ -43,14 +46,12 @@ public class StorageFragment extends Fragment
     // TODO: Rename and change types and number of parameters
     public static StorageFragment newInstance(String param1, String param2)
     {
-        if (fragment == null)
-        {
-            fragment = new StorageFragment();
-            Bundle args = new Bundle();
-            args.putString(ARG_PARAM1, param1);
-            args.putString(ARG_PARAM2, param2);
-            fragment.setArguments(args);
-        }
+        StorageFragment fragment = new StorageFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_PARAM1, param1);
+        args.putString(ARG_PARAM2, param2);
+        fragment.setArguments(args);
+
         return fragment;
     }
 
@@ -63,14 +64,17 @@ public class StorageFragment extends Fragment
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+        firebaseStorage = FirebaseStorage.getInstance();
+        StorageReference storageReference = firebaseStorage.getReference();
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.storage_fragment, container, false);
-        return view;
+        View fragment_view = inflater.inflate(R.layout.storage_fragment, container, false);
+        return fragment_view;
     }
 
 }

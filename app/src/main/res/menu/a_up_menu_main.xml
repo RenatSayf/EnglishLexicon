@@ -16,7 +16,7 @@
 
     <item android:id="@+id/cloud_storage"
         android:orderInCategory="100"
-        android:title="Облачное хранилище"
+        android:title="@string/cloud_storage_text"
         app:showAsAction="never"/>
 
     <item
