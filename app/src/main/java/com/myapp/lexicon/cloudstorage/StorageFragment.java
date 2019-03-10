@@ -2,15 +2,27 @@ package com.myapp.lexicon.cloudstorage;
 
 
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.database.DatabaseHelper;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.channels.FileChannel;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -29,6 +41,7 @@ public class StorageFragment extends Fragment
     private String mParam2;
 
     private FirebaseStorage firebaseStorage;
+    private DatabaseHelper databaseHelper;
 
     public StorageFragment()
     {
@@ -67,6 +80,51 @@ public class StorageFragment extends Fragment
 
         firebaseStorage = FirebaseStorage.getInstance();
         StorageReference storageReference = firebaseStorage.getReference();
+
+        databaseHelper = new DatabaseHelper(getActivity());
+        String filePath = databaseHelper.getFilePath();
+
+        File file = new File(filePath);
+        try
+        {
+            copy(file, new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "lexicon"));
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        InputStream inputStream;
+        UploadTask uploadTask = null;
+        try
+        {
+            inputStream = new FileInputStream(new File(filePath + ".db"));
+            uploadTask = storageReference.putStream(inputStream);
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        if (uploadTask != null)
+        {
+            uploadTask.addOnFailureListener(new OnFailureListener()
+            {
+                @Override
+                public void onFailure(@NonNull Exception e)
+                {
+                    return;
+                }
+            });
+        }
+        if (uploadTask != null)
+        {
+            uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>()
+            {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot)
+                {
+                    return;
+                }
+            });
+        }
     }
 
     @Override
@@ -76,5 +134,19 @@ public class StorageFragment extends Fragment
         View fragment_view = inflater.inflate(R.layout.storage_fragment, container, false);
         return fragment_view;
     }
+
+    public void copy(File src, File dst) throws IOException
+    {
+        FileInputStream inStream = new FileInputStream(src);
+        FileOutputStream outStream = new FileOutputStream(dst);
+        FileChannel inChannel = inStream.getChannel();
+        FileChannel outChannel = outStream.getChannel();
+        inChannel.transferTo(0, inChannel.size(), outChannel);
+        inStream.close();
+        outStream.close();
+    }
+
+
+
 
 }

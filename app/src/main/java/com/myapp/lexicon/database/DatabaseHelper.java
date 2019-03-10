@@ -33,7 +33,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
     public SQLiteDatabase database;
     private Context context;
-    private String actualPathDb;
+    private static String actualPathDb;
 
     public DatabaseHelper(Context context)
     {
@@ -171,6 +171,11 @@ public class DatabaseHelper extends SQLiteOpenHelper
         {
             e.printStackTrace();
         }
+    }
+
+    public String getFilePath()
+    {
+        return actualPathDb;
     }
 
 
