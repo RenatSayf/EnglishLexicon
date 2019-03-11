@@ -2,7 +2,6 @@ package com.myapp.lexicon.cloudstorage;
 
 
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -80,24 +79,16 @@ public class StorageFragment extends Fragment
 
         firebaseStorage = FirebaseStorage.getInstance();
         StorageReference storageReference = firebaseStorage.getReference();
+        StorageReference lexiconRef = storageReference.child("lexicon");
 
         databaseHelper = new DatabaseHelper(getActivity());
         String filePath = databaseHelper.getFilePath();
-
-        File file = new File(filePath);
-        try
-        {
-            copy(file, new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "lexicon"));
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-        }
         InputStream inputStream;
         UploadTask uploadTask = null;
         try
         {
-            inputStream = new FileInputStream(new File(filePath + ".db"));
-            uploadTask = storageReference.putStream(inputStream);
+            inputStream = new FileInputStream(new File(filePath));
+            uploadTask = lexiconRef.putStream(inputStream);
         } catch (Exception e)
         {
             e.printStackTrace();
