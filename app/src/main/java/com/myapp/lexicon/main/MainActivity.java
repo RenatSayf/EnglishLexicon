@@ -43,7 +43,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.ads.MobileAds;
 import com.google.firebase.appindexing.Action;
 import com.google.firebase.appindexing.FirebaseAppIndex;
 import com.google.firebase.appindexing.FirebaseUserActions;
@@ -117,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a_navig_main);
 
-        MobileAds.initialize(this, getString(R.string.admob_app_id));
+        //MobileAds.initialize(this, getString(R.string.admob_app_id));
 
         fragmentManager = getSupportFragmentManager();
 
