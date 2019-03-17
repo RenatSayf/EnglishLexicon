@@ -1,6 +1,8 @@
 package com.myapp.lexicon.service;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -8,8 +10,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.IBinder;
 import android.speech.tts.TextToSpeech;
+import android.support.annotation.RequiresApi;
+import android.support.v4.app.NotificationCompat;
 import android.widget.Toast;
 
 import com.myapp.lexicon.R;
@@ -48,15 +54,24 @@ public class LexiconService extends Service
         Intent intent = new Intent(this, SplashScreenActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, intent, PendingIntent.FLAG_ONE_SHOT);
 
-        Notification.Builder builder = new Notification.Builder(this)
-                .setSmallIcon(R.drawable.ic_lexicon_notify)
-                .setContentTitle(getString(R.string.app_name))
-                .setContentText(getString(R.string.notify_content_text))
-                .setContentIntent(pendingIntent); // TODO: запуск MainActivity при клике на Notification
-        Notification notification;
-        notification = builder.build();
-        int appId = 542389;
-        startForeground(appId, notification); //TODO запуск сервиса на переднем плане, чтобы сервис не убивала система
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+        {
+            startLexiconOwnForeground();
+        }
+        else
+        {
+            Notification.Builder builder = new Notification.Builder(this)
+                    .setSmallIcon(R.drawable.ic_lexicon_notify)
+                    .setContentTitle(getString(R.string.app_name))
+                    .setContentText(getString(R.string.notify_content_text))
+                    .setContentIntent(pendingIntent); // TODO: запуск MainActivity при клике на Notification
+            Notification notification;
+            notification = builder.build();
+            int appId = 542389;
+            startForeground(appId, notification); //TODO запуск сервиса на переднем плане, чтобы сервис не убивала система
+        }
+
 
         receiver = new PhoneUnlockedReceiver();
         IntentFilter filter = new IntentFilter();
@@ -85,6 +100,38 @@ public class LexiconService extends Service
                 }
             }
         });
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void startLexiconOwnForeground()
+    {
+        String NOTIFICATION_CHANNEL_ID = "com.myapp.lexicon.service";
+        String channelName = "Lexicon Background Service";
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+        {
+            NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_NONE);
+            notificationChannel.setLightColor(Color.BLUE);
+            notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+            NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            assert manager != null;
+            manager.createNotificationChannel(notificationChannel);
+
+            Intent intent = new Intent(this, SplashScreenActivity.class);
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, intent, PendingIntent.FLAG_ONE_SHOT);
+
+            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
+            Notification notification = notificationBuilder.setOngoing(true)
+                    .setSmallIcon(R.drawable.ic_lexicon_notify)
+                    .setContentIntent(pendingIntent)
+                    .setPriority(NotificationManager.IMPORTANCE_MIN)
+                    .setCategory(Notification.CATEGORY_SERVICE)
+                    .setContentTitle(getString(R.string.app_name))
+                    .setContentText(getString(R.string.notify_content_text))
+                    .setColor(Color.GREEN)
+                    .build();
+            int appId = 542390;
+            startForeground(appId, notification); //TODO запуск сервиса на переднем плане, чтобы сервис не убивала система
+        }
     }
 
     @Override

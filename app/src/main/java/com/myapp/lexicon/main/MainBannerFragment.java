@@ -65,6 +65,12 @@ public class MainBannerFragment extends Fragment
                     super.onAdLoaded();
                     bannerView.setVisibility(View.VISIBLE);
                 }
+
+                @Override
+                public void onAdFailedToLoad(int i)
+                {
+                    super.onAdFailedToLoad(i);
+                }
             });
         }
 
