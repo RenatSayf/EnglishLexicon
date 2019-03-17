@@ -43,6 +43,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.MobileAds;
 import com.google.firebase.appindexing.Action;
 import com.google.firebase.appindexing.FirebaseAppIndex;
 import com.google.firebase.appindexing.FirebaseUserActions;
@@ -116,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a_navig_main);
 
-        //MobileAds.initialize(this, getString(R.string.admob_app_id));
+        MobileAds.initialize(this, getString(R.string.admob_app_id));
 
         fragmentManager = getSupportFragmentManager();
 
@@ -390,6 +391,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             startActivity(speechEditorIntent);
         }
 
+//        if (id == R.id.cloud_storage)
+//        {
+//            StorageFragment storageFragment = StorageFragment.newInstance(null, null);
+//            fragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, storageFragment).addToBackStack(null).commit();
+//        }
+
         if (id == R.id.menu_item_share)
         {
             new Share().doShare(this);
@@ -453,7 +460,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         else if (id == R.id.nav_settings)
         {
-            getFragmentManager().beginTransaction().replace(R.id.settings_fragment, new SettingsFragment()).addToBackStack(null).commit();
+            getFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, new SettingsFragment()).addToBackStack(null).commit();
         }
         else if (id == R.id.nav_evaluate_app)
         {
@@ -468,7 +475,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         else if (id == R.id.nav_about_app)
         {
             AboutAppFragment aboutAppFragment = new AboutAppFragment();
-            fragmentManager.beginTransaction().replace(R.id.about_app_fragment, aboutAppFragment).addToBackStack(null).commit();
+            fragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, aboutAppFragment).addToBackStack(null).commit();
         }
         else if (id == R.id.nav_exit)
         {

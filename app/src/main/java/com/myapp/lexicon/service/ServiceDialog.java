@@ -22,7 +22,12 @@ public class ServiceDialog extends AppCompatActivity
         setContentView(R.layout.service_dialog_activity);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ServiceDialog.this);
-        int serviceMode = Integer.parseInt(preferences.getString(getString(R.string.key_list_display_mode), "0"));
+        int serviceMode = 0;
+        String preferencesString = preferences.getString(getString(R.string.key_list_display_mode), "0");
+        if (preferencesString != null)
+        {
+            serviceMode = Integer.parseInt(preferencesString);
+        }
 
         if (serviceMode == 0)
         {

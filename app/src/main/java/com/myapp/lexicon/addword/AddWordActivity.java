@@ -795,8 +795,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
     {
         try
         {
-            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-            return;
+            completedTask.getResult(ApiException.class);
             // Signed in successfully, show authenticated UI.
             //updateUI(account);
         } catch (ApiException e)
