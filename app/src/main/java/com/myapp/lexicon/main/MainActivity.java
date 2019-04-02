@@ -62,6 +62,7 @@ import com.myapp.lexicon.service.LexiconService;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 import com.myapp.lexicon.settings.SettingsFragment;
+import com.myapp.lexicon.webbrowser.BrowserFragment;
 import com.myapp.lexicon.wordeditor.WordEditor;
 import com.myapp.lexicon.wordstests.Tests;
 
@@ -111,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private GetTableListFragm getTableListFragm;
     private FragmentManager fragmentManager;
+    private BrowserFragment browserFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -320,6 +322,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         speechServiceOnPause();
         appData.saveAllSettings(this);
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
+
+        if (browserFragment != null)
+        {
+            if (browserFragment.getLexiconWebView() != null && browserFragment.getLexiconWebView().canGoBack())
+            {
+                browserFragment.getLexiconWebView().goBack();
+            }
+        }
+
         if (drawer != null)
         {
             if (drawer.isDrawerOpen(GravityCompat.START))
@@ -330,6 +341,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 super.onBackPressed();
             }
         }
+
     }
 
     @Override
@@ -477,6 +489,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             AboutAppFragment aboutAppFragment = new AboutAppFragment();
             fragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, aboutAppFragment).addToBackStack(null).commit();
+        }
+        else if (id == R.id.nav_read_by_eng)
+        {
+            browserFragment = BrowserFragment.newInstance(null, null);
+            fragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, browserFragment).addToBackStack(null).commit();
         }
         else if (id == R.id.nav_exit)
         {

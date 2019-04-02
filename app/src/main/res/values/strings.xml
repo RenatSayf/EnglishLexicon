@@ -218,6 +218,7 @@
     <string name="privacy_policy_link">https://sites.google.com/view/englishlexicon</string>
     <string name="privacy_policy_text_link">Политика конфиденциальности</string>
     <string name="cloud_storage_text">Облачное хранилище</string>
+    <string name="text_read_by_eng">Читаем по английски</string>
 
     <string-array name="display_mode">
         <item>Повтор</item>
