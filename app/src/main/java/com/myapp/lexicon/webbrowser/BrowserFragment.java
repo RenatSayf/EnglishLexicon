@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.JavascriptInterface;
@@ -83,26 +84,52 @@ public class BrowserFragment extends Fragment
         webView.setWebViewClient(new LexiconWebClient());
         webView.loadUrl("https://www.bbc.com/");
 
-        webView.setOnLongClickListener(new View.OnLongClickListener()
+        webView.setOnTouchListener(new View.OnTouchListener()
         {
             @Override
-            public boolean onLongClick(View view)
+            public boolean onTouch(View view, MotionEvent motionEvent)
             {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+                if (motionEvent.getAction() == MotionEvent.ACTION_UP || motionEvent.getAction() == MotionEvent.ACTION_MOVE)
                 {
-                    webView.evaluateJavascript("(function(){return window.getSelection().toString()})()",
-                            new ValueCallback<String>()
-                            {
-                                @Override
-                                public void onReceiveValue(String value)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+                    {
+                        webView.evaluateJavascript("(function(){return window.getSelection().toString()})()",
+                                new ValueCallback<String>()
                                 {
-                                    Toast.makeText(getActivity(), value, Toast.LENGTH_SHORT).show();
-                                }
-                            });
+                                    @Override
+                                    public void onReceiveValue(String value)
+                                    {
+                                        if (value != "" || value != "\"\"" || !value.equals(null))
+                                        {
+                                            Toast.makeText(getActivity(), value, Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+                    }
                 }
                 return false;
             }
         });
+//        webView.setOnLongClickListener(new View.OnLongClickListener()
+//        {
+//            @Override
+//            public boolean onLongClick(View view)
+//            {
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+//                {
+//                    webView.evaluateJavascript("(function(){return window.getSelection().toString()})()",
+//                            new ValueCallback<String>()
+//                            {
+//                                @Override
+//                                public void onReceiveValue(String value)
+//                                {
+//                                    Toast.makeText(getActivity(), value, Toast.LENGTH_SHORT).show();
+//                                }
+//                            });
+//                }
+//                return false;
+//            }
+//        });
 
 
 
