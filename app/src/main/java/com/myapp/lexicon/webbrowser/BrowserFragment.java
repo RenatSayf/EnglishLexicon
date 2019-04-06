@@ -2,13 +2,17 @@ package com.myapp.lexicon.webbrowser;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.JavascriptInterface;
+import android.webkit.ValueCallback;
 import android.webkit.WebView;
+import android.widget.Toast;
 
 import com.myapp.lexicon.R;
 
@@ -77,8 +81,33 @@ public class BrowserFragment extends Fragment
         webView = fragment_view.findViewById(R.id.web_view);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.setWebViewClient(new LexiconWebClient());
-        webView.loadUrl("https://yandex.ru");
+        webView.loadUrl("https://www.bbc.com/");
 
+        webView.setOnLongClickListener(new View.OnLongClickListener()
+        {
+            @Override
+            public boolean onLongClick(View view)
+            {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+                {
+                    webView.evaluateJavascript("(function(){return window.getSelection().toString()})()",
+                            new ValueCallback<String>()
+                            {
+                                @Override
+                                public void onReceiveValue(String value)
+                                {
+                                    Toast.makeText(getActivity(), value, Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                }
+                return false;
+            }
+        });
+
+
+
+        webView.loadUrl("javascript:js.callback(window.getSelection().toString())");
+        webView.addJavascriptInterface(new WebAppInterface(), "js");
 
         return fragment_view;
     }
@@ -132,6 +161,15 @@ public class BrowserFragment extends Fragment
     {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    public class WebAppInterface
+    {
+        @JavascriptInterface
+        public void callback(String value)
+        {
+            Toast.makeText(getActivity(), value, Toast.LENGTH_SHORT).show();
+        }
     }
 
 
