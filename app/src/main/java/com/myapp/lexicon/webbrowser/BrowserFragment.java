@@ -89,17 +89,25 @@ public class BrowserFragment extends Fragment
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent)
             {
-                if (motionEvent.getAction() == MotionEvent.ACTION_UP || motionEvent.getAction() == MotionEvent.ACTION_MOVE)
+                view.performClick();
+                if (motionEvent.getAction() == MotionEvent.ACTION_UP)
                 {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
                     {
-                        webView.evaluateJavascript("(function(){return window.getSelection().toString()})()",
+                        webView.evaluateJavascript("(function(){\n" +
+                                        "    if(window.getSelection().toString() !== \"\"){\n" +
+                                        "        return window.getSelection().toString();\n" +
+                                        "    }\n" +
+                                        "    else{\n" +
+                                        "        return null;\n" +
+                                        "    }\n" +
+                                        "})()",
                                 new ValueCallback<String>()
                                 {
                                     @Override
                                     public void onReceiveValue(String value)
                                     {
-                                        if (value != "" || value != "\"\"" || !value.equals(null))
+                                        if (!value.equals("null"))
                                         {
                                             Toast.makeText(getActivity(), value, Toast.LENGTH_SHORT).show();
                                         }
@@ -110,31 +118,8 @@ public class BrowserFragment extends Fragment
                 return false;
             }
         });
-//        webView.setOnLongClickListener(new View.OnLongClickListener()
-//        {
-//            @Override
-//            public boolean onLongClick(View view)
-//            {
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
-//                {
-//                    webView.evaluateJavascript("(function(){return window.getSelection().toString()})()",
-//                            new ValueCallback<String>()
-//                            {
-//                                @Override
-//                                public void onReceiveValue(String value)
-//                                {
-//                                    Toast.makeText(getActivity(), value, Toast.LENGTH_SHORT).show();
-//                                }
-//                            });
-//                }
-//                return false;
-//            }
-//        });
 
 
-
-        webView.loadUrl("javascript:js.callback(window.getSelection().toString())");
-        webView.addJavascriptInterface(new WebAppInterface(), "js");
 
         return fragment_view;
     }
