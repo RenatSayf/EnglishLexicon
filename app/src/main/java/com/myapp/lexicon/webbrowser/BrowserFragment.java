@@ -1,5 +1,6 @@
 package com.myapp.lexicon.webbrowser;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
@@ -36,7 +37,7 @@ public class BrowserFragment extends Fragment
     private String mParam1;
     private String mParam2;
 
-    private WebView webView;
+    private LexiconWebView webView;
 
     private OnFragmentInteractionListener mListener;
 
@@ -75,6 +76,7 @@ public class BrowserFragment extends Fragment
         }
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
@@ -109,7 +111,7 @@ public class BrowserFragment extends Fragment
                                     {
                                         if (!value.equals("null"))
                                         {
-                                            Toast.makeText(getActivity(), value, Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(getActivity(), value.replaceAll("\"\\b", "").replaceAll("\"\\B", ""), Toast.LENGTH_SHORT).show();
                                         }
                                     }
                                 });
