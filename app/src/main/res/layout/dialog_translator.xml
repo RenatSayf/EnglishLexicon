@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+    android:layout_margin="10dp">
+
+    <EditText
+        android:id="@+id/en_word_et"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Run"
+        android:autofillHints=""
+        tools:targetApi="o"
+        android:inputType="text"
+        tools:ignore="LabelFor"/>
+
+    <EditText
+        android:id="@+id/ru_word_et"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Запустить"
+        android:autofillHints=""
+        tools:targetApi="o"
+        android:inputType="text"
+        tools:ignore="LabelFor"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Добавить в словарь:"
+        />
+
+    <Spinner
+        android:id="@+id/list_dict_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
+
+</LinearLayout>

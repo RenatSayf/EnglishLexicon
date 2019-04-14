@@ -6,6 +6,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -37,6 +39,7 @@ public class BrowserFragment extends Fragment
     private String mParam1;
     private String mParam2;
 
+    private CoordinatorLayout coordinatorLayout;
     private LexiconWebView webView;
 
     private OnFragmentInteractionListener mListener;
@@ -81,6 +84,7 @@ public class BrowserFragment extends Fragment
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         View fragment_view = inflater.inflate(R.layout.browser_fragment, container, false);
+        coordinatorLayout = fragment_view.findViewById(R.id.web_view_coord_laytout);
         webView = fragment_view.findViewById(R.id.web_view);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.setWebViewClient(new LexiconWebClient());
@@ -111,7 +115,10 @@ public class BrowserFragment extends Fragment
                                     {
                                         if (!value.equals("null"))
                                         {
-                                            Toast.makeText(getActivity(), value.replaceAll("\"\\b", "").replaceAll("\"\\B", ""), Toast.LENGTH_SHORT).show();
+                                            String strValue = value.replaceAll("\"\\b", "").replaceAll("\"\\B", "");
+                                            //Toast.makeText(getActivity(), strValue, Toast.LENGTH_SHORT).show();
+
+                                            Snackbar.make(coordinatorLayout, strValue, Snackbar.LENGTH_SHORT).show();
                                         }
                                     }
                                 });

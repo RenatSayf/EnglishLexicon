@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
@@ -55,7 +56,8 @@
                 android:text="@string/text_paste"
                 android:background="@drawable/transparent_background"
                 style="@style/Base.Widget.AppCompat.ButtonBar"
-                />
+                android:layout_marginStart="25dp"
+                android:drawableStart="@drawable/btn_paste_action"/>
 
         </LinearLayout>
 
@@ -72,7 +74,11 @@
             android:background="@drawable/text_button_for_test"
             android:minHeight="60dp"
             android:paddingLeft="5dp"
-            />
+            android:paddingRight="5dp"
+            android:paddingStart="5dp"
+            android:autofillHints=""
+            tools:targetApi="o"
+            tools:ignore="LabelFor"/>
 
         <LinearLayout
             android:layout_width="match_parent"
