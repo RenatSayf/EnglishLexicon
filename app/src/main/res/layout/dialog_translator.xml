@@ -4,39 +4,80 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical"
-    android:layout_margin="10dp">
+              android:background="@drawable/side_nav_bar"
+    android:padding="10dp">
 
-    <EditText
-        android:id="@+id/en_word_et"
-        android:layout_width="match_parent"
+    <LinearLayout android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Run"
-        android:autofillHints=""
-        tools:targetApi="o"
-        android:inputType="text"
-        tools:ignore="LabelFor"/>
+        android:orientation="horizontal">
 
-    <EditText
-        android:id="@+id/ru_word_et"
-        android:layout_width="match_parent"
+        <EditText
+            android:id="@+id/en_word_et"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Run"
+            android:autofillHints=""
+            tools:targetApi="o"
+            android:inputType="text"
+            android:textColor="@color/colorLightGreen"
+            tools:ignore="LabelFor"/>
+
+        <ImageButton
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@drawable/transparent_background_straight_angle"
+            android:contentDescription="@string/btn_sound_discribtion"
+            android:src="@drawable/selector_sound_icon"
+            android:textColor="@drawable/selector_white_to_orange_color"
+            />
+
+    </LinearLayout>
+
+
+    <LinearLayout android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Запустить"
-        android:autofillHints=""
-        tools:targetApi="o"
-        android:inputType="text"
-        tools:ignore="LabelFor"/>
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/ru_word_et"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Запустить"
+            android:autofillHints=""
+            tools:targetApi="o"
+            android:inputType="text"
+            android:textColor="@color/colorWhite"
+            tools:ignore="LabelFor"/>
+
+        <ImageButton
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@drawable/transparent_background_straight_angle"
+            android:contentDescription="@string/btn_sound_discribtion"
+            android:src="@drawable/selector_sound_icon"
+            android:textColor="@drawable/selector_white_to_orange_color"
+            />
+
+    </LinearLayout>
+
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:text="Добавить в словарь:"
+        android:textColor="@color/colorWhite"
         />
 
     <Spinner
         android:id="@+id/list_dict_spinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:backgroundTint="@color/colorWhite"
         />
 
 </LinearLayout>
