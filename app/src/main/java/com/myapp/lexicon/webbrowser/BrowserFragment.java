@@ -19,6 +19,7 @@ import android.webkit.WebView;
 import android.widget.Toast;
 
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.dialogs.TranslatorDialog;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -116,7 +117,11 @@ public class BrowserFragment extends Fragment
                                         if (!value.equals("null"))
                                         {
                                             String strValue = value.replaceAll("\"\\b", "").replaceAll("\"\\B", "");
-                                            //Toast.makeText(getActivity(), strValue, Toast.LENGTH_SHORT).show();
+                                            TranslatorDialog translatorDialog = TranslatorDialog.getInstance(strValue);
+                                            if (getFragmentManager() != null)
+                                            {
+                                                translatorDialog.show(getFragmentManager(), TranslatorDialog.TAG);
+                                            }
 
                                             Snackbar.make(coordinatorLayout, strValue, Snackbar.LENGTH_SHORT).show();
                                         }
