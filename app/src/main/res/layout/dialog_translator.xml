@@ -3,25 +3,26 @@
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:orientation="vertical"
               android:background="@drawable/side_nav_bar"
-    android:padding="10dp">
+              android:orientation="vertical"
+              android:padding="10dp">
 
-    <LinearLayout android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
         <EditText
             android:id="@+id/en_word_et"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Run"
             android:autofillHints=""
-            tools:targetApi="o"
             android:inputType="text"
+            android:text="Run"
             android:textColor="@color/colorLightGreen"
-            tools:ignore="LabelFor"/>
+            tools:ignore="LabelFor"
+            tools:targetApi="o"/>
 
         <ImageButton
             style="?android:attr/buttonStyleSmall"
@@ -36,7 +37,8 @@
     </LinearLayout>
 
 
-    <LinearLayout android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
@@ -45,12 +47,12 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Запустить"
             android:autofillHints=""
-            tools:targetApi="o"
             android:inputType="text"
+            android:text="Запустить"
             android:textColor="@color/colorWhite"
-            tools:ignore="LabelFor"/>
+            tools:ignore="LabelFor"
+            tools:targetApi="o"/>
 
         <ImageButton
             style="?android:attr/buttonStyleSmall"

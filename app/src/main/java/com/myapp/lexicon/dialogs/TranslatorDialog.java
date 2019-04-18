@@ -10,6 +10,12 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.myapp.lexicon.R;
 
 public class TranslatorDialog extends AppCompatDialogFragment
@@ -40,6 +46,28 @@ public class TranslatorDialog extends AppCompatDialogFragment
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        if (getArguments() != null && getActivity() != null)
+        {
+            RequestQueue queue = Volley.newRequestQueue(getActivity());
+            String url = "http://www.google.com";
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>()
+            {
+                @Override
+                public void onResponse(String response)
+                {
+                    return;
+                }
+            },
+                    new Response.ErrorListener()
+                    {
+                        @Override
+                        public void onErrorResponse(VolleyError error)
+                        {
+                            return;
+                        }
+                    });
+            queue.add(stringRequest);
+        }
     }
 
     @NonNull
@@ -73,8 +101,7 @@ public class TranslatorDialog extends AppCompatDialogFragment
                     })
                     .setView(dialogView);
             return builder.create();
-        }
-        else
+        } else
         {
             return super.onCreateDialog(savedInstanceState);
         }
