@@ -17,11 +17,13 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.connectivity.TranslateApi;
 
 public class TranslatorDialog extends AppCompatDialogFragment
 {
     public static final String TAG = "translator_dialog";
     public static final String EN_WORD_TAG = "en_word";
+    private static final String RU_WORD_TAG = "ru_word";
 
     private static TranslatorDialog dialog = null;
 
@@ -43,18 +45,22 @@ public class TranslatorDialog extends AppCompatDialogFragment
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState)
+    public void onCreate(final Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         if (getArguments() != null && getActivity() != null)
         {
             RequestQueue queue = Volley.newRequestQueue(getActivity());
-            String url = "http://www.google.com";
-            StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>()
+            String url = new TranslateApi(getActivity()).getStringUrl(getArguments().getString(EN_WORD_TAG));
+            StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>()
             {
                 @Override
                 public void onResponse(String response)
                 {
+                    if (getArguments() != null)
+                    {
+                        getArguments().putString(RU_WORD_TAG, null);
+                    }
                     return;
                 }
             },
