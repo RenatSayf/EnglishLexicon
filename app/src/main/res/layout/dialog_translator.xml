@@ -1,85 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:background="@drawable/side_nav_bar"
-              android:orientation="vertical"
-              android:padding="10dp">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:background="@drawable/side_nav_bar">
+
+    <ProgressBar
+        android:id="@+id/prog_bar_dialog_trans"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"/>
 
     <LinearLayout
+
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="10dp">
 
-        <EditText
-            android:id="@+id/en_word_et"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:autofillHints=""
-            android:inputType="text"
-            android:text="Run"
-            android:textColor="@color/colorLightGreen"
-            tools:ignore="LabelFor"
-            tools:targetApi="o"/>
+            android:orientation="horizontal">
 
-        <ImageButton
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:background="@drawable/transparent_background_straight_angle"
-            android:contentDescription="@string/btn_sound_discribtion"
-            android:src="@drawable/selector_sound_icon"
-            android:textColor="@drawable/selector_white_to_orange_color"
-            />
+            <EditText
+                android:id="@+id/en_word_et"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:autofillHints=""
+                android:inputType="text"
+                android:textColor="@color/colorLightGreen"
+                tools:ignore="LabelFor"
+                tools:targetApi="o"/>
 
-    </LinearLayout>
+            <ImageButton
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@drawable/transparent_background_straight_angle"
+                android:contentDescription="@string/btn_sound_discribtion"
+                android:src="@drawable/selector_sound_icon"
+                android:textColor="@drawable/selector_white_to_orange_color"
+                />
+
+        </LinearLayout>
 
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <EditText
-            android:id="@+id/ru_word_et"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:autofillHints=""
-            android:inputType="text"
-            android:text="Запустить"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/ru_word_et"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:autofillHints=""
+                android:inputType="text"
+                android:textColor="@color/colorWhite"
+                tools:ignore="LabelFor"
+                tools:targetApi="o"/>
+
+            <ImageButton
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@drawable/transparent_background_straight_angle"
+                android:contentDescription="@string/btn_sound_discribtion"
+                android:src="@drawable/selector_sound_icon"
+                android:textColor="@drawable/selector_white_to_orange_color"
+                />
+
+        </LinearLayout>
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Добавить в словарь:"
             android:textColor="@color/colorWhite"
-            tools:ignore="LabelFor"
-            tools:targetApi="o"/>
+            />
 
-        <ImageButton
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:background="@drawable/transparent_background_straight_angle"
-            android:contentDescription="@string/btn_sound_discribtion"
-            android:src="@drawable/selector_sound_icon"
-            android:textColor="@drawable/selector_white_to_orange_color"
+        <Spinner
+            android:id="@+id/list_dict_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/colorWhite"
             />
 
     </LinearLayout>
-
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="Добавить в словарь:"
-        android:textColor="@color/colorWhite"
-        />
-
-    <Spinner
-        android:id="@+id/list_dict_spinner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/colorWhite"
-        />
-
-</LinearLayout>
+</FrameLayout>
