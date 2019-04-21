@@ -1,12 +1,13 @@
 package com.myapp.lexicon.dialogs;
 
 import android.app.Dialog;
-import android.content.DialogInterface;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDialogFragment;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -24,22 +25,30 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class TranslatorDialog extends AppCompatDialogFragment
+public class TranslatorDialog extends AppCompatDialogFragment implements View.OnClickListener
 {
     public static final String TAG = "translator_dialog";
     public static final String EN_WORD_TAG = "en_word";
-    private static final String RU_WORD_TAG = "ru_word";
 
     private EditText editTextRu;
     private ProgressBar progressBar;
+
+    static NoticeDialogListener mListener;
+
+    public interface NoticeDialogListener
+    {
+        void onDialogAddClick(AppCompatDialogFragment dialog);
+        void onDialogCancelClick(AppCompatDialogFragment dialog);
+    }
 
     public TranslatorDialog()
     {
 
     }
 
-    public static TranslatorDialog getInstance(String enWord)
+    public static TranslatorDialog getInstance(String enWord, NoticeDialogListener listener)
     {
+        mListener = listener;
         TranslatorDialog dialog = new TranslatorDialog();
         Bundle bundle = new Bundle();
         bundle.putString(EN_WORD_TAG, enWord);
@@ -64,33 +73,39 @@ public class TranslatorDialog extends AppCompatDialogFragment
             EditText editTextEn = dialogView.findViewById(R.id.en_word_et);
             editTextRu = dialogView.findViewById(R.id.ru_word_et);
             progressBar = dialogView.findViewById(R.id.prog_bar_dialog_trans);
+            Button btnAdd = dialogView.findViewById(R.id.btn_add_trans_dialog);
+            Button btnCancel = dialogView.findViewById(R.id.btn_cancel_trans_dialog);
+            btnCancel.setOnClickListener(this);
+            btnAddOnClick(btnAdd);
             if (getArguments() != null)
             {
                 editTextEn.setText(getArguments().getString(EN_WORD_TAG));
             }
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())//.setTitle("Перевод")
-                    .setPositiveButton("Добавить", new DialogInterface.OnClickListener()
-                    {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i)
-                        {
-
-                        }
-                    })
-                    .setNegativeButton("Отмена", new DialogInterface.OnClickListener()
-                    {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i)
-                        {
-
-                        }
-                    })
                     .setView(dialogView);
             return builder.create();
         } else
         {
             return super.onCreateDialog(savedInstanceState);
         }
+    }
+
+    private void btnAddOnClick(Button btnAdd)
+    {
+        btnAdd.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                mListener.onDialogAddClick(TranslatorDialog.this);
+            }
+        });
+    }
+
+    @Override
+    public void onAttach(Context context)
+    {
+        super.onAttach(context);
     }
 
     @Override
@@ -113,15 +128,17 @@ public class TranslatorDialog extends AppCompatDialogFragment
                         StringBuilder ruText = new StringBuilder();
                         for (int i = 0; i < array.length(); i++)
                         {
-                            ruText.append(array.get(i)).append(", ");
+                            ruText.append(array.get(i));
+                            if (i < array.length() - 1)
+                            {
+                                ruText.append(", ");
+                            }
                         }
-
-                        editTextRu.setText(ruText.toString().replaceAll("/(,\\s)$/g", ""));
+                        editTextRu.setText(ruText.toString());
                     } catch (JSONException e)
                     {
                         e.printStackTrace();
                     }
-                    return;
                 }
 
 
@@ -132,12 +149,20 @@ public class TranslatorDialog extends AppCompatDialogFragment
                         public void onErrorResponse(VolleyError error)
                         {
                             progressBar.setVisibility(View.GONE);
-                            return;
                         }
                     });
             queue.add(jsonRequest);
-            progressBar.animate();
         }
 
+    }
+
+    @Override
+    public void onClick(View view)
+    {
+        int id = view.getId();
+        if (id == R.id.btn_cancel_trans_dialog)
+        {
+            mListener.onDialogCancelClick(TranslatorDialog.this);
+        }
     }
 }

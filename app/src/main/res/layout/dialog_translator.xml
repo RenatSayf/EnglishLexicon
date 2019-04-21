@@ -80,7 +80,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="Добавить в словарь:"
+            android:text="@string/add_to_dict"
             android:textColor="@color/colorWhite"
             />
 
@@ -89,7 +89,35 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/colorWhite"
-            />
+            tools:targetApi="lollipop"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_cancel_trans_dialog"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/transparent_background_straight_angle"
+                android:text="@string/text_cancel"
+                android:textColor="@color/colorWhite"
+                style="@style/Widget.AppCompat.ButtonBar"
+                />
+
+            <Button
+                android:id="@+id/btn_add_trans_dialog"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/transparent_background_straight_angle"
+                android:text="@string/text_add"
+                android:textColor="@color/colorWhite"
+                style="@style/Widget.AppCompat.ButtonBar"/>
+
+        </LinearLayout>
 
     </LinearLayout>
 </FrameLayout>

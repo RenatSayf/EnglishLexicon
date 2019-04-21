@@ -2,6 +2,7 @@ package com.myapp.lexicon.connectivity;
 
 import android.content.Context;
 
+import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseQueries;
 
 import java.io.UnsupportedEncodingException;
@@ -11,6 +12,7 @@ import java.util.Random;
 
 public class TranslateApi
 {
+    private Context context;
     private DataBaseQueries dataBaseQueries;
     private String[] apiKeys = new String[]
             {
@@ -29,12 +31,14 @@ public class TranslateApi
 
     public TranslateApi(Context context)
     {
+        this.context = context;
         dataBaseQueries = new DataBaseQueries(context);
         generator = new Random(new Date().getTime());
     }
 
     public String getStringUrl(String enWord)
     {
+        String trans_direct = this.context.getString(R.string.translate_direct_en_ru);
         String enWordEncode;
         try
         {
@@ -49,6 +53,6 @@ public class TranslateApi
         {
             apiKey = apiKeys[generator.nextInt(apiKeys.length)];
         }
-        return "https://translate.yandex.net/api/v1.5/tr.json/translate?key=" + apiKey + "&text=" + enWordEncode + "&lang=en-ru&[format=plain]&[options=1]";
+        return "https://translate.yandex.net/api/v1.5/tr.json/translate?key=" + apiKey + "&text=" + enWordEncode + "&lang=" + trans_direct + "&[format=plain]&[options=1]";
     }
 }

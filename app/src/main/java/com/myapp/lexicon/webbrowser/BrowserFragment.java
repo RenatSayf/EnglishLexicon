@@ -7,16 +7,14 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatDialogFragment;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
-import android.widget.Toast;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.dialogs.TranslatorDialog;
@@ -31,6 +29,7 @@ import com.myapp.lexicon.dialogs.TranslatorDialog;
  */
 public class BrowserFragment extends Fragment
 {
+    public static final String TAG = "browser_fragment";
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -97,7 +96,7 @@ public class BrowserFragment extends Fragment
             public boolean onTouch(View view, MotionEvent motionEvent)
             {
                 view.performClick();
-                if (motionEvent.getAction() == MotionEvent.ACTION_UP)
+                if (motionEvent.getAction() == MotionEvent.ACTION_UP && motionEvent.getAction() != MotionEvent.ACTION_SCROLL)
                 {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
                     {
@@ -117,13 +116,26 @@ public class BrowserFragment extends Fragment
                                         if (!value.equals("null"))
                                         {
                                             String strValue = value.replaceAll("\"\\b", "").replaceAll("\"\\B", "");
-                                            TranslatorDialog translatorDialog = TranslatorDialog.getInstance(strValue);
+                                            TranslatorDialog translatorDialog = TranslatorDialog.getInstance(strValue, new TranslatorDialog.NoticeDialogListener()
+                                            {
+                                                @Override
+                                                public void onDialogAddClick(AppCompatDialogFragment dialog)
+                                                {
+                                                    webView.clearFocus();
+                                                    dialog.dismiss();
+                                                }
+
+                                                @Override
+                                                public void onDialogCancelClick(AppCompatDialogFragment dialog)
+                                                {
+                                                    webView.clearFocus();
+                                                    dialog.dismiss();
+                                                }
+                                            });
                                             if (getFragmentManager() != null)
                                             {
                                                 translatorDialog.show(getFragmentManager(), TranslatorDialog.TAG);
                                             }
-
-                                            Snackbar.make(coordinatorLayout, strValue, Snackbar.LENGTH_SHORT).show();
                                         }
                                     }
                                 });
@@ -132,7 +144,6 @@ public class BrowserFragment extends Fragment
                 return false;
             }
         });
-
 
 
         return fragment_view;
@@ -187,15 +198,6 @@ public class BrowserFragment extends Fragment
     {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
-    }
-
-    public class WebAppInterface
-    {
-        @JavascriptInterface
-        public void callback(String value)
-        {
-            Toast.makeText(getActivity(), value, Toast.LENGTH_SHORT).show();
-        }
     }
 
 
