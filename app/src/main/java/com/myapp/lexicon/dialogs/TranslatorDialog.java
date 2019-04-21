@@ -1,9 +1,12 @@
 package com.myapp.lexicon.dialogs;
 
 import android.app.Dialog;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDialogFragment;
 import android.view.View;
@@ -20,10 +23,13 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.connectivity.TranslateApi;
+import com.myapp.lexicon.database.LexiconDataBase;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.List;
 
 public class TranslatorDialog extends AppCompatDialogFragment implements View.OnClickListener
 {
@@ -60,7 +66,15 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
     public void onCreate(final Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-
+        LexiconDataBase dataBase = ViewModelProviders.of(this).get(LexiconDataBase.class);
+        dataBase.getDictList().observe(this, new Observer<List<String>>()
+        {
+            @Override
+            public void onChanged(@Nullable List<String> dicts)
+            {
+                return;
+            }
+        });
     }
 
     @NonNull
