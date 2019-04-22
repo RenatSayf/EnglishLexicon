@@ -85,7 +85,7 @@
             />
 
         <Spinner
-            android:id="@+id/list_dict_spinner"
+            android:id="@+id/spinner_trans_dialog"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/colorWhite"

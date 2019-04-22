@@ -10,10 +10,12 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDialogFragment;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -38,6 +40,8 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
 
     private EditText editTextRu;
     private ProgressBar progressBar;
+    private Spinner dictListSpinner;
+    private ArrayAdapter<String> adapter;
 
     static NoticeDialogListener mListener;
 
@@ -67,12 +71,16 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
     {
         super.onCreate(savedInstanceState);
         LexiconDataBase dataBase = ViewModelProviders.of(this).get(LexiconDataBase.class);
-        dataBase.getDictList().observe(this, new Observer<List<String>>()
+        dataBase.getDictList(getActivity()).observe(this, new Observer<List<String>>()
         {
             @Override
             public void onChanged(@Nullable List<String> dicts)
             {
-                return;
+                if (getActivity() != null && dicts != null)
+                {
+                    adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, dicts);
+                    dictListSpinner.setAdapter(adapter);
+                }
             }
         });
     }
@@ -87,6 +95,7 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
             EditText editTextEn = dialogView.findViewById(R.id.en_word_et);
             editTextRu = dialogView.findViewById(R.id.ru_word_et);
             progressBar = dialogView.findViewById(R.id.prog_bar_dialog_trans);
+            dictListSpinner = dialogView.findViewById(R.id.spinner_trans_dialog);
             Button btnAdd = dialogView.findViewById(R.id.btn_add_trans_dialog);
             Button btnCancel = dialogView.findViewById(R.id.btn_cancel_trans_dialog);
             btnCancel.setOnClickListener(this);

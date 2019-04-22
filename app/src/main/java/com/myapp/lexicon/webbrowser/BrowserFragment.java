@@ -121,14 +121,14 @@ public class BrowserFragment extends Fragment
                                                 @Override
                                                 public void onDialogAddClick(AppCompatDialogFragment dialog)
                                                 {
-                                                    webView.clearFocus();
+                                                    //webView.clearFocus();
                                                     dialog.dismiss();
                                                 }
 
                                                 @Override
                                                 public void onDialogCancelClick(AppCompatDialogFragment dialog)
                                                 {
-                                                    webView.clearFocus();
+                                                    //webView.clearFocus();
                                                     dialog.dismiss();
                                                 }
                                             });
