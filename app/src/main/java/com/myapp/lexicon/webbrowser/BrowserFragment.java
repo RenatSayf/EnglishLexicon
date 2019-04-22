@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatDialogFragment;
 import android.view.LayoutInflater;
@@ -41,6 +42,7 @@ public class BrowserFragment extends Fragment
 
     private CoordinatorLayout coordinatorLayout;
     private LexiconWebView webView;
+    private String selectedText;
 
     private OnFragmentInteractionListener mListener;
 
@@ -85,6 +87,8 @@ public class BrowserFragment extends Fragment
     {
         View fragment_view = inflater.inflate(R.layout.browser_fragment, container, false);
         coordinatorLayout = fragment_view.findViewById(R.id.web_view_coord_laytout);
+        FloatingActionButton transFloatBtn = fragment_view.findViewById(R.id.translate_fab);
+        transFloatBtnOnClick(transFloatBtn);
         webView = fragment_view.findViewById(R.id.web_view);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.setWebViewClient(new LexiconWebClient());
@@ -96,7 +100,7 @@ public class BrowserFragment extends Fragment
             public boolean onTouch(View view, MotionEvent motionEvent)
             {
                 view.performClick();
-                if (motionEvent.getAction() == MotionEvent.ACTION_UP && motionEvent.getAction() != MotionEvent.ACTION_SCROLL)
+                if (motionEvent.getAction() == MotionEvent.ACTION_UP || motionEvent.getAction() == MotionEvent.ACTION_POINTER_UP)
                 {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
                     {
@@ -113,30 +117,7 @@ public class BrowserFragment extends Fragment
                                     @Override
                                     public void onReceiveValue(String value)
                                     {
-                                        if (!value.equals("null"))
-                                        {
-                                            String strValue = value.replaceAll("\"\\b", "").replaceAll("\"\\B", "");
-                                            TranslatorDialog translatorDialog = TranslatorDialog.getInstance(strValue, new TranslatorDialog.NoticeDialogListener()
-                                            {
-                                                @Override
-                                                public void onDialogAddClick(AppCompatDialogFragment dialog)
-                                                {
-                                                    //webView.clearFocus();
-                                                    dialog.dismiss();
-                                                }
-
-                                                @Override
-                                                public void onDialogCancelClick(AppCompatDialogFragment dialog)
-                                                {
-                                                    //webView.clearFocus();
-                                                    dialog.dismiss();
-                                                }
-                                            });
-                                            if (getFragmentManager() != null)
-                                            {
-                                                translatorDialog.show(getFragmentManager(), TranslatorDialog.TAG);
-                                            }
-                                        }
+                                        selectedText = value;
                                     }
                                 });
                     }
@@ -144,9 +125,42 @@ public class BrowserFragment extends Fragment
                 return false;
             }
         });
-
-
         return fragment_view;
+    }
+
+    private void transFloatBtnOnClick(FloatingActionButton transFloatBtn)
+    {
+        transFloatBtn.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                if (selectedText != null && !selectedText.equals("null"))
+                {
+                    String strValue = selectedText.replaceAll("\"\\b", "").replaceAll("\"\\B", "");
+                    TranslatorDialog translatorDialog = TranslatorDialog.getInstance(strValue, new TranslatorDialog.NoticeDialogListener()
+                    {
+                        @Override
+                        public void onDialogAddClick(AppCompatDialogFragment dialog)
+                        {
+                            webView.clearFocus();
+                            dialog.dismiss();
+                        }
+
+                        @Override
+                        public void onDialogCancelClick(AppCompatDialogFragment dialog)
+                        {
+                            webView.clearFocus();
+                            dialog.dismiss();
+                        }
+                    });
+                    if (getFragmentManager() != null)
+                    {
+                        translatorDialog.show(getFragmentManager(), TranslatorDialog.TAG);
+                    }
+                }
+            }
+        });
     }
 
     public WebView getLexiconWebView()

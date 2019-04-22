@@ -4,21 +4,37 @@
                                                  android:layout_width="match_parent"
                                                  android:layout_height="match_parent">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                  xmlns:tools="http://schemas.android.com/tools"
-                  android:layout_width="match_parent"
-                  android:layout_height="match_parent"
-                  android:layout_gravity="center"
-                  android:background="@color/colorGrey"
-                  android:orientation="vertical"
-                  tools:context=".webbrowser.BrowserFragment">
+    <LinearLayout
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:background="@color/colorGrey"
+        android:orientation="vertical"
+        tools:context=".webbrowser.BrowserFragment">
 
 
-        <com.myapp.lexicon.webbrowser.LexiconWebView
-            android:id="@+id/web_view"
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"/>
+            android:layout_weight="1">
+
+            <com.myapp.lexicon.webbrowser.LexiconWebView
+                android:id="@+id/web_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/translate_fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|bottom"
+                android:layout_margin="16dp"
+                android:src="@drawable/ic_translate_blue_24dp"
+                />
+
+        </FrameLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -45,6 +61,7 @@
                 android:textColor="@color/colorWhite"/>
 
         </LinearLayout>
+
 
     </LinearLayout>
 </android.support.design.widget.CoordinatorLayout>
