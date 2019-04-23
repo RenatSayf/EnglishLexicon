@@ -6,12 +6,10 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatDialogFragment;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.ValueCallback;
@@ -40,9 +38,7 @@ public class BrowserFragment extends Fragment
     private String mParam1;
     private String mParam2;
 
-    private CoordinatorLayout coordinatorLayout;
     private LexiconWebView webView;
-    private String selectedText;
 
     private OnFragmentInteractionListener mListener;
 
@@ -86,7 +82,6 @@ public class BrowserFragment extends Fragment
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         View fragment_view = inflater.inflate(R.layout.browser_fragment, container, false);
-        coordinatorLayout = fragment_view.findViewById(R.id.web_view_coord_laytout);
         FloatingActionButton transFloatBtn = fragment_view.findViewById(R.id.translate_fab);
         transFloatBtnOnClick(transFloatBtn);
         webView = fragment_view.findViewById(R.id.web_view);
@@ -94,37 +89,6 @@ public class BrowserFragment extends Fragment
         webView.setWebViewClient(new LexiconWebClient());
         webView.loadUrl("https://www.bbc.com/");
 
-        webView.setOnTouchListener(new View.OnTouchListener()
-        {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent)
-            {
-                view.performClick();
-                if (motionEvent.getAction() == MotionEvent.ACTION_UP || motionEvent.getAction() == MotionEvent.ACTION_POINTER_UP)
-                {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
-                    {
-                        webView.evaluateJavascript("(function(){\n" +
-                                        "    if(window.getSelection().toString() !== \"\"){\n" +
-                                        "        return window.getSelection().toString();\n" +
-                                        "    }\n" +
-                                        "    else{\n" +
-                                        "        return null;\n" +
-                                        "    }\n" +
-                                        "})()",
-                                new ValueCallback<String>()
-                                {
-                                    @Override
-                                    public void onReceiveValue(String value)
-                                    {
-                                        selectedText = value;
-                                    }
-                                });
-                    }
-                }
-                return false;
-            }
-        });
         return fragment_view;
     }
 
@@ -135,29 +99,47 @@ public class BrowserFragment extends Fragment
             @Override
             public void onClick(View view)
             {
-                if (selectedText != null && !selectedText.equals("null"))
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
                 {
-                    String strValue = selectedText.replaceAll("\"\\b", "").replaceAll("\"\\B", "");
-                    TranslatorDialog translatorDialog = TranslatorDialog.getInstance(strValue, new TranslatorDialog.NoticeDialogListener()
-                    {
-                        @Override
-                        public void onDialogAddClick(AppCompatDialogFragment dialog)
-                        {
-                            webView.clearFocus();
-                            dialog.dismiss();
-                        }
+                    webView.evaluateJavascript("(function(){\n" +
+                                    "    if(window.getSelection().toString() !== \"\"){\n" +
+                                    "        return window.getSelection().toString();\n" +
+                                    "    }\n" +
+                                    "    else{\n" +
+                                    "        return null;\n" +
+                                    "    }\n" +
+                                    "})()",
+                            new ValueCallback<String>()
+                            {
+                                @Override
+                                public void onReceiveValue(String value)
+                                {
+                                    if (value != null && !value.equals("null"))
+                                    {
+                                        String strValue = value.replaceAll("\"\\b", "").replaceAll("\"\\B", "");
+                                        TranslatorDialog translatorDialog = TranslatorDialog.getInstance(strValue, new TranslatorDialog.NoticeDialogListener()
+                                        {
+                                            @Override
+                                            public void onDialogAddClick(AppCompatDialogFragment dialog)
+                                            {
+                                                webView.clearFocus();
+                                                dialog.dismiss();
+                                            }
 
-                        @Override
-                        public void onDialogCancelClick(AppCompatDialogFragment dialog)
-                        {
-                            webView.clearFocus();
-                            dialog.dismiss();
-                        }
-                    });
-                    if (getFragmentManager() != null)
-                    {
-                        translatorDialog.show(getFragmentManager(), TranslatorDialog.TAG);
-                    }
+                                            @Override
+                                            public void onDialogCancelClick(AppCompatDialogFragment dialog)
+                                            {
+                                                webView.clearFocus();
+                                                dialog.dismiss();
+                                            }
+                                        });
+                                        if (getFragmentManager() != null)
+                                        {
+                                            translatorDialog.show(getFragmentManager(), TranslatorDialog.TAG);
+                                        }
+                                    }
+                                }
+                            });
                 }
             }
         });
