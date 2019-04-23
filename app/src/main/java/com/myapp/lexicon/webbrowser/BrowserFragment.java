@@ -10,6 +10,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatDialogFragment;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.ValueCallback;
@@ -82,17 +83,31 @@ public class BrowserFragment extends Fragment
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         View fragment_view = inflater.inflate(R.layout.browser_fragment, container, false);
-        FloatingActionButton transFloatBtn = fragment_view.findViewById(R.id.translate_fab);
+        final FloatingActionButton transFloatBtn = fragment_view.findViewById(R.id.translate_fab);
         transFloatBtnOnClick(transFloatBtn);
+        transFloatBtn.hide();
         webView = fragment_view.findViewById(R.id.web_view);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.setWebViewClient(new LexiconWebClient());
         webView.loadUrl("https://www.bbc.com/");
+        webView.setOnTouchListener(new View.OnTouchListener()
+        {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent)
+            {
+                view.performClick();
+                if (motionEvent.getAction() == MotionEvent.ACTION_UP)
+                {
+                    transFloatBtn.show();
+                }
+                return false;
+            }
+        });
 
         return fragment_view;
     }
 
-    private void transFloatBtnOnClick(FloatingActionButton transFloatBtn)
+    private void transFloatBtnOnClick(final FloatingActionButton transFloatBtn)
     {
         transFloatBtn.setOnClickListener(new View.OnClickListener()
         {
@@ -123,6 +138,7 @@ public class BrowserFragment extends Fragment
                                             public void onDialogAddClick(AppCompatDialogFragment dialog)
                                             {
                                                 webView.clearFocus();
+                                                transFloatBtn.hide();
                                                 dialog.dismiss();
                                             }
 
@@ -130,6 +146,7 @@ public class BrowserFragment extends Fragment
                                             public void onDialogCancelClick(AppCompatDialogFragment dialog)
                                             {
                                                 webView.clearFocus();
+                                                transFloatBtn.hide();
                                                 dialog.dismiss();
                                             }
                                         });
