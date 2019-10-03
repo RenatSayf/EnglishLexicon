@@ -262,7 +262,7 @@ public class AppData
 
     public boolean isAdMob()
     {
-        return true;
+        return false;
     }
 
     public boolean isOnline(Context context)

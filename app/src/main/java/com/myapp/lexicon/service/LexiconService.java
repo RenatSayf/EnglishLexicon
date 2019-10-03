@@ -194,14 +194,17 @@ public class LexiconService extends Service
 //                    }
                     if (action.equals(actionScreenOff))
                     {
-                        Intent intentAct = new Intent("android.intent.action.MAIN");
+                        Intent intentAct = new Intent(Intent.ACTION_MAIN);
                         intentAct.setClass(LexiconService.this, ServiceDialog.class);
                         intentAct.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(intentAct);
                     }
 //                    if (action.equals(actionScreenOn))
 //                    {
-//
+//                        Intent intentAct = new Intent("android.intent.action.MAIN");
+//                        intentAct.setClass(LexiconService.this, ServiceDialog.class);
+//                        intentAct.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                        startActivity(intentAct);
 //                    }
                 }
             }

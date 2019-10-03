@@ -120,8 +120,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a_navig_main);
 
-        MobileAds.initialize(this, getString(R.string.admob_app_id));
-
         fragmentManager = getSupportFragmentManager();
 
         if (savedInstanceState == null)
@@ -188,6 +186,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             {
                 if (savedInstanceState == null)
                 {
+                    MobileAds.initialize(this, getString(R.string.admob_app_id));
                     MainBannerFragment bannerFragment = new MainBannerFragment();
                     getSupportFragmentManager().beginTransaction().replace(R.id.banner_frame_main, bannerFragment).commit();
                 }
