@@ -16,33 +16,12 @@
     <string name="title_activity_add_word">Добавить слово</string>
     <string name="title_activity_check_self">Тесты</string>
 
-    <string-array name="not_move">
-        <item>Не перемещать</item>
-    </string-array>
-
-    <string-array name="count_repeat">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
-        <item>5</item>
-        <item>6</item>
-        <item>7</item>
-        <item>8</item>
-        <item>9</item>
-        <item>10</item>
-    </string-array>
-
-    <string-array name="order_play_items">
-        <item value="0">По порядку</item>
-        <!--<item>В обратном порядке</item>-->
-        <item value="1">Случайный выбор</item>
-    </string-array>
-
     <string name="title_activity_word_editor">Редактор слов</string>
+
     <string name="title_activity_play_list">Список обучения</string>
+
     <string name="delete_dict">Удалить словарь</string>
+
     <string name="spinner_order_play_header">Порядок обучения:</string>
     <string name="play_list_header">Список обучения:</string>
     <string name="add">Добавить</string>
@@ -167,10 +146,10 @@
     <string name="text_ru_speech_off">Русскоязычное озвучивание отключено</string>
     <string name="app_indexing_name">Английский лексикон</string>
     <string name="app_indexing_text">Учим английские слова и фразы</string>
-
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="notify_content_text">Нажмите, чтобы открыть приложение</string>
     <string name="btn_sound_discribtion">btn_sound</string>
+
     <string name="btn_close_discribtion">btn_close</string>
     <string name="text_en">En</string>
     <string name="text_off">Выкл</string>
@@ -191,10 +170,10 @@
     <string name="summary_is_start_speech">Озвучивать вступительную фразу при запуске приложения</string>
     <string name="btn_text_new">Новый</string>
     <string name="text_create_dict_fails">Не удалось создать словарь</string>
-
     <string name="title_display_mode">Показывать слова в режиме:</string>
     <string name="summary_display_mode">Повтор</string>
     <string name="title_service">Показывать слово</string>
+
     <string name="key_service">service</string>
     <string name="key_list_display_mode">list_display_mode</string>
     <string name="text_studied">Изучено</string>
@@ -219,6 +198,27 @@
     <string name="privacy_policy_text_link">Политика конфиденциальности</string>
     <string name="cloud_storage_text">Облачное хранилище</string>
     <string name="text_read_by_eng">Читаем по английски</string>
+    <string-array name="not_move">
+        <item>Не перемещать</item>
+    </string-array>
+    <string-array name="count_repeat">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+    </string-array>
+    <string-array name="order_play_items">
+        <item value="0">По порядку</item>
+        <!--<item>В обратном порядке</item>-->
+        <item value="1">Случайный выбор</item>
+    </string-array>
 
     <string-array name="display_mode">
         <item>Повтор</item>
