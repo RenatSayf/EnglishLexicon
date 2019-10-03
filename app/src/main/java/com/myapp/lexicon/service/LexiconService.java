@@ -173,6 +173,14 @@ public class LexiconService extends Service
         }
     }
 
+    private PendingIntent newPendingIntent()
+    {
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.setClass(LexiconService.this, ServiceDialog.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        return PendingIntent.getActivity(this, 1, intent, PendingIntent.FLAG_ONE_SHOT);
+    }
+
     public class PhoneUnlockedReceiver extends BroadcastReceiver
     {
         // TODO: обработчик событий нажатия кнопки блокировки, выключения экрана....
@@ -182,9 +190,9 @@ public class LexiconService extends Service
             if (intent != null)
             {
                 String action = intent.getAction();
-                //String actionUserPresent = Intent.ACTION_USER_PRESENT;
+                String actionUserPresent = Intent.ACTION_USER_PRESENT;
                 String actionScreenOff = Intent.ACTION_SCREEN_OFF;
-                //String actionScreenOn = Intent.ACTION_SCREEN_ON;
+                String actionScreenOn = Intent.ACTION_SCREEN_ON;
 
                 if (action != null)
                 {
@@ -192,20 +200,20 @@ public class LexiconService extends Service
 //                    {
 //
 //                    }
-                    if (action.equals(actionScreenOff))
-                    {
-                        Intent intentAct = new Intent(Intent.ACTION_MAIN);
-                        intentAct.setClass(LexiconService.this, ServiceDialog.class);
-                        intentAct.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intentAct);
-                    }
-//                    if (action.equals(actionScreenOn))
+//                    if (action.equals(actionScreenOff))
 //                    {
-//                        Intent intentAct = new Intent("android.intent.action.MAIN");
+//                        Intent intentAct = new Intent(Intent.ACTION_MAIN);
 //                        intentAct.setClass(LexiconService.this, ServiceDialog.class);
 //                        intentAct.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 //                        startActivity(intentAct);
 //                    }
+                    if (action.equals(actionScreenOn) || action.equals(actionUserPresent))
+                    {
+                        Intent intentAct = new Intent("android.intent.action.MAIN");
+                        intentAct.setClass(LexiconService.this, ServiceDialog.class);
+                        intentAct.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intentAct);
+                    }
                 }
             }
         }
