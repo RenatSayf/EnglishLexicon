@@ -6,7 +6,9 @@ import android.arch.lifecycle.ViewModel;
 import android.content.Context;
 import android.database.Cursor;
 
+import com.myapp.lexicon.R;
 import com.myapp.lexicon.helpers.StringOperations;
+import com.myapp.lexicon.settings.AppData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,18 +17,19 @@ public class LexiconDataBase extends ViewModel
 {
     private MutableLiveData<List<String>> dictionaries;
     private DatabaseHelper databaseHelper;
+
     public LiveData<List<String>> getDictList(Context context)
     {
         databaseHelper = new DatabaseHelper(context);
         if (dictionaries == null)
         {
             dictionaries = new MutableLiveData<>();
-            dictionaries = loadDictList();
+            dictionaries = loadDictList(context);
         }
         return dictionaries;
     }
 
-    private MutableLiveData<List<String>> loadDictList()
+    private MutableLiveData<List<String>> loadDictList(Context context)
     {
         String nameNotDict;
         Cursor cursor = null;
@@ -71,8 +74,10 @@ public class LexiconDataBase extends ViewModel
             databaseHelper.close();
         }
         MutableLiveData<List<String>> dicts = new MutableLiveData<>();
+        String dictName = AppData.getInstance().getPlayList().get(AppData.getInstance().getNdict());
+        list.set(0, dictName);
+        list.set(list.size() - 1, context.getString(R.string.text_new_dict));
         dicts.setValue(list);
         return dicts;
-
     }
 }

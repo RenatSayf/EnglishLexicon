@@ -198,6 +198,7 @@
     <string name="privacy_policy_text_link">Политика конфиденциальности</string>
     <string name="cloud_storage_text">Облачное хранилище</string>
     <string name="text_read_by_eng">Читаем по английски</string>
+    <string name="text_new_dict">Новый словарь</string>
     <string-array name="not_move">
         <item>Не перемещать</item>
     </string-array>
