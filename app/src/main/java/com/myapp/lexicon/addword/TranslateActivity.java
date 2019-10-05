@@ -16,7 +16,7 @@ public class TranslateActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.b_translate_activity);
-        String enWord = null;
+        String enWord;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M)
         {
             enWord = getIntent().getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT).toString().toLowerCase();
