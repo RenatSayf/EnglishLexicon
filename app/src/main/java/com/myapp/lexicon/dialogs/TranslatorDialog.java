@@ -175,7 +175,7 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
                                 ruText.append(", ");
                             }
                         }
-                        editTextRu.setText(ruText.toString());
+                        editTextRu.setText(ruText.toString().toLowerCase());
                     } catch (JSONException e)
                     {
                         e.printStackTrace();

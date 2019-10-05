@@ -19,7 +19,7 @@ public class TranslateActivity extends AppCompatActivity
         String enWord = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M)
         {
-            enWord = getIntent().getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT).toString();
+            enWord = getIntent().getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT).toString().toLowerCase();
             TranslatorDialog translatorDialog = TranslatorDialog.getInstance(enWord, new TranslatorDialog.NoticeDialogListener()
             {
                 @Override
