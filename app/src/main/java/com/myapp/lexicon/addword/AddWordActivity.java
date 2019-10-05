@@ -52,6 +52,10 @@ import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
@@ -203,6 +207,21 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
     {
         super.onResume();
         appSettings = new AppSettings(this);
+
+    }
+
+    @Override
+    protected void onStart()
+    {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onStop()
+    {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
     }
 
     @Override
@@ -758,7 +777,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
-        super.onActivityResult(requestCode, resultCode, data);
+        //super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1)
         {
             if (resultCode == RESULT_OK && data != null)
@@ -860,4 +879,16 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
             toast.show();
         }
     }
+
+    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+    public void onTranslateDialogEvent(TranslateDialogEvent event)
+    {
+        DataBaseEntry entry = event.entry;
+        String english = entry.getEnglish();
+        textViewEnter.setText(english);
+        String translate = entry.getTranslate();
+        textViewResult.setText(translate);
+    }
+
+
 }

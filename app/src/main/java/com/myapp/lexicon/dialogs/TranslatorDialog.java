@@ -4,11 +4,13 @@ import android.app.Dialog;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDialogFragment;
+import android.text.Editable;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -24,9 +26,13 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.addword.AddWordActivity;
+import com.myapp.lexicon.addword.TranslateDialogEvent;
 import com.myapp.lexicon.connectivity.TranslateApi;
+import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.LexiconDataBase;
 
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,7 +43,10 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
 {
     public static final String TAG = "translator_dialog";
     public static final String EN_WORD_TAG = "en_word";
+    public static final int CODE = 2154;
+    public static final String ENTRY_KEY = "result_entry";
 
+    private EditText editTextEn;
     private EditText editTextRu;
     private ProgressBar progressBar;
     private Spinner dictListSpinner;
@@ -92,7 +101,7 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
         if (getActivity() != null)
         {
             View dialogView = getActivity().getLayoutInflater().inflate(R.layout.dialog_translator, new LinearLayout(getContext()), false);
-            EditText editTextEn = dialogView.findViewById(R.id.en_word_et);
+            editTextEn = dialogView.findViewById(R.id.en_word_et);
             editTextRu = dialogView.findViewById(R.id.ru_word_et);
             progressBar = dialogView.findViewById(R.id.prog_bar_dialog_trans);
             dictListSpinner = dialogView.findViewById(R.id.spinner_trans_dialog);
@@ -120,6 +129,15 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
             @Override
             public void onClick(View view)
             {
+                String dict = dictListSpinner.getSelectedItem().toString();
+                if (getActivity() != null && dict.equals(getActivity().getString(R.string.text_new_dict)))
+                {
+                    Editable enText = editTextEn.getText();
+                    Editable ruText = editTextRu.getText();
+                    Intent intent = new Intent(getContext(), AddWordActivity.class);
+                    EventBus.getDefault().postSticky(new TranslateDialogEvent(new DataBaseEntry(enText.toString(), ruText.toString())));
+                    startActivity(intent);
+                }
                 mListener.onDialogAddClick(TranslatorDialog.this);
             }
         });
@@ -163,8 +181,6 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
                         e.printStackTrace();
                     }
                 }
-
-
             },
                     new Response.ErrorListener()
                     {
