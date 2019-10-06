@@ -10,7 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDialogFragment;
-import android.text.Editable;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -18,6 +18,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -29,7 +30,9 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.addword.AddWordActivity;
 import com.myapp.lexicon.addword.TranslateDialogEvent;
 import com.myapp.lexicon.connectivity.TranslateApi;
+import com.myapp.lexicon.database.CallableAction;
 import com.myapp.lexicon.database.DataBaseEntry;
+import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.LexiconDataBase;
 
 import org.greenrobot.eventbus.EventBus;
@@ -39,12 +42,15 @@ import org.json.JSONObject;
 
 import java.util.List;
 
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+
 public class TranslatorDialog extends AppCompatDialogFragment implements View.OnClickListener
 {
     public static final String TAG = "translator_dialog";
     public static final String EN_WORD_TAG = "en_word";
-    public static final int CODE = 2154;
-    public static final String ENTRY_KEY = "result_entry";
 
     private EditText editTextEn;
     private EditText editTextRu;
@@ -129,16 +135,61 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
             @Override
             public void onClick(View view)
             {
-                String dict = dictListSpinner.getSelectedItem().toString();
+                final String dict = dictListSpinner.getSelectedItem().toString();
+                String enText = editTextEn.getText().toString();
+                String ruText = editTextRu.getText().toString();
                 if (getActivity() != null && dict.equals(getActivity().getString(R.string.text_new_dict)))
                 {
-                    Editable enText = editTextEn.getText();
-                    Editable ruText = editTextRu.getText();
+
                     Intent intent = new Intent(getContext(), AddWordActivity.class);
-                    EventBus.getDefault().postSticky(new TranslateDialogEvent(new DataBaseEntry(enText.toString(), ruText.toString())));
+                    EventBus.getDefault().postSticky(new TranslateDialogEvent(new DataBaseEntry(enText, ruText)));
                     startActivity(intent);
+                    mListener.onDialogAddClick(TranslatorDialog.this);
+                    dismiss();
                 }
-                mListener.onDialogAddClick(TranslatorDialog.this);
+                else if (getActivity() != null && !dict.equals(getActivity().getString(R.string.text_new_dict)) && !dict.equals(""))
+                {
+                    Observable<Long> longObservable = Observable.fromCallable(new CallableAction(new DataBaseQueries(getContext()), dict, new DataBaseEntry(enText, ruText)));
+                    longObservable.subscribeOn(Schedulers.newThread())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(new io.reactivex.Observer<Long>()
+                            {
+                                private Disposable disposable;
+                                private Long res;
+                                @Override
+                                public void onSubscribe(Disposable d)
+                                {
+                                    disposable = d;
+                                }
+
+                                @Override
+                                public void onNext(Long aLong)
+                                {
+                                    res = aLong;
+                                }
+
+                                @Override
+                                public void onError(Throwable e)
+                                {
+                                    disposable.dispose();
+                                }
+
+                                @Override
+                                public void onComplete()
+                                {
+                                    disposable.dispose();
+                                    if (res != -1)
+                                    {
+                                        Toast toast = Toast.makeText(getActivity(), getActivity().getString(R.string.in_dictionary) + dict + getActivity().getString(R.string.new_word_is_added), Toast.LENGTH_LONG);
+                                        toast.setGravity(Gravity.CENTER,0,0);
+                                        toast.show();
+                                    }
+                                    mListener.onDialogAddClick(TranslatorDialog.this);
+                                    dismiss();
+                                }
+                            });
+                }
+
             }
         });
     }
@@ -202,6 +253,7 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
         if (id == R.id.btn_cancel_trans_dialog)
         {
             mListener.onDialogCancelClick(TranslatorDialog.this);
+            dismiss();
         }
     }
 }

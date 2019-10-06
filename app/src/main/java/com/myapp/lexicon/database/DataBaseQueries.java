@@ -176,7 +176,7 @@ public class DataBaseQueries
         return id;
     }
 
-    public long deleteWordInTableSync(final String tableName, final long rowId)
+    public long deleteWordInTableSync(final String tableName, final int rowId, String english, String translate)
     {
         String table_name = StringOperations.getInstance().spaceToUnderscore(tableName);
         long id = -1;
@@ -186,27 +186,22 @@ public class DataBaseQueries
             if (databaseHelper.database.isOpen())
             {
                 databaseHelper.database.beginTransaction();
-                id = databaseHelper.database.delete(table_name, "RowId = " + rowId, null);
-
-                databaseHelper.database.setTransactionSuccessful();
-                databaseHelper.database.endTransaction();
+                id = databaseHelper.database.delete(table_name, "English = '" + english + "' AND " + "Translate = '" + translate + "'", null);
+                if (id >=0 )
+                {
+                    databaseHelper.database.setTransactionSuccessful();
+                    databaseHelper.database.endTransaction();
+                }
             }
         } catch (Exception e)
         {
+            databaseHelper.database.endTransaction();
             e.printStackTrace();
         }
         finally
         {
             databaseHelper.close();
         }
-//        if (id != -1)
-//        {
-//            Toast.makeText(context, R.string.text_updated_successfully,Toast.LENGTH_SHORT).show();
-//        }
-//        else
-//        {
-//            Toast.makeText(context, R.string.text_deleting_error,Toast.LENGTH_SHORT).show();
-//        }
         return id;
     }
 

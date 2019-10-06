@@ -398,8 +398,9 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                             {
                                 try
                                 {
-                                    dataBaseQueries.deleteWordInTableSync(tableName, m.rowID);
+                                    dataBaseQueries.deleteWordInTableSync(tableName, (int) m.rowID, editTextEn.getText().toString(), editTextRu.getText().toString());
                                     dataBaseQueries.dataBaseVacuum(tableName);
+                                    listViewSetSource(true);
                                 } catch (Exception e)
                                 {
                                     Toast.makeText(WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -462,7 +463,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                         }
                         else if (checkMove.isChecked() && !checkCopy.isChecked())
                         {
-                            long res = dataBaseQueries.deleteWordInTableSync(tableName, m.rowID);
+                            long res = dataBaseQueries.deleteWordInTableSync(tableName, (int) m.rowID, editTextEn.getText().toString(), editTextRu.getText().toString());
                             dataBaseQueries.dataBaseVacuum(tableName);
                             if (res >= 0)
                             {
