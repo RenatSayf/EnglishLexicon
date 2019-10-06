@@ -37,7 +37,5 @@ public class TranslateActivity extends AppCompatActivity
             FragmentManager fragmentManager = getSupportFragmentManager();
             translatorDialog.show(fragmentManager,TranslatorDialog.TAG);
         }
-
-
     }
 }

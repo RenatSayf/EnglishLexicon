@@ -15,7 +15,7 @@ public class CallableAction implements Callable<Long>
     }
 
     @Override
-    public Long call() throws Exception
+    public Long call()
     {
         return queries.insertWordInTableSync(tableName, entry);
     }

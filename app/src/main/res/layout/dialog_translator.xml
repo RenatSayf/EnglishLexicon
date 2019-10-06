@@ -55,13 +55,15 @@
                     tools:targetApi="o" />
 
                 <ImageButton
+                    android:id="@+id/en_speech_imgbtn"
                     style="?android:attr/buttonStyleSmall"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:background="@drawable/transparent_background_straight_angle"
                     android:contentDescription="@string/btn_sound_discribtion"
                     android:src="@drawable/selector_sound_icon"
-                    android:textColor="@drawable/selector_white_to_orange_color" />
+                    android:textColor="@drawable/selector_white_to_orange_color"
+                    />
 
             </LinearLayout>
 
@@ -83,6 +85,7 @@
                     tools:targetApi="o" />
 
                 <ImageButton
+                    android:id="@+id/ru_speech_imgbtn"
                     style="?android:attr/buttonStyleSmall"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"

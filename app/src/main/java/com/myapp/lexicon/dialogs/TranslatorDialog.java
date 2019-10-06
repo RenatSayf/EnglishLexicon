@@ -5,7 +5,9 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -15,6 +17,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
@@ -34,13 +37,16 @@ import com.myapp.lexicon.database.CallableAction;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.LexiconDataBase;
+import com.myapp.lexicon.main.SplashScreenActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -114,6 +120,10 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
             Button btnAdd = dialogView.findViewById(R.id.btn_add_trans_dialog);
             Button btnCancel = dialogView.findViewById(R.id.btn_cancel_trans_dialog);
             btnCancel.setOnClickListener(this);
+            ImageButton enSpeechButton = dialogView.findViewById(R.id.en_speech_imgbtn);
+            enSpeechButton.setOnClickListener(this);
+            ImageButton ruSpeechButton = dialogView.findViewById(R.id.ru_speech_imgbtn);
+            ruSpeechButton.setOnClickListener(this);
             btnAddOnClick(btnAdd);
             if (getArguments() != null)
             {
@@ -254,6 +264,39 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
         {
             mListener.onDialogCancelClick(TranslatorDialog.this);
             dismiss();
+        }
+        if (id == R.id.en_speech_imgbtn)
+        {
+            String text = editTextEn.getText().toString();
+            doSpeech(text, Locale.US);
+        }
+        if (id == R.id.ru_speech_imgbtn)
+        {
+            String text = editTextRu.getText().toString();
+            doSpeech(text, Locale.getDefault());
+        }
+    }
+
+    private void doSpeech(String text, Locale locale)
+    {
+        HashMap<String, String> utterance_Id = new HashMap<>();
+        try
+        {
+            SplashScreenActivity.speech.setLanguage(locale);
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+            return;
+        }
+        utterance_Id.clear();
+        utterance_Id.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "translate_dialog");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+        {
+            SplashScreenActivity.speech.speak(text, TextToSpeech.QUEUE_ADD, null, utterance_Id.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+        } else
+        {
+            SplashScreenActivity.speech.speak(text, TextToSpeech.QUEUE_ADD, utterance_Id);
         }
     }
 }
