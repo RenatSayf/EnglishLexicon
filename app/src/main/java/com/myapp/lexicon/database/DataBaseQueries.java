@@ -176,7 +176,7 @@ public class DataBaseQueries
         return id;
     }
 
-    public long deleteWordInTableSync(final String tableName, final int rowId, String english, String translate)
+    public long deleteWordInTableSync(final String tableName, String english, String translate)
     {
         String table_name = StringOperations.getInstance().spaceToUnderscore(tableName);
         long id = -1;
