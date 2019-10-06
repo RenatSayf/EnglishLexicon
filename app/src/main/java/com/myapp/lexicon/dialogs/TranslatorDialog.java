@@ -155,7 +155,6 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
                     EventBus.getDefault().postSticky(new TranslateDialogEvent(new DataBaseEntry(enText, ruText)));
                     startActivity(intent);
                     mListener.onDialogAddClick(TranslatorDialog.this);
-                    dismiss();
                 }
                 else if (getActivity() != null && !dict.equals(getActivity().getString(R.string.text_new_dict)) && !dict.equals(""))
                 {
@@ -195,7 +194,6 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
                                         toast.show();
                                     }
                                     mListener.onDialogAddClick(TranslatorDialog.this);
-                                    dismiss();
                                 }
                             });
                 }
