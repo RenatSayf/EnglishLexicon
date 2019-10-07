@@ -301,6 +301,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         localeDefault = new Locale(appSettings.getTranslateLang());
         dataBaseQueries = new DataBaseQueries(this);
+        if (serviceIntent != null)
+        {
+            stopService(serviceIntent);
+        }
     }
 
     @Override
@@ -312,6 +316,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             databaseHelper.close();
         }
         unregisterReceiver(speechServiceReceiver);
+        if (AppData.getInstance().getDisplayVariant() == 1 && serviceIntent != null)
+        {
+            stopService(serviceIntent);
+        }
     }
 
     @Override
@@ -923,10 +931,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onAttachedToWindow()
     {
         super.onAttachedToWindow();
-        if (serviceIntent != null)
-        {
-            stopService(serviceIntent);
-        }
     }
 
     @Override
@@ -937,7 +941,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         boolean isUseService = preferences.getBoolean("service", true);
         if (appSettings.getPlayList().size() > 0 && isUseService)
         {
-            serviceIntent = new Intent(this, LexiconService.class);
+            if (serviceIntent == null)
+            {
+                serviceIntent = new Intent(this, LexiconService.class);
+            }
             startService(serviceIntent);
         }
     }

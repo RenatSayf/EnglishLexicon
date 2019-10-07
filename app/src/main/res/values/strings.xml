@@ -231,14 +231,12 @@
         <item>1</item>
     </string-array>
     <string-array name="display_variant">
-        <item>Показывать новое слово</item>
-        <item>Уведомлять о новом слове</item>
-        <item>Действие отключено</item>
+        <item>Всплывающее окно</item>
+        <item>Панель уведомлений</item>
     </string-array>
     <string-array name="display_variant_values">
         <item>0</item>
         <item>1</item>
-        <item>2</item>
     </string-array>
 
 

@@ -22,8 +22,8 @@
 
         <ListPreference
             android:key="@string/key_on_unbloking_screen"
-            android:title="@string/title_service_group"
-            android:summary="@string/title_service"
+            android:title="Показывать слова через:"
+            android:summary="Всплывающее окно"
             android:entries="@array/display_variant"
             android:entryValues="@array/display_variant_values"
             android:defaultValue="0" />

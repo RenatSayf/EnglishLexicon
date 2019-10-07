@@ -9,13 +9,16 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.widget.Toast;
 
 import com.myapp.lexicon.R;
@@ -31,8 +34,9 @@ public class LexiconService extends Service
     public static TextToSpeech speech;
     public static HashMap<String, String> map = new HashMap<>();
     private Locale oldLocale;
-
     private PhoneUnlockedReceiver receiver;
+    private int displayVariant = 0;
+    private NotificationManagerCompat notificationManager;
 
     public LexiconService()
     {
@@ -116,17 +120,40 @@ public class LexiconService extends Service
             assert manager != null;
             manager.createNotificationChannel(notificationChannel);
 
-            Intent intent = new Intent(this, SplashScreenActivity.class);
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, intent, PendingIntent.FLAG_ONE_SHOT);
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(LexiconService.this);
+            String preferencesString = preferences.getString(getString(R.string.key_on_unbloking_screen), "0");
+            String contentText = "";
+            if (preferencesString != null)
+            {
+                displayVariant = Integer.parseInt(preferencesString);
+            }
+            Intent intent;
+            PendingIntent pendingIntent = null;
+            switch (displayVariant)
+            {
+                case 0:
+                    intent = new Intent(this, SplashScreenActivity.class);
+                    pendingIntent = PendingIntent.getActivity(this, 1, intent, PendingIntent.FLAG_ONE_SHOT);
+                    contentText = getString(R.string.notify_content_text);
+                    break;
+                case 1:
+                    intent = new Intent("android.intent.action.MAIN");
+                    intent.setClass(LexiconService.this, ServiceDialog.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+                    pendingIntent = PendingIntent.getActivity(this, 1, intent, PendingIntent.FLAG_ONE_SHOT);
+                    contentText = "Нажмите что бы узнать новое слово";
+                    break;
+            }
 
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
             Notification notification = notificationBuilder.setOngoing(true)
                     .setSmallIcon(R.drawable.ic_lexicon_notify)
                     .setContentIntent(pendingIntent)
+
                     .setPriority(NotificationManager.IMPORTANCE_MIN)
                     .setCategory(Notification.CATEGORY_SERVICE)
                     .setContentTitle(getString(R.string.app_name))
-                    .setContentText(getString(R.string.notify_content_text))
+                    .setContentText(contentText)
                     .setColor(Color.GREEN)
                     .build();
             int appId = 542390;
@@ -207,7 +234,7 @@ public class LexiconService extends Service
 //                        intentAct.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 //                        startActivity(intentAct);
 //                    }
-                    if (action.equals(actionScreenOn) || action.equals(actionUserPresent))
+                    if ((action.equals(actionScreenOn) || action.equals(actionUserPresent)) && displayVariant == 0)
                     {
                         Intent intentAct = new Intent("android.intent.action.MAIN");
                         intentAct.setClass(LexiconService.this, ServiceDialog.class);

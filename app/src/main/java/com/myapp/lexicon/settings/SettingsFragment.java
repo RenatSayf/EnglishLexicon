@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.view.View;
 
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.main.MainActivity;
 
 /**
  * Created by Renat
@@ -61,9 +62,19 @@ public class SettingsFragment extends PreferenceFragment
             public boolean onPreferenceChange(Preference preference, Object newValue)
             {
                 listDisplayModePref.setEnabled((Boolean) newValue);
+                listOnUnBlokingScreen.setEnabled((Boolean) newValue);
+                if (MainActivity.serviceIntent != null)
+                {
+                    getActivity().stopService(MainActivity.serviceIntent);
+                }
                 return true;
             }
         });
+        if (!serviceCheckBoxPref.isChecked())
+        {
+            listOnUnBlokingScreen.setEnabled(false);
+            listDisplayModePref.setEnabled(false);
+        }
     }
 
     @Override
