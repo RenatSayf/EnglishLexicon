@@ -21,6 +21,14 @@
             />
 
         <ListPreference
+            android:key="@string/key_on_unbloking_screen"
+            android:title="@string/title_service_group"
+            android:summary="@string/title_service"
+            android:entries="@array/display_variant"
+            android:entryValues="@array/display_variant_values"
+            android:defaultValue="0" />
+
+        <ListPreference
             android:key="@string/key_list_display_mode"
             android:title="@string/title_display_mode"
             android:summary="@string/summary_display_mode"

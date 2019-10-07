@@ -40,6 +40,20 @@ public class SettingsFragment extends PreferenceFragment
             }
         });
 
+        final ListPreference listOnUnBlokingScreen = (ListPreference) findPreference(getActivity().getString(R.string.key_on_unbloking_screen));
+        listOnUnBlokingScreen.setSummary(listOnUnBlokingScreen.getEntry());
+        listOnUnBlokingScreen.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
+        {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue)
+            {
+                listOnUnBlokingScreen.setValue(newValue.toString());
+                listOnUnBlokingScreen.setSummary(listOnUnBlokingScreen.getEntry());
+                AppData.getInstance().setDisplayVariant(Integer.parseInt(newValue.toString()));
+                return true;
+            }
+        });
+
         serviceCheckBoxPref = (CheckBoxPreference) findPreference(getActivity().getString(R.string.key_service));
         serviceCheckBoxPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
         {

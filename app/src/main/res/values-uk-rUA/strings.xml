@@ -219,6 +219,7 @@
     <string name="cloud_storage_text">Хмарне сховище</string>
     <string name="text_read_by_eng">Читати по-англійськи</string>
     <string name="text_new_dict">Новий словник</string>
+    <string name="key_on_unbloking_screen">on_unbloking_screen</string>
 
     <string-array name="display_mode">
         <item>Повтор</item>
@@ -227,6 +228,16 @@
     <string-array name="display_values">
         <item>0</item>
         <item>1</item>
+    </string-array>
+    <string-array name="display_variant">
+        <item>Показувати нове слово</item>
+        <item>Повідомляти про нове слово</item>
+        <item>Дія відключено</item>
+    </string-array>
+    <string-array name="display_variant_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
     </string-array>
 
 </resources>
