@@ -66,6 +66,8 @@ import com.myapp.lexicon.webbrowser.BrowserFragment;
 import com.myapp.lexicon.wordeditor.WordEditor;
 import com.myapp.lexicon.wordstests.Tests;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -205,6 +207,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onStart();
         FirebaseAppIndex.getInstance().update();
         FirebaseUserActions.getInstance().start(getAction());
+        EventBus.getDefault().post(new MainActivityOnStart(serviceIntent));
     }
 
     private void initViews()

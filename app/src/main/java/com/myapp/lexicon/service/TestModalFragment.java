@@ -25,18 +25,24 @@ import android.widget.Toast;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DatabaseHelper;
-import com.myapp.lexicon.database.GetStudiedWordsCount;
 import com.myapp.lexicon.database.GetEntriesFromDbAsync;
+import com.myapp.lexicon.database.GetStudiedWordsCount;
 import com.myapp.lexicon.database.UpdateDBEntryAsync;
 import com.myapp.lexicon.dialogs.WordsEndedDialog;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
-import com.myapp.lexicon.main.MainActivity;
+import com.myapp.lexicon.main.MainActivityOnStart;
 import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.Date;
+
+import static com.myapp.lexicon.main.MainActivity.serviceIntent;
+import static com.myapp.lexicon.service.ServiceDialog.map;
+import static com.myapp.lexicon.service.ServiceDialog.speech;
 
 
 public class TestModalFragment extends Fragment
@@ -169,6 +175,18 @@ public class TestModalFragment extends Fragment
         {
             orderPlayIcon.setImageResource(R.drawable.ic_shuffle_white);
         }
+    }
+
+    @Override
+    public void onStart()
+    {
+        super.onStart();
+    }
+
+    @Override
+    public void onStop()
+    {
+        super.onStop();
     }
 
     private void getWordsFromDBbyOrder(final String currentDict)
@@ -512,7 +530,7 @@ public class TestModalFragment extends Fragment
                                                                         appSettings.removeItemFromPlayList(currentDict);
                                                                         if (appSettings.getPlayList() == null || appSettings.getPlayList().size() == 0)
                                                                         {
-                                                                            getActivity().stopService(MainActivity.serviceIntent);
+                                                                            getActivity().stopService(serviceIntent);
                                                                         }
                                                                         getActivity().finish();
                                                                         break;
@@ -630,14 +648,14 @@ public class TestModalFragment extends Fragment
             @Override
             public void onClick(View view)
             {
-                if (LexiconService.speech == null || LexiconService.speech.isSpeaking())
+                if (speech == null || speech.isSpeaking())
                 {
                     return;
                 }
                 String enText = enTextView.getText().toString();
                 if (!enText.equals(""))
                 {
-                    LexiconService.speech.speak(enText, TextToSpeech.QUEUE_ADD, LexiconService.map);
+                    speech.speak(enText, TextToSpeech.QUEUE_ADD, map);
                 }
             }
         });
@@ -654,6 +672,7 @@ public class TestModalFragment extends Fragment
                 {
                     getActivity().startActivity(new Intent(getContext(), SplashScreenActivity.class));
                     getActivity().finish();
+                    EventBus.getDefault().postSticky(new MainActivityOnStart(serviceIntent));
                 }
             }
         });
@@ -669,15 +688,8 @@ public class TestModalFragment extends Fragment
                 FragmentActivity activity = getActivity();
                 if (activity != null)
                 {
-                    try
-                    {
-                        LexiconService.isStop = true;
-                        activity.stopService(MainActivity.serviceIntent);
-                        activity.finish();
-                    } catch (Exception e)
-                    {
-                        e.printStackTrace();
-                    }
+                    LexiconService.stopedByUser = true;
+                    EventBus.getDefault().post(new StopedServiceByUserEvent());
                 }
             }
         });
@@ -694,7 +706,6 @@ public class TestModalFragment extends Fragment
             }
         });
     }
-
 
 
 }

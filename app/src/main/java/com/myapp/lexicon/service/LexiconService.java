@@ -15,28 +15,23 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.speech.tts.TextToSpeech;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
 import android.widget.Toast;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.settings.AppSettings;
 
-import java.util.HashMap;
 import java.util.Locale;
 
-public class LexiconService extends Service
+public class LexiconService extends Service implements ServiceDialog.IStopServiceByUser
 {
-    public static boolean isStop = false;
-    public static TextToSpeech speech;
-    public static HashMap<String, String> map = new HashMap<>();
+    public static boolean stopedByUser = false;
     private Locale oldLocale;
     private PhoneUnlockedReceiver receiver;
     private int displayVariant = 0;
-    private NotificationManagerCompat notificationManager;
+    private int startId;
 
     public LexiconService()
     {
@@ -76,34 +71,13 @@ public class LexiconService extends Service
             startForeground(appId, notification); //TODO запуск сервиса на переднем плане, чтобы сервис не убивала система
         }
 
-
         receiver = new PhoneUnlockedReceiver();
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_USER_PRESENT);
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         registerReceiver(receiver, filter);
 
-        speech = new TextToSpeech(this, new TextToSpeech.OnInitListener()
-        {
-            @Override
-            public void onInit(int status)
-            {
-                if (status == TextToSpeech.SUCCESS )
-                {
-                    int resultEn = speech.isLanguageAvailable(Locale.US);
-                    if (resultEn == TextToSpeech.LANG_COUNTRY_AVAILABLE)
-                    {
-                        map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.US.getDisplayLanguage());
-                        speech.setLanguage(Locale.US);
-                        speech.stop();
-                    }
-                }
-                if (status == TextToSpeech.LANG_NOT_SUPPORTED || status == TextToSpeech.LANG_MISSING_DATA)
-                {
-                    stopSelf();
-                }
-            }
-        });
+        ServiceDialog.setStoppedByUserListener(this);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -164,20 +138,22 @@ public class LexiconService extends Service
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
+        this.startId = startId;
         return START_STICKY;
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent)
+    {
+
+        return super.onUnbind(intent);
     }
 
     @Override
     public void onDestroy()
     {
-        super.onDestroy();
         unregisterReceiver(receiver);
-        speech.shutdown();
-        if (isStop)
-        {
-            Toast.makeText(this, "Приложение " + getString(R.string.app_name) + " закрыто", Toast.LENGTH_SHORT).show();
-            isStop = false;
-        }
+        super.onDestroy();
     }
 
     @Override
@@ -196,16 +172,15 @@ public class LexiconService extends Service
         {
             AppSettings appSettings = new AppSettings(this);
             appSettings.cleanPlayList();
-            stopSelf();
+            stopSelf(startId);
         }
     }
 
-    private PendingIntent newPendingIntent()
+    @Override
+    public void onStoppedByUser()
     {
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.setClass(LexiconService.this, ServiceDialog.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        return PendingIntent.getActivity(this, 1, intent, PendingIntent.FLAG_ONE_SHOT);
+        stopSelf(startId);
+        Toast.makeText(this, this.getString(R.string.text_app_is_closed) + " " + getString(R.string.app_name) + " " + this.getString(R.string.text_app_is_closed_end), Toast.LENGTH_SHORT).show();
     }
 
     public class PhoneUnlockedReceiver extends BroadcastReceiver
@@ -218,22 +193,10 @@ public class LexiconService extends Service
             {
                 String action = intent.getAction();
                 String actionUserPresent = Intent.ACTION_USER_PRESENT;
-                String actionScreenOff = Intent.ACTION_SCREEN_OFF;
                 String actionScreenOn = Intent.ACTION_SCREEN_ON;
 
                 if (action != null)
                 {
-//                    if (action.equals(actionUserPresent))
-//                    {
-//
-//                    }
-//                    if (action.equals(actionScreenOff))
-//                    {
-//                        Intent intentAct = new Intent(Intent.ACTION_MAIN);
-//                        intentAct.setClass(LexiconService.this, ServiceDialog.class);
-//                        intentAct.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                        startActivity(intentAct);
-//                    }
                     if ((action.equals(actionScreenOn) || action.equals(actionUserPresent)) && displayVariant == 0)
                     {
                         Intent intentAct = new Intent("android.intent.action.MAIN");

@@ -200,6 +200,8 @@
     <string name="text_read_by_eng">Читаем по английски</string>
     <string name="text_new_dict">Новый словарь</string>
     <string name="key_on_unbloking_screen">on_unbloking_screen</string>
+    <string name="text_app_is_closed">Приложение</string>
+    <string name="text_app_is_closed_end">закрыто</string>
     <string-array name="not_move">
         <item>Не перемещать</item>
     </string-array>

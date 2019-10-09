@@ -220,6 +220,8 @@
     <string name="text_read_by_eng">Читати по-англійськи</string>
     <string name="text_new_dict">Новий словник</string>
     <string name="key_on_unbloking_screen">on_unbloking_screen</string>
+    <string name="text_app_is_closed">Програма</string>
+    <string name="text_app_is_closed_end">закрита</string>
 
     <string-array name="display_mode">
         <item>Повтор</item>
