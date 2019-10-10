@@ -24,15 +24,18 @@ import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.GetEntriesFromDbAsync;
 import com.myapp.lexicon.database.GetStudiedWordsCount;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
-import com.myapp.lexicon.main.MainActivity;
+import com.myapp.lexicon.main.MainActivityOnStart;
 import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+import static com.myapp.lexicon.main.MainActivity.serviceIntent;
 import static com.myapp.lexicon.service.ServiceDialog.map;
 import static com.myapp.lexicon.service.ServiceDialog.speech;
 
@@ -123,16 +126,8 @@ public class ModalFragment extends Fragment
                 FragmentActivity activity = getActivity();
                 if (activity != null)
                 {
-                    try
-                    {
-                        LexiconService.stopedByUser = true;
-                        activity.stopService(MainActivity.serviceIntent);
-                        activity.finish();
-                    } catch (Exception e)
-                    {
-                        activity.finish();
-                        e.printStackTrace();
-                    }
+                    LexiconService.stopedByUser = true;
+                    EventBus.getDefault().post(new StopedServiceByUserEvent());
                 }
             }
         });
@@ -169,6 +164,7 @@ public class ModalFragment extends Fragment
                 {
                     getActivity().startActivity(new Intent(getContext(), SplashScreenActivity.class));
                     getActivity().finish();
+                    EventBus.getDefault().postSticky(new MainActivityOnStart(serviceIntent));
                 }
             }
         });
