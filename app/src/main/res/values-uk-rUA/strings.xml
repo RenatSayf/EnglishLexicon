@@ -62,6 +62,7 @@
     <string name="text_enter">Введіть текст</string>
     <string name="text_result">Результат</string>
     <string name="link_to_yandex_trans">Переведено сервісом <![CDATA[<u>«Яндекс.Переводчик»</u>]]></string>
+    <string name="link_to_yandex_trans_2">Переведено сервісом «Яндекс.Переводчик»</string>
     <string name="translate_yandex_ru">https://translate.yandex.ru</string>
     <string name="msg_not_internet">Немає з`єднання з інтернетом. Онлайн переклад недоступний</string>
     <string name="btn_translate_text">Перевести</string>

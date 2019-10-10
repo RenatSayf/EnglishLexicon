@@ -71,7 +71,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/action/ic_translate_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/navigation/ic_chevron_right_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -81,9 +81,9 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="color" value="1a34ff" />
-                            <entry key="outputName" value="ic_translate_blue_24dp" />
-                            <entry key="sourceFile" value="C:\Users\Renat" />
+                            <entry key="color" value="f815ff" />
+                            <entry key="outputName" value="ic_chevron_right_ping" />
+                            <entry key="sourceFile" value="C:\Users\renat" />
                           </map>
                         </option>
                       </PersistentState>
