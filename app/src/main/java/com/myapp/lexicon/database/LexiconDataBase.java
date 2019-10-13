@@ -11,6 +11,7 @@ import com.myapp.lexicon.helpers.StringOperations;
 import com.myapp.lexicon.settings.AppData;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class LexiconDataBase extends ViewModel
@@ -75,8 +76,12 @@ public class LexiconDataBase extends ViewModel
         }
         MutableLiveData<List<String>> dicts = new MutableLiveData<>();
         String dictName = AppData.getInstance().getPlayList().get(AppData.getInstance().getNdict());
-        list.set(0, dictName);
-        list.set(list.size() - 1, context.getString(R.string.text_new_dict));
+        int dictIndex = list.indexOf(dictName);
+        if (dictIndex >= 0 && dictIndex < list.size())
+        {
+            Collections.swap(list, dictIndex, 0);
+        }
+        list.add(context.getString(R.string.text_new_dict));
         dicts.setValue(list);
         return dicts;
     }
