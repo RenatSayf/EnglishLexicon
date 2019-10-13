@@ -63,6 +63,7 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
     private ProgressBar progressBar;
     private Spinner dictListSpinner;
     private ArrayAdapter<String> adapter;
+    private ImageButton btnUpdateTranslate;
 
     static NoticeDialogListener mListener;
 
@@ -125,6 +126,9 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
             ImageButton ruSpeechButton = dialogView.findViewById(R.id.ru_speech_imgbtn);
             ruSpeechButton.setOnClickListener(this);
             btnAddOnClick(btnAdd);
+            ImageButton btnUpdateTranslate = dialogView.findViewById(R.id.btn_update_translate);
+            btnUpdateTranslateOnClick(btnUpdateTranslate);
+
             if (getArguments() != null)
             {
                 editTextEn.setText(getArguments().getString(EN_WORD_TAG));
@@ -136,6 +140,19 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
         {
             return super.onCreateDialog(savedInstanceState);
         }
+    }
+
+    private void btnUpdateTranslateOnClick(ImageButton button)
+    {
+        button.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                String url = new TranslateApi(getActivity()).getStringUrl(editTextEn.getText().toString());
+                getTranslate(url);
+            }
+        });
     }
 
     private void btnAddOnClick(Button btnAdd)
@@ -214,8 +231,17 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
         super.onStart();
         if (getArguments() != null && getActivity() != null)
         {
-            RequestQueue queue = Volley.newRequestQueue(getActivity());
             String url = new TranslateApi(getActivity()).getStringUrl(getArguments().getString(EN_WORD_TAG));
+            getTranslate(url);
+        }
+
+    }
+
+    private void getTranslate(String url)
+    {
+        if (getActivity() != null && getArguments() != null)
+        {
+            RequestQueue queue = Volley.newRequestQueue(getActivity());
             JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST, url, null, new Response.Listener<JSONObject>()
             {
                 @Override
@@ -251,7 +277,6 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
                     });
             queue.add(jsonRequest);
         }
-
     }
 
     @Override
