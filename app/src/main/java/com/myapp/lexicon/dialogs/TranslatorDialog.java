@@ -4,7 +4,9 @@ import android.app.Dialog;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
@@ -63,7 +65,6 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
     private ProgressBar progressBar;
     private Spinner dictListSpinner;
     private ArrayAdapter<String> adapter;
-    private ImageButton btnUpdateTranslate;
 
     static NoticeDialogListener mListener;
 
@@ -128,6 +129,10 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
             btnAddOnClick(btnAdd);
             ImageButton btnUpdateTranslate = dialogView.findViewById(R.id.btn_update_translate);
             btnUpdateTranslateOnClick(btnUpdateTranslate);
+            Button btnGoToYandex = dialogView.findViewById(R.id.btn_go_to_yandex);
+            btnGoToYandexOnClick(btnGoToYandex);
+            Button btnOpenApp = dialogView.findViewById(R.id.btn_open_app);
+            btnOpenAppOnClick(btnOpenApp);
 
             if (getArguments() != null)
             {
@@ -140,6 +145,42 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
         {
             return super.onCreateDialog(savedInstanceState);
         }
+    }
+
+    private void btnOpenAppOnClick(Button button)
+    {
+        button.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                if (getActivity() != null)
+                {
+                    getActivity().finish();
+                    Intent intent = new Intent(getActivity(), SplashScreenActivity.class);
+                    getActivity().startActivity(intent);
+                }
+            }
+        });
+    }
+
+    private void btnGoToYandexOnClick(Button button)
+    {
+        button.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                if (getActivity() != null)
+                {
+                    String transDirect = getActivity().getString(R.string.translate_direct_en_ru);
+                    String text = editTextEn.getText().toString();
+                    String url = getString(R.string.translate_yandex_ru).concat("/?lang=").concat(transDirect).concat("&text=").concat(text);
+                    Intent browser = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    startActivity(browser);
+                }
+            }
+        });
     }
 
     private void btnUpdateTranslateOnClick(ImageButton button)
@@ -320,6 +361,16 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
         } else
         {
             SplashScreenActivity.speech.speak(text, TextToSpeech.QUEUE_ADD, utterance_Id);
+        }
+    }
+
+    @Override
+    public void onCancel(DialogInterface dialog)
+    {
+        super.onCancel(dialog);
+        if (getActivity() != null)
+        {
+            getActivity().finish();
         }
     }
 }

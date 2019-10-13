@@ -270,7 +270,10 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
     public void textViewLinkYandex_onClick(View view)
     {
         textViewLinkYandex.setTextColor(Color.RED);
-        Intent browser = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.translate_yandex_ru)));
+        String transDirect = getString(R.string.translate_direct_en_ru);
+        String text = textViewEnter.getText().toString();
+        String url = getString(R.string.translate_yandex_ru).concat("/?lang=").concat(transDirect).concat("&text=").concat(text);
+        Intent browser = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         startActivity(browser);
     }
 

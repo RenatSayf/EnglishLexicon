@@ -38,4 +38,11 @@ public class TranslateActivity extends AppCompatActivity
             translatorDialog.show(fragmentManager,TranslatorDialog.TAG);
         }
     }
+
+    @Override
+    public void onBackPressed()
+    {
+        finish();
+        super.onBackPressed();
+    }
 }
