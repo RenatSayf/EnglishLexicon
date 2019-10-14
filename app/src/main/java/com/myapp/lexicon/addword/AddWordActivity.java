@@ -15,6 +15,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -31,7 +32,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -69,7 +69,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
     public static final int GOOGLE_SIGN_IN_CODE = 10;
 
     private AutoCompleteTextView textViewEnter;
-    private LinearLayout layoutLinkYa;
+    private ConstraintLayout layoutLinkYa;
     private TextView textViewLinkYandex;
     private EditText textViewResult;
     private Button buttonTrans, btnNewDict;
