@@ -267,11 +267,20 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
         return super.onOptionsItemSelected(item);
     }
 
+    // TODO: 15.10.2019 Тут баг
     public void textViewLinkYandex_onClick(View view)
     {
         textViewLinkYandex.setTextColor(Color.RED);
-        String transDirect = getString(R.string.translate_direct_en_ru);
         String text = textViewEnter.getText().toString();
+        String transDirect;
+        if (text.matches("/[a-zA-Z]/gm"))
+        {
+            transDirect = getString(R.string.translate_direct_en_ru);
+        }
+        else
+        {
+            transDirect = getString(R.string.translate_direct_ru_en);
+        }
         String url = getString(R.string.translate_yandex_ru).concat("/?lang=").concat(transDirect).concat("&text=").concat(text);
         Intent browser = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         startActivity(browser);

@@ -280,13 +280,13 @@
         </android.support.constraint.ConstraintLayout>
 
 
-        <LinearLayout
+        <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="5dp"
             android:layout_marginRight="10dp"
-            android:layout_marginBottom="5dp"
+            android:layout_marginBottom="10dp"
             android:layout_weight="1"
             android:background="@drawable/text_background"
             android:orientation="vertical">
@@ -297,56 +297,69 @@
                 android:layout_marginStart="10dp"
                 android:layout_marginLeft="10dp"
                 android:text="@string/add_to_dict"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+            <Spinner
+                android:id="@+id/spinn_dict_to"
+                style="@style/spinner_style"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="40dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginRight="10dp"
+                android:prompt="@string/add_to_dict"
+                app:layout_constraintEnd_toStartOf="@+id/btn_new_dict"
+                app:layout_constraintHorizontal_weight="1"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-                <Spinner
-                    android:id="@+id/spinn_dict_to"
-                    style="@style/spinner_style"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:layout_marginEnd="10dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_weight="1"
-                    android:prompt="@string/add_to_dict" />
+            <Button
+                android:id="@+id/btn_new_dict"
+                style="@style/Base.Widget.AppCompat.ButtonBar"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginRight="10dp"
+                android:background="@drawable/transparent_background"
+                android:contentDescription="@string/btn_close_discribtion"
+                android:drawableEnd="@drawable/icon_add_blue"
+                android:drawableRight="@drawable/icon_add_blue"
+                android:gravity="center|end"
+                android:src="@drawable/selector_icon_add"
+                android:text="@string/btn_text_new"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginTop="40dp"
+                app:layout_constraintStart_toEndOf="@+id/spinn_dict_to"
+                android:layout_marginStart="10dp"
+                android:layout_marginLeft="10dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_weight="1"
+                />
 
-                <Button
-                    android:id="@+id/btn_new_dict"
-                    style="@style/Base.Widget.AppCompat.ButtonBar"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:layout_marginEnd="10dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_weight="2"
-                    android:background="@drawable/transparent_background"
-                    android:contentDescription="@string/btn_close_discribtion"
-                    android:drawableEnd="@drawable/icon_add_blue"
-                    android:drawableRight="@drawable/icon_add_blue"
-                    android:gravity="center|end"
-                    android:src="@drawable/selector_icon_add"
-                    android:text="@string/btn_text_new" />
-
-            </LinearLayout>
 
             <Button
                 android:id="@+id/button_add"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
                 android:background="@drawable/btn_trans_background"
                 android:enabled="false"
                 android:minHeight="32dp"
                 android:text="@string/text_add"
                 android:textColor="#ffffff"
                 android:textSize="12sp"
-                android:textStyle="bold" />
-        </LinearLayout>
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@+id/spinn_dict_to"
+                android:layout_marginTop="20dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                />
+
+        </android.support.constraint.ConstraintLayout>
 
         <FrameLayout
             android:id="@+id/banner_frame_aw"
