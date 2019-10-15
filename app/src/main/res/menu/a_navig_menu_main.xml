@@ -31,11 +31,6 @@
             android:icon="@drawable/ic_check_your_self"
             android:title="@string/check_your_self"/>
 
-        <item
-            android:id="@+id/nav_read_by_eng"
-            android:icon="@drawable/ic_book_24dp"
-            android:title="@string/text_read_by_eng"/>
-
         <item android:id="@+id/nav_settings"
               android:icon="@drawable/ic_settings"
               android:title="@string/text_settings"/>
