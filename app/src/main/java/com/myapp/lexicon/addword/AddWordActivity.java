@@ -267,13 +267,12 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
         return super.onOptionsItemSelected(item);
     }
 
-    // TODO: 15.10.2019 Тут баг
     public void textViewLinkYandex_onClick(View view)
     {
         textViewLinkYandex.setTextColor(Color.RED);
         String text = textViewEnter.getText().toString();
         String transDirect;
-        if (text.matches("/[a-zA-Z]/gm"))
+        if (text.matches("[a-zA-Z]+"))
         {
             transDirect = getString(R.string.translate_direct_en_ru);
         }
