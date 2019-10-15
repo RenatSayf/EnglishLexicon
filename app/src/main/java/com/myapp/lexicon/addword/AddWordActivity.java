@@ -272,7 +272,9 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
         textViewLinkYandex.setTextColor(Color.RED);
         String text = textViewEnter.getText().toString();
         String transDirect;
-        if (text.matches("[a-zA-Z]+"))
+        Pattern pattern = Pattern.compile("[a-zA-Z]+");
+        Matcher matcher = pattern.matcher(text);
+        if (matcher.find())
         {
             transDirect = getString(R.string.translate_direct_en_ru);
         }
