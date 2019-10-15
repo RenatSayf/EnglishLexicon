@@ -48,6 +48,7 @@ import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.GetTableListLoader2;
 import com.myapp.lexicon.dialogs.NewDictDialog;
+import com.myapp.lexicon.helpers.Keyboard;
 import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
@@ -308,6 +309,12 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
         {
             textViewResult.requestFocus();
         }
+        else
+        {
+            Keyboard.getInstance().forceHide(AddWordActivity.this, textViewResult);
+            textViewResult.clearFocus();
+            textViewResult.setEnabled(false);
+        }
     }
 
     public void textViewEnter_onChange()
@@ -356,6 +363,9 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
             @Override
             public void onClick(View v)
             {
+//                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+//                imm.hideSoftInputFromWindow(textViewEnter.getWindowToken(), 0);
+                Keyboard.getInstance().forceHide(AddWordActivity.this, textViewEnter);
                 flag_btn_trans_click = true;
                 progressBar.setVisibility(View.VISIBLE);
                 Bundle bundle = new Bundle();
