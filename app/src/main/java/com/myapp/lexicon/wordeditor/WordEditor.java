@@ -69,7 +69,6 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
     private CheckBox checkCopy, checkMove;
     private LinearLayout layoutSpinner;
     private ListViewAdapter listViewAdapter;
-    //private ArrayList<String> dictList;
     private ProgressBar progressBar;
     private DataBaseQueries dataBaseQueries;
     private ViewSwitcher switcher;
@@ -243,7 +242,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
             {
                 layoutSpinner.setVisibility(View.GONE);
             }
-            String text = getString(R.string.text_words) + "  " + String.valueOf(m.amountWords);
+            String text = getString(R.string.text_words) + "  " + m.amountWords;
             tvAmountWords.setText(text);
         }
         else
@@ -398,8 +397,9 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                             {
                                 try
                                 {
-                                    dataBaseQueries.deleteWordInTableSync(tableName, m.rowID);
+                                    dataBaseQueries.deleteWordInTableSync(tableName, editTextEn.getText().toString(), editTextRu.getText().toString());
                                     dataBaseQueries.dataBaseVacuum(tableName);
+                                    listViewSetSource(true);
                                 } catch (Exception e)
                                 {
                                     Toast.makeText(WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -460,30 +460,34 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                                 Toast.makeText(WordEditor.this, R.string.text_write_error,Toast.LENGTH_SHORT).show();
                             }
                         }
-                        else if (checkMove.isChecked() && !checkCopy.isChecked())
+                        else
                         {
-                            long res = dataBaseQueries.deleteWordInTableSync(tableName, m.rowID);
-                            dataBaseQueries.dataBaseVacuum(tableName);
-                            if (res >= 0)
+                            checkMove.isChecked();
+                            if (!checkCopy.isChecked())
                             {
-                                Toast.makeText(WordEditor.this, R.string.text_updated_successfully, Toast.LENGTH_SHORT).show();
+                                long res = dataBaseQueries.deleteWordInTableSync(tableName, editTextEn.getText().toString(), editTextRu.getText().toString());
+                                dataBaseQueries.dataBaseVacuum(tableName);
+                                if (res >= 0)
+                                {
+                                    Toast.makeText(WordEditor.this, R.string.text_updated_successfully, Toast.LENGTH_SHORT).show();
+                                }
+                                else
+                                {
+                                    Toast.makeText(WordEditor.this, R.string.text_deleting_error,Toast.LENGTH_SHORT).show();
+                                }
+                                dataBaseQueries.insertWordInTableSync(new_table_name, baseEntry);
                             }
-                            else
+                            else if (checkMove.isChecked() && checkCopy.isChecked())
                             {
-                                Toast.makeText(WordEditor.this, R.string.text_deleting_error,Toast.LENGTH_SHORT).show();
+                                try
+                                {
+                                    dataBaseQueries.updateWordInTableSync(tableName, m.rowID, baseEntry);
+                                } catch (Exception e)
+                                {
+                                    Toast.makeText(WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                                dataBaseQueries.insertWordInTableSync(new_table_name, baseEntry);
                             }
-                            dataBaseQueries.insertWordInTableSync(new_table_name, baseEntry);
-                        }
-                        else if (checkMove.isChecked() && checkCopy.isChecked())
-                        {
-                            try
-                            {
-                                dataBaseQueries.updateWordInTableSync(tableName, m.rowID, baseEntry);
-                            } catch (Exception e)
-                            {
-                                Toast.makeText(WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
-                            }
-                            dataBaseQueries.insertWordInTableSync(new_table_name, baseEntry);
                         }
                         listViewSetSource(true);
                         switcher.showPrevious();
@@ -571,25 +575,23 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
     {
         int id = item.getItemId();
 
-        switch (id)
+        if (id == R.id.do_repeat)
         {
-            case R.id.do_repeat:
-                ContentValues values = new ContentValues();
-                values.put(DatabaseHelper.COLUMN_Count_REPEAT, 1);
-                String dictName = dictListSpinner.getSelectedItem().toString();
-                UpdateDBEntryAsync updateDBEntryAsync = new UpdateDBEntryAsync(this, dictName, values, null, null, new UpdateDBEntryAsync.IUpdateDBListener()
+            ContentValues values = new ContentValues();
+            values.put(DatabaseHelper.COLUMN_Count_REPEAT, 1);
+            String dictName = dictListSpinner.getSelectedItem().toString();
+            UpdateDBEntryAsync updateDBEntryAsync = new UpdateDBEntryAsync(this, dictName, values, null, null, new UpdateDBEntryAsync.IUpdateDBListener()
+            {
+                @Override
+                public void updateDBEntry_OnComplete(int rows)
                 {
-                    @Override
-                    public void updateDBEntry_OnComplete(int rows)
-                    {
-                        listViewSetSource(true);
-                    }
-                });
-                if (updateDBEntryAsync.getStatus() != AsyncTask.Status.RUNNING)
-                {
-                    updateDBEntryAsync.execute();
+                    listViewSetSource(true);
                 }
-                break;
+            });
+            if (updateDBEntryAsync.getStatus() != AsyncTask.Status.RUNNING)
+            {
+                updateDBEntryAsync.execute();
+            }
         }
         return super.onOptionsItemSelected(item);
     }
@@ -695,7 +697,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                 listView.setAdapter(listViewAdapter); // TODO: ListView setAdapter
                 progressBar.setVisibility(View.GONE);
                 m.amountWords = entriesFromDB.size();
-                String text = getString(R.string.text_words) + "  " + String.valueOf(m.amountWords);
+                String text = getString(R.string.text_words) + "  " + m.amountWords;
                 tvAmountWords.setText(text);
 
                 if (getIntent().getExtras() != null && getIntent().getExtras().containsKey(WordEditor.KEY_ROW_ID))
@@ -719,7 +721,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                 listView.setAdapter(null);
                 progressBar.setVisibility(View.GONE);
                 m.amountWords = 0;
-                String text = getString(R.string.text_words) + "  " + String.valueOf(m.amountWords);
+                String text = getString(R.string.text_words) + "  " + m.amountWords;
                 tvAmountWords.setText(text);
             }
         }
@@ -818,7 +820,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                     }
                 } catch (Exception e)
                 {
-                    position = 0;
+                    e.printStackTrace();
                 }
                 dictListSpinner.setSelection(position);
 

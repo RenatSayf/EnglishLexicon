@@ -99,4 +99,13 @@ public class BackgroundFragm extends Fragment
         return fragmentView;
     }
 
+    @Override
+    public void onDestroy()
+    {
+        if (getActivity() != null)
+        {
+            getActivity().finish();
+        }
+        super.onDestroy();
+    }
 }

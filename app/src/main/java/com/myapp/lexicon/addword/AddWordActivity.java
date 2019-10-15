@@ -15,6 +15,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -31,7 +32,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -48,9 +48,14 @@ import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.GetTableListLoader2;
 import com.myapp.lexicon.dialogs.NewDictDialog;
+import com.myapp.lexicon.helpers.Keyboard;
 import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -65,7 +70,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
     public static final int GOOGLE_SIGN_IN_CODE = 10;
 
     private AutoCompleteTextView textViewEnter;
-    private LinearLayout layoutLinkYa;
+    private ConstraintLayout layoutLinkYa;
     private TextView textViewLinkYandex;
     private EditText textViewResult;
     private Button buttonTrans, btnNewDict;
@@ -203,6 +208,21 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
     {
         super.onResume();
         appSettings = new AppSettings(this);
+
+    }
+
+    @Override
+    protected void onStart()
+    {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onStop()
+    {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
     }
 
     @Override
@@ -251,7 +271,20 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
     public void textViewLinkYandex_onClick(View view)
     {
         textViewLinkYandex.setTextColor(Color.RED);
-        Intent browser = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.translate_yandex_ru)));
+        String text = textViewEnter.getText().toString();
+        String transDirect;
+        Pattern pattern = Pattern.compile("[a-zA-Z]+");
+        Matcher matcher = pattern.matcher(text);
+        if (matcher.find())
+        {
+            transDirect = getString(R.string.translate_direct_en_ru);
+        }
+        else
+        {
+            transDirect = getString(R.string.translate_direct_ru_en);
+        }
+        String url = getString(R.string.translate_yandex_ru).concat("/?lang=").concat(transDirect).concat("&text=").concat(text);
+        Intent browser = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         startActivity(browser);
     }
 
@@ -275,6 +308,12 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
         if (!textViewResult.isFocused())
         {
             textViewResult.requestFocus();
+        }
+        else
+        {
+            Keyboard.getInstance().forceHide(AddWordActivity.this, textViewResult);
+            textViewResult.clearFocus();
+            textViewResult.setEnabled(false);
         }
     }
 
@@ -324,6 +363,9 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
             @Override
             public void onClick(View v)
             {
+//                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+//                imm.hideSoftInputFromWindow(textViewEnter.getWindowToken(), 0);
+                Keyboard.getInstance().forceHide(AddWordActivity.this, textViewEnter);
                 flag_btn_trans_click = true;
                 progressBar.setVisibility(View.VISIBLE);
                 Bundle bundle = new Bundle();
@@ -758,7 +800,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
-        super.onActivityResult(requestCode, resultCode, data);
+        //super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1)
         {
             if (resultCode == RESULT_OK && data != null)
@@ -860,4 +902,16 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
             toast.show();
         }
     }
+
+    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+    public void onTranslateDialogEvent(TranslateDialogEvent event)
+    {
+        DataBaseEntry entry = event.entry;
+        String english = entry.getEnglish();
+        textViewEnter.setText(english);
+        String translate = entry.getTranslate();
+        textViewResult.setText(translate);
+    }
+
+
 }

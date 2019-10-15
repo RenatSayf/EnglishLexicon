@@ -24,14 +24,20 @@ import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.GetEntriesFromDbAsync;
 import com.myapp.lexicon.database.GetStudiedWordsCount;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
-import com.myapp.lexicon.main.MainActivity;
+import com.myapp.lexicon.main.MainActivityOnStart;
 import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
+
+import static com.myapp.lexicon.main.MainActivity.serviceIntent;
+import static com.myapp.lexicon.service.ServiceDialog.map;
+import static com.myapp.lexicon.service.ServiceDialog.speech;
 
 
 public class ModalFragment extends Fragment
@@ -120,16 +126,8 @@ public class ModalFragment extends Fragment
                 FragmentActivity activity = getActivity();
                 if (activity != null)
                 {
-                    try
-                    {
-                        LexiconService.isStop = true;
-                        activity.stopService(MainActivity.serviceIntent);
-                        activity.finish();
-                    } catch (Exception e)
-                    {
-                        activity.finish();
-                        e.printStackTrace();
-                    }
+                    LexiconService.stopedByUser = true;
+                    EventBus.getDefault().post(new StopedServiceByUserEvent());
                 }
             }
         });
@@ -166,6 +164,7 @@ public class ModalFragment extends Fragment
                 {
                     getActivity().startActivity(new Intent(getContext(), SplashScreenActivity.class));
                     getActivity().finish();
+                    EventBus.getDefault().postSticky(new MainActivityOnStart(serviceIntent));
                 }
             }
         });
@@ -340,7 +339,7 @@ public class ModalFragment extends Fragment
             @Override
             public void onClick(View view)
             {
-                if (LexiconService.speech == null || LexiconService.speech.isSpeaking())
+                if (speech == null || speech.isSpeaking())
                 {
                     return;
                 }
@@ -348,9 +347,9 @@ public class ModalFragment extends Fragment
                 final String ruText = ruTextView.getText().toString();
                 if (!enText.equals(""))
                 {
-                    LexiconService.speech.speak(enText, TextToSpeech.QUEUE_ADD, LexiconService.map);
+                    speech.speak(enText, TextToSpeech.QUEUE_ADD, map);
                 }
-                LexiconService.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+                speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
                 {
                     @Override
                     public void onStart(String s)
@@ -363,19 +362,19 @@ public class ModalFragment extends Fragment
                     {
                         if (checkBoxRu.isChecked() && !ruText.equals("") && s.equals(Locale.US.getDisplayLanguage()))
                         {
-                            int res = LexiconService.speech.isLanguageAvailable(Locale.getDefault());
+                            int res = speech.isLanguageAvailable(Locale.getDefault());
                             if (res == TextToSpeech.LANG_COUNTRY_AVAILABLE)
                             {
-                                LexiconService.speech.setLanguage(Locale.getDefault());
-                                LexiconService.map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.getDefault().getDisplayLanguage());
-                                LexiconService.speech.speak(ruText, TextToSpeech.QUEUE_ADD, LexiconService.map);
+                                speech.setLanguage(Locale.getDefault());
+                                map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.getDefault().getDisplayLanguage());
+                                speech.speak(ruText, TextToSpeech.QUEUE_ADD, map);
                             }
                         }
                         if (s.equals(Locale.getDefault().getDisplayLanguage()))
                         {
-                            LexiconService.speech.stop();
-                            LexiconService.map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.US.getDisplayLanguage());
-                            LexiconService.speech.setLanguage(Locale.US);
+                            speech.stop();
+                            map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.US.getDisplayLanguage());
+                            speech.setLanguage(Locale.US);
                         }
                     }
 

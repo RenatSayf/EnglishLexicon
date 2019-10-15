@@ -51,6 +51,7 @@ import com.google.firebase.appindexing.builders.Actions;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.AddWordActivity;
+import com.myapp.lexicon.cloudstorage.StorageFragment;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.DatabaseHelper;
@@ -63,6 +64,8 @@ import com.myapp.lexicon.settings.AppSettings;
 import com.myapp.lexicon.settings.SettingsFragment;
 import com.myapp.lexicon.wordeditor.WordEditor;
 import com.myapp.lexicon.wordstests.Tests;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -116,8 +119,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a_navig_main);
-
-        MobileAds.initialize(this, getString(R.string.admob_app_id));
 
         fragmentManager = getSupportFragmentManager();
 
@@ -185,6 +186,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             {
                 if (savedInstanceState == null)
                 {
+                    MobileAds.initialize(this, getString(R.string.admob_app_id));
                     MainBannerFragment bannerFragment = new MainBannerFragment();
                     getSupportFragmentManager().beginTransaction().replace(R.id.banner_frame_main, bannerFragment).commit();
                 }
@@ -203,6 +205,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onStart();
         FirebaseAppIndex.getInstance().update();
         FirebaseUserActions.getInstance().start(getAction());
+        EventBus.getDefault().post(new MainActivityOnStart(serviceIntent));
     }
 
     private void initViews()
@@ -299,6 +302,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         localeDefault = new Locale(appSettings.getTranslateLang());
         dataBaseQueries = new DataBaseQueries(this);
+        if (serviceIntent != null)
+        {
+            stopService(serviceIntent);
+        }
     }
 
     @Override
@@ -310,6 +317,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             databaseHelper.close();
         }
         unregisterReceiver(speechServiceReceiver);
+        if (AppData.getInstance().getDisplayVariant() == 1 && serviceIntent != null)
+        {
+            stopService(serviceIntent);
+        }
     }
 
     @Override
@@ -319,6 +330,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         speechServiceOnPause();
         appData.saveAllSettings(this);
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
+
         if (drawer != null)
         {
             if (drawer.isDrawerOpen(GravityCompat.START))
@@ -329,6 +341,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 super.onBackPressed();
             }
         }
+
     }
 
     @Override
@@ -391,11 +404,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             startActivity(speechEditorIntent);
         }
 
-//        if (id == R.id.cloud_storage)
-//        {
-//            StorageFragment storageFragment = StorageFragment.newInstance(null, null);
-//            fragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, storageFragment).addToBackStack(null).commit();
-//        }
+        if (id == R.id.cloud_storage)
+        {
+            StorageFragment storageFragment = StorageFragment.newInstance(null, null);
+            fragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, storageFragment).addToBackStack(null).commit();
+        }
 
         if (id == R.id.menu_item_share)
         {
@@ -906,10 +919,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onAttachedToWindow()
     {
         super.onAttachedToWindow();
-        if (serviceIntent != null)
-        {
-            stopService(serviceIntent);
-        }
     }
 
     @Override
@@ -920,7 +929,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         boolean isUseService = preferences.getBoolean("service", true);
         if (appSettings.getPlayList().size() > 0 && isUseService)
         {
-            serviceIntent = new Intent(this, LexiconService.class);
+            if (serviceIntent == null)
+            {
+                serviceIntent = new Intent(this, LexiconService.class);
+            }
             startService(serviceIntent);
         }
     }

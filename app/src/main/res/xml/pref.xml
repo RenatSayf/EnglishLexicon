@@ -21,6 +21,14 @@
             />
 
         <ListPreference
+            android:key="@string/key_on_unbloking_screen"
+            android:title="Показывать слова через:"
+            android:summary="Всплывающее окно"
+            android:entries="@array/display_variant"
+            android:entryValues="@array/display_variant_values"
+            android:defaultValue="0" />
+
+        <ListPreference
             android:key="@string/key_list_display_mode"
             android:title="@string/title_display_mode"
             android:summary="@string/summary_display_mode"

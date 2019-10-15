@@ -34,6 +34,7 @@ public class AppData
     private ListViewAdapter listViewAdapter;
     private String langCode;
     private int serviceMode = 0;
+    private int displayVariant = 0;
     private int doneRepeat = 1;
     private int maxNotStudiedRowId = 10000000;
     private int minNotStudiedRowId = 0;
@@ -69,6 +70,16 @@ public class AppData
         {
             iDictNumChangeListener.dictNumberOnChanged(this.ndict);
         }
+    }
+
+    public int getDisplayVariant()
+    {
+        return displayVariant;
+    }
+
+    public void setDisplayVariant(int displayVariant)
+    {
+        this.displayVariant = displayVariant;
     }
 
     public interface IDictNumChangeListener
@@ -262,7 +273,7 @@ public class AppData
 
     public boolean isAdMob()
     {
-        return true;
+        return false;
     }
 
     public boolean isOnline(Context context)
