@@ -287,7 +287,7 @@
             android:layout_marginTop="5dp"
             android:layout_marginRight="10dp"
             android:layout_marginBottom="10dp"
-            android:layout_weight="1"
+            android:layout_weight="0"
             android:background="@drawable/text_background"
             android:orientation="vertical">
 
@@ -305,10 +305,10 @@
                 android:id="@+id/spinn_dict_to"
                 style="@style/spinner_style"
                 android:layout_width="0dp"
-                android:layout_height="50dp"
+                android:layout_height="40dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginLeft="8dp"
-                android:layout_marginTop="40dp"
+                android:layout_marginTop="30dp"
                 android:layout_marginEnd="10dp"
                 android:layout_marginRight="10dp"
                 android:prompt="@string/add_to_dict"
@@ -321,7 +321,7 @@
                 android:id="@+id/btn_new_dict"
                 style="@style/Base.Widget.AppCompat.ButtonBar"
                 android:layout_width="wrap_content"
-                android:layout_height="50dp"
+                android:layout_height="40dp"
                 android:layout_marginEnd="10dp"
                 android:layout_marginRight="10dp"
                 android:background="@drawable/transparent_background"
@@ -332,7 +332,7 @@
                 android:src="@drawable/selector_icon_add"
                 android:text="@string/btn_text_new"
                 app:layout_constraintTop_toTopOf="parent"
-                android:layout_marginTop="40dp"
+                android:layout_marginTop="30dp"
                 app:layout_constraintStart_toEndOf="@+id/spinn_dict_to"
                 android:layout_marginStart="10dp"
                 android:layout_marginLeft="10dp"
@@ -354,9 +354,11 @@
                 android:textSize="12sp"
                 android:textStyle="bold"
                 app:layout_constraintTop_toBottomOf="@+id/spinn_dict_to"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="10dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginBottom="10dp"
                 />
 
         </android.support.constraint.ConstraintLayout>
