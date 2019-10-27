@@ -39,6 +39,7 @@ import com.myapp.lexicon.database.CallableAction;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.LexiconDataBase;
+import com.myapp.lexicon.main.Speaker;
 import com.myapp.lexicon.main.SplashScreenActivity;
 
 import org.greenrobot.eventbus.EventBus;
@@ -65,6 +66,7 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
     private ProgressBar progressBar;
     private Spinner dictListSpinner;
     private ArrayAdapter<String> adapter;
+    private Speaker speaker;
 
     static NoticeDialogListener mListener;
 
@@ -104,6 +106,15 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
                     adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, dicts);
                     dictListSpinner.setAdapter(adapter);
                 }
+            }
+        });
+
+        speaker = new Speaker(getActivity(), new TextToSpeech.OnInitListener()
+        {
+            @Override
+            public void onInit(int status)
+            {
+                speaker.speechInit(status, getActivity(), speaker);
             }
         });
     }
@@ -344,9 +355,10 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
     private void doSpeech(String text, Locale locale)
     {
         HashMap<String, String> utterance_Id = new HashMap<>();
+
         try
         {
-            SplashScreenActivity.speech.setLanguage(locale);
+            speaker.setLanguage(locale);
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -357,10 +369,10 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
         utterance_Id.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "translate_dialog");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
         {
-            SplashScreenActivity.speech.speak(text, TextToSpeech.QUEUE_ADD, null, utterance_Id.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+            speaker.speak(text, TextToSpeech.QUEUE_ADD, null, utterance_Id.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
         } else
         {
-            SplashScreenActivity.speech.speak(text, TextToSpeech.QUEUE_ADD, utterance_Id);
+            speaker.speak(text, TextToSpeech.QUEUE_ADD, utterance_Id);
         }
     }
 
