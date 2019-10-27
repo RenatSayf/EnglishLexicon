@@ -75,11 +75,18 @@ public class LexiconDataBase extends ViewModel
             databaseHelper.close();
         }
         MutableLiveData<List<String>> dicts = new MutableLiveData<>();
-        String dictName = AppData.getInstance().getPlayList().get(AppData.getInstance().getNdict());
-        int dictIndex = list.indexOf(dictName);
-        if (dictIndex >= 0 && dictIndex < list.size())
+        if (AppData.getInstance().getPlayList() != null)
         {
-            Collections.swap(list, dictIndex, 0);
+            int playListSize = AppData.getInstance().getPlayList().size();
+            if (playListSize > 0 && AppData.getInstance().getNdict() <= playListSize)
+            {
+                String dictName = AppData.getInstance().getPlayList().get(AppData.getInstance().getNdict());
+                int dictIndex = list.indexOf(dictName);
+                if (dictIndex >= 0 && dictIndex < list.size())
+                {
+                    Collections.swap(list, dictIndex, 0);
+                }
+            }
         }
         list.add(context.getString(R.string.text_new_dict));
         dicts.setValue(list);
