@@ -385,4 +385,11 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
             getActivity().finish();
         }
     }
+
+    @Override
+    public void onDestroy()
+    {
+        speaker.shutdown();
+        super.onDestroy();
+    }
 }
