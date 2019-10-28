@@ -160,7 +160,10 @@ public class ServiceDialog extends AppCompatActivity
     @Override
     protected void onDestroy()
     {
-
+        if (speech != null)
+        {
+            speech.shutdown();
+        }
         super.onDestroy();
     }
 

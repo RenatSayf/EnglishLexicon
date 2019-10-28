@@ -91,9 +91,12 @@ public class TestModalFragment extends Fragment
     {
         View fragmentView = inflater.inflate(R.layout.s_test_modal_fragment, container, false);
         enTextView = fragmentView.findViewById(R.id.en_text_view);
+        enTextView.setText("");
         ruBtn1 = fragmentView.findViewById(R.id.ru_btn_1);
+        ruBtn1.setText("");
         ruBtn1_OnClick(ruBtn1);
         ruBtn2 = fragmentView.findViewById(R.id.ru_btn_2);
+        ruBtn2.setText("");
         ruBtn2_OnClick(ruBtn2);
 
 

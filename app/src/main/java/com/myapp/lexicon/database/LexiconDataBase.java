@@ -8,7 +8,7 @@ import android.database.Cursor;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.helpers.StringOperations;
-import com.myapp.lexicon.settings.AppData;
+import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -75,11 +75,20 @@ public class LexiconDataBase extends ViewModel
             databaseHelper.close();
         }
         MutableLiveData<List<String>> dicts = new MutableLiveData<>();
-        String dictName = AppData.getInstance().getPlayList().get(AppData.getInstance().getNdict());
-        int dictIndex = list.indexOf(dictName);
-        if (dictIndex >= 0 && dictIndex < list.size())
+        AppSettings appSettings = new AppSettings(context);
+        if (appSettings.getPlayList() != null)
         {
-            Collections.swap(list, dictIndex, 0);
+            int playListSize = appSettings.getPlayList().size();
+            int dictNumber = appSettings.getDictNumber();
+            if (playListSize > 0 && dictNumber < playListSize)
+            {
+                String dictName = appSettings.getPlayList().get(dictNumber);
+                int dictIndex = list.indexOf(dictName);
+                if (dictIndex >= 0 && dictIndex < list.size())
+                {
+                    Collections.swap(list, dictIndex, 0);
+                }
+            }
         }
         list.add(context.getString(R.string.text_new_dict));
         dicts.setValue(list);
