@@ -17,7 +17,7 @@ import java.util.Locale;
 
 public class DatabaseHelper extends SQLiteOpenHelper
 {
-    private static final String DB_PATH = "/data/com.myapp.lexicon/databases/";
+    private static final String DB_PATH = "/data/com.myapp.lexicon/files/data/";
     private static String DB_NAME; // название бд
     private static final int version = 1; // версия базы данных
 
@@ -94,7 +94,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
                     return;
                 }
                 //получаем локальную бд как поток
-                myInput = context.getAssets().open(DB_NAME + ".db");
+                myInput = context.getAssets().open(DB_NAME/* + ".db"*/);
                 // Открываем пустую бд
                 myOutput = new FileOutputStream(actualPathDb);
 
@@ -124,7 +124,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
         {
             if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
             {
-                pathToDB = context.getExternalCacheDir();
+                pathToDB = context.getExternalFilesDir(Environment.getDataDirectory().getAbsolutePath());
                 if (pathToDB != null)
                 {
                     stringPathDB = pathToDB.getPath();
@@ -154,7 +154,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
         {
             e.printStackTrace();
         }
-
     }
 
     @Override
