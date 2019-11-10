@@ -3,6 +3,7 @@ package com.myapp.lexicon.database;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Build;
 import android.os.Environment;
 import android.widget.Toast;
 
@@ -45,17 +46,12 @@ public class DatabaseHelper extends SQLiteOpenHelper
         } catch (Exception e)
         {
             Locale locale = Locale.getDefault();
-            switch (locale.getLanguage())
+            if ("uk".equals(locale.getLanguage()))
             {
-                case "ru":
-                    DB_NAME = "lexicon_DB";
-                    break;
-                case "uk":
-                    DB_NAME = "lexicon_uk_DB";
-                    break;
-                default:
-                    DB_NAME = "lexicon_DB";
-                    break;
+                DB_NAME = "lexicon_uk_DB";
+            } else
+            {
+                DB_NAME = "lexicon_DB";
             }
         }
     }
@@ -70,6 +66,16 @@ public class DatabaseHelper extends SQLiteOpenHelper
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
     {
 
+    }
+
+    @Override
+    public void onOpen(SQLiteDatabase db)
+    {
+        super.onOpen(db);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+        {
+            db.disableWriteAheadLogging();
+        }
     }
 
     public void create_db()
@@ -87,6 +93,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
                 try
                 {
                     this.database = SQLiteDatabase.openOrCreateDatabase(fileDb, null);
+                    this.database.close();
                 } catch (Exception e)
                 {
                     e.printStackTrace();
@@ -105,7 +112,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
                 {
                     myOutput.write(buffer, 0, length);
                 }
-
                 myOutput.flush();
                 myOutput.close();
                 myInput.close();
@@ -125,6 +131,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
             if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
             {
                 pathToDB = context.getExternalFilesDir(Environment.getDataDirectory().getAbsolutePath());
+                //pathToDB = context.getExternalCacheDir();
                 if (pathToDB != null)
                 {
                     stringPathDB = pathToDB.getPath();
