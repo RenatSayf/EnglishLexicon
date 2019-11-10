@@ -613,7 +613,10 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                 {
                     //// TODO: Фильтрация ListView, вызов
                     listViewAdapter = (ListViewAdapter) listView.getAdapter();
-                    listViewAdapter.getFilter().filter(newText);
+                    if (listViewAdapter != null)
+                    {
+                        listViewAdapter.getFilter().filter(newText);
+                    }
                 } catch (Exception e)
                 {
                     e.printStackTrace();
