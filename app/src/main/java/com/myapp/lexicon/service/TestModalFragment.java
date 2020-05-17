@@ -6,9 +6,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,6 +37,11 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.ArrayList;
 import java.util.Date;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+
 import static com.myapp.lexicon.main.MainActivity.serviceIntent;
 import static com.myapp.lexicon.service.ServiceDialog.map;
 import static com.myapp.lexicon.service.ServiceDialog.speech;
@@ -64,7 +66,7 @@ public class TestModalFragment extends Fragment
         // Required empty public constructor
     }
 
-    public static TestModalFragment newInstance()
+    static TestModalFragment newInstance()
     {
         return new TestModalFragment();
     }
@@ -334,7 +336,7 @@ public class TestModalFragment extends Fragment
         }
     }
 
-    public void getRandomWordsFromDB()
+    private void getRandomWordsFromDB()
     {
         if (appSettings.getPlayList().size() > 0)
         {
@@ -407,7 +409,7 @@ public class TestModalFragment extends Fragment
         }
     }
 
-    public void ruBtn1_OnClick(View view)
+    private void ruBtn1_OnClick(View view)
     {
         view.setOnClickListener(new View.OnClickListener()
         {
@@ -430,7 +432,7 @@ public class TestModalFragment extends Fragment
         });
     }
 
-    public void ruBtn2_OnClick(View view)
+    private void ruBtn2_OnClick(View view)
     {
         view.setOnClickListener(new View.OnClickListener()
         {
@@ -514,54 +516,52 @@ public class TestModalFragment extends Fragment
                                                 if (notStudied == 0)
                                                 {
                                                     isWordsEnded = true;
-                                                    if (getFragmentManager() != null)
+                                                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                                                    Fragment fragmentByTag = fragmentManager.findFragmentByTag(WordsEndedDialog.TAG);
+                                                    if (fragmentByTag != null)
                                                     {
-                                                        Fragment fragmentByTag = getFragmentManager().findFragmentByTag(WordsEndedDialog.TAG);
-                                                        if (fragmentByTag != null)
-                                                        {
-                                                            getFragmentManager().beginTransaction().remove(fragmentByTag).commit();
-                                                        }
-
-                                                        endedDialog = WordsEndedDialog.getInstance(currentDict, new WordsEndedDialog.IWordEndedDialogResult()
-                                                        {
-                                                            @Override
-                                                            public void wordEndedDialogResult(int res)
-                                                            {
-                                                                switch (res)
-                                                                {
-                                                                    case 0:
-                                                                        appSettings.removeItemFromPlayList(currentDict);
-                                                                        if (appSettings.getPlayList() == null || appSettings.getPlayList().size() == 0)
-                                                                        {
-                                                                            getActivity().stopService(serviceIntent);
-                                                                        }
-                                                                        getActivity().finish();
-                                                                        break;
-                                                                    case 1:
-                                                                        ContentValues values = new ContentValues();
-                                                                        values.put(DatabaseHelper.COLUMN_Count_REPEAT, 1);
-                                                                        UpdateDBEntryAsync updateDBEntryAsync = new UpdateDBEntryAsync(getActivity(), currentDict, values, null, null, new UpdateDBEntryAsync.IUpdateDBListener()
-                                                                        {
-                                                                            @Override
-                                                                            public void updateDBEntry_OnComplete(int rows)
-                                                                            {
-                                                                                if (getActivity() != null)
-                                                                                {
-                                                                                    getActivity().finish();
-                                                                                }
-                                                                            }
-                                                                        });
-                                                                        if (updateDBEntryAsync.getStatus() != AsyncTask.Status.RUNNING)
-                                                                        {
-                                                                            updateDBEntryAsync.execute();
-                                                                        }
-                                                                        break;
-                                                                }
-
-                                                            }
-                                                        });
-                                                        getFragmentManager().beginTransaction().add(endedDialog, WordsEndedDialog.TAG).commit();
+                                                        fragmentManager.beginTransaction().remove(fragmentByTag).commit();
                                                     }
+
+                                                    endedDialog = WordsEndedDialog.getInstance(currentDict, new WordsEndedDialog.IWordEndedDialogResult()
+                                                    {
+                                                        @Override
+                                                        public void wordEndedDialogResult(int res)
+                                                        {
+                                                            switch (res)
+                                                            {
+                                                                case 0:
+                                                                    appSettings.removeItemFromPlayList(currentDict);
+                                                                    if (appSettings.getPlayList() == null || appSettings.getPlayList().size() == 0)
+                                                                    {
+                                                                        getActivity().stopService(serviceIntent);
+                                                                    }
+                                                                    getActivity().finish();
+                                                                    break;
+                                                                case 1:
+                                                                    ContentValues values = new ContentValues();
+                                                                    values.put(DatabaseHelper.COLUMN_Count_REPEAT, 1);
+                                                                    UpdateDBEntryAsync updateDBEntryAsync = new UpdateDBEntryAsync(getActivity(), currentDict, values, null, null, new UpdateDBEntryAsync.IUpdateDBListener()
+                                                                    {
+                                                                        @Override
+                                                                        public void updateDBEntry_OnComplete(int rows)
+                                                                        {
+                                                                            if (getActivity() != null)
+                                                                            {
+                                                                                getActivity().finish();
+                                                                            }
+                                                                        }
+                                                                    });
+                                                                    if (updateDBEntryAsync.getStatus() != AsyncTask.Status.RUNNING)
+                                                                    {
+                                                                        updateDBEntryAsync.execute();
+                                                                    }
+                                                                    break;
+                                                            }
+
+                                                        }
+                                                    });
+                                                    fragmentManager.beginTransaction().add(endedDialog, WordsEndedDialog.TAG).commit();
                                                 }
                                             }
                                         }

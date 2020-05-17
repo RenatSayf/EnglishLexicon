@@ -5,11 +5,12 @@ import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
-import android.support.annotation.Nullable;
 import android.view.View;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.main.MainActivity;
+
+import androidx.annotation.Nullable;
 
 /**
  * Created by Renat
@@ -36,7 +37,6 @@ public class SettingsFragment extends PreferenceFragment
             {
                 listDisplayModePref.setValue(newValue.toString());
                 listDisplayModePref.setSummary(listDisplayModePref.getEntry());
-                AppData.getInstance().setServiceMode(Integer.parseInt(newValue.toString()));
                 return true;
             }
         });

@@ -4,10 +4,11 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 
 import com.myapp.lexicon.R;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.DialogFragment;
 
 /**
  * Created by Renat .
@@ -16,10 +17,10 @@ import com.myapp.lexicon.R;
 public class DialogWarning extends DialogFragment
 {
     public final String TAG = "lexicon_warning_dialog";
-    public final String KEY_TEXT_OK_BUTTON = "key_text_ok_btn";
-    public final String KEY_TEXT_NO_BUTTON = "key_text_no_btn";
-    public final String KEY_MESSAGE = "key_message";
-    public final String KEY_IS_NEUTRAL_BTN = "key_is_neutral_btn";
+    final String KEY_TEXT_OK_BUTTON = "key_text_ok_btn";
+    final String KEY_TEXT_NO_BUTTON = "key_text_no_btn";
+    final String KEY_MESSAGE = "key_message";
+    final String KEY_IS_NEUTRAL_BTN = "key_is_neutral_btn";
 
     private IDialogResult listener;
 

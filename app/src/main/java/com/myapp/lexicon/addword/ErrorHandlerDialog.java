@@ -7,8 +7,6 @@ import android.content.ClipboardManager;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,16 +17,17 @@ import android.widget.Toast;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseQueries;
 
-/**
- * Created by Renat.
- */
+import androidx.annotation.NonNull;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentActivity;
+
 
 public class ErrorHandlerDialog extends DialogFragment
 {
-    public static final String KEY_IS_SAD_FACE = "sad_face";
-    public static final String KEY_ERROR_MESSAGE = "error_msg";
-    public static final String KEY_OPTION_MESSAGE = "option_msg";
-    public static final String DIALOG_TAG = "error_handler_dialog";
+    static final String KEY_IS_SAD_FACE = "sad_face";
+    static final String KEY_ERROR_MESSAGE = "error_msg";
+    static final String KEY_OPTION_MESSAGE = "option_msg";
+    static final String DIALOG_TAG = "error_handler_dialog";
 
     @NonNull
     @Override
@@ -67,13 +66,17 @@ public class ErrorHandlerDialog extends DialogFragment
                 @Override
                 public void onClick(View view)
                 {
-                    @SuppressWarnings("AccessStaticViaInstance") ClipboardManager manager = (ClipboardManager) getActivity().getSystemService(getActivity().CLIPBOARD_SERVICE);
-                    if (manager != null)
+                    FragmentActivity activity = getActivity();
+                    if (activity != null)
                     {
-                        ClipData clip = manager.getPrimaryClip();
-                        if (clip != null && clip.getItemCount() > 0)
+                        @SuppressWarnings("AccessStaticViaInstance") ClipboardManager manager = (ClipboardManager) activity.getSystemService(getActivity().CLIPBOARD_SERVICE);
+                        if (manager != null)
                         {
-                            editText.setText(clip.getItemAt(0).getText());
+                            ClipData clip = manager.getPrimaryClip();
+                            if (clip != null && clip.getItemCount() > 0)
+                            {
+                                editText.setText(clip.getItemAt(0).getText());
+                            }
                         }
                     }
                 }

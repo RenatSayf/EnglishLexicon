@@ -1,8 +1,5 @@
 package com.myapp.lexicon.database;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.ViewModel;
 import android.content.Context;
 import android.database.Cursor;
 
@@ -13,6 +10,10 @@ import com.myapp.lexicon.settings.AppSettings;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
 
 public class LexiconDataBase extends ViewModel
 {

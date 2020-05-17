@@ -2,7 +2,6 @@ package com.myapp.lexicon.appindex;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.support.annotation.Nullable;
 
 import com.google.firebase.appindexing.FirebaseAppIndex;
 import com.google.firebase.appindexing.Indexable;
@@ -10,6 +9,8 @@ import com.google.firebase.appindexing.builders.Indexables;
 import com.myapp.lexicon.R;
 
 import java.util.ArrayList;
+
+import androidx.annotation.Nullable;
 
 /**
  * Created by Renat.

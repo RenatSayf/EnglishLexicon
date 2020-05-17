@@ -16,7 +16,6 @@ import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.HashMap;
@@ -45,10 +44,10 @@ public class SplashScreenActivity extends Activity
         setContentView(R.layout.a_layout_splash_screen);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(SplashScreenActivity.this);
-        int serviceMode = Integer.parseInt(preferences.getString(getString(R.string.key_list_display_mode), "0"));
+        //int serviceMode = Integer.parseInt(preferences.getString(getString(R.string.key_list_display_mode), "0"));
         appSettings = new AppSettings(SplashScreenActivity.this);
-        AppData appData = AppData.getInstance();
-        appData.setServiceMode(serviceMode);
+        //AppData appData = AppData.getInstance();
+        //appData.setServiceMode(serviceMode);
 
         //region TODO: SpeechServiceReceiver. 5 - Регистрируем приёмник
         broadcastReceiver = new UpdateBroadcastReceiver();
@@ -243,20 +242,23 @@ public class SplashScreenActivity extends Activity
             installTTSdata.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
 
             // TODO: SpeechServiceReceiver. 14 - отображение сообщения пользователю... Уфф!!!
-            if (id.equals(Locale.US.getDisplayLanguage()))
+            if (id != null)
             {
-                dialogErrorTTS(installTTSdata, getString(R.string.message_inst_tts_data), false);
-            }
-            if (id.equals(Locale.getDefault().getDisplayLanguage()))
-            {
-                if (appSettings.isEnglishSpeechOnly())
+                if (id.equals(Locale.US.getDisplayLanguage()))
                 {
-                    dialogErrorTTS(installTTSdata, getString(R.string.message_inst_tts_data_ru), true);
+                    dialogErrorTTS(installTTSdata, getString(R.string.message_inst_tts_data), false);
                 }
-                else
+                if (id.equals(Locale.getDefault().getDisplayLanguage()))
                 {
-                    SplashScreenActivity.this.startActivity(new Intent(SplashScreenActivity.this, MainActivity.class));
-                    SplashScreenActivity.this.finish();
+                    if (appSettings.isEnglishSpeechOnly())
+                    {
+                        dialogErrorTTS(installTTSdata, getString(R.string.message_inst_tts_data_ru), true);
+                    }
+                    else
+                    {
+                        SplashScreenActivity.this.startActivity(new Intent(SplashScreenActivity.this, MainActivity.class));
+                        SplashScreenActivity.this.finish();
+                    }
                 }
             }
         }

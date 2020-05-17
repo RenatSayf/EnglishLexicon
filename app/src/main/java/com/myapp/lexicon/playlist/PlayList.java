@@ -5,15 +5,11 @@ import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
-
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.DatabaseHelper;
@@ -23,8 +19,13 @@ import com.myapp.lexicon.dialogs.InclusionDialog;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
-
 import java.util.ArrayList;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+
+
 
 public class PlayList extends AppCompatActivity implements ListViewAdapter.IPlayListChangeListener, InclusionDialog.IInclusionDialog, GetTableListFragm.OnTableListListener
 {
@@ -131,7 +132,7 @@ public class PlayList extends AppCompatActivity implements ListViewAdapter.IPlay
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState)
+    protected void onSaveInstanceState(@NonNull Bundle outState)
     {
         super.onSaveInstanceState(outState);
         outState.putParcelable(KEY_FIELDS, m);

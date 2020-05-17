@@ -1,7 +1,5 @@
 package com.myapp.lexicon.addword;
 
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.app.LoaderManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -15,9 +13,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
-import android.support.constraint.ConstraintLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.Html;
 import android.text.InputType;
@@ -62,6 +57,13 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import static android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE;
 
@@ -226,7 +228,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState)
+    protected void onSaveInstanceState(@NonNull Bundle outState)
     {
         super.onSaveInstanceState(outState);
         outState.putStringArrayList(KEY_SPINNER_ITEMS, spinnerItems);
@@ -800,7 +802,7 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
-        //super.onActivityResult(requestCode, resultCode, data);
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1)
         {
             if (resultCode == RESULT_OK && data != null)
@@ -856,8 +858,8 @@ public class AddWordActivity extends AppCompatActivity implements LoaderManager.
             @Override
             public void onClick(View view)
             {
-                FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                Fragment fragmentByTag = getFragmentManager().findFragmentByTag(NewDictDialog.TAG);
+                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                Fragment fragmentByTag = getSupportFragmentManager().findFragmentByTag(NewDictDialog.TAG);
                 if (fragmentByTag != null)
                 {
                     fragmentTransaction.remove(fragmentByTag);

@@ -6,10 +6,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -51,14 +47,16 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
-/**
- * A simple {@link Fragment} subclass.
- */
+
 public class FindPairFragment extends Fragment implements DialogTestComplete.IDialogComplete_Result
 {
     public static final String TAG = "tag_find_pair";
-    public final int ROWS = 5;
+    private final int ROWS = 5;
 
     private static RelativeLayout.LayoutParams saveTopPanelParams;
 
@@ -357,7 +355,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
 
         testResults = new TestResults(getActivity());
 
-        fragmentManager = getFragmentManager();
+        fragmentManager = getActivity().getSupportFragmentManager();
         dialogTestComplete = new DialogTestComplete();
         dialogTestComplete.setIDialogCompleteResult(this);
 
@@ -664,7 +662,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         if (progressMax != 0)
         {
             double percentProgress = progressValue / progressMax * 100;
-            String value = String.valueOf(BigDecimal.valueOf(percentProgress).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue()) + "%";
+            String value = BigDecimal.valueOf(percentProgress).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue() + "%";
             tvProgressValue.setText(value);
         }
     }
@@ -775,7 +773,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         });
     }
 
-    public void buttonsToDown(LinearLayout layout, float x, float y, final boolean isListen)
+    private void buttonsToDown(LinearLayout layout, float x, float y, final boolean isListen)
     {
         ViewPropertyAnimator animator;
         LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) layout.getChildAt(0).getLayoutParams();
@@ -857,7 +855,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
 
             spinnListDict.setSelection(-1);
             spinnSelectedIndex = -1;
-            if (getActivity() != null && getFragmentManager() != null)
+            if (getActivity() != null && fragmentManager != null)
             {
                 getActivity().onBackPressed();
                 if (arrStudiedDict.size() > 0)
@@ -867,7 +865,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                     bundle.putStringArrayList(dialogChangePlayList.KEY_LIST_DICT, arrStudiedDict);
                     dialogChangePlayList.setArguments(bundle);
                     dialogChangePlayList.setCancelable(false);
-                    dialogChangePlayList.show(getFragmentManager(), dialogChangePlayList.TAG);
+                    dialogChangePlayList.show(fragmentManager, dialogChangePlayList.TAG);
                 }
             }
         }

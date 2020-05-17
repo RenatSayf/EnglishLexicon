@@ -3,7 +3,6 @@ package com.myapp.lexicon.wordstests;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -11,16 +10,19 @@ import android.widget.TextView;
 
 import com.myapp.lexicon.R;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.DialogFragment;
+
 
 /**
  * Created by Ренат.
  */
 
-public class DialogTestComplete extends android.support.v4.app.DialogFragment
+public class DialogTestComplete extends DialogFragment
 {
-    public String KEY_RESULT = "result";
-    public String KEY_ERRORS = "errors";
-    public static IDialogComplete_Result iDialogCompleteResult;
+    String KEY_RESULT = "result";
+    String KEY_ERRORS = "errors";
+    private static IDialogComplete_Result iDialogCompleteResult;
 
     public DialogTestComplete()
     {
@@ -32,7 +34,7 @@ public class DialogTestComplete extends android.support.v4.app.DialogFragment
         void dialogCompleteResult(int res);
     }
 
-    public void setIDialogCompleteResult(IDialogComplete_Result result)
+    void setIDialogCompleteResult(IDialogComplete_Result result)
     {
         iDialogCompleteResult = result;
     }

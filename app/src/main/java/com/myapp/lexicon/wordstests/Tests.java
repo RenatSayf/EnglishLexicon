@@ -2,9 +2,6 @@ package com.myapp.lexicon.wordstests;
 
 
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
@@ -12,6 +9,10 @@ import android.widget.ImageButton;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.FragmentTransaction;
 
 public class Tests extends AppCompatActivity
 {
@@ -229,26 +230,16 @@ public class Tests extends AppCompatActivity
         });
     }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu)
-//    {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.t_tests_menu, menu);
-//
-//        return true;
-//    }
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
         int id = item.getItemId();
-
-        switch (id)
+        if (id == android.R.id.home)
         {
-            case android.R.id.home:
-                onBackPressed();
-                break;
-            default:
-                return super.onOptionsItemSelected(item);
+            onBackPressed();
+        } else
+        {
+            return super.onOptionsItemSelected(item);
         }
         return true;
     }

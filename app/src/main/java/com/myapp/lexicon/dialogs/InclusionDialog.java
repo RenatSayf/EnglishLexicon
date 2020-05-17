@@ -2,26 +2,26 @@ package com.myapp.lexicon.dialogs;
 
 import android.app.Dialog;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.helpers.LockOrientation;
-
 import java.util.ArrayList;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentActivity;
+
+
 
 public class InclusionDialog extends DialogFragment
 {
     public static final String TAG = "inclusion_dialog";
     private static final String KEY_DICT_NAMES = "key_dict_names_inclusion_dialog";
     private static InclusionDialog instance = new InclusionDialog();
-    public static IInclusionDialog iInclusionDialog;
+    private static IInclusionDialog iInclusionDialog;
     private LockOrientation lockOrientation;
 
     public interface IInclusionDialog

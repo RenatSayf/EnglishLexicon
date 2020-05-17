@@ -15,8 +15,6 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.support.annotation.RequiresApi;
-import android.support.v4.app.NotificationCompat;
 import android.widget.Toast;
 
 import com.myapp.lexicon.R;
@@ -24,6 +22,12 @@ import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.Locale;
+
+import androidx.annotation.RequiresApi;
+import androidx.core.app.NotificationCompat;
+
+import static androidx.core.app.NotificationCompat.DEFAULT_SOUND;
+import static androidx.core.app.NotificationCompat.DEFAULT_VIBRATE;
 
 public class LexiconService extends Service implements ServiceDialog.IStopServiceByUser
 {
@@ -80,6 +84,8 @@ public class LexiconService extends Service implements ServiceDialog.IStopServic
         ServiceDialog.setStoppedByUserListener(this);
     }
 
+
+    NotificationManager manager;
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void startLexiconOwnForeground()
     {
@@ -90,17 +96,15 @@ public class LexiconService extends Service implements ServiceDialog.IStopServic
             NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_NONE);
             notificationChannel.setLightColor(Color.BLUE);
             notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
-            NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+            manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             assert manager != null;
             manager.createNotificationChannel(notificationChannel);
 
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(LexiconService.this);
             String preferencesString = preferences.getString(getString(R.string.key_on_unbloking_screen), "0");
             String contentText = "";
-            if (preferencesString != null)
-            {
-                displayVariant = Integer.parseInt(preferencesString);
-            }
+            displayVariant = Integer.parseInt(preferencesString);
             Intent intent;
             PendingIntent pendingIntent = null;
             switch (displayVariant)
@@ -111,10 +115,10 @@ public class LexiconService extends Service implements ServiceDialog.IStopServic
                     contentText = getString(R.string.notify_content_text);
                     break;
                 case 1:
-                    intent = new Intent("android.intent.action.MAIN");
+                    intent = new Intent(this, ServiceDialog.class);
                     intent.setClass(LexiconService.this, ServiceDialog.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-                    pendingIntent = PendingIntent.getActivity(this, 1, intent, PendingIntent.FLAG_ONE_SHOT);
+                    //intent.setFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+                    pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                     contentText = "Нажмите что бы узнать новое слово";
                     break;
             }
@@ -122,9 +126,10 @@ public class LexiconService extends Service implements ServiceDialog.IStopServic
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
             Notification notification = notificationBuilder.setOngoing(true)
                     .setSmallIcon(R.drawable.ic_lexicon_notify)
-                    .setContentIntent(pendingIntent)
-
-                    .setPriority(NotificationManager.IMPORTANCE_MIN)
+                    //.setContentIntent(pendingIntent)
+                    .setDefaults(DEFAULT_SOUND | DEFAULT_VIBRATE)
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setFullScreenIntent(pendingIntent, true)
                     .setCategory(Notification.CATEGORY_SERVICE)
                     .setContentTitle(getString(R.string.app_name))
                     .setContentText(contentText)

@@ -4,32 +4,23 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.ArrayList;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.DialogFragment;
+
 /**
  * Created by Ренат.
  */
 
-public class DialogChangePlayList extends android.support.v4.app.DialogFragment
+public class DialogChangePlayList extends DialogFragment
 {
     public final String TAG = "dialog_change_pl_lexicon";
-    public final String KEY_LIST_DICT = "listdict";
-//    public IChangePlayList changePlayList;
-//
-//    public interface IChangePlayList
-//    {
-//        void dialogResult();
-//    }
-//
-//    public void setDialogResult(IChangePlayList changePlayList)
-//    {
-//        this.changePlayList = changePlayList;
-//    }
+    final String KEY_LIST_DICT = "list_dict";
 
     @NonNull
     @Override

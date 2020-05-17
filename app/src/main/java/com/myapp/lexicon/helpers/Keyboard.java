@@ -22,7 +22,10 @@ public class Keyboard
         try
         {
             InputMethodManager imm = (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            if (imm != null)
+            {
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
         } catch (NullPointerException e)
         {
             e.printStackTrace();
