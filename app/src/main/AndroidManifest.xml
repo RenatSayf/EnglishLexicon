@@ -100,7 +100,7 @@
                 android:value=".main.MainActivity" />
         </activity>
         <activity
-            android:name=".wordeditor.WordEditor"
+            android:name=".wordeditor.WordEditorActivity"
             android:label="@string/title_activity_word_editor"
             android:parentActivityName=".main.MainActivity"
             android:screenOrientation="unspecified"
@@ -130,7 +130,7 @@
                 android:value=".main.MainActivity" />
         </activity>
         <activity
-            android:name=".wordstests.Tests"
+            android:name=".wordstests.TestsActivity"
             android:label="@string/title_activity_check_self"
             android:parentActivityName=".main.MainActivity"
             android:theme="@style/AppTheme.NoActionBar"

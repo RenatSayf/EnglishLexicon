@@ -55,8 +55,8 @@ import com.myapp.lexicon.service.LexiconService;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 import com.myapp.lexicon.settings.SettingsFragment;
-import com.myapp.lexicon.wordeditor.WordEditor;
-import com.myapp.lexicon.wordstests.Tests;
+import com.myapp.lexicon.wordeditor.WordEditorActivity;
+import com.myapp.lexicon.wordstests.TestsActivity;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -363,18 +363,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             {
                 if (wordEditorIntent == null)
                 {
-                    wordEditorIntent = new Intent(this, WordEditor.class);
+                    wordEditorIntent = new Intent(this, WordEditorActivity.class);
                 }
                 speechServiceOnPause();
                 Bundle bundle = new Bundle();
-                bundle.putString(WordEditor.KEY_EXTRA_DICT_NAME, textViewDict.getText().toString());
+                bundle.putString(WordEditorActivity.KEY_EXTRA_DICT_NAME, textViewDict.getText().toString());
                 String text = tvWordsCounter.getText().toString();
                 try
                 {
                     String[] splitArray = text.split(" ");
                     if (splitArray.length > 0)
                     {
-                        bundle.putInt(WordEditor.KEY_ROW_ID, Integer.parseInt(splitArray[0]));
+                        bundle.putInt(WordEditorActivity.KEY_ROW_ID, Integer.parseInt(splitArray[0]));
                     }
 
                 } catch (Exception e)
@@ -446,12 +446,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             if (wordEditorIntent == null)
             {
-                wordEditorIntent = new Intent(this, WordEditor.class);
+                wordEditorIntent = new Intent(this, WordEditorActivity.class);
             }
             Bundle bundle = new Bundle();
             if (playList.size() > 0)
             {
-                bundle.putString(WordEditor.KEY_EXTRA_DICT_NAME, playList.get(AppData.getInstance().getNdict()));
+                bundle.putString(WordEditorActivity.KEY_EXTRA_DICT_NAME, playList.get(AppData.getInstance().getNdict()));
                 wordEditorIntent.replaceExtras(bundle);
             }
             startActivity(wordEditorIntent);
@@ -460,7 +460,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             if (testsIntent == null)
             {
-                testsIntent = new Intent(this, Tests.class);
+                testsIntent = new Intent(this, TestsActivity.class);
             }
             startActivity(testsIntent);
         }

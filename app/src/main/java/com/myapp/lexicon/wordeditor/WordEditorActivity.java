@@ -53,7 +53,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 
-public class WordEditor extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>
+public class WordEditorActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>
 {
     public static final String KEY_EXTRA_DICT_NAME = "wordeditor_dict_name";
     public static final String KEY_ROW_ID = "key_row_id";
@@ -249,7 +249,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
         }
         else
         {
-            getLoaderManager().restartLoader(LOADER_GET_TABLE_LIST, null, WordEditor.this).forceLoad();
+            getLoaderManager().restartLoader(LOADER_GET_TABLE_LIST, null, WordEditorActivity.this).forceLoad();
         }
 
 
@@ -308,7 +308,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
         {
             Bundle bundle = new Bundle();
             bundle.putString(GetAllFromTableLoader.KEY_TABLE_NAME, dictListSpinner.getSelectedItem().toString());
-            getLoaderManager().restartLoader(LOADER_GET_ALL_FROM_TABLE, bundle, WordEditor.this).forceLoad();
+            getLoaderManager().restartLoader(LOADER_GET_ALL_FROM_TABLE, bundle, WordEditorActivity.this).forceLoad();
         }
         else
         {
@@ -344,7 +344,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
 
                 ArrayList<String> list2 = new ArrayList<>(m.dictNames);
                 list2.remove(dictListSpinner.getSelectedItem().toString());
-                ArrayAdapter<String> adapterSpinner2 = new ArrayAdapter<>(WordEditor.this, android.R.layout.simple_list_item_1, list2);
+                ArrayAdapter<String> adapterSpinner2 = new ArrayAdapter<>(WordEditorActivity.this, android.R.layout.simple_list_item_1, list2);
                 spinnerDictToMove.setAdapter(adapterSpinner2);
 
                 spinnerCountRepeat.setSelection(m.oldCountRepeat);
@@ -388,7 +388,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                 lockOrientation.lock();
                 final String tableName = dictListSpinner.getSelectedItem().toString();
 
-                new AlertDialog.Builder(WordEditor.this) // TODO: AlertDialog с макетом по умолчанию
+                new AlertDialog.Builder(WordEditorActivity.this) // TODO: AlertDialog с макетом по умолчанию
                         .setTitle(R.string.dialog_title_confirm_action)
                         .setIcon(R.drawable.icon_warning)
                         .setMessage(getString(R.string.dialog_msg_delete_word) + tableName + "?")
@@ -404,8 +404,8 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                                     listViewSetSource(true);
                                 } catch (Exception e)
                                 {
-                                    Toast.makeText(WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
-                                    WordEditor.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+                                    Toast.makeText(WordEditorActivity.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    WordEditorActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
                                 }
                                 listViewSetSource(true);
                                 switcher.showPrevious();
@@ -445,7 +445,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                     }
 
                     StringOperations stringOperations = StringOperations.getInstance();
-                    if (stringOperations.getLangOfText(WordEditor.this, editTextEn.getText().toString())[1].equals("en") && !stringOperations.getLangOfText(WordEditor.this, editTextRu.getText().toString())[1].equals("en"))
+                    if (stringOperations.getLangOfText(WordEditorActivity.this, editTextEn.getText().toString())[1].equals("en") && !stringOperations.getLangOfText(WordEditorActivity.this, editTextRu.getText().toString())[1].equals("en"))
                     {
                         String tableName = dictListSpinner.getSelectedItem().toString();
                         String new_table_name = spinnerDictToMove.getSelectedItem().toString();
@@ -455,11 +455,11 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                             long res = dataBaseQueries.updateWordInTableSync(tableName, m.rowID, baseEntry);
                             if (res >= 0)
                             {
-                                Toast.makeText(WordEditor.this, R.string.text_updated_successfully, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(WordEditorActivity.this, R.string.text_updated_successfully, Toast.LENGTH_SHORT).show();
                             }
                             else
                             {
-                                Toast.makeText(WordEditor.this, R.string.text_write_error,Toast.LENGTH_SHORT).show();
+                                Toast.makeText(WordEditorActivity.this, R.string.text_write_error,Toast.LENGTH_SHORT).show();
                             }
                         }
                         else
@@ -471,11 +471,11 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                                 dataBaseQueries.dataBaseVacuum(tableName);
                                 if (res >= 0)
                                 {
-                                    Toast.makeText(WordEditor.this, R.string.text_updated_successfully, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(WordEditorActivity.this, R.string.text_updated_successfully, Toast.LENGTH_SHORT).show();
                                 }
                                 else
                                 {
-                                    Toast.makeText(WordEditor.this, R.string.text_deleting_error,Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(WordEditorActivity.this, R.string.text_deleting_error,Toast.LENGTH_SHORT).show();
                                 }
                                 dataBaseQueries.insertWordInTableSync(new_table_name, baseEntry);
                             }
@@ -486,7 +486,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                                     dataBaseQueries.updateWordInTableSync(tableName, m.rowID, baseEntry);
                                 } catch (Exception e)
                                 {
-                                    Toast.makeText(WordEditor.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(WordEditorActivity.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
                                 }
                                 dataBaseQueries.insertWordInTableSync(new_table_name, baseEntry);
                             }
@@ -496,7 +496,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                     }
                     else
                     {
-                        new AlertDialog.Builder(WordEditor.this)
+                        new AlertDialog.Builder(WordEditorActivity.this)
                                 .setMessage(R.string.msg_wrong_text)
                                 .setPositiveButton("Ok", new DialogInterface.OnClickListener()
                                 {
@@ -510,7 +510,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                 } catch (Exception e)
                 {
                     e.printStackTrace();
-                    new AlertDialog.Builder(WordEditor.this)
+                    new AlertDialog.Builder(WordEditorActivity.this)
                             .setMessage(R.string.msg_wrong_text)
                             .setPositiveButton("Ok", new DialogInterface.OnClickListener()
                             {
@@ -698,16 +698,16 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                         cursor.moveToNext();
                     }
                 }
-                listViewAdapter = new ListViewAdapter(entriesFromDB, WordEditor.this, R.id.word_search);
+                listViewAdapter = new ListViewAdapter(entriesFromDB, WordEditorActivity.this, R.id.word_search);
                 listView.setAdapter(listViewAdapter); // TODO: ListView setAdapter
                 progressBar.setVisibility(View.GONE);
                 m.amountWords = entriesFromDB.size();
                 String text = getString(R.string.text_words) + "  " + m.amountWords;
                 tvAmountWords.setText(text);
 
-                if (getIntent().getExtras() != null && getIntent().getExtras().containsKey(WordEditor.KEY_ROW_ID))
+                if (getIntent().getExtras() != null && getIntent().getExtras().containsKey(WordEditorActivity.KEY_ROW_ID))
                 {
-                    int index = getIntent().getExtras().getInt(WordEditor.KEY_ROW_ID);
+                    int index = getIntent().getExtras().getInt(WordEditorActivity.KEY_ROW_ID);
                     m.rowID = index;
                     DataBaseEntry entry = listViewAdapter.getItem(index-1);
                     if (entry != null)
@@ -718,7 +718,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                         switcher.showNext();
                     }
 
-                    getIntent().removeExtra(WordEditor.KEY_ROW_ID);
+                    getIntent().removeExtra(WordEditorActivity.KEY_ROW_ID);
                 }
             }
             else
@@ -821,7 +821,7 @@ public class WordEditor extends AppCompatActivity implements LoaderManager.Loade
                 {
                     if (getIntent().getExtras() != null)
                     {
-                        position = adapterSpinner.getPosition(getIntent().getExtras().getString(WordEditor.KEY_EXTRA_DICT_NAME));
+                        position = adapterSpinner.getPosition(getIntent().getExtras().getString(WordEditorActivity.KEY_EXTRA_DICT_NAME));
                     }
                 } catch (Exception e)
                 {

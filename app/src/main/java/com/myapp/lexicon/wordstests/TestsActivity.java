@@ -14,7 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentTransaction;
 
-public class Tests extends AppCompatActivity
+public class TestsActivity extends AppCompatActivity
 {
     private ImageButton buttonFindPair, buttonListenEndClick, buttonOneOfFive;
     private FindPairFragment findPairFragment;
@@ -44,7 +44,7 @@ public class Tests extends AppCompatActivity
 
             if (AppData.getInstance().isAdMob())
             {
-                if (AppData.getInstance().isOnline(Tests.this))
+                if (AppData.getInstance().isOnline(TestsActivity.this))
                 {
                     if (savedInstanceState == null)
                     {
@@ -73,7 +73,7 @@ public class Tests extends AppCompatActivity
                     findPairFragment = new FindPairFragment();
                 }
 
-                final AppSettings appSettings = new AppSettings(Tests.this);
+                final AppSettings appSettings = new AppSettings(TestsActivity.this);
                 final Bundle bundle = appSettings.getTestFragmentState(FindPairFragment.TAG);
 
                 transaction = getSupportFragmentManager().beginTransaction();
@@ -130,7 +130,7 @@ public class Tests extends AppCompatActivity
                     oneOfFiveTest = new OneOfFiveTest();
                 }
 
-                final AppSettings appSettings = new AppSettings(Tests.this);
+                final AppSettings appSettings = new AppSettings(TestsActivity.this);
                 final Bundle bundle = appSettings.getTestFragmentState(OneOfFiveTest.TAG);
 
                 transaction = getSupportFragmentManager().beginTransaction();
@@ -186,7 +186,7 @@ public class Tests extends AppCompatActivity
                     listenEndClickFragment = new ListenEndClickFragment();
                 }
 
-                final AppSettings appSettings = new AppSettings(Tests.this);
+                final AppSettings appSettings = new AppSettings(TestsActivity.this);
                 final Bundle bundle = appSettings.getTestFragmentState(ListenEndClickFragment.TAG);
 
                 transaction = getSupportFragmentManager().beginTransaction();

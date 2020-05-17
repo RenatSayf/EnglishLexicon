@@ -114,7 +114,7 @@
                         android:visibility="visible"
                         />
 
-                    <android.support.v4.widget.Space
+                    <Space
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"/>
@@ -131,7 +131,7 @@
                         android:src="@drawable/selector_icon_play_arrow"
                         />
 
-                    <android.support.v4.widget.Space
+                    <Space
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -194,7 +194,7 @@
                     android:visibility="invisible"
                     app:buttonTint="@color/colorWhite"/>
 
-                <android.support.v4.widget.Space
+                <Space
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"/>
@@ -235,7 +235,7 @@
                     android:visibility="visible"
                     />
 
-                <android.support.v4.widget.Space
+                <Space
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"/>
