@@ -121,10 +121,10 @@ public class LexiconService extends Service implements ServiceDialog.IStopServic
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
             Notification notification = notificationBuilder.setOngoing(true)
                     .setSmallIcon(R.drawable.ic_lexicon_notify)
-                    //.setContentIntent(pendingIntent)
+                    .setContentIntent(pendingIntent)
                     .setDefaults(DEFAULT_SOUND | DEFAULT_VIBRATE)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setFullScreenIntent(pendingIntent, true)
+                    //.setFullScreenIntent(pendingIntent, true)
                     .setCategory(Notification.CATEGORY_SERVICE)
                     .setContentTitle(getString(R.string.app_name))
                     .setContentText(contentText)
@@ -144,7 +144,6 @@ public class LexiconService extends Service implements ServiceDialog.IStopServic
     @Override
     public boolean onUnbind(Intent intent)
     {
-
         return super.onUnbind(intent);
     }
 
