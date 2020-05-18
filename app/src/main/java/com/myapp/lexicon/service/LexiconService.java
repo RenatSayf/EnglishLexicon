@@ -191,16 +191,16 @@ public class LexiconService extends Service implements ServiceDialog.IStopServic
             if (intent != null)
             {
                 String action = intent.getAction();
-                String actionUserPresent = Intent.ACTION_USER_PRESENT;
+                //String actionUserPresent = Intent.ACTION_USER_PRESENT;
                 String actionScreenOn = Intent.ACTION_SCREEN_OFF;
 
                 if (action != null)
                 {
                     if ((action.equals(actionScreenOn) /*|| action.equals(actionUserPresent)*/) && displayVariant == 0)
                     {
-                        Intent intentAct = new Intent(LexiconService.this, ServiceDialog.class);
+                        Intent intentAct = new Intent(context, ServiceDialog.class);
                         intentAct.setAction(Intent.ACTION_MAIN);
-                        intentAct.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intentAct.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intentAct);
                     }
                 }
