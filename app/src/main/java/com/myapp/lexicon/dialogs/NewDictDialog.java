@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -15,12 +14,15 @@ import android.widget.LinearLayout;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseQueries;
 
-public class NewDictDialog extends android.support.v4.app.DialogFragment
+import androidx.annotation.NonNull;
+import androidx.fragment.app.DialogFragment;
+
+public class NewDictDialog extends DialogFragment
 {
     public static final String TAG = "new_dict_dialog";
     private DataBaseQueries dataBaseQueries;
     private static NewDictDialog newDictDialog = null;
-    public static INewDictDialogResult iNewDictDialogResult;
+    private static INewDictDialogResult iNewDictDialogResult;
     public static NewDictDialog newInstance()
     {
         if (newDictDialog == null)

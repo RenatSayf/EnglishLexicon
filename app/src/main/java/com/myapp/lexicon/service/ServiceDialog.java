@@ -5,8 +5,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.main.MainActivity;
@@ -19,6 +17,9 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.HashMap;
 import java.util.Locale;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import static com.myapp.lexicon.main.MainActivity.serviceIntent;
 
@@ -50,18 +51,10 @@ public class ServiceDialog extends AppCompatActivity
         setContentView(R.layout.service_dialog_activity);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ServiceDialog.this);
-        int serviceMode = 0;
         String preferencesString = preferences.getString(getString(R.string.key_list_display_mode), "0");
         String displayVariantStr = preferences.getString(getString(R.string.key_on_unbloking_screen), "0");
-        if (preferencesString != null)
-        {
-            serviceMode = Integer.parseInt(preferencesString);
-            if (displayVariantStr != null)
-            {
-                displayVariant = Integer.parseInt(displayVariantStr);
-                displayVariant = Integer.parseInt(displayVariantStr);
-            }
-        }
+        int serviceMode = Integer.parseInt(preferencesString);
+        displayVariant = Integer.parseInt(displayVariantStr);
 
         if (displayVariant == 1 && serviceIntent != null)
         {

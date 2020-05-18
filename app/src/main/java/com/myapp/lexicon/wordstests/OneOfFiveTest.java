@@ -6,10 +6,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -56,14 +52,17 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 
-/**
- * A simple {@link Fragment} subclass.
- */
+
 public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialogComplete_Result
 {
     public static final String TAG = "one_of_five_fragment";
-    public static final int ROWS = 5;
+    private static final int ROWS = 5;
 
     private static RelativeLayout.LayoutParams saveTopPanelParams;
 
@@ -174,14 +173,15 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        fragmentManager = getFragmentManager();
-        if (getActivity() != null)
+        FragmentActivity activity = getActivity();
+        if (activity != null)
         {
-            lockOrientation = new LockOrientation(getActivity());
-            testResults = new TestResults(getActivity());
-            appSettings = new AppSettings(getActivity());
+            fragmentManager = activity.getSupportFragmentManager();
+            lockOrientation = new LockOrientation(activity);
+            testResults = new TestResults(activity);
+            appSettings = new AppSettings(activity);
 
-            Display display = getActivity().getWindowManager().getDefaultDisplay();
+            Display display = activity.getWindowManager().getDefaultDisplay();
             displayMetrics = new DisplayMetrics();
             display.getMetrics(displayMetrics);
         }
@@ -472,7 +472,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
         if (progressMax != 0)
         {
             double percentProgress = progressValue / progressMax * 100;
-            String value = String.valueOf(BigDecimal.valueOf(percentProgress).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue()) + "%";
+            String value = BigDecimal.valueOf(percentProgress).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue() + "%";
             tvProgressValue.setText(value);
         }
     }
@@ -568,7 +568,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
         }
     }
 
-    public void textViewToLeftAnimatoin()
+    private void textViewToLeftAnimatoin()
     {
         textView.animate().x(-(displayMetrics.widthPixels + delta))
                 .setDuration(duration)
@@ -648,7 +648,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                 });
     }
 
-    public void buttonsToDownAnimation(float x, float y)
+    private void buttonsToDownAnimation(float x, float y)
     {
         ViewPropertyAnimator animToDown;
         boolean isListener = false;
@@ -700,7 +700,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
         }
     }
 
-    public void textViewToRightAnimation()
+    private void textViewToRightAnimation()
     {
         textView.animate().translationX(0)
                 .setDuration(duration)
@@ -762,7 +762,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                 });
     }
 
-    public void buttonToRightAnimation(View view)
+    private void buttonToRightAnimation(View view)
     {
         final Button button = (Button) view;
         if (button != null)
@@ -842,9 +842,9 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
                     bundle.putStringArrayList(dialogChangePlayList.KEY_LIST_DICT, fields.arrStudiedDict);
                     dialogChangePlayList.setArguments(bundle);
                     dialogChangePlayList.setCancelable(false);
-                    if (getFragmentManager() != null)
+                    if (fragmentManager != null)
                     {
-                        dialogChangePlayList.show(getFragmentManager(), "dialog_change_pl_lexicon");
+                        dialogChangePlayList.show(fragmentManager, "dialog_change_pl_lexicon");
                     }
                 }
             }

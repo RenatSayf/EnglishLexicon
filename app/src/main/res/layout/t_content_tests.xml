@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:showIn="@layout/t_layout_tests"
-    tools:context=".wordstests.Tests"
+    tools:context=".wordstests.TestsActivity"
     android:background="@drawable/side_nav_bar">
 
         <LinearLayout

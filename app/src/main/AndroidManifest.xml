@@ -11,7 +11,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:name="android.support.multidex.MultiDexApplication"
+        android:name="androidx.multidex.MultiDexApplication"
         android:allowBackup="true"
         android:fullBackupContent="true"
         android:icon="@mipmap/ic_launcher"
@@ -100,7 +100,7 @@
                 android:value=".main.MainActivity" />
         </activity>
         <activity
-            android:name=".wordeditor.WordEditor"
+            android:name=".wordeditor.WordEditorActivity"
             android:label="@string/title_activity_word_editor"
             android:parentActivityName=".main.MainActivity"
             android:screenOrientation="unspecified"
@@ -130,7 +130,7 @@
                 android:value=".main.MainActivity" />
         </activity>
         <activity
-            android:name=".wordstests.Tests"
+            android:name=".wordstests.TestsActivity"
             android:label="@string/title_activity_check_self"
             android:parentActivityName=".main.MainActivity"
             android:theme="@style/AppTheme.NoActionBar"

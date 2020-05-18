@@ -8,7 +8,7 @@ import com.myapp.lexicon.R;
  * Created by Ренат on 26.09.2016.
  */
 
-public class TestResults
+class TestResults
 {
     private final Context context;
 
@@ -17,7 +17,7 @@ public class TestResults
         this.context = context;
     }
     
-    public String getOverallResult(float right, float total)
+    String getOverallResult(float right, float total)
     {
         String result = context.getString(R.string.text_excellent);
         float precent;

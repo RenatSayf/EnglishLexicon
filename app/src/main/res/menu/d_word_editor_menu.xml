@@ -9,7 +9,7 @@
         android:icon="@drawable/icon_search"
         app:showAsAction="collapseActionView|ifRoom"
         android:title="@string/menu_search"
-        app:actionViewClass="android.support.v7.widget.SearchView"/>
+        app:actionViewClass="androidx.appcompat.widget.SearchView"/>
 
     <item android:id="@+id/do_repeat"
         android:icon="@android:drawable/menu_frame"

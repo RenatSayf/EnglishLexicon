@@ -2,12 +2,15 @@ package com.myapp.lexicon.addword;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.AppCompatDialogFragment;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.dialogs.TranslatorDialog;
+
+import java.util.Objects;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDialogFragment;
+import androidx.fragment.app.FragmentManager;
 
 public class TranslateActivity extends AppCompatActivity
 {
@@ -19,23 +22,31 @@ public class TranslateActivity extends AppCompatActivity
         String enWord;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M)
         {
-            enWord = getIntent().getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT).toString().toLowerCase();
-            TranslatorDialog translatorDialog = TranslatorDialog.getInstance(enWord, new TranslatorDialog.NoticeDialogListener()
+            Intent intent = getIntent();
+            if (intent != null)
             {
-                @Override
-                public void onDialogAddClick(AppCompatDialogFragment dialog)
+                CharSequence sequence = intent.getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT);
+                if (sequence != null)
                 {
-                    finish();
-                }
+                    enWord = Objects.requireNonNull(intent.getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT)).toString().toLowerCase();
+                    TranslatorDialog translatorDialog = TranslatorDialog.getInstance(enWord, new TranslatorDialog.NoticeDialogListener()
+                    {
+                        @Override
+                        public void onDialogAddClick(AppCompatDialogFragment dialog)
+                        {
+                            finish();
+                        }
 
-                @Override
-                public void onDialogCancelClick(AppCompatDialogFragment dialog)
-                {
-                    finish();
+                        @Override
+                        public void onDialogCancelClick(AppCompatDialogFragment dialog)
+                        {
+                            finish();
+                        }
+                    });
+                    FragmentManager fragmentManager = getSupportFragmentManager();
+                    translatorDialog.show(fragmentManager,TranslatorDialog.TAG);
                 }
-            });
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            translatorDialog.show(fragmentManager,TranslatorDialog.TAG);
+            }
         }
     }
 

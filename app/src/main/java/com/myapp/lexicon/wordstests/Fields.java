@@ -48,9 +48,7 @@ class Fields implements Parcelable
         additionalList = new ArrayList<>();
         storedListDict = new ArrayList<>();
         isStartAnim = new boolean[1];
-        isStartAnim[0] = false;
         isOpen = new boolean[1];
-        isOpen[0] = false;
     }
 
     public static final Creator<Fields> CREATOR = new Creator<Fields>()

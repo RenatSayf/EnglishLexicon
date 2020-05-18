@@ -2,9 +2,6 @@ package com.myapp.lexicon.wordstests;
 
 
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
@@ -13,7 +10,11 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
-public class Tests extends AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.FragmentTransaction;
+
+public class TestsActivity extends AppCompatActivity
 {
     private ImageButton buttonFindPair, buttonListenEndClick, buttonOneOfFive;
     private FindPairFragment findPairFragment;
@@ -43,7 +44,7 @@ public class Tests extends AppCompatActivity
 
             if (AppData.getInstance().isAdMob())
             {
-                if (AppData.getInstance().isOnline(Tests.this))
+                if (AppData.getInstance().isOnline(TestsActivity.this))
                 {
                     if (savedInstanceState == null)
                     {
@@ -72,7 +73,7 @@ public class Tests extends AppCompatActivity
                     findPairFragment = new FindPairFragment();
                 }
 
-                final AppSettings appSettings = new AppSettings(Tests.this);
+                final AppSettings appSettings = new AppSettings(TestsActivity.this);
                 final Bundle bundle = appSettings.getTestFragmentState(FindPairFragment.TAG);
 
                 transaction = getSupportFragmentManager().beginTransaction();
@@ -129,7 +130,7 @@ public class Tests extends AppCompatActivity
                     oneOfFiveTest = new OneOfFiveTest();
                 }
 
-                final AppSettings appSettings = new AppSettings(Tests.this);
+                final AppSettings appSettings = new AppSettings(TestsActivity.this);
                 final Bundle bundle = appSettings.getTestFragmentState(OneOfFiveTest.TAG);
 
                 transaction = getSupportFragmentManager().beginTransaction();
@@ -185,7 +186,7 @@ public class Tests extends AppCompatActivity
                     listenEndClickFragment = new ListenEndClickFragment();
                 }
 
-                final AppSettings appSettings = new AppSettings(Tests.this);
+                final AppSettings appSettings = new AppSettings(TestsActivity.this);
                 final Bundle bundle = appSettings.getTestFragmentState(ListenEndClickFragment.TAG);
 
                 transaction = getSupportFragmentManager().beginTransaction();
@@ -229,26 +230,16 @@ public class Tests extends AppCompatActivity
         });
     }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu)
-//    {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.t_tests_menu, menu);
-//
-//        return true;
-//    }
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
         int id = item.getItemId();
-
-        switch (id)
+        if (id == android.R.id.home)
         {
-            case android.R.id.home:
-                onBackPressed();
-                break;
-            default:
-                return super.onOptionsItemSelected(item);
+            onBackPressed();
+        } else
+        {
+            return super.onOptionsItemSelected(item);
         }
         return true;
     }

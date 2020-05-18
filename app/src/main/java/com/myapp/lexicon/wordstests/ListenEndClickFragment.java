@@ -8,11 +8,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -59,14 +54,17 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 
-/**
- * A simple {@link Fragment} subclass.
- */
+
 public class ListenEndClickFragment extends Fragment implements DialogTestComplete.IDialogComplete_Result
 {
     public static final String TAG = "listen_and_click_fragment";
-    public static final int ROWS = 5;
+    private static final int ROWS = 5;
 
     private ImageView backImage;
 
@@ -98,7 +96,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
     private final String KEY_FIELDS = "key_fields";
     private final String KEY_PROGRESS = "key_progress";
     private final String KEY_PROGRESS_MAX = "key_progress_max";
-
+    private FragmentManager fragmentManager;
 
     public ListenEndClickFragment()
     {
@@ -162,6 +160,11 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
         else
         {
             fields = savedInstanceState.getParcelable(KEY_FIELDS);
+        }
+
+        if (getActivity() != null)
+        {
+            fragmentManager = getActivity().getSupportFragmentManager();
         }
     }
 
@@ -480,7 +483,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
         if (progressMax != 0)
         {
             double percentProgress = progressValue / progressMax * 100;
-            String value = String.valueOf(BigDecimal.valueOf(percentProgress).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue()) + "%";
+            String value = BigDecimal.valueOf(percentProgress).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue() + "%";
             tvProgressValue.setText(value);
         }
     }
@@ -598,7 +601,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
         }
     }
 
-    public void animButtonsToDown(float x, float y)
+    private void animButtonsToDown(float x, float y)
     {
         ViewPropertyAnimator animToDown;
         boolean isListener = false;
@@ -822,9 +825,9 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                     bundle.putString(dialogTestComplete.KEY_ERRORS, list.get(1));
                     dialogTestComplete.setArguments(bundle);
                     dialogTestComplete.setCancelable(false);
-                    if (getFragmentManager() != null)
+                    if (fragmentManager != null)
                     {
-                        dialogTestComplete.show(getFragmentManager(), "dialog_complete_lexicon");
+                        dialogTestComplete.show(fragmentManager, "dialog_complete_lexicon");
                     }
                 }
             }
@@ -887,7 +890,6 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
                 bundle.putStringArrayList(dialogChangePlayList.KEY_LIST_DICT, fields.arrStudiedDict);
                 dialogChangePlayList.setArguments(bundle);
                 dialogChangePlayList.setCancelable(false);
-                FragmentManager fragmentManager = getFragmentManager();
                 if (fragmentManager != null)
                 {
                     dialogChangePlayList.show(fragmentManager, "dialog_change_pl_lexicon");

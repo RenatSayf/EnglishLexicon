@@ -13,9 +13,9 @@ import com.myapp.lexicon.helpers.StringOperations;
 
 public class GetEntriesLoader extends AsyncTaskLoader<Cursor>
 {
-    public static final String KEY_TABLE_NAME = "key_table_name";
-    public static final String KEY_START_ID = "key_start_id";
-    public static final String KEY_END_ID = "key_end_id";
+    private static final String KEY_TABLE_NAME = "key_table_name";
+    private static final String KEY_START_ID = "key_start_id";
+    private static final String KEY_END_ID = "key_end_id";
 
     //private String command;
     private String tableName;

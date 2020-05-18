@@ -32,8 +32,6 @@ public class AppData
     private int nword = 0;
     private boolean is_pause = false;
     private ListViewAdapter listViewAdapter;
-    private String langCode;
-    private int serviceMode = 0;
     private int displayVariant = 0;
     private int doneRepeat = 1;
     private int maxNotStudiedRowId = 10000000;
@@ -77,7 +75,7 @@ public class AppData
         return displayVariant;
     }
 
-    public void setDisplayVariant(int displayVariant)
+    void setDisplayVariant(int displayVariant)
     {
         this.displayVariant = displayVariant;
     }
@@ -221,10 +219,6 @@ public class AppData
             }
         }
     }
-    public boolean isPause()
-    {
-        return is_pause;
-    }
 
     public void setPause(boolean pause)
     {
@@ -241,24 +235,12 @@ public class AppData
         this.listViewAdapter = listViewAdapter;
     }
 
-    public void setTranslateLangCode(String langCode)
-    {
-        this.langCode = langCode;
-    }
-
-    public String getTranslateLangCode()
-    {
-        return langCode;
-    }
-
     public void saveAllSettings(Context context)
     {
         AppSettings appSettings = new AppSettings(context);
-        //appSettings.savePlayList(playList);
         appSettings.setPause(is_pause);
         appSettings.setDictNumber(ndict);
         appSettings.setWordNumber(nword);
-        //appSettings.setTranslateLang(langCode);
     }
 
     public void initAllSettings(Context context)
@@ -268,7 +250,6 @@ public class AppData
         is_pause = appSettings.isPause();
         ndict = appSettings.getDictNumber();
         nword = appSettings.getWordNumber();
-        langCode = appSettings.getTranslateLang();
     }
 
     public boolean isAdMob()
@@ -295,16 +276,6 @@ public class AppData
     public boolean testDeviceEnabled()
     {
         return false;
-    }
-
-    public int getServiceMode()
-    {
-        return serviceMode;
-    }
-
-    public void setServiceMode(int serviceMode)
-    {
-        this.serviceMode = serviceMode;
     }
 
     public int getDoneRepeat()

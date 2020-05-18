@@ -165,7 +165,7 @@
             android:textColor="@drawable/selector_white_to_orange_color"
             />
 
-        <android.support.v4.widget.Space
+        <Space
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"/>
@@ -185,7 +185,7 @@
             android:textColor="@drawable/selector_white_to_orange_color"
             app:buttonTint="@color/colorWhite"/>
 
-        <android.support.v4.widget.Space
+        <Space
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"/>

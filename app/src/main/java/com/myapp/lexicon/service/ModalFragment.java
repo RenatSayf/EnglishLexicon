@@ -6,9 +6,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +32,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+
 import static com.myapp.lexicon.main.MainActivity.serviceIntent;
 import static com.myapp.lexicon.service.ServiceDialog.map;
 import static com.myapp.lexicon.service.ServiceDialog.speech;
@@ -57,7 +58,7 @@ public class ModalFragment extends Fragment
         // Required empty public constructor
     }
 
-    public static ModalFragment newInstance()
+    static ModalFragment newInstance()
     {
         return new ModalFragment();
     }
@@ -332,7 +333,7 @@ public class ModalFragment extends Fragment
         super.onDestroy();
     }
 
-    public void btnSound_OnClick(ImageButton button)
+    private void btnSound_OnClick(ImageButton button)
     {
         button.setOnClickListener(new View.OnClickListener()
         {

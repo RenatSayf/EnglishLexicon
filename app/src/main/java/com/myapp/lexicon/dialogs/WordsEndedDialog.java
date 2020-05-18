@@ -2,16 +2,18 @@ package com.myapp.lexicon.dialogs;
 
 import android.app.Dialog;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import com.myapp.lexicon.R;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
 
-public class WordsEndedDialog extends android.support.v4.app.DialogFragment
+
+
+public class WordsEndedDialog extends DialogFragment
 {
     public static final String TAG = "words_ended_dialog";
     private static final String DICT_NAME = "dict_name_words_ended_dialog";

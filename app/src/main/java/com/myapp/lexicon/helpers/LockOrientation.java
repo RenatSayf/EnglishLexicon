@@ -17,7 +17,7 @@ public class LockOrientation
         this.activity = activity;
     }
 
-    @SuppressLint("InlinedApi")
+    @SuppressLint({"InlinedApi", "SourceLockedOrientationActivity"})
     public void lock()
     {
         if (activity != null)

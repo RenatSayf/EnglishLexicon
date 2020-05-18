@@ -2,10 +2,6 @@ package com.myapp.lexicon.main;
 
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,12 +9,17 @@ import android.widget.AdapterViewFlipper;
 
 import com.myapp.lexicon.R;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+
 /**
  * A simple {@link Fragment} subclass.
  */
 public class BackgroundFragm extends Fragment
 {
-    View fragmentView = null;
+    private View fragmentView = null;
 
     // картинки для фона
     public static int[] imagesId = new int[]
@@ -55,7 +56,6 @@ public class BackgroundFragm extends Fragment
                     R.drawable.img_usa3,
                     R.drawable.img_usa4
             };
-    AdapterViewFlipper adapterViewFlipper; // TODO: AdapterViewFlipper: 1. Этот компонент будет использоваться для анимированного изменения фонового изображения
 
     public BackgroundFragm()
     {
@@ -79,7 +79,8 @@ public class BackgroundFragm extends Fragment
 
         if (savedInstanceState == null) // проверка, что бы не перезапускался AdapterViewFlipper каждый раз при повороте экрана
         {
-            adapterViewFlipper = fragmentView.findViewById(R.id.adapter_view_flipper);
+            // TODO: AdapterViewFlipper: 1. Этот компонент будет использоваться для анимированного изменения фонового изображения
+            AdapterViewFlipper adapterViewFlipper = fragmentView.findViewById(R.id.adapter_view_flipper);
 
             // TODO: AdapterViewFlipper: 7. создание адаптера и запуск анимации
             FragmentActivity activity = getActivity();

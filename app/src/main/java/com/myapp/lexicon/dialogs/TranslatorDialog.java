@@ -1,8 +1,6 @@
 package com.myapp.lexicon.dialogs;
 
 import android.app.Dialog;
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,10 +8,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatDialogFragment;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -51,6 +45,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatDialogFragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -59,7 +59,7 @@ import io.reactivex.schedulers.Schedulers;
 public class TranslatorDialog extends AppCompatDialogFragment implements View.OnClickListener
 {
     public static final String TAG = "translator_dialog";
-    public static final String EN_WORD_TAG = "en_word";
+    private static final String EN_WORD_TAG = "en_word";
 
     private EditText editTextEn;
     private EditText editTextRu;
@@ -68,7 +68,7 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
     private ArrayAdapter<String> adapter;
     private Speaker speaker;
 
-    static NoticeDialogListener mListener;
+    private static NoticeDialogListener mListener;
 
     public interface NoticeDialogListener
     {
@@ -95,7 +95,7 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
     public void onCreate(final Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        LexiconDataBase dataBase = ViewModelProviders.of(this).get(LexiconDataBase.class);
+        LexiconDataBase dataBase = new ViewModelProvider(this).get(LexiconDataBase.class);
         dataBase.getDictList(getActivity()).observe(this, new Observer<List<String>>()
         {
             @Override
@@ -272,7 +272,7 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
     }
 
     @Override
-    public void onAttach(Context context)
+    public void onAttach(@NonNull Context context)
     {
         super.onAttach(context);
     }
@@ -377,7 +377,7 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
     }
 
     @Override
-    public void onCancel(DialogInterface dialog)
+    public void onCancel(@NonNull DialogInterface dialog)
     {
         super.onCancel(dialog);
         if (getActivity() != null)

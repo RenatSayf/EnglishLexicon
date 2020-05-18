@@ -2,8 +2,6 @@ package com.myapp.lexicon.appindex;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.v4.app.JobIntentService;
 
 import com.google.firebase.appindexing.FirebaseAppIndex;
 import com.google.firebase.appindexing.Indexable;
@@ -11,6 +9,9 @@ import com.google.firebase.appindexing.builders.Indexables;
 import com.myapp.lexicon.R;
 
 import java.util.ArrayList;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.JobIntentService;
 
 /**
  * Created by Renat.
