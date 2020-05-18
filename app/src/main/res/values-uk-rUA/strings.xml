@@ -223,6 +223,7 @@
     <string name="key_on_unbloking_screen">on_unbloking_screen</string>
     <string name="text_app_is_closed">Програма</string>
     <string name="text_app_is_closed_end">закрита</string>
+    <string name="notify_new_word_text">Натисніть, щоб вивчити нове слово</string>
 
     <string-array name="display_mode">
         <item>Повтор</item>
