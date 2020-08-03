@@ -24,8 +24,7 @@ class StorageViewModel : ViewModel()
         val firebaseStorage = FirebaseStorage.getInstance()
         val storageReference = firebaseStorage.reference
         val lexiconRef = storageReference.child("lexicon")
-        val databaseHelper = DatabaseHelper(context)
-        val filePath: String = databaseHelper.filePath
+        val filePath: String = DatabaseHelper(context).filePath
         return try
         {
             val inputStream = FileInputStream(File(filePath))

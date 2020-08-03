@@ -55,4 +55,19 @@ public class TranslateApi
         }
         return "https://translate.yandex.net/api/v1.5/tr.json/translate?key=" + apiKey + "&text=" + enWordEncode + "&lang=" + trans_direct + "&[format=plain]&[options=1]";
     }
+
+    public String buildUrl(String enWord)
+    {
+        String trans_direct = this.context.getString(R.string.translate_direct_en_ru);
+        String enWordEncode;
+        try
+        {
+            enWordEncode = URLEncoder.encode(enWord, "utf-8");
+            return "https://translate.yandex.ru/?lang=" + trans_direct + "&text=" + enWordEncode;
+        } catch (UnsupportedEncodingException e)
+        {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

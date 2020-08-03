@@ -35,7 +35,11 @@ class StorageFragment2 : Fragment()
                 val taskResult = viewModel.createUpLoadTask(it)
                 taskResult?.uploadTask?.addOnSuccessListener{
                     val taskUrl = taskResult.lexiconReference.downloadUrl
-                    val uri = taskUrl.result.toString()
+                    taskUrl.addOnSuccessListener { ur ->
+                        val uri = ur.toString()
+                        return@addOnSuccessListener
+                    }
+
                     return@addOnSuccessListener
                 }?.addOnFailureListener{ err ->
                     err.printStackTrace()

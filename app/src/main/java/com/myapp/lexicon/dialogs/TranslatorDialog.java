@@ -21,13 +21,12 @@ import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.addword.AddWordActivity;
 import com.myapp.lexicon.addword.TranslateDialogEvent;
+import com.myapp.lexicon.connectivity.NetRepositoryImpl;
 import com.myapp.lexicon.connectivity.TranslateApi;
 import com.myapp.lexicon.database.CallableAction;
 import com.myapp.lexicon.database.DataBaseEntry;
@@ -39,7 +38,6 @@ import com.myapp.lexicon.main.SplashScreenActivity;
 import org.greenrobot.eventbus.EventBus;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.List;
@@ -285,6 +283,20 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
         {
             String url = new TranslateApi(getActivity()).getStringUrl(getArguments().getString(EN_WORD_TAG));
             getTranslate(url);
+
+            String buildUrl = new TranslateApi(getActivity()).buildUrl(getArguments().getString(EN_WORD_TAG));
+            Disposable disposable = null;
+            disposable = new NetRepositoryImpl().getTranslateDoc(buildUrl)
+                    .map(document -> {
+                        return document.body().toString();
+                    })
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(document -> {
+
+                    }, throwable -> {
+                        return;
+                    });
         }
 
     }
@@ -294,39 +306,27 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
         if (getActivity() != null && getArguments() != null)
         {
             RequestQueue queue = Volley.newRequestQueue(getActivity());
-            JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST, url, null, new Response.Listener<JSONObject>()
-            {
-                @Override
-                public void onResponse(JSONObject response)
+            JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST, url, null, response -> {
+                progressBar.setVisibility(View.GONE);
+                try
                 {
-                    progressBar.setVisibility(View.GONE);
-                    try
+                    JSONArray array = response.getJSONArray("text");
+                    StringBuilder ruText = new StringBuilder();
+                    for (int i = 0; i < array.length(); i++)
                     {
-                        JSONArray array = response.getJSONArray("text");
-                        StringBuilder ruText = new StringBuilder();
-                        for (int i = 0; i < array.length(); i++)
+                        ruText.append(array.get(i));
+                        if (i < array.length() - 1)
                         {
-                            ruText.append(array.get(i));
-                            if (i < array.length() - 1)
-                            {
-                                ruText.append(", ");
-                            }
+                            ruText.append(", ");
                         }
-                        editTextRu.setText(ruText.toString().toLowerCase());
-                    } catch (JSONException e)
-                    {
-                        e.printStackTrace();
                     }
+                    editTextRu.setText(ruText.toString().toLowerCase());
+                } catch (JSONException e)
+                {
+                    e.printStackTrace();
                 }
             },
-                    new Response.ErrorListener()
-                    {
-                        @Override
-                        public void onErrorResponse(VolleyError error)
-                        {
-                            progressBar.setVisibility(View.GONE);
-                        }
-                    });
+                    error -> progressBar.setVisibility(View.GONE));
             queue.add(jsonRequest);
         }
     }
