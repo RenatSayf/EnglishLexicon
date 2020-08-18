@@ -15,7 +15,7 @@ class AppJavaScriptInterface
     companion object
     {
         //todo Отправка события в активити/фрагмент: Step 2
-        val parseEvent : MutableLiveData<Event<String>> = MutableLiveData()
+        val parseEvent : MutableLiveData<Event<ArrayList<String>>> = MutableLiveData()
     }
 
     @JavascriptInterface
@@ -24,8 +24,17 @@ class AppJavaScriptInterface
         CoroutineScope(Dispatchers.IO).launch {
             withContext(Dispatchers.Main){
                 val doc = Jsoup.parse(html)
-                val inputText = doc.select("#dictionary > li:nth-child(1) > div").text()
-                parseEvent.value = Event(inputText) //todo Отправка события в активити/фрагмент: Step 3
+                val list = ArrayList<String>()
+                val inputText: String? = doc.select("#dictionary > li:nth-child(1) > div")[0].ownText()
+                inputText?.let { list.add(it) }
+                val translate: String? = doc.select("#translation > span").text()
+                translate?.let { list.add(it) }
+                val ul = doc.getElementById("dictionary")
+                ul.children().forEach {
+                    val textHtml: String? = it.select("ol > li:nth-child(1) > div.dictionary-meanings-value > span:nth-child(1)").text()
+                    textHtml?.let { txt -> list.add(txt) }
+                }
+                parseEvent.value = Event(list) //todo Отправка события в активити/фрагмент: Step 3
                 return@withContext
             }
         }

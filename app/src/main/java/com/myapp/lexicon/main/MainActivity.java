@@ -432,8 +432,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //                addWordIntent = new Intent(this,AddWordActivity.class);
 //            }
 //            startActivity(addWordIntent);
-            TranslateFragment traslateFragm = TranslateFragment.Companion.getInstance("storage");
-            getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, traslateFragm).addToBackStack(null).commit();
+            TranslateFragment translateFragm = TranslateFragment.Companion.getInstance("");
+            getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, translateFragm).addToBackStack(null).commit();
         }
         else if (id == R.id.nav_add_dict)
         {

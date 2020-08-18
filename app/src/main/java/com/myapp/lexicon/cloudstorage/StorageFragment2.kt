@@ -39,8 +39,6 @@ class StorageFragment2 : Fragment()
                         val uri = ur.toString()
                         return@addOnSuccessListener
                     }
-
-                    return@addOnSuccessListener
                 }?.addOnFailureListener{ err ->
                     err.printStackTrace()
                     return@addOnFailureListener
