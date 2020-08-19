@@ -1,5 +1,6 @@
 package com.myapp.lexicon.addword
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -8,6 +9,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
+import com.myapp.lexicon.main.MainActivity
 import kotlinx.android.synthetic.main.translate_fragment.*
 import kotlinx.android.synthetic.main.translate_fragment.view.*
 
@@ -35,6 +37,7 @@ class TranslateFragment : Fragment()
 
     private lateinit var viewModel: TranslateViewModel
 
+    @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View?
     {
@@ -42,12 +45,14 @@ class TranslateFragment : Fragment()
 
         val inputText = arguments?.getString(TEXT) ?: ""
 
+        val lang = (activity as MainActivity).getString(R.string.translate_direct_en_ru)
+
         root.webView.apply {
             settings.javaScriptEnabled = true //todo parsing WebView: Step 3
             settings.domStorageEnabled = true //todo parsing WebView: Step 4
             addJavascriptInterface(AppJavaScriptInterface(), "HtmlHandler") //todo parsing WebView: Step 5
             webViewClient = AppWebViewClient(this@TranslateFragment) //todo parsing WebView: Step 6
-            loadUrl("https://translate.yandex.ru/?text=${inputText}&lang=en-ru")
+            loadUrl("https://translate.yandex.ru/?text=${inputText}&lang=$lang")
         }
 
         return root

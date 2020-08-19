@@ -25,8 +25,21 @@ class AppJavaScriptInterface
             withContext(Dispatchers.Main){
                 val doc = Jsoup.parse(html)
                 val list = ArrayList<String>()
-                val inputText: String? = doc.select("#dictionary > li:nth-child(1) > div")[0].ownText()
-                inputText?.let { list.add(it) }
+                val dictionary = doc.select("#dictionary > li:nth-child(1) > div")
+                if (dictionary.size > 0)
+                {
+                    val inputText: String? = dictionary[0].ownText()
+                    if (inputText != null)
+                    {
+                        list.add(inputText)
+                    }
+                }
+                else
+                {
+                    parseEvent.value = Event(list)
+                    return@withContext
+                }
+
                 val translate: String? = doc.select("#translation > span").text()
                 translate?.let { list.add(it) }
                 val ul = doc.getElementById("dictionary")
@@ -34,7 +47,15 @@ class AppJavaScriptInterface
                     val textHtml: String? = it.select("ol > li:nth-child(1) > div.dictionary-meanings-value > span:nth-child(1)").text()
                     textHtml?.let { txt -> list.add(txt) }
                 }
-                parseEvent.value = Event(list) //todo Отправка события в активити/фрагмент: Step 3
+                val regex = Regex("[^a-zA-Z]")
+                if (list.size >= 2 && list.first().contains(regex) && !list.last().contains(regex))
+                {
+                    val reversedList = list.reversed().distinct() as ArrayList<String>
+                    parseEvent.value = Event(reversedList)
+                    return@withContext
+                }
+                val distinctList = list.distinct() as ArrayList<String>
+                parseEvent.value = Event(distinctList) //todo Отправка события в активити/фрагмент: Step 3
                 return@withContext
             }
         }
