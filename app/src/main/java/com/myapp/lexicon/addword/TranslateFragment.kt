@@ -2,13 +2,16 @@ package com.myapp.lexicon.addword
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.EventLog
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
+import com.myapp.lexicon.helpers.Event
 import com.myapp.lexicon.main.MainActivity
 import kotlinx.android.synthetic.main.translate_fragment.*
 import kotlinx.android.synthetic.main.translate_fragment.view.*
@@ -20,6 +23,8 @@ class TranslateFragment : Fragment()
 
     companion object
     {
+        val translateEvent : MutableLiveData<Event<ArrayList<String>>> = MutableLiveData()
+
         private var instance: TranslateFragment? = null
         fun getInstance(text: String) : TranslateFragment = if (instance == null)
         {
@@ -45,7 +50,7 @@ class TranslateFragment : Fragment()
 
         val inputText = arguments?.getString(TEXT) ?: ""
 
-        val lang = (activity as MainActivity).getString(R.string.translate_direct_en_ru)
+        val lang = activity?.getString(R.string.translate_direct_en_ru)
 
         root.webView.apply {
             settings.javaScriptEnabled = true //todo parsing WebView: Step 3
@@ -74,8 +79,13 @@ class TranslateFragment : Fragment()
             if (!it.hasBeenHandled)
             {
                 val content = it.getContent()
-                loadProgress.visibility = View.GONE
+                if (content != null)
+                {
+                    this.activity?.supportFragmentManager?.let { it1 -> AddWordDialog().show(it1, AddWordDialog.TAG) }
+                    translateEvent.value = Event(content)
+                }
             }
+            loadProgress.visibility = View.GONE
         })
 
     }
