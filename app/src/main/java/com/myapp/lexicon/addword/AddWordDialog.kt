@@ -44,15 +44,9 @@ class AddWordDialog : DialogFragment()
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
     {
         TranslateFragment.translateEvent.observe(viewLifecycleOwner, Observer {
-            val translateListAdapter = it.getContent()?.let { content -> TranslateListAdapter(content) }
-            val linearLayoutManager = LinearLayoutManager(context)
-            val defaultItemAnimator = DefaultItemAnimator()
-
-            translateRV.apply {
-                adapter = translateListAdapter
-                layoutManager = linearLayoutManager
-                itemAnimator = defaultItemAnimator
-            }
+            val contentList = it.getContent()
+            inputWordTV.text = contentList?.get(0) ?: ""
+            translateTV.text = contentList?.get(1)
         })
         return dialogView
     }
