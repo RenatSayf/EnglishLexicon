@@ -23,30 +23,15 @@ class AppJavaScriptInterface
     {
         CoroutineScope(Dispatchers.IO).launch {
             withContext(Dispatchers.Main){
+                val list : ArrayList<String> = arrayListOf()
                 val doc = Jsoup.parse(html)
-                val list = ArrayList<String>()
-                val dictionary = doc.select("#dictionary > li:nth-child(1) > div")
-                if (dictionary.size > 0)
-                {
-                    val inputText: String? = dictionary[0].ownText()
-                    if (inputText != null)
-                    {
-                        list.add(inputText)
-                    }
+                val shareLink = doc.getElementById("shareLink").text()
+                val parsedInputText = parseInputText(shareLink)
+                parsedInputText.isNotEmpty().let {
+                    list.add(parsedInputText)
                 }
-                else
-                {
-                    parseEvent.value = Event(list)
-                    return@withContext
-                }
-
-                val translate: String? = doc.select("#translation > span").text()
-                translate?.let { list.add(it) }
-                val ul = doc.getElementById("dictionary")
-                ul.children().forEach {
-                    val textHtml: String? = it.select("ol > li:nth-child(1) > div.dictionary-meanings-value > span:nth-child(1)").text()
-                    textHtml?.let { txt -> list.add(txt) }
-                }
+                val translate: String = doc.select("#translation > span").text()
+                list.add(translate)
                 val regex = Regex("[^a-zA-Z]")
                 if (list.size >= 2 && list.first().contains(regex) && !list.last().contains(regex))
                 {
@@ -58,6 +43,16 @@ class AppJavaScriptInterface
                 parseEvent.value = Event(distinctList) //todo Отправка события в активити/фрагмент: Step 3
                 return@withContext
             }
+        }
+    }
+
+    private fun parseInputText(link: String) : String
+    {
+        return kotlin.run {
+            val substringAfter = link.substringAfter("text=")
+            val substringBefore = substringAfter.substringBefore("</a>")
+            val text = substringBefore.replace("+", " ")
+            text
         }
     }
 }
