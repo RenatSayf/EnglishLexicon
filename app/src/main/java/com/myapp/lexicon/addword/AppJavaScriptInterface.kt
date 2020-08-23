@@ -32,7 +32,7 @@ class AppJavaScriptInterface
                 }
                 val translate: String = doc.select("#translation > span").text()
                 list.add(translate)
-                val regex = Regex("[^a-zA-Z]")
+                val regex = Regex("[^a-zA-Z-0-9]")
                 if (list.size >= 2 && list.first().contains(regex) && !list.last().contains(regex))
                 {
                     val reversedList = list.reversed().distinct() as ArrayList<String>

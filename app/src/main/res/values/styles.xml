@@ -38,4 +38,19 @@
         <item name="android:windowIsTranslucent">true</item>
     </style>
 
+    <style name="AppEditText" parent="Widget.AppCompat.EditText">
+        <item name="android:textCursorDrawable">@color/colorWhite</item>
+        <item name="android:textColorHighlight">@color/colorTransparent</item>
+        <item name="android:textColorLink">@color/colorTransparent</item>
+        <item name="android:textColorHint">@color/colorTransparent</item>
+        <item name="colorControlNormal">@color/colorTransparent</item>
+        <item name="colorControlActivated">@color/colorTransparent</item>
+        <item name="colorControlHighlight">@color/colorTransparent</item>
+        <item name="backgroundTint">@color/colorTransparent</item>
+    </style>
+
+    <style name="appSpinnerItemStyle" parent="android:TextAppearance.Widget.DropDownItem">
+        <item name="android:textColor">@color/colorWhite</item>
+    </style>
+
 </resources>

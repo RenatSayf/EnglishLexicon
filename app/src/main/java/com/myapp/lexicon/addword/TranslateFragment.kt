@@ -81,7 +81,9 @@ class TranslateFragment : Fragment()
                 val content = it.getContent()
                 if (!content.isNullOrEmpty())
                 {
-                    activity?.supportFragmentManager?.let { a -> AddWordDialog.getInstance(content).show(a, AddWordDialog.TAG) }
+                    activity?.supportFragmentManager?.let { a -> AddWordDialog.getInstance(content).apply {
+
+                    }.show(a, AddWordDialog.TAG) }
                 }
             }
             loadProgress.visibility = View.GONE

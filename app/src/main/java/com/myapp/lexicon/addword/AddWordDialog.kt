@@ -34,8 +34,11 @@ class AddWordDialog : DialogFragment()
         activity?.let { a ->
 
             dialogView = a.layoutInflater.inflate(R.layout.add_word_dialog, LinearLayout(a), false)
+
             val builder = AlertDialog.Builder(a).setView(dialogView)
-            return builder.create()
+            return builder.create().apply {
+                window?.setBackgroundDrawableResource(R.color.colorPrimaryDarkTransparent)
+            }
         } ?:
         return super.onCreateDialog(savedInstanceState)
     }
@@ -54,7 +57,7 @@ class AddWordDialog : DialogFragment()
                 if (s > 1)
                 {
                     inputWordTV.text = inputList[0]
-                    translateTV.text = inputList[1]
+                    translateTV.setText(inputList[1])
                 }
             }
         }
