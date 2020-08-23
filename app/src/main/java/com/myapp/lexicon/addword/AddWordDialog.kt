@@ -8,33 +8,32 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.DefaultItemAnimator
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.myapp.lexicon.R
 import kotlinx.android.synthetic.main.add_word_dialog.*
-import kotlinx.android.synthetic.main.add_word_dialog.view.*
 
 class AddWordDialog : DialogFragment()
 {
     companion object
     {
-        val TAG = "translator_dialog"
-        private val EN_WORD_TAG = "en_word"
-        private val instace : AddWordDialog? = null
+        const val TAG = "translator_dialog"
+        private const val WORD_LIST_TAG = "en_word"
+        private val instance : AddWordDialog? = null
 
-        fun getInstance() : AddWordDialog = instace ?: AddWordDialog()
+        fun getInstance(list: ArrayList<String>) : AddWordDialog = instance ?: AddWordDialog().apply {
+            arguments = Bundle().apply {
+                putStringArrayList(WORD_LIST_TAG, list)
+            }
+        }
     }
 
     private var dialogView: View? = null
+    private var inputList: ArrayList<String> = arrayListOf()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog
     {
         activity?.let { a ->
 
             dialogView = a.layoutInflater.inflate(R.layout.add_word_dialog, LinearLayout(a), false)
-
-
             val builder = AlertDialog.Builder(a).setView(dialogView)
             return builder.create()
         } ?:
@@ -43,18 +42,22 @@ class AddWordDialog : DialogFragment()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
     {
-        TranslateFragment.translateEvent.observe(viewLifecycleOwner, Observer {
-            val contentList = it.getContent()
-            inputWordTV.text = contentList?.get(0) ?: ""
-            translateTV.text = contentList?.get(1)
-        })
         return dialogView
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?)
     {
         super.onActivityCreated(savedInstanceState)
-
+        arguments?.let{
+            inputList = it.getStringArrayList(WORD_LIST_TAG) as ArrayList<String>
+            inputList.size.let{s ->
+                if (s > 1)
+                {
+                    inputWordTV.text = inputList[0]
+                    translateTV.text = inputList[1]
+                }
+            }
+        }
     }
 
 

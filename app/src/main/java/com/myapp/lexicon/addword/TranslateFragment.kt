@@ -79,14 +79,15 @@ class TranslateFragment : Fragment()
             if (!it.hasBeenHandled)
             {
                 val content = it.getContent()
-                if (content != null)
+                if (!content.isNullOrEmpty())
                 {
-                    this.activity?.supportFragmentManager?.let { it1 -> AddWordDialog().show(it1, AddWordDialog.TAG) }
-                    translateEvent.value = Event(content)
+                    activity?.supportFragmentManager?.let { a -> AddWordDialog.getInstance(content).show(a, AddWordDialog.TAG) }
                 }
             }
             loadProgress.visibility = View.GONE
         })
+
+
 
     }
 
