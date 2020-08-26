@@ -6,9 +6,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.LinearLayout
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
+import com.myapp.lexicon.database.LexiconDataBase
+import com.myapp.lexicon.main.MainActivity
 import kotlinx.android.synthetic.main.add_word_dialog.*
 
 class AddWordDialog : DialogFragment()
@@ -28,10 +33,13 @@ class AddWordDialog : DialogFragment()
 
     private var dialogView: View? = null
     private var inputList: ArrayList<String> = arrayListOf()
+    private lateinit var db: LexiconDataBase
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog
     {
         activity?.let { a ->
+
+            db = ViewModelProvider(this)[LexiconDataBase::class.java]
 
             dialogView = a.layoutInflater.inflate(R.layout.add_word_dialog, LinearLayout(a), false)
 
@@ -51,6 +59,15 @@ class AddWordDialog : DialogFragment()
     override fun onActivityCreated(savedInstanceState: Bundle?)
     {
         super.onActivityCreated(savedInstanceState)
+
+        db.setDictList(activity as MainActivity).observe(viewLifecycleOwner, Observer {
+            if (!it.isNullOrEmpty())
+            {
+                val adapter = ArrayAdapter((activity as MainActivity), android.R.layout.simple_list_item_1, it)
+                dictListSpinner.adapter = adapter
+            }
+        })
+
         arguments?.let{
             inputList = it.getStringArrayList(WORD_LIST_TAG) as ArrayList<String>
             inputList.size.let{s ->

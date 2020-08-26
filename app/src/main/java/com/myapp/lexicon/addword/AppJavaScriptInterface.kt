@@ -23,24 +23,47 @@ class AppJavaScriptInterface
     {
         CoroutineScope(Dispatchers.IO).launch {
             withContext(Dispatchers.Main){
-                val list : ArrayList<String> = arrayListOf()
-                val doc = Jsoup.parse(html)
-                val shareLink = doc.getElementById("shareLink").text()
-                val parsedInputText = parseInputText(shareLink)
-                parsedInputText.isNotEmpty().let {
-                    list.add(parsedInputText)
-                }
-                val translate: String = doc.select("#translation > span").text()
-                list.add(translate)
-                val regex = Regex("[^a-zA-Z-0-9]")
-                if (list.size >= 2 && list.first().contains(regex) && !list.last().contains(regex))
+                try
                 {
-                    val reversedList = list.reversed().distinct() as ArrayList<String>
-                    parseEvent.value = Event(reversedList)
-                    return@withContext
+                    val list : ArrayList<String> = arrayListOf()
+                    val doc = Jsoup.parse(html)
+                    doc.getElementById("shareLink").text().also {
+                        if (!it.isNullOrEmpty())
+                        {
+                            val parsedInputText = parseInputText(it)
+                            parsedInputText.isNotEmpty().let {
+                                list.add(parsedInputText)
+                            }
+                        }
+                    }
+                    doc.select("#translation > span").text().also {
+                        if (!it.isNullOrEmpty())
+                        {
+                            list.add(it)
+                        }
+                    }
+                    val regex = Regex("[^a-zA-Z-0-9]")
+                    if (list.size >= 2 && list.first().contains(regex) && !list.last().contains(regex))
+                    {
+                        val reversedList = list.reversed().distinct() as ArrayList<String>
+                        parseEvent.value = Event(reversedList)
+                        return@withContext
+                    }
+                    if (list.isNotEmpty())
+                    {
+                        val distinctList = list.distinct() as ArrayList<String>
+                        parseEvent.value = Event(distinctList) //todo Отправка события в активити/фрагмент: Step 3
+                    }
+                    else
+                    {
+                        parseEvent.value = Event(arrayListOf())
+                    }
                 }
-                val distinctList = list.distinct() as ArrayList<String>
-                parseEvent.value = Event(distinctList) //todo Отправка события в активити/фрагмент: Step 3
+                catch (e: Exception)
+                {
+                    e.printStackTrace()
+                    parseEvent.value = Event(arrayListOf())
+                }
                 return@withContext
             }
         }

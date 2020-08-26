@@ -14,30 +14,53 @@ import java.util.List;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class LexiconDataBase extends ViewModel
 {
     private MutableLiveData<List<String>> dictionaries;
     private DatabaseHelper databaseHelper;
 
-    public LiveData<List<String>> getDictList(Context context)
+    public LiveData<List<String>> setDictList(Context context)
     {
-        databaseHelper = new DatabaseHelper(context);
         if (dictionaries == null)
         {
             dictionaries = new MutableLiveData<>();
-            dictionaries = loadDictList(context);
+            Disposable subscribe = loadDictListAsync(context).subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(listMutableLiveData -> dictionaries.postValue(listMutableLiveData), Throwable::printStackTrace);
         }
         return dictionaries;
     }
 
-    private MutableLiveData<List<String>> loadDictList(Context context)
+    private Observable<ArrayList<String>> loadDictListAsync(Context context)
+    {
+        return Observable.create(emitter -> {
+            try
+            {
+                ArrayList<String> dictList = loadDictList(context);
+                emitter.onNext(dictList);
+            } catch (Exception e)
+            {
+                emitter.onError(e);
+            } finally
+            {
+                emitter.onComplete();
+            }
+        });
+    }
+
+    private ArrayList<String> loadDictList(Context context)
     {
         String nameNotDict;
         Cursor cursor = null;
         ArrayList<String> list = new ArrayList<>();
         try
         {
+            databaseHelper = new DatabaseHelper(context);
             databaseHelper.open();
             if (databaseHelper.database.isOpen())
             {
@@ -92,7 +115,7 @@ public class LexiconDataBase extends ViewModel
             }
         }
         list.add(context.getString(R.string.text_new_dict));
-        dicts.setValue(list);
-        return dicts;
+        //dicts.setValue(list);
+        return list;
     }
 }

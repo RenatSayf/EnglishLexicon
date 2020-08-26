@@ -11,8 +11,8 @@ class AppWebViewClient constructor(private val root: TranslateFragment) : WebVie
     override fun onPageFinished(view: WebView?, url: String?)
     {
         super.onPageFinished(view, url)
-        root.btnSave.visibility = View.VISIBLE
-        root.loadProgress.visibility = View.GONE
+        root.btnSave?.let { it.visibility = View.VISIBLE }
+        root.loadProgress?.let { it.visibility = View.GONE }
         return
     }
 }

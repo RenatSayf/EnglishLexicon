@@ -75,7 +75,6 @@
             android:id="@+id/dictListSpinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:entries="@array/display_values"
             android:backgroundTint="@color/colorWhite"
             android:popupBackground="@color/colorPrimary"
             tools:ignore="UnusedAttribute"
