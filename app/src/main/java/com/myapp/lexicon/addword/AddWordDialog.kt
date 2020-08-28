@@ -6,16 +6,20 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.database.LexiconDataBase
+import com.myapp.lexicon.dialogs.NewDictDialog
+import com.myapp.lexicon.settings.AppData
 import kotlinx.android.synthetic.main.add_word_dialog.*
 
-class AddWordDialog : DialogFragment()
+class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult
 {
     companion object
     {
@@ -63,10 +67,29 @@ class AddWordDialog : DialogFragment()
             db.setDictList(a).observe(viewLifecycleOwner, Observer { list ->
                 if (!list.isNullOrEmpty())
                 {
-                    val adapter = ArrayAdapter(a, android.R.layout.simple_list_item_1, list)
+                    val ndict = AppData.getInstance().ndict
+                    val adapter = ArrayAdapter(a, R.layout.app_spinner_item, list)
                     dictListSpinner.adapter = adapter
+                    if (ndict > -1) dictListSpinner.setSelection(ndict)
                 }
             })
+
+            dictListSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+                override fun onItemSelected(adapterView: AdapterView<*>?, view: View?, index: Int, p3: Long)
+                {
+                    val text = (view as TextView).text
+                    if (text == getString(R.string.text_new_dict))
+                    {
+                        NewDictDialog.newInstance().show(a.supportFragmentManager, NewDictDialog.TAG)
+                    }
+                    return
+                }
+
+                override fun onNothingSelected(p0: AdapterView<*>?)
+                {
+
+                }
+            }
         }
 
         arguments?.let{
@@ -79,6 +102,11 @@ class AddWordDialog : DialogFragment()
                 }
             }
         }
+    }
+
+    override fun newDictDialogResult(res: Boolean, dictName: String?)
+    {
+        if (res) db.setDictList(activity)
     }
 
 

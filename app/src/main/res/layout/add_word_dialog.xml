@@ -5,8 +5,9 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="@color/colorPrimaryDarkTransparent"
-    tools:background="@color/colorPrimaryDark">
+    android:background="@drawable/side_nav_bar"
+    tools:background="@drawable/side_nav_bar"
+    android:padding="16dp">
 
     <TextView
         android:id="@+id/inputWordTV"
@@ -75,12 +76,11 @@
             android:id="@+id/dictListSpinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/colorWhite"
-            android:popupBackground="@color/colorPrimary"
-            tools:ignore="UnusedAttribute"
             android:theme="@style/TextAppearance.AppCompat.Title.Inverse"
+            android:foregroundTint="@color/colorWhite"
+            android:popupBackground="@color/colorPrimary"
             android:spinnerMode="dropdown"
-            />
+            tools:targetApi="LOLLIPOP" />
 
         <View
             android:layout_width="match_parent"
