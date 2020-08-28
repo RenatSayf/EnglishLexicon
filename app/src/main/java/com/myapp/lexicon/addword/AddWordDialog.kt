@@ -64,7 +64,13 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult
         super.onActivityCreated(savedInstanceState)
 
         activity?.let { a ->
-            db.setDictList(a).observe(viewLifecycleOwner, Observer { list ->
+
+            if (db.dictionaries.value.isNullOrEmpty())
+            {
+                db.setDictList(a)
+            }
+
+            db.dictionaries.observe(viewLifecycleOwner, Observer { list ->
                 if (!list.isNullOrEmpty())
                 {
                     val ndict = AppData.getInstance().ndict
@@ -77,10 +83,16 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult
             dictListSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
                 override fun onItemSelected(adapterView: AdapterView<*>?, view: View?, index: Int, p3: Long)
                 {
-                    val text = (view as TextView).text
-                    if (text == getString(R.string.text_new_dict))
-                    {
-                        NewDictDialog.newInstance().show(a.supportFragmentManager, NewDictDialog.TAG)
+                    view?.let {
+                        val text = (view as TextView).text
+                        if (text == getString(R.string.text_new_dict))
+                        {
+                            NewDictDialog.newInstance().apply {
+                                setNewDictDialogListener(this@AddWordDialog)
+                            }.run {
+                                show(a.supportFragmentManager, NewDictDialog.TAG)
+                            }
+                        }
                     }
                     return
                 }

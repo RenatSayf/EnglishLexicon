@@ -94,7 +94,7 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
     {
         super.onCreate(savedInstanceState);
         LexiconDataBase dataBase = new ViewModelProvider(this).get(LexiconDataBase.class);
-        dataBase.setDictList(getActivity()).observe(this, new Observer<List<String>>()
+        dataBase.dictionaries.observe(this, new Observer<List<String>>()
         {
             @Override
             public void onChanged(@Nullable List<String> dicts)

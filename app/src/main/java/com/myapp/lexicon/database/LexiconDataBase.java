@@ -21,19 +21,18 @@ import io.reactivex.schedulers.Schedulers;
 
 public class LexiconDataBase extends ViewModel
 {
-    private MutableLiveData<List<String>> dictionaries;
+    private MutableLiveData<List<String>> _dictionaries = new MutableLiveData<>();
     private DatabaseHelper databaseHelper;
 
-    public LiveData<List<String>> setDictList(Context context)
+    public LiveData<List<String>> dictionaries = _dictionaries;
+
+    public void setDictList(Context context)
     {
-        if (dictionaries == null)
-        {
-            dictionaries = new MutableLiveData<>();
-            Disposable subscribe = loadDictListAsync(context).subscribeOn(Schedulers.newThread())
+        //_dictionaries = new MutableLiveData<>();
+            Disposable subscribe = loadDictListAsync(context)
+                    .subscribeOn(Schedulers.newThread())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(listMutableLiveData -> dictionaries.postValue(listMutableLiveData), Throwable::printStackTrace);
-        }
-        return dictionaries;
+                    .subscribe(listMutableLiveData -> _dictionaries.setValue(listMutableLiveData), Throwable::printStackTrace);
     }
 
     private Observable<ArrayList<String>> loadDictListAsync(Context context)
