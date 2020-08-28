@@ -12,6 +12,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.helpers.Event
+import com.myapp.lexicon.helpers.StringOperations
 import com.myapp.lexicon.main.MainActivity
 import kotlinx.android.synthetic.main.translate_fragment.*
 import kotlinx.android.synthetic.main.translate_fragment.view.*
@@ -50,14 +51,13 @@ class TranslateFragment : Fragment()
 
         val inputText = arguments?.getString(TEXT) ?: ""
 
-        val lang = activity?.getString(R.string.translate_direct_en_ru)
 
         root.webView.apply {
             settings.javaScriptEnabled = true //todo parsing WebView: Step 3
             settings.domStorageEnabled = true //todo parsing WebView: Step 4
             addJavascriptInterface(AppJavaScriptInterface(), "HtmlHandler") //todo parsing WebView: Step 5
             webViewClient = AppWebViewClient(this@TranslateFragment) //todo parsing WebView: Step 6
-            loadUrl("https://translate.yandex.ru/?text=${inputText}&lang=$lang")
+            loadUrl("https://translate.yandex.ru/?text=${inputText}")
         }
 
         return root

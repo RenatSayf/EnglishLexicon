@@ -13,7 +13,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.database.LexiconDataBase
-import com.myapp.lexicon.main.MainActivity
 import kotlinx.android.synthetic.main.add_word_dialog.*
 
 class AddWordDialog : DialogFragment()
@@ -60,13 +59,15 @@ class AddWordDialog : DialogFragment()
     {
         super.onActivityCreated(savedInstanceState)
 
-        db.setDictList(activity as MainActivity).observe(viewLifecycleOwner, Observer {
-            if (!it.isNullOrEmpty())
-            {
-                val adapter = ArrayAdapter((activity as MainActivity), android.R.layout.simple_list_item_1, it)
-                dictListSpinner.adapter = adapter
-            }
-        })
+        activity?.let { a ->
+            db.setDictList(a).observe(viewLifecycleOwner, Observer { list ->
+                if (!list.isNullOrEmpty())
+                {
+                    val adapter = ArrayAdapter(a, android.R.layout.simple_list_item_1, list)
+                    dictListSpinner.adapter = adapter
+                }
+            })
+        }
 
         arguments?.let{
             inputList = it.getStringArrayList(WORD_LIST_TAG) as ArrayList<String>
