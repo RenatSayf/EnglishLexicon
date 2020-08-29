@@ -31,7 +31,7 @@ import com.myapp.lexicon.connectivity.TranslateApi;
 import com.myapp.lexicon.database.CallableAction;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
-import com.myapp.lexicon.database.LexiconDataBase;
+import com.myapp.lexicon.database.AddWordViewModel;
 import com.myapp.lexicon.main.Speaker;
 import com.myapp.lexicon.main.SplashScreenActivity;
 
@@ -93,7 +93,7 @@ public class TranslatorDialog extends AppCompatDialogFragment implements View.On
     public void onCreate(final Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        LexiconDataBase dataBase = new ViewModelProvider(this).get(LexiconDataBase.class);
+        AddWordViewModel dataBase = new ViewModelProvider(this).get(AddWordViewModel.class);
         dataBase.dictionaries.observe(this, new Observer<List<String>>()
         {
             @Override

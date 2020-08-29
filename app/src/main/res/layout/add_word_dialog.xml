@@ -63,7 +63,7 @@
         tools:ignore="RtlCompat" />
 
     <ImageButton
-        android:id="@+id/ru_speech_imgbtn"
+        android:id="@+id/ruSpeechBtn"
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -19,7 +19,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class LexiconDataBase extends ViewModel
+public class AddWordViewModel extends ViewModel
 {
     private MutableLiveData<List<String>> _dictionaries = new MutableLiveData<>();
     private DatabaseHelper databaseHelper;
@@ -124,4 +124,24 @@ public class LexiconDataBase extends ViewModel
     {
         _spinnerSelectedIndex.setValue(index);
     }
+
+    public Observable<Long> insertInTableAsync(Context context, String tableName, DataBaseEntry entry)
+    {
+        return Observable.create(emitter -> {
+            try
+            {
+                long res = new DataBaseQueries(context).insertWordInTableSync(tableName, entry);
+                emitter.onNext(res);
+            }
+            catch (Exception e)
+            {
+                emitter.onError(e);
+            }
+            finally
+            {
+                emitter.onComplete();
+            }
+        });
+    }
+
 }
