@@ -2,7 +2,7 @@
 <resources>
     <color name="colorPrimary">#3f51b5</color>
     <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorPrimaryDarkTransparent">#00032B68</color>
+    <color name="colorPrimaryDarkTransparent">#993F51B5</color>
     <color name="colorAccent">#FF4081</color>
     <color name="colorWhite">#ffffff</color>
     <color name="colorWhiteOpacity">#dcffffff</color>
@@ -19,4 +19,5 @@
     <color name="colorPopAppBody">#3b5e91</color>
     <color name="colorLightGrey">#e9ebec</color>
     <color name="colorLightBlue">#C3E9FC</color>
+    <color name="colorYellow">#ffdc61</color>
 </resources>

@@ -17,6 +17,7 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.database.LexiconDataBase
 import com.myapp.lexicon.dialogs.NewDictDialog
 import com.myapp.lexicon.settings.AppData
+import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.add_word_dialog.*
 
 class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult
@@ -36,19 +37,20 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult
 
     private var dialogView: View? = null
     private var inputList: ArrayList<String> = arrayListOf()
-    private lateinit var db: LexiconDataBase
+    private lateinit var viewModel: LexiconDataBase
+    private var subscriber: Disposable? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog
     {
         activity?.let { a ->
 
-            db = ViewModelProvider(this)[LexiconDataBase::class.java]
+            viewModel = ViewModelProvider(this)[LexiconDataBase::class.java]
 
             dialogView = a.layoutInflater.inflate(R.layout.add_word_dialog, LinearLayout(a), false)
 
             val builder = AlertDialog.Builder(a).setView(dialogView)
             return builder.create().apply {
-                window?.setBackgroundDrawableResource(R.color.colorPrimaryDarkTransparent)
+                window?.setBackgroundDrawableResource(R.drawable.add_word_background)
             }
         } ?:
         return super.onCreateDialog(savedInstanceState)
@@ -65,18 +67,21 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult
 
         activity?.let { a ->
 
-            if (db.dictionaries.value.isNullOrEmpty())
+            if (viewModel.dictionaries.value.isNullOrEmpty())
             {
-                db.setDictList(a)
+                subscriber = viewModel.setDictList(a)
             }
 
-            db.dictionaries.observe(viewLifecycleOwner, Observer { list ->
+            viewModel.dictionaries.observe(viewLifecycleOwner, Observer { list ->
                 if (!list.isNullOrEmpty())
                 {
                     val ndict = AppData.getInstance().ndict
                     val adapter = ArrayAdapter(a, R.layout.app_spinner_item, list)
                     dictListSpinner.adapter = adapter
-                    if (ndict > -1) dictListSpinner.setSelection(ndict)
+                    if (ndict > -1)
+                    {
+                        dictListSpinner.setSelection(ndict)
+                    }
                 }
             })
 
@@ -84,6 +89,7 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult
                 override fun onItemSelected(adapterView: AdapterView<*>?, view: View?, index: Int, p3: Long)
                 {
                     view?.let {
+                        viewModel.setSelected(index)
                         val text = (view as TextView).text
                         if (text == getString(R.string.text_new_dict))
                         {
@@ -102,6 +108,25 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult
 
                 }
             }
+
+            btnOk.setOnClickListener {
+                val text = (dictListSpinner.selectedView as TextView).text
+                if (text == getString(R.string.text_new_dict))
+                {
+                    NewDictDialog.newInstance().apply {
+                        setNewDictDialogListener(this@AddWordDialog)
+                    }.run {
+                        show(a.supportFragmentManager, NewDictDialog.TAG)
+                    }
+                }
+                else
+                {
+
+                }
+            }
+            btnCancel.setOnClickListener {
+
+            }
         }
 
         arguments?.let{
@@ -114,11 +139,21 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult
                 }
             }
         }
+
+        viewModel.spinnerSelectedIndex().observe(viewLifecycleOwner, Observer {
+            dictListSpinner.setSelection(it)
+        })
     }
 
     override fun newDictDialogResult(res: Boolean, dictName: String?)
     {
-        if (res) db.setDictList(activity)
+        if (res) viewModel.setDictList(activity)
+    }
+
+    override fun onDestroy()
+    {
+        super.onDestroy()
+        subscriber?.dispose()
     }
 
 

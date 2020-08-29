@@ -26,13 +26,12 @@ public class LexiconDataBase extends ViewModel
 
     public LiveData<List<String>> dictionaries = _dictionaries;
 
-    public void setDictList(Context context)
+    public Disposable setDictList(Context context)
     {
-        //_dictionaries = new MutableLiveData<>();
-            Disposable subscribe = loadDictListAsync(context)
-                    .subscribeOn(Schedulers.newThread())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(listMutableLiveData -> _dictionaries.setValue(listMutableLiveData), Throwable::printStackTrace);
+        return loadDictListAsync(context)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(listMutableLiveData -> _dictionaries.setValue(listMutableLiveData), Throwable::printStackTrace);
     }
 
     private Observable<ArrayList<String>> loadDictListAsync(Context context)
@@ -97,7 +96,6 @@ public class LexiconDataBase extends ViewModel
             }
             databaseHelper.close();
         }
-        MutableLiveData<List<String>> dicts = new MutableLiveData<>();
         AppSettings appSettings = new AppSettings(context);
         if (appSettings.getPlayList() != null)
         {
@@ -114,7 +112,16 @@ public class LexiconDataBase extends ViewModel
             }
         }
         list.add(context.getString(R.string.text_new_dict));
-        //dicts.setValue(list);
         return list;
+    }
+
+    private MutableLiveData<Integer> _spinnerSelectedIndex = new MutableLiveData<>();
+    public LiveData<Integer> spinnerSelectedIndex()
+    {
+        return _spinnerSelectedIndex;
+    }
+    public void setSelected(int index)
+    {
+        _spinnerSelectedIndex.setValue(index);
     }
 }
