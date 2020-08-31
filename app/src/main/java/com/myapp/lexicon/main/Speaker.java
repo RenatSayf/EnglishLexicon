@@ -2,14 +2,15 @@ package com.myapp.lexicon.main;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.speech.tts.TextToSpeech;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.settings.AppSettings;
 
+import java.util.HashMap;
 import java.util.Locale;
 
 public class Speaker extends TextToSpeech
@@ -54,32 +55,41 @@ public class Speaker extends TextToSpeech
     private void dialogErrorTTS(final Activity activity, final Intent intent, String message, boolean isContinue)
     {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(activity).setTitle(R.string.dialog_title_warning).setIcon(R.drawable.icon_warning)
-                .setPositiveButton(R.string.btn_text_setup, new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which)
-                    {
-                        activity.startActivity(intent);
-                        activity.finish();
-                    }
+                .setPositiveButton(R.string.btn_text_setup, (dialog, which) -> {
+                    activity.startActivity(intent);
+                    activity.finish();
                 });
         if (isContinue)
         {
-            alertDialog.setNegativeButton(R.string.btn_text_continue, new DialogInterface.OnClickListener()
-            {
-                @Override
-                public void onClick(DialogInterface dialog, int which)
-                {
-                    appSettings.setEnglishSpeechOnly(false);
-                    Intent intent = new Intent(activity, MainActivity.class);
-                    activity.startActivity(intent);
-                    activity.finish();
-                }
+            alertDialog.setNegativeButton(R.string.btn_text_continue, (dialog, which) -> {
+                appSettings.setEnglishSpeechOnly(false);
+                Intent intent1 = new Intent(activity, MainActivity.class);
+                activity.startActivity(intent1);
+                activity.finish();
             });
         }
         alertDialog.setMessage(message);
         alertDialog.setCancelable(false);
         alertDialog.create();
         alertDialog.show();
+    }
+
+    public void doSpeech(String text, Locale locale)
+    {
+        HashMap<String, String> utterance_Id = new HashMap<>();
+        int supportCode;
+        supportCode = this.setLanguage(locale);
+        utterance_Id.clear();
+        utterance_Id.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "translate_dialog");
+        if (supportCode >= 0)
+        {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            {
+                this.speak(text, TextToSpeech.QUEUE_ADD, null, utterance_Id.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+            } else
+            {
+                this.speak(text, TextToSpeech.QUEUE_ADD, utterance_Id);
+            }
+        }
     }
 }

@@ -43,8 +43,8 @@ import com.google.firebase.appindexing.FirebaseUserActions;
 import com.google.firebase.appindexing.builders.Actions;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
-import com.myapp.lexicon.addword.AddWordActivity;
-import com.myapp.lexicon.cloudstorage.StorageFragment;
+import com.myapp.lexicon.addword.TranslateFragment;
+import com.myapp.lexicon.cloudstorage.StorageFragment2;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.DatabaseHelper;
@@ -407,7 +407,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (id == R.id.cloud_storage)
         {
-            StorageFragment storageFragment = StorageFragment.newInstance(null, null);
+            StorageFragment2 storageFragment = StorageFragment2.Companion.newInstance();
             fragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, storageFragment).addToBackStack(null).commit();
         }
 
@@ -427,11 +427,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (id == R.id.nav_add_word)
         {
-            if (addWordIntent == null)
-            {
-                addWordIntent = new Intent(this,AddWordActivity.class);
-            }
-            startActivity(addWordIntent);
+//            if (addWordIntent == null)
+//            {
+//                addWordIntent = new Intent(this,AddWordActivity.class);
+//            }
+//            startActivity(addWordIntent);
+            TranslateFragment translateFragm = TranslateFragment.Companion.getInstance("");
+            getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, translateFragm).addToBackStack(null).commit();
         }
         else if (id == R.id.nav_add_dict)
         {

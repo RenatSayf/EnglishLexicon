@@ -107,6 +107,7 @@ public class StorageFragment extends Fragment
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot)
                 {
+
                     return;
                 }
             });

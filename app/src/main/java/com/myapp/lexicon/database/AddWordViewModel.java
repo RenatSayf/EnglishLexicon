@@ -14,30 +14,51 @@ import java.util.List;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
-public class LexiconDataBase extends ViewModel
+public class AddWordViewModel extends ViewModel
 {
-    private MutableLiveData<List<String>> dictionaries;
+    private MutableLiveData<List<String>> _dictionaries = new MutableLiveData<>();
     private DatabaseHelper databaseHelper;
 
-    public LiveData<List<String>> getDictList(Context context)
+    public LiveData<List<String>> dictionaries = _dictionaries;
+
+    public Disposable setDictList(Context context)
     {
-        databaseHelper = new DatabaseHelper(context);
-        if (dictionaries == null)
-        {
-            dictionaries = new MutableLiveData<>();
-            dictionaries = loadDictList(context);
-        }
-        return dictionaries;
+        return loadDictListAsync(context)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(listMutableLiveData -> _dictionaries.setValue(listMutableLiveData), Throwable::printStackTrace);
     }
 
-    private MutableLiveData<List<String>> loadDictList(Context context)
+    private Observable<ArrayList<String>> loadDictListAsync(Context context)
+    {
+        return Observable.create(emitter -> {
+            try
+            {
+                ArrayList<String> dictList = loadDictList(context);
+                emitter.onNext(dictList);
+            } catch (Exception e)
+            {
+                emitter.onError(e);
+            } finally
+            {
+                emitter.onComplete();
+            }
+        });
+    }
+
+    private ArrayList<String> loadDictList(Context context)
     {
         String nameNotDict;
         Cursor cursor = null;
         ArrayList<String> list = new ArrayList<>();
         try
         {
+            databaseHelper = new DatabaseHelper(context);
             databaseHelper.open();
             if (databaseHelper.database.isOpen())
             {
@@ -75,7 +96,6 @@ public class LexiconDataBase extends ViewModel
             }
             databaseHelper.close();
         }
-        MutableLiveData<List<String>> dicts = new MutableLiveData<>();
         AppSettings appSettings = new AppSettings(context);
         if (appSettings.getPlayList() != null)
         {
@@ -92,7 +112,36 @@ public class LexiconDataBase extends ViewModel
             }
         }
         list.add(context.getString(R.string.text_new_dict));
-        dicts.setValue(list);
-        return dicts;
+        return list;
     }
+
+    private MutableLiveData<Integer> _spinnerSelectedIndex = new MutableLiveData<>();
+    public LiveData<Integer> spinnerSelectedIndex()
+    {
+        return _spinnerSelectedIndex;
+    }
+    public void setSelected(int index)
+    {
+        _spinnerSelectedIndex.setValue(index);
+    }
+
+    public Observable<Long> insertInTableAsync(Context context, String tableName, DataBaseEntry entry)
+    {
+        return Observable.create(emitter -> {
+            try
+            {
+                long res = new DataBaseQueries(context).insertWordInTableSync(tableName, entry);
+                emitter.onNext(res);
+            }
+            catch (Exception e)
+            {
+                emitter.onError(e);
+            }
+            finally
+            {
+                emitter.onComplete();
+            }
+        });
+    }
+
 }
