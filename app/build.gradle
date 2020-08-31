@@ -7,7 +7,7 @@ android {
         applicationId "com.myapp.lexicon"
         minSdkVersion 16
         targetSdkVersion 29
-        versionName 'beta'
+        versionName '2.2'
         versionCode 36
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
