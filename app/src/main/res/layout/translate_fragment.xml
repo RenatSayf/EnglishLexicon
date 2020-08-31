@@ -26,8 +26,8 @@
         tools:visibility="visible"
         android:visibility="gone"
         style="@style/Widget.AppCompat.ButtonBar"
-        android:background="@color/colorPrimary"
-        android:textColor="@color/colorWhite"/>
+        android:background="@color/colorYellow"
+        />
 
     <ProgressBar
         android:id="@+id/loadProgress"

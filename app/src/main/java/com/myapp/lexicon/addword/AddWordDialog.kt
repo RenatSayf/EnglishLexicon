@@ -16,6 +16,7 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.database.AddWordViewModel
 import com.myapp.lexicon.database.DataBaseEntry
 import com.myapp.lexicon.dialogs.NewDictDialog
+import com.myapp.lexicon.helpers.Keyboard
 import com.myapp.lexicon.main.Speaker
 import com.myapp.lexicon.settings.AppData
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -45,6 +46,7 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult
     private lateinit var viewModel: AddWordViewModel
     private var subscriber: Disposable? = null
     private lateinit var speaker: Speaker
+    private var newDictName: String? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog
     {
@@ -88,11 +90,19 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult
                 if (!list.isNullOrEmpty())
                 {
                     val ndict = AppData.getInstance().ndict
-                    val adapter = ArrayAdapter(a, R.layout.app_spinner_item, list)
+                    val adapter = ArrayAdapter(a, R.layout.app_spinner_item, list.distinct())
                     dictListSpinner.adapter = adapter
-                    if (ndict > -1)
+                    when
                     {
-                        dictListSpinner.setSelection(ndict)
+                        newDictName == null && ndict > -1 ->
+                        {
+                            dictListSpinner.setSelection(ndict)
+                        }
+                        newDictName != null ->
+                        {
+                            val index = list.indexOf(newDictName)
+                            dictListSpinner.setSelection(index)
+                        }
                     }
                 }
             })
@@ -120,6 +130,22 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult
                 override fun onNothingSelected(p0: AdapterView<*>?)
                 {
 
+                }
+            }
+
+            editBtnView.setOnClickListener {
+                translateTV.apply {
+                    if (!this.isFocused)
+                    {
+                        isEnabled = true
+                        requestFocus()
+                    }
+                    else
+                    {
+                        clearFocus()
+                        isEnabled = false
+                        Keyboard.getInstance().forceHide(a, this)
+                    }
                 }
             }
 
@@ -205,6 +231,7 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult
 
     override fun newDictDialogResult(res: Boolean, dictName: String?)
     {
+        newDictName = dictName
         if (res) viewModel.setDictList(activity)
     }
 
