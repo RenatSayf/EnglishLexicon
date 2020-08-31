@@ -2,18 +2,13 @@ package com.myapp.lexicon.addword
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.EventLog
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.MutableLiveData
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
-import com.myapp.lexicon.helpers.Event
-import com.myapp.lexicon.helpers.StringOperations
-import com.myapp.lexicon.main.MainActivity
 import kotlinx.android.synthetic.main.translate_fragment.*
 import kotlinx.android.synthetic.main.translate_fragment.view.*
 
@@ -24,8 +19,6 @@ class TranslateFragment : Fragment()
 
     companion object
     {
-        val translateEvent : MutableLiveData<Event<ArrayList<String>>> = MutableLiveData()
-
         private var instance: TranslateFragment? = null
         fun getInstance(text: String) : TranslateFragment = if (instance == null)
         {
