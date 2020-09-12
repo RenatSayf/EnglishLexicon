@@ -50,18 +50,15 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog
     {
-        activity?.let { a ->
-
+        requireActivity().let { a ->
             viewModel = ViewModelProvider(this)[AddWordViewModel::class.java]
-
             dialogView = a.layoutInflater.inflate(R.layout.add_word_dialog, LinearLayout(a), false)
 
             val builder = AlertDialog.Builder(a).setView(dialogView)
             return builder.create().apply {
                 window?.setBackgroundDrawableResource(R.drawable.add_word_background)
             }
-        } ?:
-        return super.onCreateDialog(savedInstanceState)
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
@@ -79,7 +76,7 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult
     {
         super.onActivityCreated(savedInstanceState)
 
-        activity?.let { a ->
+        requireActivity().let { a ->
 
             if (viewModel.dictionaries.value.isNullOrEmpty())
             {
