@@ -72,8 +72,11 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProvider;
+import dagger.hilt.android.AndroidEntryPoint;
 
 
+@AndroidEntryPoint
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         AppData.IDictNumChangeListener,
         GetTableListFragm.OnTableListListener
@@ -115,6 +118,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private GetTableListFragm getTableListFragm;
     private FragmentManager fragmentManager;
 
+    private MainViewModel mainViewModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -136,6 +141,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         playList = appSettings.getPlayList();
         appData = AppData.getInstance();
         appData.initAllSettings(this);
+
+        mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        mainViewModel.getDictList().observe(this, list -> {
+
+        });
+        mainViewModel.getPlayList().observe(this, list -> {
+            return;
+        });
 
         initViews();
 

@@ -72,9 +72,9 @@ public class AddWordViewModel extends ViewModel
             {
                 if (cursor.moveToFirst())
                 {
-                    while ( !cursor.isAfterLast() )
+                    while (!cursor.isAfterLast())
                     {
-                        nameNotDict = cursor.getString( cursor.getColumnIndex("name"));
+                        nameNotDict = cursor.getString(cursor.getColumnIndex("name"));
                         if (!nameNotDict.equals(DatabaseHelper.TABLE_METADATA) && !nameNotDict.equals(DatabaseHelper.TABLE_SEQUENCE) && !nameNotDict.equals(DatabaseHelper.TABLE_API_KEY))
                         {
                             String table_name = cursor.getString(cursor.getColumnIndex("name"));
@@ -85,13 +85,11 @@ public class AddWordViewModel extends ViewModel
                     }
                 }
             }
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             e.printStackTrace();
             databaseHelper.close();
-        }
-        finally
+        } finally
         {
             if (cursor != null)
             {

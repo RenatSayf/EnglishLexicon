@@ -8,6 +8,9 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.helpers.ObjectSerializer;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+
+import javax.inject.Inject;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -33,6 +36,7 @@ public class AppSettings
 
     private String transLang;
 
+    @Inject
     public AppSettings(Context context)
     {
         this.context = context;
@@ -171,12 +175,24 @@ public class AppSettings
         return list;
     }
 
+    public LinkedList<String> getPlayList(boolean b)
+    {
+        String play_list_items = context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getString(KEY_PLAY_LIST_ITEMS, null);
+        if (play_list_items != null && play_list_items.length() > 0)
+        {
+            //noinspection unchecked
+            ArrayList<String> list = (ArrayList<String>) ObjectSerializer.deserialize(play_list_items);
+            return new LinkedList<>(list);
+        }
+        return new LinkedList<>();
+    }
+
     /***
      *
      */
     public void cleanPlayList()
     {
-        savePlayList(new ArrayList<String>());
+        savePlayList(new ArrayList<>());
     }
 
     /**
