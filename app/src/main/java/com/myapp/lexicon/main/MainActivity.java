@@ -48,7 +48,6 @@ import com.myapp.lexicon.cloudstorage.StorageFragment2;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.DatabaseHelper;
-import com.myapp.lexicon.database.GetTableListFragm;
 import com.myapp.lexicon.helpers.Share;
 import com.myapp.lexicon.playlist.PlayList;
 import com.myapp.lexicon.service.LexiconService;
@@ -62,6 +61,7 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
@@ -78,8 +78,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
-        AppData.IDictNumChangeListener,
-        GetTableListFragm.OnTableListListener
+        AppData.IDictNumChangeListener
 {
     public DatabaseHelper databaseHelper;
     private Intent addWordIntent;
@@ -102,7 +101,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private boolean isFirstTime = true;
     private AppSettings appSettings;
     private AppData appData;
-    private ArrayList<String> playList = new ArrayList<>();
+    private LinkedList<String> dictList;
+    private LinkedList<String> playList = new LinkedList<>();
     private DataBaseQueries dataBaseQueries;
     private Locale localeDefault;
 
@@ -115,7 +115,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private final String KEY_BTN_STOP_VISIBLE = "btn_stop_visible";
     private final String KEY_PROG_BAR_VISIBLE = "prog_bar_visible";
 
-    private GetTableListFragm getTableListFragm;
     private FragmentManager fragmentManager;
 
     private MainViewModel mainViewModel;
@@ -125,6 +124,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a_navig_main);
+
+        mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
         fragmentManager = getSupportFragmentManager();
 
@@ -138,17 +139,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setSupportActionBar(toolbar);
 
         appSettings = new AppSettings(this);
-        playList = appSettings.getPlayList();
+        //playList = appSettings.getPlayList();
         appData = AppData.getInstance();
         appData.initAllSettings(this);
-
-        mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
-        mainViewModel.getDictList().observe(this, list -> {
-
-        });
-        mainViewModel.getPlayList().observe(this, list -> {
-            return;
-        });
 
         initViews();
 
@@ -294,10 +287,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         super.onResume();
         appSettings = new AppSettings(this);
-        playList = appSettings.getPlayList();
         appData = AppData.getInstance();
         appData.initAllSettings(this);
         appData.setDictNumberChangeListener(this);
+
+
+        mainViewModel.getDictList().observe(this, list -> {
+            dictList = list;
+        });
+
+        mainViewModel.setPlayList();
+        mainViewModel.getPlayList().observe(this, list -> {
+            playList = list;
+            if (playList.size() == 0)
+            {
+                speechServiceOnStop();
+                textViewDict.setText("");
+                tvWordsCounter.setText("");
+            }
+            else if (appData.getNdict() < playList.size())
+            {
+                textViewDict.setText(playList.get(appData.getNdict()));
+            }
+        });
+        if (playList.size() > 0)
+        {
+            mainViewModel.getAllWordsFromDict(playList.get(appData.getNdict()));
+        }
+
         if (appSettings.getOrderPlay() == 0)
         {
             orderPlayIconIV.setImageResource(R.drawable.ic_repeat_white);
@@ -305,14 +322,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (appSettings.getOrderPlay() == 1)
         {
             orderPlayIconIV.setImageResource(R.drawable.ic_shuffle_white);
-        }
-        if (playList.size() > 0 && appData.getNdict() < playList.size())
-        {
-            textViewDict.setText(playList.get(appData.getNdict()));
-        }
-        else
-        {
-            textViewDict.setText("");
         }
         localeDefault = new Locale(appSettings.getTranslateLang());
         dataBaseQueries = new DataBaseQueries(this);
@@ -449,8 +458,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         else if (id == R.id.nav_delete_dict)
         {
-            getTableListFragm = new GetTableListFragm();
-            fragmentManager.beginTransaction().add(getTableListFragm, GetTableListFragm.TAG).commit();
+            showRemoveDictDialog(dictList);
         }
         else if (id == R.id.nav_edit)
         {
@@ -519,20 +527,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    @Override
-    public void onGetTableListListener(Object object)
+    public void showRemoveDictDialog(LinkedList<String> dictList)
     {
-        getTableListFragm = (GetTableListFragm) fragmentManager.findFragmentByTag("get_table_list");
-        if (getTableListFragm != null)
-        {
-            fragmentManager.beginTransaction().remove(getTableListFragm).commit();
-        }
-        @SuppressWarnings("unchecked") ArrayList<String> arrayList = (ArrayList<String>) object;
         final ArrayList<String> delete_items = new ArrayList<>();
-        final String[] items = new  String[arrayList.size()];
-        for (int i = 0; i < arrayList.size(); i++)
+        final String[] items = new  String[dictList.size()];
+        for (int i = 0; i < dictList.size(); i++)
         {
-            items[i] = arrayList.get(i);
+            items[i] = dictList.get(i);
         }
         boolean[]choice = new boolean[items.length];
         new AlertDialog.Builder(MainActivity.this).setTitle(R.string.title_del_dict)
@@ -644,7 +645,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void btnPlayClick(View view)
     {
-        playList = appSettings.getPlayList();
+        //playList = appSettings.getPlayList();
         if (playList.size() > 0)
         {
             if (isFirstTime)
@@ -723,8 +724,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void btnNextBackClick(View view)
     {
-        playList = appSettings.getPlayList();
-        if (playList == null || playList.size() == 0)
+        if (playList.size() == 0)
         {
             Toast toast = Toast.makeText(this, R.string.no_playlist, Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER,0,0);
@@ -754,82 +754,79 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void getNext()
     {
-        if (playList != null && playList.size() == 0)
+        if (playList.iterator().hasNext())
         {
-            speechServiceOnStop();
-            return;
-        }
-
-        appData.getNextNword(this, new AppData.IGetWordListerner()
-        {
-            @Override
-            public void getWordComplete(ArrayList<DataBaseEntry> entries, Integer[] dictSize)
+            appData.getNextNword(this, new AppData.IGetWordListerner()
             {
-                if (entries.size() > 0)
+                @Override
+                public void getWordComplete(ArrayList<DataBaseEntry> entries, Integer[] dictSize)
                 {
-                    DataBaseEntry dataBaseEntry = entries.get(0);
-                    textViewEn.setText(dataBaseEntry.getEnglish());
-                    textViewRu.setText(dataBaseEntry.getTranslate());
-                    textViewDict.setText(playList.get(appData.getNdict()));
-                    String concatText = (dataBaseEntry.getRowId() + "").concat(" / ").concat(Integer.toString(dictSize[1])).concat("  " + getString(R.string.text_studied) + " " + dictSize[2]);
-                    tvWordsCounter.setText(concatText);
+                    if (entries.size() > 0)
+                    {
+                        DataBaseEntry dataBaseEntry = entries.get(0);
+                        textViewEn.setText(dataBaseEntry.getEnglish());
+                        textViewRu.setText(dataBaseEntry.getTranslate());
+                        textViewDict.setText(playList.get(appData.getNdict()));
+                        String concatText = (dataBaseEntry.getRowId() + "").concat(" / ").concat(Integer.toString(dictSize[1])).concat("  " + getString(R.string.text_studied) + " " + dictSize[2]);
+                        tvWordsCounter.setText(concatText);
 
-                    final HashMap<String, String> hashMap = new HashMap<>();
-                    hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "main_activity");
-                    try
-                    {
-                        SplashScreenActivity.speech.setLanguage(Locale.US);
-                    } catch (Exception e)
-                    {
-                        return;
-                    }
-                    SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                    {
-                        SplashScreenActivity.speech.speak(textViewEn.getText().toString(), TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
-                    } else
-                    {
-                        SplashScreenActivity.speech.speak(textViewEn.getText().toString(), TextToSpeech.QUEUE_ADD, hashMap);
-                    }
-                    SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
-                    {
-                        @Override
-                        public void onStart(String utteranceId)
+                        final HashMap<String, String> hashMap = new HashMap<>();
+                        hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "main_activity");
+                        try
                         {
-
+                            SplashScreenActivity.speech.setLanguage(Locale.US);
+                        } catch (Exception e)
+                        {
+                            return;
                         }
-
-                        @Override
-                        public void onDone(String utteranceId)
+                        SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                         {
-                            if (utteranceId.equals("main_activity") && appSettings.isEnglishSpeechOnly())
+                            SplashScreenActivity.speech.speak(textViewEn.getText().toString(), TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+                        } else
+                        {
+                            SplashScreenActivity.speech.speak(textViewEn.getText().toString(), TextToSpeech.QUEUE_ADD, hashMap);
+                        }
+                        SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+                        {
+                            @Override
+                            public void onStart(String utteranceId)
                             {
-                                SplashScreenActivity.speech.setLanguage(localeDefault);
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                                {
-                                    SplashScreenActivity.speech.speak(textViewRu.getText().toString(), TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
-                                } else
-                                {
-                                    SplashScreenActivity.speech.speak(textViewRu.getText().toString(), TextToSpeech.QUEUE_ADD, hashMap);
-                                }
+
                             }
-                            SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
-                        }
 
-                        @Override
-                        public void onError(String utteranceId)
-                        {
+                            @Override
+                            public void onDone(String utteranceId)
+                            {
+                                if (utteranceId.equals("main_activity") && appSettings.isEnglishSpeechOnly())
+                                {
+                                    SplashScreenActivity.speech.setLanguage(localeDefault);
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                                    {
+                                        SplashScreenActivity.speech.speak(textViewRu.getText().toString(), TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+                                    } else
+                                    {
+                                        SplashScreenActivity.speech.speak(textViewRu.getText().toString(), TextToSpeech.QUEUE_ADD, hashMap);
+                                    }
+                                }
+                                SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
+                            }
 
-                        }
-                    });
+                            @Override
+                            public void onError(String utteranceId)
+                            {
+
+                            }
+                        });
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     private void getPrevious()
     {
-        if (playList != null && playList.size() == 0)
+        if (playList.size() == 0)
         {
             speechServiceOnStop();
             return;

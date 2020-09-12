@@ -70,5 +70,61 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
         }
     }
 
+    fun getAllFromTable(tableName: String) : MutableList<DataBaseEntry>
+    {
+        val table = StringOperations.getInstance().spaceToUnderscore(tableName)
+        val entriesFromDB = LinkedList<DataBaseEntry>()
+        var dataBaseEntry: DataBaseEntry
+        var cursor: Cursor? = null
+        try
+        {
+            dbHelper.open()
+            if (dbHelper.database.isOpen)
+            {
+                val cmd = "SELECT RowId, English, Translate, CountRepeat FROM $table WHERE CountRepeat <> 0"
+                cursor = dbHelper.database.rawQuery(cmd, null)
+                if (cursor.moveToFirst())
+                {
+                    while (!cursor.isAfterLast)
+                    {
+                        dataBaseEntry = DataBaseEntry(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3))
+                        entriesFromDB.add(dataBaseEntry)
+                        cursor.moveToNext()
+                    }
+                }
+            }
+        }
+        catch (e: java.lang.Exception)
+        {
+            e.printStackTrace()
+            return LinkedList()
+        }
+        finally
+        {
+            cursor?.close()
+            dbHelper.close()
+        }
+        return entriesFromDB
+    }
+
+    fun getAllFromTableAsync(tableName: String) : Observable<LinkedList<DataBaseEntry>>
+    {
+        return Observable.create { emitter ->
+            try
+            {
+                val entries = getAllFromTable(tableName)
+                emitter.onNext(LinkedList(entries))
+            }
+            catch (e: Exception)
+            {
+                emitter.onError(e)
+            }
+            finally
+            {
+                emitter.onComplete()
+            }
+        }
+    }
+
 
 }

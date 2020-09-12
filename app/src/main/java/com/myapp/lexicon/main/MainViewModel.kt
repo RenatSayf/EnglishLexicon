@@ -4,6 +4,7 @@ import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.myapp.lexicon.database.DataBaseEntry
 import com.myapp.lexicon.repository.DataRepositoryImpl
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -37,14 +38,30 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
                 })
     }
 
-    private val _playList: MutableLiveData<LinkedList<String>> by lazy {
-        MutableLiveData<LinkedList<String>>().also {
-            it.value = repository.getTableListFromSettings()
-        }
+    private var _playList = MutableLiveData<LinkedList<String>>().apply {
+        val list = repository.getTableListFromSettings()
+        postValue(list)
     }
-    fun getPlayList() : LiveData<LinkedList<String>>
+
+    var playList : LiveData<LinkedList<String>> = _playList
+
+    fun setPlayList()
     {
-        return _playList
+        _playList.value = repository.getTableListFromSettings()
+    }
+
+    fun getAllWordsFromDict(dictName: String)
+    {
+        subscribe = repository.getAllFromTable(dictName)
+                .observeOn(Schedulers.newThread())
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .subscribe({ list: LinkedList<DataBaseEntry>? ->
+
+                    val list1 = list
+
+                }, { t: Throwable? ->
+
+                })
     }
 
     override fun onCleared()

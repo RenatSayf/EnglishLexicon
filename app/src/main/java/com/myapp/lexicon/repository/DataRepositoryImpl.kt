@@ -1,6 +1,7 @@
 package com.myapp.lexicon.repository
 
 import com.myapp.lexicon.database.AppDB
+import com.myapp.lexicon.database.DataBaseEntry
 import com.myapp.lexicon.database.DatabaseHelper
 import com.myapp.lexicon.settings.AppSettings
 import io.reactivex.Observable
@@ -19,5 +20,10 @@ class DataRepositoryImpl @Inject constructor(private val appDB: AppDB, private v
     override fun getTableListFromSettings(): LinkedList<String>
     {
         return settings.getPlayList(true)
+    }
+
+    override fun getAllFromTable(tableName: String): Observable<LinkedList<DataBaseEntry>>
+    {
+        return appDB.getAllFromTableAsync(tableName)
     }
 }
