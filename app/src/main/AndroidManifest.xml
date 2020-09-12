@@ -73,32 +73,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".addword.AddWordActivity"
-            android:label="@string/title_activity_add_word"
-            android:parentActivityName=".main.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden"
-            tools:targetApi="jelly_bean">
-            <intent-filter
-                android:autoVerify="true"
-                android:label="Англо-русский переводчик, добавляй слова"
-                tools:targetApi="m">
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:host="com.myapp.lexicon"
-                    android:pathPrefix="/lexicon"
-                    android:scheme="http" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".main.MainActivity" />
-        </activity>
-        <activity
             android:name=".wordeditor.WordEditorActivity"
             android:label="@string/title_activity_word_editor"
             android:parentActivityName=".main.MainActivity"

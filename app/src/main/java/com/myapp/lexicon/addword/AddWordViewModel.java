@@ -1,9 +1,12 @@
-package com.myapp.lexicon.database;
+package com.myapp.lexicon.addword;
 
 import android.content.Context;
 import android.database.Cursor;
 
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.database.DataBaseEntry;
+import com.myapp.lexicon.database.DataBaseQueries;
+import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.helpers.StringOperations;
 import com.myapp.lexicon.settings.AppSettings;
 

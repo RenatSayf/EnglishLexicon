@@ -427,11 +427,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (id == R.id.nav_add_word)
         {
-//            if (addWordIntent == null)
-//            {
-//                addWordIntent = new Intent(this,AddWordActivity.class);
-//            }
-//            startActivity(addWordIntent);
             TranslateFragment translateFragm = TranslateFragment.Companion.getInstance("");
             getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, translateFragm).addToBackStack(null).commit();
         }
