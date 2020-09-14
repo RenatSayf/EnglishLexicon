@@ -1,13 +1,17 @@
 package com.myapp.lexicon.database
 
 import android.database.Cursor
+import androidx.annotation.NonNull
 import com.myapp.lexicon.helpers.StringOperations
 import io.reactivex.Observable
+import io.reactivex.Single
 import java.util.*
+import javax.annotation.Nullable
 import javax.inject.Inject
 
 class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
 {
+    @NonNull
     private fun getTableList(): MutableList<String>
     {
         var nameNotDict: String
@@ -122,6 +126,65 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
             finally
             {
                 emitter.onComplete()
+            }
+        }
+    }
+
+    private fun deleteTableFromDb(tableName: String): Boolean
+    {
+        var result = true
+        val table = StringOperations.getInstance().spaceToUnderscore(tableName)
+        val cmd = "Drop Table If Exists $table"
+        try
+        {
+            dbHelper.open()
+            if (dbHelper.database.isOpen)
+            {
+                dbHelper.database.execSQL(cmd)
+            }
+        }
+        catch (e: java.lang.Exception)
+        {
+            result = false
+            e.printStackTrace()
+        }
+        finally
+        {
+            dbHelper.close()
+        }
+        return result
+    }
+
+    fun deleteTableFromDbAsync(tableName: String) : Observable<Boolean>
+    {
+        return Observable.create { emitter ->
+            try
+            {
+                val result = deleteTableFromDb(tableName)
+                emitter.onNext(result)
+            }
+            catch (e: Exception)
+            {
+                emitter.onError(e)
+            }
+            finally
+            {
+                emitter.onComplete()
+            }
+        }
+    }
+
+    fun dropTableFromDb(tableName: String) : Single<Boolean>
+    {
+        return Single.create { emitter ->
+            try
+            {
+                val result = deleteTableFromDb(tableName)
+                emitter.onSuccess(result)
+            }
+            catch (e: Exception)
+            {
+                emitter.onError(e)
             }
         }
     }

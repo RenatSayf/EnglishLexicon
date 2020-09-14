@@ -74,6 +74,9 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import dagger.hilt.android.AndroidEntryPoint;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 
 @AndroidEntryPoint
@@ -118,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private FragmentManager fragmentManager;
 
     private MainViewModel mainViewModel;
+    private Disposable subscribe;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -291,11 +295,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         appData.initAllSettings(this);
         appData.setDictNumberChangeListener(this);
 
-
-        mainViewModel.getDictList().observe(this, list -> {
-            dictList = list;
-        });
-
         mainViewModel.setPlayList();
         mainViewModel.getPlayList().observe(this, list -> {
             playList = list;
@@ -310,6 +309,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 textViewDict.setText(playList.get(appData.getNdict()));
             }
         });
+
+
         if (playList.size() > 0)
         {
             mainViewModel.getAllWordsFromDict(playList.get(appData.getNdict()));
@@ -335,6 +336,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onDestroy()
     {
         super.onDestroy();
+        if (subscribe != null)
+        {
+            subscribe.dispose();
+        }
         if (databaseHelper != null)
         {
             databaseHelper.close();
@@ -458,7 +463,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         else if (id == R.id.nav_delete_dict)
         {
-            showRemoveDictDialog(dictList);
+            subscribe = mainViewModel.getDictList()
+                    .subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(list -> {
+                        if (list != null && !list.isEmpty())
+                        {
+                            showRemoveDictDialog(list);
+                        }
+                    }, Throwable::printStackTrace);
         }
         else if (id == R.id.nav_edit)
         {
@@ -527,15 +540,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    public void showRemoveDictDialog(LinkedList<String> dictList)
+    public void showRemoveDictDialog(LinkedList<String> list)
     {
         final ArrayList<String> delete_items = new ArrayList<>();
-        final String[] items = new  String[dictList.size()];
-        for (int i = 0; i < dictList.size(); i++)
-        {
-            items[i] = dictList.get(i);
-        }
-        boolean[]choice = new boolean[items.length];
+        String[] items = list.toArray(new String[0]);
+        boolean[] choice = new boolean[items.length];
+
         new AlertDialog.Builder(MainActivity.this).setTitle(R.string.title_del_dict)
                 .setMultiChoiceItems(items, choice, new DialogInterface.OnMultiChoiceClickListener()
                 {
@@ -544,39 +554,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     {
                         delete_items.add(items[which]);
                     }
-                }).setPositiveButton(R.string.button_text_delete, new DialogInterface.OnClickListener()
-        {
-            @Override
-            public void onClick(DialogInterface dialog, int which)
-            {
-                if(delete_items.size() <= 0)    return;
-                new AlertDialog.Builder(MainActivity.this).setTitle(R.string.dialog_are_you_sure)
-                        .setPositiveButton(R.string.button_text_yes, new DialogInterface.OnClickListener()
-                        {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which)
-                            {
-                                boolean result = false;
+                }).setPositiveButton(R.string.button_text_delete, (dialog, which) -> {
+                    if (delete_items.size() <= 0) return;
+                    new AlertDialog.Builder(MainActivity.this).setTitle(R.string.dialog_are_you_sure)
+                            .setPositiveButton(R.string.button_text_yes, (DialogInterface dialog1, int which1) -> {
                                 for (String item : delete_items)
                                 {
-                                    try
-                                    {
-                                        dataBaseQueries = new DataBaseQueries(MainActivity.this);
-                                        result = dataBaseQueries.deleteTableFromDbSync(item);
-                                        appSettings.removeItemFromPlayList(item);
-                                    } catch (Exception e)
-                                    {
-                                        e.printStackTrace();
-                                    }
+                                    subscribe = mainViewModel.deleteDict(item)
+                                            .subscribeOn(Schedulers.newThread())
+                                            .observeOn(AndroidSchedulers.mainThread())
+                                            .subscribe(success ->
+                                                            Toast.makeText(MainActivity.this, R.string.msg_selected_dict_removed, Toast.LENGTH_LONG).show(),
+                                                    Throwable::printStackTrace);
                                 }
-                                if (result)
-                                {
-                                    Toast.makeText(MainActivity.this, R.string.msg_selected_dict_removed, Toast.LENGTH_LONG).show();
-                                }
-                            }
-                        }).setNegativeButton(R.string.button_text_no, null).create().show();
-            }
-        }).setNegativeButton(R.string.button_text_cancel,null).create().show();
+                            }).setNegativeButton(R.string.button_text_no, null).create().show();
+                })
+                .setNegativeButton(R.string.button_text_cancel, null).create().show();
     }
 
     private void dialogAddDict()
