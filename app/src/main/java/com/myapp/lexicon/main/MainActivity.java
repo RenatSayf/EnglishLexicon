@@ -48,6 +48,7 @@ import com.myapp.lexicon.cloudstorage.StorageFragment2;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.DatabaseHelper;
+import com.myapp.lexicon.dialogs.RemoveDictDialog;
 import com.myapp.lexicon.helpers.Share;
 import com.myapp.lexicon.playlist.PlayList;
 import com.myapp.lexicon.service.LexiconService;
@@ -143,7 +144,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setSupportActionBar(toolbar);
 
         appSettings = new AppSettings(this);
-        //playList = appSettings.getPlayList();
         appData = AppData.getInstance();
         appData.initAllSettings(this);
 
@@ -469,7 +469,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     .subscribe(list -> {
                         if (list != null && !list.isEmpty())
                         {
-                            showRemoveDictDialog(list);
+                            RemoveDictDialog.Companion.getInstance(list).show(getSupportFragmentManager(), RemoveDictDialog.TAG);
                         }
                     }, Throwable::printStackTrace);
         }
@@ -538,38 +538,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             drawer.closeDrawer(GravityCompat.START);
         }
         return true;
-    }
-
-    public void showRemoveDictDialog(LinkedList<String> list)
-    {
-        final ArrayList<String> delete_items = new ArrayList<>();
-        String[] items = list.toArray(new String[0]);
-        boolean[] choice = new boolean[items.length];
-
-        new AlertDialog.Builder(MainActivity.this).setTitle(R.string.title_del_dict)
-                .setMultiChoiceItems(items, choice, new DialogInterface.OnMultiChoiceClickListener()
-                {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which, boolean isChecked)
-                    {
-                        delete_items.add(items[which]);
-                    }
-                }).setPositiveButton(R.string.button_text_delete, (dialog, which) -> {
-                    if (delete_items.size() <= 0) return;
-                    new AlertDialog.Builder(MainActivity.this).setTitle(R.string.dialog_are_you_sure)
-                            .setPositiveButton(R.string.button_text_yes, (DialogInterface dialog1, int which1) -> {
-                                for (String item : delete_items)
-                                {
-                                    subscribe = mainViewModel.deleteDict(item)
-                                            .subscribeOn(Schedulers.newThread())
-                                            .observeOn(AndroidSchedulers.mainThread())
-                                            .subscribe(success ->
-                                                            Toast.makeText(MainActivity.this, R.string.msg_selected_dict_removed, Toast.LENGTH_LONG).show(),
-                                                    Throwable::printStackTrace);
-                                }
-                            }).setNegativeButton(R.string.button_text_no, null).create().show();
-                })
-                .setNegativeButton(R.string.button_text_cancel, null).create().show();
     }
 
     private void dialogAddDict()
