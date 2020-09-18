@@ -9,13 +9,14 @@ import com.myapp.lexicon.repository.DataRepositoryImpl
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import java.util.*
 
 class MainViewModel @ViewModelInject constructor(private val repository: DataRepositoryImpl) : ViewModel()
 {
-    private var subscribe: Disposable? = null
+    private val composite = CompositeDisposable()
 
     fun getDictList() : Observable<LinkedList<String>>
     {
@@ -36,9 +37,9 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
 
     fun getAllWordsFromDict(dictName: String)
     {
-        subscribe = repository.getAllFromTable(dictName)
-                .observeOn(Schedulers.newThread())
-                .subscribeOn(AndroidSchedulers.mainThread())
+         val subscribe = repository.getAllFromTable(dictName)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
                 .subscribe({ list: LinkedList<DataBaseEntry>? ->
 
                     val list1 = list
@@ -46,6 +47,7 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
                 }, { e: Throwable? ->
                     e?.printStackTrace()
                 })
+        composite.add(subscribe)
     }
 
     fun deleteDict(dictName: String) : Single<Boolean>
@@ -55,7 +57,7 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
 
     override fun onCleared()
     {
-        subscribe?.dispose()
+        composite.dispose()
         super.onCleared()
     }
 }

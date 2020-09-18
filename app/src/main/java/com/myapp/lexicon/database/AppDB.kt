@@ -111,21 +111,17 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
         return entriesFromDB
     }
 
-    fun getAllFromTableAsync(tableName: String) : Observable<LinkedList<DataBaseEntry>>
+    fun getAllFromTableAsync(tableName: String) : Single<LinkedList<DataBaseEntry>>
     {
-        return Observable.create { emitter ->
+        return Single.create { emitter ->
             try
             {
                 val entries = getAllFromTable(tableName)
-                emitter.onNext(LinkedList(entries))
+                emitter.onSuccess(LinkedList(entries))
             }
             catch (e: Exception)
             {
                 emitter.onError(e)
-            }
-            finally
-            {
-                emitter.onComplete()
             }
         }
     }

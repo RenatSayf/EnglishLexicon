@@ -11,7 +11,7 @@ interface IDataRepository
 
     fun getTableListFromSettings() : LinkedList<String>
 
-    fun getAllFromTable(tableName: String) : Observable<LinkedList<DataBaseEntry>>
+    fun getAllFromTable(tableName: String) : Single<LinkedList<DataBaseEntry>>
 
     fun removeTableFromSettings(tableName: String)
 

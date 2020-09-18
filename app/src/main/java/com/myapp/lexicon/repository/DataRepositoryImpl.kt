@@ -23,7 +23,7 @@ class DataRepositoryImpl @Inject constructor(private val appDB: AppDB, private v
         return settings.getPlayList(true)
     }
 
-    override fun getAllFromTable(tableName: String): Observable<LinkedList<DataBaseEntry>>
+    override fun getAllFromTable(tableName: String): Single<LinkedList<DataBaseEntry>>
     {
         return appDB.getAllFromTableAsync(tableName)
     }

@@ -76,6 +76,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
@@ -122,7 +123,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private FragmentManager fragmentManager;
 
     private MainViewModel mainViewModel;
-    private Disposable subscribe;
+    private CompositeDisposable composite = new CompositeDisposable();
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -336,10 +337,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onDestroy()
     {
         super.onDestroy();
-        if (subscribe != null)
-        {
-            subscribe.dispose();
-        }
+        composite.dispose();
         if (databaseHelper != null)
         {
             databaseHelper.close();
@@ -463,7 +461,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         else if (id == R.id.nav_delete_dict)
         {
-            subscribe = mainViewModel.getDictList()
+            Disposable subscribe = mainViewModel.getDictList()
                     .subscribeOn(Schedulers.newThread())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(list -> {
@@ -472,6 +470,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             RemoveDictDialog.Companion.getInstance(list).show(getSupportFragmentManager(), RemoveDictDialog.TAG);
                         }
                     }, Throwable::printStackTrace);
+            composite.add(subscribe);
         }
         else if (id == R.id.nav_edit)
         {
