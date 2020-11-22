@@ -166,14 +166,14 @@
     <string name="translate_lang_en">en</string>
     <string name="text_settings">Настройки</string>
     <string name="summary_service">Показывать очередное слово при каждом разблокировании экрана</string>
-    <string name="title_service_group">При разблокировании экрана</string>
+    <string name="title_service_group">Когда приложение закрыто</string>
     <string name="title_is_start_speech">Озвучивать при запуске</string>
     <string name="summary_is_start_speech">Озвучивать вступительную фразу при запуске приложения</string>
     <string name="btn_text_new">Новый</string>
     <string name="text_create_dict_fails">Не удалось создать словарь</string>
     <string name="title_display_mode">Показывать слова в режиме:</string>
     <string name="summary_display_mode">Повтор</string>
-    <string name="title_service">Показывать слово</string>
+    <string name="title_service">После разблокирования</string>
 
     <string name="key_service">service</string>
     <string name="key_list_display_mode">list_display_mode</string>
@@ -205,7 +205,7 @@
     <string name="text_app_is_closed_end">закрыто</string>
     <string name="notify_new_word_text">Нажмите что бы узнать новое слово</string>
     <string name="key_show_intervals">show_interval</string>
-    <string name="title_show_interval">Показывать очередное слово в панели уведомлений</string>
+    <string name="title_show_interval">Показывать слова по таймеру</string>
     <string-array name="not_move">
         <item>Не перемещать</item>
     </string-array>

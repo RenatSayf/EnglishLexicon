@@ -186,7 +186,7 @@
     <string name="translate_lang_en">en</string>
     <string name="text_settings">Параметри</string>
     <string name="summary_service">Показувати чергове слово при кожному розблокуванні екрану</string>
-    <string name="title_service_group">При розблокуванні екрану</string>
+    <string name="title_service_group">Коли додаток закрито</string>
     <string name="title_is_start_speech">Озвучувати при запуску</string>
     <string name="summary_is_start_speech">Озвучувати вступну фразу при запуску програми</string>
     <string name="btn_text_new">Новий</string>
@@ -194,7 +194,7 @@
 
     <string name="title_display_mode">Показувати слова в режимі:</string>
     <string name="summary_display_mode">Повтор</string>
-    <string name="title_service">Показувати слово</string>
+    <string name="title_service">Після розблокування</string>
     <string name="key_service">service</string>
     <string name="key_list_display_mode">list_display_mode</string>
     <string name="text_studied">Вивчено</string>
@@ -225,7 +225,7 @@
     <string name="text_app_is_closed_end">закрита</string>
     <string name="notify_new_word_text">Натисніть, щоб вивчити нове слово</string>
     <string name="key_show_intervals">show_interval</string>
-    <string name="title_show_interval">Показати наступне слово в рядку повідомлень</string>
+    <string name="title_show_interval">Показати наступне слово</string>
 
     <string-array name="display_mode">
         <item>Повтор</item>

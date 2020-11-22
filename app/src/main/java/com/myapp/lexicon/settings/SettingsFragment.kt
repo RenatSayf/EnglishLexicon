@@ -65,14 +65,14 @@ class SettingsFragment : PreferenceFragment()
             }
             else
             {
-                if (showIntervalsPref.value == activity.resources.getStringArray(R.array.show_intervals)[0]) listDisplayModePref.isEnabled = false
+                if (showIntervalsPref.value == activity.resources.getStringArray(R.array.show_intervals)[0])
+                {
+                    listDisplayModePref.isEnabled = false
+                    listOnUnBlokingScreen.isEnabled = false
+                }
             }
             return true
         })
-        if (!serviceCheckBoxPref.isChecked)
-        {
-            listOnUnBlokingScreen.isEnabled = false
-        }
 
         showIntervalsPref = findPreference(activity.getString(R.string.key_show_intervals)) as ListPreference
         showIntervalsPref.summary = showIntervalsPref.entry
@@ -84,15 +84,25 @@ class SettingsFragment : PreferenceFragment()
             {
                 serviceCheckBoxPref.isChecked = false
                 serviceCheckBoxPref.shouldCommit()
-                listOnUnBlokingScreen.isEnabled = false
+                listOnUnBlokingScreen.isEnabled = true
                 listDisplayModePref.isEnabled = true
             }
             else
             {
-                if (!serviceCheckBoxPref.isChecked) listDisplayModePref.isEnabled = false
+                if (!serviceCheckBoxPref.isChecked)
+                {
+                    listDisplayModePref.isEnabled = false
+                    listOnUnBlokingScreen.isEnabled = false
+                }
             }
             return true
         })
+
+        if (!serviceCheckBoxPref.isChecked && showIntervalsPref.value == activity.resources.getStringArray(R.array.show_intervals)[0])
+        {
+            listOnUnBlokingScreen.isEnabled = false
+            listDisplayModePref.isEnabled = false
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?)
