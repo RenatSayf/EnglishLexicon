@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--suppress DeprecatedClassUsageInspection -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/text_settings"
     >
@@ -12,7 +13,7 @@
 
     <ListPreference
         android:key="@string/key_show_intervals"
-        android:title="Показывать очередное слово в панеле уведомлений"
+        android:title="@string/title_show_interval"
         android:entries="@array/show_intervals"
         android:entryValues="@array/show_intervals_values"
         android:defaultValue="5"

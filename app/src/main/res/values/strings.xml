@@ -205,6 +205,7 @@
     <string name="text_app_is_closed_end">закрыто</string>
     <string name="notify_new_word_text">Нажмите что бы узнать новое слово</string>
     <string name="key_show_intervals">show_interval</string>
+    <string name="title_show_interval">Показывать очередное слово в панели уведомлений</string>
     <string-array name="not_move">
         <item>Не перемещать</item>
     </string-array>
