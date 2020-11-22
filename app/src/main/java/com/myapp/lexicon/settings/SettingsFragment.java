@@ -63,18 +63,40 @@ public class SettingsFragment extends PreferenceFragment
             {
                 listDisplayModePref.setEnabled((Boolean) newValue);
                 listOnUnBlokingScreen.setEnabled((Boolean) newValue);
-                if (MainActivity.serviceIntent != null)
+                if (MainActivity.serviceIntent != null && !(Boolean) newValue)
                 {
                     getActivity().stopService(MainActivity.serviceIntent);
+
                 }
                 return true;
             }
         });
+
         if (!serviceCheckBoxPref.isChecked())
         {
             listOnUnBlokingScreen.setEnabled(false);
             listDisplayModePref.setEnabled(false);
         }
+
+        ListPreference showIntervalsPref = (ListPreference) findPreference(getActivity().getString(R.string.key_show_intervals));
+        showIntervalsPref.setSummary(showIntervalsPref.getEntry());
+        showIntervalsPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
+        {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue)
+            {
+                showIntervalsPref.setValue((String) newValue);
+                showIntervalsPref.setSummary(showIntervalsPref.getEntry());
+                if (Integer.parseInt((String)newValue) != 0)
+                {
+                    serviceCheckBoxPref.setChecked(false);
+                    serviceCheckBoxPref.shouldCommit();
+                    listOnUnBlokingScreen.setEnabled(false);
+                    listDisplayModePref.setEnabled(false);
+                }
+                return false;
+            }
+        });
     }
 
     @Override

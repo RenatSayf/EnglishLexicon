@@ -224,6 +224,7 @@
     <string name="text_app_is_closed">Програма</string>
     <string name="text_app_is_closed_end">закрита</string>
     <string name="notify_new_word_text">Натисніть, щоб вивчити нове слово</string>
+    <string name="key_show_intervals">show_interval</string>
 
     <string-array name="display_mode">
         <item>Повтор</item>
@@ -240,6 +241,19 @@
     <string-array name="display_variant_values">
         <item>0</item>
         <item>1</item>
+    </string-array>
+
+    <string-array name="show_intervals">
+        <item>Не показывать</item>
+        <item>через 5 мин</item>
+        <item>через 10 мин</item>
+        <item>через 20 мин</item>
+    </string-array>
+    <string-array name="show_intervals_values">
+        <item>0</item>
+        <item>5</item>
+        <item>10</item>
+        <item>20</item>
     </string-array>
 
 </resources>

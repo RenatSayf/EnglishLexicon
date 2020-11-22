@@ -204,6 +204,7 @@
     <string name="text_app_is_closed">Приложение</string>
     <string name="text_app_is_closed_end">закрыто</string>
     <string name="notify_new_word_text">Нажмите что бы узнать новое слово</string>
+    <string name="key_show_intervals">show_interval</string>
     <string-array name="not_move">
         <item>Не перемещать</item>
     </string-array>
@@ -241,6 +242,19 @@
     <string-array name="display_variant_values">
         <item>0</item>
         <item>1</item>
+    </string-array>
+
+    <string-array name="show_intervals">
+        <item>Не показывать</item>
+        <item>через 5 мин</item>
+        <item>через 10 мин</item>
+        <item>через 20 мин</item>
+    </string-array>
+    <string-array name="show_intervals_values">
+        <item>0</item>
+        <item>5</item>
+        <item>10</item>
+        <item>20</item>
     </string-array>
 
 
