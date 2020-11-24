@@ -247,12 +247,14 @@
 
     <string-array name="show_intervals">
         <item>Не показывать</item>
+        <item>через 1 мин</item>
         <item>через 5 мин</item>
         <item>через 10 мин</item>
         <item>через 20 мин</item>
     </string-array>
     <string-array name="show_intervals_values">
         <item>0</item>
+        <item>1</item>
         <item>5</item>
         <item>10</item>
         <item>20</item>

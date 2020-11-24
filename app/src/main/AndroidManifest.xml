@@ -197,6 +197,11 @@
                 <data android:scheme="package" />
             </intent-filter>
         </receiver>
+        <receiver android:name=".schedule.TimerReceiver">
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.SCREEN_ON" />-->
+<!--            </intent-filter>-->
+        </receiver>
 
         <service
             android:name=".main.SpeechService"

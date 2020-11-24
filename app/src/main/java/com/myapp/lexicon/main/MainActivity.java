@@ -34,6 +34,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.app.NotificationManager;
 
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.material.navigation.NavigationView;
@@ -51,6 +52,7 @@ import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.dialogs.RemoveDictDialog;
 import com.myapp.lexicon.helpers.Share;
 import com.myapp.lexicon.playlist.PlayList;
+import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.service.LexiconService;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
@@ -130,6 +132,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a_navig_main);
+
+        NotificationManager nmg = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        nmg.cancelAll();
+        new AlarmScheduler(this).cancel(AlarmScheduler.REQUEST_CODE, AlarmScheduler.REPEAT_SHOOT_ACTION);
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
@@ -367,7 +373,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 super.onBackPressed();
             }
         }
+        alarmClockEnable();
+    }
 
+    private void alarmClockEnable()
+    {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String interval = preferences.getString(getString(R.string.key_show_intervals), "0");
+        int parseInt = Integer.parseInt(interval);
+        if (parseInt != 0)
+        {
+            new AlarmScheduler(this).scheduleRepeat((parseInt*60*1000), (parseInt*60*1000));
+        }
     }
 
     @Override
@@ -528,6 +545,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 SplashScreenActivity.speech.stop();
                 SplashScreenActivity.speech.shutdown();
             }
+            alarmClockEnable();
             this.finish();
         }
 

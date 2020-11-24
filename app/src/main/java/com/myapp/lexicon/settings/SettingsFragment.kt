@@ -2,6 +2,10 @@
 
 package com.myapp.lexicon.settings
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.preference.CheckBoxPreference
 import android.preference.ListPreference
@@ -11,6 +15,9 @@ import android.preference.PreferenceFragment
 import android.view.View
 import com.myapp.lexicon.R
 import com.myapp.lexicon.main.MainActivity
+import com.myapp.lexicon.schedule.AlarmScheduler
+import com.myapp.lexicon.schedule.TimerReceiver
+import java.util.*
 
 /**
  * Created by Renat
@@ -89,6 +96,7 @@ class SettingsFragment : PreferenceFragment()
             }
             else
             {
+                AlarmScheduler(activity).cancel(AlarmScheduler.REQUEST_CODE, AlarmScheduler.REPEAT_SHOOT_ACTION)
                 if (!serviceCheckBoxPref.isChecked)
                 {
                     listDisplayModePref.isEnabled = false
