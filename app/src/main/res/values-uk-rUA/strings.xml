@@ -226,6 +226,9 @@
     <string name="notify_new_word_text">Натисніть, щоб вивчити нове слово</string>
     <string name="key_show_intervals">show_interval</string>
     <string name="title_show_interval">Показати наступне слово</string>
+    <string name="text_popup_window">Спливаюче вікно</string>
+    <string name="text_display_mode">Режим відображення</string>
+    <string name="text_show_words_over">Показати слова через:</string>
 
     <string-array name="display_mode">
         <item>Повтор</item>

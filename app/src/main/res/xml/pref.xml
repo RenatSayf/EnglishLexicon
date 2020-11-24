@@ -13,7 +13,7 @@
         android:title="@string/title_service_group">
 
         <ListPreference
-            android:defaultValue="5"
+            android:defaultValue="0"
             android:entries="@array/show_intervals"
             android:entryValues="@array/show_intervals_values"
             android:key="@string/key_show_intervals"
@@ -26,15 +26,15 @@
             android:title="@string/title_service" />
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="Режим отображения">
+    <PreferenceCategory android:title="@string/text_display_mode">
 
         <ListPreference
             android:defaultValue="0"
             android:entries="@array/display_variant"
             android:entryValues="@array/display_variant_values"
             android:key="@string/key_on_unbloking_screen"
-            android:summary="Всплывающее окно"
-            android:title="Показывать слова через:" />
+            android:summary="@string/text_popup_window"
+            android:title="@string/text_show_words_over" />
 
         <ListPreference
             android:defaultValue="0"

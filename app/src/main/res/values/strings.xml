@@ -206,6 +206,9 @@
     <string name="notify_new_word_text">Нажмите что бы узнать новое слово</string>
     <string name="key_show_intervals">show_interval</string>
     <string name="title_show_interval">Показывать слова по таймеру</string>
+    <string name="text_display_mode">Режим отображения</string>
+    <string name="text_popup_window">Всплывающее окно</string>
+    <string name="text_show_words_over">Показывать слова через:</string>
     <string-array name="not_move">
         <item>Не перемещать</item>
     </string-array>

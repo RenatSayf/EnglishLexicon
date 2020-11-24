@@ -68,6 +68,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
+import javax.inject.Inject;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -127,6 +129,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private MainViewModel mainViewModel;
     private CompositeDisposable composite = new CompositeDisposable();
 
+    @Inject
+    AlarmScheduler scheduler;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -135,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         NotificationManager nmg = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         nmg.cancelAll();
-        new AlarmScheduler(this).cancel(AlarmScheduler.REQUEST_CODE, AlarmScheduler.REPEAT_SHOOT_ACTION);
+        scheduler.cancel(AlarmScheduler.REQUEST_CODE, AlarmScheduler.REPEAT_SHOOT_ACTION);
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
@@ -373,17 +378,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 super.onBackPressed();
             }
         }
-        alarmClockEnable();
+        alarmClockEnable(scheduler);
     }
 
-    private void alarmClockEnable()
+    private void alarmClockEnable(AlarmScheduler scheduler)
     {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         String interval = preferences.getString(getString(R.string.key_show_intervals), "0");
         int parseInt = Integer.parseInt(interval);
         if (parseInt != 0)
         {
-            new AlarmScheduler(this).scheduleRepeat((parseInt*60*1000), (parseInt*60*1000));
+            scheduler.scheduleRepeat((parseInt*60*1000), (parseInt*60*1000));
         }
     }
 
@@ -545,7 +550,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 SplashScreenActivity.speech.stop();
                 SplashScreenActivity.speech.shutdown();
             }
-            alarmClockEnable();
+            alarmClockEnable(scheduler);
             this.finish();
         }
 

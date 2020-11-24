@@ -23,6 +23,7 @@ import com.myapp.lexicon.database.GetStudiedWordsCount;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
 import com.myapp.lexicon.main.MainActivityOnStart;
 import com.myapp.lexicon.main.SplashScreenActivity;
+import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
@@ -129,6 +130,7 @@ public class ModalFragment extends Fragment
                 {
                     LexiconService.stopedByUser = true;
                     EventBus.getDefault().post(new StopedServiceByUserEvent());
+                    new AlarmScheduler(activity).cancel(AlarmScheduler.REQUEST_CODE, AlarmScheduler.REPEAT_SHOOT_ACTION);
                 }
             }
         });

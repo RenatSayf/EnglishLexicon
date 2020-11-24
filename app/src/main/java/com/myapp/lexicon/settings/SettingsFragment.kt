@@ -17,7 +17,9 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.schedule.AlarmScheduler
 import com.myapp.lexicon.schedule.TimerReceiver
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
+import javax.inject.Inject
 
 /**
  * Created by Renat
@@ -28,6 +30,7 @@ class SettingsFragment : PreferenceFragment()
     private lateinit var listDisplayModePref: ListPreference
     private lateinit var serviceCheckBoxPref: CheckBoxPreference
     private lateinit var showIntervalsPref: ListPreference
+
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
