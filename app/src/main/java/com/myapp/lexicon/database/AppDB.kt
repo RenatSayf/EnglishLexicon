@@ -6,7 +6,6 @@ import com.myapp.lexicon.helpers.StringOperations
 import io.reactivex.Observable
 import io.reactivex.Single
 import java.util.*
-import javax.annotation.Nullable
 import javax.inject.Inject
 
 class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
@@ -74,7 +73,7 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
         }
     }
 
-    fun getAllFromTable(tableName: String) : MutableList<DataBaseEntry>
+    private fun getAllFromTable(tableName: String) : MutableList<DataBaseEntry>
     {
         val table = StringOperations.getInstance().spaceToUnderscore(tableName)
         val entriesFromDB = LinkedList<DataBaseEntry>()
@@ -177,6 +176,66 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
             {
                 val result = deleteTableFromDb(tableName)
                 emitter.onSuccess(result)
+            }
+            catch (e: Exception)
+            {
+                emitter.onError(e)
+            }
+        }
+    }
+
+    private fun getEntriesFromDb(tableName: String, rowId: Int, order: String) : MutableList<DataBaseEntry>
+    {
+        val table = StringOperations.getInstance().spaceToUnderscore(tableName)
+        val entriesFromDB = LinkedList<DataBaseEntry>()
+        var dataBaseEntry: DataBaseEntry
+        var cursor: Cursor? = null
+        try
+        {
+            dbHelper.open()
+            if (dbHelper.database.isOpen)
+            {
+                var compare = ">="
+                if(order == "DESC") compare = "<="
+                val cmd = "SELECT RowId, English, Translate, CountRepeat FROM $table WHERE RowId $compare $rowId AND CountRepeat <> 0 ORDER BY RowId $order LIMIT 2"
+                cursor = dbHelper.database.rawQuery(cmd, null)
+                if (cursor.moveToFirst())
+                {
+                    while (!cursor.isAfterLast)
+                    {
+                        dataBaseEntry = DataBaseEntry(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3))
+                        entriesFromDB.add(dataBaseEntry)
+                        cursor.moveToNext()
+                    }
+                }
+            }
+        }
+        catch (e: Exception)
+        {
+            e.printStackTrace()
+            return LinkedList<DataBaseEntry>()
+        }
+        finally
+        {
+            cursor?.close()
+            dbHelper.close()
+        }
+        return entriesFromDB
+    }
+
+    /**
+     * @param order String сортировка по RowId, если не передавать этот
+     * параметр, то order='ASC', для обратной сортировки передайте 'DESC'
+     *
+     * return Single<LinkedList<DataBaseEntry>> Возвращает 2 записи из таблицы с сортировкой по RowId
+     */
+    fun getEntriesFromDbAsync(tableName: String, rowId: Int, order: String = "ASC") : Single<LinkedList<DataBaseEntry>>
+    {
+        return Single.create { emitter ->
+            try
+            {
+                val entries = getEntriesFromDb(tableName, rowId, order)
+                emitter.onSuccess(LinkedList(entries))
             }
             catch (e: Exception)
             {

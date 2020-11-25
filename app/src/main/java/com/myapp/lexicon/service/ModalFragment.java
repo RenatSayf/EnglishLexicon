@@ -34,6 +34,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
@@ -44,6 +45,9 @@ import static com.myapp.lexicon.service.ServiceDialog.speech;
 
 public class ModalFragment extends Fragment
 {
+    public static final String ARG_N_DICT = "arg_dict_name";
+    public static final String ARG_N_WORD = "arg_n_word";
+
     private AppSettings appSettings;
     private AppData appData;
     private TextView enTextView;
@@ -59,9 +63,23 @@ public class ModalFragment extends Fragment
         // Required empty public constructor
     }
 
-    static ModalFragment newInstance()
+    /**
+     *
+     * @param ndict Integer может быть null, тогда параметр не будет учитываться во внутренней логике фрагмента
+     * @param nword Integer может быть null, тогда параметр не будет учитываться во внутренней логике фрагмента
+     * @return ModalFragment
+     */
+    static ModalFragment newInstance(@Nullable Integer ndict, @Nullable Integer nword)
     {
-        return new ModalFragment();
+        ModalFragment fragment = new ModalFragment();
+        if (ndict != null && nword !=null)
+        {
+            Bundle bundle = new Bundle();
+            bundle.putInt(ARG_N_DICT, ndict);
+            bundle.putInt(ARG_N_WORD, nword);
+            fragment.setArguments(bundle);
+        }
+        return fragment;
     }
 
     @Override
@@ -69,11 +87,24 @@ public class ModalFragment extends Fragment
     {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+
         if (getActivity() != null)
         {
             appSettings = new AppSettings(getActivity());
+            Bundle arguments = getArguments();
+            if (arguments != null)
+            {
+                int n_dict = arguments.getInt(ARG_N_DICT);
+                int n_word = arguments.getInt(ARG_N_WORD);
+                if (n_dict >= 0 && n_word > 0)
+                {
+                    appSettings.setDictNumber(n_dict);
+                    appSettings.setWordNumber(n_word);
+                }
+            }
             appData = AppData.getInstance();
             appData.initAllSettings(getActivity());
+
         } else
         {
             onDestroy();
@@ -101,16 +132,29 @@ public class ModalFragment extends Fragment
             {
                 nameDictTV.setText(currentDict);
                 int orderPlay = appSettings.getOrderPlay();
-                switch (orderPlay)
+//                switch (orderPlay)
+//                {
+//                    case 0:
+//                        getNextWord();
+//                        break;
+//                    case 1:
+//                        getRandomWordsFromDB();
+//                        break;
+//                    default:
+//                        break;
+//                }
+
+                if (orderPlay == 0)
                 {
-                    case 0:
-                        getNextWord();
-                        break;
-                    case 1:
-                        getRandomWordsFromDB();
-                        break;
-                    default:
-                        break;
+                    getNextWord();
+                }
+                else if (orderPlay == 1 && getArguments() == null)
+                {
+                    getRandomWordsFromDB();
+                }
+                else if (orderPlay == 1 && getArguments() != null)
+                {
+                    getNextWord();
                 }
 
             } catch (Exception e)

@@ -14,7 +14,7 @@ class AppNotification constructor(private val context: Context)
 {
     companion object
     {
-        const val NOTIFICATION_ID : Int = 15917
+        const val NOTIFICATION_ID : Int = 258974
         const val CHANEL_ID : String = "${NOTIFICATION_ID}.service_notification"
     }
 

@@ -30,6 +30,7 @@ import static com.myapp.lexicon.main.MainActivity.serviceIntent;
 public class ServiceDialog extends AppCompatActivity
 {
     private int displayVariant = 0;
+    private boolean isServiceEnabled = false;
     public static IStopServiceByUser iStopServiceByUser;
     public static TextToSpeech speech;
     public static HashMap<String, String> map = new HashMap<>();
@@ -53,6 +54,7 @@ public class ServiceDialog extends AppCompatActivity
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ServiceDialog.this);
         String preferencesString = preferences.getString(getString(R.string.key_list_display_mode), "0");
         String displayVariantStr = preferences.getString(getString(R.string.key_on_unbloking_screen), "0");
+        isServiceEnabled = preferences.getBoolean(getString(R.string.key_service), false);
         int serviceMode = Integer.parseInt(preferencesString);
         displayVariant = Integer.parseInt(displayVariantStr);
 
@@ -85,11 +87,11 @@ public class ServiceDialog extends AppCompatActivity
 
         if (serviceMode == 0)
         {
-            ModalFragment modalFragment = ModalFragment.newInstance();
+            ModalFragment modalFragment = ModalFragment.newInstance(null, null);
             getSupportFragmentManager().beginTransaction().add(R.id.fragment_frame, modalFragment).commit();
         } else if (serviceMode == 1)
         {
-            TestModalFragment testModalFragment = TestModalFragment.newInstance();
+            TestModalFragment testModalFragment = TestModalFragment.newInstance(null, null);
             getSupportFragmentManager().beginTransaction().add(R.id.fragment_frame, testModalFragment).commit();
         } else return;
 
@@ -130,22 +132,24 @@ public class ServiceDialog extends AppCompatActivity
     @Override
     protected void onPause()
     {
-        if (displayVariant == 1 && !LexiconService.stopedByUser)
+        if (isServiceEnabled)
         {
-            if (serviceIntent == null)
+            if (displayVariant == 1 && !LexiconService.stopedByUser)
             {
-                MainActivity.serviceIntent = new Intent(this, LexiconService.class);
+                if (serviceIntent == null)
+                {
+                    MainActivity.serviceIntent = new Intent(this, LexiconService.class);
+                }
+                startService(MainActivity.serviceIntent);
             }
-            startService(MainActivity.serviceIntent);
-        }
-        if (LexiconService.stopedByUser)
-        {
-            if (serviceIntent == null)
+            if (LexiconService.stopedByUser)
             {
-                MainActivity.serviceIntent = new Intent(this, LexiconService.class);
+                if (serviceIntent == null)
+                {
+                    MainActivity.serviceIntent = new Intent(this, LexiconService.class);
+                }
+                LexiconService.stopedByUser = false;
             }
-            LexiconService.stopedByUser = false;
-
         }
         super.onPause();
     }
