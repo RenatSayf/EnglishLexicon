@@ -2,10 +2,6 @@
 
 package com.myapp.lexicon.settings
 
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.preference.CheckBoxPreference
 import android.preference.ListPreference
@@ -16,10 +12,7 @@ import android.view.View
 import com.myapp.lexicon.R
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.schedule.AlarmScheduler
-import com.myapp.lexicon.schedule.TimerReceiver
-import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
-import javax.inject.Inject
 
 /**
  * Created by Renat
@@ -46,7 +39,7 @@ class SettingsFragment : PreferenceFragment()
             return true
         })
 
-        val listOnUnBlokingScreen = findPreference(activity.getString(R.string.key_on_unbloking_screen)) as ListPreference
+        val listOnUnBlokingScreen = findPreference(activity.getString(R.string.key_display_variant)) as ListPreference
         listOnUnBlokingScreen.summary = listOnUnBlokingScreen.entry
         listOnUnBlokingScreen.onPreferenceChangeListener = OnPreferenceChangeListener(fun(_: Preference, newValue: Any): Boolean
         {

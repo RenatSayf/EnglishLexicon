@@ -132,18 +132,6 @@ public class ModalFragment extends Fragment
             {
                 nameDictTV.setText(currentDict);
                 int orderPlay = appSettings.getOrderPlay();
-//                switch (orderPlay)
-//                {
-//                    case 0:
-//                        getNextWord();
-//                        break;
-//                    case 1:
-//                        getRandomWordsFromDB();
-//                        break;
-//                    default:
-//                        break;
-//                }
-
                 if (orderPlay == 0)
                 {
                     getNextWord();

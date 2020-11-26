@@ -1,25 +1,16 @@
 package com.myapp.lexicon.schedule
 
-import android.app.ActivityManager
-import android.app.ActivityManager.RunningAppProcessInfo
-import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.preference.PreferenceManager
-import androidx.core.content.ContextCompat.getSystemService
 import com.myapp.lexicon.R
 import com.myapp.lexicon.database.AppDB
 import com.myapp.lexicon.database.DatabaseHelper
-import com.myapp.lexicon.helpers.AppOnStackTop
-import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.service.ServiceDialog
 import com.myapp.lexicon.settings.AppData
-import dagger.hilt.android.AndroidEntryPoint
-import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import javax.inject.Inject
 
 @Suppress("DEPRECATION")
 class TimerReceiver : BroadcastReceiver()
@@ -34,7 +25,7 @@ class TimerReceiver : BroadcastReceiver()
             {
                 AlarmScheduler.REPEAT_SHOOT_ACTION ->                {
 
-                    val displayVariant = preferences.getString(context.getString(R.string.key_on_unbloking_screen), "0")
+                    val displayVariant = preferences.getString(context.getString(R.string.key_display_variant), "0")
                     println("********************* displayVariant = $displayVariant *********************")
                     when (displayVariant!!.toInt())
                     {

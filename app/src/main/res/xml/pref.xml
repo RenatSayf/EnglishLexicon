@@ -32,7 +32,7 @@
             android:defaultValue="0"
             android:entries="@array/display_variant"
             android:entryValues="@array/display_variant_values"
-            android:key="@string/key_on_unbloking_screen"
+            android:key="@string/key_display_variant"
             android:summary="@string/text_popup_window"
             android:title="@string/text_show_words_over" />
 

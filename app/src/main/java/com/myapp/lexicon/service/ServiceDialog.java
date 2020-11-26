@@ -53,7 +53,7 @@ public class ServiceDialog extends AppCompatActivity
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ServiceDialog.this);
         String preferencesString = preferences.getString(getString(R.string.key_list_display_mode), "0");
-        String displayVariantStr = preferences.getString(getString(R.string.key_on_unbloking_screen), "0");
+        String displayVariantStr = preferences.getString(getString(R.string.key_display_variant), "0");
         isServiceEnabled = preferences.getBoolean(getString(R.string.key_service), false);
         int serviceMode = Integer.parseInt(preferencesString);
         displayVariant = Integer.parseInt(displayVariantStr);
