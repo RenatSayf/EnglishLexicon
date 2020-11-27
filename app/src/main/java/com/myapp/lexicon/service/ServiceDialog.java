@@ -55,7 +55,7 @@ public class ServiceDialog extends AppCompatActivity
         String preferencesString = preferences.getString(getString(R.string.key_list_display_mode), "0");
         String displayVariantStr = preferences.getString(getString(R.string.key_display_variant), "0");
         isServiceEnabled = preferences.getBoolean(getString(R.string.key_service), false);
-        int serviceMode = Integer.parseInt(preferencesString);
+        int displayMode = Integer.parseInt(preferencesString);
         displayVariant = Integer.parseInt(displayVariantStr);
 
         if (displayVariant == 1 && serviceIntent != null)
@@ -85,11 +85,18 @@ public class ServiceDialog extends AppCompatActivity
             }
         });
 
-        if (serviceMode == 0)
+        if (displayMode == 0)
         {
-            ModalFragment modalFragment = ModalFragment.newInstance(null, null);
-            getSupportFragmentManager().beginTransaction().add(R.id.fragment_frame, modalFragment).commit();
-        } else if (serviceMode == 1)
+            String enWord = getIntent().getStringExtra("en");
+            String ruWord = getIntent().getStringExtra("ru");
+            if (enWord == null && ruWord == null)
+            {
+                ModalFragment modalFragment = ModalFragment.newInstance(null, null);
+                getSupportFragmentManager().beginTransaction().add(R.id.fragment_frame, modalFragment).commit();
+            } else
+            {
+            }
+        } else if (displayMode == 1)
         {
             TestModalFragment testModalFragment = TestModalFragment.newInstance(null, null);
             getSupportFragmentManager().beginTransaction().add(R.id.fragment_frame, testModalFragment).commit();
@@ -113,6 +120,12 @@ public class ServiceDialog extends AppCompatActivity
                 }
             }
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override

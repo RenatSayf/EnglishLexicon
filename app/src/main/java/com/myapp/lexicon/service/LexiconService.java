@@ -1,7 +1,6 @@
 package com.myapp.lexicon.service;
 
 import android.app.Notification;
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -11,29 +10,27 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.graphics.Color;
-import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.AppDB;
+import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.schedule.AppNotification;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
-import androidx.annotation.RequiresApi;
-import androidx.core.app.NotificationCompat;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
-
-import static androidx.core.app.NotificationCompat.DEFAULT_SOUND;
-import static androidx.core.app.NotificationCompat.DEFAULT_VIBRATE;
+import kotlin.Pair;
 
 public class LexiconService extends Service implements ServiceDialog.IStopServiceByUser
 {
@@ -78,7 +75,8 @@ public class LexiconService extends Service implements ServiceDialog.IStopServic
                 contentText = getString(R.string.notify_new_word_text);
                 break;
         }
-        appNotification = new AppNotification(this).create(contentText, "");
+
+        appNotification = new AppNotification(this).create(new DataBaseEntry(contentText, ""));
         startForeground(AppNotification.NOTIFICATION_ID, appNotification);
 
         receiver = new PhoneUnlockedReceiver();
@@ -174,26 +172,44 @@ public class LexiconService extends Service implements ServiceDialog.IStopServic
                             String dictName = playList.get(appData.getNdict());
                             AppDB db = new AppDB(new DatabaseHelper(context));
 
-                            if (displayMode.equals("0"))
-                            {
-
-                            }
-                            if (displayMode.equals("1"))
-                            {
-                                db.getEntriesFromDbAsync(dictName, appData.getNword(), "ASC")
-                                        .subscribeOn(Schedulers.computation())
-                                        .observeOn(AndroidSchedulers.mainThread())
-                                        .subscribe(entries -> {
-                                            if (entries.size() > 0)
+                            db.getEntriesAndAmountAsync(dictName, appData.getNword(), "ASC")
+                                    .subscribeOn(Schedulers.computation())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(item -> {
+                                        Pair<Map<String, Integer>, List<DataBaseEntry>> pairs = item;
+                                        if (displayMode.equals("0"))
+                                        {
+                                            if (pairs.getSecond().size() > 0)
                                             {
                                                 AppNotification appNotification = new AppNotification(context);
-                                                appNotification.create(entries.get(0).getEnglish(), "??????????");
-                                                appNotification.notify1();
+                                                appNotification.create(pairs.getSecond().get(0));
+                                                appNotification.show();
                                             }
-                                        }, throwable -> {
-                                            throwable.printStackTrace();
-                                        });
-                            }
+                                            if (pairs.getSecond().size() > 1)
+                                            {
+                                                appData.setNword(pairs.getSecond().get(1).getRowId());
+                                            }
+                                            if (pairs.getSecond().size() == 1)
+                                            {
+                                                appData.setNword(1);
+                                                if (appData.getNdict() >=0 && appData.getNdict() <= playList.size() - 2)
+                                                {
+                                                    appData.setNdict(appData.getNdict() + 1);
+                                                }
+                                                else appData.setNdict(0);
+                                            }
+                                        }
+                                        if (displayMode.equals("1"))
+                                        {
+                                            if (pairs.getSecond().size() > 0)
+                                            {
+                                                AppNotification appNotification = new AppNotification(context);
+                                                appNotification.create(pairs.getSecond().get(0));
+                                                appNotification.show();
+                                            }
+                                        }
+                                    }, Throwable::printStackTrace);
+
                         }
                     }
                 }

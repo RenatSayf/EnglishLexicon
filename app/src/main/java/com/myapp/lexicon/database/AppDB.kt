@@ -4,6 +4,7 @@ import android.database.Cursor
 import androidx.annotation.NonNull
 import com.myapp.lexicon.helpers.StringOperations
 import io.reactivex.Observable
+import io.reactivex.ObservableSource
 import io.reactivex.Single
 import java.util.*
 import javax.inject.Inject
@@ -244,5 +245,136 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
         }
     }
 
+    /**
+     *
+     * @param tableName - имя таблицы
+     * amounts[0] - minimum RowId Where CountRepeat != 0
+     * amounts[1] - maximum RowId Where CountRepeat != 0
+     * amounts[2] - studied word amount
+     * amounts[3] - total word amount
+     */
+    private fun getWordsCount(tableName: String) : MutableMap<String,Int>
+    {
+        var cursor: Cursor? = null
+        val amounts = mutableMapOf<String, Int>()
+        try
+        {
+            dbHelper.open()
+            if (dbHelper.database.isOpen)
+            {
+                val cmd = "SELECT min(RowId) FROM $tableName WHERE (CountRepeat <> 0) UNION ALL SELECT max(RowId) FROM $tableName WHERE (CountRepeat <> 0) UNION ALL SELECT count(rowId) FROM $tableName WHERE CountRepeat == 0 UNION ALL SELECT count(rowId) FROM $tableName"
+                cursor = dbHelper.database.rawQuery(cmd, null)
+                if (cursor.moveToFirst())
+                {
+                    var i = 0
+                    while (!cursor.isAfterLast)
+                    {
+                        try
+                        {
+                            var key = ""
+                            when(i)
+                            {
+                                0 -> key = "minRowId"
+                                1 -> key = "maxRowId"
+                                2 -> key = "studiedWords"
+                                3 -> key = "totalWords"
+                            }
+                            val int = cursor.getInt(0)
+                            amounts.put(key, cursor.getInt(0))
+                        }
+                        catch (e: java.lang.Exception)
+                        {
+                            e.printStackTrace()
+                        }
+                        cursor.moveToNext()
+                        i++
+                    }
+                }
+            }
+        }
+        catch (e: java.lang.Exception)
+        {
+            e.printStackTrace()
+            dbHelper.close()
+        }
+        finally
+        {
+            cursor?.close()
+            dbHelper.close()
+        }
+        return amounts
+    }
+
+    fun getWordsCountAsync(tableName: String) : Single<MutableMap<String, Int>>
+    {
+        return Single.create { emitter ->
+            try
+            {
+                val countList = getWordsCount(tableName)
+                emitter.onSuccess(countList)
+            }
+            catch (e: Exception)
+            {
+                emitter.onError(e)
+            }
+        }
+    }
+
+    @Suppress("RedundantSamConstructor")
+    fun getEntriesAndAmountAsync(tableName: String, rowId: Int, order: String = "ASC") : Observable<Pair<MutableMap<String, Int>, MutableList<DataBaseEntry>>>
+    {
+        var countsList: MutableMap<String, Int> = mutableMapOf()
+        return Observable.concat(ObservableSource { observer ->
+
+            countsList = getWordsCount(tableName)
+            try
+            {
+                observer.onNext(Pair(countsList, LinkedList<DataBaseEntry>()))
+            }
+            catch (e: Exception)
+            {
+                observer.onError(e)
+            }
+            finally
+            {
+                observer.onComplete()
+            }
+        }, ObservableSource { observer ->
+            val entries = getEntriesFromDb(tableName, rowId, order)
+            try
+            {
+                observer.onNext(Pair(countsList, entries))
+            }
+            catch (e: Exception)
+            {
+                observer.onError(e)
+            }
+            finally
+            {
+                observer.onComplete()
+            }
+        })
+
+    }
+
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

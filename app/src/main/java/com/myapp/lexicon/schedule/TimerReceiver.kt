@@ -23,7 +23,8 @@ class TimerReceiver : BroadcastReceiver()
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             when(intent.action)
             {
-                AlarmScheduler.REPEAT_SHOOT_ACTION ->                {
+                AlarmScheduler.REPEAT_SHOOT_ACTION ->
+                {
 
                     val displayVariant = preferences.getString(context.getString(R.string.key_display_variant), "0")
                     println("********************* displayVariant = $displayVariant *********************")
@@ -47,7 +48,7 @@ class TimerReceiver : BroadcastReceiver()
                             val dictName = playList[appData.ndict]
                             val displayMode = preferences.getString(context.getString(R.string.key_list_display_mode), "0")
                             val db = AppDB(DatabaseHelper(context))
-                            when(displayMode)
+                            when (displayMode)
                             {
                                 "0" ->
                                 {
@@ -55,7 +56,13 @@ class TimerReceiver : BroadcastReceiver()
                                             .observeOn(Schedulers.computation())
                                             .subscribeOn(AndroidSchedulers.mainThread())
                                             .subscribe({ entry ->
-                                                if (entry.size > 0) AppNotification(context).show(entry[0].english, entry[0].translate)
+                                                if (entry.size > 0)
+                                                {
+                                                    AppNotification(context).apply {
+                                                        create(entry[0])
+                                                        show()
+                                                    }
+                                                }
                                                 if (entry.size > 1)
                                                 {
                                                     appData.nword = entry[1].rowId
@@ -63,7 +70,7 @@ class TimerReceiver : BroadcastReceiver()
                                                 if (entry.size == 1)
                                                 {
                                                     appData.nword = 1
-                                                    if (appData.ndict in 0..playList.size-2)
+                                                    if (appData.ndict in 0..playList.size - 2)
                                                     {
                                                         appData.ndict++
                                                     }
@@ -81,9 +88,21 @@ class TimerReceiver : BroadcastReceiver()
                                             .subscribe({ entry ->
                                                 if (entry.size > 0)
                                                 {
-                                                    AppNotification(context).show(entry[0].english, "??????????")
+                                                    AppNotification(context).apply {
+                                                        create(entry[0])
+                                                        show()
+                                                    }
                                                 }
                                             }, { t ->
+                                                t.printStackTrace()
+                                            })
+
+                                    db.getEntriesAndAmountAsync(dictName, appData.nword)
+                                            .observeOn(Schedulers.computation())
+                                            .subscribeOn(AndroidSchedulers.mainThread())
+                                            .subscribe({
+
+                                            },{ t ->
                                                 t.printStackTrace()
                                             })
                                 }
