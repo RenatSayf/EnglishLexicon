@@ -14,6 +14,8 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.AppDB;
 import com.myapp.lexicon.database.DataBaseEntry;
@@ -22,7 +24,9 @@ import com.myapp.lexicon.schedule.AppNotification;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -175,21 +179,28 @@ public class LexiconService extends Service implements ServiceDialog.IStopServic
                             db.getEntriesAndAmountAsync(dictName, appData.getNword(), "ASC")
                                     .subscribeOn(Schedulers.computation())
                                     .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe(item -> {
-                                        Pair<Map<String, Integer>, List<DataBaseEntry>> pairs = item;
+                                    .subscribe(pair -> {
+                                        String json = new Gson().toJson(pair);
+
+                                        Type type = new TypeToken<Pair<Map<String, Integer>, List<DataBaseEntry>>>()
+                                        {
+                                        }.getType();
+
+                                        Object o = new Gson().fromJson(json, type);
+                                        Pair<Map<String, Integer>, List<DataBaseEntry>> o1 = (Pair<Map<String, Integer>, List<DataBaseEntry>>) o;
                                         if (displayMode.equals("0"))
                                         {
-                                            if (pairs.getSecond().size() > 0)
+                                            if (pair.getSecond().size() > 0)
                                             {
                                                 AppNotification appNotification = new AppNotification(context);
-                                                appNotification.create(pairs.getSecond().get(0));
+                                                appNotification.create(pair.getSecond().get(0));
                                                 appNotification.show();
                                             }
-                                            if (pairs.getSecond().size() > 1)
+                                            if (pair.getSecond().size() > 1)
                                             {
-                                                appData.setNword(pairs.getSecond().get(1).getRowId());
+                                                appData.setNword(pair.getSecond().get(1).getRowId());
                                             }
-                                            if (pairs.getSecond().size() == 1)
+                                            if (pair.getSecond().size() == 1)
                                             {
                                                 appData.setNword(1);
                                                 if (appData.getNdict() >=0 && appData.getNdict() <= playList.size() - 2)
@@ -201,10 +212,10 @@ public class LexiconService extends Service implements ServiceDialog.IStopServic
                                         }
                                         if (displayMode.equals("1"))
                                         {
-                                            if (pairs.getSecond().size() > 0)
+                                            if (pair.getSecond().size() > 0)
                                             {
                                                 AppNotification appNotification = new AppNotification(context);
-                                                appNotification.create(pairs.getSecond().get(0));
+                                                appNotification.create(pair.getSecond().get(0));
                                                 appNotification.show();
                                             }
                                         }
