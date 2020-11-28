@@ -155,7 +155,7 @@
                 android:value=".main.MainActivity" />
         </activity>
         <activity
-            android:name=".service.ServiceDialog"
+            android:name=".service.ServiceActivity"
             android:label="@string/app_name"
             android:theme="@style/Theme.AppCompat.Translucent">
 

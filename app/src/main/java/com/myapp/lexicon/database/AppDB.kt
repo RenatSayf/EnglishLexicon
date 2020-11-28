@@ -204,7 +204,7 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
                 {
                     while (!cursor.isAfterLast)
                     {
-                        dataBaseEntry = DataBaseEntry(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3))
+                        dataBaseEntry = DataBaseEntry(cursor.getInt(0), tableName, cursor.getString(1), cursor.getString(2), cursor.getString(3))
                         entriesFromDB.add(dataBaseEntry)
                         cursor.moveToNext()
                     }

@@ -12,10 +12,10 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.util.Pair;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.AppDB;
 import com.myapp.lexicon.database.DataBaseEntry;
@@ -24,19 +24,15 @@ import com.myapp.lexicon.schedule.AppNotification;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
-import kotlin.Pair;
 
-public class LexiconService extends Service implements ServiceDialog.IStopServiceByUser
+public class LexiconService extends Service implements ServiceActivity.IStopServiceByUser
 {
     public static boolean stopedByUser = false;
     private Locale oldLocale;
@@ -79,8 +75,13 @@ public class LexiconService extends Service implements ServiceDialog.IStopServic
                 contentText = getString(R.string.notify_new_word_text);
                 break;
         }
+        ArrayList<DataBaseEntry> entries = new ArrayList();
+        entries.add(new DataBaseEntry("", contentText));
+        Pair pair = new Pair(new HashMap<String, Integer>(), entries);
 
-        appNotification = new AppNotification(this).create(new DataBaseEntry(contentText, ""));
+        String json = new Gson().toJson(pair);
+
+        appNotification = new AppNotification(this).create(json);
         startForeground(AppNotification.NOTIFICATION_ID, appNotification);
 
         receiver = new PhoneUnlockedReceiver();
@@ -89,7 +90,7 @@ public class LexiconService extends Service implements ServiceDialog.IStopServic
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         registerReceiver(receiver, filter);
 
-        ServiceDialog.setStoppedByUserListener(this);
+        ServiceActivity.setStoppedByUserListener(this);
     }
 
     @Override
@@ -164,7 +165,7 @@ public class LexiconService extends Service implements ServiceDialog.IStopServic
                     {
                         if (displayVariant.equals("0"))
                         {
-                            Intent intentAct = new Intent(context, ServiceDialog.class);
+                            Intent intentAct = new Intent(context, ServiceActivity.class);
                             intentAct.setAction(Intent.ACTION_MAIN);
                             intentAct.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                             startActivity(intentAct);
@@ -180,20 +181,15 @@ public class LexiconService extends Service implements ServiceDialog.IStopServic
                                     .subscribeOn(Schedulers.computation())
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe(pair -> {
+
                                         String json = new Gson().toJson(pair);
 
-                                        Type type = new TypeToken<Pair<Map<String, Integer>, List<DataBaseEntry>>>()
-                                        {
-                                        }.getType();
-
-                                        Object o = new Gson().fromJson(json, type);
-                                        Pair<Map<String, Integer>, List<DataBaseEntry>> o1 = (Pair<Map<String, Integer>, List<DataBaseEntry>>) o;
                                         if (displayMode.equals("0"))
                                         {
                                             if (pair.getSecond().size() > 0)
                                             {
                                                 AppNotification appNotification = new AppNotification(context);
-                                                appNotification.create(pair.getSecond().get(0));
+                                                appNotification.create(json);
                                                 appNotification.show();
                                             }
                                             if (pair.getSecond().size() > 1)
@@ -215,7 +211,7 @@ public class LexiconService extends Service implements ServiceDialog.IStopServic
                                             if (pair.getSecond().size() > 0)
                                             {
                                                 AppNotification appNotification = new AppNotification(context);
-                                                appNotification.create(pair.getSecond().get(0));
+                                                appNotification.create(json);
                                                 appNotification.show();
                                             }
                                         }

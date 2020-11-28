@@ -45,8 +45,8 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 
 import static com.myapp.lexicon.main.MainActivity.serviceIntent;
-import static com.myapp.lexicon.service.ServiceDialog.map;
-import static com.myapp.lexicon.service.ServiceDialog.speech;
+import static com.myapp.lexicon.service.ServiceActivity.map;
+import static com.myapp.lexicon.service.ServiceActivity.speech;
 
 
 public class TestModalFragment extends Fragment

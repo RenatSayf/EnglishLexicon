@@ -27,7 +27,7 @@ import static com.myapp.lexicon.main.MainActivity.serviceIntent;
  * Created by Renat
  */
 
-public class ServiceDialog extends AppCompatActivity
+public class ServiceActivity extends AppCompatActivity
 {
     private int displayVariant = 0;
     private boolean isServiceEnabled = false;
@@ -51,7 +51,7 @@ public class ServiceDialog extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.service_dialog_activity);
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ServiceDialog.this);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ServiceActivity.this);
         String preferencesString = preferences.getString(getString(R.string.key_list_display_mode), "0");
         String displayVariantStr = preferences.getString(getString(R.string.key_display_variant), "0");
         isServiceEnabled = preferences.getBoolean(getString(R.string.key_service), false);
@@ -60,7 +60,7 @@ public class ServiceDialog extends AppCompatActivity
 
         if (displayVariant == 1 && serviceIntent != null)
         {
-            stopService(serviceIntent);
+            stopService(MainActivity.serviceIntent);
         }
 
         speech = new TextToSpeech(this, new TextToSpeech.OnInitListener()
@@ -87,16 +87,11 @@ public class ServiceDialog extends AppCompatActivity
 
         if (displayMode == 0)
         {
-            String enWord = getIntent().getStringExtra("en");
-            String ruWord = getIntent().getStringExtra("ru");
-            if (enWord == null && ruWord == null)
-            {
-                ModalFragment modalFragment = ModalFragment.newInstance(null, null);
-                getSupportFragmentManager().beginTransaction().add(R.id.fragment_frame, modalFragment).commit();
-            } else
-            {
-            }
-        } else if (displayMode == 1)
+            String json = getIntent().getStringExtra(ModalFragment.ARG_JSON);
+            ModalFragment modalFragment = ModalFragment.newInstance(json);
+            getSupportFragmentManager().beginTransaction().add(R.id.fragment_frame, modalFragment).commit();
+        }
+        else if (displayMode == 1)
         {
             TestModalFragment testModalFragment = TestModalFragment.newInstance(null, null);
             getSupportFragmentManager().beginTransaction().add(R.id.fragment_frame, testModalFragment).commit();

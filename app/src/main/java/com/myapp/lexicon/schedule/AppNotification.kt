@@ -5,14 +5,16 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
-import android.content.Entity
 import android.content.Intent
 import android.os.Build
-import android.os.Bundle
 import androidx.core.app.NotificationCompat
+import com.google.gson.Gson
+import com.google.gson.JsonSyntaxException
+import com.google.gson.reflect.TypeToken
 import com.myapp.lexicon.R
 import com.myapp.lexicon.database.DataBaseEntry
-import com.myapp.lexicon.service.ServiceDialog
+import com.myapp.lexicon.service.ModalFragment
+import com.myapp.lexicon.service.ServiceActivity
 
 class AppNotification constructor(private val context: Context) : Notification()
 {
@@ -24,24 +26,37 @@ class AppNotification constructor(private val context: Context) : Notification()
 
     private lateinit var notification: Notification
 
-    fun create(entity: DataBaseEntry) : Notification
+    fun create(json: String) : Notification
     {
         val actionIntent = Intent(Intent.ACTION_MAIN)
-        actionIntent.setClass(context, ServiceDialog::class.java).apply {
-            putExtra("en", entity.english)
-            putExtra("ru", entity.translate)
+        actionIntent.setClass(context, ServiceActivity::class.java).apply {
+            putExtra(ModalFragment.ARG_JSON, json)
             flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
         }
-        //actionIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+
+        var pair: Pair<Map<String, Int>, List<DataBaseEntry>>? = null
+        val type = object : TypeToken<Pair<Map<String?, Int?>?, List<DataBaseEntry?>?>?>()
+        {}.type
+
+        try
+        {
+            val obj = Gson().fromJson<Any>(json, type)
+            @Suppress("UNCHECKED_CAST")
+            pair = obj as Pair<Map<String, Int>, List<DataBaseEntry>>
+        }
+        catch (e: JsonSyntaxException)
+        {
+            e.printStackTrace()
+        }
 
         val pendingIntent = PendingIntent.getActivity(context, 0, actionIntent, PendingIntent.FLAG_UPDATE_CURRENT)
         notification = Notification()
         notification = NotificationCompat.Builder(context, CHANEL_ID)
                 .setOngoing(true)
                 .setSmallIcon(R.drawable.ic_lexicon_notify)
-                .setContentTitle(entity.english)
-                .setContentText(entity.translate)
-                .setStyle(NotificationCompat.BigTextStyle().bigText(entity.translate))
+                .setContentTitle(pair?.second?.get(0)?.english ?: "JSON ERROR!!!!!!!!!!!!!!!!!!")
+                .setContentText(pair?.second?.get(0)?.translate ?: "JSON ERROR!!!!!!!!!!!!!!!!!!")
+                .setStyle(NotificationCompat.BigTextStyle().bigText(pair?.second?.get(0)?.translate ?: "JSON ERROR!!!!!!!!!!!!!!!!!!"))
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
