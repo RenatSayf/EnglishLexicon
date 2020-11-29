@@ -42,4 +42,9 @@ class DataRepositoryImpl @Inject constructor(private val appDB: AppDB, private v
     {
         return appDB.dropTableFromDb(tableName)
     }
+
+    override fun getEntriesAndCountersFromDb(tableName: String, rowId: Int, order: String): Observable<Pair<MutableMap<String, Int>, MutableList<DataBaseEntry>>>
+    {
+        return appDB.getEntriesAndAmountAsync(tableName, rowId, order)
+    }
 }

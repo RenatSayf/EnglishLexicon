@@ -18,4 +18,6 @@ interface IDataRepository
     fun deleteTableFromDb(tableName: String) : Observable<Boolean>
 
     fun dropTableFromDb(tableName: String) : Single<Boolean>
+
+    fun getEntriesAndCountersFromDb(tableName: String, rowId: Int, order: String) : Observable<Pair<MutableMap<String, Int>, MutableList<DataBaseEntry>>>
 }

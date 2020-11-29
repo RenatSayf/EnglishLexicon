@@ -3,7 +3,7 @@ package com.myapp.lexicon.schedule
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 import com.google.gson.Gson
 import com.myapp.lexicon.R
 import com.myapp.lexicon.database.AppDB
@@ -13,7 +13,7 @@ import com.myapp.lexicon.settings.AppData
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
-@Suppress("DEPRECATION")
+
 class TimerReceiver : BroadcastReceiver()
 {
 

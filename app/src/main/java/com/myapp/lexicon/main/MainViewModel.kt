@@ -12,6 +12,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import java.sql.RowId
 import java.util.*
 
 class MainViewModel @ViewModelInject constructor(private val repository: DataRepositoryImpl) : ViewModel()
@@ -53,6 +54,11 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
     fun deleteDict(dictName: String) : Single<Boolean>
     {
         return repository.dropTableFromDb(dictName)
+    }
+
+    fun getEntriesAndCounters(dictName: String, rowId: Int, order: String): Observable<Pair<MutableMap<String, Int>, MutableList<DataBaseEntry>>>
+    {
+        return repository.getEntriesAndCountersFromDb(dictName, rowId, order)
     }
 
     override fun onCleared()

@@ -20,6 +20,7 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
+import android.util.Pair;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -42,6 +43,7 @@ import com.google.firebase.appindexing.Action;
 import com.google.firebase.appindexing.FirebaseAppIndex;
 import com.google.firebase.appindexing.FirebaseUserActions;
 import com.google.firebase.appindexing.builders.Actions;
+import com.google.gson.Gson;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
@@ -54,6 +56,7 @@ import com.myapp.lexicon.helpers.Share;
 import com.myapp.lexicon.playlist.PlayList;
 import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.service.LexiconService;
+import com.myapp.lexicon.service.ModalFragment;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 import com.myapp.lexicon.settings.SettingsFragment;
@@ -83,6 +86,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+
+import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
 
 
 @AndroidEntryPoint
@@ -526,7 +531,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         else if (id == R.id.nav_settings)
         {
-            getFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, new SettingsFragment()).addToBackStack(null).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, new SettingsFragment()).addToBackStack(null).commit();
         }
         else if (id == R.id.nav_evaluate_app)
         {
@@ -924,7 +929,46 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             {
                 serviceIntent = new Intent(this, LexiconService.class);
             }
-            startService(serviceIntent);
+//            String string = preferences.getString(getString(R.string.key_display_variant), "0");
+//            int displayVariant = 0;
+//            try
+//            {
+//                displayVariant = Integer.parseInt(string);
+//            } catch (NumberFormatException e)
+//            {
+//                e.printStackTrace();
+//                displayVariant = 0;
+//            }
+//            String contentText = "";
+//            if (displayVariant == 0) contentText = getString(R.string.notify_content_text);
+//            else if (displayVariant == 1) contentText = getString(R.string.notify_new_word_text);
+
+            mainViewModel.getEntriesAndCounters(playList.get(appData.getNdict()), appData.getNword(), "ASC")
+                    .observeOn(Schedulers.computation())
+                    .subscribeOn(AndroidSchedulers.mainThread())
+                    .subscribe(pairs -> {
+
+                        if (pairs.getSecond().size() > 1)
+                        {
+                            appData.setNword(pairs.getSecond().get(1).getRowId());
+                        }
+                        if (pairs.getSecond().size() == 1)
+                        {
+                            appData.setNword(1);
+                            if (appData.getNdict() >= 0 && appData.getNdict() <= playList.size() - 2)
+                            {
+                                appData.setNdict(appData.getNdict() + 1);
+                            }
+                            else appData.setNdict(0);
+                        }
+                        if (pairs.getSecond().size() > 0)
+                        {
+                            String json = new Gson().toJson(pairs);
+                            serviceIntent.putExtra(ModalFragment.ARG_JSON, json);
+                            startService(serviceIntent);
+                        }
+
+                    }, Throwable::printStackTrace);
         }
     }
 

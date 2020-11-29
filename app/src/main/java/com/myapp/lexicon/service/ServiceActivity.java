@@ -5,8 +5,12 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
+import android.util.Pair;
 
+import com.google.gson.Gson;
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.database.AppDB;
+import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.main.MainActivity;
 import com.myapp.lexicon.main.MainActivityOnStart;
 import com.myapp.lexicon.settings.AppData;
@@ -15,11 +19,15 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import dagger.hilt.android.AndroidEntryPoint;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 import static com.myapp.lexicon.main.MainActivity.serviceIntent;
 
@@ -27,6 +35,7 @@ import static com.myapp.lexicon.main.MainActivity.serviceIntent;
  * Created by Renat
  */
 
+//@AndroidEntryPoint
 public class ServiceActivity extends AppCompatActivity
 {
     private int displayVariant = 0;
@@ -34,6 +43,7 @@ public class ServiceActivity extends AppCompatActivity
     public static IStopServiceByUser iStopServiceByUser;
     public static TextToSpeech speech;
     public static HashMap<String, String> map = new HashMap<>();
+    private AppData appData;
 
     public interface IStopServiceByUser
     {
@@ -97,7 +107,7 @@ public class ServiceActivity extends AppCompatActivity
             getSupportFragmentManager().beginTransaction().add(R.id.fragment_frame, testModalFragment).commit();
         } else return;
 
-        AppData appData = AppData.getInstance();
+        appData = AppData.getInstance();
 
         int count = appData.getUnLookPhoneCount();
         count++;
@@ -144,11 +154,40 @@ public class ServiceActivity extends AppCompatActivity
         {
             if (displayVariant == 1 && !LexiconService.stopedByUser)
             {
-                if (serviceIntent == null)
-                {
-                    MainActivity.serviceIntent = new Intent(this, LexiconService.class);
-                }
-                startService(MainActivity.serviceIntent);
+                ArrayList<String> playList = appData.getPlayList();
+                String dictName = playList.get(appData.getNdict());
+                AppDB db = new AppDB(new DatabaseHelper(this));
+                db.getEntriesAndAmountAsync(dictName, appData.getNword(), "ASC")
+                        .observeOn(Schedulers.computation())
+                        .subscribeOn(AndroidSchedulers.mainThread())
+                        .subscribe(entries -> {
+
+                            if (entries.getSecond().size() > 1)
+                            {
+                                appData.setNword(entries.getSecond().get(1).getRowId());
+                            }
+                            if (entries.getSecond().size() == 1)
+                            {
+                                appData.setNword(1);
+                                if (appData.getNdict() >= 0 && appData.getNdict() <= playList.size() - 2)
+                                {
+                                    appData.setNdict(appData.getNdict() + 1);
+                                }
+                                else appData.setNdict(0);
+                            }
+                            if (entries.getSecond().size() > 0)
+                            {
+                                Pair pair = new Pair(entries.getFirst(), entries.getSecond());
+                                String json = new Gson().toJson(pair);
+                                if (MainActivity.serviceIntent == null)
+                                {
+                                    MainActivity.serviceIntent = new Intent(this, LexiconService.class);
+                                }
+                                serviceIntent.putExtra(ModalFragment.ARG_JSON, json);
+                                startService(MainActivity.serviceIntent);
+                            }
+                        }, throwable -> throwable.printStackTrace());
+
             }
             if (LexiconService.stopedByUser)
             {

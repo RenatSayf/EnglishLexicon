@@ -24,6 +24,11 @@ class AppNotification constructor(private val context: Context) : Notification()
         const val CHANEL_ID : String = "${NOTIFICATION_ID}.service_notification"
     }
 
+    init
+    {
+
+    }
+
     private lateinit var notification: Notification
 
     fun create(json: String) : Notification

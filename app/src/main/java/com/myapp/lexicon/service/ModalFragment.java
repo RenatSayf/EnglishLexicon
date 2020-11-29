@@ -121,11 +121,14 @@ public class ModalFragment extends Fragment
                 enTextView.setText(pair.getSecond().get(0).getEnglish());
                 ruTextView.setText(pair.getSecond().get(0).getTranslate());
 
-                String concatText = (pair.getSecond().get(0).getRowId() + "")
-                        .concat(" / ")
-                        .concat(pair.getFirst().get("totalWords").toString())
-                        .concat("  " + getString(R.string.text_studied) + " " + pair.getFirst().get("studiedWords").toString());
-                wordsNumberTV.setText(concatText);
+                if (pair.getFirst().size() > 0)
+                {
+                    String concatText = (pair.getSecond().get(0).getRowId() + "")
+                            .concat(" / ")
+                            .concat(pair.getFirst().get("totalWords").toString())
+                            .concat("  " + getString(R.string.text_studied) + " " + pair.getFirst().get("studiedWords").toString());
+                    wordsNumberTV.setText(concatText);
+                }
             } catch (JsonSyntaxException e)
             {
                 e.printStackTrace();
