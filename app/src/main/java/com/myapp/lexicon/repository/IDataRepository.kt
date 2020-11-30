@@ -19,5 +19,7 @@ interface IDataRepository
 
     fun dropTableFromDb(tableName: String) : Single<Boolean>
 
+    fun getRandomEntriesFromDb(tableName: String, rowId: Int, order: String) : Single<MutableList<DataBaseEntry>>
+
     fun getEntriesAndCountersFromDb(tableName: String, rowId: Int, order: String) : Observable<Pair<MutableMap<String, Int>, MutableList<DataBaseEntry>>>
 }

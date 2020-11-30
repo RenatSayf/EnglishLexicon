@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.helpers.ObjectSerializer;
 
 import java.util.ArrayList;
@@ -21,7 +22,7 @@ import static android.content.Context.MODE_PRIVATE;
 
 public class AppSettings
 {
-    private Context context;
+    private final Context context;
 
     private final String KEY_ENG_ONLY = "eng_only";
     private final String KEY_ENG_ONLY_MODAL = "eng_only_modal";
@@ -34,7 +35,7 @@ public class AppSettings
     private final String KEY_IS_PAUSE = "is_pause";
     private final String KEY_TRANSLATE_LANG = "translate_lang";
 
-    private String transLang;
+    private final String transLang;
 
     @Inject
     public AppSettings(Context context)
@@ -106,13 +107,13 @@ public class AppSettings
             while (appData.getNdict() > list.size()-1)
             {
                 appData.setNdict(appData.getNdict()-1);
-                setDictNumber(appData.getNdict() - 1);
+                set_N_Dict(appData.getNdict() - 1);
                 appData.setNword(1);
             }
             if (appData.getNdict() < 0)
             {
                 appData.setNdict(0);
-                setDictNumber(0);
+                set_N_Dict(0);
                 appData.setNword(1);
             }
         }
@@ -120,9 +121,9 @@ public class AppSettings
         {
             AppData appData = AppData.getInstance();
             appData.setNdict(0);
-            setDictNumber(0);
+            set_N_Dict(0);
             appData.setNword(1);
-            setWordNumber(1);
+            set_N_Word(1);
             context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putString(KEY_PLAY_LIST_ITEMS, ObjectSerializer.serialize(list)).apply();
         }
     }
@@ -209,7 +210,7 @@ public class AppSettings
         return context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getInt(KEY_ORDER_PLAY, 0);
     }
 
-    public void setWordNumber(int number)
+    public void set_N_Word(int number)
     {
         context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putInt(KEY_N_WORD, number).apply();
     }
@@ -224,7 +225,7 @@ public class AppSettings
         return wordNumber;
     }
 
-    public void setDictNumber(int number)
+    public void set_N_Dict(int number)
     {
         context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putInt(KEY_N_DICT, number).apply();
         ArrayList<String> list = getPlayList();
@@ -316,6 +317,23 @@ public class AppSettings
     public String getTransLang()
     {
         return transLang;
+    }
+
+    public void keepForward(LinkedList<DataBaseEntry> entries)
+    {
+        if (entries != null && entries.size() > 1)
+        {
+            set_N_Word(entries.get(1).getRowId());
+        }
+        if (entries != null && (entries.size() == 1 || entries.isEmpty()))
+        {
+            set_N_Word(1);
+            if (getPlayList().listIterator(getDictNumber()).hasNext())
+            {
+                set_N_Dict(getDictNumber() + 1);
+            }
+            else set_N_Dict(0);
+        }
     }
 
 

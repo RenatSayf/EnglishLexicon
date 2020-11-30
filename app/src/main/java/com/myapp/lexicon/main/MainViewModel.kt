@@ -10,9 +10,7 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import java.sql.RowId
 import java.util.*
 
 class MainViewModel @ViewModelInject constructor(private val repository: DataRepositoryImpl) : ViewModel()
@@ -59,6 +57,11 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
     fun getEntriesAndCounters(dictName: String, rowId: Int, order: String): Observable<Pair<MutableMap<String, Int>, MutableList<DataBaseEntry>>>
     {
         return repository.getEntriesAndCountersFromDb(dictName, rowId, order)
+    }
+
+    fun getRandomEntries(dictName: String, rowId: Int, order: String) : Single<MutableList<DataBaseEntry>>
+    {
+        return repository.getRandomEntriesFromDb(dictName, rowId, order)
     }
 
     override fun onCleared()

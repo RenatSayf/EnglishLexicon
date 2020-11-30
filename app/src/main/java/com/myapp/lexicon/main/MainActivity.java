@@ -2,6 +2,7 @@ package com.myapp.lexicon.main;
 
 import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -20,7 +21,6 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
-import android.util.Pair;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -35,7 +35,6 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.app.NotificationManager;
 
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.material.navigation.NavigationView;
@@ -56,7 +55,6 @@ import com.myapp.lexicon.helpers.Share;
 import com.myapp.lexicon.playlist.PlayList;
 import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.service.LexiconService;
-import com.myapp.lexicon.service.ModalFragment;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 import com.myapp.lexicon.settings.SettingsFragment;
@@ -86,8 +84,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-
-import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
 
 
 @AndroidEntryPoint
@@ -132,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private FragmentManager fragmentManager;
 
     private MainViewModel mainViewModel;
-    private CompositeDisposable composite = new CompositeDisposable();
+    private final CompositeDisposable composite = new CompositeDisposable();
 
     @Inject
     AlarmScheduler scheduler;
@@ -929,46 +925,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             {
                 serviceIntent = new Intent(this, LexiconService.class);
             }
-//            String string = preferences.getString(getString(R.string.key_display_variant), "0");
-//            int displayVariant = 0;
-//            try
-//            {
-//                displayVariant = Integer.parseInt(string);
-//            } catch (NumberFormatException e)
-//            {
-//                e.printStackTrace();
-//                displayVariant = 0;
-//            }
-//            String contentText = "";
-//            if (displayVariant == 0) contentText = getString(R.string.notify_content_text);
-//            else if (displayVariant == 1) contentText = getString(R.string.notify_new_word_text);
+            composite.add(
+                    mainViewModel.getEntriesAndCounters(playList.get(appSettings.getDictNumber()), appSettings.getWordNumber(), "ASC")
+                            .observeOn(Schedulers.computation())
+                            .subscribeOn(AndroidSchedulers.mainThread())
+                            .subscribe(pairs -> {
 
-            mainViewModel.getEntriesAndCounters(playList.get(appData.getNdict()), appData.getNword(), "ASC")
-                    .observeOn(Schedulers.computation())
-                    .subscribeOn(AndroidSchedulers.mainThread())
-                    .subscribe(pairs -> {
+                                if (pairs.getSecond().size() > 1)
+                                {
+                                    appSettings.set_N_Word(pairs.getSecond().get(1).getRowId());
+                                }
+                                if (pairs.getSecond().size() == 1)
+                                {
+                                    appSettings.set_N_Word(1);
+                                    if (appSettings.getDictNumber() >= 0 && appSettings.getDictNumber() <= appSettings.getPlayList().size() - 2)
+                                    {
+                                        appSettings.set_N_Dict(appData.getNdict() + 1);
+                                    } else appSettings.set_N_Dict(0);
+                                }
+                                if (pairs.getSecond().size() > 0)
+                                {
+                                    String json = new Gson().toJson(pairs);
+                                    serviceIntent.putExtra(AppData.ARG_JSON, json);
+                                    startService(serviceIntent);
+                                }
 
-                        if (pairs.getSecond().size() > 1)
-                        {
-                            appData.setNword(pairs.getSecond().get(1).getRowId());
-                        }
-                        if (pairs.getSecond().size() == 1)
-                        {
-                            appData.setNword(1);
-                            if (appData.getNdict() >= 0 && appData.getNdict() <= playList.size() - 2)
-                            {
-                                appData.setNdict(appData.getNdict() + 1);
-                            }
-                            else appData.setNdict(0);
-                        }
-                        if (pairs.getSecond().size() > 0)
-                        {
-                            String json = new Gson().toJson(pairs);
-                            serviceIntent.putExtra(ModalFragment.ARG_JSON, json);
-                            startService(serviceIntent);
-                        }
-
-                    }, Throwable::printStackTrace);
+                            }, Throwable::printStackTrace));
         }
     }
 

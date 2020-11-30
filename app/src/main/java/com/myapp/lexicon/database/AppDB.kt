@@ -185,7 +185,7 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
         }
     }
 
-    private fun getEntriesFromDb(tableName: String, rowId: Int, order: String) : MutableList<DataBaseEntry>
+    private fun getRandomEntriesFromDb(tableName: String, rowId: Int, order: String) : MutableList<DataBaseEntry>
     {
         val table = StringOperations.getInstance().spaceToUnderscore(tableName)
         val entriesFromDB = LinkedList<DataBaseEntry>()
@@ -196,9 +196,7 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
             dbHelper.open()
             if (dbHelper.database.isOpen)
             {
-                var compare = ">="
-                if(order == "DESC") compare = "<="
-                val cmd = "SELECT RowId, English, Translate, CountRepeat FROM $table WHERE RowId $compare $rowId AND CountRepeat <> 0 ORDER BY RowId $order LIMIT 2"
+                val cmd = "SELECT RowId, English, Translate, CountRepeat FROM $table WHERE RowId <> $rowId ORDER BY random() LIMIT 1"
                 cursor = dbHelper.database.rawQuery(cmd, null)
                 if (cursor.moveToFirst())
                 {
@@ -228,14 +226,15 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
      * @param order String сортировка по RowId, если не передавать этот
      * параметр, то order='ASC', для обратной сортировки передайте 'DESC'
      *
-     * return Single<LinkedList<DataBaseEntry>> Возвращает 2 записи из таблицы с сортировкой по RowId
+     * return Single<LinkedList<DataBaseEntry>> Возвращает 1 случайную запись из таблицы где ROWID записи
+     * не равен параметру rowId
      */
-    fun getEntriesFromDbAsync(tableName: String, rowId: Int, order: String = "ASC") : Single<LinkedList<DataBaseEntry>>
+    fun getRandomEntriesFromDbAsync(tableName: String, rowId: Int, order: String = "ASC") : Single<MutableList<DataBaseEntry>>
     {
         return Single.create { emitter ->
             try
             {
-                val entries = getEntriesFromDb(tableName, rowId, order)
+                val entries = getRandomEntriesFromDb(tableName, rowId, order)
                 emitter.onSuccess(LinkedList(entries))
             }
             catch (e: Exception)
@@ -340,7 +339,7 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
                 observer.onComplete()
             }
         }, ObservableSource { observer ->
-            val entries = getEntriesFromDb(tableName, rowId, order)
+            val entries = getRandomEntriesFromDb(tableName, rowId, order)
             try
             {
                 observer.onNext(Pair(countsList, entries))
@@ -354,8 +353,9 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
                 observer.onComplete()
             }
         })
-
     }
+
+
 
 
 }

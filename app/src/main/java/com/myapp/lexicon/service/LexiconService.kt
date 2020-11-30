@@ -52,7 +52,7 @@ class LexiconService : Service(), IStopServiceByUser
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int
     {
         this.startId = startId
-        val json = intent.getStringExtra(ModalFragment.ARG_JSON)
+        val json = intent.getStringExtra(AppData.ARG_JSON)
         json?.let {
             val appNotification = AppNotification(this).create(json)
             startForeground(AppNotification.NOTIFICATION_ID, appNotification)

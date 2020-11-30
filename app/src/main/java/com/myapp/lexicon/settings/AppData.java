@@ -6,12 +6,18 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 
+import com.google.gson.reflect.TypeToken;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.GetEntriesFromDbAsync;
 import com.myapp.lexicon.database.GetStudiedWordsCount;
 import com.myapp.lexicon.wordeditor.ListViewAdapter;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import kotlin.Pair;
 
 
 /**
@@ -21,6 +27,12 @@ import java.util.ArrayList;
 public class AppData
 {
     private static AppData instance = null;
+
+    public static Type jsonType = new TypeToken<Pair<Map<String, Integer>, List<DataBaseEntry>>>()
+    {
+    }.getType();
+
+    public static final String ARG_JSON = "ModalFragment.arg_json";
 
     public ArrayList<String> getPlayList()
     {
@@ -239,8 +251,8 @@ public class AppData
     {
         AppSettings appSettings = new AppSettings(context);
         appSettings.setPause(is_pause);
-        appSettings.setDictNumber(ndict);
-        appSettings.setWordNumber(nword);
+        appSettings.set_N_Dict(ndict);
+        appSettings.set_N_Word(nword);
     }
 
     public void initAllSettings(Context context)

@@ -90,8 +90,8 @@ public class PlayList extends AppCompatActivity implements ListViewAdapter.IPlay
                                 break;
                             case 1:
                                 appSettings.setOrderPlay(1);
-                                appSettings.setWordNumber(1);
-                                appSettings.setDictNumber(0);
+                                appSettings.set_N_Word(1);
+                                appSettings.set_N_Dict(0);
                                 break;
                             case 2:
 
@@ -233,15 +233,15 @@ public class PlayList extends AppCompatActivity implements ListViewAdapter.IPlay
             {
                 if (!newPlayList.contains(oldCurrentDict))
                 {
-                    appSettings.setDictNumber(0);
-                    appSettings.setWordNumber(1);
+                    appSettings.set_N_Dict(0);
+                    appSettings.set_N_Word(1);
                 } else
                 {
                     int nDict = newPlayList.indexOf(oldCurrentDict);
                     if (AppData.getInstance().getNdict() != nDict)
                     {
-                        appSettings.setDictNumber(nDict);
-                        appSettings.setWordNumber(1);
+                        appSettings.set_N_Dict(nDict);
+                        appSettings.set_N_Word(1);
                     }
                 }
             }

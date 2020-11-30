@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DatabaseHelper;
@@ -28,6 +29,7 @@ import com.myapp.lexicon.database.UpdateDBEntryAsync;
 import com.myapp.lexicon.dialogs.WordsEndedDialog;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
 import com.myapp.lexicon.main.MainActivityOnStart;
+import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.settings.AppData;
@@ -37,12 +39,19 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProvider;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
+import kotlin.Pair;
 
 import static com.myapp.lexicon.main.MainActivity.serviceIntent;
 import static com.myapp.lexicon.service.ServiceActivity.map;
@@ -51,8 +60,6 @@ import static com.myapp.lexicon.service.ServiceActivity.speech;
 
 public class TestModalFragment extends Fragment
 {
-    public static final String ARG_N_DICT = "arg_dict_name";
-    public static final String ARG_N_WORD = "arg_n_word";
 
     private AppSettings appSettings;
     private AppData appData;
@@ -66,19 +73,21 @@ public class TestModalFragment extends Fragment
     private boolean isWordsEnded = false;
     private WordsEndedDialog endedDialog = null;
 
+    private MainViewModel viewModel;
+    private final CompositeDisposable composite = new CompositeDisposable();
+
     public TestModalFragment()
     {
         // Required empty public constructor
     }
 
-    static TestModalFragment newInstance(@Nullable Integer ndict, @Nullable Integer nword)
+    static TestModalFragment newInstance(@Nullable String json)
     {
         TestModalFragment fragment = new TestModalFragment();
-        if (ndict != null && nword !=null)
+        if (json != null)
         {
             Bundle bundle = new Bundle();
-            bundle.putInt(ARG_N_DICT, ndict);
-            bundle.putInt(ARG_N_WORD, nword);
+            bundle.putString(AppData.ARG_JSON, json);
             fragment.setArguments(bundle);
         }
         return fragment;
@@ -89,36 +98,15 @@ public class TestModalFragment extends Fragment
     {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        if (getActivity() != null)
-        {
-            appSettings = new AppSettings(getActivity());
-            Bundle arguments = getArguments();
-            if (arguments != null)
-            {
-                int n_dict = arguments.getInt(ARG_N_DICT);
-                int n_word = arguments.getInt(ARG_N_WORD);
-                if (n_dict >= 0 && n_word > 0)
-                {
-                    appSettings.setDictNumber(n_dict);
-                    appSettings.setWordNumber(n_word);
-                }
-            }
-            appData = AppData.getInstance();
-            appData.initAllSettings(getActivity());
-
-        } else
-        {
-            onDestroy();
-            onDetach();
-        }
+        viewModel = new ViewModelProvider(this).get(MainViewModel.class);
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         View fragmentView = inflater.inflate(R.layout.s_test_modal_fragment, container, false);
+
         enTextView = fragmentView.findViewById(R.id.en_text_view);
-        enTextView.setText("");
         ruBtn1 = fragmentView.findViewById(R.id.ru_btn_1);
         ruBtn1.setText("");
         ruBtn1_OnClick(ruBtn1);
@@ -126,32 +114,73 @@ public class TestModalFragment extends Fragment
         ruBtn2.setText("");
         ruBtn2_OnClick(ruBtn2);
 
+        Bundle arguments = getArguments();
+        if (arguments != null)
+        {
+            String json = arguments.getString(AppData.ARG_JSON);
+            try
+            {
+                Pair<Map<String, Integer>, List<DataBaseEntry>> pair = new Gson().fromJson(json, AppData.jsonType);
+                enTextView.setText(pair.getSecond().get(0).getEnglish());
+                nameDictTV = fragmentView.findViewById(R.id.name_dict_tv_test_modal);
+                nameDictTV.setText(pair.getSecond().get(0).getDictName());
+                wordsNumberTV = fragmentView.findViewById(R.id.words_number_tv_test_modal);
+                if (pair.getFirst().size() == 4)
+                {
+                    String concatText = (pair.getSecond().get(0).getRowId() + "")
+                            .concat(" / ")
+                            .concat(pair.getFirst().get("totalWords").toString())
+                            .concat("  " + getString(R.string.text_studied) + " " + pair.getFirst().get("studiedWords").toString());
+                    wordsNumberTV.setText(concatText);
+                }
 
-        nameDictTV = fragmentView.findViewById(R.id.name_dict_tv_test_modal);
-        wordsNumberTV = fragmentView.findViewById(R.id.words_number_tv_test_modal);
+                composite.add(
+                        viewModel.getRandomEntries(pair.getSecond().get(0).getDictName(), pair.getSecond().get(0).getRowId(), "ASC")
+                        .observeOn(Schedulers.computation())
+                        .subscribeOn(AndroidSchedulers.mainThread())
+                        .subscribe(entries -> {
+
+                            entries.add(pair.getSecond().get(0));
+                            RandomNumberGenerator numberGenerator = new RandomNumberGenerator(2, (int) new Date().getTime());
+                            int i = numberGenerator.generate();
+                            int j = numberGenerator.generate();
+                            ruBtn1.setText(entries.get(i).getTranslate());
+                            ruBtn2.setText(entries.get(j).getTranslate());
+
+                        }, Throwable::printStackTrace)
+                );
+
+            } catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+
+
+        }
+
 
         ImageButton speakButton = fragmentView.findViewById(R.id.btn_sound_modal);
         speakButton_OnClick(speakButton);
 
-        String currentDict = null;
-        try
-        {
-            currentDict = appSettings.getPlayList().get(appData.getNdict());
-        }
-        catch (IndexOutOfBoundsException e)
-        {
-            appData.setNdict(0);
-            appData.setNword(1);
-            if (appSettings.getPlayList().size() > 0)
-            {
-                currentDict = appSettings.getPlayList().get(appData.getNdict());
-            }
-        }
+//        String currentDict = null;
+//        try
+//        {
+//            currentDict = appSettings.getPlayList().get(appData.getNdict());
+//        }
+//        catch (IndexOutOfBoundsException e)
+//        {
+//            appData.setNdict(0);
+//            appData.setNword(1);
+//            if (appSettings.getPlayList().size() > 0)
+//            {
+//                currentDict = appSettings.getPlayList().get(appData.getNdict());
+//            }
+//        }
 
-        try
-        {
-            nameDictTV.setText(currentDict);
-            int orderPlay = appSettings.getOrderPlay();
+//        try
+//        {
+//            nameDictTV.setText(currentDict);
+//            int orderPlay = appSettings.getOrderPlay();
 //            switch (orderPlay)
 //            {
 //                case 0:
@@ -161,23 +190,23 @@ public class TestModalFragment extends Fragment
 //                    getRandomWordsFromDB();
 //                    break;
 //            }
-            if (orderPlay == 0)
-            {
-                getWordsFromDBbyOrder(currentDict);
-            }
-            else if (orderPlay == 1 && getArguments() == null)
-            {
-                getRandomWordsFromDB();
-            }
-            else if (orderPlay == 1 && getArguments() != null)
-            {
-                getWordsFromDBbyOrder(currentDict);
-            }
-
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-        }
+//            if (orderPlay == 0)
+//            {
+//                getWordsFromDBbyOrder(currentDict);
+//            }
+//            else if (orderPlay == 1 && getArguments() == null)
+//            {
+//                getRandomWordsFromDB();
+//            }
+//            else if (orderPlay == 1 && getArguments() != null)
+//            {
+//                getWordsFromDBbyOrder(currentDict);
+//            }
+//
+//        } catch (Exception e)
+//        {
+//            e.printStackTrace();
+//        }
 
         ImageButton btnClose = fragmentView.findViewById(R.id.modal_btn_close);
         btnClose.setOnClickListener(new View.OnClickListener()
@@ -201,14 +230,6 @@ public class TestModalFragment extends Fragment
         checkStudied_OnCheckedChange((CheckBox) fragmentView.findViewById(R.id.check_box_studied));
 
         orderPlayIcon = fragmentView.findViewById(R.id.order_play_icon_iv_test_modal);
-
-        return fragmentView;
-    }
-
-    @Override
-    public void onResume()
-    {
-        super.onResume();
         if (appSettings.getOrderPlay() == 0)
         {
             orderPlayIcon.setImageResource(R.drawable.ic_repeat_white);
@@ -217,6 +238,15 @@ public class TestModalFragment extends Fragment
         {
             orderPlayIcon.setImageResource(R.drawable.ic_shuffle_white);
         }
+
+        return fragmentView;
+    }
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+
     }
 
     @Override
@@ -250,8 +280,8 @@ public class TestModalFragment extends Fragment
                         int ndict = appData.getNdict() + 1;
                         if (ndict > appSettings.getPlayList().size() - 1)
                         {
-                            appSettings.setDictNumber(0);
-                            appSettings.setWordNumber(1);
+                            appSettings.set_N_Dict(0);
+                            appSettings.set_N_Word(1);
                         }
                         getActivity().finish();
                     }
@@ -448,46 +478,36 @@ public class TestModalFragment extends Fragment
 
     private void ruBtn1_OnClick(View view)
     {
-        view.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
+        view.setOnClickListener( v -> {
+            Button button = (Button) v;
+            String translate = button.getText().toString().toLowerCase();
+            String english = enTextView.getText().toString().toLowerCase();
+            boolean result = compareWords(compareList, english, translate);
+            if (result)
             {
-                Button button = (Button) view;
-                String trnslate = button.getText().toString().toLowerCase();
-                String english = enTextView.getText().toString().toLowerCase();
-                boolean result = compareWords(compareList, english, trnslate);
-                if (result)
-                {
-                    rightAnswerAnim(button);
-                }
-                else
-                {
-                    noRightAnswerAnim(button);
-                }
+                rightAnswerAnim(button);
+            }
+            else
+            {
+                noRightAnswerAnim(button);
             }
         });
     }
 
     private void ruBtn2_OnClick(View view)
     {
-        view.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
+        view.setOnClickListener( v -> {
+            Button button = (Button) v;
+            String translate = button.getText().toString().toLowerCase();
+            String english = enTextView.getText().toString().toLowerCase();
+            boolean result = compareWords(compareList, english, translate);
+            if (result)
             {
-                Button button = (Button) view;
-                String trnslate = button.getText().toString().toLowerCase();
-                String english = enTextView.getText().toString().toLowerCase();
-                boolean result = compareWords(compareList, english, trnslate);
-                if (result)
-                {
-                    rightAnswerAnim(button);
-                }
-                else
-                {
-                    noRightAnswerAnim(button);
-                }
+                rightAnswerAnim(button);
+            }
+            else
+            {
+                noRightAnswerAnim(button);
             }
         });
     }
@@ -748,5 +768,11 @@ public class TestModalFragment extends Fragment
         });
     }
 
-
+    @Override
+    public void onDestroy()
+    {
+        super.onDestroy();
+        composite.dispose();
+        composite.clear();
+    }
 }

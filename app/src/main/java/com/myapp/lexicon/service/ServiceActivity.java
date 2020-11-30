@@ -26,6 +26,7 @@ import java.util.Locale;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 
 import static com.myapp.lexicon.main.MainActivity.serviceIntent;
@@ -43,6 +44,8 @@ public class ServiceActivity extends AppCompatActivity
     public static TextToSpeech speech;
     public static HashMap<String, String> map = new HashMap<>();
     private AppData appData;
+
+    private final CompositeDisposable composite = new CompositeDisposable();
 
     public interface IStopServiceByUser
     {
@@ -96,13 +99,14 @@ public class ServiceActivity extends AppCompatActivity
 
         if (displayMode == 0)
         {
-            String json = getIntent().getStringExtra(ModalFragment.ARG_JSON);
+            String json = getIntent().getStringExtra(AppData.ARG_JSON);
             ModalFragment modalFragment = ModalFragment.newInstance(json);
             getSupportFragmentManager().beginTransaction().add(R.id.fragment_frame, modalFragment).commit();
         }
         else if (displayMode == 1)
         {
-            TestModalFragment testModalFragment = TestModalFragment.newInstance(null, null);
+            String json = getIntent().getStringExtra(AppData.ARG_JSON);
+            TestModalFragment testModalFragment = TestModalFragment.newInstance(json);
             getSupportFragmentManager().beginTransaction().add(R.id.fragment_frame, testModalFragment).commit();
         } else return;
 
@@ -156,7 +160,7 @@ public class ServiceActivity extends AppCompatActivity
                 ArrayList<String> playList = appData.getPlayList();
                 String dictName = playList.get(appData.getNdict());
                 AppDB db = new AppDB(new DatabaseHelper(this));
-                db.getEntriesAndCountersAsync(dictName, appData.getNword(), "ASC")
+                composite.add(db.getEntriesAndCountersAsync(dictName, appData.getNword(), "ASC")
                         .observeOn(Schedulers.computation())
                         .subscribeOn(AndroidSchedulers.mainThread())
                         .subscribe(entries -> {
@@ -182,10 +186,10 @@ public class ServiceActivity extends AppCompatActivity
                                 {
                                     MainActivity.serviceIntent = new Intent(this, LexiconService.class);
                                 }
-                                serviceIntent.putExtra(ModalFragment.ARG_JSON, json);
+                                serviceIntent.putExtra(AppData.ARG_JSON, json);
                                 startService(MainActivity.serviceIntent);
                             }
-                        }, throwable -> throwable.printStackTrace());
+                        }, Throwable::printStackTrace));
 
             }
             if (LexiconService.stopedByUser)

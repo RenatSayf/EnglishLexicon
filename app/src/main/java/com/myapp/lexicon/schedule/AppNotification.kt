@@ -12,11 +12,11 @@ import androidx.core.app.NotificationCompat
 import androidx.preference.PreferenceManager
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
-import com.google.gson.reflect.TypeToken
 import com.myapp.lexicon.R
 import com.myapp.lexicon.database.DataBaseEntry
 import com.myapp.lexicon.service.ModalFragment
 import com.myapp.lexicon.service.ServiceActivity
+import com.myapp.lexicon.settings.AppData
 
 class AppNotification constructor(private val context: Context) : Notification()
 {
@@ -39,19 +39,15 @@ class AppNotification constructor(private val context: Context) : Notification()
     {
         val actionIntent = Intent(Intent.ACTION_MAIN)
         actionIntent.setClass(context, ServiceActivity::class.java).apply {
-            putExtra(ModalFragment.ARG_JSON, json)
+            putExtra(AppData.ARG_JSON, json)
             flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
         }
 
         var pair: Pair<Map<String, Int>, List<DataBaseEntry>>? = null
-        val type = object : TypeToken<Pair<Map<String?, Int?>?, List<DataBaseEntry?>?>?>()
-        {}.type
-
         try
         {
-            val obj = Gson().fromJson<Any>(json, type)
             @Suppress("UNCHECKED_CAST")
-            pair = obj as Pair<Map<String, Int>, List<DataBaseEntry>>
+            pair = Gson().fromJson<Any>(json, AppData.jsonType) as Pair<Map<String, Int>, List<DataBaseEntry>>
         }
         catch (e: JsonSyntaxException)
         {
@@ -73,7 +69,6 @@ class AppNotification constructor(private val context: Context) : Notification()
                 setContentText("?????????????")
             }
             else setContentText(pair?.second?.get(0)?.translate ?: "JSON ERROR!!!!!!!!!!!!!!!!!!")
-
         }.build()
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
