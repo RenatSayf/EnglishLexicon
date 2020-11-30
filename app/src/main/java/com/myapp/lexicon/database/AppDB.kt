@@ -321,7 +321,7 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
     }
 
     @Suppress("RedundantSamConstructor")
-    fun getEntriesAndAmountAsync(tableName: String, rowId: Int, order: String = "ASC") : Observable<Pair<MutableMap<String, Int>, MutableList<DataBaseEntry>>>
+    fun getEntriesAndCountersAsync(tableName: String, rowId: Int, order: String = "ASC") : Observable<Pair<MutableMap<String, Int>, MutableList<DataBaseEntry>>>
     {
         var countsList: MutableMap<String, Int> = mutableMapOf()
         return Observable.concat(ObservableSource { observer ->

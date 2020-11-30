@@ -224,6 +224,16 @@ public class ModalFragment extends Fragment
             checkBoxRu_OnCheckedChange(checkBoxRu);
 
             orderPlayIcon = fragmentView.findViewById(R.id.order_play_icon_iv_modal);
+            if (appSettings.getOrderPlay() == 0)
+            {
+                int ic_repeat_white = R.drawable.ic_repeat_white;
+                orderPlayIcon.setImageResource(R.drawable.ic_repeat_white);
+            }
+            if (appSettings.getOrderPlay() == 1)
+            {
+                int ic_shuffle_white = R.drawable.ic_shuffle_white;
+                orderPlayIcon.setImageResource(R.drawable.ic_shuffle_white);
+            }
         }
 
         return fragmentView;
@@ -233,14 +243,7 @@ public class ModalFragment extends Fragment
     public void onResume()
     {
         super.onResume();
-        if (appSettings.getOrderPlay() == 0)
-        {
-            orderPlayIcon.setImageResource(R.drawable.ic_repeat_white);
-        }
-        if (appSettings.getOrderPlay() == 1)
-        {
-            orderPlayIcon.setImageResource(R.drawable.ic_shuffle_white);
-        }
+
     }
 
 //    private void getRandomWordsFromDB()

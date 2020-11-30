@@ -125,7 +125,7 @@ class LexiconService : Service(), IStopServiceByUser
                         val playList = appData.playList
                         val dictName = playList[appData.ndict]
                         val db = AppDB(DatabaseHelper(context))
-                        db.getEntriesAndAmountAsync(dictName, appData.nword, "ASC")
+                        db.getEntriesAndCountersAsync(dictName, appData.nword, "ASC")
                                 .subscribeOn(Schedulers.computation())
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(Consumer { pair ->

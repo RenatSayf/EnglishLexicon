@@ -25,7 +25,6 @@ import java.util.Locale;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
@@ -157,7 +156,7 @@ public class ServiceActivity extends AppCompatActivity
                 ArrayList<String> playList = appData.getPlayList();
                 String dictName = playList.get(appData.getNdict());
                 AppDB db = new AppDB(new DatabaseHelper(this));
-                db.getEntriesAndAmountAsync(dictName, appData.getNword(), "ASC")
+                db.getEntriesAndCountersAsync(dictName, appData.getNword(), "ASC")
                         .observeOn(Schedulers.computation())
                         .subscribeOn(AndroidSchedulers.mainThread())
                         .subscribe(entries -> {

@@ -8,6 +8,7 @@ import com.google.gson.Gson
 import com.myapp.lexicon.R
 import com.myapp.lexicon.database.AppDB
 import com.myapp.lexicon.database.DatabaseHelper
+import com.myapp.lexicon.service.ModalFragment
 import com.myapp.lexicon.service.ServiceActivity
 import com.myapp.lexicon.settings.AppData
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -26,88 +27,92 @@ class TimerReceiver : BroadcastReceiver()
             {
                 AlarmScheduler.REPEAT_SHOOT_ACTION ->
                 {
-
                     val displayVariant = preferences.getString(context.getString(R.string.key_display_variant), "0")
+                    val displayMode = preferences.getString(context.getString(R.string.key_list_display_mode), "0")
                     println("********************* displayVariant = $displayVariant *********************")
-                    when (displayVariant!!.toInt())
-                    {
-                        0 ->
-                        {
-                            val intentAct = Intent(context, ServiceActivity::class.java).apply {
-                                action = Intent.ACTION_MAIN
-                                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                            }
-                            context.startActivity(intentAct)
-                        }
-                        1 ->
-                        {
-                            val appData = AppData.getInstance()
-                            val playList = appData.playList
-                            val dictName = playList[appData.ndict]
-                            val displayMode = preferences.getString(context.getString(R.string.key_list_display_mode), "0")
-                            val db = AppDB(DatabaseHelper(context))
-                            when (displayMode)
-                            {
-                                "0" ->
+                    val appData = AppData.getInstance()
+                    val playList = appData.playList
+                    val dictName = playList[appData.ndict]
+                    val db = AppDB(DatabaseHelper(context))
+
+                    db.getEntriesAndCountersAsync(dictName, appData.nword)
+                            .observeOn(Schedulers.computation())
+                            .subscribeOn(AndroidSchedulers.mainThread())
+                            .subscribe({ pair ->
+
+                                val json = Gson().toJson(pair)
+                                if (pair.second.size > 1)
                                 {
-                                    db.getEntriesAndAmountAsync(dictName, appData.nword)
-                                            .observeOn(Schedulers.computation())
-                                            .subscribeOn(AndroidSchedulers.mainThread())
-                                            .subscribe({ pair ->
-
-                                                val json = Gson().toJson(pair)
-
-                                                if (pair.second.size > 0)
-                                                {
-                                                    AppNotification(context).apply {
-                                                        create(json)
-                                                        show()
-                                                    }
-                                                }
-                                                if (pair.second.size > 1)
-                                                {
-                                                    appData.nword = pair.second[1].rowId
-                                                }
-                                                if (pair.second.size == 1)
-                                                {
-                                                    appData.nword = 1
-                                                    if (appData.ndict in 0..playList.size - 2)
-                                                    {
-                                                        appData.ndict++
-                                                    }
-                                                    else appData.ndict = 0
-                                                }
-                                            }, { t ->
-                                                t.printStackTrace()
-                                            })
+                                    appData.nword = pair.second[1].rowId
                                 }
-                                "1" ->
+                                if (pair.second.size == 1)
                                 {
-                                    db.getEntriesAndAmountAsync(dictName, appData.nword)
-                                            .observeOn(Schedulers.computation())
-                                            .subscribeOn(AndroidSchedulers.mainThread())
-                                            .subscribe({ pair ->
-
-                                                val json = Gson().toJson(pair)
-
-                                                if (pair.second.size > 0)
-                                                {
-                                                    AppNotification(context).apply {
-                                                        create(json)
-                                                        show()
-                                                    }
-                                                }
-                                            }, { t ->
-                                                t.printStackTrace()
-                                            })
-
+                                    appData.nword = 1
+                                    if (appData.ndict in 0..playList.size - 2)
+                                    {
+                                        appData.ndict++
+                                    }
+                                    else appData.ndict = 0
                                 }
-                            }
-                        }
-                    }
+
+                                when (displayVariant!!.toInt())
+                                {
+                                    0 ->
+                                    {
+                                        if (pair.second.size > 0)
+                                        {
+                                            val intentAct = Intent(context, ServiceActivity::class.java).apply {
+                                                action = Intent.ACTION_MAIN
+                                                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                                addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                                                putExtra(ModalFragment.ARG_JSON, json)
+                                            }
+                                            context.startActivity(intentAct)
+                                        }
+                                    }
+                                    1 ->
+                                    {
+                                        if (pair.second.size > 0)
+                                        {
+                                            AppNotification(context).apply {
+                                                create(json)
+                                                show()
+                                            }
+                                        }
+
+//                                        when (displayMode)
+//                                        {
+//                                            "0" ->
+//                                            {
+//                                                if (pair.second.size > 0)
+//                                                {
+//                                                    AppNotification(context).apply {
+//                                                        create(json)
+//                                                        show()
+//                                                    }
+//                                                }
+//                                            }
+//                                            "1" ->
+//                                            {
+//                                                if (pair.second.size > 0)
+//                                                {
+//                                                    AppNotification(context).apply {
+//                                                        create(json)
+//                                                        show()
+//                                                    }
+//                                                }
+//                                            }
+//                                        }
+                                    }
+                                }
+
+                            }, { t ->
+                                t.printStackTrace()
+                            })
+
+
                 }
             }
         }

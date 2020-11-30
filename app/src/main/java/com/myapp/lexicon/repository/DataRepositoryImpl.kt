@@ -2,12 +2,9 @@ package com.myapp.lexicon.repository
 
 import com.myapp.lexicon.database.AppDB
 import com.myapp.lexicon.database.DataBaseEntry
-import com.myapp.lexicon.database.DatabaseHelper
 import com.myapp.lexicon.settings.AppSettings
 import io.reactivex.Observable
 import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import java.util.*
 import javax.inject.Inject
 
@@ -45,6 +42,6 @@ class DataRepositoryImpl @Inject constructor(private val appDB: AppDB, private v
 
     override fun getEntriesAndCountersFromDb(tableName: String, rowId: Int, order: String): Observable<Pair<MutableMap<String, Int>, MutableList<DataBaseEntry>>>
     {
-        return appDB.getEntriesAndAmountAsync(tableName, rowId, order)
+        return appDB.getEntriesAndCountersAsync(tableName, rowId, order)
     }
 }
