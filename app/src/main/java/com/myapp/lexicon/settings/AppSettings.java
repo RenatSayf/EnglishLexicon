@@ -228,26 +228,30 @@ public class AppSettings
     public void set_N_Dict(int number)
     {
         context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putInt(KEY_N_DICT, number).apply();
-        ArrayList<String> list = getPlayList();
-        if (list != null && list.size() > 0 && number >= 0)
-        {
-            try
-            {
-                setCurrentDict(list.get(number));
-            } catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-        }
+//        ArrayList<String> list = getPlayList();
+//        if (list != null && list.listIterator(number).hasNext()/*.size() > 0 && number >= 0*/)
+//        {
+//            try
+//            {
+//                setCurrentDict(list.get(number));
+//            } catch (IndexOutOfBoundsException e)
+//            {
+//                //e.printStackTrace();
+//                if (list.size() > 0)
+//                {
+//                    setCurrentDict(list.get(0));
+//                }
+//            }
+//        }
     }
 
     public int getDictNumber()
     {
         int dictNumber = context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getInt(KEY_N_DICT, 0);
-        if (dictNumber < 0 || dictNumber > getPlayList().size() - 1)
-        {
-            dictNumber = 0;
-        }
+//        if (dictNumber < 0 || dictNumber > getPlayList().size() - 1)
+//        {
+//            dictNumber = 0;
+//        }
         return dictNumber;
     }
 
@@ -321,18 +325,21 @@ public class AppSettings
 
     public void keepForward(LinkedList<DataBaseEntry> entries)
     {
-        if (entries != null && entries.size() > 1)
+        if (entries != null)
         {
-            set_N_Word(entries.get(1).getRowId());
-        }
-        if (entries != null && (entries.size() == 1 || entries.isEmpty()))
-        {
-            set_N_Word(1);
-            if (getPlayList().listIterator(getDictNumber()).hasNext())
+            if (entries.size() > 1)
             {
-                set_N_Dict(getDictNumber() + 1);
+                set_N_Word(entries.get(1).getRowId());
             }
-            else set_N_Dict(0);
+            if ((entries.size() == 1 || entries.isEmpty()))
+            {
+                set_N_Word(1);
+                if (getDictNumber() >= 0 && getDictNumber() <= getPlayList().size() - 2)
+                {
+                    set_N_Dict(getDictNumber() + 1);
+                }
+                else set_N_Dict(0);
+            }
         }
     }
 

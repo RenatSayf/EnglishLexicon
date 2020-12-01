@@ -135,7 +135,7 @@ public class TestModalFragment extends Fragment
                 }
 
                 composite.add(
-                        viewModel.getRandomEntries(pair.getSecond().get(0).getDictName(), pair.getSecond().get(0).getRowId(), "ASC")
+                        viewModel.getRandomEntries(pair.getSecond().get(0).getDictName(), pair.getSecond().get(0).getRowId())
                         .observeOn(Schedulers.computation())
                         .subscribeOn(AndroidSchedulers.mainThread())
                         .subscribe(entries -> {

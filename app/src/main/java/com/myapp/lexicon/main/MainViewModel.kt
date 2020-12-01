@@ -59,9 +59,9 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
         return repository.getEntriesAndCountersFromDb(dictName, rowId, order)
     }
 
-    fun getRandomEntries(dictName: String, rowId: Int, order: String) : Single<MutableList<DataBaseEntry>>
+    fun getRandomEntries(dictName: String, rowId: Int) : Single<MutableList<DataBaseEntry>>
     {
-        return repository.getRandomEntriesFromDb(dictName, rowId, order)
+        return repository.getRandomEntriesFromDb(dictName, rowId)
     }
 
     override fun onCleared()

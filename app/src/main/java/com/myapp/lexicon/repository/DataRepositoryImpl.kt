@@ -40,9 +40,9 @@ class DataRepositoryImpl @Inject constructor(private val appDB: AppDB, private v
         return appDB.dropTableFromDb(tableName)
     }
 
-    override fun getRandomEntriesFromDb(tableName: String, rowId: Int, order: String): Single<MutableList<DataBaseEntry>>
+    override fun getRandomEntriesFromDb(tableName: String, rowId: Int): Single<MutableList<DataBaseEntry>>
     {
-        return appDB.getRandomEntriesFromDbAsync(tableName, rowId, order)
+        return appDB.getRandomEntriesFromDbAsync(tableName, rowId)
     }
 
     override fun getEntriesAndCountersFromDb(tableName: String, rowId: Int, order: String): Observable<Pair<MutableMap<String, Int>, MutableList<DataBaseEntry>>>

@@ -185,7 +185,46 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
         }
     }
 
-    private fun getRandomEntriesFromDb(tableName: String, rowId: Int, order: String) : MutableList<DataBaseEntry>
+    private fun getEntriesFromDb(tableName: String, rowId: Int, order: String) : MutableList<DataBaseEntry>
+    {
+        val table = StringOperations.getInstance().spaceToUnderscore(tableName)
+        val entriesFromDB = LinkedList<DataBaseEntry>()
+        var dataBaseEntry: DataBaseEntry
+        var cursor: Cursor? = null
+        try
+        {
+            var compare = ">="
+            if (order == "DESC") compare = "<="
+            dbHelper.open()
+            if (dbHelper.database.isOpen)
+            {
+                val cmd = "SELECT RowId, English, Translate, CountRepeat FROM $table WHERE RowId $compare $rowId AND CountRepeat <> 0 ORDER BY RowId $order LIMIT 2"
+                cursor = dbHelper.database.rawQuery(cmd, null)
+                if (cursor.moveToFirst())
+                {
+                    while (!cursor.isAfterLast)
+                    {
+                        dataBaseEntry = DataBaseEntry(cursor.getInt(0), tableName, cursor.getString(1), cursor.getString(2), cursor.getString(3))
+                        entriesFromDB.add(dataBaseEntry)
+                        cursor.moveToNext()
+                    }
+                }
+            }
+        }
+        catch (e: Exception)
+        {
+            e.printStackTrace()
+            return LinkedList<DataBaseEntry>()
+        }
+        finally
+        {
+            cursor?.close()
+            dbHelper.close()
+        }
+        return entriesFromDB
+    }
+
+    private fun getRandomEntriesFromDb(tableName: String, rowId: Int) : MutableList<DataBaseEntry>
     {
         val table = StringOperations.getInstance().spaceToUnderscore(tableName)
         val entriesFromDB = LinkedList<DataBaseEntry>()
@@ -229,12 +268,12 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
      * return Single<LinkedList<DataBaseEntry>> Возвращает 1 случайную запись из таблицы где ROWID записи
      * не равен параметру rowId
      */
-    fun getRandomEntriesFromDbAsync(tableName: String, rowId: Int, order: String = "ASC") : Single<MutableList<DataBaseEntry>>
+    fun getRandomEntriesFromDbAsync(tableName: String, rowId: Int) : Single<MutableList<DataBaseEntry>>
     {
         return Single.create { emitter ->
             try
             {
-                val entries = getRandomEntriesFromDb(tableName, rowId, order)
+                val entries = getRandomEntriesFromDb(tableName, rowId)
                 emitter.onSuccess(LinkedList(entries))
             }
             catch (e: Exception)
@@ -339,7 +378,7 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
                 observer.onComplete()
             }
         }, ObservableSource { observer ->
-            val entries = getRandomEntriesFromDb(tableName, rowId, order)
+            val entries = getEntriesFromDb(tableName, rowId, order)
             try
             {
                 observer.onNext(Pair(countsList, entries))

@@ -71,6 +71,8 @@ class AppNotification constructor(private val context: Context) : Notification()
             else setContentText(pair?.second?.get(0)?.translate ?: "JSON ERROR!!!!!!!!!!!!!!!!!!")
         }.build()
 
+        println("******************************* ${ pair?.second?.get(0)?.english ?: "JSON ERROR!!!!!!!!!!!!!!!!!!" }***********************")
+
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
         {

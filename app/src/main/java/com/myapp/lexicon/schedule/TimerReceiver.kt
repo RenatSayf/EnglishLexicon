@@ -40,7 +40,7 @@ class TimerReceiver : BroadcastReceiver()
 
                     val db = AppDB(DatabaseHelper(context))
 
-                    when(orderPlay)
+                    when (orderPlay)
                     {
                         0 ->
                         {
@@ -49,14 +49,13 @@ class TimerReceiver : BroadcastReceiver()
                                     .subscribeOn(AndroidSchedulers.mainThread())
                                     .subscribe({ pair ->
 
-                                        settings.keepForward(pair.second as LinkedList<DataBaseEntry>)
-                                        val json = Gson().toJson(pair)
-
-                                        when (displayVariant)
+                                        if (pair.second.size > 0)
                                         {
-                                            "0" ->
+                                            settings.keepForward(pair.second as LinkedList<DataBaseEntry>)
+                                            val json = Gson().toJson(pair)
+                                            when (displayVariant)
                                             {
-                                                if (pair.second.size > 0)
+                                                "0" ->
                                                 {
                                                     val intentAct = Intent(context, ServiceActivity::class.java).apply {
                                                         action = Intent.ACTION_MAIN
@@ -67,11 +66,9 @@ class TimerReceiver : BroadcastReceiver()
                                                         putExtra(AppData.ARG_JSON, json)
                                                     }
                                                     context.startActivity(intentAct)
+
                                                 }
-                                            }
-                                            "1" ->
-                                            {
-                                                if (pair.second.size > 0)
+                                                "1" ->
                                                 {
                                                     AppNotification(context).apply {
                                                         create(json)
@@ -90,8 +87,6 @@ class TimerReceiver : BroadcastReceiver()
 
                         }
                     }
-
-
 
 
                 }

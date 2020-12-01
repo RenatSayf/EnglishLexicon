@@ -326,7 +326,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (playList.size() > 0)
         {
-            mainViewModel.getAllWordsFromDict(playList.get(appData.getNdict()));
+            try
+            {
+                mainViewModel.getAllWordsFromDict(playList.get(appSettings.getDictNumber()));
+            } catch (IndexOutOfBoundsException e)
+            {
+                appSettings.set_N_Dict(0);
+                mainViewModel.getAllWordsFromDict(playList.get(appSettings.getDictNumber()));
+            }
         }
 
         if (appSettings.getOrderPlay() == 0)
