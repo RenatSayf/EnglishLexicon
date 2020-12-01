@@ -356,7 +356,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onDestroy()
     {
         super.onDestroy();
-        composite.dispose();
+        //composite.dispose();
         if (databaseHelper != null)
         {
             databaseHelper.close();
@@ -955,9 +955,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     String json = new Gson().toJson(pairs);
                                     serviceIntent.putExtra(AppData.ARG_JSON, json);
                                     startService(serviceIntent);
+                                    composite.dispose();
+                                    composite.clear();
+                                }
+                                if (pairs == null || (pairs.getFirst().size() == 0 && pairs.getSecond().size() == 0))
+                                {
+                                    composite.dispose();
+                                    composite.clear();
                                 }
 
-                            }, Throwable::printStackTrace));
+                            }, throwable -> {
+                                composite.dispose();
+                                composite.clear();
+                                throwable.printStackTrace();
+                            }));
         }
     }
 

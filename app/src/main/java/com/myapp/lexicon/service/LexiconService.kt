@@ -10,8 +10,10 @@ import androidx.preference.PreferenceManager
 import com.google.gson.Gson
 import com.myapp.lexicon.R
 import com.myapp.lexicon.database.AppDB
+import com.myapp.lexicon.database.DataBaseEntry
 import com.myapp.lexicon.database.DatabaseHelper
 import com.myapp.lexicon.schedule.AppNotification
+import com.myapp.lexicon.schedule.TimerReceiver
 import com.myapp.lexicon.service.ServiceActivity.IStopServiceByUser
 import com.myapp.lexicon.settings.AppData
 import com.myapp.lexicon.settings.AppSettings
@@ -29,7 +31,8 @@ class LexiconService : Service(), IStopServiceByUser
     }
 
     private var oldLocale: Locale? = null
-    private var receiver: PhoneUnlockedReceiver? = null
+    //private var receiver: PhoneUnlockedReceiver? = null
+    private var receiver: TimerReceiver? = null
     private var startId = 0
 
     override fun onBind(intent: Intent): IBinder?
@@ -41,7 +44,8 @@ class LexiconService : Service(), IStopServiceByUser
     {
         super.onCreate()
         oldLocale = resources.configuration.locale
-        receiver = PhoneUnlockedReceiver()
+        //receiver = PhoneUnlockedReceiver()
+        receiver = TimerReceiver()
         val filter = IntentFilter()
         filter.addAction(Intent.ACTION_USER_PRESENT)
         filter.addAction(Intent.ACTION_SCREEN_OFF)
@@ -106,6 +110,11 @@ class LexiconService : Service(), IStopServiceByUser
             val displayVariant = preferences.getString(context.getString(R.string.key_display_variant), "0")
             val displayMode = preferences.getString(context.getString(R.string.key_list_display_mode), "0")
             val action = intent.action
+            val settings = AppSettings(context)
+            val orderPlay = settings.orderPlay
+            val playList = settings.playList
+            val dictName = playList[settings.dictNumber]
+            val nWord = settings.wordNumber
             //String actionUserPresent = Intent.ACTION_USER_PRESENT;
             val actionScreenOff = Intent.ACTION_SCREEN_OFF
             if (action != null)
@@ -121,11 +130,9 @@ class LexiconService : Service(), IStopServiceByUser
                     }
                     if (displayVariant == "1")
                     {
-                        val appData = AppData.getInstance()
-                        val playList = appData.playList
-                        val dictName = playList[appData.ndict]
+
                         val db = AppDB(DatabaseHelper(context))
-                        db.getEntriesAndCountersAsync(dictName, appData.nword, "ASC")
+                        db.getEntriesAndCountersAsync(dictName, settings.wordNumber, "ASC")
                                 .subscribeOn(Schedulers.computation())
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(Consumer { pair ->
@@ -138,19 +145,7 @@ class LexiconService : Service(), IStopServiceByUser
                                             appNotification.create(json)
                                             appNotification.show()
                                         }
-                                        if (pair.second.size > 1)
-                                        {
-                                            appData.nword = pair.second[1].rowId
-                                        }
-                                        if (pair.second.size == 1)
-                                        {
-                                            appData.nword = 1
-                                            if (appData.ndict >= 0 && appData.ndict <= playList.size - 2)
-                                            {
-                                                appData.ndict = appData.ndict + 1
-                                            }
-                                            else appData.ndict = 0
-                                        }
+                                        settings.keepForward(pair.second as LinkedList<DataBaseEntry>)
                                     }
                                     if (displayMode == "1")
                                     {

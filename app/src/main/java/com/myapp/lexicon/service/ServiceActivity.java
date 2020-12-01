@@ -14,6 +14,7 @@ import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.main.MainActivity;
 import com.myapp.lexicon.main.MainActivityOnStart;
 import com.myapp.lexicon.settings.AppData;
+import com.myapp.lexicon.settings.AppSettings;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -25,6 +26,7 @@ import java.util.Locale;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
@@ -35,7 +37,7 @@ import static com.myapp.lexicon.main.MainActivity.serviceIntent;
  * Created by Renat
  */
 
-//@AndroidEntryPoint
+@AndroidEntryPoint
 public class ServiceActivity extends AppCompatActivity
 {
     private int displayVariant = 0;
@@ -157,27 +159,16 @@ public class ServiceActivity extends AppCompatActivity
         {
             if (displayVariant == 1 && !LexiconService.stopedByUser)
             {
-                ArrayList<String> playList = appData.getPlayList();
-                String dictName = playList.get(appData.getNdict());
+                AppSettings appSettings = new AppSettings(this);
+                ArrayList<String> playList = appSettings.getPlayList();
+                String dictName = playList.get(appSettings.getDictNumber());
                 AppDB db = new AppDB(new DatabaseHelper(this));
-                composite.add(db.getEntriesAndCountersAsync(dictName, appData.getNword(), "ASC")
+
+                composite.add(db.getEntriesAndCountersAsync(dictName, appSettings.getWordNumber(), "ASC")
                         .observeOn(Schedulers.computation())
                         .subscribeOn(AndroidSchedulers.mainThread())
                         .subscribe(entries -> {
 
-                            if (entries.getSecond().size() > 1)
-                            {
-                                appData.setNword(entries.getSecond().get(1).getRowId());
-                            }
-                            if (entries.getSecond().size() == 1)
-                            {
-                                appData.setNword(1);
-                                if (appData.getNdict() >= 0 && appData.getNdict() <= playList.size() - 2)
-                                {
-                                    appData.setNdict(appData.getNdict() + 1);
-                                }
-                                else appData.setNdict(0);
-                            }
                             if (entries.getSecond().size() > 0)
                             {
                                 Pair pair = new Pair(entries.getFirst(), entries.getSecond());
