@@ -145,7 +145,7 @@ class LexiconService : Service(), IStopServiceByUser
                                             appNotification.create(json)
                                             appNotification.show()
                                         }
-                                        settings.keepForward(pair.second as LinkedList<DataBaseEntry>)
+                                        settings.goForward(pair.second as LinkedList<DataBaseEntry>)
                                     }
                                     if (displayMode == "1")
                                     {

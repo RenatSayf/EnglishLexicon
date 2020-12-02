@@ -49,7 +49,7 @@ class TimerReceiver : BroadcastReceiver()
 
                                     if (pair.second.size > 0)
                                     {
-                                        settings.keepForward(pair.second as LinkedList<DataBaseEntry>)
+                                        settings.goForward(pair.second as LinkedList<DataBaseEntry>)
                                         val json = Gson().toJson(pair)
                                         when (displayVariant)
                                         {

@@ -323,7 +323,7 @@ public class AppSettings
         return transLang;
     }
 
-    public void keepForward(LinkedList<DataBaseEntry> entries)
+    public void goForward(LinkedList<DataBaseEntry> entries)
     {
         if (entries != null)
         {

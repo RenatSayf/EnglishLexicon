@@ -10,6 +10,7 @@ import android.util.Pair;
 import com.google.gson.Gson;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.AppDB;
+import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.main.MainActivity;
 import com.myapp.lexicon.main.MainActivityOnStart;
@@ -22,6 +23,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Locale;
 
 import androidx.annotation.Nullable;
@@ -45,7 +47,6 @@ public class ServiceActivity extends AppCompatActivity
     public static IStopServiceByUser iStopServiceByUser;
     public static TextToSpeech speech;
     public static HashMap<String, String> map = new HashMap<>();
-    private AppData appData;
 
     private final CompositeDisposable composite = new CompositeDisposable();
 
@@ -77,25 +78,20 @@ public class ServiceActivity extends AppCompatActivity
             stopService(MainActivity.serviceIntent);
         }
 
-        speech = new TextToSpeech(this, new TextToSpeech.OnInitListener()
-        {
-            @Override
-            public void onInit(int status)
+        speech = new TextToSpeech(this, status -> {
+            if (status == TextToSpeech.SUCCESS )
             {
-                if (status == TextToSpeech.SUCCESS )
+                int resultEn = speech.isLanguageAvailable(Locale.US);
+                if (resultEn == TextToSpeech.LANG_COUNTRY_AVAILABLE)
                 {
-                    int resultEn = speech.isLanguageAvailable(Locale.US);
-                    if (resultEn == TextToSpeech.LANG_COUNTRY_AVAILABLE)
-                    {
-                        map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.US.getDisplayLanguage());
-                        speech.setLanguage(Locale.US);
-                        speech.stop();
-                    }
+                    map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.US.getDisplayLanguage());
+                    speech.setLanguage(Locale.US);
+                    speech.stop();
                 }
-                if (status == TextToSpeech.LANG_NOT_SUPPORTED || status == TextToSpeech.LANG_MISSING_DATA)
-                {
-                    stopService(serviceIntent);
-                }
+            }
+            if (status == TextToSpeech.LANG_NOT_SUPPORTED || status == TextToSpeech.LANG_MISSING_DATA)
+            {
+                stopService(serviceIntent);
             }
         });
 
@@ -112,7 +108,7 @@ public class ServiceActivity extends AppCompatActivity
             getSupportFragmentManager().beginTransaction().add(R.id.fragment_frame, testModalFragment).commit();
         } else return;
 
-        appData = AppData.getInstance();
+        AppData appData = AppData.getInstance();
 
         int count = appData.getUnLookPhoneCount();
         count++;
@@ -155,6 +151,12 @@ public class ServiceActivity extends AppCompatActivity
     @Override
     protected void onPause()
     {
+        super.onPause();
+    }
+
+    @Override
+    public void onDetachedFromWindow()
+    {
         if (isServiceEnabled)
         {
             if (displayVariant == 1 && !LexiconService.stopedByUser)
@@ -167,20 +169,31 @@ public class ServiceActivity extends AppCompatActivity
                 composite.add(db.getEntriesAndCountersAsync(dictName, appSettings.getWordNumber(), "ASC")
                         .observeOn(Schedulers.computation())
                         .subscribeOn(AndroidSchedulers.mainThread())
-                        .subscribe(entries -> {
+                        .subscribe(pair -> {
 
-                            if (entries.getSecond().size() > 0)
+                            if (pair.getSecond().size() > 0)
                             {
-                                Pair pair = new Pair(entries.getFirst(), entries.getSecond());
-                                String json = new Gson().toJson(pair);
+                                appSettings.goForward((LinkedList<DataBaseEntry>) pair.getSecond());
+                                String json = new Gson().toJson(new Pair(pair.getFirst(), pair.getSecond()));
                                 if (MainActivity.serviceIntent == null)
                                 {
                                     MainActivity.serviceIntent = new Intent(this, LexiconService.class);
                                 }
                                 serviceIntent.putExtra(AppData.ARG_JSON, json);
                                 startService(MainActivity.serviceIntent);
+                                composite.dispose();
+                                composite.clear();
                             }
-                        }, Throwable::printStackTrace));
+                            if (pair == null || (pair.getFirst().size() == 0 && pair.getSecond().size() == 0))
+                            {
+                                composite.dispose();
+                                composite.clear();
+                            }
+                        }, throwable -> {
+                            composite.dispose();
+                            composite.clear();
+                            throwable.printStackTrace();
+                        }));
 
             }
             if (LexiconService.stopedByUser)
@@ -192,7 +205,7 @@ public class ServiceActivity extends AppCompatActivity
                 LexiconService.stopedByUser = false;
             }
         }
-        super.onPause();
+        super.onDetachedFromWindow();
     }
 
     @Override
