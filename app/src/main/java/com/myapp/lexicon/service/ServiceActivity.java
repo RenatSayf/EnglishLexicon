@@ -175,16 +175,19 @@ public class ServiceActivity extends AppCompatActivity
                             {
                                 appSettings.goForward((LinkedList<DataBaseEntry>) pair.getSecond());
                                 String json = new Gson().toJson(new Pair(pair.getFirst(), pair.getSecond()));
-                                if (MainActivity.serviceIntent == null)
+                                if (!MainActivity.isActivityRunning)
                                 {
-                                    MainActivity.serviceIntent = new Intent(this, LexiconService.class);
+                                    if (MainActivity.serviceIntent == null)
+                                    {
+                                        MainActivity.serviceIntent = new Intent(this, LexiconService.class);
+                                    }
+                                    serviceIntent.putExtra(AppData.ARG_JSON, json);
+                                    startService(MainActivity.serviceIntent);
                                 }
-                                serviceIntent.putExtra(AppData.ARG_JSON, json);
-                                startService(MainActivity.serviceIntent);
                                 composite.dispose();
                                 composite.clear();
                             }
-                            if (pair == null || (pair.getFirst().size() == 0 && pair.getSecond().size() == 0))
+                            if (pair.getFirst().size() == 0 && pair.getSecond().size() == 0)
                             {
                                 composite.dispose();
                                 composite.clear();

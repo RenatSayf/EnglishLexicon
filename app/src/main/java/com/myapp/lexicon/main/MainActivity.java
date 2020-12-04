@@ -140,7 +140,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.a_navig_main);
 
         NotificationManager nmg = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        nmg.cancelAll();
+        if (nmg != null)
+        {
+            nmg.cancelAll();
+        }
         scheduler.cancel(AlarmScheduler.REQUEST_CODE, AlarmScheduler.REPEAT_SHOOT_ACTION);
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
@@ -914,16 +917,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
+    public static Boolean isActivityRunning = false;
+
     @Override
     public void onAttachedToWindow()
     {
         super.onAttachedToWindow();
+        isActivityRunning = true;
     }
 
     @Override
     public void onDetachedFromWindow()
     {
         super.onDetachedFromWindow();
+        isActivityRunning = false;
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         boolean isUseService = preferences.getBoolean("service", true);
         if (appSettings.getPlayList().size() > 0 && isUseService)
@@ -958,7 +965,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     composite.dispose();
                                     composite.clear();
                                 }
-                                if (pairs == null || (pairs.getFirst().size() == 0 && pairs.getSecond().size() == 0))
+                                if (pairs.getFirst().size() == 0 && pairs.getSecond().size() == 0)
                                 {
                                     composite.dispose();
                                     composite.clear();
