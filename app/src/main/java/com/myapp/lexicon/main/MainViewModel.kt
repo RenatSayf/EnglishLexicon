@@ -34,19 +34,14 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
         _playList.value = repository.getTableListFromSettings()
     }
 
-    fun getAllWordsFromDict(dictName: String)
+    private var _wordsList = MutableLiveData<LinkedList<DataBaseEntry>>().apply {
+        value = wordsList?.value
+    }
+    var wordsList: LiveData<LinkedList<DataBaseEntry>> = _wordsList
+
+    fun getAllWordsFromDict(dictName: String): Single<LinkedList<DataBaseEntry>>
     {
-         val subscribe = repository.getAllFromTable(dictName)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe({ list: LinkedList<DataBaseEntry>? ->
-
-                    val list1 = list
-
-                }, { e: Throwable? ->
-                    e?.printStackTrace()
-                })
-        composite.add(subscribe)
+         return repository.getAllFromTable(dictName)
     }
 
     fun deleteDict(dictName: String) : Single<Boolean>

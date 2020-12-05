@@ -79,6 +79,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.viewpager2.widget.ViewPager2;
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -115,6 +116,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private LinkedList<String> playList = new LinkedList<>();
     private DataBaseQueries dataBaseQueries;
     private Locale localeDefault;
+    private ViewPager2 mainViewPager;
 
     private final String KEY_ENG_TEXT = "eng_text";
     private final String KEY_RU_TEXT = "ru_text";
@@ -138,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a_navig_main);
-
+        fragmentManager = getSupportFragmentManager();
         NotificationManager nmg = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (nmg != null)
         {
@@ -146,9 +148,58 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         scheduler.cancel(AlarmScheduler.REQUEST_CODE, AlarmScheduler.REPEAT_SHOOT_ACTION);
 
+        appSettings = new AppSettings(this);
+        appData = AppData.getInstance();
+        appData.initAllSettings(this);
+
+        initViews();
+
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
-        fragmentManager = getSupportFragmentManager();
+        mainViewModel.setPlayList();
+        mainViewModel.getPlayList().observe(this, list -> {
+            playList = list;
+            if (playList.size() == 0)
+            {
+                speechServiceOnStop();
+                textViewDict.setText("");
+                tvWordsCounter.setText("");
+            }
+            else if (appData.getNdict() < playList.size())
+            {
+                textViewDict.setText(playList.get(appData.getNdict()));
+            }
+        });
+
+        mainViewModel.getWordsList().observe(this, entries -> {
+            if (entries == null || entries.isEmpty())
+            {
+                if (playList.size() > 0)
+                {
+                    String dictName;
+                    try
+                    {
+                        dictName = playList.get(appSettings.getDictNumber());
+                    } catch (IndexOutOfBoundsException e)
+                    {
+                        appSettings.set_N_Dict(0);
+                        dictName = playList.get(appSettings.getDictNumber());
+                    }
+                    composite.add(
+                    mainViewModel.getAllWordsFromDict(dictName)
+                            .subscribeOn(Schedulers.computation())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(list -> {
+                                mainViewPager.setAdapter(new MainViewPagerAdapter(list));
+                                mainViewPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
+                            }, Throwable::printStackTrace)
+                    );
+                }
+
+            }
+        });
+
+
 
         if (savedInstanceState == null)
         {
@@ -159,11 +210,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Toolbar toolbar = findViewById(R.id.toolbar_word_editor);
         setSupportActionBar(toolbar);
 
-        appSettings = new AppSettings(this);
-        appData = AppData.getInstance();
-        appData.initAllSettings(this);
 
-        initViews();
 
         // Регистрируем приёмник
         speechServiceReceiver = new SpeechServiceReceiver();
@@ -237,6 +284,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void initViews()
     {
+        mainViewPager = findViewById(R.id.mainViewPager);
         textViewEn = findViewById(R.id.enTextView);
         textViewRu = findViewById(R.id.ruTextView);
         textViewDict = findViewById(R.id.textViewDict);
@@ -311,33 +359,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         appData.initAllSettings(this);
         appData.setDictNumberChangeListener(this);
 
-        mainViewModel.setPlayList();
-        mainViewModel.getPlayList().observe(this, list -> {
-            playList = list;
-            if (playList.size() == 0)
-            {
-                speechServiceOnStop();
-                textViewDict.setText("");
-                tvWordsCounter.setText("");
-            }
-            else if (appData.getNdict() < playList.size())
-            {
-                textViewDict.setText(playList.get(appData.getNdict()));
-            }
-        });
 
 
-        if (playList.size() > 0)
-        {
-            try
-            {
-                mainViewModel.getAllWordsFromDict(playList.get(appSettings.getDictNumber()));
-            } catch (IndexOutOfBoundsException e)
-            {
-                appSettings.set_N_Dict(0);
-                mainViewModel.getAllWordsFromDict(playList.get(appSettings.getDictNumber()));
-            }
-        }
+
+
 
         if (appSettings.getOrderPlay() == 0)
         {

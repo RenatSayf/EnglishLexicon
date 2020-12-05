@@ -24,16 +24,17 @@
         android:orientation="vertical"
         >
 
-        <FrameLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:orientation="vertical"
+
             android:background="@drawable/semitransparent_background"
             >
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
                 android:layout_gravity="top"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
@@ -56,6 +57,7 @@
                     android:id="@+id/order_play_icon_iv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
                     android:layout_weight="0"
                     android:contentDescription="@string/btn_close_discribtion"
                     android:src="@drawable/ic_repeat_white"/>
@@ -74,32 +76,48 @@
             </LinearLayout>
 
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
                 android:layout_gravity="center"
                 android:layout_margin="15dp"
                 android:orientation="vertical">
 
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/mainViewPager"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+
                 <TextView
                     android:id="@+id/enTextView"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0"
+                    android:layout_height="0dp"
+                    app:layout_constraintVertical_weight="1"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toTopOf="@+id/ruTextView"
                     android:background="@android:color/transparent"
                     android:gravity="center"
+                    tools:text="English"
                     android:textAlignment="center"
                     android:textColor="@color/colorWhite"
                     android:textSize="40sp"
-                    android:textStyle="normal|bold"/>
+                    android:textStyle="normal|bold"
+                    android:visibility="gone"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dp"
                     android:layout_marginBottom="5dp"
                     android:layout_marginTop="5dp"
                     android:gravity="center"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent">
 
                     <ImageButton
                         android:id="@+id/btn_previous"
@@ -155,25 +173,33 @@
                 <TextView
                     android:id="@+id/ruTextView"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0"
+                    android:layout_height="0dp"
+                    app:layout_constraintVertical_weight="1"
+                    app:layout_constraintTop_toBottomOf="@+id/enTextView"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     android:background="@android:color/transparent"
                     android:gravity="center"
+                    tools:text="Русский"
                     android:textAlignment="center"
                     android:textColor="@color/colorLightGreen"
                     android:textSize="40sp"
-                    android:textStyle="normal|bold"/>
+                    android:textStyle="normal|bold"
+                    android:visibility="gone"/>
 
                 <ProgressBar
                     android:id="@+id/progressBar"
                     style="?android:attr/progressBarStyleLarge"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     android:layout_gravity="center"
                     android:visibility="gone"
                     />
 
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <LinearLayout
                 android:id="@+id/bottomPanel"
@@ -204,6 +230,7 @@
                     style="?android:attr/buttonStyleSmall"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
                     android:background="@drawable/selector_transp_to_white_back"
                     android:contentDescription="@string/content_describt"
                     android:onClick="btnPauseClick"
@@ -251,12 +278,12 @@
                     app:buttonTint="@color/colorWhite"/>
 
             </LinearLayout>
-        </FrameLayout>
+        </LinearLayout>
 
         <FrameLayout
             android:id="@+id/banner_frame_main"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_weight="0"
             android:foreground="@drawable/semitransparent_background"
             >
