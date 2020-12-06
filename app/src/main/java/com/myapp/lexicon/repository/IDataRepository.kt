@@ -11,6 +11,10 @@ interface IDataRepository
 
     fun getTableListFromSettings() : LinkedList<String>
 
+    fun getCurrentWordFromSettings() : DataBaseEntry
+
+    fun saveCurrentWordTheSettings(entry: DataBaseEntry)
+
     fun getAllFromTable(tableName: String) : Single<LinkedList<DataBaseEntry>>
 
     fun removeTableFromSettings(tableName: String)

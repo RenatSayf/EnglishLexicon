@@ -244,8 +244,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (savedInstanceState != null)
         {
             isFirstTime = false;
-            textViewEn.setText(savedInstanceState.getString(KEY_ENG_TEXT));
-            textViewRu.setText(savedInstanceState.getString(KEY_RU_TEXT));
+            //textViewEn.setText(savedInstanceState.getString(KEY_ENG_TEXT));
+            //textViewRu.setText(savedInstanceState.getString(KEY_RU_TEXT));
             textViewDict.setText(savedInstanceState.getString(KEY_CURRENT_DICT));
             tvWordsCounter.setText(savedInstanceState.getString(KEY_TV_WORDS_COUNTER));
             btnPlay.setVisibility(savedInstanceState.getInt(KEY_BTN_PLAY_VISIBLE));
@@ -312,8 +312,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onSaveInstanceState(@NonNull Bundle outState)
     {
         super.onSaveInstanceState(outState);
-        outState.putString(KEY_ENG_TEXT, textViewEn.getText().toString());
-        outState.putString(KEY_RU_TEXT, textViewRu.getText().toString());
+        //outState.putString(KEY_ENG_TEXT, textViewEn.getText().toString());
+        //outState.putString(KEY_RU_TEXT, textViewRu.getText().toString());
         outState.putString(KEY_CURRENT_DICT, textViewDict.getText().toString());
         outState.putString(KEY_TV_WORDS_COUNTER, tvWordsCounter.getText().toString());
         outState.putInt(KEY_BTN_PLAY_VISIBLE, btnPlay.getVisibility());
@@ -354,14 +354,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onResume()
     {
         super.onResume();
-        appSettings = new AppSettings(this);
-        appData = AppData.getInstance();
-        appData.initAllSettings(this);
+//        appSettings = new AppSettings(this);
+//        appData = AppData.getInstance();
+//        appData.initAllSettings(this);
         appData.setDictNumberChangeListener(this);
-
-
-
-
 
 
         if (appSettings.getOrderPlay() == 0)

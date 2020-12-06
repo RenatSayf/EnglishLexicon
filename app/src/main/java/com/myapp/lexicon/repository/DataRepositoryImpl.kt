@@ -8,7 +8,7 @@ import io.reactivex.Single
 import java.util.*
 import javax.inject.Inject
 
-class DataRepositoryImpl @Inject constructor(private val appDB: AppDB, private val settings: AppSettings) : IDataRepository
+class DataRepositoryImpl @Inject constructor(private val appDB: AppDB, private var settings: AppSettings) : IDataRepository
 {
     override fun getTableListFromDb(): Observable<LinkedList<String>>
     {
@@ -18,6 +18,16 @@ class DataRepositoryImpl @Inject constructor(private val appDB: AppDB, private v
     override fun getTableListFromSettings(): LinkedList<String>
     {
         return settings.getPlayList(true)
+    }
+
+    override fun getCurrentWordFromSettings(): DataBaseEntry
+    {
+        return settings.currentWord
+    }
+
+    override fun saveCurrentWordTheSettings(entry: DataBaseEntry)
+    {
+        settings.saveCurrentWord(entry);
     }
 
     override fun getAllFromTable(tableName: String): Single<LinkedList<DataBaseEntry>>

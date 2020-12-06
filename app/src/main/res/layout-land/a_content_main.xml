@@ -12,13 +12,13 @@
     android:background="@drawable/side_nav_bar">
 
     <FrameLayout
+        android:id="@+id/background_fragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/background_fragment"
         >
     </FrameLayout>
 
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/semitransparent_background"
@@ -27,7 +27,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
             android:layout_gravity="top"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
@@ -40,7 +40,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_gravity="center_vertical"
-                android:gravity="start"
+                android:gravity="start|center_vertical"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/colorWhite"
                 android:text="@string/text_name_dict"
@@ -50,6 +50,7 @@
                 android:id="@+id/order_play_icon_iv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 android:layout_weight="0"
                 android:contentDescription="@string/btn_close_discribtion"
                 android:src="@drawable/ic_repeat_white"/>
@@ -59,8 +60,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:gravity="end"
-                android:layout_marginLeft="15dp"
+                android:gravity="end|center_vertical"
                 android:layout_marginStart="15dp"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:layout_gravity="center_vertical"
@@ -69,23 +69,34 @@
 
         </LinearLayout>
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:layout_gravity="center"
             android:layout_margin="15dp"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/enTextView"
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/mainViewPager"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:gravity="center"
-                android:textAlignment="center"
-                android:textColor="@color/colorWhite"
-                android:textSize="36sp"
-                android:textStyle="normal|bold"/>
+                android:layout_height="match_parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+<!--            <TextView-->
+<!--                android:id="@+id/enTextView"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:background="@android:color/transparent"-->
+<!--                android:gravity="center"-->
+<!--                android:textAlignment="center"-->
+<!--                android:textColor="@color/colorWhite"-->
+<!--                android:textSize="36sp"-->
+<!--                android:textStyle="normal|bold"-->
+<!--                android:visibility="gone"/>-->
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -93,7 +104,9 @@
                 android:layout_marginBottom="5dp"
                 android:layout_marginTop="5dp"
                 android:gravity="center"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
 
                 <ImageButton
                     android:id="@+id/btn_previous"
@@ -159,20 +172,20 @@
 
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/ruTextView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:gravity="center"
-                android:textAlignment="center"
-                android:textColor="@color/colorLightGreen"
-                android:textSize="36sp"
-                android:textStyle="normal|bold"/>
+<!--            <TextView-->
+<!--                android:id="@+id/ruTextView"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:background="@android:color/transparent"-->
+<!--                android:gravity="center"-->
+<!--                android:textAlignment="center"-->
+<!--                android:textColor="@color/colorLightGreen"-->
+<!--                android:textSize="36sp"-->
+<!--                android:textStyle="normal|bold"/>-->
 
 
 
-        </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <LinearLayout
             android:id="@+id/bottomPanel"
@@ -201,7 +214,6 @@
                 android:layout_width="45dp"
                 android:layout_height="45dp"
                 android:layout_gravity="center_vertical|center_horizontal"
-                android:layout_marginLeft="10dp"
                 android:layout_marginStart="10dp"
                 android:background="@drawable/selector_transp_to_white_back"
                 android:contentDescription="@string/content_describt"
@@ -253,7 +265,7 @@
 
         </LinearLayout>
 
-    </FrameLayout>
+    </LinearLayout>
 
     <FrameLayout
         android:layout_width="match_parent"

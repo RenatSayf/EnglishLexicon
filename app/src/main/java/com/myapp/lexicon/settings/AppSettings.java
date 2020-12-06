@@ -32,6 +32,7 @@ public class AppSettings
     private final String KEY_N_DICT = "N_dict";
     private final String KEY_N_WORD = "N_word";
     private final String KEY_CURRENT_DICT = "current_dict";
+    private final String KEY_CURRENT_WORD = "current_word";
     private final String KEY_IS_PAUSE = "is_pause";
     private final String KEY_TRANSLATE_LANG = "translate_lang";
 
@@ -210,6 +211,27 @@ public class AppSettings
         return context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getInt(KEY_ORDER_PLAY, 0);
     }
 
+    public void saveCurrentWord(DataBaseEntry entry)
+    {
+        SharedPreferences preferences = context.getSharedPreferences("KEY_CURRENT_WORD", MODE_PRIVATE);
+        preferences.edit().putInt("key_row_id", entry.getRowId()).apply();
+        preferences.edit().putString("key_dict_name", entry.getDictName()).apply();
+        preferences.edit().putString("key_english", entry.getEnglish()).apply();
+        preferences.edit().putString("key_translate", entry.getTranslate()).apply();
+        preferences.edit().putString("key_count_repeat", entry.getCountRepeat()).apply();
+    }
+
+    public DataBaseEntry getCurrentWord()
+    {
+        SharedPreferences preferences = context.getSharedPreferences("KEY_CURRENT_WORD", MODE_PRIVATE);
+        int rowId = preferences.getInt("key_row_id", 0);
+        String dictName = preferences.getString("key_dict_name", "");
+        String english = preferences.getString("key_english", "");
+        String translate = preferences.getString("key_translate", "");
+        String countRepeat = preferences.getString("key_count_repeat", "");
+        return new DataBaseEntry(rowId, dictName, english, translate, countRepeat);
+    }
+
     public void set_N_Word(int number)
     {
         context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putInt(KEY_N_WORD, number).apply();
@@ -228,34 +250,14 @@ public class AppSettings
     public void set_N_Dict(int number)
     {
         context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putInt(KEY_N_DICT, number).apply();
-//        ArrayList<String> list = getPlayList();
-//        if (list != null && list.listIterator(number).hasNext()/*.size() > 0 && number >= 0*/)
-//        {
-//            try
-//            {
-//                setCurrentDict(list.get(number));
-//            } catch (IndexOutOfBoundsException e)
-//            {
-//                //e.printStackTrace();
-//                if (list.size() > 0)
-//                {
-//                    setCurrentDict(list.get(0));
-//                }
-//            }
-//        }
     }
 
     public int getDictNumber()
     {
-        int dictNumber = context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getInt(KEY_N_DICT, 0);
-//        if (dictNumber < 0 || dictNumber > getPlayList().size() - 1)
-//        {
-//            dictNumber = 0;
-//        }
-        return dictNumber;
+        return context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getInt(KEY_N_DICT, 0);
     }
 
-    private void setCurrentDict(String name)
+    public void setCurrentDict(String name)
     {
         context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putString(KEY_CURRENT_DICT, name).apply();
     }

@@ -8,11 +8,11 @@ import java.io.Serializable;
 
 public class DataBaseEntry implements Parcelable, Serializable
 {
-    private String dictName;
+    private String dictName = "";
     private String english;
     private String translate;
-    private String countRepeat;
-    private int rowId;
+    private String countRepeat = "0";
+    private int rowId = -1;
 
     public DataBaseEntry(String english, String translate)
     {

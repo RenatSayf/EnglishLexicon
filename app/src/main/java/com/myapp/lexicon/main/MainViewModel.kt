@@ -17,6 +17,14 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
 {
     private val composite = CompositeDisposable()
 
+    init
+    {
+
+    }
+
+    private var _currentDict = MutableLiveData<String>()
+    var currentDict : LiveData<String> = _currentDict
+
     fun getDictList() : Observable<LinkedList<String>>
     {
         return repository.getTableListFromDb()
