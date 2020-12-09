@@ -9,7 +9,7 @@ import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.helpers.ObjectSerializer;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -22,20 +22,27 @@ import static android.content.Context.MODE_PRIVATE;
 
 public class AppSettings
 {
+    public final String KEY_SPINN_SELECT_ITEM = this.getClass().getCanonicalName() + ".KEY_SPINN_SELECT_ITEM";
+    public final String KEY_WORD_INDEX = this.getClass().getCanonicalName() + ".KEY_WORD_INDEX";
+    public final String KEY_COUNTER_RIGHT_ANSWER = this.getClass().getCanonicalName() + ".KEY_COUNTER_RIGHT_ANSWER";
+
+    private final String KEY_ENG_ONLY = this.getClass().getCanonicalName() + ".KEY_ENG_ONLY";
+    private final String KEY_ENG_ONLY_MODAL = this.getClass().getCanonicalName() + ".KEY_ENG_ONLY_MODAL";
+    private final String KEY_PLAY_LIST = this.getClass().getCanonicalName() + ".KEY_PLAY_LIST";
+    private final String KEY_PLAY_LIST_ITEMS = this.getClass().getCanonicalName() + ".KEY_PLAY_LIST_ITEMS";
+    private final String KEY_ORDER_PLAY = this.getClass().getCanonicalName() + ".KEY_ORDER_PLAY";
+    private final String KEY_N_DICT = this.getClass().getCanonicalName() + ".KEY_N_DICT";
+    private final String KEY_N_WORD = this.getClass().getCanonicalName() + ".KEY_N_WORD";
+    private final String KEY_ROW_ID = this.getClass().getCanonicalName() + ".KEY_ROW_ID";
+    private final String KEY_CURRENT_DICT = this.getClass().getCanonicalName() + ".KEY_CURRENT_DICT";
+    private final String KEY_CURRENT_WORD = this.getClass().getCanonicalName() + ".KEY_CURRENT_WORD";
+    private final String KEY_EN_WORD = this.getClass().getCanonicalName() + ".KEY_EN_WORD";
+    private final String KEY_RU_WORD = this.getClass().getCanonicalName() + ".KEY_RU_WORD";
+    private final String KEY_IS_PAUSE = this.getClass().getCanonicalName() + ".KEY_IS_PAUSE";;
+    private final String KEY_TRANSLATE_LANG = this.getClass().getCanonicalName() + ".KEY_TRANSLATE_LANG";
+    private final String KEY_COUNT_REPEAT = this.getClass().getCanonicalName() + ".KEY_COUNT_REPEAT";
+
     private final Context context;
-
-    private final String KEY_ENG_ONLY = "eng_only";
-    private final String KEY_ENG_ONLY_MODAL = "eng_only_modal";
-    private final String KEY_PLAY_LIST = "play_list";
-    private final String KEY_PLAY_LIST_ITEMS = "play_list_items";
-    private final String KEY_ORDER_PLAY = "order_play";
-    private final String KEY_N_DICT = "N_dict";
-    private final String KEY_N_WORD = "N_word";
-    private final String KEY_CURRENT_DICT = "current_dict";
-    private final String KEY_CURRENT_WORD = "current_word";
-    private final String KEY_IS_PAUSE = "is_pause";
-    private final String KEY_TRANSLATE_LANG = "translate_lang";
-
     private final String transLang;
 
     @Inject
@@ -177,16 +184,17 @@ public class AppSettings
         return list;
     }
 
-    public LinkedList<String> getPlayList(boolean b)
+    public ArrayList<String> getPlayList(boolean b)
     {
+
         String play_list_items = context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getString(KEY_PLAY_LIST_ITEMS, null);
         if (play_list_items != null && play_list_items.length() > 0)
         {
             //noinspection unchecked
             ArrayList<String> list = (ArrayList<String>) ObjectSerializer.deserialize(play_list_items);
-            return new LinkedList<>(list);
+            return new ArrayList<>(list);
         }
-        return new LinkedList<>();
+        return new ArrayList<>();
     }
 
     /***
@@ -213,22 +221,27 @@ public class AppSettings
 
     public void saveCurrentWord(DataBaseEntry entry)
     {
-        SharedPreferences preferences = context.getSharedPreferences("KEY_CURRENT_WORD", MODE_PRIVATE);
-        preferences.edit().putInt("key_row_id", entry.getRowId()).apply();
-        preferences.edit().putString("key_dict_name", entry.getDictName()).apply();
-        preferences.edit().putString("key_english", entry.getEnglish()).apply();
-        preferences.edit().putString("key_translate", entry.getTranslate()).apply();
-        preferences.edit().putString("key_count_repeat", entry.getCountRepeat()).apply();
+        SharedPreferences preferences = context.getSharedPreferences(KEY_CURRENT_WORD, MODE_PRIVATE);
+        preferences.edit().putInt(KEY_ROW_ID, entry.getRowId()).apply();
+        preferences.edit().putString(KEY_CURRENT_DICT, entry.getDictName()).apply();
+        preferences.edit().putString(KEY_EN_WORD, entry.getEnglish()).apply();
+        preferences.edit().putString(KEY_RU_WORD, entry.getTranslate()).apply();
+        preferences.edit().putString(KEY_COUNT_REPEAT, entry.getCountRepeat()).apply();
     }
 
     public DataBaseEntry getCurrentWord()
     {
-        SharedPreferences preferences = context.getSharedPreferences("KEY_CURRENT_WORD", MODE_PRIVATE);
-        int rowId = preferences.getInt("key_row_id", 0);
-        String dictName = preferences.getString("key_dict_name", "");
-        String english = preferences.getString("key_english", "");
-        String translate = preferences.getString("key_translate", "");
-        String countRepeat = preferences.getString("key_count_repeat", "");
+        SharedPreferences preferences = context.getSharedPreferences(KEY_CURRENT_WORD, MODE_PRIVATE);
+        int rowId = preferences.getInt(KEY_ROW_ID, 0);
+        String defaultDict = "";
+        if (!getPlayList().isEmpty())
+        {
+            defaultDict = getPlayList().get(0);
+        }
+        String dictName = preferences.getString(KEY_CURRENT_DICT, defaultDict);
+        String english = preferences.getString(KEY_EN_WORD, "");
+        String translate = preferences.getString(KEY_RU_WORD, "");
+        String countRepeat = preferences.getString(KEY_COUNT_REPEAT, "");
         return new DataBaseEntry(rowId, dictName, english, translate, countRepeat);
     }
 
@@ -277,9 +290,7 @@ public class AppSettings
         return context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getBoolean(KEY_IS_PAUSE, false);
     }
 
-    public final String KEY_SPINN_SELECT_ITEM = "key_spinn_select_item";
-    public final String KEY_WORD_INDEX = "key_word_index";
-    public final String KEY_COUNTER_RIGHT_ANSWER = "key_counter_right_answer";
+
 
     public void saveTestFragmentState(String tag, Bundle bundle)
     {
@@ -325,9 +336,9 @@ public class AppSettings
         return transLang;
     }
 
-    public void goForward(LinkedList<DataBaseEntry> entries)
+    public void goForward(List<DataBaseEntry> entries)
     {
-        if (entries != null)
+        if (entries != null && !getPlayList().isEmpty())
         {
             if (entries.size() > 1)
             {
@@ -338,9 +349,15 @@ public class AppSettings
                 set_N_Word(1);
                 if (getDictNumber() >= 0 && getDictNumber() <= getPlayList().size() - 2)
                 {
-                    set_N_Dict(getDictNumber() + 1);
+                    int nextNDict = getDictNumber() + 1;
+                    set_N_Dict(nextNDict);
+                    setCurrentDict(getPlayList().get(nextNDict));
                 }
-                else set_N_Dict(0);
+                else
+                {
+                    set_N_Dict(0);
+                    setCurrentDict(getPlayList().get(0));
+                }
             }
         }
     }

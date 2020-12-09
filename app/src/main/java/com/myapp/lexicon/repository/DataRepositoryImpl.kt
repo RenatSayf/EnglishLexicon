@@ -10,12 +10,12 @@ import javax.inject.Inject
 
 class DataRepositoryImpl @Inject constructor(private val appDB: AppDB, private var settings: AppSettings) : IDataRepository
 {
-    override fun getTableListFromDb(): Observable<LinkedList<String>>
+    override fun getTableListFromDb(): Observable<MutableList<String>>
     {
         return appDB.getTableListAsync()
     }
 
-    override fun getTableListFromSettings(): LinkedList<String>
+    override fun getTableListFromSettings(): MutableList<String>
     {
         return settings.getPlayList(true)
     }
@@ -30,7 +30,7 @@ class DataRepositoryImpl @Inject constructor(private val appDB: AppDB, private v
         settings.saveCurrentWord(entry);
     }
 
-    override fun getAllFromTable(tableName: String): Single<LinkedList<DataBaseEntry>>
+    override fun getAllFromTable(tableName: String): Single<MutableList<DataBaseEntry>>
     {
         return appDB.getAllFromTableAsync(tableName)
     }
@@ -55,8 +55,8 @@ class DataRepositoryImpl @Inject constructor(private val appDB: AppDB, private v
         return appDB.getRandomEntriesFromDbAsync(tableName, rowId)
     }
 
-    override fun getEntriesAndCountersFromDb(tableName: String, rowId: Int, order: String): Observable<Pair<MutableMap<String, Int>, MutableList<DataBaseEntry>>>
+    override fun getEntriesAndCountersFromDb(tableName: String, rowId: Int, order: String, limit: Int): Observable<Pair<MutableMap<String, Int>, MutableList<DataBaseEntry>>>
     {
-        return appDB.getEntriesAndCountersAsync(tableName, rowId, order)
+        return appDB.getEntriesAndCountersAsync(tableName, rowId, order, limit)
     }
 }

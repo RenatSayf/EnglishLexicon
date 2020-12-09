@@ -11,6 +11,7 @@ import javax.inject.Inject
 
 class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
 {
+
     @NonNull
     private fun getTableList(): MutableList<String>
     {
@@ -55,13 +56,13 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
         return list
     }
 
-    fun getTableListAsync() : Observable<LinkedList<String>>
+    fun getTableListAsync() : Observable<MutableList<String>>
     {
         return Observable.create { emitter ->
             try
             {
                 val tableList = getTableList()
-                emitter.onNext(LinkedList(tableList))
+                emitter.onNext(tableList)
             }
             catch (e: Exception)
             {
@@ -111,13 +112,13 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
         return entriesFromDB
     }
 
-    fun getAllFromTableAsync(tableName: String) : Single<LinkedList<DataBaseEntry>>
+    fun getAllFromTableAsync(tableName: String) : Single<MutableList<DataBaseEntry>>
     {
         return Single.create { emitter ->
             try
             {
                 val entries = getAllFromTable(tableName)
-                emitter.onSuccess(LinkedList(entries))
+                emitter.onSuccess(entries)
             }
             catch (e: Exception)
             {
@@ -185,7 +186,7 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
         }
     }
 
-    private fun getEntriesFromDb(tableName: String, rowId: Int, order: String) : MutableList<DataBaseEntry>
+    private fun getEntriesFromDb(tableName: String, rowId: Int, order: String, limit: Int) : MutableList<DataBaseEntry>
     {
         val table = StringOperations.getInstance().spaceToUnderscore(tableName)
         val entriesFromDB = LinkedList<DataBaseEntry>()
@@ -198,7 +199,7 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
             dbHelper.open()
             if (dbHelper.database.isOpen)
             {
-                val cmd = "SELECT RowId, English, Translate, CountRepeat FROM $table WHERE RowId $compare $rowId AND CountRepeat <> 0 ORDER BY RowId $order LIMIT 2"
+                val cmd = "SELECT RowId, English, Translate, CountRepeat FROM $table WHERE RowId $compare $rowId AND CountRepeat <> 0 ORDER BY RowId $order LIMIT $limit"
                 cursor = dbHelper.database.rawQuery(cmd, null)
                 if (cursor.moveToFirst())
                 {
@@ -359,7 +360,7 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
     }
 
     @Suppress("RedundantSamConstructor")
-    fun getEntriesAndCountersAsync(tableName: String, rowId: Int, order: String = "ASC") : Observable<Pair<MutableMap<String, Int>, MutableList<DataBaseEntry>>>
+    fun getEntriesAndCountersAsync(tableName: String, rowId: Int, order: String = "ASC", limit: Int = 2) : Observable<Pair<MutableMap<String, Int>, MutableList<DataBaseEntry>>>
     {
         var countsList: MutableMap<String, Int> = mutableMapOf()
         return Observable.concat(ObservableSource { observer ->
@@ -378,7 +379,7 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
                 observer.onComplete()
             }
         }, ObservableSource { observer ->
-            val entries = getEntriesFromDb(tableName, rowId, order)
+            val entries = getEntriesFromDb(tableName, rowId, order, limit)
             try
             {
                 observer.onNext(Pair(countsList, entries))

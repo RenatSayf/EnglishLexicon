@@ -49,7 +49,7 @@
                     android:gravity="start"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:textColor="@color/colorWhite"
-                    android:text="@string/text_name_dict"
+                    tools:text="Dict Name"
                     />
 
                 <ImageView
@@ -70,6 +70,7 @@
                     android:layout_gravity="center_vertical"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:textColor="@color/colorWhite"
+                    tools:text="1/150 Изучено 0"
                     />
 
             </LinearLayout>

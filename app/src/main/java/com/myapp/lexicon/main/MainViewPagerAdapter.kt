@@ -9,8 +9,11 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.database.DataBaseEntry
 import kotlinx.android.synthetic.main.a_content_main.view.*
 
-class MainViewPagerAdapter constructor(private val entries: MutableList<DataBaseEntry>) : RecyclerView.Adapter<PagerViewHolder>()
+class MainViewPagerAdapter constructor() : RecyclerView.Adapter<PagerViewHolder>()
 {
+    var counters: MutableMap<String, Int> = mutableMapOf()
+    var entries : MutableList<DataBaseEntry> = mutableListOf()
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PagerViewHolder
     {
         val itemView = LayoutInflater.from(parent.context).inflate(R.layout.a_page_layout, parent, false)
@@ -32,6 +35,16 @@ class MainViewPagerAdapter constructor(private val entries: MutableList<DataBase
     {
         return entries.size
     }
+
+    fun getItem(position: Int) : DataBaseEntry
+    {
+        return entries[position]
+    }
+
+//    fun setItems(list: MutableList<DataBaseEntry>)
+//    {
+//        entries = list
+//    }
 
 }
 

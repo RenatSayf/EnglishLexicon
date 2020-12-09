@@ -10,6 +10,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
+
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseQueries;
 import com.myapp.lexicon.database.DatabaseHelper;
@@ -17,14 +18,18 @@ import com.myapp.lexicon.database.GetTableListFragm;
 import com.myapp.lexicon.database.UpdateDBEntryAsync;
 import com.myapp.lexicon.dialogs.InclusionDialog;
 import com.myapp.lexicon.helpers.LockOrientation;
+import com.myapp.lexicon.helpers.PlayListBus;
+import com.myapp.lexicon.main.MainActivity;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
+
 import java.util.ArrayList;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-
+import io.reactivex.disposables.CompositeDisposable;
 
 
 public class PlayList extends AppCompatActivity implements ListViewAdapter.IPlayListChangeListener, InclusionDialog.IInclusionDialog, GetTableListFragm.OnTableListListener
@@ -38,6 +43,8 @@ public class PlayList extends AppCompatActivity implements ListViewAdapter.IPlay
 
     private final String KEY_FIELDS = "key_fields";
 
+    private final CompositeDisposable composite = new CompositeDisposable();
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -47,6 +54,8 @@ public class PlayList extends AppCompatActivity implements ListViewAdapter.IPlay
             setContentView(R.layout.p_layout_play_list);
             Toolbar toolbar = findViewById(R.id.toolbar_word_editor);
             setSupportActionBar(toolbar);
+
+            MainActivity.isActivityRunning = true;
 
             lockOrientation = new LockOrientation(this);
 
@@ -129,6 +138,7 @@ public class PlayList extends AppCompatActivity implements ListViewAdapter.IPlay
             e.printStackTrace();
             finish();
         }
+
     }
 
     @Override
@@ -149,6 +159,14 @@ public class PlayList extends AppCompatActivity implements ListViewAdapter.IPlay
     {
         super.onDestroy();
         lockOrientation.unLock();
+    }
+
+    @Override
+    public void onDetachedFromWindow()
+    {
+        super.onDetachedFromWindow();
+        composite.dispose();
+        composite.clear();
     }
 
     public void buttonAddClick(View view)
@@ -245,6 +263,7 @@ public class PlayList extends AppCompatActivity implements ListViewAdapter.IPlay
                     }
                 }
             }
+            PlayListBus.INSTANCE.update(newPlayList);
             lictViewAdapter = new ListViewAdapter(newPlayList, PlayList.this);
             listViewDict.setAdapter(lictViewAdapter);
             appSettings.savePlayList(newPlayList);

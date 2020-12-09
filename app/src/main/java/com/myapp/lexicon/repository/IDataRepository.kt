@@ -7,15 +7,15 @@ import java.util.*
 
 interface IDataRepository
 {
-    fun getTableListFromDb() : Observable<LinkedList<String>>
+    fun getTableListFromDb() : Observable<MutableList<String>>
 
-    fun getTableListFromSettings() : LinkedList<String>
+    fun getTableListFromSettings() : MutableList<String>
 
     fun getCurrentWordFromSettings() : DataBaseEntry
 
     fun saveCurrentWordTheSettings(entry: DataBaseEntry)
 
-    fun getAllFromTable(tableName: String) : Single<LinkedList<DataBaseEntry>>
+    fun getAllFromTable(tableName: String) : Single<MutableList<DataBaseEntry>>
 
     fun removeTableFromSettings(tableName: String)
 
@@ -25,5 +25,5 @@ interface IDataRepository
 
     fun getRandomEntriesFromDb(tableName: String, rowId: Int) : Single<MutableList<DataBaseEntry>>
 
-    fun getEntriesAndCountersFromDb(tableName: String, rowId: Int, order: String) : Observable<Pair<MutableMap<String, Int>, MutableList<DataBaseEntry>>>
+    fun getEntriesAndCountersFromDb(tableName: String, rowId: Int, order: String, limit: Int) : Observable<Pair<MutableMap<String, Int>, MutableList<DataBaseEntry>>>
 }

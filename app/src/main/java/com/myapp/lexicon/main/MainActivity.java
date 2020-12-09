@@ -49,7 +49,6 @@ import com.myapp.lexicon.addword.TranslateFragment;
 import com.myapp.lexicon.cloudstorage.StorageFragment2;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DataBaseQueries;
-import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.dialogs.RemoveDictDialog;
 import com.myapp.lexicon.helpers.Share;
 import com.myapp.lexicon.playlist.PlayList;
@@ -68,6 +67,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -91,7 +91,7 @@ import io.reactivex.schedulers.Schedulers;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         AppData.IDictNumChangeListener
 {
-    public DatabaseHelper databaseHelper;
+    //public DatabaseHelper databaseHelper;
     private Intent addWordIntent;
     private Intent wordEditorIntent;
     private Intent testsIntent;
@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private AppSettings appSettings;
     private AppData appData;
     private LinkedList<String> dictList;
-    private LinkedList<String> playList = new LinkedList<>();
+    private ArrayList<String> playList = new ArrayList<>();
     private DataBaseQueries dataBaseQueries;
     private Locale localeDefault;
     private ViewPager2 mainViewPager;
@@ -156,46 +156,43 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
-        mainViewModel.setPlayList();
         mainViewModel.getPlayList().observe(this, list -> {
-            playList = list;
+            playList = (ArrayList<String>)list;
             if (playList.size() == 0)
             {
                 speechServiceOnStop();
-                textViewDict.setText("");
+                //textViewDict.setText("");
                 tvWordsCounter.setText("");
             }
             else if (appData.getNdict() < playList.size())
             {
-                textViewDict.setText(playList.get(appData.getNdict()));
+                //textViewDict.setText(playList.get(appData.getNdict()));
             }
         });
 
+        MainViewPagerAdapter pagerAdapter = new MainViewPagerAdapter();
         mainViewModel.getWordsList().observe(this, entries -> {
-            if (entries == null || entries.isEmpty())
+            if (entries != null || !entries.getSecond().isEmpty())
             {
-                if (playList.size() > 0)
-                {
-                    String dictName;
-                    try
-                    {
-                        dictName = playList.get(appSettings.getDictNumber());
-                    } catch (IndexOutOfBoundsException e)
-                    {
-                        appSettings.set_N_Dict(0);
-                        dictName = playList.get(appSettings.getDictNumber());
-                    }
-                    composite.add(
-                    mainViewModel.getAllWordsFromDict(dictName)
-                            .subscribeOn(Schedulers.computation())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(list -> {
-                                mainViewPager.setAdapter(new MainViewPagerAdapter(list));
-                                mainViewPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
-                            }, Throwable::printStackTrace)
-                    );
-                }
+                pagerAdapter.setCounters(entries.getFirst());
+                pagerAdapter.setEntries(entries.getSecond());
+                mainViewPager.setAdapter(pagerAdapter);
+                mainViewPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
+            }
+        });
 
+        mainViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback()
+        {
+            @Override
+            public void onPageSelected(int position)
+            {
+                super.onPageSelected(position);
+                MainViewPagerAdapter adapter = (MainViewPagerAdapter)mainViewPager.getAdapter();
+                DataBaseEntry item = adapter.getItem(position);
+                textViewDict.setText(item.getDictName());
+                Map<String, Integer> counters = adapter.getCounters();
+                String concatText = (item.getRowId() + "").concat(" / ").concat(counters.get("totalWords") + "").concat("  " + getString(R.string.text_studied) + " " + counters.get("studiedWords"));
+                tvWordsCounter.setText(concatText);
             }
         });
 
@@ -235,11 +232,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             navigationView.setNavigationItemSelectedListener(this);
         }
 
-        if (savedInstanceState == null && databaseHelper == null)
-        {
-            databaseHelper = new DatabaseHelper(this);
-            databaseHelper.create_db();
-        }
+//        if (savedInstanceState == null && databaseHelper == null)
+//        {
+//            databaseHelper = new DatabaseHelper(this);
+//            databaseHelper.create_db();
+//        }
 
         if (savedInstanceState != null)
         {
@@ -380,11 +377,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onDestroy()
     {
         super.onDestroy();
-        //composite.dispose();
-        if (databaseHelper != null)
-        {
-            databaseHelper.close();
-        }
+//        if (databaseHelper != null)
+//        {
+//            databaseHelper.close();
+//        }
         unregisterReceiver(speechServiceReceiver);
         if (AppData.getInstance().getDisplayVariant() == 1 && serviceIntent != null)
         {
@@ -521,7 +517,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     .subscribe(list -> {
                         if (list != null && !list.isEmpty())
                         {
-                            RemoveDictDialog.Companion.getInstance(list).show(getSupportFragmentManager(), RemoveDictDialog.TAG);
+                            RemoveDictDialog.Companion.getInstance((ArrayList<String>) list).show(getSupportFragmentManager(), RemoveDictDialog.TAG);
                         }
                     }, Throwable::printStackTrace);
             composite.add(subscribe);
@@ -726,8 +722,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             stopService(speechIntentService);
         }
-        textViewEn.setText(null);
-        textViewRu.setText(null);
         btnPlay.setVisibility(View.VISIBLE);
         btnStop.setVisibility(View.GONE);
         btnPause.setVisibility(View.GONE);
@@ -951,34 +945,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onDetachedFromWindow()
     {
         super.onDetachedFromWindow();
-        isActivityRunning = false;
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         boolean isUseService = preferences.getBoolean("service", true);
-        if (appSettings.getPlayList().size() > 0 && isUseService)
+        ArrayList<String> playList = appSettings.getPlayList();
+        if (playList.size() > 0 && isUseService)
         {
+            String nDict = playList.get(appSettings.getDictNumber());
+            int nWord = appSettings.getWordNumber();
             if (serviceIntent == null)
             {
                 serviceIntent = new Intent(this, LexiconService.class);
             }
             composite.add(
-                    mainViewModel.getEntriesAndCounters(playList.get(appSettings.getDictNumber()), appSettings.getWordNumber(), "ASC")
-                            .observeOn(Schedulers.computation())
-                            .subscribeOn(AndroidSchedulers.mainThread())
-                            .subscribe(pairs -> {
 
-                                if (pairs.getSecond().size() > 1)
-                                {
-                                    appSettings.set_N_Word(pairs.getSecond().get(1).getRowId());
-                                }
-                                if (pairs.getSecond().size() == 1)
-                                {
-                                    appSettings.set_N_Word(1);
-                                    if (appSettings.getDictNumber() >= 0 && appSettings.getDictNumber() <= appSettings.getPlayList().size() - 2)
-                                    {
-                                        appSettings.set_N_Dict(appData.getNdict() + 1);
-                                    } else appSettings.set_N_Dict(0);
-                                }
-                                if (pairs.getSecond().size() > 0)
+                    mainViewModel.getEntriesAndCounters(nDict, nWord, "ASC", 2)
+                            .observeOn(Schedulers.computation())
+                            .subscribeOn(Schedulers.io())
+                            .subscribe(pairs -> {
+                                appSettings.goForward(pairs.getSecond());
+                                if (!pairs.getSecond().isEmpty() && !isActivityRunning)
                                 {
                                     String json = new Gson().toJson(pairs);
                                     serviceIntent.putExtra(AppData.ARG_JSON, json);
@@ -986,7 +971,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     composite.dispose();
                                     composite.clear();
                                 }
-                                if (pairs.getFirst().size() == 0 && pairs.getSecond().size() == 0)
+                                if (pairs.getFirst().isEmpty() && pairs.getSecond().isEmpty())
                                 {
                                     composite.dispose();
                                     composite.clear();
@@ -998,6 +983,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 throwable.printStackTrace();
                             }));
         }
+        isActivityRunning = false;
     }
 
     // TODO: ActivityManager.RunningAppProcessInfo Проверка, что активити находится на верху стека

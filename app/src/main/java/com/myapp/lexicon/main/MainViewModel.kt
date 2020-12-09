@@ -5,49 +5,39 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.myapp.lexicon.database.DataBaseEntry
+import com.myapp.lexicon.helpers.PlayListBus
 import com.myapp.lexicon.repository.DataRepositoryImpl
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import java.util.*
 
 class MainViewModel @ViewModelInject constructor(private val repository: DataRepositoryImpl) : ViewModel()
 {
     private val composite = CompositeDisposable()
 
-    init
-    {
-
-    }
-
     private var _currentDict = MutableLiveData<String>()
     var currentDict : LiveData<String> = _currentDict
 
-    fun getDictList() : Observable<LinkedList<String>>
+    fun getDictList() : Observable<MutableList<String>>
     {
         return repository.getTableListFromDb()
     }
 
-    private var _playList = MutableLiveData<LinkedList<String>>().apply {
-        val list = repository.getTableListFromSettings()
-        postValue(list)
-    }
 
-    var playList : LiveData<LinkedList<String>> = _playList
+    private var _playList = MutableLiveData<MutableList<String>>()
+    var playList : LiveData<MutableList<String>> = _playList
 
-    fun setPlayList()
+    private fun setPlayList()
     {
         _playList.value = repository.getTableListFromSettings()
     }
 
-    private var _wordsList = MutableLiveData<LinkedList<DataBaseEntry>>().apply {
-        value = wordsList?.value
-    }
-    var wordsList: LiveData<LinkedList<DataBaseEntry>> = _wordsList
+    private var _wordsList = MutableLiveData<Pair<MutableMap<String, Int>, MutableList<DataBaseEntry>>>()
+    var wordsList: LiveData<Pair<MutableMap<String, Int>, MutableList<DataBaseEntry>>> = _wordsList
 
-    fun getAllWordsFromDict(dictName: String): Single<LinkedList<DataBaseEntry>>
+    fun getAllWordsFromDict(dictName: String): Single<MutableList<DataBaseEntry>>
     {
          return repository.getAllFromTable(dictName)
     }
@@ -57,9 +47,9 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
         return repository.dropTableFromDb(dictName)
     }
 
-    fun getEntriesAndCounters(dictName: String, rowId: Int, order: String): Observable<Pair<MutableMap<String, Int>, MutableList<DataBaseEntry>>>
+    fun getEntriesAndCounters(dictName: String, rowId: Int, order: String, limit: Int = 2): Observable<Pair<MutableMap<String, Int>, MutableList<DataBaseEntry>>>
     {
-        return repository.getEntriesAndCountersFromDb(dictName, rowId, order)
+        return repository.getEntriesAndCountersFromDb(dictName, rowId, order, limit)
     }
 
     fun getRandomEntries(dictName: String, rowId: Int) : Single<MutableList<DataBaseEntry>>
@@ -67,9 +57,29 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
         return repository.getRandomEntriesFromDb(dictName, rowId)
     }
 
+    init
+    {
+        _playList.value = repository.getTableListFromSettings() as ArrayList<String>
+        _currentDict.value = repository.getCurrentWordFromSettings().dictName
+
+        val dictName = _currentDict.value!!
+        composite.add(getEntriesAndCounters(dictName, 1, "ASC", 10000)
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ pair ->
+                    if (pair.first.isNotEmpty() && pair.second.isNotEmpty())
+                    {
+                        _wordsList.value = pair
+                        _currentDict.value = pair.second[0].dictName
+                    }
+                }, { throwable -> throwable.printStackTrace() }))
+    }
+
     override fun onCleared()
     {
+
         composite.dispose()
+        composite.clear()
         super.onCleared()
     }
 }

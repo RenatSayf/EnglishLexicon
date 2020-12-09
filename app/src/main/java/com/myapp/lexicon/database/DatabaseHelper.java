@@ -33,7 +33,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
     public static final String TABLE_SEQUENCE = "sqlite_sequence";
 
     public SQLiteDatabase database;
-    private Context context;
+    private final Context context;
     private static String actualPathDb;
 
     public DatabaseHelper(Context context)
@@ -54,6 +54,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
                 DB_NAME = "lexicon_DB";
             }
         }
+        create_db();
     }
 
     @Override
@@ -161,6 +162,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
         {
             e.printStackTrace();
         }
+        //database = SQLiteDatabase.openDatabase(actualPathDb, null, SQLiteDatabase.NO_LOCALIZED_COLLATORS);
     }
 
     @Override

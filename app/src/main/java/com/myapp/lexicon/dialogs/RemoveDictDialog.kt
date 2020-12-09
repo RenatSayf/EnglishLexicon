@@ -14,6 +14,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 @AndroidEntryPoint
@@ -28,7 +29,7 @@ class RemoveDictDialog : DialogFragment()
         const val ARG_INPUT = "arg_input_list"
         private var instance: RemoveDictDialog? = null
 
-        fun getInstance(list: LinkedList<String>) : RemoveDictDialog = if (instance == null)
+        fun getInstance(list: ArrayList<String>) : RemoveDictDialog = if (instance == null)
         {
             RemoveDictDialog().apply {
                 arguments = Bundle().apply {

@@ -166,7 +166,7 @@ public class ServiceActivity extends AppCompatActivity
                 String dictName = playList.get(appSettings.getDictNumber());
                 AppDB db = new AppDB(new DatabaseHelper(this));
 
-                composite.add(db.getEntriesAndCountersAsync(dictName, appSettings.getWordNumber(), "ASC")
+                composite.add(db.getEntriesAndCountersAsync(dictName, appSettings.getWordNumber(), "ASC", 2)
                         .observeOn(Schedulers.computation())
                         .subscribeOn(AndroidSchedulers.mainThread())
                         .subscribe(pair -> {
