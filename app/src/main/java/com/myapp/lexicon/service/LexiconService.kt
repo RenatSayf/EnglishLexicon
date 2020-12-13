@@ -6,21 +6,32 @@ import android.content.*
 import android.content.res.Configuration
 import android.os.IBinder
 import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.preference.PreferenceManager
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.myapp.lexicon.R
 import com.myapp.lexicon.database.AppDB
 import com.myapp.lexicon.database.DataBaseEntry
 import com.myapp.lexicon.database.DatabaseHelper
+import com.myapp.lexicon.main.MainActivity
+import com.myapp.lexicon.main.MainViewModel
+import com.myapp.lexicon.repository.DataRepositoryImpl
 import com.myapp.lexicon.schedule.AppNotification
 import com.myapp.lexicon.schedule.TimerReceiver
 import com.myapp.lexicon.service.ServiceActivity.IStopServiceByUser
 import com.myapp.lexicon.settings.AppData
 import com.myapp.lexicon.settings.AppSettings
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.reflect.typeOf
 
 class LexiconService : Service(), IStopServiceByUser
 {
@@ -34,6 +45,7 @@ class LexiconService : Service(), IStopServiceByUser
     //private var receiver: PhoneUnlockedReceiver? = null
     private var receiver: TimerReceiver? = null
     private var startId = 0
+    private val composite = CompositeDisposable()
 
     override fun onBind(intent: Intent): IBinder?
     {
@@ -51,17 +63,44 @@ class LexiconService : Service(), IStopServiceByUser
         filter.addAction(Intent.ACTION_SCREEN_OFF)
         registerReceiver(receiver, filter)
         ServiceActivity.setStoppedByUserListener(this)
+
+        val appSettings = AppSettings(this)
+        val playList = appSettings.getPlayList(true)
+        val nDict: String = playList[appSettings.dictNumber]
+        val nWord: Int = appSettings.wordNumber
+
+        val db = AppDB(DatabaseHelper(this))
+        composite.add(
+                db.getEntriesAndCountersAsync(nDict, nWord, "ASC", 2)
+                        .observeOn(Schedulers.computation())
+                        .subscribeOn(Schedulers.io())
+                        .subscribe({ pairs: Pair<MutableMap<String, Int>, MutableList<DataBaseEntry>> ->
+                            appSettings.goForward(pairs.second)
+                            if (pairs.second.isNotEmpty() && !MainActivity.isActivityRunning)
+                            {
+                                val json = Gson().toJson(pairs)
+                                json?.let {
+                                    val appNotification = AppNotification(this).create(json)
+                                    startForeground(AppNotification.NOTIFICATION_ID, appNotification)
+                                }
+                                composite.dispose()
+                                composite.clear()
+                            }
+                            if (pairs.first.isEmpty() && pairs.second.isEmpty())
+                            {
+                                composite.dispose()
+                                composite.clear()
+                            }
+                        }, { throwable: Throwable ->
+                            composite.dispose()
+                            composite.clear()
+                            throwable.printStackTrace()
+                        }))
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int
     {
         this.startId = startId
-        val json = intent.getStringExtra(AppData.ARG_JSON)
-        json?.let {
-            val appNotification = AppNotification(this).create(json)
-            startForeground(AppNotification.NOTIFICATION_ID, appNotification)
-        }
-
         return START_STICKY
     }
 

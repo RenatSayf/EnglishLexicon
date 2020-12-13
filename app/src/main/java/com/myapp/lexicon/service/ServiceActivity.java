@@ -5,13 +5,8 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
-import android.util.Pair;
 
-import com.google.gson.Gson;
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.database.AppDB;
-import com.myapp.lexicon.database.DataBaseEntry;
-import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.main.MainActivity;
 import com.myapp.lexicon.main.MainActivityOnStart;
 import com.myapp.lexicon.settings.AppData;
@@ -23,15 +18,12 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Locale;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import dagger.hilt.android.AndroidEntryPoint;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.schedulers.Schedulers;
 
 import static com.myapp.lexicon.main.MainActivity.serviceIntent;
 
@@ -159,45 +151,18 @@ public class ServiceActivity extends AppCompatActivity
     {
         if (isServiceEnabled)
         {
-            if (displayVariant == 1 && !LexiconService.stopedByUser)
+            if (!LexiconService.stopedByUser)
             {
                 AppSettings appSettings = new AppSettings(this);
                 ArrayList<String> playList = appSettings.getPlayList();
-                String dictName = playList.get(appSettings.getDictNumber());
-                AppDB db = new AppDB(new DatabaseHelper(this));
-
-                composite.add(db.getEntriesAndCountersAsync(dictName, appSettings.getWordNumber(), "ASC", 2)
-                        .observeOn(Schedulers.computation())
-                        .subscribeOn(AndroidSchedulers.mainThread())
-                        .subscribe(pair -> {
-
-                            if (pair.getSecond().size() > 0)
-                            {
-                                appSettings.goForward((LinkedList<DataBaseEntry>) pair.getSecond());
-                                String json = new Gson().toJson(new Pair(pair.getFirst(), pair.getSecond()));
-                                if (!MainActivity.isActivityRunning)
-                                {
-                                    if (MainActivity.serviceIntent == null)
-                                    {
-                                        MainActivity.serviceIntent = new Intent(this, LexiconService.class);
-                                    }
-                                    serviceIntent.putExtra(AppData.ARG_JSON, json);
-                                    startService(MainActivity.serviceIntent);
-                                }
-                                composite.dispose();
-                                composite.clear();
-                            }
-                            if (pair.getFirst().size() == 0 && pair.getSecond().size() == 0)
-                            {
-                                composite.dispose();
-                                composite.clear();
-                            }
-                        }, throwable -> {
-                            composite.dispose();
-                            composite.clear();
-                            throwable.printStackTrace();
-                        }));
-
+                if (playList.size() > 0)
+                {
+                    if (MainActivity.serviceIntent == null)
+                    {
+                        MainActivity.serviceIntent = new Intent(this, LexiconService.class);
+                    }
+                    startService(MainActivity.serviceIntent);
+                }
             }
             if (LexiconService.stopedByUser)
             {

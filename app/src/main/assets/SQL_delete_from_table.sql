@@ -1,0 +1,1 @@
+DELETE  FROM Words WHERE dict_name == 'Наречия'

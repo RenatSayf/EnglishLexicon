@@ -1,0 +1,1 @@
+INSERT INTO Words (english, translate) VALUES('add', 'добавить')

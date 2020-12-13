@@ -1,5 +1,6 @@
 package com.myapp.lexicon.database
 
+import android.content.ContentValues
 import android.database.Cursor
 import androidx.annotation.NonNull
 import com.myapp.lexicon.helpers.StringOperations
@@ -292,7 +293,7 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
      * amounts[2] - studied word amount
      * amounts[3] - total word amount
      */
-    private fun getWordsCount(tableName: String) : MutableMap<String,Int>
+    private fun getWordsCount(tableName: String) : MutableMap<String, Int>
     {
         var cursor: Cursor? = null
         val amounts = mutableMapOf<String, Int>()
@@ -395,6 +396,54 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
         })
     }
 
+    private fun copyEntriesFromOtherTable(tableName: String) : Int
+    {
+        var res = -1
+        try
+        {
+            dbHelper.open()
+            dbHelper.database.beginTransaction()
+            if (dbHelper.database.isOpen)
+            {
+                val cmd = "INSERT OR IGNORE INTO Words \n" +
+                        "(english, translate)\n" +
+                        "SELECT English, Translate \n" +
+                        "FROM $tableName"
+                val rawQuery = dbHelper.database.rawQuery(cmd, null)
+                val v = ContentValues().apply {
+                    put("dict_name", tableName)
+                }
+                res = dbHelper.database.update("Words", v, "dict_name = ", arrayOf("Общий"))
+                dbHelper.database.setTransactionSuccessful()
+                dbHelper.database.endTransaction()
+            }
+        }
+        catch (e: java.lang.Exception)
+        {
+            e.printStackTrace()
+        }
+        finally
+        {
+            dbHelper.close()
+        }
+        println("*************************** res = $res ****************************************")
+        return res
+    }
+
+    fun copyEntriesFromOtherTableAsync(tableName: String) : Single<Int>
+    {
+        return Single.create { emitter ->
+            try
+            {
+                val res = copyEntriesFromOtherTable(tableName)
+                emitter.onSuccess(res)
+            }
+            catch (e: Exception)
+            {
+                emitter.onError(e)
+            }
+        }
+    }
 
 
 

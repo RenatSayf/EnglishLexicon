@@ -42,7 +42,6 @@ import com.google.firebase.appindexing.Action;
 import com.google.firebase.appindexing.FirebaseAppIndex;
 import com.google.firebase.appindexing.FirebaseUserActions;
 import com.google.firebase.appindexing.builders.Actions;
-import com.google.gson.Gson;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
@@ -91,7 +90,8 @@ import io.reactivex.schedulers.Schedulers;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         AppData.IDictNumChangeListener
 {
-    //public DatabaseHelper databaseHelper;
+    public static final String KEY_PLAY_LIST = "com.myapp.lexicon.main.KEY_PLAY_LIST";
+
     private Intent addWordIntent;
     private Intent wordEditorIntent;
     private Intent testsIntent;
@@ -140,6 +140,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a_navig_main);
+
+        Toolbar toolbar = findViewById(R.id.toolbar_word_editor);
+        setSupportActionBar(toolbar);
+
         fragmentManager = getSupportFragmentManager();
         NotificationManager nmg = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (nmg != null)
@@ -161,18 +165,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (playList.size() == 0)
             {
                 speechServiceOnStop();
-                //textViewDict.setText("");
-                tvWordsCounter.setText("");
-            }
-            else if (appData.getNdict() < playList.size())
-            {
-                //textViewDict.setText(playList.get(appData.getNdict()));
             }
         });
 
         MainViewPagerAdapter pagerAdapter = new MainViewPagerAdapter();
+
         mainViewModel.getWordsList().observe(this, entries -> {
-            if (entries != null || !entries.getSecond().isEmpty())
+            if (entries != null && entries.getSecond() != null  && !entries.getSecond().isEmpty())
             {
                 pagerAdapter.setCounters(entries.getFirst());
                 pagerAdapter.setEntries(entries.getSecond());
@@ -183,20 +182,64 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         mainViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback()
         {
+            private int position = 0;
+            private int totalWords = Integer.MAX_VALUE;
+            private boolean isEnd = false;
+            private boolean isStart = false;
             @Override
             public void onPageSelected(int position)
             {
                 super.onPageSelected(position);
-                MainViewPagerAdapter adapter = (MainViewPagerAdapter)mainViewPager.getAdapter();
-                DataBaseEntry item = adapter.getItem(position);
-                textViewDict.setText(item.getDictName());
-                Map<String, Integer> counters = adapter.getCounters();
-                String concatText = (item.getRowId() + "").concat(" / ").concat(counters.get("totalWords") + "").concat("  " + getString(R.string.text_studied) + " " + counters.get("studiedWords"));
-                tvWordsCounter.setText(concatText);
+                this.position = position;
+                final MainViewPagerAdapter adapter = (MainViewPagerAdapter)mainViewPager.getAdapter();
+                if (adapter != null)
+                {
+                    DataBaseEntry item = adapter.getItem(position);
+                    textViewDict.setText(item.getDictName());
+                    Map<String, Integer> counters = adapter.getCounters();
+                    this.totalWords = adapter.getItemCount();
+                    String concatText = (item.getRowId() + "").concat(" / ").concat(totalWords + "").concat("  " + getString(R.string.text_studied) + " " + counters.get("studiedWords"));
+                    tvWordsCounter.setText(concatText);
+                }
+            }
+            @Override
+            public void onPageScrollStateChanged(int state)
+            {
+                super.onPageScrollStateChanged(state);
+
+                if (state == ViewPager2.SCROLL_STATE_DRAGGING)
+                {
+                    int currentItem = mainViewPager.getCurrentItem();
+                    if (currentItem >= totalWords - 1)
+                    {
+                        isEnd = true;
+                    }
+                    if (currentItem <= 0)
+                    {
+                        isStart = true;
+                    }
+                }
+                if (state == ViewPager2.SCROLL_STATE_IDLE && isEnd)
+                {
+                    isEnd = false;
+                    mainViewPager.setCurrentItem(0, false);
+
+                }
+                if (state == ViewPager2.SCROLL_STATE_IDLE && isStart)
+                {
+                    isStart = false;
+                    mainViewPager.setCurrentItem(this.totalWords - 1, false);
+
+                }
+            }
+
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels)
+            {
+                super.onPageScrolled(position, positionOffset, positionOffsetPixels);
+
             }
         });
-
-
 
         if (savedInstanceState == null)
         {
@@ -204,8 +247,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             getSupportFragmentManager().beginTransaction().replace(R.id.background_fragment, backgroundFragm).commit();
         }
 
-        Toolbar toolbar = findViewById(R.id.toolbar_word_editor);
-        setSupportActionBar(toolbar);
+
 
 
 
@@ -950,38 +992,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ArrayList<String> playList = appSettings.getPlayList();
         if (playList.size() > 0 && isUseService)
         {
-            String nDict = playList.get(appSettings.getDictNumber());
-            int nWord = appSettings.getWordNumber();
             if (serviceIntent == null)
             {
                 serviceIntent = new Intent(this, LexiconService.class);
             }
-            composite.add(
-
-                    mainViewModel.getEntriesAndCounters(nDict, nWord, "ASC", 2)
-                            .observeOn(Schedulers.computation())
-                            .subscribeOn(Schedulers.io())
-                            .subscribe(pairs -> {
-                                appSettings.goForward(pairs.getSecond());
-                                if (!pairs.getSecond().isEmpty() && !isActivityRunning)
-                                {
-                                    String json = new Gson().toJson(pairs);
-                                    serviceIntent.putExtra(AppData.ARG_JSON, json);
-                                    startService(serviceIntent);
-                                    composite.dispose();
-                                    composite.clear();
-                                }
-                                if (pairs.getFirst().isEmpty() && pairs.getSecond().isEmpty())
-                                {
-                                    composite.dispose();
-                                    composite.clear();
-                                }
-
-                            }, throwable -> {
-                                composite.dispose();
-                                composite.clear();
-                                throwable.printStackTrace();
-                            }));
+            startService(serviceIntent);
         }
         isActivityRunning = false;
     }

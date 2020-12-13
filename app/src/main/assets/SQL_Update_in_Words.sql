@@ -1,0 +1,1 @@
+UPDATE Words SET dict_name = 'Глаголы' WHERE dict_name == 'Общий'

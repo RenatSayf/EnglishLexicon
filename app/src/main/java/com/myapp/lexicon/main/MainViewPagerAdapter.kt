@@ -41,11 +41,10 @@ class MainViewPagerAdapter constructor() : RecyclerView.Adapter<PagerViewHolder>
         return entries[position]
     }
 
-//    fun setItems(list: MutableList<DataBaseEntry>)
-//    {
-//        entries = list
-//    }
-
+    override fun registerAdapterDataObserver(observer: RecyclerView.AdapterDataObserver)
+    {
+        super.registerAdapterDataObserver(observer)
+    }
 }
 
 class PagerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
