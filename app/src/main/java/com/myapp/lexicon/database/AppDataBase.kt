@@ -13,9 +13,9 @@ import java.io.File
 import java.io.FileOutputStream
 
 
-private const val DB_VERSION = 3
+private const val DB_VERSION = 1
 
-@Database(entities = [Word::class], version = DB_VERSION)
+@Database(entities = [Word::class], version = DB_VERSION, exportSchema = false)
 abstract class AppDataBase : RoomDatabase()
 {
     abstract fun appDao(): AppDao
@@ -50,23 +50,23 @@ abstract class AppDataBase : RoomDatabase()
             {
                 if (database.needUpgrade(DB_VERSION))
                 {
-                    val path = database.path
-                    val db = AppDB(DatabaseHelper(mContext))
-                    val subscribe = db.getTableListAsync()
-                            .observeOn(Schedulers.computation())
-                            .subscribeOn(AndroidSchedulers.mainThread())
-                            .subscribe { list ->
-                                list.forEach { dictName ->
-                                    db.copyEntriesFromOtherTableAsync(dictName)
-                                            .observeOn(Schedulers.computation())
-                                            .subscribeOn(AndroidSchedulers.mainThread())
-                                            .subscribe({ res ->
-                                               println("******************************** ${this::class.java.canonicalName} res = $res **********************************")
-                                            }, { t ->
-                                                t.printStackTrace()
-                                            })
-                                }
-                            }
+//                    println("***************************** migrate to $DB_VERSION started *******************************")
+//                    val db = AppDB(DatabaseHelper(mContext))
+//                    val subscribe = db.getTableListAsync()
+//                            .observeOn(Schedulers.computation())
+//                            .subscribeOn(AndroidSchedulers.mainThread())
+//                            .subscribe { list ->
+//                                list.forEach { dictName ->
+//                                    db.copyEntriesFromOtherTableAsync(dictName)
+//                                            .observeOn(Schedulers.computation())
+//                                            .subscribeOn(AndroidSchedulers.mainThread())
+//                                            .subscribe({ res ->
+//                                               println("******************************** ${this::class.java.canonicalName} res = $res **********************************")
+//                                            }, { t ->
+//                                                t.printStackTrace()
+//                                            })
+//                                }
+//                            }
                 }
             }
 

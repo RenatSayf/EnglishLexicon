@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.myapp.lexicon.database.DataBaseEntry
+import com.myapp.lexicon.database.Word
 import com.myapp.lexicon.helpers.PlayListBus
 import com.myapp.lexicon.repository.DataRepositoryImpl
 import io.reactivex.Observable
@@ -34,12 +35,12 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
         _playList.value = repository.getTableListFromSettings()
     }
 
-    private var _wordsList = MutableLiveData<Pair<MutableMap<String, Int>, MutableList<DataBaseEntry>>>()
-    var wordsList: LiveData<Pair<MutableMap<String, Int>, MutableList<DataBaseEntry>>> = _wordsList
+    private var _wordsList = MutableLiveData<MutableList<Word>>()
+    var wordsList: LiveData<MutableList<Word>> = _wordsList
 
-    fun getAllWordsFromDict(dictName: String): Single<MutableList<DataBaseEntry>>
+    fun getWordsFromDict(dictName: String, id: Int, limit: Int): Single<MutableList<Word>>
     {
-         return repository.getAllFromTable(dictName)
+         return repository.getEntriesFromDbByDictName(dictName, id, limit)
     }
 
     fun deleteDict(dictName: String) : Single<Boolean>
@@ -63,16 +64,25 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
         _currentDict.value = repository.getCurrentWordFromSettings().dictName
 
         val dictName = _currentDict.value!!
-        composite.add(getEntriesAndCounters(dictName, 1, "ASC", 10000)
-                .subscribeOn(Schedulers.computation())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ pair ->
-                    if (pair.first.isNotEmpty() && pair.second.isNotEmpty())
-                    {
-                        _wordsList.value = pair
-                        _currentDict.value = pair.second[0].dictName
-                    }
-                }, { throwable -> throwable.printStackTrace() }))
+//        composite.add(getEntriesAndCounters(dictName, 1, "ASC", 10000)
+//                .subscribeOn(Schedulers.computation())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe({ pair ->
+//                    if (pair.first.isNotEmpty() && pair.second.isNotEmpty())
+//                    {
+//                        _wordsList.value = pair
+//                        _currentDict.value = pair.second[0].dictName
+//                    }
+//                }, { throwable -> throwable.printStackTrace() }))
+
+        composite.add(getWordsFromDict(dictName, 1, Int.MAX_VALUE)
+                .observeOn(Schedulers.computation())
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .subscribe({ list ->
+                    _wordsList.value = list
+                }, { t ->
+                    t.printStackTrace()
+                }))
     }
 
     override fun onCleared()

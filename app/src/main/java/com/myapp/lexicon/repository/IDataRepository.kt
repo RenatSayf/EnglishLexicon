@@ -1,6 +1,7 @@
 package com.myapp.lexicon.repository
 
 import com.myapp.lexicon.database.DataBaseEntry
+import com.myapp.lexicon.database.Word
 import io.reactivex.Observable
 import io.reactivex.Single
 import java.util.*
@@ -8,6 +9,11 @@ import java.util.*
 interface IDataRepository
 {
     fun getTableListFromDb() : Observable<MutableList<String>>
+
+    /**
+     *
+     */
+    fun getEntriesFromDbByDictName(dictName: String, id: Int = 1, limit: Int = 2) : Single<MutableList<Word>>
 
     fun getTableListFromSettings() : MutableList<String>
 

@@ -46,8 +46,10 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
 import com.myapp.lexicon.cloudstorage.StorageFragment2;
+import com.myapp.lexicon.database.AppDao;
+import com.myapp.lexicon.database.AppDataBase;
 import com.myapp.lexicon.database.DataBaseEntry;
-import com.myapp.lexicon.database.DataBaseQueries;
+import com.myapp.lexicon.database.Word;
 import com.myapp.lexicon.dialogs.RemoveDictDialog;
 import com.myapp.lexicon.helpers.Share;
 import com.myapp.lexicon.playlist.PlayList;
@@ -66,7 +68,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -114,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private AppData appData;
     private LinkedList<String> dictList;
     private ArrayList<String> playList = new ArrayList<>();
-    private DataBaseQueries dataBaseQueries;
+    //private DataBaseQueries dataBaseQueries;
     private Locale localeDefault;
     private ViewPager2 mainViewPager;
 
@@ -156,6 +157,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         appData = AppData.getInstance();
         appData.initAllSettings(this);
 
+        AppDao db = AppDataBase.Companion.getInstance(this).appDao();
+
         initViews();
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
@@ -168,13 +171,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        MainViewPagerAdapter pagerAdapter = new MainViewPagerAdapter();
+
 
         mainViewModel.getWordsList().observe(this, entries -> {
-            if (entries != null && entries.getSecond() != null  && !entries.getSecond().isEmpty())
+            if (entries != null && !entries.isEmpty())
             {
-                pagerAdapter.setCounters(entries.getFirst());
-                pagerAdapter.setEntries(entries.getSecond());
+                MainViewPagerAdapter pagerAdapter = new MainViewPagerAdapter(entries);
                 mainViewPager.setAdapter(pagerAdapter);
                 mainViewPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
             }
@@ -194,11 +196,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 final MainViewPagerAdapter adapter = (MainViewPagerAdapter)mainViewPager.getAdapter();
                 if (adapter != null)
                 {
-                    DataBaseEntry item = adapter.getItem(position);
+                    Word item = adapter.getItem(position);
                     textViewDict.setText(item.getDictName());
-                    Map<String, Integer> counters = adapter.getCounters();
                     this.totalWords = adapter.getItemCount();
-                    String concatText = (item.getRowId() + "").concat(" / ").concat(totalWords + "").concat("  " + getString(R.string.text_studied) + " " + counters.get("studiedWords"));
+                    String concatText = (position + "").concat(" / ").concat(totalWords + "");
                     tvWordsCounter.setText(concatText);
                 }
             }
@@ -408,7 +409,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             orderPlayIconIV.setImageResource(R.drawable.ic_shuffle_white);
         }
         localeDefault = new Locale(appSettings.getTranslateLang());
-        dataBaseQueries = new DataBaseQueries(this);
+        //dataBaseQueries = new DataBaseQueries(this);
         if (serviceIntent != null)
         {
             stopService(serviceIntent);
@@ -649,8 +650,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         {
                             try
                             {
-                                dataBaseQueries = new DataBaseQueries(MainActivity.this);
-                                dataBaseQueries.addTableToDbSync(dictName);
+//                                dataBaseQueries = new DataBaseQueries(MainActivity.this);
+//                                dataBaseQueries.addTableToDbSync(dictName);
                             } catch (Exception e)
                             {
                                 e.printStackTrace();

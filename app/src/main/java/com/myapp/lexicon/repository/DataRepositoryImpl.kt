@@ -1,18 +1,25 @@
 package com.myapp.lexicon.repository
 
-import com.myapp.lexicon.database.AppDB
-import com.myapp.lexicon.database.DataBaseEntry
+import com.myapp.lexicon.database.*
 import com.myapp.lexicon.settings.AppSettings
 import io.reactivex.Observable
 import io.reactivex.Single
 import java.util.*
 import javax.inject.Inject
 
-class DataRepositoryImpl @Inject constructor(private val appDB: AppDB, private var settings: AppSettings) : IDataRepository
+class DataRepositoryImpl @Inject constructor(private val appDB: AppDB,
+                                             private val db: AppDao,
+                                             private var settings: AppSettings) : IDataRepository
 {
+
     override fun getTableListFromDb(): Observable<MutableList<String>>
     {
         return appDB.getTableListAsync()
+    }
+
+    override fun getEntriesFromDbByDictName(dictName: String, id: Int, limit: Int): Single<MutableList<Word>>
+    {
+        return db.getEntriesByDictName(dictName, id, limit)
     }
 
     override fun getTableListFromSettings(): MutableList<String>

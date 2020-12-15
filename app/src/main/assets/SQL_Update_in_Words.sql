@@ -1,1 +1,1 @@
-UPDATE Words SET dict_name = 'Глаголы' WHERE dict_name == 'Общий'
+UPDATE Words SET dict_name = 'Прилагательные' WHERE dict_name == 'Общий'

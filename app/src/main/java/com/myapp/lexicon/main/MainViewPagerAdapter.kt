@@ -6,13 +6,18 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.myapp.lexicon.R
-import com.myapp.lexicon.database.DataBaseEntry
-import kotlinx.android.synthetic.main.a_content_main.view.*
+import com.myapp.lexicon.database.Word
 
-class MainViewPagerAdapter constructor() : RecyclerView.Adapter<PagerViewHolder>()
+class MainViewPagerAdapter constructor(private val list: MutableList<Word>) : RecyclerView.Adapter<PagerViewHolder>()
 {
-    var counters: MutableMap<String, Int> = mutableMapOf()
-    var entries : MutableList<DataBaseEntry> = mutableListOf()
+    init
+    {
+        if (!list.isNullOrEmpty())
+        {
+            val word = list[0]
+            list.add(0, word)
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PagerViewHolder
     {
@@ -24,27 +29,23 @@ class MainViewPagerAdapter constructor() : RecyclerView.Adapter<PagerViewHolder>
     {
         val itemView = holder.itemView
         itemView.findViewById<TextView>(R.id.enTextView)?.let {
-            it.text = entries[position].english
+            it.text = list[position].english
         }
         itemView.findViewById<TextView>(R.id.ruTextView)?.let {
-            it.text = entries[position].translate
+            it.text = list[position].translate
         }
     }
 
     override fun getItemCount(): Int
     {
-        return entries.size
+        return list.size
     }
 
-    fun getItem(position: Int) : DataBaseEntry
+    fun getItem(position: Int) : Word
     {
-        return entries[position]
+        return list[position]
     }
 
-    override fun registerAdapterDataObserver(observer: RecyclerView.AdapterDataObserver)
-    {
-        super.registerAdapterDataObserver(observer)
-    }
 }
 
 class PagerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)

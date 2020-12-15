@@ -7,6 +7,8 @@ import com.myapp.lexicon.helpers.StringOperations
 import io.reactivex.Observable
 import io.reactivex.ObservableSource
 import io.reactivex.Single
+import io.reactivex.functions.Consumer
+import io.reactivex.schedulers.Schedulers
 import java.util.*
 import javax.inject.Inject
 
@@ -432,6 +434,11 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
 
     fun copyEntriesFromOtherTableAsync(tableName: String) : Single<Int>
     {
+        val list = mutableListOf("asdsa", "ddfgdfg")
+        Observable.fromIterable(list).subscribe {
+
+        }
+
         return Single.create { emitter ->
             try
             {
