@@ -40,7 +40,7 @@ abstract class AppDataBase : RoomDatabase()
             val dbName = context.getString(R.string.data_base_name)
             return Room.databaseBuilder(context, AppDataBase::class.java, dbName)
                     .addMigrations(MIGRATION)
-                    .createFromAsset(dbName)
+                    .createFromAsset("databases/$dbName")
                     .allowMainThreadQueries()
                     .build()
         }

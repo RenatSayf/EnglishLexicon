@@ -589,10 +589,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         else if (id == R.id.nav_play_list)
         {
-            if (playListIntent == null)
-            {
-                playListIntent = new Intent(this, PlayList.class);
-            }
+//            if (playListIntent == null)
+//            {
+//                playListIntent = new Intent(this, PlayList.class);
+//            }
+            playListIntent = new Intent(this, PlayList.class);
             startActivity(playListIntent);
         }
         else if (id == R.id.nav_settings)

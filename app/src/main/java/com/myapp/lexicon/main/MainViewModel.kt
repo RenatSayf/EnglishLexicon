@@ -21,10 +21,10 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
     private var _currentDict = MutableLiveData<String>()
     var currentDict : LiveData<String> = _currentDict
 
-    fun getDictList() : Observable<MutableList<String>>
-    {
-        return repository.getTableListFromDb()
-    }
+//    fun getDictList() : Observable<MutableList<String>>
+//    {
+//        return repository.getTableListFromDb()
+//    }
 
 
     private var _playList = MutableLiveData<MutableList<String>>()
@@ -58,6 +58,11 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
         return repository.getRandomEntriesFromDb(dictName, rowId)
     }
 
+    fun getDictList() : Single<MutableList<String>>
+    {
+        return repository.getDictListFromDb()
+    }
+
     init
     {
         _playList.value = repository.getTableListFromSettings() as ArrayList<String>
@@ -75,14 +80,19 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
 //                    }
 //                }, { throwable -> throwable.printStackTrace() }))
 
-        composite.add(getWordsFromDict(dictName, 1, Int.MAX_VALUE)
-                .observeOn(Schedulers.computation())
-                .subscribeOn(AndroidSchedulers.mainThread())
-                .subscribe({ list ->
-                    _wordsList.value = list
-                }, { t ->
-                    t.printStackTrace()
-                }))
+        if (dictName.isNotEmpty())
+        {
+            composite.add(getWordsFromDict(dictName, 1, Int.MAX_VALUE)
+                    .subscribeOn(Schedulers.computation())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({ list ->
+                        _wordsList.value = list
+                    }, { t ->
+                        t.message
+                        t.printStackTrace()
+                        _wordsList.value = mutableListOf()
+                    }))
+        }
     }
 
     override fun onCleared()

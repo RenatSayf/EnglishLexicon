@@ -9,13 +9,13 @@ import com.myapp.lexicon.helpers.StringOperations;
 
 public class UpdateDBEntryAsync extends AsyncTask<Void, Void, Integer>
 {
-    private LockOrientation lockOrientation;
-    private DatabaseHelper databaseHelper;
-    private ContentValues values;
-    private String table_name;
-    private String where;
-    private String[] whereArgs;
-    private IUpdateDBListener iUpdateDBListener;
+    private final LockOrientation lockOrientation;
+    private final DatabaseHelper databaseHelper;
+    private final ContentValues values;
+    private final String table_name;
+    private final String where;
+    private final String[] whereArgs;
+    private final IUpdateDBListener iUpdateDBListener;
 
     public UpdateDBEntryAsync(Activity activity, String tableName, ContentValues values, String where, String[] whereArgs, IUpdateDBListener listener)
     {

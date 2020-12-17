@@ -17,9 +17,19 @@ class DataRepositoryImpl @Inject constructor(private val appDB: AppDB,
         return appDB.getTableListAsync()
     }
 
+    override fun getDictListFromDb(): Single<MutableList<String>>
+    {
+        return db.getDictList()
+    }
+
     override fun getEntriesFromDbByDictName(dictName: String, id: Int, limit: Int): Single<MutableList<Word>>
     {
         return db.getEntriesByDictName(dictName, id, limit)
+    }
+
+    override fun updateDbEntries(list: List<Word>): Single<Int>
+    {
+        return db.updateCountRepeat(0, 1, Int.MAX_VALUE)
     }
 
     override fun getTableListFromSettings(): MutableList<String>
