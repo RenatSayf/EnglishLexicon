@@ -13,6 +13,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.speech.tts.TextToSpeech;
@@ -46,8 +47,6 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
 import com.myapp.lexicon.cloudstorage.StorageFragment2;
-import com.myapp.lexicon.database.AppDao;
-import com.myapp.lexicon.database.AppDataBase;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.Word;
 import com.myapp.lexicon.dialogs.RemoveDictDialog;
@@ -59,6 +58,8 @@ import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 import com.myapp.lexicon.settings.SettingsFragment;
 import com.myapp.lexicon.wordeditor.WordEditorActivity;
+import com.myapp.lexicon.wordstests.FindPairFragmNew;
+import com.myapp.lexicon.wordstests.FindPairFragment;
 import com.myapp.lexicon.wordstests.TestsActivity;
 
 import org.greenrobot.eventbus.EventBus;
@@ -157,8 +158,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         appData = AppData.getInstance();
         appData.initAllSettings(this);
 
-        AppDao db = AppDataBase.Companion.getInstance(this).appDao();
-
         initViews();
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
@@ -184,54 +183,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         mainViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback()
         {
-            private int position = 0;
-            private int totalWords = Integer.MAX_VALUE;
+            private int currentPosition = -1;
+            private int state = -1;
             private boolean isEnd = false;
-            private boolean isStart = false;
+
             @Override
             public void onPageSelected(int position)
             {
                 super.onPageSelected(position);
-                this.position = position;
                 final MainViewPagerAdapter adapter = (MainViewPagerAdapter)mainViewPager.getAdapter();
                 if (adapter != null)
                 {
                     Word item = adapter.getItem(position);
                     textViewDict.setText(item.getDictName());
-                    this.totalWords = adapter.getItemCount();
-                    String concatText = (position + "").concat(" / ").concat(totalWords + "");
+                    int totalWords = adapter.getItemCount();
+                    this.currentPosition = position;
+                    String concatText = (position + 1 + "").concat(" / ").concat(totalWords + "");
                     tvWordsCounter.setText(concatText);
+
+                    isEnd = position == totalWords - 1;
                 }
             }
             @Override
             public void onPageScrollStateChanged(int state)
             {
                 super.onPageScrollStateChanged(state);
-
-                if (state == ViewPager2.SCROLL_STATE_DRAGGING)
-                {
-                    int currentItem = mainViewPager.getCurrentItem();
-                    if (currentItem >= totalWords - 1)
-                    {
-                        isEnd = true;
-                    }
-                    if (currentItem <= 0)
-                    {
-                        isStart = true;
-                    }
-                }
-                if (state == ViewPager2.SCROLL_STATE_IDLE && isEnd)
-                {
-                    isEnd = false;
-                    mainViewPager.setCurrentItem(0, false);
-
-                }
-                if (state == ViewPager2.SCROLL_STATE_IDLE && isStart)
-                {
-                    isStart = false;
-                    mainViewPager.setCurrentItem(this.totalWords - 1, false);
-
-                }
+                this.state = state;
             }
 
             @Override
@@ -239,6 +216,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             {
                 super.onPageScrolled(position, positionOffset, positionOffsetPixels);
 
+                if (state == ViewPager2.SCROLL_STATE_DRAGGING && this.isEnd && currentPosition == position)
+                {
+                    Toast.makeText(MainActivity.this, "Проверим знания!!!...", Toast.LENGTH_LONG).show();
+                    MainViewPagerAdapter adapter = (MainViewPagerAdapter) mainViewPager.getAdapter();
+                    List<Word> list = adapter.getItems();
+                    Bundle bundle = new Bundle();
+                    bundle.putParcelableArrayList("XXXXXXXXXXX", (ArrayList<? extends Parcelable>) list);
+                    FindPairFragment findPairFragment = new FindPairFragment();
+                    findPairFragment.setArguments(bundle);
+                    FindPairFragmNew pairFragmNew = FindPairFragmNew.newInstance(list);
+                    getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, pairFragmNew).addToBackStack(null).commit();
+                }
             }
         });
 

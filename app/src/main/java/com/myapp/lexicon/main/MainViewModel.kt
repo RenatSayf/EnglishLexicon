@@ -68,19 +68,8 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
         _playList.value = repository.getTableListFromSettings() as ArrayList<String>
         _currentDict.value = repository.getCurrentWordFromSettings().dictName
 
-        val dictName = _currentDict.value!!
-//        composite.add(getEntriesAndCounters(dictName, 1, "ASC", 10000)
-//                .subscribeOn(Schedulers.computation())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe({ pair ->
-//                    if (pair.first.isNotEmpty() && pair.second.isNotEmpty())
-//                    {
-//                        _wordsList.value = pair
-//                        _currentDict.value = pair.second[0].dictName
-//                    }
-//                }, { throwable -> throwable.printStackTrace() }))
-
-        if (dictName.isNotEmpty())
+        val dictName = _currentDict.value
+        if (!dictName.isNullOrEmpty())
         {
             composite.add(getWordsFromDict(dictName, 1, Int.MAX_VALUE)
                     .subscribeOn(Schedulers.computation())

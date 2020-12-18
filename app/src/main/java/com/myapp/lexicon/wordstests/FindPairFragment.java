@@ -37,6 +37,7 @@ import com.myapp.lexicon.database.GetTableListAsync;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
 import com.myapp.lexicon.main.BackgroundFragm;
+import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
@@ -51,8 +52,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProvider;
+import dagger.hilt.android.AndroidEntryPoint;
 
 
+@AndroidEntryPoint
 public class FindPairFragment extends Fragment implements DialogTestComplete.IDialogComplete_Result
 {
     public static final String TAG = "tag_find_pair";
@@ -66,7 +70,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     private Button topPanelButtonOK;
     private Button topPanelButtonFinish;
     private ImageButton topPanelButtonThreePoints;
-    private long duration = 1000;
+    private final long duration = 1000;
     private static boolean isOpen = false;
 
     private LinearLayout btnLayoutLeft, btnLayoutRight;
@@ -84,8 +88,8 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     private int wordsCount;
     private int counterRightAnswer = 0;
 
-    private static ArrayList<String> textArrayleft = new ArrayList<>();
-    private static ArrayList<String> textArrayRight = new ArrayList<>();
+    private static final ArrayList<String> textArrayleft = new ArrayList<>();
+    private static final ArrayList<String> textArrayRight = new ArrayList<>();
     private ArrayList<String> arrStudiedDict;
     private ArrayList<DataBaseEntry> controlList;
     private ArrayList<DataBaseEntry> additionalList;
@@ -119,6 +123,8 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     private final String KEY_ADDITIONAL_LIST = "key_additional_list";
     private final String KEY_STORED_DICT_LIST = "key_stored_dict_list";
 
+    private MainViewModel mainViewModel;
+
 
     public FindPairFragment()
     {
@@ -131,12 +137,16 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         super.onCreate(savedInstanceState);
         setRetainInstance(false);
 
+        mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
+
         storedListDict = new ArrayList<>();
         arrStudiedDict = new ArrayList<>();
         if (getActivity() != null)
         {
             appSettings = new AppSettings(getActivity());
         }
+
+
     }
 
     @Override
@@ -457,6 +467,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                     counterRightAnswer = arguments.getInt(appSettings.KEY_COUNTER_RIGHT_ANSWER);
                 }
             }
+
             getArguments().clear();
         }
 

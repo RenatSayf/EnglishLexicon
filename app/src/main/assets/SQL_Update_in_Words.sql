@@ -1,1 +1,1 @@
-UPDATE Words SET count_repeat = 1 WHERE count_repeat == 0
+UPDATE Words SET count_repeat = 1 WHERE _id >= 1 AND _id <= 100000
