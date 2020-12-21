@@ -13,7 +13,6 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.speech.tts.TextToSpeech;
@@ -58,8 +57,7 @@ import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 import com.myapp.lexicon.settings.SettingsFragment;
 import com.myapp.lexicon.wordeditor.WordEditorActivity;
-import com.myapp.lexicon.wordstests.FindPairFragmNew;
-import com.myapp.lexicon.wordstests.FindPairFragment;
+import com.myapp.lexicon.wordstests.OneOfFiveFragmNew;
 import com.myapp.lexicon.wordstests.TestsActivity;
 
 import org.greenrobot.eventbus.EventBus;
@@ -221,12 +219,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Toast.makeText(MainActivity.this, "Проверим знания!!!...", Toast.LENGTH_LONG).show();
                     MainViewPagerAdapter adapter = (MainViewPagerAdapter) mainViewPager.getAdapter();
                     List<Word> list = adapter.getItems();
-                    Bundle bundle = new Bundle();
-                    bundle.putParcelableArrayList("XXXXXXXXXXX", (ArrayList<? extends Parcelable>) list);
-                    FindPairFragment findPairFragment = new FindPairFragment();
-                    findPairFragment.setArguments(bundle);
-                    FindPairFragmNew pairFragmNew = FindPairFragmNew.newInstance(list);
-                    getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, pairFragmNew).addToBackStack(null).commit();
+                    OneOfFiveFragmNew testFragment = OneOfFiveFragmNew.getInstance(list);
+                    getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, testFragment).addToBackStack(null).commit();
                 }
             }
         });
