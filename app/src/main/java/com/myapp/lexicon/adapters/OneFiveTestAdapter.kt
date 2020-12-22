@@ -3,6 +3,8 @@ package com.myapp.lexicon.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
+import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -22,8 +24,9 @@ class OneFiveTestAdapter constructor(private val list: MutableList<Word>) : Recy
     override fun onBindViewHolder(holder: ViewHolder, position: Int)
     {
         val itemView = holder.itemView
-        val answerView = itemView.findViewById<TextView>(R.id.answerView)
+        val answerView = itemView.findViewById<Button>(R.id.answerView)
         answerView.text = list[position].english
+        holder.itemView.animation = AnimationUtils.loadAnimation(holder.itemView.context, R.anim.from_right_to_left_anim)
     }
 
     override fun getItemCount(): Int

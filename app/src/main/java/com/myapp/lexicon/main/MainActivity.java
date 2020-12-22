@@ -77,6 +77,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 import dagger.hilt.android.AndroidEntryPoint;
@@ -92,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 {
     public static final String KEY_PLAY_LIST = "com.myapp.lexicon.main.KEY_PLAY_LIST";
 
+    private LinearLayout mainControlLayout;
     private Intent addWordIntent;
     private Intent wordEditorIntent;
     private Intent testsIntent;
@@ -218,9 +220,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 {
                     Toast.makeText(MainActivity.this, "Проверим знания!!!...", Toast.LENGTH_LONG).show();
                     MainViewPagerAdapter adapter = (MainViewPagerAdapter) mainViewPager.getAdapter();
-                    List<Word> list = adapter.getItems();
-                    OneOfFiveFragmNew testFragment = OneOfFiveFragmNew.getInstance(list);
-                    getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, testFragment).addToBackStack(null).commit();
+                    if (adapter != null)
+                    {
+                        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                        transaction.setCustomAnimations(R.anim.from_right_to_left_anim, R.anim.from_left_to_right_anim);
+                        List<Word> list = adapter.getItems();
+                        OneOfFiveFragmNew testFragment = OneOfFiveFragmNew.getInstance(list);
+                        if (testFragment != null)
+                        {
+                            mainControlLayout.setVisibility(View.INVISIBLE);
+                            transaction.replace(R.id.frame_to_page_fragm, testFragment).addToBackStack(null).commit();
+                        }
+                    }
                 }
             }
         });
@@ -307,6 +318,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void initViews()
     {
+        mainControlLayout = findViewById(R.id.main_control_layout);
         mainViewPager = findViewById(R.id.mainViewPager);
         textViewEn = findViewById(R.id.enTextView);
         textViewRu = findViewById(R.id.ruTextView);
