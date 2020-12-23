@@ -1,1 +1,1 @@
-UPDATE Words SET count_repeat = 1 WHERE _id >= 1 AND _id <= 100000
+UPDATE Words SET dict_name = 'Наречия' WHERE dict_name == 'Общий'

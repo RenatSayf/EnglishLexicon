@@ -1,6 +1,6 @@
 INSERT OR IGNORE INTO Words 
 (english, translate)
 SELECT English, Translate 
-FROM 'Наречия' LIMIT 3
+FROM lexicon_DB_old.Наречия WHERE ROWID >= 4 LIMIT 14
 
 
