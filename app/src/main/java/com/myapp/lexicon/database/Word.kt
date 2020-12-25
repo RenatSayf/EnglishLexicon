@@ -45,7 +45,7 @@ data class Word(
 
     override fun describeContents(): Int
     {
-        return 0
+        return this.hashCode()
     }
 
     companion object CREATOR : Parcelable.Creator<Word>
