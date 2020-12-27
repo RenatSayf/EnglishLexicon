@@ -74,11 +74,11 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
     private Button topPanelButtonOK;
     private Button topPanelButtonFinish;
     private ImageButton topPanelButtonThreePoints;
-    private long duration = 1000;
+    private final long duration = 1000;
 
     private static RandomNumberGenerator randomGenerator;
     private DisplayMetrics displayMetrics;
-    private int delta = 60;
+    private final int delta = 60;
 
     private TextView textView;
     private LinearLayout buttonsLayout;

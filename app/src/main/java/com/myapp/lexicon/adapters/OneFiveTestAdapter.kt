@@ -18,7 +18,7 @@ import com.myapp.lexicon.helpers.Event
 import io.reactivex.subjects.BehaviorSubject
 import java.lang.IndexOutOfBoundsException
 
-class OneFiveTestAdapter constructor(private val list: List<Word>) : RecyclerView.Adapter<OneFiveTestAdapter.ViewHolder>()
+class OneFiveTestAdapter constructor(private val list: ArrayList<Word>) : RecyclerView.Adapter<OneFiveTestAdapter.ViewHolder>()
 {
     class ViewHolder(item: View) : RecyclerView.ViewHolder(item)
 
@@ -45,7 +45,7 @@ class OneFiveTestAdapter constructor(private val list: List<Word>) : RecyclerVie
         val itemView = holder.itemView
         val answerView = itemView.findViewById<Button>(R.id.answerView)
         answerView.text = list[position].english
-        holder.itemView.animation = AnimationUtils.loadAnimation(holder.itemView.context, R.anim.from_right_to_left_anim)
+        //holder.itemView.animation = AnimationUtils.loadAnimation(holder.itemView.context, R.anim.from_right_to_left_anim)
 
         answerView.setOnClickListener {
             try
@@ -63,6 +63,17 @@ class OneFiveTestAdapter constructor(private val list: List<Word>) : RecyclerVie
     override fun getItemCount(): Int
     {
         return list.size
+    }
+
+    fun getItems(): ArrayList<Word>
+    {
+        return list
+    }
+
+    fun removeItem(position: Int)
+    {
+        list.removeAt(position)
+        notifyItemRemoved(position)
     }
 
 }
