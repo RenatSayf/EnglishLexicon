@@ -203,7 +203,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
         spinnListDict= fragment_view.findViewById(R.id.spinner_dict);
         buttonsLayout = fragment_view.findViewById(R.id.layout_1of5);
         textView = fragment_view.findViewById(R.id.text_view_1of5);
-        progressBar = fragment_view.findViewById(R.id.progress_test1of5);
+        progressBar = fragment_view.findViewById(R.id.progressView1of5);
         tvProgressValue = fragment_view.findViewById(R.id.tv_progress_value);
         setProgressValue(0, fields.wordsCount);
 

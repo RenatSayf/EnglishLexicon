@@ -32,12 +32,14 @@
         android:layout_marginRight="10dp">
 
         <ProgressBar
-            android:id="@+id/progress_test1of5"
+            android:id="@+id/progressView1of5"
             style="@android:style/Widget.ProgressBar.Horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:indeterminate="false"
-            android:visibility="visible"/>
+            android:visibility="visible"
+            tools:max="20"
+            tools:progress="10"/>
 
         <TextView
             android:layout_width="wrap_content"

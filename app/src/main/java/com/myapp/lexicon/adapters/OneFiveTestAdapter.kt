@@ -70,10 +70,18 @@ class OneFiveTestAdapter constructor(private val list: ArrayList<Word>) : Recycl
         return list
     }
 
-    fun removeItem(position: Int)
+    fun removeItem(position: Int): Word
     {
-        list.removeAt(position)
+        val word = list.removeAt(position)
         notifyItemRemoved(position)
+        return word
+    }
+
+    fun addItem(position: Int, word: Word)
+    {
+        list.add(position, word)
+        notifyItemInserted(position)
+        notifyItemChanged(position)
     }
 
 }
