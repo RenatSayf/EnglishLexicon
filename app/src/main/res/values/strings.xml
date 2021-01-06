@@ -209,6 +209,9 @@
     <string name="text_display_mode">Режим отображения</string>
     <string name="text_popup_window">Всплывающее окно</string>
     <string name="text_show_words_over">Показывать слова через:</string>
+    <string name="key_learning_mode">key_learning_mode</string>
+    <string name="text_test_after_learning">Проходить тест после изучения</string>
+    <string name="text_knowledge_check">Проверка знаний</string>
     <string-array name="not_move">
         <item>Не перемещать</item>
     </string-array>
@@ -261,6 +264,24 @@
         <item>5</item>
         <item>10</item>
         <item>20</item>
+    </string-array>
+    <string-array name="words_interval">
+        <item>через 5 слов</item>
+        <item>через 10 слов</item>
+        <item>через 15 слов</item>
+        <item>через 20 слов</item>
+        <item>через 30 слов</item>
+        <item>через 50 слов</item>
+        <item>Не проходить</item>
+    </string-array>
+    <string-array name="words_interval_values">
+        <item>5</item>
+        <item>10</item>
+        <item>15</item>
+        <item>20</item>
+        <item>30</item>
+        <item>50</item>
+        <item>10000000</item>
     </string-array>
 
 

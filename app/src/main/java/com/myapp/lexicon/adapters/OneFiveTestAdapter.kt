@@ -3,20 +3,10 @@ package com.myapp.lexicon.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AnimationUtils
 import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.TextView
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelStoreOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.myapp.lexicon.R
 import com.myapp.lexicon.database.Word
-import com.myapp.lexicon.helpers.Event
-import io.reactivex.subjects.BehaviorSubject
-import java.lang.IndexOutOfBoundsException
 
 class OneFiveTestAdapter constructor(private val list: ArrayList<Word>) : RecyclerView.Adapter<OneFiveTestAdapter.ViewHolder>()
 {
@@ -45,8 +35,6 @@ class OneFiveTestAdapter constructor(private val list: ArrayList<Word>) : Recycl
         val itemView = holder.itemView
         val answerView = itemView.findViewById<Button>(R.id.answerView)
         answerView.text = list[position].english
-        //holder.itemView.animation = AnimationUtils.loadAnimation(holder.itemView.context, R.anim.from_right_to_left_anim)
-
         answerView.setOnClickListener {
             try
             {
@@ -75,6 +63,20 @@ class OneFiveTestAdapter constructor(private val list: ArrayList<Word>) : Recycl
         val word = list.removeAt(position)
         notifyItemRemoved(position)
         return word
+    }
+
+    fun removeItem(english: String, translate: String)
+    {
+        var position: Int = -1
+        list.forEachIndexed { i, w ->
+            if (w.english == english && w.translate == translate)
+            {
+                position = i
+                return@forEachIndexed
+            }
+        }
+        list.removeAt(position)
+        notifyItemRemoved(position)
     }
 
     fun addItem(position: Int, word: Word)

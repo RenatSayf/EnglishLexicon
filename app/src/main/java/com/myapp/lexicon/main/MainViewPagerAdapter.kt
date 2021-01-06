@@ -47,6 +47,11 @@ class MainViewPagerAdapter constructor(private val list: MutableList<Word>) : Re
         return list
     }
 
+    fun getItems(start: Int, end: Int) : MutableList<Word>
+    {
+        return list.filterIndexed { index, _ -> index in start..end } as MutableList<Word>
+    }
+
 }
 
 class PagerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)

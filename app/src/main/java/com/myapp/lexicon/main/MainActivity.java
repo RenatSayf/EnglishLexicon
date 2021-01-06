@@ -181,6 +181,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
+        int wordsInterval = appSettings.getWordsInterval();
         mainViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback()
         {
             private int currentPosition = -1;
@@ -216,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             {
                 super.onPageScrolled(position, positionOffset, positionOffsetPixels);
 
-                if (state == ViewPager2.SCROLL_STATE_DRAGGING && this.isEnd && currentPosition == position)
+                if (state == ViewPager2.SCROLL_STATE_DRAGGING && wordsInterval == position + 1)
                 {
                     Toast.makeText(MainActivity.this, "Проверим знания!!!...", Toast.LENGTH_LONG).show();
                     MainViewPagerAdapter adapter = (MainViewPagerAdapter) mainViewPager.getAdapter();
@@ -224,7 +225,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     {
                         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                         transaction.setCustomAnimations(R.anim.from_right_to_left_anim, R.anim.from_left_to_right_anim);
-                        List<Word> list = adapter.getItems();
+                        List<Word> list = adapter.getItems(position - wordsInterval, position);
                         OneOfFiveFragmNew testFragment = OneOfFiveFragmNew.getInstance(list);
                         if (testFragment != null)
                         {

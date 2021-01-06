@@ -262,4 +262,27 @@
         <item>20</item>
     </string-array>
 
+    <string name="key_learning_mode">key_learning_mode</string>
+    <string name="text_test_after_learning">Пройти тест після вивчення</string>
+    <string name="text_knowledge_check">Перевірка знань</string>
+
+    <string-array name="words_interval">
+        <item>після 5 слів</item>
+        <item>після 10 слів</item>
+        <item>після 15 слів</item>
+        <item>після 20 слів</item>
+        <item>після 30 слів</item>
+        <item>після 50 слів</item>
+        <item>Не проходить</item>
+    </string-array>
+    <string-array name="words_interval_values">
+        <item>5</item>
+        <item>10</item>
+        <item>15</item>
+        <item>20</item>
+        <item>30</item>
+        <item>50</item>
+        <item>10000000</item>
+    </string-array>
+
 </resources>

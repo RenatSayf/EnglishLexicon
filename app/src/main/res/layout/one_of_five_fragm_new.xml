@@ -42,12 +42,12 @@
             tools:progress="10"/>
 
         <TextView
+            android:id="@+id/progressValueView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             tools:text="0%"
-            android:textColor="@color/colorWhite"
-            android:id="@+id/tv_progress_value"/>
+            android:textColor="@color/colorWhite"/>
 
     </FrameLayout>
 

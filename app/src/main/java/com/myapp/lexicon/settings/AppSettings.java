@@ -13,6 +13,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import androidx.preference.PreferenceManager;
+
 import static android.content.Context.MODE_PRIVATE;
 
 /**
@@ -360,6 +362,12 @@ public class AppSettings
                 }
             }
         }
+    }
+
+    public int getWordsInterval()
+    {
+        String wordsInterval = PreferenceManager.getDefaultSharedPreferences(context).getString(context.getString(R.string.key_learning_mode), "10");
+        return Integer.parseInt(wordsInterval);
     }
 
 

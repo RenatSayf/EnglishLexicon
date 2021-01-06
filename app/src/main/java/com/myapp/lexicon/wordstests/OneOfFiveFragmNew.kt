@@ -10,6 +10,7 @@ import android.view.animation.AnimationUtils
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
@@ -18,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.myapp.lexicon.R
 import com.myapp.lexicon.adapters.OneFiveTestAdapter
 import com.myapp.lexicon.database.Word
+import com.myapp.lexicon.dialogs.TestCompleteDialog
 import com.myapp.lexicon.helpers.RandomNumberGenerator
 import com.myapp.lexicon.wordstests.DialogTestComplete.IDialogComplete_Result
 import kotlinx.android.synthetic.main.one_of_five_fragm_new.*
@@ -26,10 +28,10 @@ import kotlin.collections.ArrayList
 
 const val ROWS: Int = 5
 
-class OneOfFiveFragmNew : Fragment(), IDialogComplete_Result, OneFiveTestAdapter.ITestAdapterListener
+class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogListener, OneFiveTestAdapter.ITestAdapterListener
 {
     private lateinit var viewModel: OneOfFiveViewModel
-    private var wordList: ArrayList<Word>? = null
+    private var wordList: List<Word>? = null
     private var answersRecyclerView: RecyclerView? = null
     private lateinit var mysteryWordView: TextView
 
@@ -85,26 +87,34 @@ class OneOfFiveFragmNew : Fragment(), IDialogComplete_Result, OneFiveTestAdapter
         })
 
         val progressView = root.findViewById<ProgressBar>(R.id.progressView1of5).apply {
-            max = wordList?.size ?: 0
+            wordList?.size?.let {
+                max = ROWS + it
+            }
         }
+
+        val progressValueView = root.findViewById<TextView>(R.id.progressValueView)
+
         viewModel.progress.observe(viewLifecycleOwner, {
             progressView.progress = it
+            val progressValue = "$it/${progressView.max}"
+            progressValueView.text = progressValue
+            if (it == progressView.max)
+            {
+                val errors = viewModel.wrongAnswerCount.value
+                val dialog = errors?.let { it1 -> TestCompleteDialog.getInstance(it1, this) }
+                dialog?.show(requireActivity().supportFragmentManager, TestCompleteDialog.TAG)
+            }
         })
-
 
         return root
     }
 
-    override fun dialogCompleteResult(res: Int)
-    {
-    }
 
     override fun onItemClickListener(position: Int, word: Word, view: Button)
     {
         val testAdapter = answersRecyclerView?.adapter as OneFiveTestAdapter
         val translate = mysteryWordView.text.toString()
         val english = view.text.toString()
-
         val items = testAdapter.getItems()
         if (!items.isNullOrEmpty())
         {
@@ -112,8 +122,7 @@ class OneOfFiveFragmNew : Fragment(), IDialogComplete_Result, OneFiveTestAdapter
             if (result)
             {
                 view.setBackgroundResource(R.drawable.text_btn_for_test_green)
-                val word2 = Word(word._id, word.dictName, english, translate, word.countRepeat)
-                val removedWord = testAdapter.removeItem(position)
+                testAdapter.removeItem(english, translate)
                 val animRight = AnimationUtils.loadAnimation(requireContext(), R.anim.from_right_to_left_anim)
                 if (!testAdapter.getItems().isNullOrEmpty())
                 {
@@ -124,7 +133,6 @@ class OneOfFiveFragmNew : Fragment(), IDialogComplete_Result, OneFiveTestAdapter
                 else
                 {
                     viewModel.mysteryWord = MutableLiveData()
-                            return
                 }
                 viewModel.setProgress(progressView1of5.progress + 1)
                 mysteryWordView.startAnimation(animRight.apply {
@@ -132,7 +140,7 @@ class OneOfFiveFragmNew : Fragment(), IDialogComplete_Result, OneFiveTestAdapter
                     {
                         override fun onAnimationStart(p0: Animation?)
                         {
-                            if (viewModel.wordsList.value!!.isNotEmpty())
+                            if (!viewModel.wordsList.value.isNullOrEmpty())
                             {
                                 val nextItem = viewModel.takeNextWord()
                                 nextItem?.let{
@@ -156,6 +164,7 @@ class OneOfFiveFragmNew : Fragment(), IDialogComplete_Result, OneFiveTestAdapter
             }
             else
             {
+                viewModel.increaseWrongAnswerCount()
                 val animNotRight = AnimationUtils.loadAnimation(requireContext(), R.anim.anim_not_right)
                 animNotRight.setAnimationListener(object : Animation.AnimationListener
                 {
@@ -174,6 +183,16 @@ class OneOfFiveFragmNew : Fragment(), IDialogComplete_Result, OneFiveTestAdapter
                 view.startAnimation(animNotRight)
             }
         }
+    }
+
+    override fun onTestPassed()
+    {
+        Toast.makeText(requireContext(), "***** onTestPassed() ******", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onTestFailed(errors: Int)
+    {
+        Toast.makeText(requireContext(), "***** onTestFailed(errors: $errors) ******", Toast.LENGTH_SHORT).show()
     }
 
 

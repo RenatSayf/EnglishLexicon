@@ -9,6 +9,19 @@
         android:title="@string/title_is_start_speech" />
 
     <PreferenceCategory
+        android:title="@string/text_knowledge_check">
+
+        <ListPreference
+            android:key="@string/key_learning_mode"
+            android:title="@string/text_test_after_learning"
+            android:entries="@array/words_interval"
+            android:entryValues="@array/words_interval_values"
+            android:defaultValue="10"
+            />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
         android:key="service_group"
         android:title="@string/title_service_group">
 

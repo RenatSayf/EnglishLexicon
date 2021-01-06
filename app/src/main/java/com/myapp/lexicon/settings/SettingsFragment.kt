@@ -32,6 +32,20 @@ class SettingsFragment : PreferenceFragmentCompat()
     {
         super.onCreate(savedInstanceState)
 
+        val wordsInterval = findPreference<ListPreference>(requireContext().getString(R.string.key_learning_mode))?.apply {
+            summary = this.entry
+            onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener
+            {
+                override fun onPreferenceChange(preference: Preference?, newValue: Any?): Boolean
+                {
+                    value = newValue.toString()
+                    summary = entry
+                    return true
+                }
+
+            }
+        }
+
         listDisplayModePref = findPreference(requireActivity().getString(R.string.key_list_display_mode))!!
         // при новом создании экрана заполняем summary значением настройки
         listDisplayModePref.summary = listDisplayModePref.entry
