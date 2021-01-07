@@ -8,13 +8,9 @@ import android.speech.tts.TextToSpeech;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.main.MainActivity;
-import com.myapp.lexicon.main.MainActivityOnStart;
+import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,7 +19,6 @@ import java.util.Locale;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import dagger.hilt.android.AndroidEntryPoint;
-import io.reactivex.disposables.CompositeDisposable;
 
 import static com.myapp.lexicon.main.MainActivity.serviceIntent;
 
@@ -34,13 +29,10 @@ import static com.myapp.lexicon.main.MainActivity.serviceIntent;
 @AndroidEntryPoint
 public class ServiceActivity extends AppCompatActivity
 {
-    private int displayVariant = 0;
     private boolean isServiceEnabled = false;
     public static IStopServiceByUser iStopServiceByUser;
     public static TextToSpeech speech;
     public static HashMap<String, String> map = new HashMap<>();
-
-    private final CompositeDisposable composite = new CompositeDisposable();
 
     public interface IStopServiceByUser
     {
@@ -63,7 +55,7 @@ public class ServiceActivity extends AppCompatActivity
         String displayVariantStr = preferences.getString(getString(R.string.key_display_variant), "0");
         isServiceEnabled = preferences.getBoolean(getString(R.string.key_service), false);
         int displayMode = Integer.parseInt(preferencesString);
-        displayVariant = Integer.parseInt(displayVariantStr);
+        int displayVariant = Integer.parseInt(displayVariantStr);
 
         if (displayVariant == 1 && serviceIntent != null)
         {
@@ -120,25 +112,25 @@ public class ServiceActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)
-    {
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    @Override
-    protected void onStart()
-    {
-        super.onStart();
-        EventBus.getDefault().register(this);
-    }
-
-    @Override
-    protected void onStop()
-    {
-        EventBus.getDefault().unregister(this);
-        super.onStop();
-    }
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)
+//    {
+//        super.onActivityResult(requestCode, resultCode, data);
+//    }
+//
+//    @Override
+//    protected void onStart()
+//    {
+//        super.onStart();
+//        //EventBus.getDefault().register(this);
+//    }
+//
+//    @Override
+//    protected void onStop()
+//    {
+//        //EventBus.getDefault().unregister(this);
+//        super.onStop();
+//    }
 
     @Override
     protected void onPause()
@@ -186,25 +178,13 @@ public class ServiceActivity extends AppCompatActivity
         super.onDestroy();
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMainActivityStart(MainActivityOnStart event)
-    {
-        if (displayVariant == 1 && !LexiconService.stopedByUser)
-        {
-            Intent serviceIntent = event.intent;
-            if (serviceIntent != null)
-            {
-                stopService(serviceIntent);
-            }
-        }
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onStoppedServiceByUser(StopedServiceByUserEvent event)
+    public void stopAppService()
     {
         if (iStopServiceByUser != null)
         {
+            LexiconService.stopedByUser = true;
             iStopServiceByUser.onStoppedByUser();
+            new AlarmScheduler(this).cancel(AlarmScheduler.REQUEST_CODE, AlarmScheduler.REPEAT_SHOOT_ACTION);
         }
         finish();
     }

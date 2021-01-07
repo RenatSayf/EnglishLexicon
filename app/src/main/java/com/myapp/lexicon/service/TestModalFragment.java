@@ -30,7 +30,6 @@ import com.myapp.lexicon.helpers.RandomNumberGenerator;
 import com.myapp.lexicon.main.MainActivityOnStart;
 import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SplashScreenActivity;
-import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
@@ -43,7 +42,6 @@ import java.util.Map;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import dagger.hilt.android.AndroidEntryPoint;
@@ -478,18 +476,12 @@ public class TestModalFragment extends Fragment
 
     private void btnStopService_OnClick(Button button)
     {
-        button.setOnClickListener(new View.OnClickListener()
+        button.setOnClickListener( view ->
         {
-            @Override
-            public void onClick(View view)
+            ServiceActivity activity = (ServiceActivity)requireActivity();
+            if (activity != null)
             {
-                FragmentActivity activity = getActivity();
-                if (activity != null)
-                {
-                    LexiconService.stopedByUser = true;
-                    EventBus.getDefault().post(new StopedServiceByUserEvent());
-                    new AlarmScheduler(activity).cancel(AlarmScheduler.REQUEST_CODE, AlarmScheduler.REPEAT_SHOOT_ACTION);
-                }
+                activity.stopAppService();
             }
         });
     }

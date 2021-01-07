@@ -21,7 +21,6 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.main.MainActivityOnStart;
 import com.myapp.lexicon.main.SplashScreenActivity;
-import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
@@ -34,7 +33,6 @@ import java.util.Map;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import kotlin.Pair;
 
 import static com.myapp.lexicon.main.MainActivity.serviceIntent;
@@ -87,7 +85,7 @@ public class ModalFragment extends Fragment
         TextView nameDictTV = fragmentView.findViewById(R.id.name_dict_tv);
         TextView wordsNumberTV = fragmentView.findViewById(R.id.words_number_tv_modal_sv);
 
-        FragmentActivity activity = getActivity();
+        ServiceActivity activity = (ServiceActivity)requireActivity();
         Bundle arguments = getArguments();
         if (activity != null && arguments != null)
         {
@@ -116,29 +114,26 @@ public class ModalFragment extends Fragment
 
             Button btnStop = fragmentView.findViewById(R.id.btn_stop_service);
             btnStop.setOnClickListener( view -> {
-                FragmentActivity activity1 = getActivity();
-                if (activity1 != null)
+                if (activity != null)
                 {
-                    LexiconService.stopedByUser = true;
-                    EventBus.getDefault().post(new StopedServiceByUserEvent());
-                    new AlarmScheduler(activity1).cancel(AlarmScheduler.REQUEST_CODE, AlarmScheduler.REPEAT_SHOOT_ACTION);
+                    activity.stopAppService();
                 }
             });
 
             ImageButton btnClose = fragmentView.findViewById(R.id.btn_close);
             btnClose.setOnClickListener(view -> {
-                if (getActivity() != null)
+                if (activity != null)
                 {
-                    getActivity().finish();
+                    activity.finish();
                 }
             });
 
             Button btnOpenApp = fragmentView.findViewById(R.id.btn_open_app);
             btnOpenApp.setOnClickListener(view -> {
-                if (getActivity() != null)
+                if (activity != null)
                 {
-                    getActivity().startActivity(new Intent(getContext(), SplashScreenActivity.class));
-                    getActivity().finish();
+                    activity.startActivity(new Intent(getContext(), SplashScreenActivity.class));
+                    activity.finish();
                     EventBus.getDefault().postSticky(new MainActivityOnStart(serviceIntent));
                 }
             });

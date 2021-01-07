@@ -60,8 +60,6 @@ import com.myapp.lexicon.wordeditor.WordEditorActivity;
 import com.myapp.lexicon.wordstests.OneOfFiveFragmNew;
 import com.myapp.lexicon.wordstests.TestsActivity;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -314,7 +312,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onStart();
         FirebaseAppIndex.getInstance().update();
         FirebaseUserActions.getInstance().start(getAction());
-        EventBus.getDefault().post(new MainActivityOnStart(serviceIntent));
+        //EventBus.getDefault().post(new MainActivityOnStart(serviceIntent));
     }
 
     private void initViews()
@@ -416,10 +414,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onDestroy()
     {
         super.onDestroy();
-//        if (databaseHelper != null)
-//        {
-//            databaseHelper.close();
-//        }
         unregisterReceiver(speechServiceReceiver);
         if (AppData.getInstance().getDisplayVariant() == 1 && serviceIntent != null)
         {
