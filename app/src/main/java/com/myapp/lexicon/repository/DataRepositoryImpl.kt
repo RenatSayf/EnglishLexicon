@@ -4,7 +4,6 @@ import com.myapp.lexicon.database.*
 import com.myapp.lexicon.settings.AppSettings
 import io.reactivex.Observable
 import io.reactivex.Single
-import java.util.*
 import javax.inject.Inject
 
 class DataRepositoryImpl @Inject constructor(private val appDB: AppDB,
@@ -45,6 +44,16 @@ class DataRepositoryImpl @Inject constructor(private val appDB: AppDB,
     override fun saveCurrentWordTheSettings(entry: DataBaseEntry)
     {
         settings.saveCurrentWord(entry);
+    }
+
+    override fun getWordFromPref(): Word
+    {
+        return settings.wordFromPref
+    }
+
+    override fun saveWordThePref(word: Word)
+    {
+        settings.saveWordThePref(word)
     }
 
     override fun getAllFromTable(tableName: String): Single<MutableList<DataBaseEntry>>

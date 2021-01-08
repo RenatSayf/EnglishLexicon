@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
+import com.myapp.lexicon.database.Word;
 import com.myapp.lexicon.helpers.ObjectSerializer;
 
 import java.util.ArrayList;
@@ -368,6 +369,20 @@ public class AppSettings
     {
         String wordsInterval = PreferenceManager.getDefaultSharedPreferences(context).getString(context.getString(R.string.key_learning_mode), "10");
         return Integer.parseInt(wordsInterval);
+    }
+
+    private final String WORD_ID = this.getClass().getCanonicalName().concat("TRANING_ID");
+    public Word getWordFromPref()
+    {
+        String dict = context.getSharedPreferences(WORD_ID, MODE_PRIVATE).getString(KEY_CURRENT_DICT, "Наречия");
+        int id = context.getSharedPreferences(WORD_ID, MODE_PRIVATE).getInt(WORD_ID, 1);
+        return new Word(id, dict, "", "", 1);
+    }
+
+    public void saveWordThePref(Word word)
+    {
+        context.getSharedPreferences(WORD_ID, MODE_PRIVATE).edit().putString(KEY_CURRENT_DICT, word.getDictName()).apply();
+        context.getSharedPreferences(WORD_ID, MODE_PRIVATE).edit().putInt(WORD_ID, word.get_id()).apply();
     }
 
 

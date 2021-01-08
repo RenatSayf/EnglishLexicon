@@ -23,6 +23,10 @@ interface IDataRepository
 
     fun saveCurrentWordTheSettings(entry: DataBaseEntry)
 
+    fun getWordFromPref() : Word
+
+    fun saveWordThePref(word: Word)
+
     fun getAllFromTable(tableName: String) : Single<MutableList<DataBaseEntry>>
 
     fun removeTableFromSettings(tableName: String)

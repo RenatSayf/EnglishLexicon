@@ -160,6 +160,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
+        mainViewModel.getCurrentWord().observe(this, id -> {
+            appSettings.saveWordThePref(id);
+        });
+
         mainViewModel.getPlayList().observe(this, list -> {
             playList = (ArrayList<String>)list;
             if (playList.size() == 0)
@@ -170,22 +174,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
 
-        mainViewModel.getWordsList().observe(this, entries -> {
+        mainViewModel.getWordsList().observe(this, entries  -> {
             if (entries != null && !entries.isEmpty())
             {
                 MainViewPagerAdapter pagerAdapter = new MainViewPagerAdapter(entries);
                 mainViewPager.setAdapter(pagerAdapter);
                 mainViewPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
+                for (int i = 0; i < entries.size(); i++)
+                {
+                    Word word = entries.get(i);
+                    if (word.get_id() == mainViewModel.getCurrentWord().getValue().get_id())
+                    {
+                        mainViewPager.setCurrentItem(i, true);
+                    }
+                }
             }
         });
 
         int wordsInterval = appSettings.getWordsInterval();
         mainViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback()
         {
-            private int currentPosition = -1;
             private int state = -1;
-            private boolean isEnd = false;
-
             @Override
             public void onPageSelected(int position)
             {
@@ -196,11 +205,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Word item = adapter.getItem(position);
                     textViewDict.setText(item.getDictName());
                     int totalWords = adapter.getItemCount();
-                    this.currentPosition = position;
                     String concatText = (position + 1 + "").concat(" / ").concat(totalWords + "");
                     tvWordsCounter.setText(concatText);
 
-                    isEnd = position == totalWords - 1;
                 }
             }
             @Override
@@ -227,6 +234,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         OneOfFiveFragmNew testFragment = OneOfFiveFragmNew.getInstance(list);
                         if (testFragment != null)
                         {
+                            Word word = list.get(list.size() - 1);
+                            mainViewModel.setCurrentWord(word);
                             mainControlLayout.setVisibility(View.INVISIBLE);
                             transaction.replace(R.id.frame_to_page_fragm, testFragment).addToBackStack(null).commit();
                         }

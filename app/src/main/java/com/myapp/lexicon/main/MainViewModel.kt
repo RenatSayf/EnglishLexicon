@@ -6,7 +6,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.myapp.lexicon.database.DataBaseEntry
 import com.myapp.lexicon.database.Word
-import com.myapp.lexicon.helpers.PlayListBus
 import com.myapp.lexicon.repository.DataRepositoryImpl
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -63,15 +62,27 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
         return repository.getDictListFromDb()
     }
 
+    private var _currentWord = MutableLiveData<Word>().apply {
+        //repository.saveWordThePref(Word(1, "Наречия", "", "", 1))
+        value = repository.getWordFromPref()
+    }
+    var currentWord: MutableLiveData<Word> = _currentWord
+    fun setCurrentWord(word: Word)
+    {
+        _currentWord.value = word
+    }
+
+
     init
     {
         _playList.value = repository.getTableListFromSettings() as ArrayList<String>
         _currentDict.value = repository.getCurrentWordFromSettings().dictName
+        val value = _currentWord.value
 
         val dictName = _currentDict.value
         if (!dictName.isNullOrEmpty())
         {
-            composite.add(getWordsFromDict(dictName, 1, Int.MAX_VALUE)
+            composite.add(getWordsFromDict(_currentWord.value!!.dictName, 1, Int.MAX_VALUE)
                     .subscribeOn(Schedulers.computation())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({ list ->

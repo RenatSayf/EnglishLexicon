@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.myapp.lexicon.R;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.DialogFragment;
 
 
@@ -52,15 +53,15 @@ public class DialogTestComplete extends DialogFragment
 
             if (getArguments().get(KEY_RESULT) == getString(R.string.text_excellent))
             {
-                builder.setIcon(getResources().getDrawable(R.drawable.icon_smiling_face));
+                builder.setIcon(ResourcesCompat.getDrawable(requireContext().getResources(), R.drawable.icon_smiling_face, null));
             }
             if (getArguments().get(KEY_RESULT) == getString(R.string.text_good))
             {
-                builder.setIcon(getResources().getDrawable(R.drawable.icon_calm_face));
+                builder.setIcon(ResourcesCompat.getDrawable(requireContext().getResources(), R.drawable.icon_calm_face, null));
             }
             if (getArguments().get(KEY_RESULT) == getString(R.string.text_bad))
             {
-                builder.setIcon(getResources().getDrawable(R.drawable.icon_sad_face));
+                builder.setIcon(ResourcesCompat.getDrawable(requireContext().getResources(), R.drawable.icon_sad_face, null));
             }
 
             TextView textViewResult = dialogView.findViewById(R.id.txt_view_result);
@@ -70,45 +71,33 @@ public class DialogTestComplete extends DialogFragment
             textViewErrors.setText(getArguments().getString(KEY_ERRORS, ""));
 
             Button buttonNext = dialogView.findViewById(R.id.btn_next);
-            buttonNext.setOnClickListener(new View.OnClickListener()
+            buttonNext.setOnClickListener( v ->
             {
-                @Override
-                public void onClick(View v)
+                if (iDialogCompleteResult != null)
                 {
-                    if (iDialogCompleteResult != null)
-                    {
-                        iDialogCompleteResult.dialogCompleteResult(1);
-                    }
-                    dismiss();
+                    iDialogCompleteResult.dialogCompleteResult(1);
                 }
+                dismiss();
             });
 
             Button buttonRepeat = dialogView.findViewById(R.id.btn_repeat);
-            buttonRepeat.setOnClickListener(new View.OnClickListener()
+            buttonRepeat.setOnClickListener( v ->
             {
-                @Override
-                public void onClick(View v)
+                if (iDialogCompleteResult != null)
                 {
-                    if (iDialogCompleteResult != null)
-                    {
-                        iDialogCompleteResult.dialogCompleteResult(0);
-                    }
-                    dismiss();
+                    iDialogCompleteResult.dialogCompleteResult(0);
                 }
+                dismiss();
             });
 
             Button buttonComplete = dialogView.findViewById(R.id.btn_complete);
-            buttonComplete.setOnClickListener(new View.OnClickListener()
+            buttonComplete.setOnClickListener( v ->
             {
-                @Override
-                public void onClick(View v)
+                if (iDialogCompleteResult != null)
                 {
-                    if (iDialogCompleteResult != null)
-                    {
-                        iDialogCompleteResult.dialogCompleteResult(-1);
-                    }
-                    dismiss();
+                    iDialogCompleteResult.dialogCompleteResult(-1);
                 }
+                dismiss();
             });
 
             return builder.create();

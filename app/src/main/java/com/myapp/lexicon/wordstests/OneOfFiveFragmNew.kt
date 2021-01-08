@@ -113,11 +113,11 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
     override fun onItemClickListener(position: Int, word: Word, view: Button)
     {
         val testAdapter = answersRecyclerView?.adapter as OneFiveTestAdapter
-        val translate = mysteryWordView.text.toString()
-        val english = view.text.toString()
         val items = testAdapter.getItems()
         if (!items.isNullOrEmpty())
         {
+            val translate = mysteryWordView.text.toString()
+            val english = view.text.toString()
             val result = items.any { w -> w.english == english && w.translate == translate }
             if (result)
             {

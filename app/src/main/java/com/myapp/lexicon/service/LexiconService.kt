@@ -2,36 +2,29 @@ package com.myapp.lexicon.service
 
 import android.annotation.SuppressLint
 import android.app.Service
-import android.content.*
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.res.Configuration
 import android.os.IBinder
 import android.widget.Toast
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
-import androidx.lifecycle.ViewModelStore
-import androidx.lifecycle.ViewModelStoreOwner
 import androidx.preference.PreferenceManager
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.myapp.lexicon.R
 import com.myapp.lexicon.database.AppDB
 import com.myapp.lexicon.database.DataBaseEntry
 import com.myapp.lexicon.database.DatabaseHelper
 import com.myapp.lexicon.main.MainActivity
-import com.myapp.lexicon.main.MainViewModel
-import com.myapp.lexicon.repository.DataRepositoryImpl
 import com.myapp.lexicon.schedule.AppNotification
 import com.myapp.lexicon.schedule.TimerReceiver
 import com.myapp.lexicon.service.ServiceActivity.IStopServiceByUser
-import com.myapp.lexicon.settings.AppData
 import com.myapp.lexicon.settings.AppSettings
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.reflect.typeOf
 
 class LexiconService : Service(), IStopServiceByUser
 {
