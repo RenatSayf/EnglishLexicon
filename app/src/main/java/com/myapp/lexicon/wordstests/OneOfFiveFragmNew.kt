@@ -11,6 +11,7 @@ import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
@@ -21,6 +22,7 @@ import com.myapp.lexicon.adapters.OneFiveTestAdapter
 import com.myapp.lexicon.database.Word
 import com.myapp.lexicon.dialogs.TestCompleteDialog
 import com.myapp.lexicon.helpers.RandomNumberGenerator
+import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.wordstests.DialogTestComplete.IDialogComplete_Result
 import kotlinx.android.synthetic.main.one_of_five_fragm_new.*
 import java.util.*
@@ -39,14 +41,12 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
     companion object
     {
         private const val ARG_WORD_LIST = "ARG_WORD_LIST"
-        private var instance: OneOfFiveFragmNew? = null
 
         @JvmStatic
-        fun getInstance(list: List<Word>): OneOfFiveFragmNew?
+        fun newInstance(list: List<Word>): OneOfFiveFragmNew
         {
             val shuffledList = list.shuffled()
-            if (instance == null) instance = OneOfFiveFragmNew() else instance as OneOfFiveFragmNew
-            return instance?.apply {
+            return OneOfFiveFragmNew().apply {
                 arguments = Bundle().apply {
                     putParcelableArrayList(ARG_WORD_LIST, shuffledList as ArrayList<out Parcelable?>?)
                 }
@@ -105,6 +105,11 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
                 dialog?.show(requireActivity().supportFragmentManager, TestCompleteDialog.TAG)
             }
         })
+
+        requireActivity().onBackPressedDispatcher.addCallback{
+            requireActivity().supportFragmentManager.beginTransaction().remove(this@OneOfFiveFragmNew).commit()
+            (requireActivity() as MainActivity).mainControlLayout.visibility = View.VISIBLE
+        }
 
         return root
     }
@@ -187,12 +192,14 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
 
     override fun onTestPassed()
     {
-        Toast.makeText(requireContext(), "***** onTestPassed() ******", Toast.LENGTH_SHORT).show()
+        (requireActivity() as MainActivity).testPassed()
+        requireActivity().supportFragmentManager.beginTransaction().remove(this).commit()
     }
 
     override fun onTestFailed(errors: Int)
     {
-        Toast.makeText(requireContext(), "***** onTestFailed(errors: $errors) ******", Toast.LENGTH_SHORT).show()
+        (requireActivity() as MainActivity).testFailed(errors)
+        requireActivity().supportFragmentManager.beginTransaction().remove(this).commit()
     }
 
 

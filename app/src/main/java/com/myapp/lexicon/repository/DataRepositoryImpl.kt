@@ -56,6 +56,11 @@ class DataRepositoryImpl @Inject constructor(private val appDB: AppDB,
         settings.saveWordThePref(word)
     }
 
+    override fun getTestIntervalFromPref(): Int
+    {
+        return settings.wordsInterval
+    }
+
     override fun getAllFromTable(tableName: String): Single<MutableList<DataBaseEntry>>
     {
         return appDB.getAllFromTableAsync(tableName)

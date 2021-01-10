@@ -36,6 +36,7 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
 
     private var _wordsList = MutableLiveData<MutableList<Word>>()
     var wordsList: LiveData<MutableList<Word>> = _wordsList
+    fun wordListSize(): Int = _wordsList.value?.size ?: 0
 
     fun getWordsFromDict(dictName: String, id: Int, limit: Int): Single<MutableList<Word>>
     {
@@ -63,7 +64,7 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
     }
 
     private var _currentWord = MutableLiveData<Word>().apply {
-        //repository.saveWordThePref(Word(1, "Наречия", "", "", 1))
+        repository.saveWordThePref(Word(1, "Наречия", "", "", 1))
         value = repository.getWordFromPref()
     }
     var currentWord: MutableLiveData<Word> = _currentWord
@@ -71,6 +72,12 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
     {
         _currentWord.value = word
     }
+    fun saveCurrentWordToPref(word: Word)
+    {
+        repository.saveWordThePref(word)
+    }
+
+    var testInterval: LiveData<Int> = MutableLiveData(repository.getTestIntervalFromPref())
 
 
     init

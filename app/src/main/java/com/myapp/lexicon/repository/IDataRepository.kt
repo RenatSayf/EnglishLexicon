@@ -27,6 +27,8 @@ interface IDataRepository
 
     fun saveWordThePref(word: Word)
 
+    fun getTestIntervalFromPref() : Int
+
     fun getAllFromTable(tableName: String) : Single<MutableList<DataBaseEntry>>
 
     fun removeTableFromSettings(tableName: String)

@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 {
     public static final String KEY_PLAY_LIST = "com.myapp.lexicon.main.KEY_PLAY_LIST";
 
-    private LinearLayout mainControlLayout;
+    public LinearLayout mainControlLayout;
     private Intent addWordIntent;
     private Intent wordEditorIntent;
     private Intent testsIntent;
@@ -131,6 +131,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private MainViewModel mainViewModel;
     private final CompositeDisposable composite = new CompositeDisposable();
+    private Word currentWord;
 
     @Inject
     AlarmScheduler scheduler;
@@ -160,8 +161,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
-        mainViewModel.getCurrentWord().observe(this, id -> {
-            appSettings.saveWordThePref(id);
+        mainViewModel.getCurrentWord().observe(this, word -> {
+            currentWord = word;
         });
 
         mainViewModel.getPlayList().observe(this, list -> {
@@ -195,6 +196,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mainViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback()
         {
             private int state = -1;
+            private int position = -1;
             @Override
             public void onPageSelected(int position)
             {
@@ -203,6 +205,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if (adapter != null)
                 {
                     Word item = adapter.getItem(position);
+                    mainViewModel.setCurrentWord(item);
                     textViewDict.setText(item.getDictName());
                     int totalWords = adapter.getItemCount();
                     String concatText = (position + 1 + "").concat(" / ").concat(totalWords + "");
@@ -221,26 +224,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels)
             {
                 super.onPageScrolled(position, positionOffset, positionOffsetPixels);
-
-                if (state == ViewPager2.SCROLL_STATE_DRAGGING && wordsInterval == position + 1)
+                int remainder = position % wordsInterval;
+                boolean condition1 = (state == 2 && remainder == 0 && position > this.position);
+                boolean condition2 = (state == ViewPager2.SCROLL_STATE_DRAGGING && position == mainViewModel.wordListSize() - 1);
+                if (condition1 || condition2)
                 {
+                    mainControlLayout.setVisibility(View.INVISIBLE);
                     Toast.makeText(MainActivity.this, "Проверим знания!!!...", Toast.LENGTH_LONG).show();
                     MainViewPagerAdapter adapter = (MainViewPagerAdapter) mainViewPager.getAdapter();
                     if (adapter != null)
                     {
-                        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                        transaction.setCustomAnimations(R.anim.from_right_to_left_anim, R.anim.from_left_to_right_anim);
-                        List<Word> list = adapter.getItems(position - wordsInterval, position);
-                        OneOfFiveFragmNew testFragment = OneOfFiveFragmNew.getInstance(list);
+                        List<Word> list = adapter.getItems(position - wordsInterval, position - 1);
+                        OneOfFiveFragmNew testFragment = OneOfFiveFragmNew.newInstance(list);
                         if (testFragment != null)
                         {
-                            Word word = list.get(list.size() - 1);
-                            mainViewModel.setCurrentWord(word);
-                            mainControlLayout.setVisibility(View.INVISIBLE);
+                            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                            transaction.setCustomAnimations(R.anim.from_right_to_left_anim, R.anim.from_left_to_right_anim);
+
                             transaction.replace(R.id.frame_to_page_fragm, testFragment).addToBackStack(null).commit();
+                            mainViewPager.setCurrentItem(position - 1);
+                            return;
                         }
                     }
                 }
+                this.position = position;
             }
         });
 
@@ -307,6 +314,40 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     getSupportFragmentManager().beginTransaction().replace(R.id.banner_frame_main, bannerFragment).commit();
                 }
             }
+        }
+    }
+
+    public void testPassed()
+    {
+        if (currentWord != null)
+        {
+            mainViewModel.saveCurrentWordToPref(currentWord);
+            List<Word> wordList = mainViewModel.getWordsList().getValue();
+            int index = wordList.indexOf(currentWord);
+            if (index <= wordList.size()-1 && index >=0)
+            {
+                int i = index + 1;
+                mainViewPager.setCurrentItem(i, false);
+            }
+            else mainViewPager.setCurrentItem(0, false);
+            mainControlLayout.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void testFailed(int errors)
+    {
+        if (currentWord != null)
+        {
+            List<Word> wordList = mainViewModel.getWordsList().getValue();
+            int index = wordList.indexOf(currentWord) + 1;
+            Integer interval = mainViewModel.getTestInterval().getValue();
+            int newIndex = index - interval;
+            if (newIndex <= wordList.size()-1 && newIndex >= 0)
+            {
+                mainViewPager.setCurrentItem(newIndex, true);
+            }
+            else mainViewPager.setCurrentItem(0, true);
+            mainControlLayout.setVisibility(View.VISIBLE);
         }
     }
 
