@@ -10,7 +10,6 @@ import android.view.animation.AnimationUtils
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
@@ -23,7 +22,6 @@ import com.myapp.lexicon.database.Word
 import com.myapp.lexicon.dialogs.TestCompleteDialog
 import com.myapp.lexicon.helpers.RandomNumberGenerator
 import com.myapp.lexicon.main.MainActivity
-import com.myapp.lexicon.wordstests.DialogTestComplete.IDialogComplete_Result
 import kotlinx.android.synthetic.main.one_of_five_fragm_new.*
 import java.util.*
 import kotlin.collections.ArrayList
@@ -88,7 +86,12 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
 
         val progressView = root.findViewById<ProgressBar>(R.id.progressView1of5).apply {
             wordList?.size?.let {
-                max = ROWS + it
+                viewModel.adapterList.value?.let { list ->
+                    max = if (list.size >= ROWS)
+                        ROWS + it
+                    else
+                        list.size
+                }
             }
         }
 
@@ -201,6 +204,9 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
         (requireActivity() as MainActivity).testFailed(errors)
         requireActivity().supportFragmentManager.beginTransaction().remove(this).commit()
     }
+
+    //TODO Если во время теста перейти на другой экран, а потом вернуться обратно и еще раз обратно то MainActivity.mainControlLayout остается невидимый
+
 
 
 }

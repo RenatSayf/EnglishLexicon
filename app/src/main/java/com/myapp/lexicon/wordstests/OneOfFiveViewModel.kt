@@ -23,9 +23,12 @@ class OneOfFiveViewModel : ViewModel()
         if (_wordsList.value.isNullOrEmpty())
         {
             _adapterList.value = list.take(ROWS) as ArrayList<Word>
-            val randomIndex = RandomNumberGenerator(ROWS, (Date().time.toInt())).generate()
+            val randomIndex = if (list.size >= ROWS)
+            {
+                RandomNumberGenerator(ROWS, (Date().time.toInt())).generate()
+            }
+            else RandomNumberGenerator(list.size, (Date().time.toInt())).generate()
             _mysteryWord.value = _adapterList.value!![randomIndex].translate
-            //list.removeAll(_adapterList.value as ArrayList)
             _wordsList.value = list as ArrayList<Word>
             _wordsList.value?.removeAll(_adapterList.value as ArrayList)
         }

@@ -183,10 +183,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 mainViewPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
                 for (int i = 0; i < entries.size(); i++)
                 {
-                    Word word = entries.get(i);
-                    if (word.get_id() == mainViewModel.getCurrentWord().getValue().get_id())
+                    int entriesId = entries.get(i).get_id();
+                    Word currentWord = mainViewModel.getCurrentWord().getValue();
+                    if (currentWord != null)
                     {
-                        mainViewPager.setCurrentItem(i, true);
+                        int currentId = currentWord.get_id();
+                        if (entriesId >= currentId)
+                        {
+                            mainViewPager.setCurrentItem(i, true);
+                            break;
+                        }
                     }
                 }
             }
@@ -225,26 +231,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             {
                 super.onPageScrolled(position, positionOffset, positionOffsetPixels);
                 int remainder = position % wordsInterval;
-                boolean condition1 = (state == 2 && remainder == 0 && position > this.position);
-                boolean condition2 = (state == ViewPager2.SCROLL_STATE_DRAGGING && position == mainViewModel.wordListSize() - 1);
-                if (condition1 || condition2)
+                MainViewPagerAdapter adapter = (MainViewPagerAdapter) mainViewPager.getAdapter();
+                List<Word> list = new ArrayList<>();
+                if (adapter != null)
                 {
-                    mainControlLayout.setVisibility(View.INVISIBLE);
-                    Toast.makeText(MainActivity.this, "Проверим знания!!!...", Toast.LENGTH_LONG).show();
-                    MainViewPagerAdapter adapter = (MainViewPagerAdapter) mainViewPager.getAdapter();
-                    if (adapter != null)
+                    boolean condition1 = (state == 2 && remainder == 0 && position > this.position);
+                    boolean condition2 = (state == ViewPager2.SCROLL_STATE_DRAGGING && position == mainViewModel.wordListSize() - 1);
+                    if (condition1)
                     {
-                        List<Word> list = adapter.getItems(position - wordsInterval, position - 1);
+                        list = adapter.getItems(position - wordsInterval, position - 1);
+                    }
+                    else if (condition2)
+                    {
+                        int lastIndex = adapter.getItemCount() - 1;
+                        list = adapter.getItems(position - 1, lastIndex);
+                    }
+                    if (condition1 || condition2)
+                    {
+                        mainControlLayout.setVisibility(View.INVISIBLE);
+                        Toast.makeText(MainActivity.this, "Проверим знания!!!...", Toast.LENGTH_LONG).show();
                         OneOfFiveFragmNew testFragment = OneOfFiveFragmNew.newInstance(list);
-                        if (testFragment != null)
-                        {
-                            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                            transaction.setCustomAnimations(R.anim.from_right_to_left_anim, R.anim.from_left_to_right_anim);
+                        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                        transaction.setCustomAnimations(R.anim.from_right_to_left_anim, R.anim.from_left_to_right_anim);
 
-                            transaction.replace(R.id.frame_to_page_fragm, testFragment).addToBackStack(null).commit();
-                            mainViewPager.setCurrentItem(position - 1);
-                            return;
-                        }
+                        transaction.replace(R.id.frame_to_page_fragm, testFragment).addToBackStack(null).commit();
+                        mainViewPager.setCurrentItem(position - 1);
+                        return;
                     }
                 }
                 this.position = position;
@@ -323,14 +335,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             mainViewModel.saveCurrentWordToPref(currentWord);
             List<Word> wordList = mainViewModel.getWordsList().getValue();
-            int index = wordList.indexOf(currentWord);
-            if (index <= wordList.size()-1 && index >=0)
+            if (wordList != null)
             {
-                int i = index + 1;
-                mainViewPager.setCurrentItem(i, false);
+                int index = wordList.indexOf(currentWord);
+                if (index <= wordList.size()-1 && index >=0)
+                {
+                    int i = index + 1;
+                    mainViewPager.setCurrentItem(i, false);
+                }
+                else mainViewPager.setCurrentItem(0, false);
+                mainControlLayout.setVisibility(View.VISIBLE);
             }
-            else mainViewPager.setCurrentItem(0, false);
-            mainControlLayout.setVisibility(View.VISIBLE);
         }
     }
 
@@ -339,15 +354,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (currentWord != null)
         {
             List<Word> wordList = mainViewModel.getWordsList().getValue();
-            int index = wordList.indexOf(currentWord) + 1;
-            Integer interval = mainViewModel.getTestInterval().getValue();
-            int newIndex = index - interval;
-            if (newIndex <= wordList.size()-1 && newIndex >= 0)
+            if (wordList != null)
             {
-                mainViewPager.setCurrentItem(newIndex, true);
+                int index = wordList.indexOf(currentWord) + 1;
+                Integer interval = mainViewModel.getTestInterval().getValue();
+                if (interval != null)
+                {
+                    int newIndex = index - interval;
+                    if (newIndex <= wordList.size()-1 && newIndex >= 0)
+                    {
+                        mainViewPager.setCurrentItem(newIndex, true);
+                    }
+                    else mainViewPager.setCurrentItem(0, true);
+                    mainControlLayout.setVisibility(View.VISIBLE);
+                }
             }
-            else mainViewPager.setCurrentItem(0, true);
-            mainControlLayout.setVisibility(View.VISIBLE);
         }
     }
 
@@ -496,10 +517,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         String interval = preferences.getString(getString(R.string.key_show_intervals), "0");
-        int parseInt = Integer.parseInt(interval);
-        if (parseInt != 0)
+        if (interval != null)
         {
-            scheduler.scheduleRepeat((parseInt*60*1000), (parseInt*60*1000));
+            int parseInt = Integer.parseInt(interval);
+            if (parseInt != 0)
+            {
+                scheduler.scheduleRepeat((parseInt*60*1000), (parseInt*60*1000));
+            }
         }
     }
 
