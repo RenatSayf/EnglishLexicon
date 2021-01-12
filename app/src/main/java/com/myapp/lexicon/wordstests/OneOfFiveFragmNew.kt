@@ -10,6 +10,7 @@ import android.view.animation.AnimationUtils
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
@@ -109,14 +110,21 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
             }
         })
 
-        requireActivity().onBackPressedDispatcher.addCallback{
-            requireActivity().supportFragmentManager.beginTransaction().remove(this@OneOfFiveFragmNew).commit()
-            (requireActivity() as MainActivity).mainControlLayout.visibility = View.VISIBLE
-        }
-
         return root
     }
 
+    override fun onResume()
+    {
+        super.onResume()
+        requireActivity().onBackPressedDispatcher.addCallback {
+            if (this@OneOfFiveFragmNew.isAdded)
+            {
+                requireActivity().supportFragmentManager.beginTransaction().remove(this@OneOfFiveFragmNew).commit()
+                (requireActivity() as MainActivity).mainControlLayout.visibility = View.VISIBLE
+            }
+            else requireActivity().finish()
+        }
+    }
 
     override fun onItemClickListener(position: Int, word: Word, view: Button)
     {
@@ -207,6 +215,9 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
 
     //TODO Если во время теста перейти на другой экран, а потом вернуться обратно и еще раз обратно то MainActivity.mainControlLayout остается невидимый
 
-
+    override fun onDestroy()
+    {
+        super.onDestroy()
+    }
 
 }

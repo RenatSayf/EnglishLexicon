@@ -272,7 +272,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
 
-
         // Регистрируем приёмник
         speechServiceReceiver = new SpeechServiceReceiver();
         IntentFilter updateIntentFilter = new IntentFilter(SpeechService.ACTION_UPDATE);

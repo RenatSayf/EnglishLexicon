@@ -595,7 +595,11 @@ public class WordEditorActivity extends AppCompatActivity implements LoaderManag
                 updateDBEntryAsync.execute();
             }
         }
-        return super.onOptionsItemSelected(item);
+        if (id == 16908332) //16908332
+        {
+            WordEditorActivity.this.finish();
+        }
+        return true;
     }
 
     private void searchView_onListeners(SearchView searchView)
