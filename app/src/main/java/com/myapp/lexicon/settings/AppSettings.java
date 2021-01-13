@@ -367,7 +367,7 @@ public class AppSettings
 
     public int getWordsInterval()
     {
-        String wordsInterval = PreferenceManager.getDefaultSharedPreferences(context).getString(context.getString(R.string.key_learning_mode), "10");
+        String wordsInterval = PreferenceManager.getDefaultSharedPreferences(context).getString(context.getString(R.string.key_test_interval), "10");
         return Integer.parseInt(wordsInterval);
     }
 

@@ -132,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private MainViewModel mainViewModel;
     private final CompositeDisposable composite = new CompositeDisposable();
     private Word currentWord;
+    private int wordsInterval = Integer.MAX_VALUE;
 
     @Inject
     AlarmScheduler scheduler;
@@ -198,7 +199,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        int wordsInterval = appSettings.getWordsInterval();
         mainViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback()
         {
             private int state = -1;
@@ -458,6 +458,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onResume()
     {
         super.onResume();
+        wordsInterval = mainViewModel.getTestInterval().getValue();
 //        appSettings = new AppSettings(this);
 //        appData = AppData.getInstance();
 //        appData.initAllSettings(this);
@@ -1157,6 +1158,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void dictNumberOnChanged(int ndict)
     {
 
+    }
+
+    public void testIntervalOnChange(int value)
+    {
+        wordsInterval = value;
     }
 
     public class SpeechServiceReceiver extends BroadcastReceiver

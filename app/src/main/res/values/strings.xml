@@ -209,7 +209,7 @@
     <string name="text_display_mode">Режим отображения</string>
     <string name="text_popup_window">Всплывающее окно</string>
     <string name="text_show_words_over">Показывать слова через:</string>
-    <string name="key_learning_mode">key_learning_mode</string>
+    <string name="key_test_interval">key_learning_mode</string>
     <string name="text_test_after_learning">Проходить тест после изучения</string>
     <string name="text_knowledge_check">Проверка знаний</string>
     <string-array name="not_move">

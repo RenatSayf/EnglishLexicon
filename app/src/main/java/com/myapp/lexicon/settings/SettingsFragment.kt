@@ -3,7 +3,10 @@
 package com.myapp.lexicon.settings
 
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
+import androidx.activity.addCallback
+import androidx.appcompat.widget.Toolbar
 import androidx.preference.CheckBoxPreference
 import androidx.preference.ListPreference
 import androidx.preference.Preference
@@ -32,15 +35,24 @@ class SettingsFragment : PreferenceFragmentCompat()
     {
         super.onCreate(savedInstanceState)
 
-        val wordsInterval = findPreference<ListPreference>(requireContext().getString(R.string.key_learning_mode))?.apply {
+        findPreference<ListPreference>(requireContext().getString(R.string.key_test_interval))?.apply {
             summary = this.entry
             onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener
             {
                 override fun onPreferenceChange(preference: Preference?, newValue: Any?): Boolean
                 {
-                    value = newValue.toString()
-                    summary = entry
-                    return true
+                    return try
+                    {
+                        value = newValue.toString()
+                        summary = entry
+                        (requireActivity() as MainActivity).testIntervalOnChange(value.toInt())
+                        true
+                    }
+                    catch (e: Exception)
+                    {
+                        e.printStackTrace()
+                        false
+                    }
                 }
 
             }
@@ -137,7 +149,24 @@ class SettingsFragment : PreferenceFragmentCompat()
     {
         super.onViewCreated(view, savedInstanceState)
         view.setBackgroundColor(resources.getColor(R.color.colorWhite))
+//        val toolbar = requireActivity().findViewById<Toolbar>(R.id.toolbar_word_editor)?.apply {
+//            title = "Настройки"
+//        }
+//        (requireActivity() as MainActivity).apply {
+//            setSupportActionBar(toolbar)
+//            supportActionBar?.setDisplayHomeAsUpEnabled(true)
+//
+//        }
+
+        requireActivity().onBackPressedDispatcher.addCallback{
+            (requireActivity() as MainActivity).apply {
+                supportFragmentManager.beginTransaction().remove(this@SettingsFragment).commit()
+                mainControlLayout.visibility = View.VISIBLE
+            }
+
+        }
     }
+
 
 
 }

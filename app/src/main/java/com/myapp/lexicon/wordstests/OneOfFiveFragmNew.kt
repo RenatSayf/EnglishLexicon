@@ -31,10 +31,11 @@ const val ROWS: Int = 5
 
 class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogListener, OneFiveTestAdapter.ITestAdapterListener
 {
-    private lateinit var viewModel: OneOfFiveViewModel
+    private lateinit var vm: OneOfFiveViewModel
     private var wordList: List<Word>? = null
     private var answersRecyclerView: RecyclerView? = null
     private lateinit var mysteryWordView: TextView
+    private lateinit var backPressedCallback: OnBackPressedCallback
 
 
     companion object
@@ -56,12 +57,12 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProvider(this)[OneOfFiveViewModel::class.java]
+        vm = ViewModelProvider(this)[OneOfFiveViewModel::class.java]
 
         if (arguments != null)
         {
             wordList = requireArguments().getParcelableArrayList(ARG_WORD_LIST)
-            wordList?.let { viewModel.initTest(it) }
+            wordList?.let { vm.initTest(it) }
         }
     }
 
@@ -70,7 +71,7 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
         val root = inflater.inflate(R.layout.one_of_five_fragm_new, container, false)
 
         answersRecyclerView = root.findViewById(R.id.answersRecyclerView)
-        viewModel.adapterList.observe(viewLifecycleOwner, {
+        vm.adapterList.observe(viewLifecycleOwner, {
             answersRecyclerView?.apply {
                 this.adapter = OneFiveTestAdapter(it).apply {
                     setHasStableIds(true)
@@ -80,14 +81,14 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
             }
         })
 
-        mysteryWordView = root.findViewById<TextView>(R.id.mysteryWordView)
-        viewModel.mysteryWord.observe(viewLifecycleOwner, {
+        mysteryWordView = root.findViewById(R.id.mysteryWordView)
+        vm.mysteryWord.observe(viewLifecycleOwner, {
             mysteryWordView.text = it
         })
 
         val progressView = root.findViewById<ProgressBar>(R.id.progressView1of5).apply {
             wordList?.size?.let {
-                viewModel.adapterList.value?.let { list ->
+                vm.adapterList.value?.let { list ->
                     max = if (list.size >= ROWS)
                         ROWS + it
                     else
@@ -98,13 +99,13 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
 
         val progressValueView = root.findViewById<TextView>(R.id.progressValueView)
 
-        viewModel.progress.observe(viewLifecycleOwner, {
+        vm.progress.observe(viewLifecycleOwner, {
             progressView.progress = it
             val progressValue = "$it/${progressView.max}"
             progressValueView.text = progressValue
             if (it == progressView.max)
             {
-                val errors = viewModel.wrongAnswerCount.value
+                val errors = vm.wrongAnswerCount.value
                 val dialog = errors?.let { it1 -> TestCompleteDialog.getInstance(it1, this) }
                 dialog?.show(requireActivity().supportFragmentManager, TestCompleteDialog.TAG)
             }
@@ -116,7 +117,7 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
     override fun onResume()
     {
         super.onResume()
-        requireActivity().onBackPressedDispatcher.addCallback {
+        backPressedCallback = requireActivity().onBackPressedDispatcher.addCallback {
             if (this@OneOfFiveFragmNew.isAdded)
             {
                 requireActivity().supportFragmentManager.beginTransaction().remove(this@OneOfFiveFragmNew).commit()
@@ -144,21 +145,21 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
                 {
                     val itemCount = testAdapter.itemCount
                     val randomIndex = RandomNumberGenerator(itemCount, (Date().time.toInt())).generate()
-                    viewModel.setMysteryWord(testAdapter.getItems()[randomIndex].translate)
+                    vm.setMysteryWord(testAdapter.getItems()[randomIndex].translate)
                 }
                 else
                 {
-                    viewModel.mysteryWord = MutableLiveData()
+                    vm.mysteryWord = MutableLiveData()
                 }
-                viewModel.setProgress(progressView1of5.progress + 1)
+                vm.setProgress(progressView1of5.progress + 1)
                 mysteryWordView.startAnimation(animRight.apply {
                     setAnimationListener(object : Animation.AnimationListener
                     {
                         override fun onAnimationStart(p0: Animation?)
                         {
-                            if (!viewModel.wordsList.value.isNullOrEmpty())
+                            if (!vm.wordsList.value.isNullOrEmpty())
                             {
-                                val nextItem = viewModel.takeNextWord()
+                                val nextItem = vm.takeNextWord()
                                 nextItem?.let{
                                     testAdapter.addItem(position, it)
                                     testAdapter.notifyDataSetChanged()
@@ -180,7 +181,7 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
             }
             else
             {
-                viewModel.increaseWrongAnswerCount()
+                vm.increaseWrongAnswerCount()
                 val animNotRight = AnimationUtils.loadAnimation(requireContext(), R.anim.anim_not_right)
                 animNotRight.setAnimationListener(object : Animation.AnimationListener
                 {
@@ -218,6 +219,7 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
     override fun onDestroy()
     {
         super.onDestroy()
+        backPressedCallback.remove()
     }
 
 }

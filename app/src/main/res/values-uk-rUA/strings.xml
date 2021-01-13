@@ -262,7 +262,7 @@
         <item>20</item>
     </string-array>
 
-    <string name="key_learning_mode">key_learning_mode</string>
+    <string name="key_test_interval">key_learning_mode</string>
     <string name="text_test_after_learning">Пройти тест після вивчення</string>
     <string name="text_knowledge_check">Перевірка знань</string>
 

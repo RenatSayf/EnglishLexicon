@@ -12,7 +12,7 @@
         android:title="@string/text_knowledge_check">
 
         <ListPreference
-            android:key="@string/key_learning_mode"
+            android:key="@string/key_test_interval"
             android:title="@string/text_test_after_learning"
             android:entries="@array/words_interval"
             android:entryValues="@array/words_interval_values"
