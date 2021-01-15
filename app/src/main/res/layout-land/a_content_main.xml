@@ -21,49 +21,60 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/semitransparent_background"
+        android:background="@color/colorSemitransparent"
         android:orientation="vertical"
         >
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:layout_height="50dp"
             android:layout_gravity="top"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:layout_marginTop="2dp"
+            android:layout_marginTop="5dp"
             android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/textViewDict"
-                android:layout_width="match_parent"
+            <FrameLayout android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_gravity="center_vertical"
-                android:gravity="start|center_vertical"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/colorWhite"
-                tools:text="Dict Name"
-                />
+                android:layout_gravity="center_vertical">
 
-            <ImageView
-                android:id="@+id/order_play_icon_iv"
-                android:layout_width="wrap_content"
+                <Button
+                    android:id="@+id/btnViewDict"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    android:padding="10dp"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/colorWhite"
+                    android:background="@drawable/semitransparent_background"
+                    tools:text="Dict Name" />
+            </FrameLayout>
+
+            <FrameLayout android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="0"
-                android:contentDescription="@string/btn_close_discribtion"
-                android:src="@drawable/ic_repeat_white"/>
+                android:layout_weight="1"
+                android:layout_gravity="center_vertical">
+
+                <ImageView
+                    android:id="@+id/order_play_icon_iv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:padding="10dp"
+                    android:contentDescription="@string/btn_close_discribtion"
+                    android:src="@drawable/ic_repeat_white"
+                    android:background="@drawable/selector_transp_to_white_back"/>
+            </FrameLayout>
 
             <TextView
                 android:id="@+id/tv_words_counter"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:gravity="end|center_vertical"
-                android:layout_marginStart="15dp"
-                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:gravity="end"
                 android:layout_gravity="center_vertical"
+                android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/colorWhite"
                 tools:text="1/150 Изучено 0"
                 />
@@ -87,80 +98,6 @@
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"/>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                android:layout_marginTop="5dp"
-                android:gravity="center"
-                android:orientation="horizontal"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent">
-
-                <ImageButton
-                    android:id="@+id/btn_previous"
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="45dp"
-                    android:layout_height="45dp"
-                    android:background="@drawable/selector_transp_to_white_back"
-                    android:contentDescription="@string/content_describt"
-                    android:gravity="center_horizontal"
-                    android:onClick="btnNextBackClick"
-                    android:src="@drawable/selector_icon_skip_prev"
-                    />
-
-                <Space
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"/>
-
-                <FrameLayout android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
-
-                    <ImageButton
-                        android:id="@+id/btn_play"
-                        style="?android:attr/buttonStyleSmall"
-                        android:layout_width="45dp"
-                        android:layout_height="45dp"
-                        android:layout_gravity="center"
-                        android:background="@drawable/selector_transp_to_white_back"
-                        android:contentDescription="@string/content_describt"
-                        android:onClick="btnPlayClick"
-                        android:src="@drawable/selector_icon_play_arrow"
-                        />
-
-                    <ProgressBar
-                        android:id="@+id/progressBar"
-                        style="?android:attr/progressBarStyleLarge"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:layout_gravity="center"
-                        android:visibility="visible"
-                        />
-
-                </FrameLayout>
-
-
-                <Space
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    />
-
-                <ImageButton
-                    android:id="@+id/btn_next"
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="45dp"
-                    android:layout_height="45dp"
-                    android:background="@drawable/selector_transp_to_white_back"
-                    android:contentDescription="@string/content_describt"
-                    android:gravity="end"
-                    android:onClick="btnNextBackClick"
-                    android:src="@drawable/selector_icon_skip_next"
-                    />
-
-            </LinearLayout>
-
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <LinearLayout
@@ -173,43 +110,31 @@
             android:gravity="center_horizontal"
             android:orientation="horizontal">
 
+            <CheckBox
+                android:id="@+id/check_box_en_speak"
+                style="@android:style/Widget.Holo.Light.CompoundButton.CheckBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/text_en"
+                android:textColor="@color/colorWhite"
+                android:visibility="visible"
+                app:buttonTint="@color/colorWhite"
+                android:layoutDirection="rtl"/>
+
             <FrameLayout
                 android:id="@+id/banner_frame_main"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="0"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="16dp"
                 android:foreground="@drawable/semitransparent_background"
                 android:visibility="visible"
                 >
             </FrameLayout>
 
-            <ImageButton
-                android:id="@+id/btn_pause"
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
-                android:layout_gravity="center_vertical|center_horizontal"
-                android:layout_marginStart="10dp"
-                android:background="@drawable/selector_transp_to_white_back"
-                android:contentDescription="@string/content_describt"
-                android:onClick="btnPauseClick"
-                android:src="@drawable/selector_icon_pause"
-                android:visibility="visible"
-                />
-
-            <ImageButton
-                android:id="@+id/btn_stop"
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|center_horizontal"
-                android:background="@drawable/selector_transp_to_white_back"
-                android:contentDescription="@string/content_describt"
-                android:onClick="btnStopClick"
-                android:src="@drawable/selector_icon_stop"
-                android:visibility="visible"
-                />
 
             <ImageButton
                 android:id="@+id/btn_speak"

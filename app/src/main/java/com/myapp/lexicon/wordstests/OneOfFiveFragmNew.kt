@@ -219,7 +219,7 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
     override fun onDestroy()
     {
         super.onDestroy()
-        backPressedCallback.remove()
+        //backPressedCallback?.remove()
     }
 
 }

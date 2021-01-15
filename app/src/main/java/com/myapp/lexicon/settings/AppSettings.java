@@ -368,10 +368,14 @@ public class AppSettings
     public int getWordsInterval()
     {
         String wordsInterval = PreferenceManager.getDefaultSharedPreferences(context).getString(context.getString(R.string.key_test_interval), "10");
-        return Integer.parseInt(wordsInterval);
+        if (wordsInterval != null)
+        {
+            return Integer.parseInt(wordsInterval);
+        }
+        return Integer.MAX_VALUE;
     }
 
-    private final String WORD_ID = this.getClass().getCanonicalName().concat("TRANING_ID");
+    private final String WORD_ID = this.getClass().getCanonicalName() + "TRANING_ID";
     public Word getWordFromPref()
     {
         String dict = context.getSharedPreferences(WORD_ID, MODE_PRIVATE).getString(KEY_CURRENT_DICT, "Наречия");

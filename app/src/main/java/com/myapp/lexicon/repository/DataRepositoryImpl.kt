@@ -61,6 +61,16 @@ class DataRepositoryImpl @Inject constructor(private val appDB: AppDB,
         return settings.wordsInterval
     }
 
+    override fun getOrderPlay(): Int
+    {
+        return settings.orderPlay
+    }
+
+    override fun saveOrderPlay(order: Int)
+    {
+        settings.orderPlay = order
+    }
+
     override fun getAllFromTable(tableName: String): Single<MutableList<DataBaseEntry>>
     {
         return appDB.getAllFromTableAsync(tableName)

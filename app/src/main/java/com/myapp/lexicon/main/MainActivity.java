@@ -1,12 +1,10 @@
 package com.myapp.lexicon.main;
 
 import android.app.ActivityManager;
-import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -17,9 +15,6 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.Menu;
@@ -28,11 +23,8 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,8 +38,8 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
 import com.myapp.lexicon.cloudstorage.StorageFragment2;
-import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.Word;
+import com.myapp.lexicon.dialogs.OrderPlayDialog;
 import com.myapp.lexicon.dialogs.RemoveDictDialog;
 import com.myapp.lexicon.helpers.Share;
 import com.myapp.lexicon.playlist.PlayList;
@@ -100,12 +92,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView textViewRu;
     private TextView textViewDict;
     private TextView tvWordsCounter;
-    private ImageButton btnPlay;
-    private ImageButton btnStop;
-    private ImageButton btnPause;
-    private ProgressBar progressBar;
+    //private ImageButton btnPlay;
+    //private ImageButton btnStop;
+    //private ImageButton btnPause;
+    //private ProgressBar progressBar;
     private CheckBox checkBoxRuSpeak;
-    private ImageView orderPlayIconIV;
+    private ImageView orderPlayView;
     private static Intent speechIntentService;
     public static Intent serviceIntent;
     private SpeechServiceReceiver speechServiceReceiver;
@@ -174,6 +166,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
+        mainViewModel.getOrderPlay().observe(this, order -> {
+            if (order == 0)
+            {
+                mainViewModel.sortWordsList();
+                orderPlayView.setImageResource(R.drawable.ic_repeat_white);
+            }
+            else if (order == 1)
+            {
+                mainViewModel.shuffleWordsList();
+                orderPlayView.setImageResource(R.drawable.ic_shuffle_white);
+            }
+        });
+
 
 
         mainViewModel.getWordsList().observe(this, entries  -> {
@@ -235,7 +240,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 List<Word> list = new ArrayList<>();
                 if (adapter != null)
                 {
-                    boolean condition1 = (state == 2 && remainder == 0 && position > this.position);
+                    boolean condition1 = (state == 2 && remainder == 0 && position != 0 && position > this.position);
                     boolean condition2 = (state == ViewPager2.SCROLL_STATE_DRAGGING && position == mainViewModel.wordListSize() - 1);
                     if (condition1)
                     {
@@ -308,10 +313,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             //textViewRu.setText(savedInstanceState.getString(KEY_RU_TEXT));
             textViewDict.setText(savedInstanceState.getString(KEY_CURRENT_DICT));
             tvWordsCounter.setText(savedInstanceState.getString(KEY_TV_WORDS_COUNTER));
-            btnPlay.setVisibility(savedInstanceState.getInt(KEY_BTN_PLAY_VISIBLE));
-            btnStop.setVisibility(savedInstanceState.getInt(KEY_BTN_STOP_VISIBLE));
-            btnPause.setVisibility(savedInstanceState.getInt(KEY_BTN_PAUSE_VISIBLE));
-            progressBar.setVisibility(savedInstanceState.getInt(KEY_PROG_BAR_VISIBLE));
+            //btnPlay.setVisibility(savedInstanceState.getInt(KEY_BTN_PLAY_VISIBLE));
+            //btnStop.setVisibility(savedInstanceState.getInt(KEY_BTN_STOP_VISIBLE));
+            //btnPause.setVisibility(savedInstanceState.getInt(KEY_BTN_PAUSE_VISIBLE));
+            //progressBar.setVisibility(savedInstanceState.getInt(KEY_PROG_BAR_VISIBLE));
         }
 
         if (appData.isAdMob())
@@ -391,25 +396,38 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mainViewPager = findViewById(R.id.mainViewPager);
         textViewEn = findViewById(R.id.enTextView);
         textViewRu = findViewById(R.id.ruTextView);
-        textViewDict = findViewById(R.id.textViewDict);
+        textViewDict = findViewById(R.id.btnViewDict);
         tvWordsCounter = findViewById(R.id.tv_words_counter);
-        btnPlay = findViewById(R.id.btn_play);
-        btnStop = findViewById(R.id.btn_stop);
-        if (btnStop != null)
-        {
-            btnStop.setVisibility(View.GONE);
-        }
-        btnPause = findViewById(R.id.btn_pause);
-        if (btnPause != null)
-        {
-            btnPause.setVisibility(View.GONE);
-        }
-        progressBar = findViewById(R.id.progressBar);
+        //btnPlay = findViewById(R.id.btn_play);
+//        btnStop = findViewById(R.id.btn_stop);
+//        if (btnStop != null)
+//        {
+//            btnStop.setVisibility(View.GONE);
+//        }
+//        btnPause = findViewById(R.id.btn_pause);
+//        if (btnPause != null)
+//        {
+//            btnPause.setVisibility(View.GONE);
+//        }
+        //progressBar = findViewById(R.id.progressBar);
         checkBoxRuSpeak = findViewById(R.id.check_box_ru_speak);
         checkBoxRuSpeak.setChecked(appSettings.isEnglishSpeechOnly());
         switchRuSound_OnCheckedChange();
 
-        orderPlayIconIV = findViewById(R.id.order_play_icon_iv);
+        orderPlayView = findViewById(R.id.order_play_icon_iv);
+        orderPlayViewOnClick(orderPlayView);
+    }
+
+    private void orderPlayViewOnClick(ImageView view)
+    {
+        view.setOnClickListener( v -> {
+            Integer order = mainViewModel.getOrderPlay().getValue();
+            if (order != null)
+            {
+                OrderPlayDialog.Companion.getInstance(order, ord -> mainViewModel.setOrderPlay(ord))
+                        .show(getSupportFragmentManager(), OrderPlayDialog.Companion.getTAG());
+            }
+        });
     }
 
     @Override
@@ -420,10 +438,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //outState.putString(KEY_RU_TEXT, textViewRu.getText().toString());
         outState.putString(KEY_CURRENT_DICT, textViewDict.getText().toString());
         outState.putString(KEY_TV_WORDS_COUNTER, tvWordsCounter.getText().toString());
-        outState.putInt(KEY_BTN_PLAY_VISIBLE, btnPlay.getVisibility());
-        outState.putInt(KEY_BTN_STOP_VISIBLE, btnStop.getVisibility());
-        outState.putInt(KEY_BTN_PAUSE_VISIBLE, btnPause.getVisibility());
-        outState.putInt(KEY_PROG_BAR_VISIBLE, progressBar.getVisibility());
+        //outState.putInt(KEY_BTN_PLAY_VISIBLE, btnPlay.getVisibility());
+        //outState.putInt(KEY_BTN_STOP_VISIBLE, btnStop.getVisibility());
+        //outState.putInt(KEY_BTN_PAUSE_VISIBLE, btnPause.getVisibility());
+        //outState.putInt(KEY_PROG_BAR_VISIBLE, progressBar.getVisibility());
     }
 
     @Override
@@ -443,7 +461,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onStop()
     {
-        progressBar.setVisibility(View.GONE);
+        //progressBar.setVisibility(View.GONE);
         FirebaseUserActions.getInstance().end(getAction());
         super.onStop();
     }
@@ -465,14 +483,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         appData.setDictNumberChangeListener(this);
 
 
-        if (appSettings.getOrderPlay() == 0)
-        {
-            orderPlayIconIV.setImageResource(R.drawable.ic_repeat_white);
-        }
-        if (appSettings.getOrderPlay() == 1)
-        {
-            orderPlayIconIV.setImageResource(R.drawable.ic_shuffle_white);
-        }
+//        if (appSettings.getOrderPlay() == 0)
+//        {
+//            orderPlayView.setImageResource(R.drawable.ic_repeat_white);
+//        }
+//        if (appSettings.getOrderPlay() == 1)
+//        {
+//            orderPlayView.setImageResource(R.drawable.ic_shuffle_white);
+//        }
         localeDefault = new Locale(appSettings.getTranslateLang());
         //dataBaseQueries = new DataBaseQueries(this);
         if (serviceIntent != null)
@@ -612,10 +630,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             TranslateFragment translateFragm = TranslateFragment.Companion.getInstance("");
             getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, translateFragm).addToBackStack(null).commit();
         }
-        else if (id == R.id.nav_add_dict)
-        {
-            dialogAddDict();
-        }
+//        else if (id == R.id.nav_add_dict)
+//        {
+//            dialogAddDict();
+//        }
         else if (id == R.id.nav_delete_dict)
         {
             Disposable subscribe = mainViewModel.getDictList()
@@ -698,112 +716,112 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    private void dialogAddDict()
-    {
-        final View view = getLayoutInflater().inflate(R.layout.a_dialog_add_dict, new LinearLayout(this), false);
-        final EditText editText = view.findViewById(R.id.dialog_add_dict);
-        editText.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
-        new AlertDialog.Builder(this).setTitle(R.string.title_new_dictionary).setIcon(R.drawable.icon_book)
-                .setPositiveButton(R.string.btn_text_add, new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which)
-                    {
+//    private void dialogAddDict()
+//    {
+//        final View view = getLayoutInflater().inflate(R.layout.a_dialog_add_dict, new LinearLayout(this), false);
+//        final EditText editText = view.findViewById(R.id.dialog_add_dict);
+//        editText.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+//        new AlertDialog.Builder(this).setTitle(R.string.title_new_dictionary).setIcon(R.drawable.icon_book)
+//                .setPositiveButton(R.string.btn_text_add, new DialogInterface.OnClickListener()
+//                {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which)
+//                    {
+//
+//                        String dictName = editText.getText().toString();
+//                        if (!dictName.equals(""))
+//                        {
+//                            try
+//                            {
+////                                dataBaseQueries = new DataBaseQueries(MainActivity.this);
+////                                dataBaseQueries.addTableToDbSync(dictName);
+//                            } catch (Exception e)
+//                            {
+//                                e.printStackTrace();
+//                            }
+//                            Toast toast = Toast.makeText(getApplicationContext(), getString(R.string.text_added_new_dict)+dictName, Toast.LENGTH_LONG);
+//                            toast.setGravity(Gravity.CENTER, 0, 0);
+//                            toast.show();
+//                        }
+//                    }
+//                })
+//                .setNegativeButton(R.string.btn_text_cancel, null)
+//                .setView(view).create().show();
+//
+//        editText.addTextChangedListener(new TextWatcher()
+//        {
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after){}
+//
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count)
+//            {
+//                String str = s.toString();
+//                for (int i = 0; i < str.length(); i++)
+//                {
+//                    int char_first = str.codePointAt(0);
+//                    if ((char_first >= 33 && char_first <= 64) || (char_first >= 91 && char_first <= 96) ||
+//                            (char_first >= 123 && char_first <= 126))
+//                    {
+//                        String str_wrong = str.substring(i);
+//                        editText.setText(str.replace(str_wrong,""));
+//                    }
+//                    if ((str.codePointAt(i) >= 33 && str.codePointAt(i) <= 47) || (str.codePointAt(i) >= 58 && str.codePointAt(i) <= 64) ||
+//                            (str.codePointAt(i) >= 91 && str.codePointAt(i) <= 96) || (str.codePointAt(i) >= 123 && str.codePointAt(i) <= 126))
+//                    {
+//                        String str_wrong = str.substring(i);
+//                        editText.setText(str.replace(str_wrong,""));
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void afterTextChanged(Editable s){}
+//        });
+//    }
 
-                        String dictName = editText.getText().toString();
-                        if (!dictName.equals(""))
-                        {
-                            try
-                            {
-//                                dataBaseQueries = new DataBaseQueries(MainActivity.this);
-//                                dataBaseQueries.addTableToDbSync(dictName);
-                            } catch (Exception e)
-                            {
-                                e.printStackTrace();
-                            }
-                            Toast toast = Toast.makeText(getApplicationContext(), getString(R.string.text_added_new_dict)+dictName, Toast.LENGTH_LONG);
-                            toast.setGravity(Gravity.CENTER, 0, 0);
-                            toast.show();
-                        }
-                    }
-                })
-                .setNegativeButton(R.string.btn_text_cancel, null)
-                .setView(view).create().show();
-
-        editText.addTextChangedListener(new TextWatcher()
-        {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after){}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count)
-            {
-                String str = s.toString();
-                for (int i = 0; i < str.length(); i++)
-                {
-                    int char_first = str.codePointAt(0);
-                    if ((char_first >= 33 && char_first <= 64) || (char_first >= 91 && char_first <= 96) ||
-                            (char_first >= 123 && char_first <= 126))
-                    {
-                        String str_wrong = str.substring(i);
-                        editText.setText(str.replace(str_wrong,""));
-                    }
-                    if ((str.codePointAt(i) >= 33 && str.codePointAt(i) <= 47) || (str.codePointAt(i) >= 58 && str.codePointAt(i) <= 64) ||
-                            (str.codePointAt(i) >= 91 && str.codePointAt(i) <= 96) || (str.codePointAt(i) >= 123 && str.codePointAt(i) <= 126))
-                    {
-                        String str_wrong = str.substring(i);
-                        editText.setText(str.replace(str_wrong,""));
-                    }
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s){}
-        });
-    }
-
-    public void btnPlayClick(View view)
-    {
-        //playList = appSettings.getPlayList();
-        if (playList.size() > 0)
-        {
-            if (isFirstTime)
-            {
-                Toast toast = Toast.makeText(this, R.string.message_about_start,Toast.LENGTH_LONG);
-                toast.setGravity(Gravity.TOP,0,0);
-                toast.show();
-            }
-
-            speechIntentService = new Intent(this, SpeechService.class);
-            stopService(speechIntentService);
-            speechIntentService.putExtra(getString(R.string.key_play_order), appSettings.getOrderPlay());
-            speechIntentService.putExtra(getString(R.string.is_one_time), false);
-            startService(speechIntentService);
-
-            btnPlay.setVisibility(View.INVISIBLE);
-            btnStop.setVisibility(View.VISIBLE);
-            btnPause.setVisibility(View.VISIBLE);
-            textViewRu.setText(null);
-        } else
-        {
-            Toast toast = Toast.makeText(this, R.string.no_playlist, Toast.LENGTH_SHORT);
-            toast.setGravity(Gravity.CENTER,0,0);
-            toast.show();
-            if (playListIntent == null)
-            {
-                playListIntent = new Intent(this, PlayList.class);
-            }
-            startActivity(playListIntent);
-        }
-        progressBar.setVisibility(View.VISIBLE);
-
-    }
-    public void btnPauseClick(View view)
-    {
-        Toast toast = Toast.makeText(this, R.string.message_about_pause,Toast.LENGTH_SHORT);
-        toast.show();
-        speechServiceOnPause();
-    }
+//    public void btnPlayClick(View view)
+//    {
+//        //playList = appSettings.getPlayList();
+//        if (playList.size() > 0)
+//        {
+//            if (isFirstTime)
+//            {
+//                Toast toast = Toast.makeText(this, R.string.message_about_start,Toast.LENGTH_LONG);
+//                toast.setGravity(Gravity.TOP,0,0);
+//                toast.show();
+//            }
+//
+//            speechIntentService = new Intent(this, SpeechService.class);
+//            stopService(speechIntentService);
+//            speechIntentService.putExtra(getString(R.string.key_play_order), appSettings.getOrderPlay());
+//            speechIntentService.putExtra(getString(R.string.is_one_time), false);
+//            startService(speechIntentService);
+//
+//            //btnPlay.setVisibility(View.INVISIBLE);
+//            //btnStop.setVisibility(View.VISIBLE);
+//            //btnPause.setVisibility(View.VISIBLE);
+//            textViewRu.setText(null);
+//        } else
+//        {
+//            Toast toast = Toast.makeText(this, R.string.no_playlist, Toast.LENGTH_SHORT);
+//            toast.setGravity(Gravity.CENTER,0,0);
+//            toast.show();
+//            if (playListIntent == null)
+//            {
+//                playListIntent = new Intent(this, PlayList.class);
+//            }
+//            startActivity(playListIntent);
+//        }
+//        progressBar.setVisibility(View.VISIBLE);
+//
+//    }
+//    public void btnPauseClick(View view)
+//    {
+//        Toast toast = Toast.makeText(this, R.string.message_about_pause,Toast.LENGTH_SHORT);
+//        toast.show();
+//        speechServiceOnPause();
+//    }
 
     private void speechServiceOnPause()
     {
@@ -813,10 +831,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             stopService(speechIntentService);
             SpeechService.stopIntentService();
         }
-        btnPause.setVisibility(View.GONE);
-        btnPlay.setVisibility(View.VISIBLE);
-        btnStop.setVisibility(View.VISIBLE);
-        progressBar.setVisibility(View.GONE);
+        //btnPause.setVisibility(View.GONE);
+        //btnPlay.setVisibility(View.VISIBLE);
+        //btnStop.setVisibility(View.VISIBLE);
+        //progressBar.setVisibility(View.GONE);
     }
 
     public void btnStopClick(View view)
@@ -830,192 +848,192 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             stopService(speechIntentService);
         }
-        btnPlay.setVisibility(View.VISIBLE);
-        btnStop.setVisibility(View.GONE);
-        btnPause.setVisibility(View.GONE);
-        progressBar.setVisibility(View.GONE);
+        //btnPlay.setVisibility(View.VISIBLE);
+        //btnStop.setVisibility(View.GONE);
+        //btnPause.setVisibility(View.GONE);
+        //progressBar.setVisibility(View.GONE);
 
         appData.setNdict(0);
         appData.setNword(1);
     }
 
-    public void btnNextBackClick(View view)
-    {
-        if (playList.size() == 0)
-        {
-            Toast toast = Toast.makeText(this, R.string.no_playlist, Toast.LENGTH_SHORT);
-            toast.setGravity(Gravity.CENTER,0,0);
-            toast.show();
-            if (playListIntent == null)
-            {
-                playListIntent = new Intent(this, PlayList.class);
-            }
-            startActivity(playListIntent);
-        }
-        speechServiceOnPause();
-        if (SplashScreenActivity.speech != null)
-        {
-            SplashScreenActivity.speech.stop();
-        }
-        int id = view.getId();
-        if (id == R.id.btn_next)
-        {
-            getNext();
-        }
+//    public void btnNextBackClick(View view)
+//    {
+//        if (playList.size() == 0)
+//        {
+//            Toast toast = Toast.makeText(this, R.string.no_playlist, Toast.LENGTH_SHORT);
+//            toast.setGravity(Gravity.CENTER,0,0);
+//            toast.show();
+//            if (playListIntent == null)
+//            {
+//                playListIntent = new Intent(this, PlayList.class);
+//            }
+//            startActivity(playListIntent);
+//        }
+//        speechServiceOnPause();
+//        if (SplashScreenActivity.speech != null)
+//        {
+//            SplashScreenActivity.speech.stop();
+//        }
+//        int id = view.getId();
+//        if (id == R.id.btn_next)
+//        {
+//            getNext();
+//        }
+//
+//        if (id == R.id.btn_previous)
+//        {
+//            getPrevious();
+//        }
+//    }
 
-        if (id == R.id.btn_previous)
-        {
-            getPrevious();
-        }
-    }
-
-    private void getNext()
-    {
-        if (playList.iterator().hasNext())
-        {
-            appData.getNextNword(this, new AppData.IGetWordListerner()
-            {
-                @Override
-                public void getWordComplete(ArrayList<DataBaseEntry> entries, Integer[] dictSize)
-                {
-                    if (entries.size() > 0)
-                    {
-                        DataBaseEntry dataBaseEntry = entries.get(0);
-                        textViewEn.setText(dataBaseEntry.getEnglish());
-                        textViewRu.setText(dataBaseEntry.getTranslate());
-                        textViewDict.setText(playList.get(appData.getNdict()));
-                        String concatText = (dataBaseEntry.getRowId() + "").concat(" / ").concat(Integer.toString(dictSize[1])).concat("  " + getString(R.string.text_studied) + " " + dictSize[2]);
-                        tvWordsCounter.setText(concatText);
-
-                        final HashMap<String, String> hashMap = new HashMap<>();
-                        hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "main_activity");
-                        try
-                        {
-                            SplashScreenActivity.speech.setLanguage(Locale.US);
-                        } catch (Exception e)
-                        {
-                            return;
-                        }
-                        SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                        {
-                            SplashScreenActivity.speech.speak(textViewEn.getText().toString(), TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
-                        } else
-                        {
-                            SplashScreenActivity.speech.speak(textViewEn.getText().toString(), TextToSpeech.QUEUE_ADD, hashMap);
-                        }
-                        SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
-                        {
-                            @Override
-                            public void onStart(String utteranceId)
-                            {
-
-                            }
-
-                            @Override
-                            public void onDone(String utteranceId)
-                            {
-                                if (utteranceId.equals("main_activity") && appSettings.isEnglishSpeechOnly())
-                                {
-                                    SplashScreenActivity.speech.setLanguage(localeDefault);
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                                    {
-                                        SplashScreenActivity.speech.speak(textViewRu.getText().toString(), TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
-                                    } else
-                                    {
-                                        SplashScreenActivity.speech.speak(textViewRu.getText().toString(), TextToSpeech.QUEUE_ADD, hashMap);
-                                    }
-                                }
-                                SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
-                            }
-
-                            @Override
-                            public void onError(String utteranceId)
-                            {
-
-                            }
-                        });
-                    }
-                }
-            });
-        }
-    }
-
-    private void getPrevious()
-    {
-        if (playList.size() == 0)
-        {
-            speechServiceOnStop();
-            return;
-        }
-
-        appData.getPreviousNword(this, new AppData.IGetWordListerner()
-        {
-            @Override
-            public void getWordComplete(ArrayList<DataBaseEntry> entries, Integer[] dictSize)
-            {
-                if (entries.size() > 0)
-                {
-                    DataBaseEntry dataBaseEntry = entries.get(0);
-
-                    textViewEn.setText(dataBaseEntry.getEnglish());
-                    textViewRu.setText(dataBaseEntry.getTranslate());
-                    textViewDict.setText(playList.get(appData.getNdict()));
-                    String concatText = (dataBaseEntry.getRowId() + "").concat(" / ").concat(Integer.toString(dictSize[1])).concat("  " + getString(R.string.text_studied) + " " + dictSize[2]);
-                    tvWordsCounter.setText(concatText);
-
-                    final HashMap<String, String> hashMap = new HashMap<>();
-                    hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "main_activity");
-                    try
-                    {
-                        SplashScreenActivity.speech.setLanguage(Locale.US);
-                    } catch (Exception e)
-                    {
-                        return;
-                    }
-                    SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                    {
-                        SplashScreenActivity.speech.speak(textViewEn.getText().toString(), TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
-                    } else
-                    {
-                        SplashScreenActivity.speech.speak(textViewEn.getText().toString(), TextToSpeech.QUEUE_ADD, hashMap);
-                    }
-                    SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
-                    {
-                        @Override
-                        public void onStart(String utteranceId)
-                        {
-
-                        }
-
-                        @Override
-                        public void onDone(String utteranceId)
-                        {
-                            if (utteranceId.equals("main_activity") && appSettings.isEnglishSpeechOnly())
-                            {
-                                SplashScreenActivity.speech.setLanguage(localeDefault);
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                                {
-                                    SplashScreenActivity.speech.speak(textViewRu.getText().toString(), TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
-                                } else
-                                {
-                                    SplashScreenActivity.speech.speak(textViewRu.getText().toString(), TextToSpeech.QUEUE_ADD, hashMap);
-                                }
-                            }
-                            SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
-                        }
-
-                        @Override
-                        public void onError(String utteranceId)
-                        {
-
-                        }
-                    });
-                }
-            }
-        });
-    }
+//    private void getNext()
+//    {
+//        if (playList.iterator().hasNext())
+//        {
+//            appData.getNextNword(this, new AppData.IGetWordListerner()
+//            {
+//                @Override
+//                public void getWordComplete(ArrayList<DataBaseEntry> entries, Integer[] dictSize)
+//                {
+//                    if (entries.size() > 0)
+//                    {
+//                        DataBaseEntry dataBaseEntry = entries.get(0);
+//                        textViewEn.setText(dataBaseEntry.getEnglish());
+//                        textViewRu.setText(dataBaseEntry.getTranslate());
+//                        textViewDict.setText(playList.get(appData.getNdict()));
+//                        String concatText = (dataBaseEntry.getRowId() + "").concat(" / ").concat(Integer.toString(dictSize[1])).concat("  " + getString(R.string.text_studied) + " " + dictSize[2]);
+//                        tvWordsCounter.setText(concatText);
+//
+//                        final HashMap<String, String> hashMap = new HashMap<>();
+//                        hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "main_activity");
+//                        try
+//                        {
+//                            SplashScreenActivity.speech.setLanguage(Locale.US);
+//                        } catch (Exception e)
+//                        {
+//                            return;
+//                        }
+//                        SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
+//                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+//                        {
+//                            SplashScreenActivity.speech.speak(textViewEn.getText().toString(), TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+//                        } else
+//                        {
+//                            SplashScreenActivity.speech.speak(textViewEn.getText().toString(), TextToSpeech.QUEUE_ADD, hashMap);
+//                        }
+//                        SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+//                        {
+//                            @Override
+//                            public void onStart(String utteranceId)
+//                            {
+//
+//                            }
+//
+//                            @Override
+//                            public void onDone(String utteranceId)
+//                            {
+//                                if (utteranceId.equals("main_activity") && appSettings.isEnglishSpeechOnly())
+//                                {
+//                                    SplashScreenActivity.speech.setLanguage(localeDefault);
+//                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+//                                    {
+//                                        SplashScreenActivity.speech.speak(textViewRu.getText().toString(), TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+//                                    } else
+//                                    {
+//                                        SplashScreenActivity.speech.speak(textViewRu.getText().toString(), TextToSpeech.QUEUE_ADD, hashMap);
+//                                    }
+//                                }
+//                                SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
+//                            }
+//
+//                            @Override
+//                            public void onError(String utteranceId)
+//                            {
+//
+//                            }
+//                        });
+//                    }
+//                }
+//            });
+//        }
+//    }
+//
+//    private void getPrevious()
+//    {
+//        if (playList.size() == 0)
+//        {
+//            speechServiceOnStop();
+//            return;
+//        }
+//
+//        appData.getPreviousNword(this, new AppData.IGetWordListerner()
+//        {
+//            @Override
+//            public void getWordComplete(ArrayList<DataBaseEntry> entries, Integer[] dictSize)
+//            {
+//                if (entries.size() > 0)
+//                {
+//                    DataBaseEntry dataBaseEntry = entries.get(0);
+//
+//                    textViewEn.setText(dataBaseEntry.getEnglish());
+//                    textViewRu.setText(dataBaseEntry.getTranslate());
+//                    textViewDict.setText(playList.get(appData.getNdict()));
+//                    String concatText = (dataBaseEntry.getRowId() + "").concat(" / ").concat(Integer.toString(dictSize[1])).concat("  " + getString(R.string.text_studied) + " " + dictSize[2]);
+//                    tvWordsCounter.setText(concatText);
+//
+//                    final HashMap<String, String> hashMap = new HashMap<>();
+//                    hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "main_activity");
+//                    try
+//                    {
+//                        SplashScreenActivity.speech.setLanguage(Locale.US);
+//                    } catch (Exception e)
+//                    {
+//                        return;
+//                    }
+//                    SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
+//                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+//                    {
+//                        SplashScreenActivity.speech.speak(textViewEn.getText().toString(), TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+//                    } else
+//                    {
+//                        SplashScreenActivity.speech.speak(textViewEn.getText().toString(), TextToSpeech.QUEUE_ADD, hashMap);
+//                    }
+//                    SplashScreenActivity.speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+//                    {
+//                        @Override
+//                        public void onStart(String utteranceId)
+//                        {
+//
+//                        }
+//
+//                        @Override
+//                        public void onDone(String utteranceId)
+//                        {
+//                            if (utteranceId.equals("main_activity") && appSettings.isEnglishSpeechOnly())
+//                            {
+//                                SplashScreenActivity.speech.setLanguage(localeDefault);
+//                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+//                                {
+//                                    SplashScreenActivity.speech.speak(textViewRu.getText().toString(), TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+//                                } else
+//                                {
+//                                    SplashScreenActivity.speech.speak(textViewRu.getText().toString(), TextToSpeech.QUEUE_ADD, hashMap);
+//                                }
+//                            }
+//                            SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
+//                        }
+//
+//                        @Override
+//                        public void onError(String utteranceId)
+//                        {
+//
+//                        }
+//                    });
+//                }
+//            }
+//        });
+//    }
 
     public void switchRuSound_OnCheckedChange()
     {
@@ -1178,10 +1196,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             textViewRu.setText(updateRU);
             textViewDict.setText(updateDict);
             tvWordsCounter.setText(nword);
-            if (!textViewEn.getText().equals(""))
-            {
-                progressBar.setVisibility(View.GONE);
-            }
+//            if (!textViewEn.getText().equals(""))
+//            {
+//                progressBar.setVisibility(View.GONE);
+//            }
         }
     }
 

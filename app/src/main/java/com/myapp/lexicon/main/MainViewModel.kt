@@ -1,5 +1,6 @@
 package com.myapp.lexicon.main
 
+import android.graphics.drawable.Drawable
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -35,8 +36,22 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
     }
 
     private var _wordsList = MutableLiveData<MutableList<Word>>()
-    var wordsList: LiveData<MutableList<Word>> = _wordsList
+    var wordsList: MutableLiveData<MutableList<Word>> = _wordsList
     fun wordListSize(): Int = _wordsList.value?.size ?: 0
+
+    fun shuffleWordsList()
+    {
+        _wordsList.value?.shuffle()
+        _wordsList.value = _wordsList.value
+        return
+    }
+    fun sortWordsList()
+    {
+        _wordsList.value?.sortBy { word: Word -> word._id  }
+        _wordsList.value = _wordsList.value
+
+        return
+    }
 
     fun getWordsFromDict(dictName: String, id: Int, limit: Int): Single<MutableList<Word>>
     {
@@ -78,6 +93,16 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
     }
 
     var testInterval: LiveData<Int> = MutableLiveData(repository.getTestIntervalFromPref())
+
+    private var _orderPlay = MutableLiveData<Int>().apply {
+        value = repository.getOrderPlay()
+    }
+    val orderPlay: LiveData<Int> = _orderPlay
+    fun setOrderPlay(order: Int)
+    {
+        _orderPlay.value = order
+        repository.saveOrderPlay(order)
+    }
 
 
     init

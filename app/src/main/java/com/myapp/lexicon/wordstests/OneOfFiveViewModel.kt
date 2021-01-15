@@ -20,7 +20,7 @@ class OneOfFiveViewModel : ViewModel()
     var wordsList: LiveData<ArrayList<Word>> = _wordsList
     fun initTest(list: List<Word>)
     {
-        if (_wordsList.value.isNullOrEmpty())
+        if (_wordsList.value.isNullOrEmpty() && !list.isNullOrEmpty())
         {
             _adapterList.value = list.take(ROWS) as ArrayList<Word>
             val randomIndex = if (list.size >= ROWS)

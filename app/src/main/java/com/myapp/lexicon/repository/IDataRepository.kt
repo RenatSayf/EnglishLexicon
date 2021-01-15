@@ -29,6 +29,10 @@ interface IDataRepository
 
     fun getTestIntervalFromPref() : Int
 
+    fun getOrderPlay() : Int
+
+    fun saveOrderPlay(order: Int)
+
     fun getAllFromTable(tableName: String) : Single<MutableList<DataBaseEntry>>
 
     fun removeTableFromSettings(tableName: String)
