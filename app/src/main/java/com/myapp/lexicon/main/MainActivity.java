@@ -21,6 +21,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
@@ -39,6 +40,7 @@ import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
 import com.myapp.lexicon.cloudstorage.StorageFragment2;
 import com.myapp.lexicon.database.Word;
+import com.myapp.lexicon.dialogs.DictListDialog;
 import com.myapp.lexicon.dialogs.OrderPlayDialog;
 import com.myapp.lexicon.dialogs.RemoveDictDialog;
 import com.myapp.lexicon.helpers.Share;
@@ -51,6 +53,8 @@ import com.myapp.lexicon.settings.SettingsFragment;
 import com.myapp.lexicon.wordeditor.WordEditorActivity;
 import com.myapp.lexicon.wordstests.OneOfFiveFragmNew;
 import com.myapp.lexicon.wordstests.TestsActivity;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -90,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Intent playListIntent;
     private TextView textViewEn;
     private TextView textViewRu;
-    private TextView textViewDict;
+    private Button btnViewDict;
     private TextView tvWordsCounter;
     //private ImageButton btnPlay;
     //private ImageButton btnStop;
@@ -156,6 +160,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         mainViewModel.getCurrentWord().observe(this, word -> {
             currentWord = word;
+            btnViewDict.setText(currentWord.getDictName());
         });
 
         mainViewModel.getPlayList().observe(this, list -> {
@@ -217,7 +222,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 {
                     Word item = adapter.getItem(position);
                     mainViewModel.setCurrentWord(item);
-                    textViewDict.setText(item.getDictName());
+                    //btnViewDict.setText(item.getDictName());
                     int totalWords = adapter.getItemCount();
                     String concatText = (position + 1 + "").concat(" / ").concat(totalWords + "");
                     tvWordsCounter.setText(concatText);
@@ -253,7 +258,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     }
                     if (condition1 || condition2)
                     {
-                        mainControlLayout.setVisibility(View.INVISIBLE);
+                        mainViewModel.setMainControlVisibility(View.INVISIBLE);
                         Toast.makeText(MainActivity.this, "Проверим знания!!!...", Toast.LENGTH_LONG).show();
                         OneOfFiveFragmNew testFragment = OneOfFiveFragmNew.newInstance(list);
                         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -265,6 +270,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     }
                 }
                 this.position = position;
+            }
+        });
+
+        mainViewModel.getMainControlVisibility().observe(this, visibility -> {
+            mainControlLayout = findViewById(R.id.main_control_layout);
+            if (mainControlLayout != null)
+            {
+                mainControlLayout.setVisibility(visibility);
             }
         });
 
@@ -300,23 +313,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             navigationView.setNavigationItemSelectedListener(this);
         }
 
-//        if (savedInstanceState == null && databaseHelper == null)
-//        {
-//            databaseHelper = new DatabaseHelper(this);
-//            databaseHelper.create_db();
-//        }
-
         if (savedInstanceState != null)
         {
             isFirstTime = false;
-            //textViewEn.setText(savedInstanceState.getString(KEY_ENG_TEXT));
-            //textViewRu.setText(savedInstanceState.getString(KEY_RU_TEXT));
-            textViewDict.setText(savedInstanceState.getString(KEY_CURRENT_DICT));
             tvWordsCounter.setText(savedInstanceState.getString(KEY_TV_WORDS_COUNTER));
-            //btnPlay.setVisibility(savedInstanceState.getInt(KEY_BTN_PLAY_VISIBLE));
-            //btnStop.setVisibility(savedInstanceState.getInt(KEY_BTN_STOP_VISIBLE));
-            //btnPause.setVisibility(savedInstanceState.getInt(KEY_BTN_PAUSE_VISIBLE));
-            //progressBar.setVisibility(savedInstanceState.getInt(KEY_PROG_BAR_VISIBLE));
         }
 
         if (appData.isAdMob())
@@ -348,7 +348,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     mainViewPager.setCurrentItem(i, false);
                 }
                 else mainViewPager.setCurrentItem(0, false);
-                mainControlLayout.setVisibility(View.VISIBLE);
+                mainViewModel.setMainControlVisibility(View.VISIBLE);
             }
         }
     }
@@ -370,7 +370,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         mainViewPager.setCurrentItem(newIndex, true);
                     }
                     else mainViewPager.setCurrentItem(0, true);
-                    mainControlLayout.setVisibility(View.VISIBLE);
+                    //mainControlLayout.setVisibility(View.VISIBLE);
+                    mainViewModel.setMainControlVisibility(View.VISIBLE);
                 }
             }
         }
@@ -387,35 +388,43 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onStart();
         FirebaseAppIndex.getInstance().update();
         FirebaseUserActions.getInstance().start(getAction());
-        //EventBus.getDefault().post(new MainActivityOnStart(serviceIntent));
     }
 
     private void initViews()
     {
-        mainControlLayout = findViewById(R.id.main_control_layout);
+
         mainViewPager = findViewById(R.id.mainViewPager);
         textViewEn = findViewById(R.id.enTextView);
         textViewRu = findViewById(R.id.ruTextView);
-        textViewDict = findViewById(R.id.btnViewDict);
+        btnViewDict = findViewById(R.id.btnViewDict);
+        btnViewDictOnClick(btnViewDict);
         tvWordsCounter = findViewById(R.id.tv_words_counter);
-        //btnPlay = findViewById(R.id.btn_play);
-//        btnStop = findViewById(R.id.btn_stop);
-//        if (btnStop != null)
-//        {
-//            btnStop.setVisibility(View.GONE);
-//        }
-//        btnPause = findViewById(R.id.btn_pause);
-//        if (btnPause != null)
-//        {
-//            btnPause.setVisibility(View.GONE);
-//        }
-        //progressBar = findViewById(R.id.progressBar);
+
         checkBoxRuSpeak = findViewById(R.id.check_box_ru_speak);
         checkBoxRuSpeak.setChecked(appSettings.isEnglishSpeechOnly());
         switchRuSound_OnCheckedChange();
 
         orderPlayView = findViewById(R.id.order_play_icon_iv);
         orderPlayViewOnClick(orderPlayView);
+    }
+
+    private void btnViewDictOnClick(Button view)
+    {
+        view.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                DictListDialog.Companion.getInstance(new DictListDialog.ISelectItemListener()
+                {
+                    @Override
+                    public void dictListItemOnSelected(@NotNull String dict)
+                    {
+                        mainViewModel.setWordsList(dict);
+                    }
+                });
+            }
+        });
     }
 
     private void orderPlayViewOnClick(ImageView view)
@@ -434,14 +443,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onSaveInstanceState(@NonNull Bundle outState)
     {
         super.onSaveInstanceState(outState);
-        //outState.putString(KEY_ENG_TEXT, textViewEn.getText().toString());
-        //outState.putString(KEY_RU_TEXT, textViewRu.getText().toString());
-        outState.putString(KEY_CURRENT_DICT, textViewDict.getText().toString());
         outState.putString(KEY_TV_WORDS_COUNTER, tvWordsCounter.getText().toString());
-        //outState.putInt(KEY_BTN_PLAY_VISIBLE, btnPlay.getVisibility());
-        //outState.putInt(KEY_BTN_STOP_VISIBLE, btnStop.getVisibility());
-        //outState.putInt(KEY_BTN_PAUSE_VISIBLE, btnPause.getVisibility());
-        //outState.putInt(KEY_PROG_BAR_VISIBLE, progressBar.getVisibility());
     }
 
     @Override
@@ -461,7 +463,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onStop()
     {
-        //progressBar.setVisibility(View.GONE);
         FirebaseUserActions.getInstance().end(getAction());
         super.onStop();
     }
@@ -477,22 +478,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         super.onResume();
         wordsInterval = mainViewModel.getTestInterval().getValue();
-//        appSettings = new AppSettings(this);
-//        appData = AppData.getInstance();
-//        appData.initAllSettings(this);
         appData.setDictNumberChangeListener(this);
-
-
-//        if (appSettings.getOrderPlay() == 0)
-//        {
-//            orderPlayView.setImageResource(R.drawable.ic_repeat_white);
-//        }
-//        if (appSettings.getOrderPlay() == 1)
-//        {
-//            orderPlayView.setImageResource(R.drawable.ic_shuffle_white);
-//        }
         localeDefault = new Locale(appSettings.getTranslateLang());
-        //dataBaseQueries = new DataBaseQueries(this);
         if (serviceIntent != null)
         {
             stopService(serviceIntent);
@@ -567,7 +554,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
                 speechServiceOnPause();
                 Bundle bundle = new Bundle();
-                bundle.putString(WordEditorActivity.KEY_EXTRA_DICT_NAME, textViewDict.getText().toString());
+                bundle.putString(WordEditorActivity.KEY_EXTRA_DICT_NAME, btnViewDict.getText().toString());
                 String text = tvWordsCounter.getText().toString();
                 try
                 {
@@ -1194,7 +1181,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             String nword = intent.getStringExtra(SpeechService.EXTRA_KEY_WORDS_COUNTER);
             textViewEn.setText(updateEN);
             textViewRu.setText(updateRU);
-            textViewDict.setText(updateDict);
+            btnViewDict.setText(updateDict);
             tvWordsCounter.setText(nword);
 //            if (!textViewEn.getText().equals(""))
 //            {

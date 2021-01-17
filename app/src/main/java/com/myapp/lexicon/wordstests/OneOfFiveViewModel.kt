@@ -20,6 +20,7 @@ class OneOfFiveViewModel : ViewModel()
     var wordsList: LiveData<ArrayList<Word>> = _wordsList
     fun initTest(list: List<Word>)
     {
+        _progressMax.value = list.size
         if (_wordsList.value.isNullOrEmpty() && !list.isNullOrEmpty())
         {
             _adapterList.value = list.take(ROWS) as ArrayList<Word>
@@ -62,6 +63,9 @@ class OneOfFiveViewModel : ViewModel()
     {
         _progress.value = progress
     }
+
+    private var _progressMax = MutableLiveData<Int>()
+    var progressMax: LiveData<Int> = _progressMax
 
     private var _wrongAnswerCount = MutableLiveData<Int>().apply {
         value = 0

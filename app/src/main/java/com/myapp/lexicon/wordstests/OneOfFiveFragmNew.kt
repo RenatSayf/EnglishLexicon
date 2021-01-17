@@ -62,7 +62,7 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
         if (arguments != null)
         {
             wordList = requireArguments().getParcelableArrayList(ARG_WORD_LIST)
-            wordList?.let { vm.initTest(it) }
+            if (!wordList.isNullOrEmpty()) vm.initTest(wordList as java.util.ArrayList<Word>)
         }
     }
 
@@ -86,22 +86,16 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
             mysteryWordView.text = it
         })
 
-        val progressView = root.findViewById<ProgressBar>(R.id.progressView1of5).apply {
-            wordList?.size?.let {
-                vm.adapterList.value?.let { list ->
-                    max = if (list.size >= ROWS)
-                        ROWS + it
-                    else
-                        list.size
-                }
-            }
-        }
+        val progressView = root.findViewById<ProgressBar>(R.id.progressView1of5)
+        vm.progressMax.observe(viewLifecycleOwner, {
+            progressView.max = it
+        })
 
         val progressValueView = root.findViewById<TextView>(R.id.progressValueView)
 
         vm.progress.observe(viewLifecycleOwner, {
             progressView.progress = it
-            val progressValue = "$it/${progressView.max}"
+            val progressValue = "$it/${vm.progressMax.value}"
             progressValueView.text = progressValue
             if (it == progressView.max)
             {
@@ -212,14 +206,6 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
     {
         (requireActivity() as MainActivity).testFailed(errors)
         requireActivity().supportFragmentManager.beginTransaction().remove(this).commit()
-    }
-
-    //TODO Если во время теста перейти на другой экран, а потом вернуться обратно и еще раз обратно то MainActivity.mainControlLayout остается невидимый
-
-    override fun onDestroy()
-    {
-        super.onDestroy()
-        //backPressedCallback?.remove()
     }
 
 }

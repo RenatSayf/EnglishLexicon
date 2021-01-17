@@ -1,6 +1,7 @@
 package com.myapp.lexicon.main
 
 import android.graphics.drawable.Drawable
+import android.view.View
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -37,6 +38,19 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
 
     private var _wordsList = MutableLiveData<MutableList<Word>>()
     var wordsList: MutableLiveData<MutableList<Word>> = _wordsList
+    fun setWordsList(dictName: String)
+    {
+        composite.add(getWordsFromDict(dictName, 1, Int.MAX_VALUE)
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ list ->
+                    _wordsList.value = list
+                }, { t ->
+                    t.message
+                    t.printStackTrace()
+                    _wordsList.value = mutableListOf()
+                }))
+    }
     fun wordListSize(): Int = _wordsList.value?.size ?: 0
 
     fun shuffleWordsList()
@@ -104,26 +118,24 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
         repository.saveOrderPlay(order)
     }
 
+    private var _mainControlVisibility = MutableLiveData<Int>().apply {
+        value = View.VISIBLE
+    }
+    var mainControlVisibility: LiveData<Int> = _mainControlVisibility
+    fun setMainControlVisibility(viability: Int)
+    {
+        _mainControlVisibility.value = viability
+    }
+
 
     init
     {
         _playList.value = repository.getTableListFromSettings() as ArrayList<String>
         _currentDict.value = repository.getCurrentWordFromSettings().dictName
-        val value = _currentWord.value
-
         val dictName = _currentDict.value
         if (!dictName.isNullOrEmpty())
         {
-            composite.add(getWordsFromDict(_currentWord.value!!.dictName, 1, Int.MAX_VALUE)
-                    .subscribeOn(Schedulers.computation())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe({ list ->
-                        _wordsList.value = list
-                    }, { t ->
-                        t.message
-                        t.printStackTrace()
-                        _wordsList.value = mutableListOf()
-                    }))
+            setWordsList(dictName)
         }
     }
 
