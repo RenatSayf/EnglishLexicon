@@ -24,7 +24,7 @@ import io.reactivex.schedulers.Schedulers;
 
 public class AddWordViewModel extends ViewModel
 {
-    private MutableLiveData<List<String>> _dictionaries = new MutableLiveData<>();
+    private final MutableLiveData<List<String>> _dictionaries = new MutableLiveData<>();
     private DatabaseHelper databaseHelper;
 
     public LiveData<List<String>> dictionaries = _dictionaries;
@@ -34,7 +34,7 @@ public class AddWordViewModel extends ViewModel
         return loadDictListAsync(context)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(listMutableLiveData -> _dictionaries.setValue(listMutableLiveData), Throwable::printStackTrace);
+                .subscribe(_dictionaries::setValue, Throwable::printStackTrace);
     }
 
     private Observable<ArrayList<String>> loadDictListAsync(Context context)
@@ -116,7 +116,7 @@ public class AddWordViewModel extends ViewModel
         return list;
     }
 
-    private MutableLiveData<Integer> _spinnerSelectedIndex = new MutableLiveData<>();
+    private final MutableLiveData<Integer> _spinnerSelectedIndex = new MutableLiveData<>();
     public LiveData<Integer> spinnerSelectedIndex()
     {
         return _spinnerSelectedIndex;

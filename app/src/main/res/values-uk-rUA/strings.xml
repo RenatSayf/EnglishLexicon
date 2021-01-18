@@ -265,6 +265,9 @@
     <string name="key_test_interval">key_learning_mode</string>
     <string name="text_test_after_learning">Пройти тест після вивчення</string>
     <string name="text_knowledge_check">Перевірка знань</string>
+    <string name="text_test_passed">Відмінний результат, можна продовжувати вчитися!</string>
+    <string name="text_test_not_passed">Не всі слова вивчені, спробуйте ще раз…</string>
+    <string name="text_dictionaries">Словники</string>
 
     <string-array name="words_interval">
         <item>після 5 слів</item>

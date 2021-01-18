@@ -18,6 +18,7 @@ import com.myapp.lexicon.dialogs.NewDictDialog
 import com.myapp.lexicon.helpers.Keyboard
 import com.myapp.lexicon.main.Speaker
 import com.myapp.lexicon.settings.AppData
+import com.myapp.lexicon.settings.AppSettings
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -25,7 +26,7 @@ import kotlinx.android.synthetic.main.add_word_dialog.*
 import java.util.*
 import kotlin.collections.ArrayList
 
-class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult
+class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult, Speaker.IOnSpeechListener
 {
     companion object
     {
@@ -60,12 +61,15 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult
         }
     }
 
+    @Suppress("ObjectLiteralToLambda")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
     {
-        speaker = Speaker(activity, object : TextToSpeech.OnInitListener{
+        speaker = Speaker(activity, object : TextToSpeech.OnInitListener
+        {
             override fun onInit(status: Int)
             {
                 speaker.speechInit(status, activity, speaker)
+                speaker.setOnSpeechListener(this@AddWordDialog)
             }
         })
         return dialogView
@@ -236,6 +240,26 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult
         super.onDestroy()
         subscriber?.dispose()
         speaker.shutdown()
+    }
+
+    override fun onSpeechStart(id: String?)
+    {
+
+    }
+
+    override fun onSpeechDone(id: String?)
+    {
+
+    }
+
+    override fun onSpeechError(id: String?)
+    {
+
+    }
+
+    override fun onContinued(arg: String?)
+    {
+        AppSettings(requireContext()).isEnglishSpeechOnly = false
     }
 
 

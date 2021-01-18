@@ -87,13 +87,24 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
         return repository.getRandomEntriesFromDb(dictName, rowId)
     }
 
+    private var _dictionaryList = MutableLiveData<MutableList<String>>().apply {
+        getDictList().subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ list ->
+                    value = list
+                }, { t ->
+                    t.printStackTrace()
+                })
+    }
+    var dictionaryList: LiveData<MutableList<String>> = _dictionaryList
+
     fun getDictList() : Single<MutableList<String>>
     {
         return repository.getDictListFromDb()
     }
 
     private var _currentWord = MutableLiveData<Word>().apply {
-        repository.saveWordThePref(Word(1, "Наречия", "", "", 1))
+        //repository.saveWordThePref(Word(1, "Наречия", "", "", 1))
         value = repository.getWordFromPref()
     }
     var currentWord: MutableLiveData<Word> = _currentWord
@@ -131,7 +142,7 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
     init
     {
         _playList.value = repository.getTableListFromSettings() as ArrayList<String>
-        _currentDict.value = repository.getCurrentWordFromSettings().dictName
+        _currentDict.value = repository.getWordFromPref().dictName
         val dictName = _currentDict.value
         if (!dictName.isNullOrEmpty())
         {

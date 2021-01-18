@@ -45,8 +45,8 @@ class TestCompleteDialog : DialogFragment()
                 {
                     val smilingIcon = ResourcesCompat.getDrawable(requireContext().resources, R.drawable.icon_smiling_face, null)
                     setIcon(smilingIcon)
-                    setTitle("Отличный результат, продолжайте изучение!")
-                    setPositiveButton("Ok") { _, _ ->
+                    setTitle(getString(R.string.text_test_passed))
+                    setPositiveButton(getString(R.string.text_ok)) { _, _ ->
                         listener.onTestPassed()
                         dismiss()
                     }
@@ -55,8 +55,8 @@ class TestCompleteDialog : DialogFragment()
                 {
                     val sadIcon = ResourcesCompat.getDrawable(requireContext().resources, R.drawable.icon_sad_face, null)
                     setIcon(sadIcon)
-                    setTitle("Не все слова изучены, попробуй еще раз...")
-                    setPositiveButton("Повторить") { _, _ ->
+                    setTitle(getString(R.string.text_test_not_passed))
+                    setPositiveButton(getString(R.string.text_repeat)) { _, _ ->
                         listener.onTestFailed(errorCount)
                         dismiss()
                     }

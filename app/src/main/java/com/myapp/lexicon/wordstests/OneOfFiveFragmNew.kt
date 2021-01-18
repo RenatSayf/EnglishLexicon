@@ -23,12 +23,15 @@ import com.myapp.lexicon.database.Word
 import com.myapp.lexicon.dialogs.TestCompleteDialog
 import com.myapp.lexicon.helpers.RandomNumberGenerator
 import com.myapp.lexicon.main.MainActivity
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.one_of_five_fragm_new.*
 import java.util.*
 import kotlin.collections.ArrayList
 
 const val ROWS: Int = 5
 
+
+@AndroidEntryPoint
 class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogListener, OneFiveTestAdapter.ITestAdapterListener
 {
     private lateinit var vm: OneOfFiveViewModel
@@ -115,7 +118,7 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
             if (this@OneOfFiveFragmNew.isAdded)
             {
                 requireActivity().supportFragmentManager.beginTransaction().remove(this@OneOfFiveFragmNew).commit()
-                (requireActivity() as MainActivity).mainControlLayout.visibility = View.VISIBLE
+                (requireActivity() as MainActivity).mainViewModel.setMainControlVisibility(View.VISIBLE)
             }
             else requireActivity().finish()
         }

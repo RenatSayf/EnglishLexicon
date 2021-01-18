@@ -54,11 +54,8 @@ import com.myapp.lexicon.wordeditor.WordEditorActivity;
 import com.myapp.lexicon.wordstests.OneOfFiveFragmNew;
 import com.myapp.lexicon.wordstests.TestsActivity;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
@@ -85,7 +82,6 @@ import io.reactivex.schedulers.Schedulers;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         AppData.IDictNumChangeListener
 {
-    public static final String KEY_PLAY_LIST = "com.myapp.lexicon.main.KEY_PLAY_LIST";
 
     public LinearLayout mainControlLayout;
     private Intent addWordIntent;
@@ -96,21 +92,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView textViewRu;
     private Button btnViewDict;
     private TextView tvWordsCounter;
-    //private ImageButton btnPlay;
-    //private ImageButton btnStop;
-    //private ImageButton btnPause;
-    //private ProgressBar progressBar;
     private CheckBox checkBoxRuSpeak;
     private ImageView orderPlayView;
     private static Intent speechIntentService;
     public static Intent serviceIntent;
     private SpeechServiceReceiver speechServiceReceiver;
-    private boolean isFirstTime = true;
     private AppSettings appSettings;
     private AppData appData;
-    private LinkedList<String> dictList;
     private ArrayList<String> playList = new ArrayList<>();
-    //private DataBaseQueries dataBaseQueries;
     private Locale localeDefault;
     private ViewPager2 mainViewPager;
 
@@ -125,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private FragmentManager fragmentManager;
 
-    private MainViewModel mainViewModel;
+    public MainViewModel mainViewModel;
     private final CompositeDisposable composite = new CompositeDisposable();
     private Word currentWord;
     private int wordsInterval = Integer.MAX_VALUE;
@@ -201,7 +190,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         int currentId = currentWord.get_id();
                         if (entriesId >= currentId)
                         {
-                            mainViewPager.setCurrentItem(i, true);
+                            mainViewPager.setCurrentItem(i, false);
                             break;
                         }
                     }
@@ -222,7 +211,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 {
                     Word item = adapter.getItem(position);
                     mainViewModel.setCurrentWord(item);
-                    //btnViewDict.setText(item.getDictName());
                     int totalWords = adapter.getItemCount();
                     String concatText = (position + 1 + "").concat(" / ").concat(totalWords + "");
                     tvWordsCounter.setText(concatText);
@@ -315,7 +303,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (savedInstanceState != null)
         {
-            isFirstTime = false;
+            boolean isFirstTime = false;
             tvWordsCounter.setText(savedInstanceState.getString(KEY_TV_WORDS_COUNTER));
         }
 
@@ -348,9 +336,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     mainViewPager.setCurrentItem(i, false);
                 }
                 else mainViewPager.setCurrentItem(0, false);
-                mainViewModel.setMainControlVisibility(View.VISIBLE);
             }
         }
+        mainViewModel.setMainControlVisibility(View.VISIBLE);
     }
 
     public void testFailed(int errors)
@@ -370,11 +358,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         mainViewPager.setCurrentItem(newIndex, true);
                     }
                     else mainViewPager.setCurrentItem(0, true);
-                    //mainControlLayout.setVisibility(View.VISIBLE);
-                    mainViewModel.setMainControlVisibility(View.VISIBLE);
                 }
             }
         }
+        mainViewModel.setMainControlVisibility(View.VISIBLE);
     }
 
     public Action getAction()
@@ -408,21 +395,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         orderPlayViewOnClick(orderPlayView);
     }
 
-    private void btnViewDictOnClick(Button view)
+    @SuppressWarnings("Convert2Lambda")
+    private void btnViewDictOnClick(Button button)
     {
-        view.setOnClickListener(new View.OnClickListener()
+        button.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View view)
             {
-                DictListDialog.Companion.getInstance(new DictListDialog.ISelectItemListener()
-                {
-                    @Override
-                    public void dictListItemOnSelected(@NotNull String dict)
-                    {
-                        mainViewModel.setWordsList(dict);
-                    }
-                });
+                String buttonText = button.getText().toString();
+                composite.add(mainViewModel.getDictList().subscribeOn(Schedulers.computation())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe( list -> {
+                            int index = list.indexOf(buttonText);
+                            String item = list.remove(index);
+                            list.add(0, item);
+                            DictListDialog.Companion.getInstance(list, dict -> mainViewModel.setWordsList(dict)).show(getSupportFragmentManager(), DictListDialog.Companion.getTAG());
+                        }, Throwable::printStackTrace));
             }
         });
     }
@@ -495,6 +484,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             stopService(serviceIntent);
         }
+        mainViewModel.saveCurrentWordToPref(currentWord);
     }
 
     @Override
