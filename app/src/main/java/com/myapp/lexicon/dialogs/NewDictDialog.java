@@ -34,7 +34,7 @@ public class NewDictDialog extends DialogFragment
 
     public interface INewDictDialogResult
     {
-        void newDictDialogResult(boolean res, String dictName);
+        void newDictDialogResult(@NonNull String dictName);
     }
 
     public void setNewDictDialogListener(INewDictDialogResult listener)
@@ -64,11 +64,9 @@ public class NewDictDialog extends DialogFragment
                             {
                                 try
                                 {
-                                    dataBaseQueries = new DataBaseQueries(getActivity());
-                                    boolean res = dataBaseQueries.addTableToDbSync(dictName);
                                     if (iNewDictDialogResult != null)
                                     {
-                                        iNewDictDialogResult.newDictDialogResult(res, dictName);
+                                        iNewDictDialogResult.newDictDialogResult(dictName);
                                     }
                                 } catch (Exception e)
                                 {

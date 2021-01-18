@@ -22,12 +22,6 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
     private var _currentDict = MutableLiveData<String>()
     var currentDict : LiveData<String> = _currentDict
 
-//    fun getDictList() : Observable<MutableList<String>>
-//    {
-//        return repository.getTableListFromDb()
-//    }
-
-
     private var _playList = MutableLiveData<MutableList<String>>()
     var playList : LiveData<MutableList<String>> = _playList
 
@@ -101,6 +95,11 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
     fun getDictList() : Single<MutableList<String>>
     {
         return repository.getDictListFromDb()
+    }
+
+    fun setDictList(list: MutableList<String>)
+    {
+        _dictionaryList.value = list
     }
 
     private var _currentWord = MutableLiveData<Word>().apply {
