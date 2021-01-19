@@ -12,7 +12,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.database.DataBaseQueries;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
@@ -20,7 +19,6 @@ import androidx.fragment.app.DialogFragment;
 public class NewDictDialog extends DialogFragment
 {
     public static final String TAG = "new_dict_dialog";
-    private DataBaseQueries dataBaseQueries;
     private static NewDictDialog newDictDialog = null;
     private static INewDictDialogResult iNewDictDialogResult;
     public static NewDictDialog newInstance()

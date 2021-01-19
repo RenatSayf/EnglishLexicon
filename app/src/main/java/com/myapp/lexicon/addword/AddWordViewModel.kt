@@ -16,14 +16,19 @@ import com.myapp.lexicon.settings.AppSettings
 import com.myapp.lexicon.R
 import com.myapp.lexicon.database.DataBaseEntry
 import com.myapp.lexicon.database.DataBaseQueries
+import com.myapp.lexicon.database.Word
 import com.myapp.lexicon.repository.DataRepositoryImpl
 import io.reactivex.Observable
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 import java.lang.Exception
 import java.util.*
 
-class AddWordViewModel @ViewModelInject constructor(repository: DataRepositoryImpl) : ViewModel()
+class AddWordViewModel @ViewModelInject constructor(private val repository: DataRepositoryImpl) : ViewModel()
 {
+    private val composite = CompositeDisposable()
+
     private val _spinnerSelectedIndex = MutableLiveData<Int>()
     fun spinnerSelectedIndex(): LiveData<Int>
     {
@@ -51,6 +56,32 @@ class AddWordViewModel @ViewModelInject constructor(repository: DataRepositoryIm
             {
                 emitter.onComplete()
             }
+        }
+    }
+    private var _insertedId = MutableLiveData<Long>().apply {
+        value = 0
+    }
+    var insertedId: LiveData<Long> = _insertedId
+
+    fun insertEntryAsync(word: Word)
+    {
+        composite.add(repository.insertEntry(word)
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ id ->
+                    _insertedId.value = id
+                }, { t ->
+                    t.printStackTrace()
+                }))
+
+    }
+
+    override fun onCleared()
+    {
+        super.onCleared()
+        composite.run {
+            dispose()
+            clear()
         }
     }
 }

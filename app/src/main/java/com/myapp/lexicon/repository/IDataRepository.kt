@@ -17,6 +17,8 @@ interface IDataRepository
 
     fun updateDbEntries(list: List<Word>) : Single<Int>
 
+    fun insertEntry(word: Word): Single<Long>
+
     fun getTableListFromSettings() : MutableList<String>
 
     fun getCurrentWordFromSettings() : DataBaseEntry

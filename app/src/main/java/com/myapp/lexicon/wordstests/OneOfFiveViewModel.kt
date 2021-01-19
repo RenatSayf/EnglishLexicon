@@ -23,7 +23,7 @@ class OneOfFiveViewModel : ViewModel()
         _progressMax.value = list.size
         if (_wordsList.value.isNullOrEmpty() && !list.isNullOrEmpty())
         {
-            _adapterList.value = list.take(ROWS) as ArrayList<Word>
+            _adapterList.value = list.take(ROWS) as ArrayList<Word> //TODO когда _adapterList.value.size == 1 -> ClassCastException: java.util.Collections$SingletonList cannot be cast to java.util.ArrayList
             val randomIndex = if (list.size >= ROWS)
             {
                 RandomNumberGenerator(ROWS, (Date().time.toInt())).generate()

@@ -17,13 +17,11 @@ public class Speaker extends TextToSpeech
 {
     public static final String ARG_SETUP = "SETUP";
     public static final String ARG_CONTINUE_WITHOUT = "CONTINUE_WITHOUT";
-    //private final AppSettings appSettings;
     private IOnSpeechListener listener;
 
     public Speaker(final Context context, OnInitListener listener)
     {
         super(context, listener);
-        //appSettings = new AppSettings(activity);
     }
 
     public interface IOnSpeechListener
@@ -81,9 +79,6 @@ public class Speaker extends TextToSpeech
         if (isContinue)
         {
             alertDialog.setNegativeButton(R.string.btn_text_continue, (dialog, which) -> {
-                //appSettings.setEnglishSpeechOnly(false);
-                //Intent intent1 = new Intent(activity, MainActivity.class);
-                //activity.startActivity(intent1);
                 if (listener != null)
                 {
                     listener.onContinued(ARG_CONTINUE_WITHOUT);

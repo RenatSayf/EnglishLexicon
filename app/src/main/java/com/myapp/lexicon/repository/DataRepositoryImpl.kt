@@ -31,6 +31,11 @@ class DataRepositoryImpl @Inject constructor(private val appDB: AppDB,
         return db.updateCountRepeat(0, 1, Int.MAX_VALUE)
     }
 
+    override fun insertEntry(word: Word): Single<Long>
+    {
+        return db.insert(word)
+    }
+
     override fun getTableListFromSettings(): MutableList<String>
     {
         return settings.getPlayList(true)

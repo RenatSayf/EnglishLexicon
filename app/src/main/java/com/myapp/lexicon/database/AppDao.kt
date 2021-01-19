@@ -1,9 +1,6 @@
 package com.myapp.lexicon.database
 
-import androidx.room.Dao
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
-import androidx.room.Update
+import androidx.room.*
 import io.reactivex.Observable
 import io.reactivex.Single
 import java.sql.RowId
@@ -25,5 +22,8 @@ interface AppDao
 
     @Query("UPDATE Words SET count_repeat = :countRepeat WHERE _id >= :minId AND _id <= :maxId")
     fun updateCountRepeat(countRepeat: Int, minId: Int, maxId: Int) : Single<Int>
+
+    @Insert
+    fun insert(word: Word): Single<Long>
 
 }
