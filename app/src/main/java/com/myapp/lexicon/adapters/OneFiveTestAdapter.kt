@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.myapp.lexicon.R
 import com.myapp.lexicon.database.Word
 
-class OneFiveTestAdapter constructor(private val list: ArrayList<Word>) : RecyclerView.Adapter<OneFiveTestAdapter.ViewHolder>()
+class OneFiveTestAdapter constructor(private val list: MutableList<Word>) : RecyclerView.Adapter<OneFiveTestAdapter.ViewHolder>()
 {
     class ViewHolder(item: View) : RecyclerView.ViewHolder(item)
 
@@ -53,7 +53,7 @@ class OneFiveTestAdapter constructor(private val list: ArrayList<Word>) : Recycl
         return list.size
     }
 
-    fun getItems(): ArrayList<Word>
+    fun getItems(): MutableList<Word>
     {
         return list
     }
@@ -75,8 +75,19 @@ class OneFiveTestAdapter constructor(private val list: ArrayList<Word>) : Recycl
                 return@forEachIndexed
             }
         }
-        list.removeAt(position)
-        notifyItemRemoved(position)
+        try
+        {
+            if (list.size == 1)
+            {
+                list.clear()
+            }
+            else list.removeAt(position)
+            notifyItemRemoved(position)
+        }
+        catch (e: Exception)
+        {
+            e.printStackTrace()
+        }
     }
 
     fun addItem(position: Int, word: Word)

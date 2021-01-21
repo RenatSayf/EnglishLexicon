@@ -46,7 +46,7 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
         private const val ARG_WORD_LIST = "ARG_WORD_LIST"
 
         @JvmStatic
-        fun newInstance(list: List<Word>): OneOfFiveFragmNew
+        fun newInstance(list: MutableList<Word>): OneOfFiveFragmNew
         {
             val shuffledList = list.shuffled()
             return OneOfFiveFragmNew().apply {
@@ -65,7 +65,7 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
         if (arguments != null)
         {
             wordList = requireArguments().getParcelableArrayList(ARG_WORD_LIST)
-            if (!wordList.isNullOrEmpty()) vm.initTest(wordList as java.util.ArrayList<Word>)
+            if (!wordList.isNullOrEmpty()) vm.initTest(wordList as MutableList<Word>)
         }
     }
 
@@ -103,8 +103,9 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
             if (it == progressView.max)
             {
                 val errors = vm.wrongAnswerCount.value
-                val dialog = errors?.let { it1 -> TestCompleteDialog.getInstance(it1, this) }
+                val dialog = errors?.let { err -> TestCompleteDialog.getInstance(err, this) }
                 dialog?.show(requireActivity().supportFragmentManager, TestCompleteDialog.TAG)
+                requireActivity().supportFragmentManager.beginTransaction().remove(this).commit()
             }
         })
 
@@ -202,13 +203,11 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
     override fun onTestPassed()
     {
         (requireActivity() as MainActivity).testPassed()
-        requireActivity().supportFragmentManager.beginTransaction().remove(this).commit()
     }
 
     override fun onTestFailed(errors: Int)
     {
         (requireActivity() as MainActivity).testFailed(errors)
-        requireActivity().supportFragmentManager.beginTransaction().remove(this).commit()
     }
 
 }

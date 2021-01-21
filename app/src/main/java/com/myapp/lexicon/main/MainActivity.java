@@ -244,7 +244,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         int lastIndex = adapter.getItemCount() - 1;
                         list = adapter.getItems(position - 1, lastIndex);
                     }
-                    if (condition1 || condition2)
+                    if ((condition1 || condition2) && list.size() > 1)
                     {
                         mainViewModel.setMainControlVisibility(View.INVISIBLE);
                         Toast.makeText(MainActivity.this, "Проверим знания!!!...", Toast.LENGTH_LONG).show();

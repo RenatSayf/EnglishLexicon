@@ -23,7 +23,7 @@ class OneOfFiveViewModel : ViewModel()
         _progressMax.value = list.size
         if (_wordsList.value.isNullOrEmpty() && !list.isNullOrEmpty())
         {
-            _adapterList.value = list.take(ROWS) as ArrayList<Word> //TODO когда _adapterList.value.size == 1 -> ClassCastException: java.util.Collections$SingletonList cannot be cast to java.util.ArrayList
+            _adapterList.value = list.take(ROWS) as MutableList<Word>
             val randomIndex = if (list.size >= ROWS)
             {
                 RandomNumberGenerator(ROWS, (Date().time.toInt())).generate()
@@ -31,7 +31,7 @@ class OneOfFiveViewModel : ViewModel()
             else RandomNumberGenerator(list.size, (Date().time.toInt())).generate()
             _mysteryWord.value = _adapterList.value!![randomIndex].translate
             _wordsList.value = list as ArrayList<Word>
-            _wordsList.value?.removeAll(_adapterList.value as ArrayList)
+            _wordsList.value?.removeAll(_adapterList.value as MutableList)
         }
     }
 
@@ -52,8 +52,8 @@ class OneOfFiveViewModel : ViewModel()
         _mysteryWord.value = text
     }
 
-    private var _adapterList = MutableLiveData<ArrayList<Word>>()
-    val adapterList: LiveData<ArrayList<Word>> = _adapterList
+    private var _adapterList = MutableLiveData<MutableList<Word>>()
+    val adapterList: LiveData<MutableList<Word>> = _adapterList
 
     private var _progress = MutableLiveData<Int>().apply {
         value = 0
