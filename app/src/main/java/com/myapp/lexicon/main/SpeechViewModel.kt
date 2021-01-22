@@ -43,7 +43,7 @@ class SpeechViewModel @ViewModelInject constructor(private val app: Application,
 
     override fun onSpeechDone(id: String)
     {
-        _speechStartId.postValue(id)
+        _speechDoneId.postValue(id)
     }
 
     override fun onSpeechError(id: String)
@@ -100,12 +100,25 @@ class SpeechViewModel @ViewModelInject constructor(private val app: Application,
         }
     }
 
-    private var _isEnSpeech = MutableLiveData<Boolean>(repository.isEngSpeech())
+    fun stopSpeech() : Int
+    {
+        return speaker.stop()
+    }
+
+    private var _isEnSpeech = MutableLiveData(repository.isEngSpeech())
     var isEnSpeech: LiveData<Boolean> = _isEnSpeech
     fun setEnSpeech(isSpeech: Boolean)
     {
         _isEnSpeech.value = isSpeech
         repository.setEngSpeech(isSpeech)
+    }
+
+    private var _isRuSpeech = MutableLiveData(repository.isRusSpeech())
+    var isRuSpeech: LiveData<Boolean> = _isRuSpeech
+    fun setRuSpeech(isSpeech: Boolean)
+    {
+        _isRuSpeech.value = isSpeech
+        repository.setRusSpeech(isSpeech)
     }
 
     private var _speechProgressVisibility = MutableLiveData(View.INVISIBLE)

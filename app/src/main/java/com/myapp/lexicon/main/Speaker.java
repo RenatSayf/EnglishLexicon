@@ -112,10 +112,10 @@ public class Speaker extends TextToSpeech
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
             {
 
-                speakResult = this.speak(text, TextToSpeech.QUEUE_ADD, null, utterance_Id.get(Engine.KEY_PARAM_UTTERANCE_ID));
+                speakResult = this.speak(text, TextToSpeech.QUEUE_FLUSH, null, utterance_Id.get(Engine.KEY_PARAM_UTTERANCE_ID));
             } else
             {
-                speakResult = this.speak(text, TextToSpeech.QUEUE_ADD, utterance_Id);
+                speakResult = this.speak(text, TextToSpeech.QUEUE_FLUSH, utterance_Id);
             }
         }
 
@@ -150,4 +150,5 @@ public class Speaker extends TextToSpeech
         });
         return speakResult;
     }
+
 }

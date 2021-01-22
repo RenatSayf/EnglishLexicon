@@ -20,7 +20,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -285,13 +284,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     }
                     if ((condition1 || condition2) && list.size() > 1)
                     {
+                        speechViewModel.stopSpeech(); //TODO Необходимо отключить озвучку при открытии теста
                         mainViewModel.setIntermediateIndex(position);
                         mainViewModel.setMainControlVisibility(View.INVISIBLE);
                         Toast.makeText(MainActivity.this, getString(R.string.text_test_knowledge), Toast.LENGTH_LONG).show();
                         OneOfFiveFragmNew testFragment = OneOfFiveFragmNew.newInstance(list);
                         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                         transaction.setCustomAnimations(R.anim.from_right_to_left_anim, R.anim.from_left_to_right_anim);
-
                         transaction.replace(R.id.frame_to_page_fragm, testFragment).addToBackStack(null).commit();
                         mainViewPager.setCurrentItem(position - 1);
                         return;
@@ -361,13 +360,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         CheckBox checkBoxEnView = findViewById(R.id.check_box_en_speak);
-        checkBoxEnView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
-        {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b)
-            {
-                speechViewModel.setEnSpeech(b);
-            }
+        checkBoxEnView.setOnCheckedChangeListener((compoundButton, b) -> {
+            speechViewModel.setEnSpeech(b);
         });
         speechViewModel.isEnSpeech().observe(this, checked -> {
             checkBoxEnView.setChecked(checked);
@@ -377,14 +371,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
+        CheckBox checkBoxRuSpeak = findViewById(R.id.check_box_ru_speak);
+        checkBoxRuSpeak.setOnCheckedChangeListener((compoundButton, b) -> {
+            speechViewModel.setRuSpeech(b);
+        });
+        speechViewModel.isRuSpeech().observe(this, checked -> {
+            checkBoxRuSpeak.setChecked(checked);
+        });
+
 
         ProgressBar speechProgress = findViewById(R.id.speechProgress);
-        speechViewModel.getSpeechStartId().observe(MainActivity.this, utteranceId -> {
+        speechViewModel.getSpeechStartId().observe(MainActivity.this, utteranceId ->
+        {
             speechViewModel.setSpeechProgressVisibility(View.INVISIBLE);
         });
 
-        speechViewModel.getSpeechDoneId().observe(MainActivity.this, utteranceId -> {
+        speechViewModel.getSpeechDoneId().observe(MainActivity.this, utteranceId ->
+        {
             speechViewModel.setSpeechProgressVisibility(View.INVISIBLE);
+            Boolean isRu = speechViewModel.isRuSpeech().getValue();
+            Word word = mainViewModel.getCurrentWord().getValue();
+            if (utteranceId.equals("En") && isRu != null && isRu && word != null)
+            {
+                speechViewModel.doSpeech(word.getTranslate(), Locale.getDefault());
+            }
         });
         speechViewModel.getSpeechError().observe(this, err -> {
             speechViewModel.setSpeechProgressVisibility(View.INVISIBLE);
