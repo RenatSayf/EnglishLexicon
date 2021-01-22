@@ -12,7 +12,6 @@ import android.widget.*
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
-import com.myapp.lexicon.database.DataBaseEntry
 import com.myapp.lexicon.database.Word
 import com.myapp.lexicon.dialogs.NewDictDialog
 import com.myapp.lexicon.helpers.Keyboard
@@ -20,9 +19,7 @@ import com.myapp.lexicon.main.MainViewModel
 import com.myapp.lexicon.main.Speaker
 import com.myapp.lexicon.settings.AppSettings
 import dagger.hilt.android.AndroidEntryPoint
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.add_word_dialog.*
 import java.util.*
 
@@ -301,7 +298,7 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult, Spea
 
     override fun onContinued(arg: String?)
     {
-        AppSettings(requireContext()).isEnglishSpeechOnly = false
+        AppSettings(requireContext()).isEngSpeech = false
     }
 
 

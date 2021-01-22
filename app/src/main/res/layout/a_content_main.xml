@@ -55,7 +55,7 @@
 
             <FrameLayout android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="0.5"
                 android:layout_gravity="center_vertical">
 
                 <ImageView
@@ -101,20 +101,6 @@
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"/>
 
-
-            <ProgressBar
-                android:id="@+id/progressBar"
-                style="?android:attr/progressBarStyleLarge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_gravity="center"
-                android:visibility="gone"
-                />
-
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <LinearLayout
@@ -143,17 +129,35 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"/>
 
-            <ImageButton
-                android:id="@+id/btn_speak"
-                style="?android:attr/buttonStyleSmall"
+            <FrameLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/selector_transp_to_white_back"
-                android:contentDescription="@string/content_describt"
-                android:onClick="btnSpeak_OnClick"
-                android:src="@drawable/selector_icon_sound"
-                android:visibility="visible"
-                />
+                android:layout_height="wrap_content">
+
+                <ImageButton
+                    android:id="@+id/btn_speak"
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/selector_transp_to_white_back"
+                    android:contentDescription="@string/content_describt"
+                    android:onClick="btnSpeak_OnClick"
+                    android:src="@drawable/selector_icon_sound"
+                    android:visibility="visible" />
+
+                <ProgressBar
+                    android:id="@+id/speechProgress"
+                    style="?android:attr/progressBarStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_gravity="center"
+                    android:visibility="invisible"
+                    />
+
+            </FrameLayout>
 
             <Space
                 android:layout_width="wrap_content"

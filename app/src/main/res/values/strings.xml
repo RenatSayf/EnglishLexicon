@@ -213,8 +213,9 @@
     <string name="text_test_after_learning">Проходить тест после изучения</string>
     <string name="text_knowledge_check">Проверка знаний</string>
     <string name="text_test_passed">Отличный результат, продолжайте изучение!</string>
-    <string name="text_test_not_passed">Не все слова изучены, попробуй еще раз...</string>
+    <string name="text_test_not_passed">Не все слова изучены, попробуй еще раз…</string>
     <string name="text_dictionaries">Словари</string>
+    <string name="text_test_knowledge">Проверим знания!!!…</string>
     <string-array name="not_move">
         <item>Не перемещать</item>
     </string-array>

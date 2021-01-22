@@ -91,8 +91,9 @@ public class Speaker extends TextToSpeech
         alertDialog.show();
     }
 
-    public void doSpeech(String text, Locale locale)
+    public int doSpeech(String text, Locale locale)
     {
+        int speakResult = Integer.MIN_VALUE;
         HashMap<String, String> utterance_Id = new HashMap<>();
         int supportCode;
         supportCode = this.setLanguage(locale);
@@ -110,10 +111,11 @@ public class Speaker extends TextToSpeech
         {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
             {
-                this.speak(text, TextToSpeech.QUEUE_ADD, null, utterance_Id.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+
+                speakResult = this.speak(text, TextToSpeech.QUEUE_ADD, null, utterance_Id.get(Engine.KEY_PARAM_UTTERANCE_ID));
             } else
             {
-                this.speak(text, TextToSpeech.QUEUE_ADD, utterance_Id);
+                speakResult = this.speak(text, TextToSpeech.QUEUE_ADD, utterance_Id);
             }
         }
 
@@ -146,5 +148,6 @@ public class Speaker extends TextToSpeech
                 }
             }
         });
+        return speakResult;
     }
 }

@@ -209,7 +209,7 @@ public class SplashScreenActivity extends Activity
                 @Override
                 public void onClick(DialogInterface dialog, int which)
                 {
-                    appSettings.setEnglishSpeechOnly(false);
+                    appSettings.setEngSpeech(false);
                     Intent intent = new Intent(SplashScreenActivity.this, MainActivity.class);
                     SplashScreenActivity.this.startActivity(intent);
                     SplashScreenActivity.this.finish();
@@ -250,7 +250,7 @@ public class SplashScreenActivity extends Activity
                 }
                 if (id.equals(Locale.getDefault().getDisplayLanguage()))
                 {
-                    if (appSettings.isEnglishSpeechOnly())
+                    if (appSettings.isEngSpeech())
                     {
                         dialogErrorTTS(installTTSdata, getString(R.string.message_inst_tts_data_ru), true);
                     }

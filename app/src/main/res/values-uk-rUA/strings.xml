@@ -268,6 +268,7 @@
     <string name="text_test_passed">Відмінний результат, можна продовжувати вчитися!</string>
     <string name="text_test_not_passed">Не всі слова вивчені, спробуйте ще раз…</string>
     <string name="text_dictionaries">Словники</string>
+    <string name="text_test_knowledge">Перевірте свої знання!!!…</string>
 
     <string-array name="words_interval">
         <item>після 5 слів</item>

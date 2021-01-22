@@ -82,7 +82,7 @@ public class SpeechService extends IntentService
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
-        isEngOnly = appSettings.isEnglishSpeechOnly();
+        isEngOnly = appSettings.isEngSpeech();
         stop = false;
         try
         {

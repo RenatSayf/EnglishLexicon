@@ -98,7 +98,7 @@ public class WordEditorActivity extends AppCompatActivity implements LoaderManag
 
         listView = findViewById(R.id.listView);
 
-        progressBar= findViewById(R.id.progressBar);
+        progressBar= findViewById(R.id.speechProgress);
 
         switcher = findViewById(R.id.viewSwitcher);
         Animation slide_in_left = AnimationUtils.loadAnimation(this,

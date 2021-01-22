@@ -29,7 +29,8 @@ public class AppSettings
     public final String KEY_WORD_INDEX = this.getClass().getCanonicalName() + ".KEY_WORD_INDEX";
     public final String KEY_COUNTER_RIGHT_ANSWER = this.getClass().getCanonicalName() + ".KEY_COUNTER_RIGHT_ANSWER";
 
-    private final String KEY_ENG_ONLY = this.getClass().getCanonicalName() + ".KEY_ENG_ONLY";
+    private final String KEY_ENG_SPEECH = this.getClass().getCanonicalName() + ".KEY_ENG_SPEECH";
+    private final String KEY_RUS_SPEECH = this.getClass().getCanonicalName() + ".KEY_RUS_SPEECH";
     private final String KEY_ENG_ONLY_MODAL = this.getClass().getCanonicalName() + ".KEY_ENG_ONLY_MODAL";
     private final String KEY_PLAY_LIST = this.getClass().getCanonicalName() + ".KEY_PLAY_LIST";
     private final String KEY_PLAY_LIST_ITEMS = this.getClass().getCanonicalName() + ".KEY_PLAY_LIST_ITEMS";
@@ -57,26 +58,38 @@ public class AppSettings
 
     /**
      *  Set the setting of english speech synthesis only, either no
-     * @param isEngOnly    true - set only english speech or false - set english and default speech
+     * @param isSpeech    true - set only english speech or false - set english and default speech
      */
-    public void setEnglishSpeechOnly(boolean isEngOnly)
+    public void setEngSpeech(boolean isSpeech)
     {
-        if (isEngOnly)
-        {
-            context.getSharedPreferences(KEY_ENG_ONLY, MODE_PRIVATE).edit().putBoolean(KEY_ENG_ONLY, true).apply();
-        } else
-        {
-            context.getSharedPreferences(KEY_ENG_ONLY, MODE_PRIVATE).edit().putBoolean(KEY_ENG_ONLY, false).apply();
-        }
+        context.getSharedPreferences(KEY_ENG_SPEECH, MODE_PRIVATE).edit().putBoolean(KEY_ENG_SPEECH, isSpeech).apply();
     }
 
     /**
      *
-     * @return  true if set english speech only otherwise false
+     * @return  true if set english speech, otherwise false
      */
-    public boolean isEnglishSpeechOnly()
+    public boolean isEngSpeech()
     {
-        return context.getSharedPreferences(KEY_ENG_ONLY, MODE_PRIVATE).getBoolean(KEY_ENG_ONLY, true);
+        return context.getSharedPreferences(KEY_ENG_SPEECH, MODE_PRIVATE).getBoolean(KEY_ENG_SPEECH, true);
+    }
+
+    /**
+     *  Set the setting of default speech synthesis, either no
+     * @param isSpeech    true - enable default speech or false - disable default speech
+     */
+    public void setRusSpeech(boolean isSpeech)
+    {
+        context.getSharedPreferences(KEY_RUS_SPEECH, MODE_PRIVATE).edit().putBoolean(KEY_RUS_SPEECH, isSpeech).apply();
+    }
+
+    /**
+     *
+     * @return  true if set default speech, otherwise false
+     */
+    public boolean isRusSpeech()
+    {
+        return context.getSharedPreferences(KEY_RUS_SPEECH, MODE_PRIVATE).getBoolean(KEY_RUS_SPEECH, true);
     }
 
     /**

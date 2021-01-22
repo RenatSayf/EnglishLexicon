@@ -54,7 +54,7 @@
 
             <FrameLayout android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="0.5"
                 android:layout_gravity="center_vertical">
 
                 <ImageView
@@ -77,7 +77,7 @@
                 android:layout_gravity="center_vertical"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/colorWhite"
-                tools:text="1/150 Изучено 0"
+                tools:text="1/150"
                 />
 
         </LinearLayout>
@@ -137,18 +137,36 @@
             </FrameLayout>
 
 
-            <ImageButton
-                android:id="@+id/btn_speak"
-                style="?android:attr/buttonStyleSmall"
+            <FrameLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|center_horizontal"
-                android:background="@drawable/selector_transp_to_white_back"
-                android:contentDescription="@string/content_describt"
-                android:onClick="btnSpeak_OnClick"
-                android:src="@drawable/selector_icon_sound"
-                android:visibility="visible"
-                />
+                android:layout_height="wrap_content">
+
+                <ImageButton
+                    android:id="@+id/btn_speak"
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:background="@drawable/selector_transp_to_white_back"
+                    android:contentDescription="@string/content_describt"
+                    android:onClick="btnSpeak_OnClick"
+                    android:src="@drawable/selector_icon_sound"
+                    android:visibility="visible" />
+
+                <ProgressBar
+                    android:id="@+id/speechProgress"
+                    style="?android:attr/progressBarStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_gravity="center"
+                    android:visibility="invisible"
+                    />
+
+            </FrameLayout>
 
             <Space
                 android:layout_width="wrap_content"

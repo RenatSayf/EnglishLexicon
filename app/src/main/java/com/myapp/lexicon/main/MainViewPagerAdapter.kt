@@ -32,6 +32,7 @@ class MainViewPagerAdapter constructor(private val list: MutableList<Word>) : Re
         //isEnd.doOnSuccess { true }
     }
 
+
     override fun getItemCount(): Int
     {
         return list.size
@@ -55,3 +56,6 @@ class MainViewPagerAdapter constructor(private val list: MutableList<Word>) : Re
 }
 
 class PagerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+{
+
+}

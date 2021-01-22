@@ -46,4 +46,12 @@ interface IDataRepository
     fun getRandomEntriesFromDb(tableName: String, rowId: Int) : Single<MutableList<DataBaseEntry>>
 
     fun getEntriesAndCountersFromDb(tableName: String, rowId: Int, order: String, limit: Int) : Observable<Pair<MutableMap<String, Int>, MutableList<DataBaseEntry>>>
+
+    fun isEngSpeech() : Boolean
+
+    fun setEngSpeech(isSpeech: Boolean)
+
+    fun isRusSpeech() : Boolean
+
+    fun setRusSpeech(isSpeech: Boolean)
 }

@@ -2,6 +2,7 @@ package com.myapp.lexicon.main
 
 import android.graphics.drawable.Drawable
 import android.view.View
+import androidx.annotation.NonNull
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -137,6 +138,14 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
         _mainControlVisibility.value = viability
     }
 
+    private var _intermediateIndex = MutableLiveData<Int>().apply {
+        value = -1
+    }
+    fun setIntermediateIndex(index: Int)
+    {
+        _intermediateIndex.value = index
+    }
+    var intermediateIndex: LiveData<Int> = _intermediateIndex
 
     init
     {
