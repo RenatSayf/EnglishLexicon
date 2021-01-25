@@ -69,12 +69,12 @@ dependencies {
     implementation "androidx.viewpager2:viewpager2:1.0.0"
 
     //firebase
-    implementation 'com.google.firebase:firebase-core:18.0.0'
-    implementation 'com.google.firebase:firebase-storage:19.2.0'
-    implementation 'com.google.firebase:firebase-ads:19.6.0'
+    implementation 'com.google.firebase:firebase-core:18.0.1'
+    implementation 'com.google.firebase:firebase-storage:19.2.1'
+    implementation 'com.google.firebase:firebase-ads:19.7.0'
     implementation 'com.google.firebase:firebase-appindexing:19.1.0'
 
-    implementation 'com.google.android.gms:play-services-ads:19.6.0'
+    implementation 'com.google.android.gms:play-services-ads:19.7.0'
     implementation 'com.google.android.gms:play-services-plus:17.0.0'
     implementation 'com.google.android.gms:play-services-auth:19.0.0'
 
@@ -96,10 +96,10 @@ dependencies {
     kapt 'androidx.hilt:hilt-compiler:1.0.0-alpha02'
 
     //region Room
-    implementation "androidx.room:room-runtime:2.2.5"
+    implementation "androidx.room:room-runtime:2.2.6"
     // optional - Kotlin Extensions and Coroutines support for Room
     //implementation "androidx.room:room-ktx:2.2.5"
-    kapt "androidx.room:room-compiler:2.2.5"
+    kapt "androidx.room:room-compiler:2.2.6"
     //implementation "org.jetbrains.kotlin:kotlin-reflect:1.4.21"
     // optional - Test helpers
     //testImplementation "androidx.room:room-testing:2.2.5"
@@ -108,7 +108,7 @@ dependencies {
     //reactivex
     implementation 'io.reactivex.rxjava2:rxjava:2.2.10'
     implementation 'com.jakewharton.rxbinding2:rxbinding:2.2.0'
-    implementation 'androidx.room:room-rxjava2:2.2.5'
+    implementation 'androidx.room:room-rxjava2:2.2.6'
 
     //jsoup
     implementation 'org.jsoup:jsoup:1.13.1'

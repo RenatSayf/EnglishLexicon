@@ -47,6 +47,10 @@ interface IDataRepository
 
     fun getEntriesAndCountersFromDb(tableName: String, rowId: Int, order: String, limit: Int) : Observable<Pair<MutableMap<String, Int>, MutableList<DataBaseEntry>>>
 
+    fun isSpeechEnable() : Boolean
+
+    fun enableSpeech(isEnable: Boolean)
+
     fun isEngSpeech() : Boolean
 
     fun setEngSpeech(isSpeech: Boolean)

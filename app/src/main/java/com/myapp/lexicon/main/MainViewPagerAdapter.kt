@@ -3,12 +3,10 @@ package com.myapp.lexicon.main
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.myapp.lexicon.R
 import com.myapp.lexicon.database.Word
-import io.reactivex.Single
 
 class MainViewPagerAdapter constructor(private val list: MutableList<Word>) : RecyclerView.Adapter<PagerViewHolder>()
 {
@@ -28,8 +26,6 @@ class MainViewPagerAdapter constructor(private val list: MutableList<Word>) : Re
         itemView.findViewById<TextView>(R.id.ruTextView)?.let {
             it.text = list[position].translate
         }
-
-        //isEnd.doOnSuccess { true }
     }
 
 
@@ -56,6 +52,3 @@ class MainViewPagerAdapter constructor(private val list: MutableList<Word>) : Re
 }
 
 class PagerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
-{
-
-}

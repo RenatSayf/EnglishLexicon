@@ -106,6 +106,16 @@ class DataRepositoryImpl @Inject constructor(private val appDB: AppDB,
         return appDB.getEntriesAndCountersAsync(tableName, rowId, order, limit)
     }
 
+    override fun isSpeechEnable(): Boolean
+    {
+        return settings.isSpeech
+    }
+
+    override fun enableSpeech(isEnable: Boolean)
+    {
+        settings.enableSpeech(isEnable)
+    }
+
     override fun isEngSpeech(): Boolean
     {
         return settings.isEngSpeech

@@ -65,14 +65,16 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult, Spea
     @Suppress("ObjectLiteralToLambda")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
     {
-        speaker = Speaker(activity, object : TextToSpeech.OnInitListener
-        {
-            override fun onInit(status: Int)
-            {
-                speaker.speechInit(status, activity, speaker)
-                speaker.setOnSpeechListener(this@AddWordDialog)
-            }
-        })
+//        speaker = Speaker(activity, object : TextToSpeech.OnInitListener
+//        {
+//            override fun onInit(status: Int)
+//            {
+//                speaker.speechInit(status, activity, speaker)
+//                speaker.setOnSpeechListener(this@AddWordDialog)
+//            }
+//        })
+
+        speaker = Speaker(activity, this)
         return dialogView
     }
 
@@ -196,24 +198,6 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult, Spea
                                     adwvm.insertEntryAsync(word)
                                     dismiss()
                                 }
-//                                val entry = DataBaseEntry(inputWordTV?.text.toString(), translateTV?.text.toString())
-//                                subscriber = adwvm.insertInTableAsync(a, dictName.toString(), entry)
-//                                        .subscribeOn(Schedulers.newThread())
-//                                        .observeOn(AndroidSchedulers.mainThread())
-//                                        .subscribe({ long: Long? ->
-//                                            long?.let{
-//                                                if (long > -1)
-//                                                {
-//                                                    val toast = Toast.makeText(a, getString(R.string.in_dictionary) + dictName + getString(R.string.new_word_is_added), Toast.LENGTH_SHORT)
-//                                                    toast.setGravity(Gravity.CENTER, 0, 0)
-//                                                    toast.show()
-//                                                }
-//                                            }
-//                                            dismiss()
-//                                        }, { e: Throwable? ->
-//                                            e?.printStackTrace()
-//                                            dismiss()
-//                                        })
                             }
                         }
                     }
@@ -259,9 +243,6 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult, Spea
             dictListSpinner?.setSelection(it)
         })
 
-//        adwvm.insertedId.observe(viewLifecycleOwner, {
-//
-//        })
     }
 
     override fun newDictDialogResult(dictName: String)
@@ -300,6 +281,22 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult, Spea
     {
         AppSettings(requireContext()).isEngSpeech = false
     }
+
+    override fun onSpeechInitNotSuccess(status: Int)
+    {
+
+    }
+
+    override fun onEngLangNotSupported(status: Int)
+    {
+        TODO("Not yet implemented")
+    }
+
+    override fun onRusLangNotSupported(status: Int)
+    {
+        TODO("Not yet implemented")
+    }
+
 
 
 }

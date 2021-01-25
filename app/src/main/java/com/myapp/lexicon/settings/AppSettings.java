@@ -29,6 +29,7 @@ public class AppSettings
     public final String KEY_WORD_INDEX = this.getClass().getCanonicalName() + ".KEY_WORD_INDEX";
     public final String KEY_COUNTER_RIGHT_ANSWER = this.getClass().getCanonicalName() + ".KEY_COUNTER_RIGHT_ANSWER";
 
+    private final String KEY_IS_SOUND = this.getClass().getCanonicalName() + ".KEY_IS_SOUND";
     private final String KEY_ENG_SPEECH = this.getClass().getCanonicalName() + ".KEY_ENG_SPEECH";
     private final String KEY_RUS_SPEECH = this.getClass().getCanonicalName() + ".KEY_RUS_SPEECH";
     private final String KEY_ENG_ONLY_MODAL = this.getClass().getCanonicalName() + ".KEY_ENG_ONLY_MODAL";
@@ -54,6 +55,16 @@ public class AppSettings
     {
         this.context = context;
         transLang = context.getString(R.string.lang_code_translate);
+    }
+
+    public boolean isSpeech()
+    {
+        return context.getSharedPreferences(KEY_IS_SOUND, MODE_PRIVATE).getBoolean(KEY_IS_SOUND, false);
+    }
+
+    public void enableSpeech(Boolean isEnable)
+    {
+        context.getSharedPreferences(KEY_IS_SOUND, MODE_PRIVATE).edit().putBoolean(KEY_IS_SOUND, isEnable).apply();
     }
 
     /**

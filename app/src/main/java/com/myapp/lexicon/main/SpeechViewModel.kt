@@ -1,7 +1,6 @@
 package com.myapp.lexicon.main
 
 import android.app.Application
-import android.content.Context
 import android.speech.tts.TextToSpeech
 import android.view.View
 import androidx.hilt.lifecycle.ViewModelInject
@@ -9,32 +8,17 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.myapp.lexicon.repository.DataRepositoryImpl
-import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.functions.Action
-import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 import java.util.*
 
 @Suppress("ObjectLiteralToLambda")
-class SpeechViewModel @ViewModelInject constructor(private val app: Application, private val repository: DataRepositoryImpl) : AndroidViewModel(app), Speaker.IOnSpeechListener
+class SpeechViewModel @ViewModelInject constructor(app: Application, private val repository: DataRepositoryImpl) : AndroidViewModel(app), Speaker.IOnSpeechListener
 {
-    private lateinit var speaker: Speaker
+    private var speaker: Speaker = Speaker(app, this)
     private val composite = CompositeDisposable()
-
-    init
-    {
-        speaker = Speaker(app, object : TextToSpeech.OnInitListener
-        {
-            override fun onInit(status: Int)
-            {
-                speaker.speechInit(status, app, speaker)
-                speaker.setOnSpeechListener(this@SpeechViewModel)
-            }
-        })
-    }
 
     override fun onSpeechStart(id: String)
     {
@@ -53,7 +37,25 @@ class SpeechViewModel @ViewModelInject constructor(private val app: Application,
 
     override fun onContinued(arg: String)
     {
+        return
+    }
 
+    override fun onSpeechInitNotSuccess(status: Int)
+    {
+        if (status < 0)
+        {
+            repository.enableSpeech(false)
+        }
+    }
+
+    override fun onEngLangNotSupported(status: Int)
+    {
+        //TODO("Not yet implemented")
+    }
+
+    override fun onRusLangNotSupported(status: Int)
+    {
+        //TODO("Not yet implemented")
     }
 
     private var _speechStartId = MutableLiveData<String>().apply {
