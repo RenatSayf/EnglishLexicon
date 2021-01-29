@@ -27,13 +27,10 @@ import com.myapp.lexicon.database.GetStudiedWordsCount;
 import com.myapp.lexicon.database.UpdateDBEntryAsync;
 import com.myapp.lexicon.dialogs.WordsEndedDialog;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
-import com.myapp.lexicon.main.MainActivityOnStart;
 import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.Date;
 import java.util.List;
@@ -50,7 +47,6 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 import kotlin.Pair;
 
-import static com.myapp.lexicon.main.MainActivity.serviceIntent;
 import static com.myapp.lexicon.service.ServiceActivity.map;
 import static com.myapp.lexicon.service.ServiceActivity.speech;
 
@@ -327,7 +323,7 @@ public class TestModalFragment extends Fragment
                                                                     appSettings.removeItemFromPlayList(currentDict);
                                                                     if (appSettings.getPlayList() == null || appSettings.getPlayList().size() == 0)
                                                                     {
-                                                                        getActivity().stopService(serviceIntent);
+                                                                        requireActivity().stopService(new Intent(requireActivity(), LexiconService.class));
                                                                     }
                                                                     getActivity().finish();
                                                                     break;
@@ -468,7 +464,6 @@ public class TestModalFragment extends Fragment
                 {
                     getActivity().startActivity(new Intent(getContext(), SplashScreenActivity.class));
                     getActivity().finish();
-                    EventBus.getDefault().postSticky(new MainActivityOnStart(serviceIntent));
                 }
             }
         });

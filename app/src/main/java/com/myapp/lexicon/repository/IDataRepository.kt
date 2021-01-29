@@ -21,6 +21,8 @@ interface IDataRepository
 
     fun getTableListFromSettings() : MutableList<String>
 
+    fun getCountersFromDb(dictName: String) : Single<List<Int>>
+
     fun getCurrentWordFromSettings() : DataBaseEntry
 
     fun saveCurrentWordTheSettings(entry: DataBaseEntry)

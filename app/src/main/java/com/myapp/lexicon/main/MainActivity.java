@@ -1,8 +1,6 @@
 package com.myapp.lexicon.main;
 
-import android.app.ActivityManager;
 import android.app.NotificationManager;
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,8 +8,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
-import android.util.DisplayMetrics;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,12 +35,10 @@ import com.myapp.lexicon.database.Word;
 import com.myapp.lexicon.dialogs.DictListDialog;
 import com.myapp.lexicon.dialogs.OrderPlayDialog;
 import com.myapp.lexicon.dialogs.RemoveDictDialog;
+import com.myapp.lexicon.helpers.NetHelper;
 import com.myapp.lexicon.helpers.Share;
-import com.myapp.lexicon.playlist.PlayList;
 import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.service.LexiconService;
-import com.myapp.lexicon.settings.AppData;
-import com.myapp.lexicon.settings.AppSettings;
 import com.myapp.lexicon.settings.SettingsFragment;
 import com.myapp.lexicon.wordeditor.WordEditorActivity;
 import com.myapp.lexicon.wordstests.OneOfFiveFragmNew;
@@ -62,7 +56,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
@@ -74,30 +67,18 @@ import io.reactivex.schedulers.Schedulers;
 
 
 @AndroidEntryPoint
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
-        AppData.IDictNumChangeListener
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
 
     public LinearLayout mainControlLayout;
-    private Intent wordEditorIntent;
     private Intent testsIntent;
-    private Intent playListIntent;
     private Button btnViewDict;
     private TextView tvWordsCounter;
-    private CheckBox checkBoxRuSpeak;
     private ImageView orderPlayView;
-    //private static Intent speechIntentService;
     public static Intent serviceIntent;
-    //private SpeechServiceReceiver speechServiceReceiver;
-    private AppSettings appSettings;
-    private AppData appData;
-    private ArrayList<String> playList = new ArrayList<>();
-    //private Locale localeDefault;
     private ViewPager2 mainViewPager;
 
     private final String KEY_TV_WORDS_COUNTER = "tv_words_counter";
-
-    private FragmentManager fragmentManager;
 
     public MainViewModel mainViewModel;
     private SpeechViewModel speechViewModel;
@@ -108,20 +89,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Inject
     AlarmScheduler scheduler;
 
-    private void initViews()
-    {
-        mainViewPager = findViewById(R.id.mainViewPager);
-        btnViewDict = findViewById(R.id.btnViewDict);
-        btnViewDictOnClick(btnViewDict);
-        tvWordsCounter = findViewById(R.id.tv_words_counter);
-
-        checkBoxRuSpeak = findViewById(R.id.check_box_ru_speak);
-        checkBoxRuSpeak.setChecked(appSettings.isEngSpeech());
-        switchRuSound_OnCheckedChange();
-
-        orderPlayView = findViewById(R.id.order_play_icon_iv);
-        orderPlayViewOnClick(orderPlayView);
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -132,7 +99,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Toolbar toolbar = findViewById(R.id.toolbar_word_editor);
         setSupportActionBar(toolbar);
 
-        fragmentManager = getSupportFragmentManager();
         NotificationManager nmg = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (nmg != null)
         {
@@ -140,28 +106,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         scheduler.cancel(AlarmScheduler.REQUEST_CODE, AlarmScheduler.REPEAT_SHOOT_ACTION);
 
-        appSettings = new AppSettings(this);
-        appData = AppData.getInstance();
-        appData.initAllSettings(this);
-
-        initViews();
-
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
         speechViewModel = new ViewModelProvider(this).get(SpeechViewModel.class);
 
+
+        btnViewDict = findViewById(R.id.btnViewDict);
+        btnViewDictOnClick(btnViewDict);
         mainViewModel.getCurrentWord().observe(this, word -> {
             currentWord = word;
             btnViewDict.setText(currentWord.getDictName());
         });
 
-//        mainViewModel.getPlayList().observe(this, list -> {
-//            playList = (ArrayList<String>)list;
-//            if (playList.size() == 0)
-//            {
-//                speechServiceOnStop();
-//            }
-//        });
 
+        orderPlayView = findViewById(R.id.order_play_icon_iv);
+        orderPlayViewOnClick(orderPlayView);
         mainViewModel.getOrderPlay().observe(this, order -> {
             if (order == 0)
             {
@@ -175,8 +133,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-
-
+        mainViewPager = findViewById(R.id.mainViewPager);
         mainViewModel.getWordsList().observe(this, entries  -> {
             if (entries != null && !entries.isEmpty())
             {
@@ -199,6 +156,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
             }
         });
+
+        tvWordsCounter = findViewById(R.id.tv_words_counter);
 
         mainViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback()
         {
@@ -303,20 +262,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
 
-
-
-        // Регистрируем приёмник
-//        speechServiceReceiver = new SpeechServiceReceiver();
-//        IntentFilter updateIntentFilter = new IntentFilter(SpeechService.ACTION_UPDATE);
-//        updateIntentFilter.addCategory(Intent.CATEGORY_DEFAULT);
-//        try
-//        {
-//            registerReceiver(speechServiceReceiver, updateIntentFilter);
-//        } catch (Exception e)
-//        {
-//            e.printStackTrace();
-//        }
-
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         //noinspection deprecation
@@ -333,16 +278,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             tvWordsCounter.setText(savedInstanceState.getString(KEY_TV_WORDS_COUNTER));
         }
 
-        if (appData.isAdMob())
+        if (NetHelper.INSTANCE.isOnline(this))
         {
-            if (appData.isOnline(this))
+            if (savedInstanceState == null)
             {
-                if (savedInstanceState == null)
-                {
-                    MobileAds.initialize(this, getString(R.string.admob_app_id));
-                    MainBannerFragment bannerFragment = new MainBannerFragment();
-                    getSupportFragmentManager().beginTransaction().replace(R.id.banner_frame_main, bannerFragment).commit();
-                }
+                MobileAds.initialize(this, getString(R.string.admob_app_id));
+                MainBannerFragment bannerFragment = new MainBannerFragment();
+                getSupportFragmentManager().beginTransaction().replace(R.id.banner_frame_main, bannerFragment).commit();
             }
         }
 
@@ -358,17 +300,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 speechViewModel.setSpeechProgressVisibility(View.INVISIBLE);
             }
         });
+        speechViewModel.getEnCheckboxEnable().observe(this, checkBoxEnView::setEnabled);
 
         CheckBox checkBoxRuSpeak = findViewById(R.id.check_box_ru_speak);
-        //noinspection CodeBlock2Expr
         checkBoxRuSpeak.setOnCheckedChangeListener((compoundButton, b) -> {
             speechViewModel.setRuSpeech(b);
+            if (b)
+                Toast.makeText(MainActivity.this, R.string.text_ru_speech_on, Toast.LENGTH_SHORT).show();
+            else
+                Toast.makeText(MainActivity.this, R.string.text_ru_speech_off, Toast.LENGTH_SHORT).show();
         });
 
         speechViewModel.isRuSpeech().observe(this, checked -> {
             //noinspection Convert2MethodRef
             checkBoxRuSpeak.setChecked(checked);
         });
+        speechViewModel.getRuCheckboxEnable().observe(this, checkBoxRuSpeak::setEnabled);
 
 
         ProgressBar speechProgress = findViewById(R.id.speechProgress);
@@ -406,12 +353,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         btnSpeak.setOnClickListener(view -> {
             int position = mainViewPager.getCurrentItem();
+            Boolean isEnSpeech = speechViewModel.isEnSpeech().getValue();
+            Boolean isRuSpeech = speechViewModel.isRuSpeech().getValue();
             if (mainViewModel.getWordsList().getValue() != null)
             {
                 Word word = mainViewModel.getWordsList().getValue().get(position);
                 String enText = word.getEnglish();
-                speechViewModel.doSpeech(enText, Locale.US);
-                speechViewModel.setSpeechProgressVisibility(View.VISIBLE);
+                String ruText = word.getTranslate();
+                if (isEnSpeech != null && isEnSpeech)
+                {
+                    speechViewModel.doSpeech(enText, Locale.US);
+                    speechViewModel.setSpeechProgressVisibility(View.VISIBLE);
+                }
+                if (isRuSpeech != null && isRuSpeech)
+                {
+                    Locale localeRu = new Locale(getString(R.string.lang_code_translate));
+                    speechViewModel.doSpeech(ruText, localeRu);
+                }
             }
         });
 
@@ -512,14 +470,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onPause()
     {
         super.onPause();
-        appData.saveAllSettings(this);
-//        if (getInchesDisplay() < 7)
-//        {
-//            if (!isActivityOnTop())
-//            {
-//                speechServiceOnPause();
-//            }
-//        }
     }
 
     @Override
@@ -543,23 +493,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             wordsInterval = mainViewModel.getTestInterval().getValue();
         }
-//        appData.setDictNumberChangeListener(this);
-//        localeDefault = new Locale(appSettings.getTranslateLang());
-//        if (serviceIntent != null)
-//        {
-//            stopService(serviceIntent);
-//        }
     }
 
     @Override
     protected void onDestroy()
     {
         super.onDestroy();
-//        unregisterReceiver(speechServiceReceiver);
-//        if (AppData.getInstance().getDisplayVariant() == 1 && serviceIntent != null)
-//        {
-//            stopService(serviceIntent);
-//        }
         mainViewModel.saveCurrentWordToPref(currentWord);
     }
 
@@ -567,8 +506,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onBackPressed()
     {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
-        //speechServiceOnPause();
-        appData.saveAllSettings(this);
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
 
         if (drawer != null)
@@ -612,47 +549,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (id == R.id.edit_word)
         {
-            if (playList != null && playList.size() > 0)
+            Intent intent = new Intent(this, WordEditorActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putString(WordEditorActivity.KEY_EXTRA_DICT_NAME, btnViewDict.getText().toString());
+            String text = tvWordsCounter.getText().toString();
+            try
             {
-                if (wordEditorIntent == null)
+                String[] splitArray = text.split(" ");
+                if (splitArray.length > 0)
                 {
-                    wordEditorIntent = new Intent(this, WordEditorActivity.class);
+                    bundle.putInt(WordEditorActivity.KEY_ROW_ID, Integer.parseInt(splitArray[0]));
                 }
-                //speechServiceOnPause();
-                Bundle bundle = new Bundle();
-                bundle.putString(WordEditorActivity.KEY_EXTRA_DICT_NAME, btnViewDict.getText().toString());
-                String text = tvWordsCounter.getText().toString();
-                try
-                {
-                    String[] splitArray = text.split(" ");
-                    if (splitArray.length > 0)
-                    {
-                        bundle.putInt(WordEditorActivity.KEY_ROW_ID, Integer.parseInt(splitArray[0]));
-                    }
 
-                } catch (Exception e)
-                {
-                    e.printStackTrace();
-                }
-                wordEditorIntent.replaceExtras(bundle);
-
-                startActivity(wordEditorIntent);
-            }
-            else
+            } catch (Exception e)
             {
-                Toast toast = Toast.makeText(this, R.string.no_playlist, Toast.LENGTH_SHORT);
-                toast.setGravity(Gravity.CENTER,0,0);
-                toast.show();
-                if (playListIntent == null)
-                {
-                    playListIntent = new Intent(this, PlayList.class);
-                }
-                startActivity(playListIntent);
+                e.printStackTrace();
             }
+            intent.replaceExtras(bundle);
+            startActivity(intent);
         }
         if (id == R.id.edit_speech_data)
         {
-            //speechServiceOnPause();
             Intent speechEditorIntent = new Intent(Intent.ACTION_VIEW);
             speechEditorIntent.setAction(Settings.ACTION_SETTINGS);
             startActivity(speechEditorIntent);
@@ -661,7 +578,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (id == R.id.cloud_storage)
         {
             StorageFragment2 storageFragment = StorageFragment2.Companion.newInstance();
-            fragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, storageFragment).addToBackStack(null).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, storageFragment).addToBackStack(null).commit();
         }
 
         if (id == R.id.menu_item_share)
@@ -676,17 +593,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onNavigationItemSelected(@NonNull MenuItem item)
     {
         int id = item.getItemId();
-        //speechServiceOnPause();
-
         if (id == R.id.nav_add_word)
         {
             TranslateFragment translateFragm = TranslateFragment.Companion.getInstance("");
             getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, translateFragm).addToBackStack(null).commit();
         }
-//        else if (id == R.id.nav_add_dict)
-//        {
-//            dialogAddDict();
-//        }
         else if (id == R.id.nav_delete_dict)
         {
             Disposable subscribe = mainViewModel.getDictList()
@@ -702,17 +613,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         else if (id == R.id.nav_edit)
         {
-            if (wordEditorIntent == null)
-            {
-                wordEditorIntent = new Intent(this, WordEditorActivity.class);
-            }
+            Intent intent = new Intent(this, WordEditorActivity.class);
             Bundle bundle = new Bundle();
-            if (playList.size() > 0)
-            {
-                bundle.putString(WordEditorActivity.KEY_EXTRA_DICT_NAME, playList.get(AppData.getInstance().getNdict()));
-                wordEditorIntent.replaceExtras(bundle);
-            }
-            startActivity(wordEditorIntent);
+            bundle.putString(WordEditorActivity.KEY_EXTRA_DICT_NAME, btnViewDict.getText().toString());
+            intent.replaceExtras(bundle);
+            startActivity(intent);
         }
         else if (id == R.id.nav_check_your_self)
         {
@@ -721,15 +626,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 testsIntent = new Intent(this, TestsActivity.class);
             }
             startActivity(testsIntent);
-        }
-        else if (id == R.id.nav_play_list)
-        {
-//            if (playListIntent == null)
-//            {
-//                playListIntent = new Intent(this, PlayList.class);
-//            }
-            playListIntent = new Intent(this, PlayList.class);
-            startActivity(playListIntent);
         }
         else if (id == R.id.nav_settings)
         {
@@ -748,7 +644,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         else if (id == R.id.nav_about_app)
         {
             AboutAppFragment aboutAppFragment = new AboutAppFragment();
-            fragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, aboutAppFragment).addToBackStack(null).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, aboutAppFragment).addToBackStack(null).commit();
         }
         else if (id == R.id.nav_exit)
         {
@@ -769,52 +665,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-//    private void speechServiceOnPause()
-//    {
-//        appData.setPause(true);
-//        if (speechIntentService != null)
-//        {
-//            stopService(speechIntentService);
-//            SpeechService.stopIntentService();
-//        }
-//    }
-
-//    public void btnStopClick(View view)
-//    {
-//        speechServiceOnStop();
-//    }
-
-//    private void speechServiceOnStop()
-//    {
-//        if (speechIntentService != null)
-//        {
-//            stopService(speechIntentService);
-//        }
-//
-//        appData.setNdict(0);
-//        appData.setNword(1);
-//    }
-
-
-
-    public void switchRuSound_OnCheckedChange()
-    {
-        checkBoxRuSpeak.setOnCheckedChangeListener((compoundButton, isChecked) -> {
-            if (isChecked)
-            {
-                appSettings.setEngSpeech(true);
-                SpeechService.setEnglishOnly(appSettings.isEngSpeech());
-                Toast.makeText(MainActivity.this, R.string.text_ru_speech_on,Toast.LENGTH_SHORT).show();
-            }
-            else
-            {
-                appSettings.setEngSpeech(false);
-                SpeechService.setEnglishOnly(appSettings.isEngSpeech());
-                Toast.makeText(MainActivity.this, R.string.text_ru_speech_off,Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
     public static Boolean isActivityRunning = false;
 
     @Override
@@ -830,56 +680,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onDetachedFromWindow();
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         boolean isUseService = preferences.getBoolean("service", true);
-        ArrayList<String> playList = appSettings.getPlayList();
-        if (playList.size() > 0 && isUseService)
+        if (isUseService)
         {
-            if (serviceIntent == null)
-            {
-                serviceIntent = new Intent(this, LexiconService.class);
-            }
+            Intent serviceIntent = new Intent(this, LexiconService.class);
             startService(serviceIntent);
         }
         isActivityRunning = false;
-    }
-
-    // TODO: ActivityManager.RunningAppProcessInfo Проверка, что активити находится на верху стека
-    public boolean isActivityOnTop()
-    {
-        final ActivityManager activityManager = (ActivityManager) getSystemService(Service.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningAppProcessInfo> runningAppProcesses = null;
-        if (activityManager != null)
-        {
-            runningAppProcesses = activityManager.getRunningAppProcesses();
-        }
-        if (runningAppProcesses != null && runningAppProcesses.size() > 0)
-        {
-            String processName = runningAppProcesses.get(0).processName;
-            String packageName = getApplicationInfo().packageName;
-            return processName.equals(packageName);
-        }
-        return false;
-    }
-
-    private double getInchesDisplay()
-    {
-        double screenInches;
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        int widthPixels = displayMetrics.widthPixels;
-        int heightPixels = displayMetrics.heightPixels;
-        int densityDpi = displayMetrics.densityDpi;
-        double width = (double) widthPixels/(double) densityDpi;
-        double height = (double) heightPixels/(double) densityDpi;
-        double x = Math.pow(width,2);
-        double y = Math.pow(height,2);
-        screenInches = Math.sqrt(x+y);
-        return screenInches;
-    }
-
-    @Override
-    public void dictNumberOnChanged(int ndict)
-    {
-
     }
 
     public void testIntervalOnChange(int value)
@@ -887,21 +693,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         wordsInterval = value;
     }
 
-//    public class SpeechServiceReceiver extends BroadcastReceiver
-//    {
-//        @Override
-//        public void onReceive(Context context, Intent intent)
-//        {
-//            String updateEN = intent.getStringExtra(SpeechService.EXTRA_KEY_EN);
-//            String updateRU = intent.getStringExtra(SpeechService.EXTRA_KEY_RU);
-//            String updateDict = intent.getStringExtra(SpeechService.EXTRA_KEY_DICT);
-//            String nword = intent.getStringExtra(SpeechService.EXTRA_KEY_WORDS_COUNTER);
-//            textViewEn.setText(updateEN);
-//            textViewRu.setText(updateRU);
-//            btnViewDict.setText(updateDict);
-//            tvWordsCounter.setText(nword);
-//        }
-//    }
 
 }
 

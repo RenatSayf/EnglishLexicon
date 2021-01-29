@@ -106,6 +106,8 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
     private var _currentWord = MutableLiveData<Word>().apply {
         //repository.saveWordThePref(Word(1, "Наречия", "", "", 1))
         value = repository.getWordFromPref()
+        val value = value
+        return@apply
     }
     var currentWord: MutableLiveData<Word> = _currentWord
     fun setCurrentWord(word: Word)
@@ -116,6 +118,20 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
     {
         repository.saveWordThePref(word)
     }
+
+    private var _wordCounters = MutableLiveData<List<Int>>().apply {
+        _currentWord.value?.let {
+            repository.getCountersFromDb(it.dictName)
+                    .subscribeOn(Schedulers.computation())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({ list ->
+                        this.value = list
+                    }, { t ->
+                        t.printStackTrace()
+                    })
+        }
+    }
+    var wordCounters: LiveData<List<Int>> = _wordCounters
 
     var testInterval: LiveData<Int> = MutableLiveData(repository.getTestIntervalFromPref())
 

@@ -41,6 +41,11 @@ class DataRepositoryImpl @Inject constructor(private val appDB: AppDB,
         return settings.getPlayList(true)
     }
 
+    override fun getCountersFromDb(dictName: String): Single<List<Int>>
+    {
+        return db.getCounters(dictName)
+    }
+
     override fun getCurrentWordFromSettings(): DataBaseEntry
     {
         return settings.currentWord

@@ -12,11 +12,13 @@ import androidx.core.app.NotificationCompat
 import androidx.preference.PreferenceManager
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
+import com.google.gson.reflect.TypeToken
 import com.myapp.lexicon.R
-import com.myapp.lexicon.database.DataBaseEntry
-import com.myapp.lexicon.service.ModalFragment
+import com.myapp.lexicon.database.Word
+import com.myapp.lexicon.service.LexiconService
 import com.myapp.lexicon.service.ServiceActivity
 import com.myapp.lexicon.settings.AppData
+import java.lang.reflect.Type
 
 class AppNotification constructor(private val context: Context) : Notification()
 {
@@ -39,15 +41,15 @@ class AppNotification constructor(private val context: Context) : Notification()
     {
         val actionIntent = Intent(Intent.ACTION_MAIN)
         actionIntent.setClass(context, ServiceActivity::class.java).apply {
-            putExtra(AppData.ARG_JSON, json)
+            putExtra(LexiconService.ARG_JSON, json)
             flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
         }
 
-        var pair: Pair<Map<String, Int>, List<DataBaseEntry>>? = null
+        var words: Array<Word>? = null
         try
         {
-            @Suppress("UNCHECKED_CAST")
-            pair = Gson().fromJson<Any>(json, AppData.jsonType) as Pair<Map<String, Int>, List<DataBaseEntry>>
+            val jsonType = TypeToken.get(Array<Word>::class.java).type
+            words = Gson().fromJson(json, jsonType)
         }
         catch (e: JsonSyntaxException)
         {
@@ -63,15 +65,15 @@ class AppNotification constructor(private val context: Context) : Notification()
             priority = NotificationCompat.PRIORITY_MAX
             setChannelId(CHANEL_ID)
             setDefaults(DEFAULT_SOUND)
-            setContentTitle(pair?.second?.get(0)?.english ?: "JSON ERROR!!!!!!!!!!!!!!!!!!")
+            setContentTitle(words?.get(0)?.english ?: "JSON ERROR!!!!!!!!!!!!!!!!!!")
             if (displayMode == "1")
             {
                 setContentText("?????????????")
             }
-            else setContentText(pair?.second?.get(0)?.translate ?: "JSON ERROR!!!!!!!!!!!!!!!!!!")
+            else setContentText(words?.get(0)?.translate ?: "JSON ERROR!!!!!!!!!!!!!!!!!!")
         }.build()
 
-        println("******************************* ${ pair?.second?.get(0)?.english ?: "JSON ERROR!!!!!!!!!!!!!!!!!!" }***********************")
+        println("******************************* ${ words?.get(0)?.english ?: "JSON ERROR!!!!!!!!!!!!!!!!!!" }***********************")
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)

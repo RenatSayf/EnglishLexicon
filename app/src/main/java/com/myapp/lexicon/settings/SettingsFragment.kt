@@ -2,6 +2,7 @@
 
 package com.myapp.lexicon.settings
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -14,6 +15,7 @@ import androidx.preference.PreferenceFragmentCompat
 import com.myapp.lexicon.R
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.schedule.AlarmScheduler
+import com.myapp.lexicon.service.LexiconService
 
 /**
  * Created by Renat
@@ -88,9 +90,9 @@ class SettingsFragment : PreferenceFragmentCompat()
             {
                 listDisplayModePref.isEnabled = (newValue as Boolean)
                 listOnUnBlockingScreen.isEnabled = newValue
-                if (MainActivity.serviceIntent != null && !newValue)
+                if (!newValue)
                 {
-                    requireContext().stopService(MainActivity.serviceIntent)
+                    requireContext().stopService(Intent(requireContext(), LexiconService::class.java))
                 }
                 if (newValue)
                 {

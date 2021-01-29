@@ -19,12 +19,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
-import com.myapp.lexicon.main.MainActivityOnStart;
 import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 import java.util.Locale;
@@ -35,7 +32,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import kotlin.Pair;
 
-import static com.myapp.lexicon.main.MainActivity.serviceIntent;
 import static com.myapp.lexicon.service.ServiceActivity.map;
 import static com.myapp.lexicon.service.ServiceActivity.speech;
 
@@ -71,7 +67,7 @@ public class ModalFragment extends Fragment
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
 
-        appSettings = new AppSettings(getActivity());
+        appSettings = new AppSettings(requireContext());
     }
 
     @Override
@@ -87,12 +83,12 @@ public class ModalFragment extends Fragment
 
         ServiceActivity activity = (ServiceActivity)requireActivity();
         Bundle arguments = getArguments();
-        if (activity != null && arguments != null)
+        if (arguments != null)
         {
             String json = arguments.getString(AppData.ARG_JSON);
             try
             {
-                Pair<Map<String, Integer>, List<DataBaseEntry>> pair = new Gson().fromJson(json, AppData.jsonType);
+                Pair<Map<String, Integer>, List<DataBaseEntry>> pair = new Gson().fromJson(json, AppData.jsonType); //TODO изменить парсинг json
                 nameDictTV.setText(pair.getSecond().get(0).getDictName());
                 enTextView.setText(pair.getSecond().get(0).getEnglish());
                 ruTextView.setText(pair.getSecond().get(0).getTranslate());
@@ -114,28 +110,18 @@ public class ModalFragment extends Fragment
 
             Button btnStop = fragmentView.findViewById(R.id.btn_stop_service);
             btnStop.setOnClickListener( view -> {
-                if (activity != null)
-                {
-                    activity.stopAppService();
-                }
+                ((ServiceActivity)requireActivity()).stopAppService();
             });
 
             ImageButton btnClose = fragmentView.findViewById(R.id.btn_close);
             btnClose.setOnClickListener(view -> {
-                if (activity != null)
-                {
-                    activity.finish();
-                }
+                requireActivity().finish();
             });
 
             Button btnOpenApp = fragmentView.findViewById(R.id.btn_open_app);
             btnOpenApp.setOnClickListener(view -> {
-                if (activity != null)
-                {
-                    activity.startActivity(new Intent(getContext(), SplashScreenActivity.class));
-                    activity.finish();
-                    EventBus.getDefault().postSticky(new MainActivityOnStart(serviceIntent));
-                }
+                requireActivity().startActivity(new Intent(getContext(), SplashScreenActivity.class));
+                requireActivity().finish();
             });
 
             ImageButton btnSound = fragmentView.findViewById(R.id.btn_sound_modal);

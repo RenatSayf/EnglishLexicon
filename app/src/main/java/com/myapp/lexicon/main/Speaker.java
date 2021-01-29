@@ -55,7 +55,6 @@ public class Speaker
     {
         if (status == TextToSpeech.SUCCESS)
         {
-
             localeRu = new Locale(this.context.getString(R.string.lang_code_translate));
 
             int resultRu = this.speaker.isLanguageAvailable(localeRu);
@@ -125,41 +124,44 @@ public class Speaker
     public int doSpeech(String text, Locale locale)
     {
         int speakResult = Integer.MIN_VALUE;
-        HashMap<String, String> utterance_Id = new HashMap<>();
-        utterance_Id.clear();
-        if (locale.equals(Locale.US))
+        if (isSpeech)
         {
-            if (isEnSpeech)
+            HashMap<String, String> utterance_Id = new HashMap<>();
+            utterance_Id.clear();
+            if (locale.equals(Locale.US))
             {
-                utterance_Id.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "En");
-            } else
-            {
-                return speakResult;
+                if (isEnSpeech)
+                {
+                    utterance_Id.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "En");
+                } else
+                {
+                    return speakResult;
+                }
             }
-        }
 
-        if (locale.equals(localeRu))
-        {
-            if (isRuSpeech)
+            if (locale.equals(localeRu))
             {
-                utterance_Id.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "Ru");
-            } else
-            {
-                return speakResult;
+                if (isRuSpeech)
+                {
+                    utterance_Id.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "Ru");
+                } else
+                {
+                    return speakResult;
+                }
             }
-        }
-        int supportCode;
-        supportCode = speaker.setLanguage(locale);
+            int supportCode;
+            supportCode = speaker.setLanguage(locale);
 
-        if (supportCode >= 0)
-        {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            if (supportCode >= 0)
             {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                {
 
-                speakResult = speaker.speak(text, TextToSpeech.QUEUE_FLUSH, null, utterance_Id.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
-            } else
-            {
-                speakResult = speaker.speak(text, TextToSpeech.QUEUE_FLUSH, utterance_Id);
+                    speakResult = speaker.speak(text, TextToSpeech.QUEUE_FLUSH, null, utterance_Id.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+                } else
+                {
+                    speakResult = speaker.speak(text, TextToSpeech.QUEUE_FLUSH, utterance_Id);
+                }
             }
         }
 

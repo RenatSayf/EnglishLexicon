@@ -9,13 +9,18 @@ import android.content.IntentFilter
 import android.content.res.Configuration
 import android.os.IBinder
 import android.widget.Toast
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ServiceLifecycleDispatcher
 import androidx.preference.PreferenceManager
 import com.google.gson.Gson
 import com.myapp.lexicon.R
 import com.myapp.lexicon.database.AppDB
+import com.myapp.lexicon.database.AppDataBase
 import com.myapp.lexicon.database.DataBaseEntry
 import com.myapp.lexicon.database.DatabaseHelper
-import com.myapp.lexicon.main.MainActivity
+import com.myapp.lexicon.main.MainViewModel
+import com.myapp.lexicon.repository.DataRepositoryImpl
 import com.myapp.lexicon.schedule.AppNotification
 import com.myapp.lexicon.schedule.TimerReceiver
 import com.myapp.lexicon.service.ServiceActivity.IStopServiceByUser
@@ -26,10 +31,11 @@ import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 import java.util.*
 
-class LexiconService : Service(), IStopServiceByUser
+class LexiconService : Service(), IStopServiceByUser, LifecycleOwner
 {
     companion object
     {
+        val ARG_JSON = "${this::class.java.canonicalName}.ARG_JSON"
         @JvmField
         var stopedByUser = false
     }
@@ -38,6 +44,7 @@ class LexiconService : Service(), IStopServiceByUser
     //private var receiver: PhoneUnlockedReceiver? = null
     private var receiver: TimerReceiver? = null
     private var startId = 0
+    private lateinit var vm: MainViewModel
     private val composite = CompositeDisposable()
 
     override fun onBind(intent: Intent): IBinder?
@@ -48,6 +55,16 @@ class LexiconService : Service(), IStopServiceByUser
     override fun onCreate()
     {
         super.onCreate()
+
+        val appDB = AppDB(DatabaseHelper(this))
+        val dao = AppDataBase.getInstance(this).appDao()
+        val appSettings = AppSettings(this)
+        val repository = DataRepositoryImpl(appDB, dao, appSettings)
+        vm = MainViewModel(repository)
+        val currentWord = vm.currentWord.value
+        val dictName = currentWord?.dictName ?: ""
+        val wordId = currentWord?._id ?: 1
+
         oldLocale = resources.configuration.locale
         //receiver = PhoneUnlockedReceiver()
         receiver = TimerReceiver()
@@ -57,38 +74,55 @@ class LexiconService : Service(), IStopServiceByUser
         registerReceiver(receiver, filter)
         ServiceActivity.setStoppedByUserListener(this)
 
-        val appSettings = AppSettings(this)
+
         val playList = appSettings.getPlayList(true)
         val nDict: String = playList[appSettings.dictNumber]
         val nWord: Int = appSettings.wordNumber
 
+
+
         val db = AppDB(DatabaseHelper(this))
-        composite.add(
-                db.getEntriesAndCountersAsync(nDict, nWord, "ASC", 2)
-                        .observeOn(Schedulers.computation())
-                        .subscribeOn(Schedulers.io())
-                        .subscribe({ pairs: Pair<MutableMap<String, Int>, MutableList<DataBaseEntry>> ->
-                            appSettings.goForward(pairs.second)
-                            if (pairs.second.isNotEmpty() && !MainActivity.isActivityRunning)
-                            {
-                                val json = Gson().toJson(pairs)
-                                json?.let {
-                                    val appNotification = AppNotification(this).create(json)
-                                    startForeground(AppNotification.NOTIFICATION_ID, appNotification)
-                                }
-                                composite.dispose()
-                                composite.clear()
-                            }
-                            if (pairs.first.isEmpty() && pairs.second.isEmpty())
-                            {
-                                composite.dispose()
-                                composite.clear()
-                            }
-                        }, { throwable: Throwable ->
-                            composite.dispose()
-                            composite.clear()
-                            throwable.printStackTrace()
-                        }))
+//        composite.add(
+//                db.getEntriesAndCountersAsync(nDict, nWord, "ASC", 2)
+//                        .observeOn(Schedulers.computation())
+//                        .subscribeOn(Schedulers.io())
+//                        .subscribe({ pairs: Pair<MutableMap<String, Int>, MutableList<DataBaseEntry>> ->
+//                            appSettings.goForward(pairs.second)
+//                            if (pairs.second.isNotEmpty() && !MainActivity.isActivityRunning)
+//                            {
+//                                val json = Gson().toJson(pairs)
+//                                json?.let {
+//                                    val appNotification = AppNotification(this).create(json)
+//                                    startForeground(AppNotification.NOTIFICATION_ID, appNotification)
+//                                }
+//                                composite.dispose()
+//                                composite.clear()
+//                            }
+//                            if (pairs.first.isEmpty() && pairs.second.isEmpty())
+//                            {
+//                                composite.dispose()
+//                                composite.clear()
+//                            }
+//                        }, { throwable: Throwable ->
+//                            composite.dispose()
+//                            composite.clear()
+//                            throwable.printStackTrace()
+//                        }))
+
+        composite.add(vm.getWordsFromDict(dictName, wordId, 2)
+                .observeOn(Schedulers.computation())
+                .subscribe({ words ->
+                    if (words.isNotEmpty())
+                    {
+                        val json = Gson().toJson(words)
+                        json?.let {
+                            val appNotification = AppNotification(this).create(json)
+                            startForeground(AppNotification.NOTIFICATION_ID, appNotification)
+                        }
+                    }
+                }, { t ->
+                    t.printStackTrace()
+                }))
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int
@@ -99,8 +133,12 @@ class LexiconService : Service(), IStopServiceByUser
 
     override fun onDestroy()
     {
-        unregisterReceiver(receiver)
         super.onDestroy()
+        unregisterReceiver(receiver)
+        composite.apply {
+            dispose()
+            clear()
+        }
     }
 
     override fun onTaskRemoved(rootIntent: Intent)
@@ -195,6 +233,11 @@ class LexiconService : Service(), IStopServiceByUser
                 }
             }
         }
+    }
+
+    override fun getLifecycle(): Lifecycle
+    {
+        return ServiceLifecycleDispatcher(this).lifecycle
     }
 
 

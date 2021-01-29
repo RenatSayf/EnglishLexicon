@@ -1,7 +1,6 @@
 package com.myapp.lexicon.main
 
 import android.app.Application
-import android.speech.tts.TextToSpeech
 import android.view.View
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.AndroidViewModel
@@ -45,17 +44,21 @@ class SpeechViewModel @ViewModelInject constructor(app: Application, private val
         if (status < 0)
         {
             repository.enableSpeech(false)
+            _enCheckboxEnable.value = false
+            _ruCheckboxEnable.value = false
         }
     }
 
     override fun onEngLangNotSupported(status: Int)
     {
-        //TODO("Not yet implemented")
+        setEnSpeech(false)
+        _enCheckboxEnable.value = false
     }
 
     override fun onRusLangNotSupported(status: Int)
     {
-        //TODO("Not yet implemented")
+        setRuSpeech(false)
+        _ruCheckboxEnable.value = false
     }
 
     private var _speechStartId = MutableLiveData<String>().apply {
@@ -129,6 +132,12 @@ class SpeechViewModel @ViewModelInject constructor(app: Application, private val
     {
         _speechProgressVisibility.value = visibility
     }
+
+    private var _enCheckboxEnable = MutableLiveData(true)
+    var enCheckboxEnable: LiveData<Boolean> = _enCheckboxEnable
+
+    private var _ruCheckboxEnable = MutableLiveData(true)
+    var ruCheckboxEnable: LiveData<Boolean> = _ruCheckboxEnable
 
     override fun onCleared()
     {
