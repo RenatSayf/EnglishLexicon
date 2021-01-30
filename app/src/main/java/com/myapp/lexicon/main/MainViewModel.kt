@@ -133,6 +133,21 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
     }
     var wordCounters: LiveData<List<Int>> = _wordCounters
 
+    private var _randomWord = MutableLiveData<Word>().apply {
+        val dictName = _currentWord.value?.dictName ?: "Default"
+        val id = _currentWord.value?._id ?: 1
+        composite.add(repository.getRandomEntriesFromDB(dictName, id)
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    value = it
+                }, { t ->
+                    t.printStackTrace()
+                }))
+    }
+    var randomWord: LiveData<Word> = _randomWord
+
+
     var testInterval: LiveData<Int> = MutableLiveData(repository.getTestIntervalFromPref())
 
     private var _orderPlay = MutableLiveData<Int>().apply {

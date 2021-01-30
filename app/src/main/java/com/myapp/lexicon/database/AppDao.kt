@@ -14,6 +14,9 @@ interface AppDao
     @Query("SELECT * FROM Words WHERE dict_name == :name AND _id >= :id AND count_repeat <> 0 LIMIT :limit")
     fun getEntriesByDictName(name: String, id: Int = 1, limit: Int = 2) : Single<MutableList<Word>>
 
+    @Query("SELECT * FROM Words WHERE dict_name == :dict AND _id <> :id ORDER BY random() LIMIT 1")
+    fun getRandomEntries(dict: String, id: Int) : Single<Word>
+
     @Query("SELECT DISTINCT dict_name FROM Words")
     fun getDictList() : Single<MutableList<String>>
 
@@ -26,7 +29,7 @@ interface AppDao
     @Insert
     fun insert(word: Word): Single<Long>
 
-    @Query("SELECT count() FROM Words WHERE dict_name = :dict AND count_repeat == 0 UNION SELECT count() FROM Words WHERE dict_name = :dict")
+    @Query("SELECT count() FROM Words WHERE dict_name = :dict AND count_repeat == 0 UNION SELECT _id FROM Words WHERE dict_name = :dict")
     fun getCounters(dict: String) : Single<List<Int>>
 
 }

@@ -15,6 +15,7 @@ import com.google.gson.JsonSyntaxException
 import com.google.gson.reflect.TypeToken
 import com.myapp.lexicon.R
 import com.myapp.lexicon.database.Word
+import com.myapp.lexicon.helpers.StringOperations
 import com.myapp.lexicon.service.LexiconService
 import com.myapp.lexicon.service.ServiceActivity
 import com.myapp.lexicon.settings.AppData
@@ -45,16 +46,17 @@ class AppNotification constructor(private val context: Context) : Notification()
             flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
         }
 
-        var words: Array<Word>? = null
-        try
-        {
-            val jsonType = TypeToken.get(Array<Word>::class.java).type
-            words = Gson().fromJson(json, jsonType)
-        }
-        catch (e: JsonSyntaxException)
-        {
-            e.printStackTrace()
-        }
+        val words: Array<Word> = StringOperations.instance.jsonToWord(json)
+//        try
+//        {
+//            val jsonType = TypeToken.get(Array<Word>::class.java).type
+//            words = Gson().fromJson(json, jsonType)
+//        }
+//        catch (e: JsonSyntaxException)
+//        {
+//            e.printStackTrace()
+//        }
+
 
         val pendingIntent = PendingIntent.getActivity(context, 0, actionIntent, PendingIntent.FLAG_UPDATE_CURRENT)
         notification = NotificationCompat.Builder(context, CHANEL_ID).apply {

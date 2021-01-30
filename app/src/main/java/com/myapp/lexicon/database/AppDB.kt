@@ -38,7 +38,7 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
                         if (nameNotDict != DatabaseHelper.TABLE_METADATA && nameNotDict != DatabaseHelper.TABLE_SEQUENCE && nameNotDict != DatabaseHelper.TABLE_API_KEY)
                         {
                             var tableName = cursor.getString(cursor.getColumnIndex("name"))
-                            tableName = StringOperations.getInstance().underscoreToSpace(tableName)
+                            tableName = StringOperations.instance.underscoreToSpace(tableName)
                             list.add(tableName)
                         }
                         cursor.moveToNext()
@@ -80,7 +80,7 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
 
     private fun getAllFromTable(tableName: String) : MutableList<DataBaseEntry>
     {
-        val table = StringOperations.getInstance().spaceToUnderscore(tableName)
+        val table = StringOperations.instance.spaceToUnderscore(tableName)
         val entriesFromDB = LinkedList<DataBaseEntry>()
         var dataBaseEntry: DataBaseEntry
         var cursor: Cursor? = null
@@ -133,7 +133,7 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
     private fun deleteTableFromDb(tableName: String): Boolean
     {
         var result = true
-        val table = StringOperations.getInstance().spaceToUnderscore(tableName)
+        val table = StringOperations.instance.spaceToUnderscore(tableName)
         val cmd = "Drop Table If Exists $table"
         try
         {
@@ -191,7 +191,7 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
 
     private fun getEntriesFromDb(tableName: String, rowId: Int, order: String, limit: Int) : MutableList<DataBaseEntry>
     {
-        val table = StringOperations.getInstance().spaceToUnderscore(tableName)
+        val table = StringOperations.instance.spaceToUnderscore(tableName)
         val entriesFromDB = LinkedList<DataBaseEntry>()
         var dataBaseEntry: DataBaseEntry
         var cursor: Cursor? = null
@@ -230,7 +230,7 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
 
     private fun getRandomEntriesFromDb(tableName: String, rowId: Int) : MutableList<DataBaseEntry>
     {
-        val table = StringOperations.getInstance().spaceToUnderscore(tableName)
+        val table = StringOperations.instance.spaceToUnderscore(tableName)
         val entriesFromDB = LinkedList<DataBaseEntry>()
         var dataBaseEntry: DataBaseEntry
         var cursor: Cursor? = null

@@ -7,10 +7,13 @@ import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
 
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.database.Word;
+import com.myapp.lexicon.helpers.StringOperations;
 import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.settings.AppData;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 
@@ -30,8 +33,8 @@ public class ServiceActivity extends AppCompatActivity
     public static IStopServiceByUser iStopServiceByUser;
     public static TextToSpeech speech;
     public static HashMap<String, String> map = new HashMap<>();
-
-    private MainViewModel vm;
+    public static final String ARG_JSON = ServiceActivity.class.getCanonicalName() + ".ARG_JSON";
+    public static final String ARG_COUNTERS = ServiceActivity.class.getCanonicalName() + ".ModalFragment.arg_counters";
 
     public interface IStopServiceByUser
     {
@@ -49,19 +52,24 @@ public class ServiceActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.service_dialog_activity);
 
-        vm = new ViewModelProvider(this).get(MainViewModel.class);
+        MainViewModel vm = new ViewModelProvider(this).get(MainViewModel.class);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ServiceActivity.this);
         String preferencesString = preferences.getString(getString(R.string.key_list_display_mode), "0");
         String displayVariantStr = preferences.getString(getString(R.string.key_display_variant), "0");
         isServiceEnabled = preferences.getBoolean(getString(R.string.key_service), false);
-        int displayMode = Integer.parseInt(preferencesString);
-        int displayVariant = Integer.parseInt(displayVariantStr);
-
-        if (displayVariant == 1) //TODO Здесь надо разобраться
+        int displayMode = 0;
+        int displayVariant = 0;
+        if (preferencesString != null && displayVariantStr != null)
         {
-            stopService(new Intent(this, LexiconService.class));
-            stopAppService();
+            try
+            {
+                displayMode = Integer.parseInt(preferencesString);
+                displayVariant = Integer.parseInt(displayVariantStr);
+            } catch (NumberFormatException e)
+            {
+                e.printStackTrace();
+            }
         }
 
         speech = new TextToSpeech(this, status -> {
@@ -81,51 +89,61 @@ public class ServiceActivity extends AppCompatActivity
             }
         });
 
-        vm.getCurrentWord().observe(this, word -> {
-            return;
-        });
-
-
+        int finalDisplayMode = displayMode;
+        int finalDisplayVariant = displayVariant;
 
         vm.getWordCounters().observe(this, counters -> {
-            if (counters != null && counters.size() > 0)
+            if (counters != null && counters.size() > 1)
             {
-                if (displayMode == 0)
+                String json = getIntent().getStringExtra(LexiconService.Companion.getARG_JSON());
+                Word[] words = StringOperations.getInstance().jsonToWord(json);
+                ArrayList<Integer> countersList = new ArrayList<>();
+                if (words.length > 0)
                 {
-                    String json = getIntent().getStringExtra(LexiconService.Companion.getARG_JSON());
-                    ModalFragment modalFragment = ModalFragment.newInstance(json);
+                    int id = words[0].get_id();
+                    int index = counters.indexOf(id);
+                    countersList.add(counters.get(0));
+                    countersList.add(counters.size() - 1);
+                    countersList.add(index);
+                    counters.clear();
+                }
+                if (finalDisplayMode == 0)
+                {
+                    ModalFragment modalFragment = ModalFragment.newInstance(json, countersList);
                     getSupportFragmentManager().beginTransaction().add(R.id.fragment_frame, modalFragment).commit();
                 }
-                else if (displayMode == 1)
+                else if (finalDisplayMode == 1)
                 {
-                    String json = getIntent().getStringExtra(LexiconService.Companion.getARG_JSON());
-                    TestModalFragment testModalFragment = TestModalFragment.newInstance(json);
+                    TestModalFragment testModalFragment = TestModalFragment.newInstance(json, countersList);
                     getSupportFragmentManager().beginTransaction().add(R.id.fragment_frame, testModalFragment).commit();
                 }
-                //else finish();
-            }
-
-            AppData appData = AppData.getInstance();
-
-            int count = appData.getUnLookPhoneCount();
-            count++;
-            appData.setUnLookPhoneCount(count);
-
-            if (appData.isAdMob())
-            {
-                if (appData.isOnline(this) && appData.getUnLookPhoneCount() > 2)
+                if (finalDisplayVariant == 1)
                 {
-                    if (savedInstanceState == null)
-                    {
-                        appData.setUnLookPhoneCount(0);
-                        ModalBannerFragment bannerFragment = new ModalBannerFragment();
-                        getSupportFragmentManager().beginTransaction().replace(R.id.banner_frame_service, bannerFragment).commit();
-                    }
+                    stopService(new Intent(this, LexiconService.class));
+                    stopAppService();
                 }
             }
+
+
         });
 
+        AppData appData = AppData.getInstance();
+        int count = appData.getUnLookPhoneCount();
+        count++;
+        appData.setUnLookPhoneCount(count);
 
+        if (appData.isAdMob())
+        {
+            if (appData.isOnline(this) && appData.getUnLookPhoneCount() > 2)
+            {
+                if (savedInstanceState == null)
+                {
+                    appData.setUnLookPhoneCount(0);
+                    ModalBannerFragment bannerFragment = new ModalBannerFragment();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.banner_frame_service, bannerFragment).commit();
+                }
+            }
+        }
     }
 
 
@@ -175,7 +193,7 @@ public class ServiceActivity extends AppCompatActivity
             iStopServiceByUser.onStoppedByUser();
             new AlarmScheduler(this).cancel(AlarmScheduler.REQUEST_CODE, AlarmScheduler.REPEAT_SHOOT_ACTION);
         }
-        finish();
+        //finish();
     }
 
 }

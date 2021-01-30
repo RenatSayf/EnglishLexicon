@@ -75,40 +75,6 @@ class LexiconService : Service(), IStopServiceByUser, LifecycleOwner
         ServiceActivity.setStoppedByUserListener(this)
 
 
-        val playList = appSettings.getPlayList(true)
-        val nDict: String = playList[appSettings.dictNumber]
-        val nWord: Int = appSettings.wordNumber
-
-
-
-        val db = AppDB(DatabaseHelper(this))
-//        composite.add(
-//                db.getEntriesAndCountersAsync(nDict, nWord, "ASC", 2)
-//                        .observeOn(Schedulers.computation())
-//                        .subscribeOn(Schedulers.io())
-//                        .subscribe({ pairs: Pair<MutableMap<String, Int>, MutableList<DataBaseEntry>> ->
-//                            appSettings.goForward(pairs.second)
-//                            if (pairs.second.isNotEmpty() && !MainActivity.isActivityRunning)
-//                            {
-//                                val json = Gson().toJson(pairs)
-//                                json?.let {
-//                                    val appNotification = AppNotification(this).create(json)
-//                                    startForeground(AppNotification.NOTIFICATION_ID, appNotification)
-//                                }
-//                                composite.dispose()
-//                                composite.clear()
-//                            }
-//                            if (pairs.first.isEmpty() && pairs.second.isEmpty())
-//                            {
-//                                composite.dispose()
-//                                composite.clear()
-//                            }
-//                        }, { throwable: Throwable ->
-//                            composite.dispose()
-//                            composite.clear()
-//                            throwable.printStackTrace()
-//                        }))
-
         composite.add(vm.getWordsFromDict(dictName, wordId, 2)
                 .observeOn(Schedulers.computation())
                 .subscribe({ words ->

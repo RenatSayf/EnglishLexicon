@@ -49,10 +49,10 @@ public class ModalFragment extends Fragment
     }
 
 
-    static ModalFragment newInstance(@Nullable String json)
+    static ModalFragment newInstance(@Nullable String json, List<Integer> counters)
     {
         ModalFragment fragment = new ModalFragment();
-        if (json != null)
+        if (json != null && counters.size() > 0)
         {
             Bundle bundle = new Bundle();
             bundle.putString(AppData.ARG_JSON, json);

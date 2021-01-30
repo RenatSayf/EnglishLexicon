@@ -26,6 +26,11 @@ class DataRepositoryImpl @Inject constructor(private val appDB: AppDB,
         return db.getEntriesByDictName(dictName, id, limit)
     }
 
+    override fun getRandomEntriesFromDB(dictName: String, id: Int): Single<Word>
+    {
+        return db.getRandomEntries(dictName, id)
+    }
+
     override fun updateDbEntries(list: List<Word>): Single<Int>
     {
         return db.updateCountRepeat(0, 1, Int.MAX_VALUE)

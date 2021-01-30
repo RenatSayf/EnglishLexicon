@@ -15,6 +15,8 @@ interface IDataRepository
 
     fun getEntriesFromDbByDictName(dictName: String, id: Int = 1, limit: Int = 2) : Single<MutableList<Word>>
 
+    fun getRandomEntriesFromDB(dictName: String, id: Int) : Single<Word>
+
     fun updateDbEntries(list: List<Word>) : Single<Int>
 
     fun insertEntry(word: Word): Single<Long>

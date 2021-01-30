@@ -19,22 +19,22 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
 import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.database.GetStudiedWordsCount;
 import com.myapp.lexicon.database.UpdateDBEntryAsync;
+import com.myapp.lexicon.database.Word;
 import com.myapp.lexicon.dialogs.WordsEndedDialog;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
+import com.myapp.lexicon.helpers.StringOperations;
 import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SplashScreenActivity;
-import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -42,10 +42,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import dagger.hilt.android.AndroidEntryPoint;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.schedulers.Schedulers;
-import kotlin.Pair;
 
 import static com.myapp.lexicon.service.ServiceActivity.map;
 import static com.myapp.lexicon.service.ServiceActivity.speech;
@@ -60,10 +57,11 @@ public class TestModalFragment extends Fragment
     private TextView enTextView;
     private Button ruBtn1, ruBtn2;
     private TextView nameDictTV;
-    private List<DataBaseEntry> compareList;
+    private List<Word> compareList;
     private boolean wordIsStudied = false;
     private boolean isWordsEnded = false;
     private WordsEndedDialog endedDialog = null;
+    private static List<Integer> _counters = new ArrayList<>();
 
     private MainViewModel viewModel;
     private final CompositeDisposable composite = new CompositeDisposable();
@@ -73,13 +71,14 @@ public class TestModalFragment extends Fragment
         // Required empty public constructor
     }
 
-    static TestModalFragment newInstance(@Nullable String json)
+    static TestModalFragment newInstance(@Nullable String json, List<Integer> counters)
     {
         TestModalFragment fragment = new TestModalFragment();
-        if (json != null)
+        _counters = counters;
+        if (json != null && counters.size() > 0)
         {
             Bundle bundle = new Bundle();
-            bundle.putString(AppData.ARG_JSON, json);
+            bundle.putString(ServiceActivity.ARG_JSON, json);
             fragment.setArguments(bundle);
         }
         return fragment;
@@ -109,45 +108,39 @@ public class TestModalFragment extends Fragment
         Bundle arguments = getArguments();
         if (arguments != null)
         {
-            String json = arguments.getString(AppData.ARG_JSON);
+            String json = arguments.getString(ServiceActivity.ARG_JSON);
             try
             {
-                Pair<Map<String, Integer>, List<DataBaseEntry>> pair = new Gson().fromJson(json, AppData.jsonType);
-                enTextView.setText(pair.getSecond().get(0).getEnglish());
+                Word[] words = StringOperations.getInstance().jsonToWord(json);
+                enTextView.setText(words[0].getEnglish());
                 nameDictTV = fragmentView.findViewById(R.id.name_dict_tv_test_modal);
-                nameDictTV.setText(pair.getSecond().get(0).getDictName());
+                nameDictTV.setText(words[0].getDictName());
                 TextView wordsNumberTV = fragmentView.findViewById(R.id.words_number_tv_test_modal);
-                if (pair.getFirst().size() == 4)
+                if (_counters.size() >= 3)
                 {
-                    String concatText = (pair.getSecond().get(0).getRowId() + "")
+                    String concatText = (_counters.get(2) + "")
                             .concat(" / ")
-                            .concat(pair.getFirst().get("totalWords").toString())
-                            .concat("  " + getString(R.string.text_studied) + " " + pair.getFirst().get("studiedWords").toString());
+                            .concat(_counters.get(1) + "")
+                            .concat("  " + getString(R.string.text_studied) + " " + _counters.get(0));
                     wordsNumberTV.setText(concatText);
                 }
 
-                composite.add(
-                        viewModel.getRandomEntries(pair.getSecond().get(0).getDictName(), pair.getSecond().get(0).getRowId())
-                        .observeOn(Schedulers.computation())
-                        .subscribeOn(AndroidSchedulers.mainThread())
-                        .subscribe(entries -> {
-
-                            entries.add(pair.getSecond().get(0));
-                            RandomNumberGenerator numberGenerator = new RandomNumberGenerator(2, (int) new Date().getTime());
-                            int i = numberGenerator.generate();
-                            int j = numberGenerator.generate();
-                            ruBtn1.setText(entries.get(i).getTranslate());
-                            ruBtn2.setText(entries.get(j).getTranslate());
-                            compareList = entries;
-
-                        }, Throwable::printStackTrace)
-                );
+                viewModel.getRandomWord().observe(getViewLifecycleOwner(), word -> {
+                    ArrayList<Word> listWords = new ArrayList<>();
+                    listWords.add(words[0]);
+                    listWords.add(word);
+                    RandomNumberGenerator numberGenerator = new RandomNumberGenerator(2, (int) new Date().getTime());
+                    int i = numberGenerator.generate();
+                    int j = numberGenerator.generate();
+                    ruBtn1.setText(listWords.get(i).getTranslate());
+                    ruBtn2.setText(listWords.get(j).getTranslate());
+                    compareList = listWords;
+                });
 
             } catch (Exception e)
             {
                 e.printStackTrace();
             }
-
 
         }
 
@@ -244,7 +237,7 @@ public class TestModalFragment extends Fragment
         });
     }
 
-    private boolean compareWords(List<DataBaseEntry> compareList, String english, String translate)
+    private boolean compareWords(List<Word> compareList, String english, String translate)
     {
         boolean result = false;
         if (compareList != null && compareList.size() > 0)
@@ -279,6 +272,7 @@ public class TestModalFragment extends Fragment
                 {
                     button.setBackgroundResource(R.drawable.btn_for_test_modal_green);
                     button.setTextColor(getActivity().getResources().getColor(R.color.colorWhite));
+                    //TODO Необходимо изменить алгоритм записи в базу
                     if (wordIsStudied)
                     {
                         String dict = nameDictTV.getText().toString();
