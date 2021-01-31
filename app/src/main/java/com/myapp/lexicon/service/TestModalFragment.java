@@ -1,9 +1,7 @@
 package com.myapp.lexicon.service;
 
 
-import android.content.ContentValues;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.view.LayoutInflater;
@@ -20,10 +18,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.database.DataBaseEntry;
-import com.myapp.lexicon.database.DatabaseHelper;
-import com.myapp.lexicon.database.GetStudiedWordsCount;
-import com.myapp.lexicon.database.UpdateDBEntryAsync;
 import com.myapp.lexicon.database.Word;
 import com.myapp.lexicon.dialogs.WordsEndedDialog;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
@@ -39,7 +33,6 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.disposables.CompositeDisposable;
@@ -62,6 +55,7 @@ public class TestModalFragment extends Fragment
     private boolean isWordsEnded = false;
     private WordsEndedDialog endedDialog = null;
     private static List<Integer> _counters = new ArrayList<>();
+    private Word[] words = new Word[0];
 
     private MainViewModel viewModel;
     private final CompositeDisposable composite = new CompositeDisposable();
@@ -105,16 +99,23 @@ public class TestModalFragment extends Fragment
         ruBtn2.setText("");
         ruBtn2_OnClick(ruBtn2);
 
+
         Bundle arguments = getArguments();
         if (arguments != null)
         {
             String json = arguments.getString(ServiceActivity.ARG_JSON);
             try
             {
-                Word[] words = StringOperations.getInstance().jsonToWord(json);
-                enTextView.setText(words[0].getEnglish());
-                nameDictTV = fragmentView.findViewById(R.id.name_dict_tv_test_modal);
-                nameDictTV.setText(words[0].getDictName());
+                if (json != null)
+                {
+                    words = StringOperations.getInstance().jsonToWord(json);
+                    if (words.length > 0)
+                    {
+                        enTextView.setText(words[0].getEnglish());
+                        nameDictTV = fragmentView.findViewById(R.id.name_dict_tv_test_modal);
+                        nameDictTV.setText(words[0].getDictName());
+                    }
+                }
                 TextView wordsNumberTV = fragmentView.findViewById(R.id.words_number_tv_test_modal);
                 if (_counters.size() >= 3)
                 {
@@ -124,41 +125,35 @@ public class TestModalFragment extends Fragment
                             .concat("  " + getString(R.string.text_studied) + " " + _counters.get(0));
                     wordsNumberTV.setText(concatText);
                 }
-
-                viewModel.getRandomWord().observe(getViewLifecycleOwner(), word -> {
-                    ArrayList<Word> listWords = new ArrayList<>();
-                    listWords.add(words[0]);
-                    listWords.add(word);
-                    RandomNumberGenerator numberGenerator = new RandomNumberGenerator(2, (int) new Date().getTime());
-                    int i = numberGenerator.generate();
-                    int j = numberGenerator.generate();
-                    ruBtn1.setText(listWords.get(i).getTranslate());
-                    ruBtn2.setText(listWords.get(j).getTranslate());
-                    compareList = listWords;
-                });
-
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 e.printStackTrace();
             }
 
         }
 
+        Word[] finalWords = words;
+        viewModel.getRandomWord().observe(getViewLifecycleOwner(), word -> {
+            ArrayList<Word> listWords = new ArrayList<>();
+            if (finalWords.length > 0)
+            {
+                listWords.add(finalWords[0]);
+                listWords.add(word);
+                RandomNumberGenerator numberGenerator = new RandomNumberGenerator(2, (int) new Date().getTime());
+                int i = numberGenerator.generate();
+                int j = numberGenerator.generate();
+                ruBtn1.setText(listWords.get(i).getTranslate());
+                ruBtn2.setText(listWords.get(j).getTranslate());
+                compareList = listWords;
+            }
+        });
+
         ImageButton speakButton = fragmentView.findViewById(R.id.btn_sound_modal);
         speakButton_OnClick(speakButton);
 
         ImageButton btnClose = fragmentView.findViewById(R.id.modal_btn_close);
-        btnClose.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-                if (getActivity() != null)
-                {
-                    getActivity().finish();
-                }
-            }
-        });
+        btnClose.setOnClickListener(view -> requireActivity().finish());
 
         Button btnOpenApp = fragmentView.findViewById(R.id.btn_open_app);
         btnOpenApp_OnClick(btnOpenApp);
@@ -178,6 +173,13 @@ public class TestModalFragment extends Fragment
         {
             orderPlayIcon.setImageResource(R.drawable.ic_shuffle_white);
         }
+
+        viewModel.getCountRepeat().observe(getViewLifecycleOwner(), id -> {
+            if (id > 0)
+            {
+                Toast.makeText(getActivity(), R.string.text_word_is_not_show, Toast.LENGTH_LONG).show();
+            }
+        });
 
         return fragmentView;
     }
@@ -275,91 +277,96 @@ public class TestModalFragment extends Fragment
                     //TODO Необходимо изменить алгоритм записи в базу
                     if (wordIsStudied)
                     {
-                        String dict = nameDictTV.getText().toString();
-                        DataBaseEntry entry = new DataBaseEntry(enTextView.getText().toString(), button.getText().toString(), "0");
-                        ContentValues values = new ContentValues();
-                        values.put(DatabaseHelper.COLUMN_Count_REPEAT, 0);
-                        UpdateDBEntryAsync updateDBEntryAsync = new UpdateDBEntryAsync(getActivity(), dict, values, "English = ? AND Translate = ?", new String[]{entry.getEnglish(), entry.getTranslate()}, new UpdateDBEntryAsync.IUpdateDBListener()
+                        if (words.length > 0)
                         {
-                            @Override
-                            public void updateDBEntry_OnComplete(int rows)
-                            {
-                                if (rows > 0 && getActivity() != null)
-                                {
-                                    Toast.makeText(getActivity(), R.string.text_word_is_not_show, Toast.LENGTH_LONG).show();
-                                    final String currentDict = nameDictTV.getText().toString();
-                                    GetStudiedWordsCount getCountWordsAsync = new GetStudiedWordsCount(getActivity(), currentDict, new GetStudiedWordsCount.GetCountListener()
-                                    {
-                                        @Override
-                                        public void onTaskComplete(Integer[] resArray)
-                                        {
-                                            if (resArray.length > 1)
-                                            {
-                                                int notStudied = resArray[0];
-                                                if (notStudied == 0)
-                                                {
-                                                    isWordsEnded = true;
-                                                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                                                    Fragment fragmentByTag = fragmentManager.findFragmentByTag(WordsEndedDialog.TAG);
-                                                    if (fragmentByTag != null)
-                                                    {
-                                                        fragmentManager.beginTransaction().remove(fragmentByTag).commit();
-                                                    }
-
-                                                    endedDialog = WordsEndedDialog.getInstance(currentDict, new WordsEndedDialog.IWordEndedDialogResult()
-                                                    {
-                                                        @Override
-                                                        public void wordEndedDialogResult(int res)
-                                                        {
-                                                            switch (res)
-                                                            {
-                                                                case 0:
-                                                                    appSettings.removeItemFromPlayList(currentDict);
-                                                                    if (appSettings.getPlayList() == null || appSettings.getPlayList().size() == 0)
-                                                                    {
-                                                                        requireActivity().stopService(new Intent(requireActivity(), LexiconService.class));
-                                                                    }
-                                                                    getActivity().finish();
-                                                                    break;
-                                                                case 1:
-                                                                    ContentValues values = new ContentValues();
-                                                                    values.put(DatabaseHelper.COLUMN_Count_REPEAT, 1);
-                                                                    UpdateDBEntryAsync updateDBEntryAsync = new UpdateDBEntryAsync(getActivity(), currentDict, values, null, null, new UpdateDBEntryAsync.IUpdateDBListener()
-                                                                    {
-                                                                        @Override
-                                                                        public void updateDBEntry_OnComplete(int rows)
-                                                                        {
-                                                                            if (getActivity() != null)
-                                                                            {
-                                                                                getActivity().finish();
-                                                                            }
-                                                                        }
-                                                                    });
-                                                                    if (updateDBEntryAsync.getStatus() != AsyncTask.Status.RUNNING)
-                                                                    {
-                                                                        updateDBEntryAsync.execute();
-                                                                    }
-                                                                    break;
-                                                            }
-
-                                                        }
-                                                    });
-                                                    fragmentManager.beginTransaction().add(endedDialog, WordsEndedDialog.TAG).commit();
-                                                }
-                                            }
-                                        }
-                                    });
-                                    if (getCountWordsAsync.getStatus() != AsyncTask.Status.RUNNING)
-                                    {
-                                        getCountWordsAsync.execute();
-                                    }
-                                }
-                            }
-                        });
-                        if (updateDBEntryAsync.getStatus() != AsyncTask.Status.RUNNING)
-                        {
-                            updateDBEntryAsync.execute();
+                            int wordId = words[0].get_id();
+                            viewModel.setCountRepeat(0, wordId, wordId);
                         }
+//                        String dict = nameDictTV.getText().toString();
+//                        DataBaseEntry entry = new DataBaseEntry(enTextView.getText().toString(), button.getText().toString(), "0");
+//                        ContentValues values = new ContentValues();
+//                        values.put(DatabaseHelper.COLUMN_Count_REPEAT, 0);
+//                        UpdateDBEntryAsync updateDBEntryAsync = new UpdateDBEntryAsync(getActivity(), dict, values, "English = ? AND Translate = ?", new String[]{entry.getEnglish(), entry.getTranslate()}, new UpdateDBEntryAsync.IUpdateDBListener()
+//                        {
+//                            @Override
+//                            public void updateDBEntry_OnComplete(int rows)
+//                            {
+//                                if (rows > 0 && getActivity() != null)
+//                                {
+//                                    Toast.makeText(getActivity(), R.string.text_word_is_not_show, Toast.LENGTH_LONG).show();
+//                                    final String currentDict = nameDictTV.getText().toString();
+//                                    GetStudiedWordsCount getCountWordsAsync = new GetStudiedWordsCount(getActivity(), currentDict, new GetStudiedWordsCount.GetCountListener()
+//                                    {
+//                                        @Override
+//                                        public void onTaskComplete(Integer[] resArray)
+//                                        {
+//                                            if (resArray.length > 1)
+//                                            {
+//                                                int notStudied = resArray[0];
+//                                                if (notStudied == 0)
+//                                                {
+//                                                    isWordsEnded = true;
+//                                                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+//                                                    Fragment fragmentByTag = fragmentManager.findFragmentByTag(WordsEndedDialog.TAG);
+//                                                    if (fragmentByTag != null)
+//                                                    {
+//                                                        fragmentManager.beginTransaction().remove(fragmentByTag).commit();
+//                                                    }
+//
+//                                                    endedDialog = WordsEndedDialog.getInstance(currentDict, new WordsEndedDialog.IWordEndedDialogResult()
+//                                                    {
+//                                                        @Override
+//                                                        public void wordEndedDialogResult(int res)
+//                                                        {
+//                                                            switch (res)
+//                                                            {
+//                                                                case 0:
+//                                                                    appSettings.removeItemFromPlayList(currentDict);
+//                                                                    if (appSettings.getPlayList() == null || appSettings.getPlayList().size() == 0)
+//                                                                    {
+//                                                                        requireActivity().stopService(new Intent(requireActivity(), LexiconService.class));
+//                                                                    }
+//                                                                    getActivity().finish();
+//                                                                    break;
+//                                                                case 1:
+//                                                                    ContentValues values = new ContentValues();
+//                                                                    values.put(DatabaseHelper.COLUMN_Count_REPEAT, 1);
+//                                                                    UpdateDBEntryAsync updateDBEntryAsync = new UpdateDBEntryAsync(getActivity(), currentDict, values, null, null, new UpdateDBEntryAsync.IUpdateDBListener()
+//                                                                    {
+//                                                                        @Override
+//                                                                        public void updateDBEntry_OnComplete(int rows)
+//                                                                        {
+//                                                                            if (getActivity() != null)
+//                                                                            {
+//                                                                                getActivity().finish();
+//                                                                            }
+//                                                                        }
+//                                                                    });
+//                                                                    if (updateDBEntryAsync.getStatus() != AsyncTask.Status.RUNNING)
+//                                                                    {
+//                                                                        updateDBEntryAsync.execute();
+//                                                                    }
+//                                                                    break;
+//                                                            }
+//
+//                                                        }
+//                                                    });
+//                                                    fragmentManager.beginTransaction().add(endedDialog, WordsEndedDialog.TAG).commit();
+//                                                }
+//                                            }
+//                                        }
+//                                    });
+//                                    if (getCountWordsAsync.getStatus() != AsyncTask.Status.RUNNING)
+//                                    {
+//                                        getCountWordsAsync.execute();
+//                                    }
+//                                }
+//                            }
+//                        });
+//                        if (updateDBEntryAsync.getStatus() != AsyncTask.Status.RUNNING)
+//                        {
+//                            updateDBEntryAsync.execute();
+//                        }
                     }
                 }
             }
@@ -367,19 +374,15 @@ public class TestModalFragment extends Fragment
             @Override
             public void onAnimationEnd(Animation animation)
             {
-                if (getActivity() != null)
+                button.setBackgroundResource(R.drawable.btn_for_test_modal_transp);
+                button.setTextColor(requireContext().getResources().getColor(R.color.colorLightGreen));
+                if (!isWordsEnded)
                 {
-                    button.setBackgroundResource(R.drawable.btn_for_test_modal_transp);
-                    button.setTextColor(getActivity().getResources().getColor(R.color.colorLightGreen));
-                    if (getActivity() != null && !isWordsEnded)
-                    {
-                        //appData.saveAllSettings(getActivity());
-                        getActivity().finish();
-                    } else
-                    {
-                        onDestroy();
-                        onDetach();
-                    }
+                    requireActivity().finish();
+                } else
+                {
+                    onDestroy();
+                    onDetach();
                 }
             }
 
@@ -429,52 +432,33 @@ public class TestModalFragment extends Fragment
 
     private void speakButton_OnClick(View view)
     {
-        view.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
+        view.setOnClickListener(view1 -> {
+            if (speech == null || speech.isSpeaking())
             {
-                if (speech == null || speech.isSpeaking())
-                {
-                    return;
-                }
-                String enText = enTextView.getText().toString();
-                if (!enText.equals(""))
-                {
-                    speech.speak(enText, TextToSpeech.QUEUE_ADD, map);
-                }
+                return;
+            }
+            String enText = enTextView.getText().toString();
+            if (!enText.equals(""))
+            {
+                speech.speak(enText, TextToSpeech.QUEUE_ADD, map);
             }
         });
     }
 
     private void btnOpenApp_OnClick(View view)
     {
-        view.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-                if (getActivity() != null)
-                {
-                    getActivity().startActivity(new Intent(getContext(), SplashScreenActivity.class));
-                    getActivity().finish();
-                }
-            }
+        view.setOnClickListener(view1 -> {
+            requireActivity().startActivity(new Intent(getContext(), SplashScreenActivity.class));
+            requireActivity().finish();
         });
     }
 
     private void btnStopService_OnClick(Button button)
     {
-        button.setOnClickListener( view ->
-        {
-            ServiceActivity activity = (ServiceActivity)requireActivity();
-            if (activity != null)
-            {
-                activity.stopAppService();
-            }
-        });
+        button.setOnClickListener( view -> ((ServiceActivity)requireActivity()).stopAppService());
     }
 
+    @SuppressWarnings("Convert2Lambda")
     private void checkStudied_OnCheckedChange(CheckBox checkBox)
     {
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()

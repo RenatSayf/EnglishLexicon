@@ -178,6 +178,21 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
     }
     var intermediateIndex: LiveData<Int> = _intermediateIndex
 
+    private var _countRepeat = MutableLiveData<Int>(1)
+    var countRepeat: LiveData<Int> = _countRepeat
+    fun setCountRepeat(repeat: Int, minId: Int, maxId: Int)
+    {
+        composite.add(repository.updateCountRepeat(repeat, minId, maxId)
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ id ->
+                    _countRepeat.value = id
+                }, { t ->
+                    t.printStackTrace()
+                }))
+    }
+
+
     init
     {
         _playList.value = repository.getTableListFromSettings() as ArrayList<String>

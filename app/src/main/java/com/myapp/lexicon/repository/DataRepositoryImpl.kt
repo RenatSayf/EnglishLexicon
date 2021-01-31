@@ -5,6 +5,7 @@ import com.myapp.lexicon.settings.AppSettings
 import io.reactivex.Observable
 import io.reactivex.Single
 import javax.inject.Inject
+import kotlin.math.max
 
 class DataRepositoryImpl @Inject constructor(private val appDB: AppDB,
                                              private val db: AppDao,
@@ -31,9 +32,9 @@ class DataRepositoryImpl @Inject constructor(private val appDB: AppDB,
         return db.getRandomEntries(dictName, id)
     }
 
-    override fun updateDbEntries(list: List<Word>): Single<Int>
+    override fun updateCountRepeat(countRepeat: Int, minId: Int, maxId: Int): Single<Int>
     {
-        return db.updateCountRepeat(0, 1, Int.MAX_VALUE)
+        return db.updateCountRepeat(countRepeat, minId, maxId)
     }
 
     override fun insertEntry(word: Word): Single<Long>

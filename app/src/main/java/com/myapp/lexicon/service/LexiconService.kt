@@ -86,6 +86,10 @@ class LexiconService : Service(), IStopServiceByUser, LifecycleOwner
                             startForeground(AppNotification.NOTIFICATION_ID, appNotification)
                         }
                     }
+                    else
+                    {
+
+                    }
                 }, { t ->
                     t.printStackTrace()
                 }))
