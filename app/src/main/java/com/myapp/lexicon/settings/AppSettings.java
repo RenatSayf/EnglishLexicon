@@ -363,28 +363,23 @@ public class AppSettings
         return transLang;
     }
 
-    public void goForward(List<DataBaseEntry> entries)
+    public void goForward(List<Word> words)
     {
-        if (entries != null && !getPlayList().isEmpty())
+        if (words != null)
         {
-            if (entries.size() > 1)
+            if (words.size() > 1)
             {
-                set_N_Word(entries.get(1).getRowId());
+                saveWordThePref(words.get(1));
             }
-            if ((entries.size() == 1 || entries.isEmpty()))
+            if (words.size() == 1)
             {
-                set_N_Word(1);
-                if (getDictNumber() >= 0 && getDictNumber() <= getPlayList().size() - 2)
-                {
-                    int nextNDict = getDictNumber() + 1;
-                    set_N_Dict(nextNDict);
-                    setCurrentDict(getPlayList().get(nextNDict));
-                }
-                else
-                {
-                    set_N_Dict(0);
-                    setCurrentDict(getPlayList().get(0));
-                }
+                Word word = new Word(1, words.get(0).getDictName(), "", "", 1);
+                saveWordThePref(word);
+            }
+            if (words.isEmpty())
+            {
+                Word word = new Word(1, "default", "", "", 1);
+                saveWordThePref(word);
             }
         }
     }

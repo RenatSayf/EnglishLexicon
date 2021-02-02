@@ -15,7 +15,6 @@ import com.myapp.lexicon.settings.AppData;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Locale;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -72,22 +71,6 @@ public class ServiceActivity extends AppCompatActivity
             }
         }
 
-        speech = new TextToSpeech(this, status -> {
-            if (status == TextToSpeech.SUCCESS )
-            {
-                int resultEn = speech.isLanguageAvailable(Locale.US);
-                if (resultEn == TextToSpeech.LANG_COUNTRY_AVAILABLE)
-                {
-                    map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.US.getDisplayLanguage());
-                    speech.setLanguage(Locale.US);
-                    speech.stop();
-                }
-            }
-            if (status == TextToSpeech.LANG_NOT_SUPPORTED || status == TextToSpeech.LANG_MISSING_DATA)
-            {
-                stopService(new Intent(this, LexiconService.class));
-            }
-        });
 
         int finalDisplayMode = displayMode;
         int finalDisplayVariant = displayVariant;
@@ -95,32 +78,35 @@ public class ServiceActivity extends AppCompatActivity
         vm.getWordCounters().observe(this, counters -> {
             if (counters != null && counters.size() > 1)
             {
-                String json = getIntent().getStringExtra(LexiconService.Companion.getARG_JSON());
-                Word[] words = StringOperations.getInstance().jsonToWord(json);
-                ArrayList<Integer> countersList = new ArrayList<>();
-                if (words.length > 0)
+                String json = getIntent().getStringExtra(ServiceActivity.ARG_JSON);
+                if (json != null)
                 {
-                    int id = words[0].get_id();
-                    int index = counters.indexOf(id);
-                    countersList.add(counters.get(0));
-                    countersList.add(counters.size() - 1);
-                    countersList.add(index);
-                    counters.clear();
-                }
-                if (finalDisplayMode == 0)
-                {
-                    ModalFragment modalFragment = ModalFragment.newInstance(json, countersList);
-                    getSupportFragmentManager().beginTransaction().add(R.id.fragment_frame, modalFragment).commit();
-                }
-                else if (finalDisplayMode == 1)
-                {
-                    TestModalFragment testModalFragment = TestModalFragment.newInstance(json, countersList);
-                    getSupportFragmentManager().beginTransaction().add(R.id.fragment_frame, testModalFragment).commit();
-                }
-                if (finalDisplayVariant == 1)
-                {
-                    stopService(new Intent(this, LexiconService.class));
-                    stopAppService();
+                    Word[] words = StringOperations.getInstance().jsonToWord(json);
+                    ArrayList<Integer> countersList = new ArrayList<>();
+                    if (words.length > 0)
+                    {
+                        int id = words[0].get_id();
+                        int index = counters.indexOf(id);
+                        countersList.add(counters.get(0));
+                        countersList.add(counters.size() - 1);
+                        countersList.add(index);
+                        counters.clear();
+                    }
+                    if (finalDisplayMode == 0)
+                    {
+                        ModalFragment modalFragment = ModalFragment.newInstance(json, countersList);
+                        getSupportFragmentManager().beginTransaction().add(R.id.fragment_frame, modalFragment).commit();
+                    }
+                    else if (finalDisplayMode == 1)
+                    {
+                        TestModalFragment testModalFragment = TestModalFragment.newInstance(json, countersList);
+                        getSupportFragmentManager().beginTransaction().add(R.id.fragment_frame, testModalFragment).commit();
+                    }
+                    if (finalDisplayVariant == 1)
+                    {
+                        stopService(new Intent(this, LexiconService.class));
+                        stopAppService();
+                    }
                 }
             }
 

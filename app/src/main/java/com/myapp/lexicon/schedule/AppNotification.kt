@@ -10,16 +10,12 @@ import android.content.SharedPreferences
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.preference.PreferenceManager
-import com.google.gson.Gson
-import com.google.gson.JsonSyntaxException
-import com.google.gson.reflect.TypeToken
 import com.myapp.lexicon.R
 import com.myapp.lexicon.database.Word
 import com.myapp.lexicon.helpers.StringOperations
+import com.myapp.lexicon.main.SplashScreenActivity
 import com.myapp.lexicon.service.LexiconService
 import com.myapp.lexicon.service.ServiceActivity
-import com.myapp.lexicon.settings.AppData
-import java.lang.reflect.Type
 
 class AppNotification constructor(private val context: Context) : Notification()
 {
@@ -40,35 +36,41 @@ class AppNotification constructor(private val context: Context) : Notification()
 
     fun create(json: String) : Notification
     {
-        val actionIntent = Intent(Intent.ACTION_MAIN)
-        actionIntent.setClass(context, ServiceActivity::class.java).apply {
-            putExtra(LexiconService.ARG_JSON, json)
-            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP        }
-
         val words: Array<Word> = StringOperations.instance.jsonToWord(json)
 
-        val pendingIntent = PendingIntent.getActivity(context, 0, actionIntent, PendingIntent.FLAG_UPDATE_CURRENT)
         notification = NotificationCompat.Builder(context, CHANEL_ID).apply {
             setOngoing(true)
             setSmallIcon(R.drawable.ic_lexicon_notify)
-            setContentIntent(pendingIntent)
             setAutoCancel(true)
             priority = NotificationCompat.PRIORITY_MAX
             setChannelId(CHANEL_ID)
             setDefaults(DEFAULT_SOUND)
+
             if (words.isNotEmpty())
             {
-                setContentTitle(words.get(0).english ?: "JSON ERROR!!!!!!!!!!!!!!!!!!")
+                setContentTitle(words[0].english)
                 if (displayMode == "1")
                 {
                     setContentText("?????????????")
                 }
-                else setContentText(words.get(0).translate ?: "JSON ERROR!!!!!!!!!!!!!!!!!!")
-                println("******************************* ${ words.get(0).english ?: "JSON ERROR!!!!!!!!!!!!!!!!!!" }***********************")
+                else setContentText(words[0].translate)
+
+                val actionIntent = Intent(Intent.ACTION_MAIN)
+                actionIntent.setClass(context, ServiceActivity::class.java).apply {
+                    putExtra(LexiconService.ARG_JSON, json)
+                    flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+                }
+                val pendingIntent = PendingIntent.getActivity(context, 0, actionIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+                setContentIntent(pendingIntent)
+                //println("******************************* ${words[0].english}***********************")
             }
             else
             {
-
+                setContentTitle(context.getString(R.string.text_all_words_learned))
+                setContentText(context.getString(R.string.text_select_other_dict))
+                val intent = Intent(context, SplashScreenActivity::class.java)
+                val activity = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+                setContentIntent(activity)
             }
         }.build()
 

@@ -202,6 +202,12 @@
 <!--                <action android:name="android.intent.action.SCREEN_ON" />-->
 <!--            </intent-filter>-->
         </receiver>
+        <receiver android:name=".service.LexiconService$PhoneUnlockedReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.SCREEN_ON" />
+                <action android:name="android.intent.action.SCREEN_OFF" />
+            </intent-filter>
+        </receiver>
 
         <service
             android:name=".main.SpeechService"

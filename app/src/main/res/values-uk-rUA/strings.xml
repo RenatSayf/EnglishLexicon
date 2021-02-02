@@ -269,6 +269,8 @@
     <string name="text_test_not_passed">Не всі слова вивчені, спробуйте ще раз…</string>
     <string name="text_dictionaries">Словники</string>
     <string name="text_test_knowledge">Перевірте свої знання!!!…</string>
+    <string name="text_all_words_learned">Всі слова вивчені!!!</string>
+    <string name="text_select_other_dict">Виберіть інший словник для вивчення.</string>
 
     <string-array name="words_interval">
         <item>після 5 слів</item>

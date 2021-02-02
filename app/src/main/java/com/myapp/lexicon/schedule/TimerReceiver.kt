@@ -7,19 +7,21 @@ import androidx.preference.PreferenceManager
 import com.google.gson.Gson
 import com.myapp.lexicon.R
 import com.myapp.lexicon.database.AppDB
-import com.myapp.lexicon.database.DataBaseEntry
+import com.myapp.lexicon.database.AppDataBase
 import com.myapp.lexicon.database.DatabaseHelper
+import com.myapp.lexicon.repository.DataRepositoryImpl
 import com.myapp.lexicon.service.ServiceActivity
 import com.myapp.lexicon.settings.AppData
 import com.myapp.lexicon.settings.AppSettings
+import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import java.util.*
+import javax.inject.Inject
+
 
 
 class TimerReceiver : BroadcastReceiver()
 {
-
     override fun onReceive(context: Context?, intent: Intent?)
     {
         if (context != null && intent != null)
@@ -28,29 +30,33 @@ class TimerReceiver : BroadcastReceiver()
             if (intent.action == AlarmScheduler.REPEAT_SHOOT_ACTION || intent.action == Intent.ACTION_SCREEN_OFF)
             {
                 println("**************** REPEAT_SHOOT_ACTION *********************")
+
+                val appDB = AppDB(DatabaseHelper(context))
+                val dao = AppDataBase.getInstance(context).appDao()
+                val appSettings = AppSettings(context)
+                val repository = DataRepositoryImpl(appDB, dao, appSettings)
+
                 val displayVariant = preferences.getString(context.getString(R.string.key_display_variant), "0")
                 preferences.getString(context.getString(R.string.key_list_display_mode), "0")
                 val settings = AppSettings(context)
                 val orderPlay = settings.orderPlay
-                val playList = settings.playList
-                val dictName = playList[settings.dictNumber]
-                val nWord = settings.wordNumber
-
-                val db = AppDB(DatabaseHelper(context))
+                val currentWord = settings.wordFromPref
+                val dictName = currentWord.dictName
+                val wordId = currentWord._id
 
                 when (orderPlay)
                 {
                     0 ->
                     {
-                        db.getEntriesAndCountersAsync(dictName, nWord)
-                                .observeOn(Schedulers.computation())
-                                .subscribeOn(AndroidSchedulers.mainThread())
-                                .subscribe({ pair ->
+                        repository.getEntriesFromDbByDictName(dictName, wordId, 2)
+                                .subscribeOn(Schedulers.computation())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe({ words ->
 
-                                    if (pair.second.size > 0)
+                                    if (words.size > 0)
                                     {
-                                        settings.goForward(pair.second as LinkedList<DataBaseEntry>)
-                                        val json = Gson().toJson(pair)
+                                        settings.goForward(words)
+                                        val json = Gson().toJson(words)
                                         when (displayVariant)
                                         {
                                             "0" ->
@@ -64,7 +70,6 @@ class TimerReceiver : BroadcastReceiver()
                                                     putExtra(AppData.ARG_JSON, json)
                                                 }
                                                 context.startActivity(intentAct)
-
                                             }
                                             "1" ->
                                             {

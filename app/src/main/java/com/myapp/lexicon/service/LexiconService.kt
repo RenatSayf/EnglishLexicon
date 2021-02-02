@@ -7,8 +7,10 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.res.Configuration
+import android.os.Bundle
 import android.os.IBinder
 import android.widget.Toast
+import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ServiceLifecycleDispatcher
@@ -25,11 +27,13 @@ import com.myapp.lexicon.schedule.AppNotification
 import com.myapp.lexicon.schedule.TimerReceiver
 import com.myapp.lexicon.service.ServiceActivity.IStopServiceByUser
 import com.myapp.lexicon.settings.AppSettings
+import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 import java.util.*
+import javax.inject.Inject
 
 class LexiconService : Service(), IStopServiceByUser, LifecycleOwner
 {
@@ -38,11 +42,13 @@ class LexiconService : Service(), IStopServiceByUser, LifecycleOwner
         val ARG_JSON = "${this::class.java.canonicalName}.ARG_JSON"
         @JvmField
         var stopedByUser = false
+
     }
 
     private var oldLocale: Locale? = null
     //private var receiver: PhoneUnlockedReceiver? = null
-    private var receiver: TimerReceiver? = null
+    private var timeReceiver: TimerReceiver? = null
+    private var blockReceiver: PhoneUnlockedReceiver? = null
     private var startId = 0
     private lateinit var vm: MainViewModel
     private val composite = CompositeDisposable()
@@ -66,29 +72,35 @@ class LexiconService : Service(), IStopServiceByUser, LifecycleOwner
         val wordId = currentWord?._id ?: 1
 
         oldLocale = resources.configuration.locale
-        //receiver = PhoneUnlockedReceiver()
-        receiver = TimerReceiver()
-        val filter = IntentFilter()
-        filter.addAction(Intent.ACTION_USER_PRESENT)
-        filter.addAction(Intent.ACTION_SCREEN_OFF)
-        registerReceiver(receiver, filter)
+        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val isService = preferences.getBoolean(getString(R.string.key_service), false)
+        if (isService)
+        {
+            blockReceiver = PhoneUnlockedReceiver()
+            val filter = IntentFilter()
+            filter.addAction(Intent.ACTION_USER_PRESENT)
+            filter.addAction(Intent.ACTION_SCREEN_OFF)
+            registerReceiver(blockReceiver, filter)
+        }
+        val timeInterval = preferences.getString(getString(R.string.key_show_intervals), "0")?.let {
+            if (it.toInt() > 0)
+            {
+                timeReceiver = TimerReceiver()
+                registerReceiver(timeReceiver, null)
+            }
+        }
+
+
         ServiceActivity.setStoppedByUserListener(this)
 
 
         composite.add(vm.getWordsFromDict(dictName, wordId, 2)
                 .observeOn(Schedulers.computation())
                 .subscribe({ words ->
-                    if (words.isNotEmpty())
-                    {
-                        val json = Gson().toJson(words)
-                        json?.let {
-                            val appNotification = AppNotification(this).create(json)
-                            startForeground(AppNotification.NOTIFICATION_ID, appNotification)
-                        }
-                    }
-                    else
-                    {
-
+                    val json = Gson().toJson(words)
+                    json?.let {
+                        val appNotification = AppNotification(this).create(json)
+                        startForeground(AppNotification.NOTIFICATION_ID, appNotification)
                     }
                 }, { t ->
                     t.printStackTrace()
@@ -104,7 +116,8 @@ class LexiconService : Service(), IStopServiceByUser, LifecycleOwner
     override fun onDestroy()
     {
         super.onDestroy()
-        unregisterReceiver(receiver)
+        timeReceiver?.let { unregisterReceiver(timeReceiver) }
+        blockReceiver?.let { unregisterReceiver(blockReceiver) }
         composite.apply {
             dispose()
             clear()
@@ -138,68 +151,65 @@ class LexiconService : Service(), IStopServiceByUser, LifecycleOwner
 
 
 
-
-    inner class PhoneUnlockedReceiver : BroadcastReceiver()
+    class PhoneUnlockedReceiver : BroadcastReceiver()
     {
         // TODO: обработчик событий нажатия кнопки блокировки, выключения экрана....
         @SuppressLint("CheckResult")
         @Suppress("RedundantSamConstructor")
         override fun onReceive(context: Context, intent: Intent)
         {
+            val appDB = AppDB(DatabaseHelper(context))
+            val dao = AppDataBase.getInstance(context).appDao()
+            val appSettings = AppSettings(context)
+            val repository = DataRepositoryImpl(appDB, dao, appSettings)
+
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val displayVariant = preferences.getString(context.getString(R.string.key_display_variant), "0")
             val displayMode = preferences.getString(context.getString(R.string.key_list_display_mode), "0")
-            val action = intent.action
+            var action = intent.action
             val settings = AppSettings(context)
             val orderPlay = settings.orderPlay
             val playList = settings.playList
-            val dictName = playList[settings.dictNumber]
-            val nWord = settings.wordNumber
+
+            val currentWord = settings.wordFromPref
+            val dictName = currentWord?.dictName ?: "default"
+            val wordId = currentWord?._id ?: -1
             //String actionUserPresent = Intent.ACTION_USER_PRESENT;
             val actionScreenOff = Intent.ACTION_SCREEN_OFF
             if (action != null)
             {
                 if (action == actionScreenOff)
                 {
-                    if (displayVariant == "0")
-                    {
-                        val intentAct = Intent(context, ServiceActivity::class.java)
-                        intentAct.action = Intent.ACTION_MAIN
-                        intentAct.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                        startActivity(intentAct)
-                    }
-                    if (displayVariant == "1")
-                    {
+                    repository.getEntriesFromDbByDictName(dictName, wordId, 2)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe({ words ->
 
-                        val db = AppDB(DatabaseHelper(context))
-                        db.getEntriesAndCountersAsync(dictName, settings.wordNumber, "ASC")
-                                .subscribeOn(Schedulers.computation())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(Consumer { pair ->
-                                    val json = Gson().toJson(pair)
+                                if (displayVariant == "0")
+                                {
+                                    val intentAct = Intent(context, ServiceActivity::class.java).apply {
+                                        action = Intent.ACTION_MAIN
+                                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                        val json = Gson().toJson(words)
+                                        putExtra(ServiceActivity.ARG_JSON, json)
+                                    }
+                                    startActivity(context, intentAct, Bundle.EMPTY)
+                                }
+                                if (displayVariant == "1")
+                                {
+                                    val json = Gson().toJson(words)
+                                    val appNotification = AppNotification(context)
+                                    appNotification.create(json)
+                                    appNotification.show()
                                     if (displayMode == "0")
                                     {
-                                        if (pair.second.size > 0)
-                                        {
-                                            val appNotification = AppNotification(context)
-                                            appNotification.create(json)
-                                            appNotification.show()
-                                        }
-                                        settings.goForward(pair.second as LinkedList<DataBaseEntry>)
+                                        settings.goForward(words)
                                     }
-                                    if (displayMode == "1")
-                                    {
-                                        if (pair.second.size > 0)
-                                        {
-                                            val appNotification = AppNotification(context)
-                                            appNotification.create(json)
-                                            appNotification.show()
-                                        }
-                                    }
-                                }, Consumer { t ->
-                                    t.printStackTrace()
-                                })
-                    }
+                                }
+
+                            }, { t ->
+                                t.printStackTrace()
+                            })
                 }
             }
         }

@@ -216,6 +216,8 @@
     <string name="text_test_not_passed">Не все слова изучены, попробуй еще раз…</string>
     <string name="text_dictionaries">Словари</string>
     <string name="text_test_knowledge">Проверим знания!!!…</string>
+    <string name="text_all_words_learned">Все слова изучены!!!</string>
+    <string name="text_select_other_dict">Выберите другой словарь для изучения.</string>
     <string-array name="not_move">
         <item>Не перемещать</item>
     </string-array>

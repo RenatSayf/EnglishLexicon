@@ -61,7 +61,11 @@ class StringOperations private constructor()
         }
         catch (e: JsonSyntaxException)
         {
-            e.printStackTrace()
+            val message = e.message ?: "error of json parsing"
+            arrayOf(Word(-1, "default", message, "", 0))
+        }
+        catch (e: NullPointerException)
+        {
             arrayOf()
         }
     }
