@@ -16,6 +16,7 @@ import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.service.LexiconService;
 import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.HashMap;
@@ -42,6 +43,8 @@ public class SplashScreenActivity extends Activity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a_layout_splash_screen);
+
+        this.stopService(new Intent(this, LexiconService.class));
 
         preferences = PreferenceManager.getDefaultSharedPreferences(SplashScreenActivity.this);
         //int serviceMode = Integer.parseInt(preferences.getString(getString(R.string.key_list_display_mode), "0"));

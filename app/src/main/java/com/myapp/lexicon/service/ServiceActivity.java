@@ -105,7 +105,8 @@ public class ServiceActivity extends AppCompatActivity
                     else if (finalDisplayMode == 1)
                     {
                         TestModalFragment testModalFragment = TestModalFragment.newInstance(json, countersList);
-                        getSupportFragmentManager().beginTransaction().add(R.id.fragment_frame, testModalFragment).commit();
+                        //getSupportFragmentManager().beginTransaction().add(R.id.fragment_frame, testModalFragment).commit();
+                        testModalFragment.show(getSupportFragmentManager().beginTransaction(), TestModalFragment.TAG);
                     }
 //                    if (finalDisplayVariant == 1)
 //                    {
@@ -147,10 +148,23 @@ public class ServiceActivity extends AppCompatActivity
     @Override
     public void onDetachedFromWindow()
     {
+
+        super.onDetachedFromWindow();
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        if (speech != null)
+        {
+            speech.shutdown();
+        }
+
         if (isServiceEnabled)
         {
             if (!LexiconService.stoppedByUser)
             {
+                //TODO SplashScreenActivity запускается быстрее чем срабатывает этот onDestroy, из-за чего сервис запускается вместе с MainActivity
                 Intent intent = new Intent(this, LexiconService.class);
                 startService(intent);
             }
@@ -163,16 +177,7 @@ public class ServiceActivity extends AppCompatActivity
                 LexiconService.stoppedByUser = false;
             }
         }
-        super.onDetachedFromWindow();
-    }
 
-    @Override
-    protected void onDestroy()
-    {
-        if (speech != null)
-        {
-            speech.shutdown();
-        }
         super.onDestroy();
     }
 
@@ -184,7 +189,7 @@ public class ServiceActivity extends AppCompatActivity
             iStopServiceByUser.onStoppedByUser();
             new AlarmScheduler(this).cancel(AlarmScheduler.REQUEST_CODE, AlarmScheduler.REPEAT_SHOOT_ACTION);
         }
-        //finish();
     }
+
 
 }

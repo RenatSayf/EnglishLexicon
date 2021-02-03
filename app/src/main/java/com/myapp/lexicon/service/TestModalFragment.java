@@ -1,6 +1,7 @@
 package com.myapp.lexicon.service;
 
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -32,15 +33,17 @@ import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
+import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.disposables.CompositeDisposable;
 
 
 @AndroidEntryPoint
-public class TestModalFragment extends Fragment
+public class TestModalFragment extends DialogFragment
 {
+    public static final String TAG = TestModalFragment.class.getCanonicalName() + ".TAG";
+
     private TextView enTextView;
     private Button ruBtn1, ruBtn2;
     private List<Word> compareList;
@@ -77,6 +80,13 @@ public class TestModalFragment extends Fragment
         setRetainInstance(true);
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
         speechVM = new  ViewModelProvider(this).get(SpeechViewModel.class);
+    }
+
+    @NonNull
+    @Override
+    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState)
+    {
+        return super.onCreateDialog(savedInstanceState);
     }
 
     @Override
@@ -153,8 +163,8 @@ public class TestModalFragment extends Fragment
 
         Button btnOpenApp = fragmentView.findViewById(R.id.btn_open_app);
         btnOpenApp.setOnClickListener(view1 -> {
+            ((ServiceActivity) requireActivity()).finish();
             requireActivity().startActivity(new Intent(getContext(), SplashScreenActivity.class));
-            requireActivity().finish();
         });
 
         Button btnStopService = fragmentView.findViewById(R.id.btn_stop_service);
