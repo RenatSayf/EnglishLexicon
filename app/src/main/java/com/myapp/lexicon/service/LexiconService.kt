@@ -39,14 +39,11 @@ class LexiconService : Service(), IStopServiceByUser, LifecycleOwner
 {
     companion object
     {
-        val ARG_JSON = "${this::class.java.canonicalName}.ARG_JSON"
         @JvmField
-        var stopedByUser = false
-
+        var stoppedByUser = false
     }
 
-    private var oldLocale: Locale? = null
-    //private var receiver: PhoneUnlockedReceiver? = null
+    //private var oldLocale: Locale? = null
     private var timeReceiver: TimerReceiver? = null
     private var blockReceiver: PhoneUnlockedReceiver? = null
     private var startId = 0
@@ -71,7 +68,7 @@ class LexiconService : Service(), IStopServiceByUser, LifecycleOwner
         val dictName = currentWord?.dictName ?: ""
         val wordId = currentWord?._id ?: 1
 
-        oldLocale = resources.configuration.locale
+        //oldLocale = resources.configuration.locale
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
         val isService = preferences.getBoolean(getString(R.string.key_service), false)
         if (isService)
@@ -133,13 +130,13 @@ class LexiconService : Service(), IStopServiceByUser, LifecycleOwner
     override fun onConfigurationChanged(newConfig: Configuration)
     {
         super.onConfigurationChanged(newConfig)
-        val newLocale = newConfig.locale
-        if (oldLocale!!.language != newLocale.language)
-        {
-            val appSettings = AppSettings(this)
-            appSettings.cleanPlayList()
-            stopSelf(startId)
-        }
+//        val newLocale = newConfig.locale
+//        if (oldLocale!!.language != newLocale.language)
+//        {
+//            val appSettings = AppSettings(this)
+//            appSettings.cleanPlayList()
+//            stopSelf(startId)
+//        }
     }
 
     override fun onStoppedByUser()
@@ -150,10 +147,9 @@ class LexiconService : Service(), IStopServiceByUser, LifecycleOwner
 
 
 
-
+    // TODO: обработчик событий нажатия кнопки блокировки, выключения экрана....
     class PhoneUnlockedReceiver : BroadcastReceiver()
     {
-        // TODO: обработчик событий нажатия кнопки блокировки, выключения экрана....
         @SuppressLint("CheckResult")
         @Suppress("RedundantSamConstructor")
         override fun onReceive(context: Context, intent: Intent)
@@ -168,8 +164,6 @@ class LexiconService : Service(), IStopServiceByUser, LifecycleOwner
             val displayMode = preferences.getString(context.getString(R.string.key_list_display_mode), "0")
             var action = intent.action
             val settings = AppSettings(context)
-            val orderPlay = settings.orderPlay
-            val playList = settings.playList
 
             val currentWord = settings.wordFromPref
             val dictName = currentWord?.dictName ?: "default"

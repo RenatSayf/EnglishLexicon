@@ -57,7 +57,7 @@ class AppNotification constructor(private val context: Context) : Notification()
 
                 val actionIntent = Intent(Intent.ACTION_MAIN)
                 actionIntent.setClass(context, ServiceActivity::class.java).apply {
-                    putExtra(LexiconService.ARG_JSON, json)
+                    putExtra(ServiceActivity.ARG_JSON, json)
                     flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
                 }
                 val pendingIntent = PendingIntent.getActivity(context, 0, actionIntent, PendingIntent.FLAG_UPDATE_CURRENT)

@@ -119,6 +119,11 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
         repository.saveWordThePref(word)
     }
 
+    fun goForward(words: List<Word>)
+    {
+        repository.goForward(words)
+    }
+
     private var _wordCounters = MutableLiveData<List<Int>>().apply {
         _currentWord.value?.let {
             repository.getCountersFromDb(it.dictName)

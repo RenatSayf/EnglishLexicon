@@ -72,6 +72,11 @@ class DataRepositoryImpl @Inject constructor(private val appDB: AppDB,
         settings.saveWordThePref(word)
     }
 
+    override fun goForward(words: List<Word>)
+    {
+        settings.goForward(words)
+    }
+
     override fun getTestIntervalFromPref(): Int
     {
         return settings.wordsInterval

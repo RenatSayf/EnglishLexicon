@@ -439,8 +439,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe( list -> {
                             int index = list.indexOf(buttonText);
-                            String item = list.remove(index);
-                            list.add(0, item);
+                            if (index >= 0)
+                            {
+                                String item = list.remove(index);
+                                list.add(0, item);
+                            }
                             DictListDialog.Companion.getInstance(list, dict -> mainViewModel.setWordsList(dict)).show(getSupportFragmentManager(), DictListDialog.Companion.getTAG());
                         }, Throwable::printStackTrace));
             }
@@ -493,6 +496,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             wordsInterval = mainViewModel.getTestInterval().getValue();
         }
+        this.stopService(new Intent(this, LexiconService.class));
     }
 
     @Override

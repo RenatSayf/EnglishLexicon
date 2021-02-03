@@ -3,7 +3,6 @@ package com.myapp.lexicon.service;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.speech.tts.TextToSpeech;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,15 +18,14 @@ import android.widget.Toast;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.Word;
-import com.myapp.lexicon.dialogs.WordsEndedDialog;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
 import com.myapp.lexicon.helpers.StringOperations;
 import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SpeechViewModel;
 import com.myapp.lexicon.main.SplashScreenActivity;
-import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -39,23 +37,14 @@ import androidx.lifecycle.ViewModelProvider;
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.disposables.CompositeDisposable;
 
-import static com.myapp.lexicon.service.ServiceActivity.map;
-import static com.myapp.lexicon.service.ServiceActivity.speech;
-
 
 @AndroidEntryPoint
 public class TestModalFragment extends Fragment
 {
-
-    private AppSettings appSettings;
-    //private AppData appData;
     private TextView enTextView;
     private Button ruBtn1, ruBtn2;
-    private TextView nameDictTV;
     private List<Word> compareList;
     private boolean wordIsStudied = false;
-    private boolean isWordsEnded = false;
-    private WordsEndedDialog endedDialog = null;
     private static List<Integer> _counters = new ArrayList<>();
     private Word[] words = new Word[0];
 
@@ -115,7 +104,7 @@ public class TestModalFragment extends Fragment
                     if (words.length > 0)
                     {
                         enTextView.setText(words[0].getEnglish());
-                        nameDictTV = fragmentView.findViewById(R.id.name_dict_tv_test_modal);
+                        TextView nameDictTV = fragmentView.findViewById(R.id.name_dict_tv_test_modal);
                         nameDictTV.setText(words[0].getDictName());
                     }
                 }
@@ -160,7 +149,6 @@ public class TestModalFragment extends Fragment
                 speechVM.doSpeech(enText, Locale.US);
             }
         });
-        //speakButton_OnClick(speakButton);
 
         ImageButton btnClose = fragmentView.findViewById(R.id.modal_btn_close);
         btnClose.setOnClickListener(view -> requireActivity().finish());
@@ -177,16 +165,8 @@ public class TestModalFragment extends Fragment
         checkStudied_OnCheckedChange((CheckBox) fragmentView.findViewById(R.id.check_box_studied));
 
         ImageView orderPlayIcon = fragmentView.findViewById(R.id.order_play_icon_iv_test_modal);
-//        appSettings = new AppSettings(requireContext());
-//        if (appSettings.getOrderPlay() == 0)
-//        {
-//            orderPlayIcon.setImageResource(R.drawable.ic_repeat_white);
-//        }
-//        if (appSettings.getOrderPlay() == 1)
-//        {
-//            orderPlayIcon.setImageResource(R.drawable.ic_shuffle_white);
-//        }
-//TODO необходимо куда то воткнуть AppSettings.goForward()
+
+
         viewModel.getCountRepeat().observe(getViewLifecycleOwner(), id -> {
             if (id > 0)
             {
@@ -283,18 +263,16 @@ public class TestModalFragment extends Fragment
             @Override
             public void onAnimationStart(Animation animation)
             {
-                if (getActivity() != null)
-                {
-                    button.setBackgroundResource(R.drawable.btn_for_test_modal_green);
-                    button.setTextColor(getActivity().getResources().getColor(R.color.colorWhite));
+                viewModel.goForward(Arrays.asList(words));
+                button.setBackgroundResource(R.drawable.btn_for_test_modal_green);
+                button.setTextColor(requireContext().getResources().getColor(R.color.colorWhite));
 
-                    if (wordIsStudied)
+                if (wordIsStudied)
+                {
+                    if (words.length > 0)
                     {
-                        if (words.length > 0)
-                        {
-                            int wordId = words[0].get_id();
-                            viewModel.setCountRepeat(0, wordId, wordId);
-                        }
+                        int wordId = words[0].get_id();
+                        viewModel.setCountRepeat(0, wordId, wordId);
                     }
                 }
             }
@@ -304,14 +282,7 @@ public class TestModalFragment extends Fragment
             {
                 button.setBackgroundResource(R.drawable.btn_for_test_modal_transp);
                 button.setTextColor(requireContext().getResources().getColor(R.color.colorLightGreen));
-                if (!isWordsEnded)
-                {
-                    requireActivity().finish();
-                } else
-                {
-                    onDestroy();
-                    onDetach();
-                }
+                requireActivity().finish();
             }
 
             @Override
@@ -356,34 +327,6 @@ public class TestModalFragment extends Fragment
             }
         });
         button.startAnimation(animNotRight);
-    }
-
-    private void speakButton_OnClick(View view)
-    {
-        view.setOnClickListener(view1 -> {
-            if (speech == null || speech.isSpeaking())
-            {
-                return;
-            }
-            String enText = enTextView.getText().toString();
-            if (!enText.equals(""))
-            {
-                speech.speak(enText, TextToSpeech.QUEUE_ADD, map);
-            }
-        });
-    }
-
-    private void btnOpenApp_OnClick(View view)
-    {
-        view.setOnClickListener(view1 -> {
-            requireActivity().startActivity(new Intent(getContext(), SplashScreenActivity.class));
-            requireActivity().finish();
-        });
-    }
-
-    private void btnStopService_OnClick(Button button)
-    {
-        button.setOnClickListener( view -> ((ServiceActivity)requireActivity()).stopAppService());
     }
 
     @SuppressWarnings("Convert2Lambda")

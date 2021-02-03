@@ -51,6 +51,9 @@ public class ServiceActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.service_dialog_activity);
 
+        Intent intent = new Intent(this, LexiconService.class);
+        stopService(intent);
+
         MainViewModel vm = new ViewModelProvider(this).get(MainViewModel.class);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ServiceActivity.this);
@@ -144,18 +147,18 @@ public class ServiceActivity extends AppCompatActivity
     {
         if (isServiceEnabled)
         {
-            if (!LexiconService.stopedByUser)
+            if (!LexiconService.stoppedByUser)
             {
                 Intent intent = new Intent(this, LexiconService.class);
                 startService(intent);
             }
-            if (LexiconService.stopedByUser)
+            if (LexiconService.stoppedByUser)
             {
 //                if (serviceIntent == null)
 //                {
 //                    MainActivity.serviceIntent = new Intent(this, LexiconService.class);
 //                }
-                LexiconService.stopedByUser = false;
+                LexiconService.stoppedByUser = false;
             }
         }
         super.onDetachedFromWindow();
@@ -175,7 +178,7 @@ public class ServiceActivity extends AppCompatActivity
     {
         if (iStopServiceByUser != null)
         {
-            LexiconService.stopedByUser = true;
+            LexiconService.stoppedByUser = true;
             iStopServiceByUser.onStoppedByUser();
             new AlarmScheduler(this).cancel(AlarmScheduler.REQUEST_CODE, AlarmScheduler.REPEAT_SHOOT_ACTION);
         }

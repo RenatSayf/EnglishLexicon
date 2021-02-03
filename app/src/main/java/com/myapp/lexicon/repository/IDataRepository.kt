@@ -33,6 +33,8 @@ interface IDataRepository
 
     fun saveWordThePref(word: Word)
 
+    fun goForward(words: List<Word>)
+
     fun getTestIntervalFromPref() : Int
 
     fun getOrderPlay() : Int

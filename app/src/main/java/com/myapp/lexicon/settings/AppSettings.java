@@ -11,6 +11,7 @@ import com.myapp.lexicon.helpers.ObjectSerializer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -394,10 +395,10 @@ public class AppSettings
         return Integer.MAX_VALUE;
     }
 
-    private final String WORD_ID = this.getClass().getCanonicalName() + "TRANING_ID";
+    private final String WORD_ID = this.getClass().getCanonicalName() + ".WORD_ID";
     public Word getWordFromPref()
     {
-        String dict = context.getSharedPreferences(WORD_ID, MODE_PRIVATE).getString(KEY_CURRENT_DICT, "Наречия");
+        String dict = Objects.requireNonNull(context.getSharedPreferences(WORD_ID, MODE_PRIVATE).getString(KEY_CURRENT_DICT, "default"));
         int id = context.getSharedPreferences(WORD_ID, MODE_PRIVATE).getInt(WORD_ID, 1);
         return new Word(id, dict, "", "", 1);
     }
