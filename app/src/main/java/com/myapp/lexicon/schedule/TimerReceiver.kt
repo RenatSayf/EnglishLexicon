@@ -13,11 +13,8 @@ import com.myapp.lexicon.repository.DataRepositoryImpl
 import com.myapp.lexicon.service.ServiceActivity
 import com.myapp.lexicon.settings.AppData
 import com.myapp.lexicon.settings.AppSettings
-import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import javax.inject.Inject
-
 
 
 class TimerReceiver : BroadcastReceiver()

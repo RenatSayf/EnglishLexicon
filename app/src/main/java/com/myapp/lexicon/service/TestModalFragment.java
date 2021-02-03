@@ -106,6 +106,18 @@ public class TestModalFragment extends Fragment
                         enTextView.setText(words[0].getEnglish());
                         TextView nameDictTV = fragmentView.findViewById(R.id.name_dict_tv_test_modal);
                         nameDictTV.setText(words[0].getDictName());
+
+                        viewModel.getRandomWord(words[0]).observe(getViewLifecycleOwner(), word -> {
+                            ArrayList<Word> listWords = new ArrayList<>();
+                            listWords.add(words[0]);
+                            listWords.add(word);
+                            RandomNumberGenerator numberGenerator = new RandomNumberGenerator(2, (int) new Date().getTime());
+                            int i = numberGenerator.generate();
+                            int j = numberGenerator.generate();
+                            ruBtn1.setText(listWords.get(i).getTranslate());
+                            ruBtn2.setText(listWords.get(j).getTranslate());
+                            compareList = listWords;
+                        });
                     }
                 }
                 TextView wordsNumberTV = fragmentView.findViewById(R.id.words_number_tv_test_modal);
@@ -125,21 +137,7 @@ public class TestModalFragment extends Fragment
 
         }
 
-        Word[] finalWords = words;
-        viewModel.getRandomWord().observe(getViewLifecycleOwner(), word -> {
-            ArrayList<Word> listWords = new ArrayList<>();
-            if (finalWords.length > 0)
-            {
-                listWords.add(finalWords[0]);
-                listWords.add(word);
-                RandomNumberGenerator numberGenerator = new RandomNumberGenerator(2, (int) new Date().getTime());
-                int i = numberGenerator.generate();
-                int j = numberGenerator.generate();
-                ruBtn1.setText(listWords.get(i).getTranslate());
-                ruBtn2.setText(listWords.get(j).getTranslate());
-                compareList = listWords;
-            }
-        });
+
 
         ImageButton speakButton = fragmentView.findViewById(R.id.btn_sound_modal);
         speakButton.setOnClickListener(view -> {
