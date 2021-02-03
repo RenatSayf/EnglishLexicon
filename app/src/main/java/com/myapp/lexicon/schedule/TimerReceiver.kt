@@ -52,7 +52,7 @@ class TimerReceiver : BroadcastReceiver()
 
                                     if (words.size > 0)
                                     {
-                                        settings.goForward(words)
+                                        repository.goForward(words)
                                         val json = Gson().toJson(words)
                                         when (displayVariant)
                                         {

@@ -82,10 +82,10 @@ class SpeechViewModel @ViewModelInject constructor(app: Application, private val
     fun doSpeech(text: String, locale: Locale)
     {
         composite.add(doSpeechAsync(text, locale)
-                .observeOn(Schedulers.io())
-                .subscribeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
-                    _speechError.postValue(it)
+                    _speechError.value = it
                 }, { t ->
                     t.printStackTrace()
                 }))

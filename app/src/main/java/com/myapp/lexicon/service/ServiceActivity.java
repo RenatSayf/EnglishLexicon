@@ -14,6 +14,7 @@ import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.settings.AppData;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import androidx.annotation.Nullable;
@@ -99,17 +100,18 @@ public class ServiceActivity extends AppCompatActivity
                     {
                         ModalFragment modalFragment = ModalFragment.newInstance(json, countersList);
                         getSupportFragmentManager().beginTransaction().add(R.id.fragment_frame, modalFragment).commit();
+                        vm.goForward(Arrays.asList(words));
                     }
                     else if (finalDisplayMode == 1)
                     {
                         TestModalFragment testModalFragment = TestModalFragment.newInstance(json, countersList);
                         getSupportFragmentManager().beginTransaction().add(R.id.fragment_frame, testModalFragment).commit();
                     }
-                    if (finalDisplayVariant == 1)
-                    {
-                        stopService(new Intent(this, LexiconService.class));
-                        stopAppService();
-                    }
+//                    if (finalDisplayVariant == 1)
+//                    {
+//                        stopService(new Intent(this, LexiconService.class));
+//                        stopAppService();
+//                    }
                 }
             }
 

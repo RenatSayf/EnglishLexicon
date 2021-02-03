@@ -3,8 +3,6 @@ package com.myapp.lexicon.service;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.speech.tts.TextToSpeech;
-import android.speech.tts.UtteranceProgressListener;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,33 +13,35 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.database.DataBaseEntry;
+import com.myapp.lexicon.database.Word;
+import com.myapp.lexicon.helpers.StringOperations;
+import com.myapp.lexicon.main.SpeechViewModel;
 import com.myapp.lexicon.main.SplashScreenActivity;
-import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import kotlin.Pair;
-
-import static com.myapp.lexicon.service.ServiceActivity.map;
-import static com.myapp.lexicon.service.ServiceActivity.speech;
+import androidx.lifecycle.ViewModelProvider;
+import dagger.hilt.android.AndroidEntryPoint;
 
 
+@AndroidEntryPoint
 public class ModalFragment extends Fragment
 {
     private AppSettings appSettings;
     private TextView enTextView;
     private TextView ruTextView;
     private CheckBox checkBoxRu;
+    private Word[] words = new Word[0];
+    private static List<Integer> _counters = new ArrayList<>();
+    private SpeechViewModel speechVM;
 
     public ModalFragment()
     {
@@ -52,10 +52,11 @@ public class ModalFragment extends Fragment
     static ModalFragment newInstance(@Nullable String json, List<Integer> counters)
     {
         ModalFragment fragment = new ModalFragment();
+        _counters = counters;
         if (json != null && counters.size() > 0)
         {
             Bundle bundle = new Bundle();
-            bundle.putString(AppData.ARG_JSON, json);
+            bundle.putString(ServiceActivity.ARG_JSON, json);
             fragment.setArguments(bundle);
         }
         return fragment;
@@ -66,6 +67,8 @@ public class ModalFragment extends Fragment
     {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+
+        speechVM = new ViewModelProvider(this).get(SpeechViewModel.class);
 
         appSettings = new AppSettings(requireContext());
     }
@@ -85,20 +88,26 @@ public class ModalFragment extends Fragment
         Bundle arguments = getArguments();
         if (arguments != null)
         {
-            String json = arguments.getString(AppData.ARG_JSON);
+            String json = arguments.getString(ServiceActivity.ARG_JSON);
             try
             {
-                Pair<Map<String, Integer>, List<DataBaseEntry>> pair = new Gson().fromJson(json, AppData.jsonType); //TODO изменить парсинг json
-                nameDictTV.setText(pair.getSecond().get(0).getDictName());
-                enTextView.setText(pair.getSecond().get(0).getEnglish());
-                ruTextView.setText(pair.getSecond().get(0).getTranslate());
-
-                if (pair.getFirst().size() > 0)
+                if (json != null)
                 {
-                    String concatText = (pair.getSecond().get(0).getRowId() + "")
+                    words = StringOperations.getInstance().jsonToWord(json);
+                    if (words.length > 0)
+                    {
+                        nameDictTV.setText(words[0].getDictName());
+                        enTextView.setText(words[0].getEnglish());
+                        ruTextView.setText(words[0].getTranslate());
+                    }
+                }
+
+                if (_counters.size() > 0)
+                {
+                    String concatText = (_counters.get(2) + "")
                             .concat(" / ")
-                            .concat(pair.getFirst().get("totalWords").toString())
-                            .concat("  " + getString(R.string.text_studied) + " " + pair.getFirst().get("studiedWords").toString());
+                            .concat(_counters.get(1) + "")
+                            .concat("  " + getString(R.string.text_studied) + " " + _counters.get(0));
                     wordsNumberTV.setText(concatText);
                 }
             } catch (JsonSyntaxException e)
@@ -146,6 +155,24 @@ public class ModalFragment extends Fragment
     }
 
     @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState)
+    {
+        super.onActivityCreated(savedInstanceState);
+
+        speechVM.getSpeechDoneId().observe(getViewLifecycleOwner(), id -> {
+            if (id.equals("En"))
+            {
+                Boolean isRuSpeech = speechVM.isRuSpeech().getValue();
+                if (isRuSpeech != null && isRuSpeech)
+                {
+                    String ruText = ruTextView.getText().toString();
+                    speechVM.doSpeech(ruText, new Locale(getString(R.string.lang_code_translate)));
+                }
+            }
+        });
+    }
+
+    @Override
     public void onResume()
     {
         super.onResume();
@@ -171,51 +198,59 @@ public class ModalFragment extends Fragment
     private void btnSound_OnClick(ImageButton button)
     {
         button.setOnClickListener(view -> {
-            if (speech == null || speech.isSpeaking())
-            {
-                return;
-            }
+
+            Boolean isEnSpeech = speechVM.isEnSpeech().getValue();
             String enText = enTextView.getText().toString();
-            final String ruText = ruTextView.getText().toString();
-            if (!enText.equals(""))
+            if (isEnSpeech != null && isEnSpeech)
             {
-                speech.speak(enText, TextToSpeech.QUEUE_ADD, map);
+                speechVM.doSpeech(enText, Locale.US);
             }
-            speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
-            {
-                @Override
-                public void onStart(String s)
-                {
 
-                }
-
-                @Override
-                public void onDone(String s)
-                {
-                    if (checkBoxRu.isChecked() && !ruText.equals("") && s.equals(Locale.US.getDisplayLanguage()))
-                    {
-                        int res = speech.isLanguageAvailable(Locale.getDefault());
-                        if (res == TextToSpeech.LANG_COUNTRY_AVAILABLE)
-                        {
-                            speech.setLanguage(Locale.getDefault());
-                            map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.getDefault().getDisplayLanguage());
-                            speech.speak(ruText, TextToSpeech.QUEUE_ADD, map);
-                        }
-                    }
-                    if (s.equals(Locale.getDefault().getDisplayLanguage()))
-                    {
-                        speech.stop();
-                        map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.US.getDisplayLanguage());
-                        speech.setLanguage(Locale.US);
-                    }
-                }
-
-                @Override
-                public void onError(String s)
-                {
-
-                }
-            });
+//            if (speech == null || speech.isSpeaking())
+//            {
+//                return;
+//            }
+//
+//            final String ruText = ruTextView.getText().toString();
+//            if (!enText.equals(""))
+//            {
+//                speech.speak(enText, TextToSpeech.QUEUE_ADD, map);
+//            }
+//            speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
+//            {
+//                @Override
+//                public void onStart(String s)
+//                {
+//
+//                }
+//
+//                @Override
+//                public void onDone(String s)
+//                {
+//                    if (checkBoxRu.isChecked() && !ruText.equals("") && s.equals(Locale.US.getDisplayLanguage()))
+//                    {
+//                        int res = speech.isLanguageAvailable(Locale.getDefault());
+//                        if (res == TextToSpeech.LANG_COUNTRY_AVAILABLE)
+//                        {
+//                            speech.setLanguage(Locale.getDefault());
+//                            map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.getDefault().getDisplayLanguage());
+//                            speech.speak(ruText, TextToSpeech.QUEUE_ADD, map);
+//                        }
+//                    }
+//                    if (s.equals(Locale.getDefault().getDisplayLanguage()))
+//                    {
+//                        speech.stop();
+//                        map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.US.getDisplayLanguage());
+//                        speech.setLanguage(Locale.US);
+//                    }
+//                }
+//
+//                @Override
+//                public void onError(String s)
+//                {
+//
+//                }
+//            });
         });
     }
 }
