@@ -9,13 +9,14 @@ import android.speech.tts.TextToSpeech;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.Word;
 import com.myapp.lexicon.helpers.StringOperations;
+import com.myapp.lexicon.interfaces.IModalFragment;
 import com.myapp.lexicon.main.MainViewModel;
+import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.settings.AppData;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,14 +28,21 @@ import dagger.hilt.android.AndroidEntryPoint;
  */
 
 @AndroidEntryPoint
-public class ServiceActivity extends AppCompatActivity
+public class ServiceActivity extends AppCompatActivity implements IModalFragment
 {
     private boolean isServiceEnabled = false;
     public static IStopServiceByUser iStopServiceByUser;
     public static TextToSpeech speech;
-    public static HashMap<String, String> map = new HashMap<>();
     public static final String ARG_JSON = ServiceActivity.class.getCanonicalName() + ".ARG_JSON";
     public static final String ARG_COUNTERS = ServiceActivity.class.getCanonicalName() + ".ModalFragment.arg_counters";
+
+    @Override
+    public void openApp()
+    {
+        LexiconService.stoppedByUser = true;
+        finish();
+        startActivity(new Intent(this, SplashScreenActivity.class));
+    }
 
     public interface IStopServiceByUser
     {
@@ -62,13 +70,11 @@ public class ServiceActivity extends AppCompatActivity
         String displayVariantStr = preferences.getString(getString(R.string.key_display_variant), "0");
         isServiceEnabled = preferences.getBoolean(getString(R.string.key_service), false);
         int displayMode = 0;
-        int displayVariant = 0;
         if (preferencesString != null && displayVariantStr != null)
         {
             try
             {
                 displayMode = Integer.parseInt(preferencesString);
-                displayVariant = Integer.parseInt(displayVariantStr);
             } catch (NumberFormatException e)
             {
                 e.printStackTrace();
@@ -77,7 +83,6 @@ public class ServiceActivity extends AppCompatActivity
 
 
         int finalDisplayMode = displayMode;
-        int finalDisplayVariant = displayVariant;
 
         vm.getWordCounters().observe(this, counters -> {
             if (counters != null && counters.size() > 1)
@@ -98,21 +103,15 @@ public class ServiceActivity extends AppCompatActivity
                     }
                     if (finalDisplayMode == 0)
                     {
-                        ModalFragment modalFragment = ModalFragment.newInstance(json, countersList);
-                        getSupportFragmentManager().beginTransaction().add(R.id.fragment_frame, modalFragment).commit();
+                        ModalFragment modalFragment = ModalFragment.newInstance(json, countersList, this);
+                        modalFragment.show(getSupportFragmentManager().beginTransaction(), ModalFragment.TAG);
                         vm.goForward(Arrays.asList(words));
                     }
                     else if (finalDisplayMode == 1)
                     {
-                        TestModalFragment testModalFragment = TestModalFragment.newInstance(json, countersList);
-                        //getSupportFragmentManager().beginTransaction().add(R.id.fragment_frame, testModalFragment).commit();
+                        TestModalFragment testModalFragment = TestModalFragment.newInstance(json, countersList, this);
                         testModalFragment.show(getSupportFragmentManager().beginTransaction(), TestModalFragment.TAG);
                     }
-//                    if (finalDisplayVariant == 1)
-//                    {
-//                        stopService(new Intent(this, LexiconService.class));
-//                        stopAppService();
-//                    }
                 }
             }
 
@@ -148,13 +147,13 @@ public class ServiceActivity extends AppCompatActivity
     @Override
     public void onDetachedFromWindow()
     {
-
         super.onDetachedFromWindow();
     }
 
     @Override
     protected void onDestroy()
     {
+        super.onDestroy();
         if (speech != null)
         {
             speech.shutdown();
@@ -162,23 +161,17 @@ public class ServiceActivity extends AppCompatActivity
 
         if (isServiceEnabled)
         {
+            Intent intent = new Intent(this, LexiconService.class);
             if (!LexiconService.stoppedByUser)
             {
-                //TODO SplashScreenActivity запускается быстрее чем срабатывает этот onDestroy, из-за чего сервис запускается вместе с MainActivity
-                Intent intent = new Intent(this, LexiconService.class);
                 startService(intent);
             }
-            if (LexiconService.stoppedByUser)
+            else
             {
-//                if (serviceIntent == null)
-//                {
-//                    MainActivity.serviceIntent = new Intent(this, LexiconService.class);
-//                }
+                stopService(intent);
                 LexiconService.stoppedByUser = false;
             }
         }
-
-        super.onDestroy();
     }
 
     public void stopAppService()

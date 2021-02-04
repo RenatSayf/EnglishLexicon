@@ -2,7 +2,6 @@ package com.myapp.lexicon.service;
 
 
 import android.app.Dialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,9 +20,9 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.Word;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
 import com.myapp.lexicon.helpers.StringOperations;
+import com.myapp.lexicon.interfaces.IModalFragment;
 import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SpeechViewModel;
-import com.myapp.lexicon.main.SplashScreenActivity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,6 +42,7 @@ import io.reactivex.disposables.CompositeDisposable;
 public class TestModalFragment extends DialogFragment
 {
     public static final String TAG = TestModalFragment.class.getCanonicalName() + ".TAG";
+    public static IModalFragment iCallback;
 
     private TextView enTextView;
     private Button ruBtn1, ruBtn2;
@@ -60,10 +60,11 @@ public class TestModalFragment extends DialogFragment
         // Required empty public constructor
     }
 
-    static TestModalFragment newInstance(@Nullable String json, List<Integer> counters)
+    static TestModalFragment newInstance(@Nullable String json, List<Integer> counters, IModalFragment callback)
     {
         TestModalFragment fragment = new TestModalFragment();
         _counters = counters;
+        iCallback = callback;
         if (json != null && counters.size() > 0)
         {
             Bundle bundle = new Bundle();
@@ -159,13 +160,12 @@ public class TestModalFragment extends DialogFragment
         });
 
         ImageButton btnClose = fragmentView.findViewById(R.id.modal_btn_close);
-        btnClose.setOnClickListener(view -> requireActivity().finish());
+        btnClose.setOnClickListener(view -> {
+            requireActivity().finish();
+        });
 
         Button btnOpenApp = fragmentView.findViewById(R.id.btn_open_app);
-        btnOpenApp.setOnClickListener(view1 -> {
-            ((ServiceActivity) requireActivity()).finish();
-            requireActivity().startActivity(new Intent(getContext(), SplashScreenActivity.class));
-        });
+        btnOpenApp.setOnClickListener(view1 -> iCallback.openApp());
 
         Button btnStopService = fragmentView.findViewById(R.id.btn_stop_service);
         btnStopService.setOnClickListener( view -> ((ServiceActivity)requireActivity()).stopAppService());

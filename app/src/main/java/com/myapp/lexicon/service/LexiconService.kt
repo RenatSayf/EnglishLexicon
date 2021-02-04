@@ -43,8 +43,6 @@ class LexiconService : Service(), IStopServiceByUser, LifecycleOwner
         var stoppedByUser = false
     }
 
-    //private var oldLocale: Locale? = null
-    private var timeReceiver: TimerReceiver? = null
     private var blockReceiver: PhoneUnlockedReceiver? = null
     private var startId = 0
     private lateinit var vm: MainViewModel
@@ -68,7 +66,6 @@ class LexiconService : Service(), IStopServiceByUser, LifecycleOwner
         val dictName = currentWord?.dictName ?: ""
         val wordId = currentWord?._id ?: 1
 
-        //oldLocale = resources.configuration.locale
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
         val isService = preferences.getBoolean(getString(R.string.key_service), false)
         if (isService)
@@ -79,17 +76,8 @@ class LexiconService : Service(), IStopServiceByUser, LifecycleOwner
             filter.addAction(Intent.ACTION_SCREEN_OFF)
             registerReceiver(blockReceiver, filter)
         }
-        val timeInterval = preferences.getString(getString(R.string.key_show_intervals), "0")?.let {
-            if (it.toInt() > 0)
-            {
-                timeReceiver = TimerReceiver()
-                registerReceiver(timeReceiver, null)
-            }
-        }
-
 
         ServiceActivity.setStoppedByUserListener(this)
-
 
         composite.add(vm.getWordsFromDict(dictName, wordId, 2)
                 .observeOn(Schedulers.computation())
@@ -113,7 +101,6 @@ class LexiconService : Service(), IStopServiceByUser, LifecycleOwner
     override fun onDestroy()
     {
         super.onDestroy()
-        timeReceiver?.let { unregisterReceiver(timeReceiver) }
         blockReceiver?.let { unregisterReceiver(blockReceiver) }
         composite.apply {
             dispose()
@@ -125,18 +112,6 @@ class LexiconService : Service(), IStopServiceByUser, LifecycleOwner
     {
         super.onTaskRemoved(rootIntent)
         onCreate()
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration)
-    {
-        super.onConfigurationChanged(newConfig)
-//        val newLocale = newConfig.locale
-//        if (oldLocale!!.language != newLocale.language)
-//        {
-//            val appSettings = AppSettings(this)
-//            appSettings.cleanPlayList()
-//            stopSelf(startId)
-//        }
     }
 
     override fun onStoppedByUser()

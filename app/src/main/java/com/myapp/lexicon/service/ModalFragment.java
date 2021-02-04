@@ -1,7 +1,6 @@
 package com.myapp.lexicon.service;
 
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,8 +16,8 @@ import com.google.gson.JsonSyntaxException;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.Word;
 import com.myapp.lexicon.helpers.StringOperations;
+import com.myapp.lexicon.interfaces.IModalFragment;
 import com.myapp.lexicon.main.SpeechViewModel;
-import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.ArrayList;
@@ -27,19 +26,20 @@ import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
+import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 import dagger.hilt.android.AndroidEntryPoint;
 
 
 @AndroidEntryPoint
-public class ModalFragment extends Fragment
+public class ModalFragment extends DialogFragment
 {
+    public static final String TAG = ModalFragment.class.getCanonicalName() + ".TAG";
+    public static IModalFragment iCallback;
+
     private AppSettings appSettings;
     private TextView enTextView;
     private TextView ruTextView;
-    private CheckBox checkBoxRu;
-    private Word[] words = new Word[0];
     private static List<Integer> _counters = new ArrayList<>();
     private SpeechViewModel speechVM;
 
@@ -49,10 +49,11 @@ public class ModalFragment extends Fragment
     }
 
 
-    static ModalFragment newInstance(@Nullable String json, List<Integer> counters)
+    static ModalFragment newInstance(@Nullable String json, List<Integer> counters, IModalFragment callback)
     {
         ModalFragment fragment = new ModalFragment();
         _counters = counters;
+        iCallback = callback;
         if (json != null && counters.size() > 0)
         {
             Bundle bundle = new Bundle();
@@ -93,7 +94,7 @@ public class ModalFragment extends Fragment
             {
                 if (json != null)
                 {
-                    words = StringOperations.getInstance().jsonToWord(json);
+                    Word[] words = StringOperations.getInstance().jsonToWord(json);
                     if (words.length > 0)
                     {
                         nameDictTV.setText(words[0].getDictName());
@@ -128,15 +129,12 @@ public class ModalFragment extends Fragment
             });
 
             Button btnOpenApp = fragmentView.findViewById(R.id.btn_open_app);
-            btnOpenApp.setOnClickListener(view -> {
-                requireActivity().startActivity(new Intent(getContext(), SplashScreenActivity.class));
-                requireActivity().finish();
-            });
+            btnOpenApp.setOnClickListener(view -> iCallback.openApp());
 
             ImageButton btnSound = fragmentView.findViewById(R.id.btn_sound_modal);
             btnSound_OnClick(btnSound);
 
-            checkBoxRu = fragmentView.findViewById(R.id.check_box_ru_speak_modal);
+            CheckBox checkBoxRu = fragmentView.findViewById(R.id.check_box_ru_speak_modal);
             checkBoxRu.setChecked(appSettings.isRuSpeechInModal());
             checkBoxRu_OnCheckedChange(checkBoxRu);
 
