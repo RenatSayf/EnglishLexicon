@@ -162,6 +162,10 @@ class SettingsFragment : PreferenceFragmentCompat()
 
         requireActivity().onBackPressedDispatcher.addCallback{
             (requireActivity() as MainActivity).apply {
+                if (this@SettingsFragment.isRemoving)
+                {
+                    finish()
+                }
                 supportFragmentManager.beginTransaction().remove(this@SettingsFragment).commit()
                 mainControlLayout.visibility = View.VISIBLE
             }

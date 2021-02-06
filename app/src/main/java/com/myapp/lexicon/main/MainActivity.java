@@ -75,7 +75,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Button btnViewDict;
     private TextView tvWordsCounter;
     private ImageView orderPlayView;
-    public static Intent serviceIntent;
     private ViewPager2 mainViewPager;
 
     private final String KEY_TV_WORDS_COUNTER = "tv_words_counter";
@@ -470,22 +469,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    protected void onPause()
-    {
-        super.onPause();
-    }
-
-    @Override
     protected void onStop()
     {
         FirebaseUserActions.getInstance().end(getAction());
         super.onStop();
-    }
-
-    @Override
-    protected void onRestart()
-    {
-        super.onRestart();
     }
 
     @Override
@@ -502,8 +489,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onDestroy()
     {
-        super.onDestroy();
         mainViewModel.saveCurrentWordToPref(currentWord);
+        super.onDestroy();
     }
 
     @Override
@@ -517,12 +504,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (drawer.isDrawerOpen(GravityCompat.START))
             {
                 drawer.closeDrawer(GravityCompat.START);
-            } else
-            {
-                super.onBackPressed();
             }
         }
         alarmClockEnable(scheduler);
+        super.onBackPressed();
     }
 
     private void alarmClockEnable(AlarmScheduler scheduler)
@@ -696,6 +681,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         wordsInterval = value;
     }
+
+
 
 
 }
