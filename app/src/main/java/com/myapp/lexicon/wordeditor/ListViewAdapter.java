@@ -21,12 +21,12 @@ import androidx.annotation.NonNull;
 public class ListViewAdapter extends BaseAdapter implements Filterable
 {
     private ArrayList<Word> words;
-    private final ArrayList<Word> tempEntries;
+    private final ArrayList<Word> tempWords;
 
     ListViewAdapter(ArrayList<Word> words)
     {
         this.words = words;
-        this.tempEntries = new ArrayList<>(words);
+        this.tempWords = new ArrayList<>(words);
     }
 
     @Override
@@ -84,13 +84,13 @@ public class ListViewAdapter extends BaseAdapter implements Filterable
                 FilterResults results = new FilterResults();
                 if (constraint == null || constraint.length() == 0)
                 {
-                    results.values = tempEntries;
-                    results.count = tempEntries.size();
+                    results.values = tempWords;
+                    results.count = tempWords.size();
                 }
                 else
                 {
                     ArrayList<Word> filteredEntries = new ArrayList<>();
-                    for (Word entry : tempEntries)
+                    for (Word entry : tempWords)
                     {
                         if (entry.getEnglish().contains(constraint) || entry.getTranslate().contains(constraint))
                         {
