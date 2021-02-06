@@ -1,36 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:orientation="horizontal"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:id="@+id/table_words"
-              android:layout_margin="5dp"
-              android:layout_marginBottom="3dp"
-              >
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/table_words"
+    android:layout_margin="5dp"
+    android:layout_marginBottom="3dp">
 
     <LinearLayout android:layout_width="0dp"
         android:layout_height="wrap_content"
-                  android:layout_weight="1"
+        android:layout_weight="1"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/english"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:paddingLeft="10dp"
+
+            android:paddingStart="10dp"
+            tools:text="english"
             android:textSize="18sp"
-            android:background="@drawable/words_list_view_background_en"/>
+            android:background="@drawable/words_list_view_background_en"
+            tools:ignore="RtlSymmetry" />
 
         <TextView
             android:id="@+id/translate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_marginBottom="3dp"
-            android:paddingLeft="10dp"
+            android:paddingStart="10dp"
+            tools:text="русский"
             android:textSize="14sp"
-            android:background="@drawable/words_list_view_background_ru"/>
+            android:background="@drawable/words_list_view_background_ru"
+            tools:ignore="RtlSymmetry" />
     </LinearLayout>
 
     <TextView
@@ -39,7 +42,7 @@
         android:layout_height="match_parent"
         android:gravity="center_vertical|center_horizontal"
         android:layout_marginBottom="3dp"
-        android:text="0"
+        tools:text="0"
         android:textSize="18sp"
         android:textAlignment="inherit"
         android:background="@drawable/words_list_view_background_ru"/>

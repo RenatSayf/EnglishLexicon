@@ -9,12 +9,14 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:showIn="@layout/d_layout_word_editor"
     tools:context="com.myapp.lexicon.wordeditor.WordEditorActivity"
-    android:background="@drawable/side_nav_bar">
+    android:background="@drawable/side_nav_bar"
+    >
 
     <ViewSwitcher
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/viewSwitcher"
+        android:background="@drawable/side_nav_bar"
         >
 
         <RelativeLayout
@@ -30,7 +32,7 @@
                     android:id="@+id/spinner_header"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
+                    android:layout_marginStart="10dp"
                     android:text="@string/text_dictionary"
                     android:textColor="@color/colorWhite"/>
 
@@ -39,7 +41,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginEnd="10dp"
                     android:textColor="@color/colorWhite"/>
 
             </FrameLayout>
@@ -61,8 +63,6 @@
                 android:layout_marginTop="4dp"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentEnd="false"
-                android:layout_alignParentLeft="false"
-                android:layout_alignParentRight="false"
                 android:layout_alignParentStart="false"
                 android:layout_below="@id/spinner"
                 android:layout_centerHorizontal="false"
@@ -74,7 +74,7 @@
                 <ListView
                     android:id="@+id/listView"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="0dp"
                     android:layout_weight="1"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
@@ -96,7 +96,6 @@
                 style="?android:attr/progressBarStyleLarge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentLeft="false"
                 android:layout_alignParentStart="false"
                 android:layout_centerHorizontal="false"
                 android:layout_centerInParent="true"
