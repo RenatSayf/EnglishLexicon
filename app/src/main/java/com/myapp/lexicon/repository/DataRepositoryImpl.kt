@@ -1,11 +1,13 @@
 package com.myapp.lexicon.repository
 
-import com.myapp.lexicon.database.*
+import com.myapp.lexicon.database.AppDB
+import com.myapp.lexicon.database.AppDao
+import com.myapp.lexicon.database.DataBaseEntry
+import com.myapp.lexicon.database.Word
 import com.myapp.lexicon.settings.AppSettings
 import io.reactivex.Observable
 import io.reactivex.Single
 import javax.inject.Inject
-import kotlin.math.max
 
 class DataRepositoryImpl @Inject constructor(private val appDB: AppDB,
                                              private val db: AppDao,
@@ -59,7 +61,7 @@ class DataRepositoryImpl @Inject constructor(private val appDB: AppDB,
 
     override fun saveCurrentWordTheSettings(entry: DataBaseEntry)
     {
-        settings.saveCurrentWord(entry);
+        settings.saveCurrentWord(entry)
     }
 
     override fun getWordFromPref(): Word

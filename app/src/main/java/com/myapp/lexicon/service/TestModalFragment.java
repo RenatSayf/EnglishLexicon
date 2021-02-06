@@ -148,8 +148,6 @@ public class TestModalFragment extends DialogFragment
 
         }
 
-
-
         ImageButton speakButton = fragmentView.findViewById(R.id.btn_sound_modal);
         speakButton.setOnClickListener(view -> {
             String enText = enTextView.getText().toString();
@@ -160,9 +158,7 @@ public class TestModalFragment extends DialogFragment
         });
 
         ImageButton btnClose = fragmentView.findViewById(R.id.modal_btn_close);
-        btnClose.setOnClickListener(view -> {
-            requireActivity().finish();
-        });
+        btnClose.setOnClickListener(view -> requireActivity().finish());
 
         Button btnOpenApp = fragmentView.findViewById(R.id.btn_open_app);
         btnOpenApp.setOnClickListener(view1 -> iCallback.openApp());
@@ -174,12 +170,8 @@ public class TestModalFragment extends DialogFragment
 
         ImageView orderPlayIcon = fragmentView.findViewById(R.id.order_play_icon_iv_test_modal);
 
-
         viewModel.getCountRepeat().observe(getViewLifecycleOwner(), id -> {
-            if (id > 0)
-            {
-                Toast.makeText(getActivity(), R.string.text_word_is_not_show, Toast.LENGTH_LONG).show();
-            }
+            if (id > 0) Toast.makeText(getActivity(), R.string.text_word_is_not_show, Toast.LENGTH_LONG).show();
         });
 
         return fragmentView;

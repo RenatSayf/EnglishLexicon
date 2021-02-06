@@ -119,14 +119,10 @@ public class ModalFragment extends DialogFragment
             }
 
             Button btnStop = fragmentView.findViewById(R.id.btn_stop_service);
-            btnStop.setOnClickListener( view -> {
-                ((ServiceActivity)requireActivity()).stopAppService();
-            });
+            btnStop.setOnClickListener( view -> ((ServiceActivity)requireActivity()).stopAppService());
 
             ImageButton btnClose = fragmentView.findViewById(R.id.btn_close);
-            btnClose.setOnClickListener(view -> {
-                requireActivity().finish();
-            });
+            btnClose.setOnClickListener(view -> requireActivity().finish());
 
             Button btnOpenApp = fragmentView.findViewById(R.id.btn_open_app);
             btnOpenApp.setOnClickListener(view -> iCallback.openApp());
@@ -135,8 +131,15 @@ public class ModalFragment extends DialogFragment
             btnSound_OnClick(btnSound);
 
             CheckBox checkBoxRu = fragmentView.findViewById(R.id.check_box_ru_speak_modal);
-            checkBoxRu.setChecked(appSettings.isRuSpeechInModal());
+            speechVM.isRuSpeech().observe(getViewLifecycleOwner(), checkBoxRu::setChecked);
             checkBoxRu_OnCheckedChange(checkBoxRu);
+
+            speechVM.getSpeechDoneId().observe(getViewLifecycleOwner(), id -> {
+                if (id.equals("En") && checkBoxRu.isChecked())
+                {
+                    speechVM.doSpeech(ruTextView.getText().toString(), new Locale(getString(R.string.lang_code_translate)));
+                }
+            });
 
             ImageView orderPlayIcon = fragmentView.findViewById(R.id.order_play_icon_iv_modal);
             if (appSettings.getOrderPlay() == 0)
@@ -178,7 +181,7 @@ public class ModalFragment extends DialogFragment
 
     private void checkBoxRu_OnCheckedChange(CheckBox checkBoxRu)
     {
-        checkBoxRu.setOnCheckedChangeListener((compoundButton, isChecked) -> appSettings.setRuSpeechInModal(isChecked));
+        checkBoxRu.setOnCheckedChangeListener((compoundButton, isChecked) -> speechVM.setRuSpeech(isChecked));
     }
 
     @Override
@@ -203,52 +206,6 @@ public class ModalFragment extends DialogFragment
             {
                 speechVM.doSpeech(enText, Locale.US);
             }
-
-//            if (speech == null || speech.isSpeaking())
-//            {
-//                return;
-//            }
-//
-//            final String ruText = ruTextView.getText().toString();
-//            if (!enText.equals(""))
-//            {
-//                speech.speak(enText, TextToSpeech.QUEUE_ADD, map);
-//            }
-//            speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
-//            {
-//                @Override
-//                public void onStart(String s)
-//                {
-//
-//                }
-//
-//                @Override
-//                public void onDone(String s)
-//                {
-//                    if (checkBoxRu.isChecked() && !ruText.equals("") && s.equals(Locale.US.getDisplayLanguage()))
-//                    {
-//                        int res = speech.isLanguageAvailable(Locale.getDefault());
-//                        if (res == TextToSpeech.LANG_COUNTRY_AVAILABLE)
-//                        {
-//                            speech.setLanguage(Locale.getDefault());
-//                            map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.getDefault().getDisplayLanguage());
-//                            speech.speak(ruText, TextToSpeech.QUEUE_ADD, map);
-//                        }
-//                    }
-//                    if (s.equals(Locale.getDefault().getDisplayLanguage()))
-//                    {
-//                        speech.stop();
-//                        map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.US.getDisplayLanguage());
-//                        speech.setLanguage(Locale.US);
-//                    }
-//                }
-//
-//                @Override
-//                public void onError(String s)
-//                {
-//
-//                }
-//            });
         });
     }
 }

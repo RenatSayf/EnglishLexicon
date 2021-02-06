@@ -1,16 +1,12 @@
 package com.myapp.lexicon.main
 
-import android.graphics.drawable.Drawable
 import android.view.View
-import androidx.annotation.NonNull
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.myapp.lexicon.database.DataBaseEntry
 import com.myapp.lexicon.database.Word
 import com.myapp.lexicon.repository.DataRepositoryImpl
-import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -21,21 +17,12 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
     private val composite = CompositeDisposable()
 
     private var _currentDict = MutableLiveData<String>()
-    var currentDict : LiveData<String> = _currentDict
-
-    private var _playList = MutableLiveData<MutableList<String>>()
-    var playList : LiveData<MutableList<String>> = _playList
-
-    private fun setPlayList()
-    {
-        _playList.value = repository.getTableListFromSettings()
-    }
 
     private var _wordsList = MutableLiveData<MutableList<Word>>()
     var wordsList: MutableLiveData<MutableList<Word>> = _wordsList
     fun setWordsList(dictName: String)
     {
-        composite.add(getWordsFromDict(dictName, 1, Int.MAX_VALUE)
+        composite.add(repository.getEntriesFromDbByDictName(dictName, 1, Int.MAX_VALUE)
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ list ->
@@ -62,24 +49,9 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
         return
     }
 
-    fun getWordsFromDict(dictName: String, id: Int, limit: Int): Single<MutableList<Word>>
-    {
-         return repository.getEntriesFromDbByDictName(dictName, id, limit)
-    }
-
     fun deleteDict(dictName: String) : Single<Boolean>
     {
         return repository.dropTableFromDb(dictName)
-    }
-
-    fun getEntriesAndCounters(dictName: String, rowId: Int, order: String, limit: Int = 2): Observable<Pair<MutableMap<String, Int>, MutableList<DataBaseEntry>>>
-    {
-        return repository.getEntriesAndCountersFromDb(dictName, rowId, order, limit)
-    }
-
-    fun getRandomEntries(dictName: String, rowId: Int) : Single<MutableList<DataBaseEntry>>
-    {
-        return repository.getRandomEntriesFromDb(dictName, rowId)
     }
 
     private var _dictionaryList = MutableLiveData<MutableList<String>>().apply {
@@ -106,7 +78,6 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
     private var _currentWord = MutableLiveData<Word>().apply {
         //repository.saveWordThePref(Word(1, "Наречия", "", "", 1))
         value = repository.getWordFromPref()
-        val value = value
         return@apply
     }
     var currentWord: MutableLiveData<Word> = _currentWord
@@ -150,7 +121,6 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
                     t.printStackTrace()
                 }))
     }
-    var randomWord: LiveData<Word> = _randomWord
 
     fun getRandomWord(word: Word) : LiveData<Word>
     {
@@ -199,7 +169,7 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
     }
     var intermediateIndex: LiveData<Int> = _intermediateIndex
 
-    private var _countRepeat = MutableLiveData<Int>(0)
+    private var _countRepeat = MutableLiveData(0)
     var countRepeat: LiveData<Int> = _countRepeat
     fun setCountRepeat(repeat: Int, minId: Int, maxId: Int)
     {
@@ -216,7 +186,7 @@ class MainViewModel @ViewModelInject constructor(private val repository: DataRep
 
     init
     {
-        _playList.value = repository.getTableListFromSettings() as ArrayList<String>
+        //_playList.value = repository.getTableListFromSettings() as ArrayList<String>
         _currentDict.value = repository.getWordFromPref().dictName
         val dictName = _currentDict.value
         if (!dictName.isNullOrEmpty())

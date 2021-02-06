@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.speech.tts.TextToSpeech;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.Word;
@@ -32,14 +31,13 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
 {
     private boolean isServiceEnabled = false;
     public static IStopServiceByUser iStopServiceByUser;
-    public static TextToSpeech speech;
     public static final String ARG_JSON = ServiceActivity.class.getCanonicalName() + ".ARG_JSON";
-    public static final String ARG_COUNTERS = ServiceActivity.class.getCanonicalName() + ".ModalFragment.arg_counters";
+    private boolean stoppedByUser;
 
     @Override
     public void openApp()
     {
-        LexiconService.stoppedByUser = true;
+        stoppedByUser = true;
         finish();
         startActivity(new Intent(this, SplashScreenActivity.class));
     }
@@ -154,22 +152,17 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
     protected void onDestroy()
     {
         super.onDestroy();
-        if (speech != null)
-        {
-            speech.shutdown();
-        }
-
         if (isServiceEnabled)
         {
             Intent intent = new Intent(this, LexiconService.class);
-            if (!LexiconService.stoppedByUser)
+            if (!stoppedByUser)
             {
                 startService(intent);
             }
             else
             {
                 stopService(intent);
-                LexiconService.stoppedByUser = false;
+                stoppedByUser = false;
             }
         }
     }
@@ -178,7 +171,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
     {
         if (iStopServiceByUser != null)
         {
-            LexiconService.stoppedByUser = true;
+            stoppedByUser = true;
             iStopServiceByUser.onStoppedByUser();
             new AlarmScheduler(this).cancel(AlarmScheduler.REQUEST_CODE, AlarmScheduler.REPEAT_SHOOT_ACTION);
         }

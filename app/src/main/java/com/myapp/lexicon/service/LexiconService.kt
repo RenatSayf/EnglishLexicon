@@ -6,7 +6,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.res.Configuration
 import android.os.Bundle
 import android.os.IBinder
 import android.widget.Toast
@@ -19,33 +18,19 @@ import com.google.gson.Gson
 import com.myapp.lexicon.R
 import com.myapp.lexicon.database.AppDB
 import com.myapp.lexicon.database.AppDataBase
-import com.myapp.lexicon.database.DataBaseEntry
 import com.myapp.lexicon.database.DatabaseHelper
-import com.myapp.lexicon.main.MainViewModel
 import com.myapp.lexicon.repository.DataRepositoryImpl
 import com.myapp.lexicon.schedule.AppNotification
-import com.myapp.lexicon.schedule.TimerReceiver
 import com.myapp.lexicon.service.ServiceActivity.IStopServiceByUser
 import com.myapp.lexicon.settings.AppSettings
-import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
-import java.util.*
-import javax.inject.Inject
 
 class LexiconService : Service(), IStopServiceByUser, LifecycleOwner
 {
-    companion object
-    {
-        @JvmField
-        var stoppedByUser = false
-    }
-
     private var blockReceiver: PhoneUnlockedReceiver? = null
     private var startId = 0
-    private lateinit var vm: MainViewModel
     private val composite = CompositeDisposable()
 
     override fun onBind(intent: Intent): IBinder?
@@ -61,10 +46,9 @@ class LexiconService : Service(), IStopServiceByUser, LifecycleOwner
         val dao = AppDataBase.getInstance(this).appDao()
         val appSettings = AppSettings(this)
         val repository = DataRepositoryImpl(appDB, dao, appSettings)
-        vm = MainViewModel(repository)
-        val currentWord = vm.currentWord.value
-        val dictName = currentWord?.dictName ?: ""
-        val wordId = currentWord?._id ?: 1
+        val currentWord = repository.getWordFromPref()
+        val dictName = currentWord.dictName
+        val wordId = currentWord._id
 
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
         val isService = preferences.getBoolean(getString(R.string.key_service), false)
@@ -79,7 +63,7 @@ class LexiconService : Service(), IStopServiceByUser, LifecycleOwner
 
         ServiceActivity.setStoppedByUserListener(this)
 
-        composite.add(vm.getWordsFromDict(dictName, wordId, 2)
+        composite.add(repository.getEntriesFromDbByDictName(dictName, wordId, 2)
                 .observeOn(Schedulers.computation())
                 .subscribe({ words ->
                     val json = Gson().toJson(words)
@@ -138,11 +122,10 @@ class LexiconService : Service(), IStopServiceByUser, LifecycleOwner
             val displayVariant = preferences.getString(context.getString(R.string.key_display_variant), "0")
             val displayMode = preferences.getString(context.getString(R.string.key_list_display_mode), "0")
             var action = intent.action
-            val settings = AppSettings(context)
 
-            val currentWord = settings.wordFromPref
-            val dictName = currentWord?.dictName ?: "default"
-            val wordId = currentWord?._id ?: -1
+            val currentWord = repository.getWordFromPref()
+            val dictName = currentWord.dictName
+            val wordId = currentWord._id
             //String actionUserPresent = Intent.ACTION_USER_PRESENT;
             val actionScreenOff = Intent.ACTION_SCREEN_OFF
             if (action != null)
@@ -172,7 +155,7 @@ class LexiconService : Service(), IStopServiceByUser, LifecycleOwner
                                     appNotification.show()
                                     if (displayMode == "0")
                                     {
-                                        settings.goForward(words)
+                                        repository.goForward(words)
                                     }
                                 }
 
