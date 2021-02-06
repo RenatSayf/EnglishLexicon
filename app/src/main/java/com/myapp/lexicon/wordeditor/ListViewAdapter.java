@@ -1,49 +1,44 @@
 package com.myapp.lexicon.wordeditor;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
 
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.database.DataBaseEntry;
+import com.myapp.lexicon.database.Word;
 
 import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 
-/**
- * Created by Ренат on 29.03.2016.
- */
-// TODO: ListView adapter class
-public class ListViewAdapter extends ArrayAdapter implements Filterable
-{
-    private ArrayList<DataBaseEntry> entries;
-    private ArrayList<DataBaseEntry> tempEntries;
-    private Context context;
 
-    ListViewAdapter(ArrayList<DataBaseEntry> entries, Context context, int resource)
+
+// TODO: ListView adapter class
+public class ListViewAdapter extends BaseAdapter implements Filterable
+{
+    private ArrayList<Word> words;
+    private final ArrayList<Word> tempEntries;
+
+    ListViewAdapter(ArrayList<Word> words)
     {
-        super(context, resource);
-        this.entries = entries;
-        this.context = context;
-        this.tempEntries = new ArrayList<>(entries);
+        this.words = words;
+        this.tempEntries = new ArrayList<>(words);
     }
 
     @Override
     public int getCount()
     {
-        return entries.size();
+        return words.size();
     }
 
     @Override
-    public DataBaseEntry getItem(int position)
+    public Word getItem(int position)
     {
-        return entries.get(position);
+        return words.get(position);
     }
 
     @Override
@@ -56,22 +51,23 @@ public class ListViewAdapter extends ArrayAdapter implements Filterable
     @Override
     public View getView(int position, View convertView, @NonNull ViewGroup viewGroup)
     {
-        View wordView=convertView;
+        View wordView = convertView;
         if (wordView == null)
         {
-            wordView= LayoutInflater.from(context).inflate(R.layout.d_layout_word, viewGroup, false);
+            wordView= LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.d_layout_word, viewGroup, false);
         }
 
-        DataBaseEntry dataBaseEntry = entries.get(position);
+        Word word = words.get(position);
 
         TextView textEnglish = wordView.findViewById(R.id.english);
-        textEnglish.setText(dataBaseEntry.getEnglish());
+        textEnglish.setText(word.getEnglish());
 
         TextView textTranslate = wordView.findViewById(R.id.translate);
-        textTranslate.setText(dataBaseEntry.getTranslate());
+        textTranslate.setText(word.getTranslate());
 
         TextView textCountRepeat = wordView.findViewById(R.id.count_repeat);
-        textCountRepeat.setText(dataBaseEntry.getCountRepeat());
+        String countRepeat = word.getCountRepeat() + "";
+        textCountRepeat.setText(countRepeat);
 
         return wordView;
     }
@@ -93,8 +89,8 @@ public class ListViewAdapter extends ArrayAdapter implements Filterable
                 }
                 else
                 {
-                    ArrayList<DataBaseEntry> filteredEntries = new ArrayList<>();
-                    for (DataBaseEntry entry : tempEntries)
+                    ArrayList<Word> filteredEntries = new ArrayList<>();
+                    for (Word entry : tempEntries)
                     {
                         if (entry.getEnglish().contains(constraint) || entry.getTranslate().contains(constraint))
                         {
@@ -111,7 +107,7 @@ public class ListViewAdapter extends ArrayAdapter implements Filterable
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results)
             {
-                entries = (ArrayList<DataBaseEntry>) results.values;
+                words = (ArrayList<Word>) results.values;
                 notifyDataSetChanged();
             }
         };
