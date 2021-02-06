@@ -32,4 +32,7 @@ interface AppDao
     @Query("SELECT count() FROM Words WHERE dict_name = :dict AND count_repeat == 0 UNION SELECT _id FROM Words WHERE dict_name = :dict")
     fun getCounters(dict: String) : Single<List<Int>>
 
+    @Delete()
+    fun delete(word: Word) : Single<Int>
+
 }

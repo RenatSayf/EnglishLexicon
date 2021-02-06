@@ -7,7 +7,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Loader;
-import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
@@ -80,6 +79,7 @@ public class WordEditorActivity extends AppCompatActivity implements LoaderManag
     private ViewSwitcher switcher;
     private LockOrientation lockOrientation;
     private WordEditorFields m;
+    private Word selectedWord;
 
     private final String KEY_SWITCHER_DISPLAYED_CHILD = "sw-d-ch";
     private final String KEY_SPINNER_SELECT_INDEX = "sp-slt-idx";
@@ -97,6 +97,7 @@ public class WordEditorActivity extends AppCompatActivity implements LoaderManag
     private final int LOADER_GET_ALL_FROM_TABLE = 3;
 
     private MainViewModel vm;
+    private EditorViewModel evm;
 
     private void initViews()
     {
@@ -120,7 +121,7 @@ public class WordEditorActivity extends AppCompatActivity implements LoaderManag
             buttonWrite.setEnabled(true);
         }
 
-        buttonDelete = findViewById(R.id.btn_delete);
+
 
         buttonCancel = findViewById(R.id.btn_cancel);
 
@@ -143,7 +144,6 @@ public class WordEditorActivity extends AppCompatActivity implements LoaderManag
         spinner_OnItemSelected();
         listView_OnItemClick();
         buttonWrite_OnClick();
-        buttonDelete_OnClick();
         buttonCancel_OnClick();
         checkMove_OnClick();
     }
@@ -161,13 +161,6 @@ public class WordEditorActivity extends AppCompatActivity implements LoaderManag
         outState.putInt(KEY_SPINNER_COUNT_REPEAT_SELECT_INDEX, spinnerCountRepeat.getSelectedItemPosition());
 //        String KEY_SEARCH_QUERY = "srch-query";
 //        outState.putString(KEY_SEARCH_QUERY, searchView.getQuery().toString());
-
-//        ArrayList<String> spinnerItems = new ArrayList<>();
-//        for (int i = 0; i < dictListSpinner.getCount(); i++)
-//        {
-//            spinnerItems.add(dictListSpinner.getItemAtPosition(i).toString());
-//        }
-//        outState.putStringArrayList(KEY_SPINNER_ITEMS, spinnerItems);
 
         ArrayList<String> spinner2Items = new ArrayList<>();
         for (int i = 0; i < spinnerDictToMove.getCount(); i++)
@@ -196,6 +189,7 @@ public class WordEditorActivity extends AppCompatActivity implements LoaderManag
         }
 
         vm = new ViewModelProvider(this).get(MainViewModel.class);
+        evm = new ViewModelProvider(this).get(EditorViewModel.class);
 
         lockOrientation = new LockOrientation(this);
         dataBaseQueries = new DataBaseQueries(this);
@@ -245,17 +239,6 @@ public class WordEditorActivity extends AppCompatActivity implements LoaderManag
             m = savedInstanceState.getParcelable(KEY_FIELDS);
 
             switcher.setDisplayedChild(savedInstanceState.getInt(KEY_SWITCHER_DISPLAYED_CHILD));
-//            ArrayList<String> arrayList = savedInstanceState.getStringArrayList(KEY_SPINNER_ITEMS);
-//            if (arrayList != null)
-//            {
-//                ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, arrayList);
-//                dictListSpinner.setAdapter(adapterSpinner);
-//                int index = savedInstanceState.getInt(KEY_SPINNER_SELECT_INDEX);
-//                if (index < adapterSpinner.getCount())
-//                {
-//                    dictListSpinner.setSelection(savedInstanceState.getInt(KEY_SPINNER_SELECT_INDEX));
-//                }
-//            }
 
             ArrayList<String> arrayList2 = savedInstanceState.getStringArrayList(KEY_SPINNER_2_ITEMS);
             if (arrayList2 != null)
@@ -283,10 +266,10 @@ public class WordEditorActivity extends AppCompatActivity implements LoaderManag
             String text = getString(R.string.text_words) + "  " + m.amountWords;
             tvAmountWords.setText(text);
         }
-        else
-        {
-            getLoaderManager().restartLoader(LOADER_GET_TABLE_LIST, null, WordEditorActivity.this).forceLoad();
-        }
+//        else
+//        {
+//            getLoaderManager().restartLoader(LOADER_GET_TABLE_LIST, null, WordEditorActivity.this).forceLoad();
+//        }
 
 
         AppData appData = AppData.getInstance();
@@ -302,18 +285,23 @@ public class WordEditorActivity extends AppCompatActivity implements LoaderManag
                 getSupportFragmentManager().beginTransaction().replace(R.id.bottom_banner_frame_we, bannerFragment).commit();
             }
         }
-    }
 
-    @Override
-    protected void onStart()
-    {
-        super.onStart();
-    }
-
-    @Override
-    protected void onPause()
-    {
-        super.onPause();
+        buttonDelete = findViewById(R.id.btn_delete);
+        buttonDelete_OnClick();
+        evm.getDeletedId().observe(this, id -> {
+            if (id > 0)
+            {
+                Toast.makeText(this, "Слово удалено", Toast.LENGTH_SHORT).show();
+                String dictName = dictListSpinner.getSelectedItem().toString();
+                vm.setWordsList(dictName);
+                switcher.showPrevious();
+            }
+            else if (id < 0)
+            {
+                Toast.makeText(WordEditorActivity.this, getString(R.string.msg_data_base_error), Toast.LENGTH_SHORT).show();
+                switcher.showPrevious();
+            }
+        });
     }
 
     @Override
@@ -360,6 +348,8 @@ public class WordEditorActivity extends AppCompatActivity implements LoaderManag
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
+                ListViewAdapter adapter = (ListViewAdapter)listView.getAdapter();
+                selectedWord = adapter.getItem(position);
                 m.rowID = position + 1;
                 TextView textViewEn = view.findViewById(R.id.english);
                 m.oldTextEn = textViewEn.getText().toString();
@@ -421,7 +411,7 @@ public class WordEditorActivity extends AppCompatActivity implements LoaderManag
             @Override
             public void onClick(View v)
             {
-                lockOrientation.lock();
+                //lockOrientation.lock();
                 final String tableName = dictListSpinner.getSelectedItem().toString();
 
                 new AlertDialog.Builder(WordEditorActivity.this) // TODO: AlertDialog с макетом по умолчанию
@@ -433,19 +423,24 @@ public class WordEditorActivity extends AppCompatActivity implements LoaderManag
                             @Override
                             public void onClick(DialogInterface dialog, int which)
                             {
-                                try
+                                if (selectedWord != null)
                                 {
-                                    dataBaseQueries.deleteWordInTableSync(tableName, editTextEn.getText().toString(), editTextRu.getText().toString());
-                                    dataBaseQueries.dataBaseVacuum(tableName);
-                                    listViewSetSource(true);
-                                } catch (Exception e)
-                                {
-                                    Toast.makeText(WordEditorActivity.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
-                                    WordEditorActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+                                    evm.deleteWordFromDb(selectedWord);
                                 }
-                                listViewSetSource(true);
-                                switcher.showPrevious();
-                                lockOrientation.unLock();
+
+//                                try
+//                                {
+//                                    dataBaseQueries.deleteWordInTableSync(tableName, editTextEn.getText().toString(), editTextRu.getText().toString());
+//                                    dataBaseQueries.dataBaseVacuum(tableName);
+//                                    listViewSetSource(true);
+//                                } catch (Exception e)
+//                                {
+//                                    Toast.makeText(WordEditorActivity.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
+//                                    WordEditorActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+//                                }
+//                                listViewSetSource(true);
+//                                switcher.showPrevious();
+//                                lockOrientation.unLock();
                             }
                         })
                         .setNegativeButton(R.string.button_text_no, new DialogInterface.OnClickListener()

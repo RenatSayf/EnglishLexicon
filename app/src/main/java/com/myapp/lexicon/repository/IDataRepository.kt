@@ -21,6 +21,8 @@ interface IDataRepository
 
     fun insertEntry(word: Word): Single<Long>
 
+    fun deleteEntry(word: Word) : Single<Int>
+
     fun getTableListFromSettings() : MutableList<String>
 
     fun getCountersFromDb(dictName: String) : Single<List<Int>>
