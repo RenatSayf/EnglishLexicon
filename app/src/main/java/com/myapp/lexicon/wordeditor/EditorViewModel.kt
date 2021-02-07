@@ -32,6 +32,13 @@ class EditorViewModel @ViewModelInject constructor(private val repository: DataR
                 }))
     }
 
+    private var _dictsToMove = MutableLiveData<MutableList<String>>()
+    var dictsToMove: LiveData<MutableList<String>> = _dictsToMove
+    fun setDictsToMove(list: MutableList<String>)
+    {
+        _dictsToMove.value = list
+    }
+
     override fun onCleared()
     {
         super.onCleared()

@@ -45,6 +45,7 @@ import com.myapp.lexicon.settings.AppData;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
 import androidx.annotation.NonNull;
@@ -102,11 +103,8 @@ public class WordEditorActivity extends AppCompatActivity implements LoaderManag
     private void initViews()
     {
         dictListSpinner = findViewById(R.id.spinner);
-
         listView = findViewById(R.id.listView);
-
         progressBar= findViewById(R.id.speechProgress);
-
         switcher = findViewById(R.id.viewSwitcher);
         Animation slide_in_left = AnimationUtils.loadAnimation(this,
                 android.R.anim.slide_in_left);
@@ -120,11 +118,7 @@ public class WordEditorActivity extends AppCompatActivity implements LoaderManag
         {
             buttonWrite.setEnabled(true);
         }
-
-
-
         buttonCancel = findViewById(R.id.btn_cancel);
-
         tvAmountWords = findViewById(R.id.tv_amount_words);
         editTextEn = findViewById(R.id.edit_text_en);
         editTextRu = findViewById(R.id.edit_text_ru);
@@ -213,7 +207,16 @@ public class WordEditorActivity extends AppCompatActivity implements LoaderManag
                     String dictName = currentWord.getDictName();
                     int index = dicts.indexOf(dictName);
                     dictListSpinner.setSelection(index);
+
                 }
+            }
+        });
+
+        evm.getDictsToMove().observe(this, dicts -> {
+            if (!dicts.isEmpty())
+            {
+                ArrayAdapter<String> adapterSpinner= new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, dicts);
+                spinnerDictToMove.setAdapter(adapterSpinner);
             }
         });
 
@@ -240,16 +243,16 @@ public class WordEditorActivity extends AppCompatActivity implements LoaderManag
 
             switcher.setDisplayedChild(savedInstanceState.getInt(KEY_SWITCHER_DISPLAYED_CHILD));
 
-            ArrayList<String> arrayList2 = savedInstanceState.getStringArrayList(KEY_SPINNER_2_ITEMS);
-            if (arrayList2 != null)
-            {
-                ArrayAdapter<String> adapterSpinner2= new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, arrayList2);
-                spinnerDictToMove.setAdapter(adapterSpinner2);
-            }
+//            ArrayList<String> arrayList2 = savedInstanceState.getStringArrayList(KEY_SPINNER_2_ITEMS);
+//            if (arrayList2 != null)
+//            {
+//                ArrayAdapter<String> adapterSpinner2= new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, arrayList2);
+//                spinnerDictToMove.setAdapter(adapterSpinner2);
+//            }
 
-            spinnerCountRepeat.setSelection(savedInstanceState.getInt(KEY_SPINNER_COUNT_REPEAT_SELECT_INDEX));
-            spinner_select_pos = dictListSpinner.getSelectedItemPosition();
-            listViewSetSource(false);
+//            spinnerCountRepeat.setSelection(savedInstanceState.getInt(KEY_SPINNER_COUNT_REPEAT_SELECT_INDEX));
+//            spinner_select_pos = dictListSpinner.getSelectedItemPosition();
+//            listViewSetSource(false);
 
             editTextEn.setText(savedInstanceState.getString(KEY_EDITTEXT_EN));
             editTextRu.setText(savedInstanceState.getString(KEY_EDITTEXT_RU));
@@ -368,10 +371,16 @@ public class WordEditorActivity extends AppCompatActivity implements LoaderManag
                     m.oldCountRepeat = 1;
                 }
 
-                ArrayList<String> list2 = new ArrayList<>(m.dictNames);
-                list2.remove(dictListSpinner.getSelectedItem().toString());
-                ArrayAdapter<String> adapterSpinner2 = new ArrayAdapter<>(WordEditorActivity.this, android.R.layout.simple_list_item_1, list2);
-                spinnerDictToMove.setAdapter(adapterSpinner2);
+                ArrayList<String> dictsToMove = new ArrayList<>();
+                List<String> list = vm.getDictionaryList().getValue();
+                for (String item : list)
+                {
+                    if (!item.equals(dictListSpinner.getSelectedItem().toString()))
+                    {
+                        dictsToMove.add(item);
+                    }
+                }
+                evm.setDictsToMove(dictsToMove);
 
                 spinnerCountRepeat.setSelection(m.oldCountRepeat);
                 m.oldCurrentDict = dictListSpinner.getSelectedItem().toString();
