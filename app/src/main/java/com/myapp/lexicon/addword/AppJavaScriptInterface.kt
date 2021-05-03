@@ -18,6 +18,12 @@ class AppJavaScriptInterface
         val parseEvent : MutableLiveData<Event<ArrayList<String>>> = MutableLiveData()
     }
 
+    private var _inputText: String = ""
+    fun setInputText(text: String)
+    {
+        _inputText = text
+    }
+
     @JavascriptInterface
     fun handleHtml(html: String)
     {
@@ -27,13 +33,11 @@ class AppJavaScriptInterface
                 {
                     val list : ArrayList<String> = arrayListOf()
                     val doc = Jsoup.parse(html)
-                    doc.getElementById("shareLink").text().also {
-                        if (!it.isNullOrEmpty())
-                        {
-                            val parsedInputText = parseInputText(it)
-                            parsedInputText.isNotEmpty().let {
-                                list.add(parsedInputText)
-                            }
+                    if (_inputText.isNotEmpty())
+                    {
+                        val parsedInputText = parseInputText(_inputText)
+                        parsedInputText.isNotEmpty().let {
+                            list.add(parsedInputText)
                         }
                     }
                     doc.select("#translation > span").text().also {
@@ -73,7 +77,7 @@ class AppJavaScriptInterface
     {
         return kotlin.run {
             val substringAfter = link.substringAfter("text=")
-            val substringBefore = substringAfter.substringBefore("</a>")
+            val substringBefore = substringAfter.substringBefore("</a>").substringBefore("&")
             val text = substringBefore.replace("+", " ")
             text
         }
