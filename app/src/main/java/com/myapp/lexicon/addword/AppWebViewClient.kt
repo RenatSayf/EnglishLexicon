@@ -1,5 +1,6 @@
 package com.myapp.lexicon.addword
 
+import android.view.KeyEvent
 import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -15,4 +16,5 @@ class AppWebViewClient constructor(private val root: TranslateFragment) : WebVie
         root.loadProgress?.let { it.visibility = View.GONE }
         return
     }
+
 }

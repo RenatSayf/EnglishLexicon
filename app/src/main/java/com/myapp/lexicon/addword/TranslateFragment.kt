@@ -2,23 +2,22 @@ package com.myapp.lexicon.addword
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import com.myapp.lexicon.R
 import kotlinx.android.synthetic.main.translate_fragment.*
 import kotlinx.android.synthetic.main.translate_fragment.view.*
+import java.net.URLDecoder
 
 private const val TEXT = "translate_text"
 
-class TranslateFragment : Fragment()
+class TranslateFragment : Fragment(),View.OnKeyListener
 {
 
     companion object
     {
         private var instance: TranslateFragment? = null
+        private val javaScriptInterface = AppJavaScriptInterface()
         fun getInstance(text: String) : TranslateFragment = if (instance == null)
         {
             TranslateFragment().apply {
@@ -41,11 +40,10 @@ class TranslateFragment : Fragment()
 
         val inputText = arguments?.getString(TEXT) ?: ""
 
-
         root.webView.apply {
             settings.javaScriptEnabled = true //todo parsing WebView: Step 3
             settings.domStorageEnabled = true //todo parsing WebView: Step 4
-            addJavascriptInterface(AppJavaScriptInterface(), "HtmlHandler") //todo parsing WebView: Step 5
+            addJavascriptInterface(javaScriptInterface, "HtmlHandler") //todo parsing WebView: Step 5
             webViewClient = AppWebViewClient(this@TranslateFragment) //todo parsing WebView: Step 6
             loadUrl("https://translate.yandex.ru/?text=${inputText}")
         }
@@ -59,12 +57,15 @@ class TranslateFragment : Fragment()
 
         btnSave.setOnClickListener {
             loadProgress.visibility = View.VISIBLE
+            val url = webView.url
+            val decode = URLDecoder.decode(url, "UTF-8")
+            javaScriptInterface.setInputText(decode)
             //todo parsing WebView: Step 7
             webView?.loadUrl("javascript:window.HtmlHandler.handleHtml('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>');")
         }
 
         //todo Отправка события в активити/фрагмент: Step 4. End
-        AppJavaScriptInterface.parseEvent.observe(viewLifecycleOwner, Observer {
+        AppJavaScriptInterface.parseEvent.observe(viewLifecycleOwner, {
             if (!it.hasBeenHandled)
             {
                 val content = it.getContent()
@@ -80,6 +81,11 @@ class TranslateFragment : Fragment()
 
 
 
+    }
+
+    override fun onKey(p0: View?, p1: Int, p2: KeyEvent?): Boolean
+    {
+        return false
     }
 
 }
