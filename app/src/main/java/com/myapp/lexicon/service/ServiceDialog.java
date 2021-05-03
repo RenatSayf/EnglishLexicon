@@ -101,7 +101,7 @@ public class ServiceDialog extends AppCompatActivity
 
         if (appData.isAdMob())
         {
-            if (appData.isOnline(this) && appData.getUnLookPhoneCount() > 2)
+            if (appData.isOnline(this))
             {
                 if (savedInstanceState == null)
                 {

@@ -7,10 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import kotlinx.android.synthetic.main.translate_fragment.*
 import kotlinx.android.synthetic.main.translate_fragment.view.*
+import java.net.URLDecoder
 
 private const val TEXT = "translate_text"
 
@@ -20,6 +20,7 @@ class TranslateFragment : Fragment()
     companion object
     {
         private var instance: TranslateFragment? = null
+        private val javaScriptInterface = AppJavaScriptInterface()
         fun getInstance(text: String) : TranslateFragment = if (instance == null)
         {
             TranslateFragment().apply {
@@ -34,8 +35,6 @@ class TranslateFragment : Fragment()
         }
     }
 
-    private lateinit var viewModel: TranslateViewModel
-
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View?
@@ -44,11 +43,10 @@ class TranslateFragment : Fragment()
 
         val inputText = arguments?.getString(TEXT) ?: ""
 
-
         root.webView.apply {
             settings.javaScriptEnabled = true //todo parsing WebView: Step 3
             settings.domStorageEnabled = true //todo parsing WebView: Step 4
-            addJavascriptInterface(AppJavaScriptInterface(), "HtmlHandler") //todo parsing WebView: Step 5
+            addJavascriptInterface(javaScriptInterface, "HtmlHandler") //todo parsing WebView: Step 5
             webViewClient = AppWebViewClient(this@TranslateFragment) //todo parsing WebView: Step 6
             loadUrl("https://translate.yandex.ru/?text=${inputText}")
         }
@@ -59,10 +57,12 @@ class TranslateFragment : Fragment()
     override fun onActivityCreated(savedInstanceState: Bundle?)
     {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(TranslateViewModel::class.java)
 
         btnSave.setOnClickListener {
             loadProgress.visibility = View.VISIBLE
+            val url = webView.url
+            val decode = URLDecoder.decode(url, "UTF-8")
+            javaScriptInterface.setInputText(decode)
             //todo parsing WebView: Step 7
             webView?.loadUrl("javascript:window.HtmlHandler.handleHtml('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>');")
         }
