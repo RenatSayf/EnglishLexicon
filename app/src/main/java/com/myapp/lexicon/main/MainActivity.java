@@ -35,7 +35,6 @@ import com.myapp.lexicon.database.Word;
 import com.myapp.lexicon.dialogs.DictListDialog;
 import com.myapp.lexicon.dialogs.OrderPlayDialog;
 import com.myapp.lexicon.dialogs.RemoveDictDialog;
-import com.myapp.lexicon.helpers.NetHelper;
 import com.myapp.lexicon.helpers.Share;
 import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.service.LexiconService;
@@ -97,6 +96,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         Toolbar toolbar = findViewById(R.id.toolbar_word_editor);
         setSupportActionBar(toolbar);
+
+        MobileAds.initialize(this);
 
         NotificationManager nmg = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (nmg != null)
@@ -277,15 +278,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             tvWordsCounter.setText(savedInstanceState.getString(KEY_TV_WORDS_COUNTER));
         }
 
-        if (NetHelper.INSTANCE.isOnline(this))
-        {
-            if (savedInstanceState == null)
-            {
-                MobileAds.initialize(this, getString(R.string.admob_app_id));
-                MainBannerFragment bannerFragment = new MainBannerFragment();
-                getSupportFragmentManager().beginTransaction().replace(R.id.banner_frame_main, bannerFragment).commit();
-            }
-        }
+//        if (NetHelper.INSTANCE.isOnline(this))
+//        {
+//            if (savedInstanceState == null)
+//            {
+//
+//                MainBannerFragment bannerFragment = new MainBannerFragment();
+//                getSupportFragmentManager().beginTransaction().replace(R.id.banner_frame_main, bannerFragment).commit();
+//            }
+//        }
 
         CheckBox checkBoxEnView = findViewById(R.id.check_box_en_speak);
         //noinspection CodeBlock2Expr

@@ -176,16 +176,29 @@
                 android:layoutDirection="ltr"/>
 
         </LinearLayout>
+
+        <com.google.android.gms.ads.AdView
+            xmlns:ads="http://schemas.android.com/apk/res-auto"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:id="@+id/bottomAd"
+            ads:adUnitId="@string/main_bottom_banner"
+            ads:adSize="BANNER"/>
+
     </LinearLayout>
 
-    <FrameLayout
-        android:id="@+id/banner_frame_main"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:foreground="@drawable/semitransparent_background"
-        >
+<!--    <FrameLayout-->
+<!--        android:id="@+id/banner_frame_main"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="0dp"-->
+<!--        android:layout_gravity="bottom"-->
+<!--        android:foreground="@drawable/semitransparent_background"-->
+<!--        >-->
 
-    </FrameLayout>
+<!--    </FrameLayout>-->
+
+
 
 
     <FrameLayout

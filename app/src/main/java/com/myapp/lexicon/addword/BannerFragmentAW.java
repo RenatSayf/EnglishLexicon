@@ -6,12 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.MobileAds;
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.settings.AppData;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -42,30 +37,30 @@ public class BannerFragmentAW extends Fragment
             fragmentView = inflater.inflate(R.layout.b_banner_fragment_aw, container, false);
         }
 
-        if (savedInstanceState == null)
-        {
-            final AdView bannerView = fragmentView.findViewById(R.id.adView_aw);
-            bannerView.setVisibility(View.GONE);
-            MobileAds.initialize(getActivity(), getString(R.string.play_list_banner));
-            AdRequest adRequest;
-            if (AppData.getInstance().testDeviceEnabled())
-            {
-                adRequest = new AdRequest.Builder().addTestDevice(AppData.getInstance().getTestDeviceID()).build();
-            } else
-            {
-                adRequest = new AdRequest.Builder().build();
-            }
-            bannerView.loadAd(adRequest);
-            bannerView.setAdListener(new AdListener()
-            {
-                @Override
-                public void onAdLoaded()
-                {
-                    super.onAdLoaded();
-                    bannerView.setVisibility(View.VISIBLE);
-                }
-            });
-        }
+//        if (savedInstanceState == null)
+//        {
+//            final AdView bannerView = fragmentView.findViewById(R.id.adView_aw);
+//            bannerView.setVisibility(View.GONE);
+//            MobileAds.initialize(getActivity(), getString(R.string.play_list_banner));
+//            AdRequest adRequest;
+//            if (AppData.getInstance().testDeviceEnabled())
+//            {
+//                adRequest = new AdRequest.Builder().addTestDevice(AppData.getInstance().getTestDeviceID()).build();
+//            } else
+//            {
+//                adRequest = new AdRequest.Builder().build();
+//            }
+//            bannerView.loadAd(adRequest);
+//            bannerView.setAdListener(new AdListener()
+//            {
+//                @Override
+//                public void onAdLoaded()
+//                {
+//                    super.onAdLoaded();
+//                    bannerView.setVisibility(View.VISIBLE);
+//                }
+//            });
+//        }
 
         return fragmentView;
     }

@@ -7,12 +7,16 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.myapp.lexicon.database.Word
 import com.myapp.lexicon.repository.DataRepositoryImpl
+import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import javax.inject.Inject
 
-class MainViewModel @ViewModelInject constructor(private val repository: DataRepositoryImpl) : ViewModel()
+
+@HiltViewModel
+class MainViewModel @Inject constructor(private val repository: DataRepositoryImpl) : ViewModel()
 {
     private val composite = CompositeDisposable()
 
