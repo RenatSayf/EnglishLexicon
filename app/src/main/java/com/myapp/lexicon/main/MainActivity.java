@@ -190,7 +190,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Boolean isEnSpeech = speechViewModel.isEnSpeech().getValue();
                     if (state == 1 && isEnSpeech != null && isEnSpeech)
                     {
-                        speechViewModel.setSpeechProgressVisibility(View.VISIBLE);
+                        if (!currentWord.getEnglish().equals(""))
+                        {
+                            speechViewModel.setSpeechProgressVisibility(View.VISIBLE);
+                        }
                     }
                     Integer mControlVisibility = mainViewModel.getMainControlVisibility().getValue();
                     if (isEnSpeech != null && isEnSpeech && word != null && state == 0 && mControlVisibility != null && mControlVisibility == View.VISIBLE)
@@ -444,7 +447,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 String item = list.remove(index);
                                 list.add(0, item);
                             }
-                            DictListDialog.Companion.getInstance(list, dict -> mainViewModel.setWordsList(dict)).show(getSupportFragmentManager(), DictListDialog.Companion.getTAG());
+                            DictListDialog dictListDialog = DictListDialog.Companion.getInstance(list, dict -> mainViewModel.setWordsList(dict));
+                            dictListDialog.show(getSupportFragmentManager(), DictListDialog.Companion.getTAG());
+                            dictListDialog.getSelectedItem().observe(MainActivity.this, item -> {
+                                Word word = new Word(1, item, "", "", 1);
+                                mainViewModel.saveCurrentWordToPref(word);
+                            });
                         }, Throwable::printStackTrace));
             }
         });

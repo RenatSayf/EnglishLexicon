@@ -8,6 +8,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.main.MainViewModel
@@ -18,6 +20,10 @@ import dagger.hilt.android.AndroidEntryPoint
 class DictListDialog : DialogFragment()
 {
     private lateinit var builder: AlertDialog.Builder
+
+    private var _selectedItem = MutableLiveData("")
+    var selectedItem: LiveData<String> = _selectedItem
+
     companion object
     {
         val TAG = "${this::class.java.canonicalName}.TAG"
@@ -50,6 +56,7 @@ class DictListDialog : DialogFragment()
                 override fun onClick(p0: DialogInterface?, position: Int)
                 {
                     listener.dictListItemOnSelected(list[position])
+                    _selectedItem.value = list[position]
                     dismiss()
                 }
             })

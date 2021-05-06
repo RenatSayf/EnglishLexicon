@@ -55,7 +55,7 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult, Spea
             vm = ViewModelProvider(this)[MainViewModel::class.java]
             dialogView = a.layoutInflater.inflate(R.layout.add_word_dialog, LinearLayout(a), false)
 
-            val builder = AlertDialog.Builder(a).setView(dialogView)
+            val builder = AlertDialog.Builder(a).setView(dialogView).setCancelable(false)
             return builder.create().apply {
                 window?.setBackgroundDrawableResource(R.drawable.add_word_background)
             }
@@ -98,9 +98,10 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult, Spea
                 if (!list.isNullOrEmpty())
                 {
                     val dictName = vm.currentWord.value?.dictName
-                    dictName?.let {
-                        val index = list.indexOf(it)
-                        if (index > 0)
+                    if (dictName != null)
+                    {
+                        val index = list.indexOf(dictName)
+                        if (index >= 0)
                         {
                             val adapter = ArrayAdapter(a, R.layout.app_spinner_item, list.distinct())
                             dictListSpinner?.adapter = adapter

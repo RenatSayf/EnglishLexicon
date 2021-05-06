@@ -101,7 +101,7 @@ public class AppSettings
      */
     public boolean isRusSpeech()
     {
-        return context.getSharedPreferences(KEY_RUS_SPEECH, MODE_PRIVATE).getBoolean(KEY_RUS_SPEECH, true);
+        return context.getSharedPreferences(KEY_RUS_SPEECH, MODE_PRIVATE).getBoolean(KEY_RUS_SPEECH, false);
     }
 
     /**
@@ -398,7 +398,8 @@ public class AppSettings
     private final String WORD_ID = this.getClass().getCanonicalName() + ".WORD_ID";
     public Word getWordFromPref()
     {
-        String dict = Objects.requireNonNull(context.getSharedPreferences(WORD_ID, MODE_PRIVATE).getString(KEY_CURRENT_DICT, "default"));
+        String defaultText = context.getString(R.string.nav_play_list);
+        String dict = Objects.requireNonNull(context.getSharedPreferences(WORD_ID, MODE_PRIVATE).getString(KEY_CURRENT_DICT, defaultText));
         int id = context.getSharedPreferences(WORD_ID, MODE_PRIVATE).getInt(WORD_ID, 1);
         return new Word(id, dict, "", "", 1);
     }
