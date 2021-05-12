@@ -32,6 +32,8 @@ import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
 import com.myapp.lexicon.cloudstorage.StorageFragment2;
 import com.myapp.lexicon.database.Word;
+import com.myapp.lexicon.databinding.AContentMainBinding;
+import com.myapp.lexicon.databinding.ANavigMainBinding;
 import com.myapp.lexicon.dialogs.DictListDialog;
 import com.myapp.lexicon.dialogs.OrderPlayDialog;
 import com.myapp.lexicon.dialogs.RemoveDictDialog;
@@ -68,7 +70,7 @@ import io.reactivex.schedulers.Schedulers;
 @AndroidEntryPoint
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
-
+    private AContentMainBinding binding;
     public LinearLayout mainControlLayout;
     private Intent testsIntent;
     private Button btnViewDict;
@@ -92,7 +94,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.a_navig_main);
+        ANavigMainBinding navBinding = ANavigMainBinding.inflate(getLayoutInflater());
+        binding = AContentMainBinding.inflate(getLayoutInflater());
+        View root = navBinding.getRoot();
+        setContentView(root);
+
 
         Toolbar toolbar = findViewById(R.id.toolbar_word_editor);
         setSupportActionBar(toolbar);

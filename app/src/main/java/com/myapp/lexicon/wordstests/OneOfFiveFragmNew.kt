@@ -1,7 +1,6 @@
 package com.myapp.lexicon.wordstests
 
 import android.os.Bundle
-import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,7 +25,6 @@ import com.myapp.lexicon.main.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.one_of_five_fragm_new.*
 import java.util.*
-import kotlin.collections.ArrayList
 
 const val ROWS: Int = 5
 
@@ -35,7 +33,7 @@ const val ROWS: Int = 5
 class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogListener, OneFiveTestAdapter.ITestAdapterListener
 {
     private lateinit var vm: OneOfFiveViewModel
-    private var wordList: List<Word>? = null
+
     private var answersRecyclerView: RecyclerView? = null
     private lateinit var mysteryWordView: TextView
     private lateinit var backPressedCallback: OnBackPressedCallback
@@ -43,17 +41,14 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
 
     companion object
     {
-        private const val ARG_WORD_LIST = "ARG_WORD_LIST"
+        private var wordList: List<Word>? = null
 
         @JvmStatic
         fun newInstance(list: MutableList<Word>): OneOfFiveFragmNew
         {
             val shuffledList = list.shuffled()
-            return OneOfFiveFragmNew().apply {
-                arguments = Bundle().apply {
-                    putParcelableArrayList(ARG_WORD_LIST, shuffledList as ArrayList<out Parcelable?>?)
-                }
-            }
+            wordList = shuffledList
+            return OneOfFiveFragmNew()
         }
     }
 
@@ -61,12 +56,7 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
     {
         super.onCreate(savedInstanceState)
         vm = ViewModelProvider(this)[OneOfFiveViewModel::class.java]
-
-        if (arguments != null)
-        {
-            wordList = requireArguments().getParcelableArrayList(ARG_WORD_LIST)
-            if (!wordList.isNullOrEmpty()) vm.initTest(wordList as MutableList<Word>)
-        }
+        if (!wordList.isNullOrEmpty()) vm.initTest(wordList as MutableList<Word>)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View

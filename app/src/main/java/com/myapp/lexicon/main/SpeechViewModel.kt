@@ -7,14 +7,17 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.myapp.lexicon.repository.DataRepositoryImpl
+import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import java.util.*
+import javax.inject.Inject
 
 @Suppress("ObjectLiteralToLambda")
-class SpeechViewModel @ViewModelInject constructor(app: Application, private val repository: DataRepositoryImpl) : AndroidViewModel(app), Speaker.IOnSpeechListener
+@HiltViewModel
+class SpeechViewModel @Inject constructor(app: Application, private val repository: DataRepositoryImpl) : AndroidViewModel(app), Speaker.IOnSpeechListener
 {
     private var speaker: Speaker = Speaker(app, this)
     private val composite = CompositeDisposable()

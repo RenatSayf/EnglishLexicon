@@ -19,8 +19,6 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class DictListDialog : DialogFragment()
 {
-    private lateinit var builder: AlertDialog.Builder
-
     private var _selectedItem = MutableLiveData("")
     var selectedItem: LiveData<String> = _selectedItem
 
@@ -49,7 +47,7 @@ class DictListDialog : DialogFragment()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog
     {
-        builder = AlertDialog.Builder(requireContext()).apply {
+        val builder = AlertDialog.Builder(requireContext()).apply {
             val stringArray = list.toTypedArray()
             setSingleChoiceItems(stringArray, 0, object : DialogInterface.OnClickListener
             {

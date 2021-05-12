@@ -2,7 +2,6 @@ package com.myapp.lexicon.wordstests;
 
 
 import android.annotation.SuppressLint;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
@@ -30,15 +29,13 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.database.DataBaseEntry;
-import com.myapp.lexicon.database.GetCountWordsAsync;
-import com.myapp.lexicon.database.GetEntriesFromDbAsync;
-import com.myapp.lexicon.database.GetTableListAsync;
+import com.myapp.lexicon.database.Word;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
 import com.myapp.lexicon.main.BackgroundFragm;
 import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SplashScreenActivity;
+import com.myapp.lexicon.repository.DataRepositoryImpl;
 import com.myapp.lexicon.settings.AppData;
 import com.myapp.lexicon.settings.AppSettings;
 
@@ -48,12 +45,17 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 
+import javax.inject.Inject;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import dagger.hilt.android.AndroidEntryPoint;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
 
 
 @AndroidEntryPoint
@@ -91,8 +93,8 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     private static final ArrayList<String> textArrayleft = new ArrayList<>();
     private static final ArrayList<String> textArrayRight = new ArrayList<>();
     private ArrayList<String> arrStudiedDict;
-    private ArrayList<DataBaseEntry> controlList;
-    private ArrayList<DataBaseEntry> additionalList;
+    private ArrayList<Word> controlList;
+    private ArrayList<Word> additionalList;
     private ArrayList<String> storedListDict;
 
     private int controlListSize = 0;
@@ -124,6 +126,10 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     private final String KEY_STORED_DICT_LIST = "key_stored_dict_list";
 
     private MainViewModel mainViewModel;
+    private CompositeDisposable composite = new CompositeDisposable();
+
+    @Inject
+    DataRepositoryImpl repository;
 
 
     public FindPairFragment()
@@ -402,51 +408,46 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             return;
         }
 
-        GetTableListAsync getTableListAsync = new GetTableListAsync(getActivity(), new GetTableListAsync.GetTableListListener()
-        {
-            @Override
-            public void getTableListListener(ArrayList<String> arrayList)
-            {
-                if (arrayList != null && arrayList.size() > 0)
-                {
-                    if (getActivity() != null)
-                    {
-                        ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(getActivity(), R.layout.my_content_spinner_layout, arrayList);
-                        spinnListDict.setAdapter(adapterSpinner);
-                    }
-                    ArrayList<String> playList = appSettings.getPlayList();
-                    if (playList != null && playList.size() > 0)
-                    {
-                        String currentDict;
-                        try
-                        {
-                            currentDict = playList.get(appData.getNdict());
-                        } catch (ArrayIndexOutOfBoundsException e)
-                        {
-                            appData.setNdict(0);
-                            currentDict = playList.get(appData.getNdict());
-                        }
-                        if (arrayList.contains(currentDict))
-                        {
-                            int indexOf = arrayList.indexOf(currentDict);
-                            spinnListDict.setSelection(indexOf);
-                        }
-                    } else
-                    {
-                        spinnListDict.setSelection(0);
-                    }
-                    spinnListDict_OnItemSelectedListener();
-                    for (int i = 0; i < spinnListDict.getAdapter().getCount(); i++)
-                    {
-                        storedListDict.add(spinnListDict.getAdapter().getItem(i).toString());
-                    }
-                }
-            }
-        });
-        if (getTableListAsync.getStatus() != AsyncTask.Status.RUNNING)
-        {
-            getTableListAsync.execute();
-        }
+        composite.add(
+                mainViewModel.getDictList().subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(arrayList -> {
+                            if (arrayList != null && arrayList.size() > 0)
+                            {
+                                if (getActivity() != null)
+                                {
+                                    ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(getActivity(), R.layout.my_content_spinner_layout, arrayList);
+                                    spinnListDict.setAdapter(adapterSpinner);
+                                }
+                                ArrayList<String> playList = appSettings.getPlayList();
+                                if (playList != null && playList.size() > 0)
+                                {
+                                    String currentDict;
+                                    try
+                                    {
+                                        currentDict = playList.get(appData.getNdict());
+                                    } catch (ArrayIndexOutOfBoundsException e)
+                                    {
+                                        appData.setNdict(0);
+                                        currentDict = playList.get(appData.getNdict());
+                                    }
+                                    if (arrayList.contains(currentDict))
+                                    {
+                                        int indexOf = arrayList.indexOf(currentDict);
+                                        spinnListDict.setSelection(indexOf);
+                                    }
+                                } else
+                                {
+                                    spinnListDict.setSelection(0);
+                                }
+                                spinnListDict_OnItemSelectedListener();
+                                for (int i = 0; i < spinnListDict.getAdapter().getCount(); i++)
+                                {
+                                    storedListDict.add(spinnListDict.getAdapter().getItem(i).toString());
+                                }
+                            }
+                        }, Throwable::printStackTrace)
+        );
     }
 
     private void startTest()
@@ -471,85 +472,158 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             getArguments().clear();
         }
 
-        GetCountWordsAsync getCountWordsAsync = new GetCountWordsAsync(getActivity(), spinnSelectedItem, new GetCountWordsAsync.GetCountListener()
-        {
-            @Override
-            public void onTaskComplete(int count)
-            {
-                wordsCount = count;
-                progressBar.setMax(count);
-                progressBar.setProgress(wordIndex - 1);
-                setProgressValue(progressBar.getProgress(), progressBar.getMax());
-                hideWordButtons();
-                if (wordsCount < ROWS)
-                {
-                    fillButtonsLayout(spinnSelectedItem, wordIndex, wordsCount);
-                }
-                else
-                {
-                    fillButtonsLayout(spinnSelectedItem, wordIndex, wordIndex -1 + ROWS);
-                }
-            }
-        });
-        if (getCountWordsAsync.getStatus() != AsyncTask.Status.RUNNING)
-        {
-            getCountWordsAsync.execute();
-        }
+        composite.add(
+                repository.getCountersFromDb(spinnSelectedItem)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(integers -> {
+                            if (integers.size() > 1)
+                            {
+                                wordsCount = integers.get(1);
+                                progressBar.setMax(wordsCount);
+                                progressBar.setProgress(wordIndex - 1);
+                                setProgressValue(progressBar.getProgress(), progressBar.getMax());
+                                hideWordButtons();
+                                if (wordsCount < ROWS)
+                                {
+                                    fillButtonsLayout(spinnSelectedItem, wordIndex, wordsCount);
+                                }
+                                else
+                                {
+                                    fillButtonsLayout(spinnSelectedItem, wordIndex, wordIndex -1 + ROWS);
+                                }
+                            }
+                        }, Throwable::printStackTrace)
+        );
+
+
+//        GetCountWordsAsync getCountWordsAsync = new GetCountWordsAsync(getActivity(), spinnSelectedItem, new GetCountWordsAsync.GetCountListener()
+//        {
+//            @Override
+//            public void onTaskComplete(int count)
+//            {
+//                wordsCount = count;
+//                progressBar.setMax(count);
+//                progressBar.setProgress(wordIndex - 1);
+//                setProgressValue(progressBar.getProgress(), progressBar.getMax());
+//                hideWordButtons();
+//                if (wordsCount < ROWS)
+//                {
+//                    fillButtonsLayout(spinnSelectedItem, wordIndex, wordsCount);
+//                }
+//                else
+//                {
+//                    fillButtonsLayout(spinnSelectedItem, wordIndex, wordIndex -1 + ROWS);
+//                }
+//            }
+//        });
+//        if (getCountWordsAsync.getStatus() != AsyncTask.Status.RUNNING)
+//        {
+//            getCountWordsAsync.execute();
+//        }
     }
 
     private void fillButtonsLayout(String dictName, int start, int end)
     {
-        GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), dictName, start, end, new GetEntriesFromDbAsync.GetEntriesListener()
-        {
-            @Override
-            public void getEntriesListener(ArrayList<DataBaseEntry> entries)
-            {
-                controlList = entries;
-                additionalList = new ArrayList<>();
-                additionalList.addAll(entries);
-                controlListSize = controlList.size();
-                Date date = new Date();
-                RandomNumberGenerator randGenRight = new RandomNumberGenerator(controlListSize, (int) date.getTime());
-                long delay = 0;
-                for (int i = 0; i < controlList.size(); i++)
-                {
-                    Button btnLeft = (Button) btnLayoutLeft.getChildAt(i);
-                    Button btnRight = (Button) btnLayoutRight.getChildAt(i);
-
-                    btnLeft.setScaleX(1.0f);
-                    btnLeft.setScaleY(1.0f);
-                    btnRight.setScaleX(1.0f);
-                    btnRight.setScaleY(1.0f);
-                    btnLeft.setText(controlList.get(i).getEnglish());
-                    btnRight.setText(controlList.get(randGenRight.generate()).getTranslate());
-                    btnLeft.setX(-metrics.widthPixels);
-                    btnLeft.setTranslationY(0);
-                    btnRight.setX(metrics.widthPixels);
-                    btnRight.setTranslationY(0);
-                    btnLeft.setVisibility(View.VISIBLE);
-                    btnRight.setVisibility(View.VISIBLE);
-                    btnLeft.animate().translationX(0).translationY(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null).setStartDelay(delay);
-                    btnRight.animate().translationX(0).translationY(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null).setStartDelay(delay);
-                    delay += 70;
-                    btnLeft_OnClick(btnLeft);
-                    btnRight_OnClick(btnRight);
-                }
-                if (textArrayleft.size() == 0 && textArrayRight.size() == 0)
-                {
-                    for (int i = 0; i < btnLayoutLeft.getChildCount() && i < btnLayoutRight.getChildCount(); i++)
+        composite.add(
+                repository.getEntriesFromDbByDictName(dictName, start, ROWS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(entries -> {
+                    controlList = (ArrayList<Word>) entries;
+                    additionalList = new ArrayList<>();
+                    additionalList.addAll(controlList);
+                    controlListSize = controlList.size();
+                    Date date = new Date();
+                    RandomNumberGenerator randGenRight = new RandomNumberGenerator(controlListSize, (int) date.getTime());
+                    long delay = 0;
+                    for (int i = 0; i < controlList.size(); i++)
                     {
-                        Button buttonLeft = (Button) btnLayoutLeft.getChildAt(i);
-                        textArrayleft.add(buttonLeft.getText().toString());
-                        Button buttonRight = (Button) btnLayoutRight.getChildAt(i);
-                        textArrayRight.add(buttonRight.getText().toString());
+                        Button btnLeft = (Button) btnLayoutLeft.getChildAt(i);
+                        Button btnRight = (Button) btnLayoutRight.getChildAt(i);
+
+                        btnLeft.setScaleX(1.0f);
+                        btnLeft.setScaleY(1.0f);
+                        btnRight.setScaleX(1.0f);
+                        btnRight.setScaleY(1.0f);
+                        btnLeft.setText(controlList.get(i).getEnglish());
+                        btnRight.setText(controlList.get(randGenRight.generate()).getTranslate());
+                        btnLeft.setX(-metrics.widthPixels);
+                        btnLeft.setTranslationY(0);
+                        btnRight.setX(metrics.widthPixels);
+                        btnRight.setTranslationY(0);
+                        btnLeft.setVisibility(View.VISIBLE);
+                        btnRight.setVisibility(View.VISIBLE);
+                        btnLeft.animate().translationX(0).translationY(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null).setStartDelay(delay);
+                        btnRight.animate().translationX(0).translationY(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null).setStartDelay(delay);
+                        delay += 70;
+                        btnLeft_OnClick(btnLeft);
+                        btnRight_OnClick(btnRight);
                     }
-                }
-            }
-        });
-        if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
-        {
-            getEntriesFromDbAsync.execute();
-        }
+                    if (textArrayleft.size() == 0 && textArrayRight.size() == 0)
+                    {
+                        for (int i = 0; i < btnLayoutLeft.getChildCount() && i < btnLayoutRight.getChildCount(); i++)
+                        {
+                            Button buttonLeft = (Button) btnLayoutLeft.getChildAt(i);
+                            textArrayleft.add(buttonLeft.getText().toString());
+                            Button buttonRight = (Button) btnLayoutRight.getChildAt(i);
+                            textArrayRight.add(buttonRight.getText().toString());
+                        }
+                    }
+                }, Throwable::printStackTrace)
+        );
+
+//        GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), dictName, start, end, new GetEntriesFromDbAsync.GetEntriesListener()
+//        {
+//            @Override
+//            public void getEntriesListener(ArrayList<DataBaseEntry> entries)
+//            {
+//                controlList = entries;
+//                additionalList = new ArrayList<>();
+//                additionalList.addAll(entries);
+//                controlListSize = controlList.size();
+//                Date date = new Date();
+//                RandomNumberGenerator randGenRight = new RandomNumberGenerator(controlListSize, (int) date.getTime());
+//                long delay = 0;
+//                for (int i = 0; i < controlList.size(); i++)
+//                {
+//                    Button btnLeft = (Button) btnLayoutLeft.getChildAt(i);
+//                    Button btnRight = (Button) btnLayoutRight.getChildAt(i);
+//
+//                    btnLeft.setScaleX(1.0f);
+//                    btnLeft.setScaleY(1.0f);
+//                    btnRight.setScaleX(1.0f);
+//                    btnRight.setScaleY(1.0f);
+//                    btnLeft.setText(controlList.get(i).getEnglish());
+//                    btnRight.setText(controlList.get(randGenRight.generate()).getTranslate());
+//                    btnLeft.setX(-metrics.widthPixels);
+//                    btnLeft.setTranslationY(0);
+//                    btnRight.setX(metrics.widthPixels);
+//                    btnRight.setTranslationY(0);
+//                    btnLeft.setVisibility(View.VISIBLE);
+//                    btnRight.setVisibility(View.VISIBLE);
+//                    btnLeft.animate().translationX(0).translationY(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null).setStartDelay(delay);
+//                    btnRight.animate().translationX(0).translationY(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null).setStartDelay(delay);
+//                    delay += 70;
+//                    btnLeft_OnClick(btnLeft);
+//                    btnRight_OnClick(btnRight);
+//                }
+//                if (textArrayleft.size() == 0 && textArrayRight.size() == 0)
+//                {
+//                    for (int i = 0; i < btnLayoutLeft.getChildCount() && i < btnLayoutRight.getChildCount(); i++)
+//                    {
+//                        Button buttonLeft = (Button) btnLayoutLeft.getChildAt(i);
+//                        textArrayleft.add(buttonLeft.getText().toString());
+//                        Button buttonRight = (Button) btnLayoutRight.getChildAt(i);
+//                        textArrayRight.add(buttonRight.getText().toString());
+//                    }
+//                }
+//            }
+//        });
+//        if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
+//        {
+//            getEntriesFromDbAsync.execute();
+//        }
     }
 
     private void btnRight_OnClick(final Button button)
@@ -1003,5 +1077,11 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         });
     }
 
-
+    @Override
+    public void onDestroy()
+    {
+        composite.dispose();
+        composite.clear();
+        super.onDestroy();
+    }
 }

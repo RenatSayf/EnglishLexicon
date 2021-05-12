@@ -13,7 +13,10 @@ import com.myapp.lexicon.settings.AppSettings;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentTransaction;
+import dagger.hilt.android.AndroidEntryPoint;
 
+
+@AndroidEntryPoint
 public class TestsActivity extends AppCompatActivity
 {
     private ImageButton buttonFindPair, buttonListenEndClick, buttonOneOfFive;

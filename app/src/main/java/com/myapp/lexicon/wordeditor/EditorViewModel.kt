@@ -1,18 +1,19 @@
 package com.myapp.lexicon.wordeditor
 
-import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.myapp.lexicon.database.Word
 import com.myapp.lexicon.repository.DataRepositoryImpl
+import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import javax.inject.Inject
 
 
-
-class EditorViewModel @ViewModelInject constructor(private val repository: DataRepositoryImpl) : ViewModel()
+@HiltViewModel
+class EditorViewModel @Inject constructor(private val repository: DataRepositoryImpl) : ViewModel()
 {
     private val composite = CompositeDisposable()
 
