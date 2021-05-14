@@ -126,7 +126,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     private final String KEY_STORED_DICT_LIST = "key_stored_dict_list";
 
     private MainViewModel mainViewModel;
-    private CompositeDisposable composite = new CompositeDisposable();
+    private final CompositeDisposable composite = new CompositeDisposable();
 
     @Inject
     DataRepositoryImpl repository;
@@ -417,34 +417,49 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
                                 if (getActivity() != null)
                                 {
                                     ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(getActivity(), R.layout.my_content_spinner_layout, arrayList);
+                                    Word currentWord = repository.getWordFromPref();
+                                    String dictName = currentWord.getDictName();
+                                    int position = adapterSpinner.getPosition(dictName);
                                     spinnListDict.setAdapter(adapterSpinner);
-                                }
-                                ArrayList<String> playList = appSettings.getPlayList();
-                                if (playList != null && playList.size() > 0)
-                                {
-                                    String currentDict;
                                     try
                                     {
-                                        currentDict = playList.get(appData.getNdict());
-                                    } catch (ArrayIndexOutOfBoundsException e)
+                                        spinnListDict.setSelection(position);
+                                    } catch (IndexOutOfBoundsException e)
                                     {
-                                        appData.setNdict(0);
-                                        currentDict = playList.get(appData.getNdict());
+                                        spinnListDict.setSelection(0);
                                     }
-                                    if (arrayList.contains(currentDict))
-                                    {
-                                        int indexOf = arrayList.indexOf(currentDict);
-                                        spinnListDict.setSelection(indexOf);
-                                    }
-                                } else
-                                {
-                                    spinnListDict.setSelection(0);
+
                                 }
-                                spinnListDict_OnItemSelectedListener();
-                                for (int i = 0; i < spinnListDict.getAdapter().getCount(); i++)
-                                {
-                                    storedListDict.add(spinnListDict.getAdapter().getItem(i).toString());
-                                }
+
+
+
+
+//                                ArrayList<String> playList = appSettings.getPlayList();
+//                                if (playList != null && playList.size() > 0)
+//                                {
+//                                    String currentDict;
+//                                    try
+//                                    {
+//                                        currentDict = playList.get(appData.getNdict());
+//                                    } catch (ArrayIndexOutOfBoundsException e)
+//                                    {
+//                                        appData.setNdict(0);
+//                                        currentDict = playList.get(appData.getNdict());
+//                                    }
+//                                    if (arrayList.contains(currentDict))
+//                                    {
+//                                        int indexOf = arrayList.indexOf(currentDict);
+//                                        spinnListDict.setSelection(indexOf);
+//                                    }
+//                                } else
+//                                {
+//                                    spinnListDict.setSelection(0);
+//                                }
+//                                spinnListDict_OnItemSelectedListener();
+//                                for (int i = 0; i < spinnListDict.getAdapter().getCount(); i++)
+//                                {
+//                                    storedListDict.add(spinnListDict.getAdapter().getItem(i).toString());
+//                                }
                             }
                         }, Throwable::printStackTrace)
         );
