@@ -43,6 +43,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
 import javax.inject.Inject;
@@ -86,14 +87,14 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     private TextView tvProgressValue;
 
     private LockOrientation lockOrientation;
-    private int wordIndex = 1;
+    private int wordIndex = 0;
     private int wordsCount;
     private int counterRightAnswer = 0;
 
     private static final ArrayList<String> textArrayleft = new ArrayList<>();
     private static final ArrayList<String> textArrayRight = new ArrayList<>();
     private ArrayList<String> arrStudiedDict;
-    private ArrayList<Word> controlList;
+    private ArrayList<Word> controlList = new ArrayList<>();
     private ArrayList<Word> additionalList;
     private ArrayList<String> storedListDict;
 
@@ -126,6 +127,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
     private final String KEY_STORED_DICT_LIST = "key_stored_dict_list";
 
     private MainViewModel mainViewModel;
+    private TestViewModel testVM;
     private final CompositeDisposable composite = new CompositeDisposable();
 
     @Inject
@@ -144,6 +146,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         setRetainInstance(false);
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        testVM = new ViewModelProvider(this).get(TestViewModel.class);
 
         storedListDict = new ArrayList<>();
         arrStudiedDict = new ArrayList<>();
@@ -366,8 +369,26 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
             }
         }
 
-        spinnListDict_OnItemSelectedListener();
-        setItemsToSpinnListDict();
+        testVM.getDictList().observe(getViewLifecycleOwner(), list -> {
+            Word currentWord = testVM.getCurrentWord().getValue();
+            ArrayAdapter<String> spinnAdapter = new ArrayAdapter<>(getActivity(), R.layout.my_content_spinner_layout, list);
+            spinnListDict.setAdapter(spinnAdapter);
+            spinnListDict_OnItemSelectedListener();
+            if (currentWord != null && list.contains(currentWord.getDictName()))
+            {
+                int position = spinnAdapter.getPosition(currentWord.getDictName());
+                spinnListDict.setSelection(position);
+                testVM.getWordsByDictName(currentWord.getDictName());
+            }
+        });
+
+        testVM.getWordsList().observe(getViewLifecycleOwner(), words -> {
+            List<Word> words1 = words;
+            return;
+        });
+
+
+        //setItemsToSpinnListDict();
 
         testResults = new TestResults(getActivity());
 
@@ -399,75 +420,9 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
         });
     }
 
-    private void setItemsToSpinnListDict()
-    {
-        if (storedListDict.size() > 0 && getActivity() != null)
-        {
-            ArrayAdapter<String> spinnAdapter = new ArrayAdapter<>(getActivity(), R.layout.my_content_spinner_layout, storedListDict);
-            spinnListDict.setAdapter(spinnAdapter);
-            return;
-        }
-
-        composite.add(
-                mainViewModel.getDictList().subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(arrayList -> {
-                            if (arrayList != null && arrayList.size() > 0)
-                            {
-                                if (getActivity() != null)
-                                {
-                                    ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(getActivity(), R.layout.my_content_spinner_layout, arrayList);
-                                    Word currentWord = repository.getWordFromPref();
-                                    String dictName = currentWord.getDictName();
-                                    int position = adapterSpinner.getPosition(dictName);
-                                    spinnListDict.setAdapter(adapterSpinner);
-                                    try
-                                    {
-                                        spinnListDict.setSelection(position);
-                                    } catch (IndexOutOfBoundsException e)
-                                    {
-                                        spinnListDict.setSelection(0);
-                                    }
-
-                                }
-
-
-
-
-//                                ArrayList<String> playList = appSettings.getPlayList();
-//                                if (playList != null && playList.size() > 0)
-//                                {
-//                                    String currentDict;
-//                                    try
-//                                    {
-//                                        currentDict = playList.get(appData.getNdict());
-//                                    } catch (ArrayIndexOutOfBoundsException e)
-//                                    {
-//                                        appData.setNdict(0);
-//                                        currentDict = playList.get(appData.getNdict());
-//                                    }
-//                                    if (arrayList.contains(currentDict))
-//                                    {
-//                                        int indexOf = arrayList.indexOf(currentDict);
-//                                        spinnListDict.setSelection(indexOf);
-//                                    }
-//                                } else
-//                                {
-//                                    spinnListDict.setSelection(0);
-//                                }
-//                                spinnListDict_OnItemSelectedListener();
-//                                for (int i = 0; i < spinnListDict.getAdapter().getCount(); i++)
-//                                {
-//                                    storedListDict.add(spinnListDict.getAdapter().getItem(i).toString());
-//                                }
-                            }
-                        }, Throwable::printStackTrace)
-        );
-    }
-
     private void startTest()
     {
-        wordIndex = 1;
+        wordIndex = 0;
         spinnSelectedItem = spinnListDict.getSelectedItem().toString();
         counterRightAnswer = 0;
 
@@ -540,53 +495,100 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
 
     private void fillButtonsLayout(String dictName, int start, int end)
     {
-        composite.add(
-                repository.getEntriesFromDbByDictName(dictName, start, ROWS)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe(entries -> {
-                    controlList = (ArrayList<Word>) entries;
-                    additionalList = new ArrayList<>();
-                    additionalList.addAll(controlList);
-                    controlListSize = controlList.size();
-                    Date date = new Date();
-                    RandomNumberGenerator randGenRight = new RandomNumberGenerator(controlListSize, (int) date.getTime());
-                    long delay = 0;
-                    for (int i = 0; i < controlList.size(); i++)
-                    {
-                        Button btnLeft = (Button) btnLayoutLeft.getChildAt(i);
-                        Button btnRight = (Button) btnLayoutRight.getChildAt(i);
+        ArrayList<Word> wordList = (ArrayList<Word>) testVM.getWordsList().getValue();
+        if (wordList != null && !wordList.isEmpty())
+        {
+            controlList.clear();
+            List<Word> words = wordList.subList(start, end);
+            controlList.addAll(words);
+            additionalList = new ArrayList<>();
+            additionalList.addAll(controlList);
+            controlListSize = controlList.size();
+            Date date = new Date();
+            RandomNumberGenerator randGenRight = new RandomNumberGenerator(controlListSize, (int) date.getTime());
+            long delay = 0;
+            for (int i = 0; i < controlList.size(); i++)
+            {
+                Button btnLeft = (Button) btnLayoutLeft.getChildAt(i);
+                Button btnRight = (Button) btnLayoutRight.getChildAt(i);
 
-                        btnLeft.setScaleX(1.0f);
-                        btnLeft.setScaleY(1.0f);
-                        btnRight.setScaleX(1.0f);
-                        btnRight.setScaleY(1.0f);
-                        btnLeft.setText(controlList.get(i).getEnglish());
-                        btnRight.setText(controlList.get(randGenRight.generate()).getTranslate());
-                        btnLeft.setX(-metrics.widthPixels);
-                        btnLeft.setTranslationY(0);
-                        btnRight.setX(metrics.widthPixels);
-                        btnRight.setTranslationY(0);
-                        btnLeft.setVisibility(View.VISIBLE);
-                        btnRight.setVisibility(View.VISIBLE);
-                        btnLeft.animate().translationX(0).translationY(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null).setStartDelay(delay);
-                        btnRight.animate().translationX(0).translationY(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null).setStartDelay(delay);
-                        delay += 70;
-                        btnLeft_OnClick(btnLeft);
-                        btnRight_OnClick(btnRight);
-                    }
-                    if (textArrayleft.size() == 0 && textArrayRight.size() == 0)
-                    {
-                        for (int i = 0; i < btnLayoutLeft.getChildCount() && i < btnLayoutRight.getChildCount(); i++)
-                        {
-                            Button buttonLeft = (Button) btnLayoutLeft.getChildAt(i);
-                            textArrayleft.add(buttonLeft.getText().toString());
-                            Button buttonRight = (Button) btnLayoutRight.getChildAt(i);
-                            textArrayRight.add(buttonRight.getText().toString());
-                        }
-                    }
-                }, Throwable::printStackTrace)
-        );
+                btnLeft.setScaleX(1.0f);
+                btnLeft.setScaleY(1.0f);
+                btnRight.setScaleX(1.0f);
+                btnRight.setScaleY(1.0f);
+                btnLeft.setText(controlList.get(i).getEnglish());
+                btnRight.setText(controlList.get(randGenRight.generate()).getTranslate());
+                btnLeft.setX(-metrics.widthPixels);
+                btnLeft.setTranslationY(0);
+                btnRight.setX(metrics.widthPixels);
+                btnRight.setTranslationY(0);
+                btnLeft.setVisibility(View.VISIBLE);
+                btnRight.setVisibility(View.VISIBLE);
+                btnLeft.animate().translationX(0).translationY(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null).setStartDelay(delay);
+                btnRight.animate().translationX(0).translationY(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null).setStartDelay(delay);
+                delay += 70;
+                btnLeft_OnClick(btnLeft);
+                btnRight_OnClick(btnRight);
+            }
+            if (textArrayleft.size() == 0 && textArrayRight.size() == 0)
+            {
+                for (int i = 0; i < btnLayoutLeft.getChildCount() && i < btnLayoutRight.getChildCount(); i++)
+                {
+                    Button buttonLeft = (Button) btnLayoutLeft.getChildAt(i);
+                    textArrayleft.add(buttonLeft.getText().toString());
+                    Button buttonRight = (Button) btnLayoutRight.getChildAt(i);
+                    textArrayRight.add(buttonRight.getText().toString());
+                }
+            }
+        }
+
+//        composite.add(
+//                repository.getEntriesFromDbByDictName(dictName, start, ROWS)
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribeOn(Schedulers.io())
+//                .subscribe(entries -> {
+//                    controlList = (ArrayList<Word>) entries;
+//                    additionalList = new ArrayList<>();
+//                    additionalList.addAll(controlList);
+//                    controlListSize = controlList.size();
+//                    Date date = new Date();
+//                    RandomNumberGenerator randGenRight = new RandomNumberGenerator(controlListSize, (int) date.getTime());
+//                    long delay = 0;
+//                    for (int i = 0; i < controlList.size(); i++)
+//                    {
+//                        Button btnLeft = (Button) btnLayoutLeft.getChildAt(i);
+//                        Button btnRight = (Button) btnLayoutRight.getChildAt(i);
+//
+//                        btnLeft.setScaleX(1.0f);
+//                        btnLeft.setScaleY(1.0f);
+//                        btnRight.setScaleX(1.0f);
+//                        btnRight.setScaleY(1.0f);
+//                        btnLeft.setText(controlList.get(i).getEnglish());
+//                        btnRight.setText(controlList.get(randGenRight.generate()).getTranslate());
+//                        btnLeft.setX(-metrics.widthPixels);
+//                        btnLeft.setTranslationY(0);
+//                        btnRight.setX(metrics.widthPixels);
+//                        btnRight.setTranslationY(0);
+//                        btnLeft.setVisibility(View.VISIBLE);
+//                        btnRight.setVisibility(View.VISIBLE);
+//                        btnLeft.animate().translationX(0).translationY(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null).setStartDelay(delay);
+//                        btnRight.animate().translationX(0).translationY(0).setDuration(duration).setInterpolator(new AnticipateOvershootInterpolator()).setListener(null).setStartDelay(delay);
+//                        delay += 70;
+//                        btnLeft_OnClick(btnLeft);
+//                        btnRight_OnClick(btnRight);
+//                    }
+//                    if (textArrayleft.size() == 0 && textArrayRight.size() == 0)
+//                    {
+//                        for (int i = 0; i < btnLayoutLeft.getChildCount() && i < btnLayoutRight.getChildCount(); i++)
+//                        {
+//                            Button buttonLeft = (Button) btnLayoutLeft.getChildAt(i);
+//                            textArrayleft.add(buttonLeft.getText().toString());
+//                            Button buttonRight = (Button) btnLayoutRight.getChildAt(i);
+//                            textArrayRight.add(buttonRight.getText().toString());
+//                        }
+//                    }
+//                }, Throwable::printStackTrace)
+//        );
 
 //        GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), dictName, start, end, new GetEntriesFromDbAsync.GetEntriesListener()
 //        {
