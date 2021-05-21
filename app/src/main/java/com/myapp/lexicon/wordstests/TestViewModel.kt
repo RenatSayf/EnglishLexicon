@@ -62,4 +62,9 @@ class TestViewModel @Inject constructor(app: Application, private val repository
         }
         super.onCleared()
     }
+
+    init
+    {
+        _currentWord.value?.let { getWordsByDictName(it.dictName) }
+    }
 }

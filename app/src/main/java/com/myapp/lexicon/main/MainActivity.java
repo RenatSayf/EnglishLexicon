@@ -43,7 +43,7 @@ import com.myapp.lexicon.service.LexiconService;
 import com.myapp.lexicon.settings.SettingsFragment;
 import com.myapp.lexicon.wordeditor.WordEditorActivity;
 import com.myapp.lexicon.wordstests.OneOfFiveFragmNew;
-import com.myapp.lexicon.wordstests.TestsActivity;
+import com.myapp.lexicon.wordstests.TestFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -625,11 +625,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         else if (id == R.id.nav_check_your_self)
         {
-            if (testsIntent == null)
-            {
-                testsIntent = new Intent(this, TestsActivity.class);
-            }
-            startActivity(testsIntent);
+            getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, TestFragment.Companion.newInstance()).addToBackStack(null).commit();
+//            if (testsIntent == null)
+//            {
+//                testsIntent = new Intent(this, TestsActivity.class);
+//            }
+//            startActivity(testsIntent);
         }
         else if (id == R.id.nav_settings)
         {
