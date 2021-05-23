@@ -114,17 +114,34 @@
                         />
                 </androidx.appcompat.widget.LinearLayoutCompat>
 
-                <androidx.appcompat.widget.AppCompatAutoCompleteTextView
-                    android:id="@+id/editTextView"
+                <FrameLayout
+                    android:id="@+id/editFrameLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="12dp"
                     app:layout_constraintTop_toBottomOf="@id/wordsLayout"
                     android:layout_marginTop="20dp"
-                    android:hint="Напиши перевод сдесь..."
-                    android:background="@drawable/semitransparent_back_white"
-                    android:inputType="textMultiLine"
-                    />
+                    >
+
+                    <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+                        android:id="@+id/editTextView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="12dp"
+                        android:paddingEnd="40dp"
+                        android:hint="Напиши перевод сдесь..."
+                        android:background="@drawable/semitransparent_back_white"
+                        android:inputType="textMultiLine" />
+
+                    <ImageButton
+                        android:id="@+id/clearBtnView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/transparent_background"
+                        android:src="@drawable/selector_close_icon"
+                        android:layout_margin="10dp"
+                        android:layout_gravity="end|center_horizontal"/>
+
+                </FrameLayout>
 
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/speechBtn"
@@ -132,7 +149,7 @@
                     android:layout_height="wrap_content"
                     android:maxWidth="200dp"
                     android:minHeight="65dp"
-                    app:layout_constraintTop_toBottomOf="@id/editTextView"
+                    app:layout_constraintTop_toBottomOf="@id/editFrameLayout"
                     android:layout_marginTop="20dp"
                     android:text="или нажми и скажи..."
                     android:textSize="18sp"

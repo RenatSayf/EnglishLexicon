@@ -200,7 +200,6 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
 
     override fun onCleared()
     {
-
         composite.dispose()
         composite.clear()
         super.onCleared()

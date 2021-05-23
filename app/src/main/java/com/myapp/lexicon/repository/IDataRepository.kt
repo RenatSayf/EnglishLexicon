@@ -17,6 +17,8 @@ interface IDataRepository
 
     fun getRandomEntriesFromDB(dictName: String, id: Int) : Single<Word>
 
+    fun getAllSimilarEntriesFromDB(dictName: String, like: String) : Single<MutableList<Word>>
+
     fun updateCountRepeat(countRepeat: Int, minId: Int, maxId: Int) : Single<Int>
 
     fun insertEntry(word: Word): Single<Long>

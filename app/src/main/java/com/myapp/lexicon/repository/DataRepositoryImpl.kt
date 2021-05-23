@@ -34,6 +34,11 @@ class DataRepositoryImpl @Inject constructor(private val appDB: AppDB,
         return db.getRandomEntries(dictName, id)
     }
 
+    override fun getAllSimilarEntriesFromDB(dictName: String, like: String): Single<MutableList<Word>>
+    {
+        return db.getAllSimilarEntries(dictName, like)
+    }
+
     override fun updateCountRepeat(countRepeat: Int, minId: Int, maxId: Int): Single<Int>
     {
         return db.updateCountRepeat(countRepeat, minId, maxId)

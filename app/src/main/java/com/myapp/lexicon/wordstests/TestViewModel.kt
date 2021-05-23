@@ -47,9 +47,27 @@ class TestViewModel @Inject constructor(app: Application, private val repository
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ list ->
+                    list.shuffle()
                    _wordsList.value = list
                 }, { t ->
                     t.printStackTrace()
+                })
+        )
+    }
+
+    private var _similarWords = MutableLiveData<MutableList<Word>>(arrayListOf())
+    var similarWords: LiveData<MutableList<Word>> = _similarWords
+
+    fun getAllSimilarWords(dict: String, like: String)
+    {
+        composite.add(
+            repository.getAllSimilarEntriesFromDB(dict, like)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ words ->
+                   _similarWords.value = words
+                }, {
+                    it.printStackTrace()
                 })
         )
     }
