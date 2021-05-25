@@ -82,7 +82,6 @@ class TestFragment : Fragment(R.layout.test_fragment)
                 val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, translates)
                 binding.editTextView.apply {
                     setAdapter(adapter)
-                    if (text.isEmpty()) showDropDown()
                 }
 
             }
