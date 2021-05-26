@@ -4,12 +4,16 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.myapp.lexicon.database.Word
 import com.myapp.lexicon.repository.DataRepositoryImpl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 import javax.inject.Inject
 
@@ -18,6 +22,8 @@ import javax.inject.Inject
 class TestViewModel @Inject constructor(app: Application, private val repository: DataRepositoryImpl) : AndroidViewModel(app)
 {
     private val composite = CompositeDisposable()
+
+
 
     private var _currentWord = MutableLiveData<Word>().apply {
         value = repository.getWordFromPref()
@@ -38,7 +44,7 @@ class TestViewModel @Inject constructor(app: Application, private val repository
     }
     var dictList: LiveData<List<String>> = _dictList
 
-    private var _wordsList = MutableLiveData<MutableList<Word>>(arrayListOf())
+    private var _wordsList = MutableLiveData<MutableList<Word>>(arrayListOf(Word(-1, "", "", "", 0)))
     var wordsList: LiveData<MutableList<Word>> = _wordsList
     fun getWordsByDictName(dict: String)
     {
@@ -48,7 +54,8 @@ class TestViewModel @Inject constructor(app: Application, private val repository
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ list ->
                     list.shuffle()
-                   _wordsList.value = list
+                    _wordsList.value = list
+                    _wordsCount.value =list.size
                 }, { t ->
                     t.printStackTrace()
                 })
@@ -71,6 +78,50 @@ class TestViewModel @Inject constructor(app: Application, private val repository
                 })
         )
     }
+
+    private var _isRight = MutableLiveData<Boolean>(null)
+    var isRight: LiveData<Boolean> = _isRight
+
+    fun searchWord(word: Word)
+    {
+        val filteredWords = _wordsList.value!!.filter {
+            it.english == word.english && it.translate == word.translate
+        }
+        _isRight.value = _wordsList.value!!.removeAll(filteredWords)
+        _isRight.value?.let {
+            if (it && _wordsList.value!!.isNotEmpty())
+            {
+                _nextWordsPair.value = _wordsList.value!![0]
+                _wordIndex.value = _wordsCount.value!! - _wordsList.value!!.size
+            }
+            else
+            {
+                _wordIndex.value = _wordsCount.value!!
+            }
+        }
+    }
+
+    private var _nextWordsPair = MutableLiveData<Word>()
+    var nextWordsPair: LiveData<Word> = _nextWordsPair
+    fun getNextWords() : Word?
+    {
+        return if (_wordsList.value!!.isNotEmpty())
+        {
+            _wordsList.value!![0]
+        }
+        else
+        {
+            null
+        }
+    }
+
+    private var _wordsCount = MutableLiveData<Int>().apply {
+        value = _wordsList.value!!.size
+    }
+    var wordsCount: LiveData<Int> = _wordsCount
+
+    private var _wordIndex = MutableLiveData<Int>(0)
+    var wordIndex: LiveData<Int> = _wordIndex
 
     override fun onCleared()
     {

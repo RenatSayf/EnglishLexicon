@@ -74,7 +74,7 @@
                 android:layout_height="wrap_content"
                 android:padding="16dp">
 
-                <androidx.appcompat.widget.LinearLayoutCompat
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/wordsLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -100,19 +100,18 @@
                         android:id="@+id/ruWordTV"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/enWordTV"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
                         android:padding="16dp"
-                        tools:text="отгадай меня"
+                        android:text="отгадай меня"
                         android:gravity="center"
                         android:textColor="@color/colorGreen"
                         android:textSize="28sp"
                         android:textStyle="bold"
-                        tools:scaleX="1"
-                        tools:scaleY="1"
-                        android:scaleX="0"
-                        android:scaleY="0"
                         />
-                </androidx.appcompat.widget.LinearLayoutCompat>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <FrameLayout
                     android:id="@+id/editFrameLayout"
