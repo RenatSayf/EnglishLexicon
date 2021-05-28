@@ -220,6 +220,7 @@
     <string name="text_test_knowledge">Проверим знания!!!…</string>
     <string name="text_all_words_learned">Все слова изучены!!!</string>
     <string name="text_select_other_dict">Выберите другой словарь для изучения.</string>
+    <string name="text_is_granted">Отлично. Теперь можно распознавать речь…</string>
     <string-array name="not_move">
         <item>Не перемещать</item>
     </string-array>

@@ -1,6 +1,8 @@
 package com.myapp.lexicon.wordstests
 
+import android.Manifest
 import android.animation.Animator
+import android.content.pm.PackageManager
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -14,12 +16,16 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.myapp.lexicon.R
 import com.myapp.lexicon.database.Word
 import com.myapp.lexicon.databinding.TestFragmentBinding
 import com.myapp.lexicon.helpers.Keyboard
+import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.UiState
 import com.myapp.lexicon.viewmodels.AnimViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -70,12 +76,14 @@ class TestFragment : Fragment(R.layout.test_fragment)
             }
         })
 
+        testVM.resetRight()
         testVM.isRight.observe(viewLifecycleOwner, { isRight ->
             isRight?.let {
                 when(it)
                 {
                     true ->
                     {
+                        LockOrientation(requireActivity()).lock()
                         Keyboard.getInstance().forceHide(requireContext(), binding.editTextView)
                         binding.ruWordTV.animate().scaleX(1f).scaleY(1f).apply {
                             duration = 500
@@ -168,6 +176,24 @@ class TestFragment : Fragment(R.layout.test_fragment)
             binding.progressValueTV.text = progressValue
         })
 
+        animVM.animState.observe(viewLifecycleOwner, {
+            when (it)
+            {
+                is UiState.AnimStarted -> LockOrientation(requireActivity()).lock()
+                is UiState.AnimEnded, is UiState.AnimCanceled -> LockOrientation(requireActivity()).unLock()
+                else -> LockOrientation(requireActivity()).unLock()
+            }
+        })
+
+        binding.speechBtn.setOnClickListener {
+            // TODO Runtime permission Step 4
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
+            {
+                recordAudioPermission.launch(Manifest.permission.RECORD_AUDIO)
+                return@setOnClickListener
+            }
+        }
+
     }
 
     // TODO ViewPropertyAnimation.Scale Step 6 слушатель анимации
@@ -177,7 +203,7 @@ class TestFragment : Fragment(R.layout.test_fragment)
         {
             override fun onAnimationStart(p0: Animator?)
             {
-
+                animVM.setAnimState(UiState.AnimStarted())
             }
 
             override fun onAnimationEnd(p0: Animator?)
@@ -231,13 +257,30 @@ class TestFragment : Fragment(R.layout.test_fragment)
                     binding.enWordTV.animate().scaleX(1f).scaleY(1f).apply {
                         duration = 300
                         interpolator = AccelerateInterpolator()
-                        setListener(null)
+                        setListener(object : Animator.AnimatorListener
+                        {
+                            override fun onAnimationStart(p0: Animator?)
+                            {}
+
+                            override fun onAnimationEnd(p0: Animator?)
+                            {
+                                animVM.setAnimState(UiState.AnimEnded())
+                            }
+
+                            override fun onAnimationCancel(p0: Animator?)
+                            {
+                                animVM.setAnimState(UiState.AnimCanceled())
+                            }
+
+                            override fun onAnimationRepeat(p0: Animator?)
+                            {}
+
+                        })
                         startDelay = 0
                     }
                 } ?: run {
                     Toast.makeText(requireContext(), "Тест завершен...", Toast.LENGTH_LONG).show()
                 }
-
             }
 
             override fun onAnimationCancel(p0: Animator?)
@@ -251,6 +294,12 @@ class TestFragment : Fragment(R.layout.test_fragment)
             }
 
         })
+    }
+
+    // TODO Runtime permission Step 3
+    private val recordAudioPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (isGranted) Snackbar.make(binding.mainScroll, getString(R.string.text_is_granted), Snackbar.LENGTH_LONG).show()
+        return@registerForActivityResult
     }
 
     override fun onDestroy()

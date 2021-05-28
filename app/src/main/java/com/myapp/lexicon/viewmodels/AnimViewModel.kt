@@ -18,4 +18,11 @@ class AnimViewModel(app: Application) : AndroidViewModel(app)
     }
     //endregion
 
+    private var _animState = MutableLiveData<UiState>()
+    var animState: LiveData<UiState> = _animState
+    fun setAnimState(state: UiState)
+    {
+        _animState.value = state
+    }
+
 }

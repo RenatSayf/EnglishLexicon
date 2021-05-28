@@ -10,7 +10,7 @@ import android.content.res.Configuration;
  */
 public class LockOrientation
 {
-    private Activity activity;
+    private final Activity activity;
 
     public LockOrientation(Activity activity)
     {
@@ -29,8 +29,7 @@ public class LockOrientation
                     if (rotation == android.view.Surface.ROTATION_90 || rotation == android.view.Surface.ROTATION_180)
                     {
                         activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
-                    }
-                    else
+                    } else
                     {
                         activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
                     }
@@ -41,14 +40,17 @@ public class LockOrientation
                     if (rotation == android.view.Surface.ROTATION_0 || rotation == android.view.Surface.ROTATION_90)
                     {
                         activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                    }
-                    else
+                    } else
                     {
                         activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
                     }
                 }
-                    break;
+                break;
                 default:
+                    break;
+                case Configuration.ORIENTATION_SQUARE:
+                    break;
+                case Configuration.ORIENTATION_UNDEFINED:
                     break;
             }
         }

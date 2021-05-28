@@ -273,6 +273,7 @@
     <string name="text_test_knowledge">Перевірте свої знання!!!…</string>
     <string name="text_all_words_learned">Всі слова вивчені!!!</string>
     <string name="text_select_other_dict">Виберіть інший словник для вивчення.</string>
+    <string name="text_is_granted">Відмінно. Тепер ви можете розпізнавати мову…</string>
 
     <string-array name="words_interval">
         <item>після 5 слів</item>

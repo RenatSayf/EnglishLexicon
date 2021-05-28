@@ -9,4 +9,8 @@ sealed class UiState
     data class TextViewAfterAnim(
         val scaleX: Float,
         val scaleY: Float) : UiState()
+
+    class AnimStarted() : UiState()
+    class AnimEnded() : UiState()
+    class AnimCanceled() : UiState()
 }

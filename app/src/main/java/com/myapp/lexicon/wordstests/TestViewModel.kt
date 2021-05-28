@@ -81,6 +81,10 @@ class TestViewModel @Inject constructor(app: Application, private val repository
 
     private var _isRight = MutableLiveData<Boolean>(null)
     var isRight: LiveData<Boolean> = _isRight
+    fun resetRight()
+    {
+        _isRight.value = null
+    }
 
     fun searchWord(word: Word)
     {
