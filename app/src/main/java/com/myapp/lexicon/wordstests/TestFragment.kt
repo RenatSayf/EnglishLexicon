@@ -2,23 +2,22 @@ package com.myapp.lexicon.wordstests
 
 import android.Manifest
 import android.animation.Animator
+import android.content.Intent
 import android.content.pm.PackageManager
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.speech.RecognizerIntent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewPropertyAnimator
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.AnticipateOvershootInterpolator
-import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.lifecycleScope
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.myapp.lexicon.R
@@ -30,8 +29,7 @@ import com.myapp.lexicon.helpers.UiState
 import com.myapp.lexicon.viewmodels.AnimViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.disposables.CompositeDisposable
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 
@@ -122,21 +120,18 @@ class TestFragment : Fragment(R.layout.test_fragment)
                 binding.editTextView.apply {
                     setAdapter(adapter)
                 }
-
             }
         })
 
-        binding.editTextView.setOnItemClickListener(object : AdapterView.OnItemClickListener
-        {
-            override fun onItemClick(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long)
+        binding.checkBtn.setOnClickListener {
+            val translateText = binding.editTextView.text.toString()
+            if (translateText.isNotEmpty())
             {
-                val translateText = (p1 as TextView).text.toString()
                 val enText = binding.enWordTV.text.toString()
                 val searchedWord = Word(-1, "", enText, translateText, 1)
                 testVM.searchWord(searchedWord)
             }
-
-        })
+        }
 
         binding.clearBtnView.setOnClickListener {
             binding.editTextView.text.clear()
@@ -144,21 +139,18 @@ class TestFragment : Fragment(R.layout.test_fragment)
 
         animVM.apply {
             uiState.observe(viewLifecycleOwner, { state ->
-                when(state)
+                if (state is UiState.TextViewCreated)
                 {
-                    is UiState.TextViewCreated ->
-                    {
-                        binding.ruWordTV.apply {
-                            scaleX = state.scaleX
-                            scaleY = state.scaleY
-                        }
+                    binding.ruWordTV.apply {
+                        scaleX = state.scaleX
+                        scaleY = state.scaleY
                     }
-                    is UiState.TextViewAfterAnim ->
-                    {
-                        binding.ruWordTV.apply {
-                            scaleX = state.scaleX
-                            scaleY = state.scaleY
-                        }
+                }
+                else if (state is UiState.TextViewAfterAnim)
+                {
+                    binding.ruWordTV.apply {
+                        scaleX = state.scaleX
+                        scaleY = state.scaleY
                     }
                 }
             })
@@ -185,13 +177,18 @@ class TestFragment : Fragment(R.layout.test_fragment)
             }
         })
 
-        binding.speechBtn.setOnClickListener {
+        binding.microphoneBtnView.setOnClickListener {
             // TODO Runtime permission Step 4
             if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
             {
                 recordAudioPermission.launch(Manifest.permission.RECORD_AUDIO)
                 return@setOnClickListener
             }
+            runSpeechRecognizer()
+        }
+
+        binding.selectVariantBtn.setOnClickListener {
+
         }
 
     }
@@ -299,6 +296,36 @@ class TestFragment : Fragment(R.layout.test_fragment)
     // TODO Runtime permission Step 3
     private val recordAudioPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
         if (isGranted) Snackbar.make(binding.mainScroll, getString(R.string.text_is_granted), Snackbar.LENGTH_LONG).show()
+        return@registerForActivityResult
+    }
+
+    //TODO Speech Recognizer Step 3 Готовим intent
+    private fun runSpeechRecognizer()
+    {
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            action = RecognizerIntent.ACTION_RECOGNIZE_SPEECH
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+            putExtra(
+                RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH
+            )
+            putExtra(RecognizerIntent.EXTRA_PROMPT, "Говорите в микрофон...")
+        }
+        speechRecognizer.launch(intent)
+    }
+
+    //TODO Speech Recognizer Step 4 Получение результата распознавания
+    private val speechRecognizer = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result ->
+        val data = result.data
+        data?.let {
+            val listExtra = it.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+            if (!listExtra.isNullOrEmpty())
+            {
+                val dict = binding.btnViewDict.text.toString()
+                testVM.getAllSimilarWords(dict, "%${listExtra[0]}%")
+                binding.editTextView.showDropDown()
+            }
+        }
         return@registerForActivityResult
     }
 

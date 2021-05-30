@@ -274,6 +274,9 @@
     <string name="text_all_words_learned">Всі слова вивчені!!!</string>
     <string name="text_select_other_dict">Виберіть інший словник для вивчення.</string>
     <string name="text_is_granted">Відмінно. Тепер ви можете розпізнавати мову…</string>
+    <string name="text_check">Перевірити…</string>
+    <string name="text_hint">Підказка…</string>
+    <string name="text_write_translation">Напиши переклад тут…</string>
 
     <string-array name="words_interval">
         <item>після 5 слів</item>

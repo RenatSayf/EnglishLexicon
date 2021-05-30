@@ -4,17 +4,12 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
 import com.myapp.lexicon.database.Word
 import com.myapp.lexicon.repository.DataRepositoryImpl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
-
 import javax.inject.Inject
 
 
@@ -79,8 +74,8 @@ class TestViewModel @Inject constructor(app: Application, private val repository
         )
     }
 
-    private var _isRight = MutableLiveData<Boolean>(null)
-    var isRight: LiveData<Boolean> = _isRight
+    private var _isRight = MutableLiveData<Boolean?>(null)
+    var isRight: LiveData<Boolean?> = _isRight
     fun resetRight()
     {
         _isRight.value = null
@@ -97,10 +92,6 @@ class TestViewModel @Inject constructor(app: Application, private val repository
             {
                 _nextWordsPair.value = _wordsList.value!![0]
                 _wordIndex.value = _wordsCount.value!! - _wordsList.value!!.size
-            }
-            else
-            {
-                _wordIndex.value = _wordsCount.value!!
             }
         }
     }
@@ -124,7 +115,7 @@ class TestViewModel @Inject constructor(app: Application, private val repository
     }
     var wordsCount: LiveData<Int> = _wordsCount
 
-    private var _wordIndex = MutableLiveData<Int>(0)
+    private var _wordIndex = MutableLiveData(0)
     var wordIndex: LiveData<Int> = _wordIndex
 
     override fun onCleared()
