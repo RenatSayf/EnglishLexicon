@@ -431,8 +431,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onStart()
     {
         super.onStart();
-        FirebaseAppIndex.getInstance().update();
-        FirebaseUserActions.getInstance().start(getAction());
+        FirebaseAppIndex.getInstance(this).update();
+        FirebaseUserActions.getInstance(this).start(getAction());
     }
 
     @SuppressWarnings("Convert2Lambda")
@@ -486,7 +486,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onStop()
     {
-        FirebaseUserActions.getInstance().end(getAction());
+        FirebaseUserActions.getInstance(this).end(getAction());
         super.onStop();
     }
 

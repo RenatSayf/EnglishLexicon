@@ -93,6 +93,10 @@ class TestViewModel @Inject constructor(app: Application, private val repository
                 _nextWordsPair.value = _wordsList.value!![0]
                 _wordIndex.value = _wordsCount.value!! - _wordsList.value!!.size
             }
+            else if (it && _wordsList.value!!.isEmpty())
+            {
+                _wordIndex.value = _wordsCount.value
+            }
         }
     }
 

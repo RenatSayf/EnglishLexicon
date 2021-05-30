@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.speech.RecognizerIntent
+import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,6 +32,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.disposables.CompositeDisposable
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.collections.ArrayList
 
 
 @AndroidEntryPoint
@@ -188,6 +190,28 @@ class TestFragment : Fragment(R.layout.test_fragment)
         }
 
         binding.selectVariantBtn.setOnClickListener {
+            val shuffledList = testVM.wordsList.value?.shuffled()
+            var subList: List<Word> = arrayListOf()
+            if (shuffledList != null && shuffledList.size > 4)
+            {
+                subList = shuffledList.subList(0, 4)
+            }
+            else if (shuffledList != null)
+            {
+                subList = shuffledList
+            }
+            val enWord = binding.enWordTV.text.toString()
+            val ruWord = binding.ruWordTV.text.toString()
+            val dictName = binding.btnViewDict.text.toString()
+            val targetWord = Word(-1, dictName, enWord, ruWord, 1)
+            if (!subList.isNullOrEmpty())
+            {
+                val hintDialog = HintDialogFragment.newInstance(targetWord, subList.toMutableList())
+                hintDialog.show(parentFragmentManager, "")
+                hintDialog.selectedItem.observe(viewLifecycleOwner, {
+                    binding.editTextView.setText(it)
+                })
+            }
 
         }
 

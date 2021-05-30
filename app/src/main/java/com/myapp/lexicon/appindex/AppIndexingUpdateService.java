@@ -92,7 +92,7 @@ public class AppIndexingUpdateService extends JobIntentService
             notesArr = indexableNotes.toArray(notesArr);
 
             // batch insert indexable notes into index
-            FirebaseAppIndex.getInstance().update(notesArr);
+            FirebaseAppIndex.getInstance(this).update(notesArr);
         }
     }
 }
