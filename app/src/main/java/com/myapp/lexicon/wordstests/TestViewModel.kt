@@ -18,8 +18,6 @@ class TestViewModel @Inject constructor(app: Application, private val repository
 {
     private val composite = CompositeDisposable()
 
-
-
     private var _currentWord = MutableLiveData<Word>().apply {
         value = repository.getWordFromPref()
     }

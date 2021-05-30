@@ -22,6 +22,7 @@ class HintDialogFragment : DialogFragment()
 {
     companion object
     {
+        val TAG = "${this::class.java.canonicalName}.TAG"
         private lateinit var targetWord: Word
         private lateinit var randomList: MutableList<Word>
         fun newInstance(targetWord: Word, randomList: MutableList<Word>) : HintDialogFragment

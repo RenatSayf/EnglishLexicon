@@ -18,7 +18,7 @@
     <string name="add_word">Додати слово</string>
     <string name="add_dict">Додати словник</string>
     <string name="edit_word">Змінені слова</string>
-    <string name="check_your_self">Тести</string>
+    <string name="check_your_self">Перевір знання</string>
     <string name="exit">Вихід</string>
     <string name="title_activity_add_word">Додати слово</string>
     <string name="title_activity_check_self">Тести</string>
@@ -277,6 +277,10 @@
     <string name="text_check">Перевірити…</string>
     <string name="text_hint">Підказка…</string>
     <string name="text_write_translation">Напиши переклад тут…</string>
+    <string name="text_is_right">Правильно…</string>
+    <string name="text_wrong">Неправильно…</string>
+    <string name="text_test_completed">Тест завершено…</string>
+    <string name="text_do_speak">Говоріть в мікрофон…</string>
 
     <string-array name="words_interval">
         <item>після 5 слів</item>

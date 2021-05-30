@@ -6,11 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.speech.RecognizerIntent
-import android.text.Editable
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.ViewPropertyAnimator
+import android.view.*
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.AnticipateOvershootInterpolator
 import android.widget.ArrayAdapter
@@ -24,19 +20,20 @@ import com.jakewharton.rxbinding2.widget.RxTextView
 import com.myapp.lexicon.R
 import com.myapp.lexicon.database.Word
 import com.myapp.lexicon.databinding.TestFragmentBinding
+import com.myapp.lexicon.dialogs.DictListDialog
 import com.myapp.lexicon.helpers.Keyboard
 import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.UiState
+import com.myapp.lexicon.main.SpeechViewModel
 import com.myapp.lexicon.viewmodels.AnimViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.disposables.CompositeDisposable
 import java.util.*
 import java.util.concurrent.TimeUnit
-import kotlin.collections.ArrayList
 
 
 @AndroidEntryPoint
-class TestFragment : Fragment(R.layout.test_fragment)
+class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectItemListener
 {
 
     companion object
@@ -47,6 +44,7 @@ class TestFragment : Fragment(R.layout.test_fragment)
     private lateinit var binding: TestFragmentBinding
     private lateinit var testVM: TestViewModel
     private lateinit var animVM: AnimViewModel
+    private lateinit var speechVM: SpeechViewModel
     private val composite = CompositeDisposable()
 
     override fun onCreateView(
@@ -63,6 +61,7 @@ class TestFragment : Fragment(R.layout.test_fragment)
         binding = TestFragmentBinding.bind(view)
         testVM = ViewModelProvider(this)[TestViewModel::class.java]
         animVM = ViewModelProvider(this)[AnimViewModel::class.java]
+        speechVM = ViewModelProvider(this)[SpeechViewModel::class.java]
 
         testVM.currentWord.observe(viewLifecycleOwner, {
             binding.btnViewDict.text = it.dictName
@@ -71,7 +70,12 @@ class TestFragment : Fragment(R.layout.test_fragment)
         testVM.wordsList.observe(viewLifecycleOwner, {
             if (it.isNotEmpty())
             {
+                binding.btnViewDict.text = testVM.wordsList.value!![0].dictName
                 binding.enWordTV.text = testVM.wordsList.value!![0].english
+                binding.enWordTV.apply {
+                    scaleX = 1f
+                    scaleY = 1f
+                }
                 binding.ruWordTV.text = testVM.wordsList.value!![0].translate
             }
         })
@@ -91,9 +95,13 @@ class TestFragment : Fragment(R.layout.test_fragment)
                             startDelay = 0
                             animIncreaseScaleListener(this)
                         }.start()
-                        Toast.makeText(requireContext(), "Правильно...", Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireContext(), getString(R.string.text_is_right), Toast.LENGTH_LONG).apply {
+                            setGravity(Gravity.TOP, 0, 0)
+                        }.show()
                     }
-                    else -> Toast.makeText(requireContext(), "Неправильно...", Toast.LENGTH_LONG).show()
+                    else -> Toast.makeText(requireContext(), getString(R.string.text_wrong), Toast.LENGTH_LONG).apply {
+                        setGravity(Gravity.TOP, 0, 0)
+                    }.show()
                 }
             }
         })
@@ -207,12 +215,27 @@ class TestFragment : Fragment(R.layout.test_fragment)
             if (!subList.isNullOrEmpty())
             {
                 val hintDialog = HintDialogFragment.newInstance(targetWord, subList.toMutableList())
-                hintDialog.show(parentFragmentManager, "")
+                hintDialog.show(parentFragmentManager, HintDialogFragment.TAG)
                 hintDialog.selectedItem.observe(viewLifecycleOwner, {
                     binding.editTextView.setText(it)
                 })
             }
+        }
 
+        binding.btnViewDict.setOnClickListener {
+            val dictList = testVM.dictList.value?.toMutableList()
+            dictList?.let {
+                val dictsDialog = DictListDialog.getInstance(it, this)
+                dictsDialog.show(parentFragmentManager, DictListDialog.TAG)
+                dictsDialog.selectedItem.observe(viewLifecycleOwner, { dict ->
+                    testVM.getWordsByDictName(dict)
+                })
+            }
+        }
+
+        binding.speakerBtnView.setOnClickListener {
+            val text = binding.enWordTV.text.toString()
+            speechVM.doSpeech(text, Locale.US)
         }
 
     }
@@ -300,7 +323,9 @@ class TestFragment : Fragment(R.layout.test_fragment)
                         startDelay = 0
                     }
                 } ?: run {
-                    Toast.makeText(requireContext(), "Тест завершен...", Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireContext(), getString(R.string.text_test_completed), Toast.LENGTH_LONG).apply {
+                        setGravity(Gravity.TOP, 0, 0)
+                    }.show()
                 }
             }
 
@@ -333,7 +358,7 @@ class TestFragment : Fragment(R.layout.test_fragment)
                 RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH
             )
-            putExtra(RecognizerIntent.EXTRA_PROMPT, "Говорите в микрофон...")
+            putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.text_do_speak))
         }
         speechRecognizer.launch(intent)
     }
@@ -360,6 +385,11 @@ class TestFragment : Fragment(R.layout.test_fragment)
             clear()
         }
         super.onDestroy()
+    }
+
+    override fun dictListItemOnSelected(dict: String)
+    {
+
     }
 
 }

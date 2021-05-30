@@ -17,7 +17,7 @@
     <string name="add_word">Добавить слово</string>
     <string name="add_dict">Добавить словарь</string>
     <string name="edit_word">Изменить слово</string>
-    <string name="check_your_self">Тесты</string>
+    <string name="check_your_self">Проверь знания</string>
     <string name="exit">Выход</string>
     <string name="title_activity_add_word">Добавить слово</string>
     <string name="title_activity_check_self">Тесты</string>
@@ -223,7 +223,11 @@
     <string name="text_is_granted">Отлично. Теперь можно распознавать речь…</string>
     <string name="text_check">Проверить…</string>
     <string name="text_hint">Подсказка…</string>
-    <string name="text_write_translation">Напиши перевод сдесь…</string>
+    <string name="text_write_translation">Напиши перевод здесь…</string>
+    <string name="text_is_right">Правильно…</string>
+    <string name="text_wrong">Неправильно…</string>
+    <string name="text_test_completed">Тест завершен…</string>
+    <string name="text_do_speak">Говорите в микрофон…</string>
     <string-array name="not_move">
         <item>Не перемещать</item>
     </string-array>
