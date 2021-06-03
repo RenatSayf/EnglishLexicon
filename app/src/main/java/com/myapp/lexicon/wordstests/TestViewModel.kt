@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.myapp.lexicon.database.Word
+import com.myapp.lexicon.helpers.UiState
 import com.myapp.lexicon.repository.DataRepositoryImpl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -17,6 +18,13 @@ import javax.inject.Inject
 class TestViewModel @Inject constructor(app: Application, private val repository: DataRepositoryImpl) : AndroidViewModel(app)
 {
     private val composite = CompositeDisposable()
+
+    private var _liveState = MutableLiveData<UiState>(UiState.NotActive(0))
+    var liveState: LiveData<UiState> = _liveState
+    fun setLiveState(state: UiState)
+    {
+        _liveState.value = state
+    }
 
     private var _currentWord = MutableLiveData<Word>().apply {
         value = repository.getWordFromPref()
@@ -48,7 +56,22 @@ class TestViewModel @Inject constructor(app: Application, private val repository
                 .subscribe({ list ->
                     list.shuffle()
                     _wordsList.value = list
-                    _wordsCount.value =list.size
+                    _wordsCount.value = list.size
+                }, { t ->
+                    t.printStackTrace()
+                })
+        )
+    }
+
+    fun getWordsByIds(ids: List<Int>)
+    {
+        composite.add(
+            repository.getEntriesByIds(ids)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ list ->
+                    _wordsList.value = list
+                    _wordsCount.value = list.size
                 }, { t ->
                     t.printStackTrace()
                 })
@@ -120,17 +143,43 @@ class TestViewModel @Inject constructor(app: Application, private val repository
     private var _wordIndex = MutableLiveData(0)
     var wordIndex: LiveData<Int> = _wordIndex
 
+    fun saveWordIdsToPref(words: MutableList<Word>)
+    {
+        val idList = arrayListOf<Int>()
+        words.forEach {
+            idList.add(it._id)
+        }
+        //println("************************ ${idList.joinToString()} ******************************")
+        repository.saveWordsIdStringToPref(idList.joinToString())
+    }
+
+    fun getWordIdsFromPref() : List<Int>
+    {
+        val wordsIdString = repository.getWordsIdStringFromPref()
+        val intList = arrayListOf<Int>()
+        if (wordsIdString.isNotEmpty())
+        {
+            val strList = wordsIdString.split(",")
+
+            strList.forEach {
+                intList.add(it.trim().toInt())
+            }
+        }
+        return intList
+    }
+
     override fun onCleared()
     {
         composite.run {
             dispose()
             clear()
         }
+        _liveState.value = UiState.NotActive()
         super.onCleared()
     }
 
     init
     {
-        _currentWord.value?.let { getWordsByDictName(it.dictName) }
+        _liveState.value = UiState.Initial()
     }
 }

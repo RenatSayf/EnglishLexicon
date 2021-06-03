@@ -47,6 +47,7 @@ public class AppSettings
     private final String KEY_IS_PAUSE = this.getClass().getCanonicalName() + ".KEY_IS_PAUSE";;
     private final String KEY_TRANSLATE_LANG = this.getClass().getCanonicalName() + ".KEY_TRANSLATE_LANG";
     private final String KEY_COUNT_REPEAT = this.getClass().getCanonicalName() + ".KEY_COUNT_REPEAT";
+    private final String KEY_WORD_IDS = this.getClass().getCanonicalName() + ".KEY_WORD_IDS";
 
     private final Context context;
     private final String transLang;
@@ -410,5 +411,13 @@ public class AppSettings
         context.getSharedPreferences(WORD_ID, MODE_PRIVATE).edit().putInt(WORD_ID, word.get_id()).apply();
     }
 
+    public void saveWordsIdAsString(String strIds)
+    {
+        context.getSharedPreferences(WORD_ID, MODE_PRIVATE).edit().putString(KEY_WORD_IDS, strIds).apply();
+    }
 
+    public String getWordsIdsAsString()
+    {
+        return context.getSharedPreferences(WORD_ID, MODE_PRIVATE).getString(KEY_WORD_IDS, "");
+    }
 }

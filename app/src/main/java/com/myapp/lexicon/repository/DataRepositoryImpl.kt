@@ -29,6 +29,11 @@ class DataRepositoryImpl @Inject constructor(private val appDB: AppDB,
         return db.getEntriesByDictName(dictName, id, limit)
     }
 
+    override fun getEntriesByIds(ids: List<Int>): Single<MutableList<Word>>
+    {
+        return db.getEntriesById(ids)
+    }
+
     override fun getRandomEntriesFromDB(dictName: String, id: Int): Single<Word>
     {
         return db.getRandomEntries(dictName, id)
@@ -102,6 +107,16 @@ class DataRepositoryImpl @Inject constructor(private val appDB: AppDB,
     override fun saveOrderPlay(order: Int)
     {
         settings.orderPlay = order
+    }
+
+    override fun saveWordsIdStringToPref(strIds: String)
+    {
+        settings.saveWordsIdAsString(strIds)
+    }
+
+    override fun getWordsIdStringFromPref(): String
+    {
+        return settings.wordsIdsAsString
     }
 
     override fun getAllFromTable(tableName: String): Single<MutableList<DataBaseEntry>>

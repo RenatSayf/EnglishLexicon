@@ -9,6 +9,7 @@ import android.speech.RecognizerIntent
 import android.view.*
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.AnticipateOvershootInterpolator
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -33,7 +34,7 @@ import java.util.concurrent.TimeUnit
 
 
 @AndroidEntryPoint
-class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectItemListener
+class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectItemListener, DialogWarning.IDialogResult
 {
 
     companion object
@@ -55,6 +56,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         return inflater.inflate(R.layout.test_fragment, container, false)
     }
 
+    @Suppress("ObjectLiteralToLambda")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?)
     {
         super.onViewCreated(view, savedInstanceState)
@@ -62,6 +64,8 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         testVM = ViewModelProvider(this)[TestViewModel::class.java]
         animVM = ViewModelProvider(this)[AnimViewModel::class.java]
         speechVM = ViewModelProvider(this)[SpeechViewModel::class.java]
+
+
 
         testVM.currentWord.observe(viewLifecycleOwner, {
             binding.btnViewDict.text = it.dictName
@@ -228,7 +232,10 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 val dictsDialog = DictListDialog.getInstance(it, this)
                 dictsDialog.show(parentFragmentManager, DictListDialog.TAG)
                 dictsDialog.selectedItem.observe(viewLifecycleOwner, { dict ->
-                    testVM.getWordsByDictName(dict)
+                    if (dict.isNotEmpty())
+                    {
+                        testVM.getWordsByDictName(dict)
+                    }
                 })
             }
         }
@@ -238,6 +245,60 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
             speechVM.doSpeech(text, Locale.US)
         }
 
+        binding.editTextView.onItemClickListener = object : AdapterView.OnItemClickListener
+        {
+            override fun onItemClick(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long)
+            {
+                Keyboard.getInstance().forceHide(requireContext(), binding.editTextView)
+            }
+        }
+
+
+    }
+
+    override fun onStart()
+    {
+        super.onStart()
+        testVM.liveState.observe(viewLifecycleOwner, {
+            when(it)
+            {
+                is UiState.Initial ->
+                {
+                    testVM.setLiveState(UiState.Active())
+                    val wordIds = testVM.getWordIdsFromPref()
+                    if (wordIds.isNotEmpty())
+                    {
+                        DialogWarning().apply {
+                            setListener(this@TestFragment)
+                        }.show(requireActivity().supportFragmentManager.beginTransaction(), DialogWarning.DIALOG_TAG)
+                    }
+                    else
+                    {
+                        val dictName = testVM.currentWord.value?.dictName
+                        dictName?.let { dict ->
+                            testVM.getWordsByDictName(dict)
+                        }
+                    }
+                }
+                is UiState.Active -> {}
+                else -> {}
+            }
+        })
+
+    }
+
+    override fun onDestroyView()
+    {
+        testVM.wordsList.value?.let { list ->
+            if (list.isNotEmpty())
+            {
+                val count = testVM.wordsCount.value
+                count?.let {
+                    if (it.minus(list.size) > 5)  testVM.saveWordIdsToPref(list)
+                }
+            }
+        }
+        super.onDestroyView()
     }
 
     // TODO ViewPropertyAnimation.Scale Step 6 слушатель анимации
@@ -247,7 +308,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         {
             override fun onAnimationStart(p0: Animator?)
             {
-                animVM.setAnimState(UiState.AnimStarted())
+                animVM.setAnimState(UiState.AnimStarted)
             }
 
             override fun onAnimationEnd(p0: Animator?)
@@ -390,6 +451,30 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     override fun dictListItemOnSelected(dict: String)
     {
 
+    }
+
+    override fun dialogListener(result: Boolean)
+    {
+        if (result)
+        {
+            val wordIds = testVM.getWordIdsFromPref()
+            testVM.getWordsByIds(wordIds)
+        }
+        else
+        {
+            testVM.saveWordIdsToPref(arrayListOf())
+            val dict = testVM.currentWord.value?.dictName
+            dict?.let {
+                testVM.getWordsByDictName(it)
+            } ?: run {
+                val dictList = testVM.dictList.value
+                if (dictList != null)
+                {
+                    if (dictList.isNotEmpty())
+                    testVM.getWordsByDictName(dictList[0])
+                }
+            }
+        }
     }
 
 }

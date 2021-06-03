@@ -1,9 +1,7 @@
 package com.myapp.lexicon.database
 
 import androidx.room.*
-import io.reactivex.Observable
 import io.reactivex.Single
-import java.sql.RowId
 
 @Dao
 interface AppDao
@@ -13,6 +11,9 @@ interface AppDao
 
     @Query("SELECT * FROM Words WHERE dict_name == :name AND _id >= :id AND count_repeat <> 0 LIMIT :limit")
     fun getEntriesByDictName(name: String, id: Int = 1, limit: Int = 2) : Single<MutableList<Word>>
+
+    @Query("SELECT * FROM Words WHERE _id IN(:id)")
+    fun getEntriesById(id: List<Int>) : Single<MutableList<Word>>
 
     @Query("SELECT * FROM Words WHERE dict_name == :dict AND _id <> :id ORDER BY random() LIMIT 1")
     fun getRandomEntries(dict: String, id: Int) : Single<Word>

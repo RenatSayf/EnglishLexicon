@@ -2,10 +2,8 @@ package com.myapp.lexicon.repository
 
 import com.myapp.lexicon.database.DataBaseEntry
 import com.myapp.lexicon.database.Word
-import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.Single
-import java.util.*
 
 interface IDataRepository
 {
@@ -14,6 +12,8 @@ interface IDataRepository
     fun getDictListFromDb() : Single<MutableList<String>>
 
     fun getEntriesFromDbByDictName(dictName: String, id: Int = 1, limit: Int = 2) : Single<MutableList<Word>>
+
+    fun getEntriesByIds(ids: List<Int>) : Single<MutableList<Word>>
 
     fun getRandomEntriesFromDB(dictName: String, id: Int) : Single<Word>
 
@@ -44,6 +44,10 @@ interface IDataRepository
     fun getOrderPlay() : Int
 
     fun saveOrderPlay(order: Int)
+
+    fun saveWordsIdStringToPref(strIds: String)
+
+    fun getWordsIdStringFromPref() : String
 
     fun getAllFromTable(tableName: String) : Single<MutableList<DataBaseEntry>>
 
