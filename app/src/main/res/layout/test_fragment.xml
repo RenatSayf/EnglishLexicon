@@ -8,26 +8,12 @@
     tools:context=".wordstests.TestFragment">
 
     <ImageView
-        android:id="@+id/img_back_1of5_layout"
+        android:id="@+id/imgBack"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:src="@drawable/img_uk4"
         android:scaleType="centerCrop"
         android:contentDescription="@string/descript_image_background"/>
-
-<!--    <LinearLayout-->
-<!--        android:id="@+id/top_panel"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        app:layout_constraintTop_toTopOf="parent"-->
-<!--        android:layout_marginTop="-167dp">-->
-
-<!--        <include-->
-<!--            layout="@layout/t_top_panel"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"/>-->
-
-<!--    </LinearLayout>-->
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"

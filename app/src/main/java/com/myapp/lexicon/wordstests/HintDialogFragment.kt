@@ -64,7 +64,7 @@ class HintDialogFragment : DialogFragment()
             {
                 override fun onClick(p0: DialogInterface?, p1: Int)
                 {
-                    _selectedItem.value = ruArray[p1]
+                    _selectedItem.value = distinctArray[p1]
                     dismiss()
                 }
 

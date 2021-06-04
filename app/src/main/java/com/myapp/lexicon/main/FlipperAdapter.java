@@ -18,8 +18,8 @@ import java.util.Date;
 
 public class FlipperAdapter extends BaseAdapter
 {
-    private Context context;
-    private int[] images;
+    private final Context context;
+    private final int[] images;
     private RandomNumberGenerator generator; // генератор случайных чисел из диапазона без повторяющихся значений
 
     FlipperAdapter(Context context, int[] images)

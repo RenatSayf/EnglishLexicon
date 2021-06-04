@@ -15,7 +15,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.myapp.lexicon.R
@@ -27,6 +27,7 @@ import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.UiState
 import com.myapp.lexicon.main.SpeechViewModel
 import com.myapp.lexicon.viewmodels.AnimViewModel
+import com.myapp.lexicon.viewmodels.PageBackViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.disposables.CompositeDisposable
 import java.util.*
@@ -44,9 +45,10 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     }
 
     private lateinit var binding: TestFragmentBinding
-    private lateinit var testVM: TestViewModel
-    private lateinit var animVM: AnimViewModel
-    private lateinit var speechVM: SpeechViewModel
+    private val testVM: TestViewModel by viewModels()
+    private val animVM: AnimViewModel by viewModels()
+    private val speechVM: SpeechViewModel by viewModels()
+    private val pageBackVM: PageBackViewModel by viewModels()
     private val composite = CompositeDisposable()
     private var completeDialog: DialogTestComplete? = null
 
@@ -63,11 +65,10 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     {
         super.onViewCreated(view, savedInstanceState)
         binding = TestFragmentBinding.bind(view)
-        testVM = ViewModelProvider(this)[TestViewModel::class.java]
-        animVM = ViewModelProvider(this)[AnimViewModel::class.java]
-        speechVM = ViewModelProvider(this)[SpeechViewModel::class.java]
 
-
+        pageBackVM.imageBack.observe(viewLifecycleOwner, { img ->
+            binding.imgBack.setImageResource(img)
+        })
 
         testVM.currentWord.observe(viewLifecycleOwner, {
             binding.btnViewDict.text = it.dictName
@@ -518,7 +519,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
             }
             -1 ->
             {
-
+                requireActivity().onBackPressed()
             }
             else ->
             {
