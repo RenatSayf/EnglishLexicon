@@ -204,7 +204,7 @@ public class ListenEndClickFragment extends Fragment implements DialogTestComple
 
         testResults = new TestResults(getActivity());
         dialogTestComplete = new DialogTestComplete();
-        dialogTestComplete.setIDialogCompleteResult(ListenEndClickFragment.this);
+        dialogTestComplete.setListener(ListenEndClickFragment.this);
 
         if (savedInstanceState == null)
         {

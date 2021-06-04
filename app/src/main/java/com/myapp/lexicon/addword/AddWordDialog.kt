@@ -3,7 +3,6 @@ package com.myapp.lexicon.addword
 import android.app.AlertDialog
 import android.app.Dialog
 import android.os.Bundle
-import android.speech.tts.TextToSpeech
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -31,7 +30,7 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult, Spea
     {
         val TAG = "${this::class.java.canonicalName}.TAG"
         private const val WORD_LIST_TAG = "en_word"
-        private val instance : AddWordDialog? = null
+        private val instance : AddWordDialog? by lazy { null }
 
         fun getInstance(list: ArrayList<String>) : AddWordDialog = instance ?: AddWordDialog().apply {
             arguments = Bundle().apply {
@@ -65,22 +64,13 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult, Spea
     @Suppress("ObjectLiteralToLambda")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
     {
-//        speaker = Speaker(activity, object : TextToSpeech.OnInitListener
-//        {
-//            override fun onInit(status: Int)
-//            {
-//                speaker.speechInit(status, activity, speaker)
-//                speaker.setOnSpeechListener(this@AddWordDialog)
-//            }
-//        })
-
         speaker = Speaker(activity, this)
         return dialogView
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?)
     {
-        super.onActivityCreated(savedInstanceState)
+        super.onViewCreated(view, savedInstanceState)
 
         val dictListSpinner = dialogView?.findViewById<Spinner>(R.id.dictListSpinner)
         val inputWordTV = dialogView?.findViewById<TextView>(R.id.inputWordTV)
@@ -123,7 +113,8 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult, Spea
                 }
             })
 
-            dictListSpinner?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            dictListSpinner?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener
+            {
                 override fun onItemSelected(adapterView: AdapterView<*>?, view: View?, index: Int, p3: Long)
                 {
                     view?.let {
@@ -290,12 +281,12 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult, Spea
 
     override fun onEngLangNotSupported(status: Int)
     {
-        TODO("Not yet implemented")
+
     }
 
     override fun onRusLangNotSupported(status: Int)
     {
-        TODO("Not yet implemented")
+
     }
 
 

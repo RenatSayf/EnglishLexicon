@@ -34,7 +34,8 @@ import java.util.concurrent.TimeUnit
 
 
 @AndroidEntryPoint
-class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectItemListener, DialogWarning.IDialogResult
+class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectItemListener, DialogWarning.IDialogResult,
+    DialogTestComplete.IDialogComplete_Result
 {
 
     companion object
@@ -47,6 +48,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     private lateinit var animVM: AnimViewModel
     private lateinit var speechVM: SpeechViewModel
     private val composite = CompositeDisposable()
+    private var completeDialog: DialogTestComplete? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -92,6 +94,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                     true ->
                     {
                         LockOrientation(requireActivity()).lock()
+                        testVM.rightAnswerCounter++
                         Keyboard.getInstance().forceHide(requireContext(), binding.editTextView)
                         binding.ruWordTV.animate().scaleX(1f).scaleY(1f).apply {
                             duration = 500
@@ -103,9 +106,13 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                             setGravity(Gravity.TOP, 0, 0)
                         }.show()
                     }
-                    else -> Toast.makeText(requireContext(), getString(R.string.text_wrong), Toast.LENGTH_LONG).apply {
-                        setGravity(Gravity.TOP, 0, 0)
-                    }.show()
+                    else ->
+                    {
+                        testVM.rightAnswerCounter--
+                        Toast.makeText(requireContext(), getString(R.string.text_wrong), Toast.LENGTH_LONG).apply {
+                            setGravity(Gravity.TOP, 0, 0)
+                        }.show()
+                    }
                 }
             }
         })
@@ -384,9 +391,23 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                         startDelay = 0
                     }
                 } ?: run {
-                    Toast.makeText(requireContext(), getString(R.string.text_test_completed), Toast.LENGTH_LONG).apply {
+                    Toast.makeText(requireContext(), getString(R.string.text_test_completed), Toast.LENGTH_SHORT).apply {
                         setGravity(Gravity.TOP, 0, 0)
                     }.show()
+
+                    val total = testVM.wordsCount.value!!
+                    val correctly = testVM.rightAnswerCounter
+                    if (completeDialog == null)
+                    {
+                        completeDialog = DialogTestComplete().apply {
+                            arguments = Bundle().apply {
+                                putInt(DialogTestComplete.TOTAL_NUM, total)
+                                putInt(DialogTestComplete.CORRECTLY_NUM, correctly)
+                            }
+                            setListener(this@TestFragment)
+                        }
+                        completeDialog?.show(requireActivity().supportFragmentManager, DialogTestComplete.TAG)
+                    }
                 }
             }
 
@@ -472,6 +493,39 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 {
                     if (dictList.isNotEmpty())
                     testVM.getWordsByDictName(dictList[0])
+                }
+            }
+        }
+    }
+
+    override fun dialogCompleteResult(res: Int)
+    {
+        when(res)
+        {
+            1 ->
+            {
+                val dictList = testVM.dictList.value?.toMutableList()
+                dictList?.let {
+                    val dictsDialog = DictListDialog.getInstance(it, this)
+                    dictsDialog.show(parentFragmentManager, DictListDialog.TAG)
+                    dictsDialog.selectedItem.observe(viewLifecycleOwner, { dict ->
+                        if (dict.isNotEmpty())
+                        {
+                            testVM.getWordsByDictName(dict)
+                        }
+                    })
+                }
+            }
+            -1 ->
+            {
+
+            }
+            else ->
+            {
+                val dict = binding.btnViewDict.text.toString()
+                if (dict.isNotEmpty())
+                {
+                    testVM.getWordsByDictName(dict)
                 }
             }
         }

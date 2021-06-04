@@ -208,7 +208,7 @@ public class OneOfFiveTest extends Fragment implements DialogTestComplete.IDialo
         setProgressValue(0, fields.wordsCount);
 
         dialogTestComplete = new DialogTestComplete();
-        dialogTestComplete.setIDialogCompleteResult(OneOfFiveTest.this);
+        dialogTestComplete.setListener(OneOfFiveTest.this);
 
         if (savedInstanceState == null)
         {

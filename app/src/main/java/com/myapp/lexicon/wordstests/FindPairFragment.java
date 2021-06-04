@@ -390,7 +390,7 @@ public class FindPairFragment extends Fragment implements DialogTestComplete.IDi
 
         fragmentManager = getActivity().getSupportFragmentManager();
         dialogTestComplete = new DialogTestComplete();
-        dialogTestComplete.setIDialogCompleteResult(this);
+        dialogTestComplete.setListener(this);
 
         return fragment_view;
     }

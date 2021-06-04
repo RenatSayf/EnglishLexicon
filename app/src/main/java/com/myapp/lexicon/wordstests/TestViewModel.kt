@@ -57,6 +57,8 @@ class TestViewModel @Inject constructor(app: Application, private val repository
                     list.shuffle()
                     _wordsList.value = list
                     _wordsCount.value = list.size
+                    _wordIndex.value = 0
+                    rightAnswerCounter = 0
                 }, { t ->
                     t.printStackTrace()
                 })
@@ -72,6 +74,8 @@ class TestViewModel @Inject constructor(app: Application, private val repository
                 .subscribe({ list ->
                     _wordsList.value = list
                     _wordsCount.value = list.size
+                    _wordIndex.value = 0
+                    rightAnswerCounter = 0
                 }, { t ->
                     t.printStackTrace()
                 })
@@ -167,6 +171,8 @@ class TestViewModel @Inject constructor(app: Application, private val repository
         }
         return intList
     }
+
+    var rightAnswerCounter = 0
 
     override fun onCleared()
     {
