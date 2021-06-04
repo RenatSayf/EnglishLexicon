@@ -21,6 +21,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.appindexing.Action;
@@ -30,6 +34,8 @@ import com.google.firebase.appindexing.builders.Actions;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
+import com.myapp.lexicon.ads.AdsViewModel;
+import com.myapp.lexicon.billing.BillingViewModel;
 import com.myapp.lexicon.cloudstorage.StorageFragment2;
 import com.myapp.lexicon.database.Word;
 import com.myapp.lexicon.databinding.AContentMainBinding;
@@ -82,6 +88,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public MainViewModel mainViewModel;
     private SpeechViewModel speechViewModel;
+    private BillingViewModel billingVM;
+    private AdsViewModel adsVM;
     private final CompositeDisposable composite = new CompositeDisposable();
     private Word currentWord;
     private int wordsInterval = Integer.MAX_VALUE;
@@ -114,6 +122,104 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
         speechViewModel = new ViewModelProvider(this).get(SpeechViewModel.class);
+        billingVM = new ViewModelProvider(this).get(BillingViewModel.class);
+        adsVM = new ViewModelProvider(this).get(AdsViewModel.class);
+
+//        adsVM.getMainBanner().observe(this, adView -> {
+//            if (adView != null)
+//            {
+//                AdRequest request = new AdRequest.Builder().build();
+//                binding.adLayout.addView(adView);
+//                adView.loadAd(request);
+//                adView.setAdListener(new AdListener()
+//                {
+//                    @Override
+//                    public void onAdClosed()
+//                    {
+//                        super.onAdClosed();
+//                    }
+//
+//                    @Override
+//                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError)
+//                    {
+//                        super.onAdFailedToLoad(loadAdError);
+//                    }
+//
+//                    @Override
+//                    public void onAdOpened()
+//                    {
+//                        super.onAdOpened();
+//                    }
+//
+//                    @Override
+//                    public void onAdLoaded()
+//                    {
+//                        super.onAdLoaded();
+//                    }
+//
+//                    @Override
+//                    public void onAdClicked()
+//                    {
+//                        super.onAdClicked();
+//                    }
+//
+//                    @Override
+//                    public void onAdImpression()
+//                    {
+//                        super.onAdImpression();
+//                    }
+//                });
+//            }
+//        });
+
+        adsVM.getToken().observe(this, t -> {
+            if (t.isEmpty())
+            {
+                AdView bottomAd = binding.bottomAd;
+                if (bottomAd != null)
+                {
+                    bottomAd.loadAd(new AdRequest.Builder().build());
+                    bottomAd.setAdListener(new AdListener()
+                    {
+                        @Override
+                        public void onAdClosed()
+                        {
+                            super.onAdClosed();
+                        }
+
+                        @Override
+                        public void onAdFailedToLoad(@NonNull LoadAdError loadAdError)
+                        {
+                            super.onAdFailedToLoad(loadAdError);
+                        }
+
+                        @Override
+                        public void onAdOpened()
+                        {
+                            super.onAdOpened();
+                        }
+
+                        @Override
+                        public void onAdLoaded()
+                        {
+                            super.onAdLoaded();
+                        }
+
+                        @Override
+                        public void onAdClicked()
+                        {
+                            super.onAdClicked();
+                        }
+
+                        @Override
+                        public void onAdImpression()
+                        {
+                            super.onAdImpression();
+                        }
+                    });
+                }
+            }
+        });
 
 
         btnViewDict = findViewById(R.id.btnViewDict);
