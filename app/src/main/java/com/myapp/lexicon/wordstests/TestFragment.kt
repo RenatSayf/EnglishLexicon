@@ -8,6 +8,8 @@ import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.view.*
 import android.view.animation.AccelerateInterpolator
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.view.animation.AnticipateOvershootInterpolator
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -97,6 +99,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                         LockOrientation(requireActivity()).lock()
                         testVM.rightAnswerCounter++
                         Keyboard.getInstance().forceHide(requireContext(), binding.editTextView)
+                        binding.checkBtn.setBackgroundResource(R.drawable.text_btn_for_test_green)
                         binding.ruWordTV.animate().scaleX(1f).scaleY(1f).apply {
                             duration = 500
                             interpolator = AnticipateOvershootInterpolator()
@@ -113,6 +116,22 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                         Toast.makeText(requireContext(), getString(R.string.text_wrong), Toast.LENGTH_LONG).apply {
                             setGravity(Gravity.TOP, 0, 0)
                         }.show()
+                        val animNotRight = AnimationUtils.loadAnimation(requireContext(), R.anim.anim_not_right)
+                        animNotRight.setAnimationListener(object : Animation.AnimationListener
+                        {
+                            override fun onAnimationStart(p0: Animation?)
+                            {
+                                binding.checkBtn.setBackgroundResource(R.drawable.text_btn_for_test_red)
+                            }
+
+                            override fun onAnimationEnd(p0: Animation?)
+                            {
+                                binding.checkBtn.setBackgroundResource(R.drawable.text_button_for_test)
+                            }
+
+                            override fun onAnimationRepeat(p0: Animation?){}
+                        })
+                        binding.checkBtn.startAnimation(animNotRight)
                     }
                 }
             }
@@ -194,8 +213,16 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
             when (it)
             {
                 is UiState.AnimStarted -> LockOrientation(requireActivity()).lock()
-                is UiState.AnimEnded, is UiState.AnimCanceled -> LockOrientation(requireActivity()).unLock()
-                else -> LockOrientation(requireActivity()).unLock()
+                is UiState.AnimEnded, is UiState.AnimCanceled ->
+                {
+                    binding.checkBtn.setBackgroundResource(R.drawable.text_button_for_test)
+                    LockOrientation(requireActivity()).unLock()
+                }
+                else ->
+                {
+                    binding.checkBtn.setBackgroundResource(R.drawable.text_button_for_test)
+                    LockOrientation(requireActivity()).unLock()
+                }
             }
         })
 
@@ -338,7 +365,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
 
             override fun onAnimationCancel(p0: Animator?)
             {
-
+                binding.checkBtn.setBackgroundResource(R.drawable.text_button_for_test)
             }
 
             override fun onAnimationRepeat(p0: Animator?)
