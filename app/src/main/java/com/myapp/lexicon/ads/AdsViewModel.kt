@@ -18,28 +18,18 @@ import javax.inject.Inject
 @HiltViewModel
 class AdsViewModel @Inject constructor(private val app: Application) : AndroidViewModel(app)
 {
-    private val tokenNoAds = app.getSharedPreferences(KEY_BILLING, Context.MODE_PRIVATE).getString(KEY_PURCHASE_TOKEN, "")!!
-
-    private var _mainBanner = MutableLiveData<AdView>(null).apply {
-//        if (tokenNoAds.isEmpty())
-//        {
-//            value = AdView(app).apply {
-//                adSize = AdSize.BANNER
-//                adUnitId = if (BuildConfig.DEBUG)
-//                {
-//                    app.getString(R.string.tests_banner)
-//                }
-//                else
-//                {
-//                    app.getString(R.string.main_bottom_banner)
-//                }
-//            }
-//        }
+    fun getMainBanner() : AdView
+    {
+        return AdView(app).apply {
+            adSize = AdSize.BANNER
+            adUnitId = if (BuildConfig.DEBUG)
+            {
+                app.getString(R.string.tests_banner)
+            } else
+            {
+                app.getString(R.string.main_bottom_banner)
+            }
+        }
     }
-    var mainBanner: LiveData<AdView> = _mainBanner
 
-    private var _token = MutableLiveData("").apply {
-        value = app.getSharedPreferences(KEY_BILLING, Context.MODE_PRIVATE).getString(KEY_PURCHASE_TOKEN, "")!!
-    }
-    var token: LiveData<String> = _token
 }

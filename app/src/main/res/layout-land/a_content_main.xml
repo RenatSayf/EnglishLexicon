@@ -165,7 +165,7 @@
                     android:layout_gravity="center"
                     android:visibility="invisible"
                     tools:visibility="visible"
-                    />
+                    tools:targetApi="lollipop" />
 
             </FrameLayout>
 
@@ -181,7 +181,8 @@
                 android:layout_weight="0.5"
                 android:layout_marginStart="20dp"
                 android:layout_marginEnd="20dp"
-                android:layout_gravity="bottom"
+                android:gravity="center_horizontal"
+                android:layout_gravity="bottom|center_horizontal"
                 android:orientation="horizontal">
 
             </LinearLayout>

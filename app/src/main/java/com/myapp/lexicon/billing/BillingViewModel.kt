@@ -47,8 +47,8 @@ class BillingViewModel @Inject constructor(private val app: Application) : Andro
         .enablePendingPurchases()
         .build()
 
-    private var _purToken = MutableLiveData<String?>(null)
-    val purToken: LiveData<String?> = _purToken //TODO перед релизом раскоментировать _purToken
+    private var _noAdsToken = MutableLiveData<String?>(null)
+    val noAdsToken: LiveData<String?> = _noAdsToken //TODO перед релизом раскоментировать _purToken
 
     private var _message = MutableLiveData<String?>(null)
     var message : LiveData<String?> = _message
@@ -91,7 +91,7 @@ class BillingViewModel @Inject constructor(private val app: Application) : Andro
             {
                 if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED)
                 {
-                    _purToken.value = purchase.purchaseToken
+                    _noAdsToken.value = purchase.purchaseToken
                     app.getSharedPreferences(KEY_BILLING, Context.MODE_PRIVATE).edit().putString(KEY_PURCHASE_TOKEN, purchase.purchaseToken).apply()
                     if (!purchase.isAcknowledged)
                     {
@@ -119,7 +119,7 @@ class BillingViewModel @Inject constructor(private val app: Application) : Andro
         val token = app.getSharedPreferences(KEY_BILLING, Context.MODE_PRIVATE).getString(KEY_PURCHASE_TOKEN, "")
         if (!token.isNullOrEmpty())
         {
-            _purToken.value = token
+            _noAdsToken.value = token
         }
         else
         {
@@ -138,18 +138,18 @@ class BillingViewModel @Inject constructor(private val app: Application) : Andro
                                 if (purchase.productId == PRODUCT_ID && purchase.purchaseToken.isNotEmpty())
                                 {
                                     app.getSharedPreferences(KEY_BILLING, Context.MODE_PRIVATE).edit().putString(KEY_PURCHASE_TOKEN, purchase.purchaseToken).apply()
-                                    _purToken.postValue(purchase.purchaseToken)
+                                    _noAdsToken.postValue(purchase.purchaseToken)
                                     return@launch
                                 }
                             }
-                            _purToken.postValue("")
+                            _noAdsToken.postValue("")
                         }
                     }
                 }
 
                 override fun onBillingServiceDisconnected()
                 {
-                    _purToken.postValue("ZZZZZZZZZZZZZZZZZZZZ")
+                    _noAdsToken.postValue("ZZZZZZZZZZZZZZZZZZZZ")
                 }
             })
         }
