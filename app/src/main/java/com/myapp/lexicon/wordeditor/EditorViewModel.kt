@@ -34,10 +34,40 @@ class EditorViewModel @Inject constructor(private val repository: DataRepository
     }
 
     private var _dictsToMove = MutableLiveData<MutableList<String>>()
-    var dictsToMove: LiveData<MutableList<String>> = _dictsToMove
+    val dictsToMove: LiveData<MutableList<String>> = _dictsToMove
     fun setDictsToMove(list: MutableList<String>)
     {
         _dictsToMove.value = list
+    }
+
+    private var _wordIsStudied = MutableLiveData<Boolean?>(null)
+    var wordIsStudied: LiveData<Boolean?> = _wordIsStudied
+    fun disableWord(isDisable: Boolean)
+    {
+        _wordIsStudied.value = isDisable
+    }
+
+    private var _isMoveWord = MutableLiveData<Boolean?>(null).apply {
+        value = false
+    }
+    var isMoveWord: LiveData<Boolean?> = _isMoveWord
+    fun setMoveWord(isMove: Boolean)
+    {
+        _isMoveWord.value = isMove
+    }
+
+    private var _enWord = MutableLiveData("")
+    val enWord: LiveData<String> = _enWord
+    fun setEnWord(text: String)
+    {
+        _enWord.value = text
+    }
+
+    private var _ruWord = MutableLiveData("")
+    val ruWord: LiveData<String> = _ruWord
+    fun setRuWord(text: String)
+    {
+        _ruWord.value = text
     }
 
     override fun onCleared()

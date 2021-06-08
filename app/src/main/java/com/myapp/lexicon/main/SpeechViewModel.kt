@@ -2,7 +2,6 @@ package com.myapp.lexicon.main
 
 import android.app.Application
 import android.view.View
-import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

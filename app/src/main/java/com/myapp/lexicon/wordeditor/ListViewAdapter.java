@@ -4,8 +4,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.myapp.lexicon.R;
@@ -22,11 +24,19 @@ public class ListViewAdapter extends BaseAdapter implements Filterable
 {
     private ArrayList<Word> words;
     private final ArrayList<Word> tempWords;
+    private final IListViewAdapter listener;
 
-    ListViewAdapter(ArrayList<Word> words)
+    ListViewAdapter(ArrayList<Word> words, IListViewAdapter listener)
     {
         this.words = words;
         this.tempWords = new ArrayList<>(words);
+        this.listener = listener;
+    }
+
+    public interface IListViewAdapter
+    {
+        void onItemClickListener(Word word);
+        void onItemCheckBoxClickListener(Word word);
     }
 
     @Override
@@ -65,9 +75,37 @@ public class ListViewAdapter extends BaseAdapter implements Filterable
         TextView textTranslate = wordView.findViewById(R.id.translate);
         textTranslate.setText(word.getTranslate());
 
-        TextView textCountRepeat = wordView.findViewById(R.id.count_repeat);
-        String countRepeat = word.getCountRepeat() + "";
-        textCountRepeat.setText(countRepeat);
+        CheckBox disableWordCheBox = wordView.findViewById(R.id.checkStudied);
+        int countRepeat = word.getCountRepeat();
+        disableWordCheBox.setChecked(countRepeat > 0);
+        disableWordCheBox.setOnClickListener(view ->
+        {
+            CheckBox checkBox = (CheckBox) view;
+            Word newWord;
+            if (checkBox.isChecked())
+            {
+                words.get(position).setCountRepeat(1);
+                newWord = new Word(word.get_id(), word.getDictName(), word.getEnglish(), word.getTranslate(), 1);
+            }
+            else
+            {
+                words.get(position).setCountRepeat(-1);
+                newWord = new Word(word.get_id(), word.getDictName(), word.getEnglish(), word.getTranslate(), -1);
+            }
+            if (listener != null)
+            {
+                listener.onItemCheckBoxClickListener(newWord);
+            }
+        });
+
+        LinearLayout itemLayout = wordView.findViewById(R.id.itemLayout);
+        itemLayout.setOnClickListener(view ->
+        {
+            if (listener != null)
+            {
+                listener.onItemClickListener(word);
+            }
+        });
 
         return wordView;
     }

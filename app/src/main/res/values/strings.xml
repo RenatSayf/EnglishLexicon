@@ -228,6 +228,7 @@
     <string name="text_wrong">Неправильно…</string>
     <string name="text_test_completed">Тест завершен…</string>
     <string name="text_do_speak">Говорите в микрофон…</string>
+    <string name="text_word_is_enabled">Слово будет доступно для изучения</string>
     <string-array name="not_move">
         <item>Не перемещать</item>
     </string-array>

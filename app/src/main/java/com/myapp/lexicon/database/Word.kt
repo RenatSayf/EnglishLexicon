@@ -22,7 +22,7 @@ data class Word(
     val translate: String,
 
     @ColumnInfo(name = "count_repeat")
-    val countRepeat: Int
+    var countRepeat: Int
 ) : Parcelable
 {
     constructor(parcel: Parcel) : this(

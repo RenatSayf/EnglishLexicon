@@ -281,6 +281,7 @@
     <string name="text_wrong">Неправильно…</string>
     <string name="text_test_completed">Тест завершено…</string>
     <string name="text_do_speak">Говоріть в мікрофон…</string>
+    <string name="text_word_is_enabled">Слово буде доступне для вивчення</string>
 
     <string-array name="words_interval">
         <item>після 5 слів</item>

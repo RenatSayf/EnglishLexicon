@@ -66,7 +66,7 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
                     t.printStackTrace()
                 })
     }
-    var dictionaryList: LiveData<MutableList<String>> = _dictionaryList
+    val dictionaryList: LiveData<MutableList<String>> = _dictionaryList
 
     fun getDictList() : Single<MutableList<String>>
     {
@@ -189,7 +189,6 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
 
     init
     {
-        //_playList.value = repository.getTableListFromSettings() as ArrayList<String>
         _currentDict.value = repository.getWordFromPref().dictName
         val dictName = _currentDict.value
         if (!dictName.isNullOrEmpty())
