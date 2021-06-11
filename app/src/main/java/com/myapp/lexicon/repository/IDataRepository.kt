@@ -23,6 +23,8 @@ interface IDataRepository
 
     fun insertEntry(word: Word): Single<Long>
 
+    fun updateEntries(words: List<Word>) : Single<Int>
+
     fun deleteEntry(word: Word) : Single<Int>
 
     fun getTableListFromSettings() : MutableList<String>

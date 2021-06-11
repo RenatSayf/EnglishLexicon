@@ -37,6 +37,7 @@ import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SplashScreenActivity;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -286,6 +287,13 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             editTextRu.setText(s);
         });
 
+        evm.isWordUpdated.observe(this, isUpdated -> {
+            if (isUpdated != null)
+            {
+
+            }
+        });
+
 
     }
 
@@ -476,5 +484,6 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
         {
             Toast.makeText(WordEditorActivity.this, getString(R.string.text_word_is_enabled), Toast.LENGTH_LONG).show();
         }
+        evm.updateWordInDb(Collections.singletonList(word)); //TODO надо проверить обновление слова
     }
 }

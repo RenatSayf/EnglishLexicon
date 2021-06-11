@@ -54,6 +54,11 @@ class DataRepositoryImpl @Inject constructor(private val appDB: AppDB,
         return db.insert(word)
     }
 
+    override fun updateEntries(words: List<Word>): Single<Int>
+    {
+        return db.updateEntries(words)
+    }
+
     override fun deleteEntry(word: Word): Single<Int>
     {
         return db.delete(word)

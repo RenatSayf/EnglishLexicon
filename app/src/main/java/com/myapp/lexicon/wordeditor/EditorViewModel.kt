@@ -70,6 +70,24 @@ class EditorViewModel @Inject constructor(private val repository: DataRepository
         _ruWord.value = text
     }
 
+    private var _isWordUpdated = MutableLiveData<Boolean?>(null)
+    @JvmField
+    var isWordUpdated: LiveData<Boolean?> = _isWordUpdated
+
+    fun updateWordInDb(words: List<Word>)
+    {
+        composite.add(
+            repository.updateEntries(words)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ id ->
+                    _isWordUpdated.value = id > 0
+                }, { t ->
+                    t.printStackTrace()
+                })
+        )
+    }
+
     override fun onCleared()
     {
         super.onCleared()
