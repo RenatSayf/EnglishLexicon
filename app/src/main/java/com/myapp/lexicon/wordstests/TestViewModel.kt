@@ -50,7 +50,7 @@ class TestViewModel @Inject constructor(app: Application, private val repository
     fun getWordsByDictName(dict: String)
     {
         composite.add(
-            repository.getEntriesFromDbByDictName(dict, 1, Int.MAX_VALUE)
+            repository.getEntriesFromDbByDictName(dict, 1, 1, Int.MAX_VALUE)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ list ->

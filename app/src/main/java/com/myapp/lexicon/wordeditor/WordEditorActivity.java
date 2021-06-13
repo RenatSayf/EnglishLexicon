@@ -35,6 +35,7 @@ import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.database.Word;
 import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SplashScreenActivity;
+import com.myapp.lexicon.viewmodels.EditorSearchViewModel;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -70,7 +71,6 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
     private ListViewAdapter listViewAdapter;
     private ProgressBar progressBar;
     private ViewSwitcher switcher;
-    private WordEditorFields m;
 
     private MainViewModel vm;
     private EditorViewModel evm;
@@ -194,7 +194,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
         });
 
 
-        vm.getWordsList().observe(this, words -> {
+        evm.wordsList.observe(this, words -> {
             listViewAdapter = new ListViewAdapter((ArrayList<Word>) words, this);
             listView.setAdapter(listViewAdapter); // TODO: ListView setAdapter
             progressBar.setVisibility(View.GONE);
@@ -222,7 +222,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             {
                 Toast.makeText(this, "Слово удалено", Toast.LENGTH_SHORT).show();
                 String dictName = dictListSpinner.getSelectedItem().toString();
-                vm.setWordsList(dictName);
+                vm.setWordsList(dictName, -1);
                 switcher.showPrevious();
             }
             else if (id < 0)
@@ -241,7 +241,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
                 {
                     TextView textVie = (TextView) view;
                     String dictName = textVie.getText().toString();
-                    vm.setWordsList(dictName);
+                    vm.setWordsList(dictName, -1);
                     List<String> list = vm.getDictionaryList().getValue();
                     if (list != null && !list.isEmpty())
                     {
@@ -370,21 +370,25 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
         MenuItem searchItem = menu.findItem(R.id.word_search);
         searchView = (SearchView) searchItem.getActionView();
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        EditorSearchViewModel viewModel = new ViewModelProvider(this).get(EditorSearchViewModel.class);
+
+
         if (searchManager != null)
         {
             searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         }
         searchView_onListeners(searchView);
-        if (m != null && m.searchIsVisible.length > 0)
+        if (viewModel.searchIsActive.getValue() != null)
         {
-            searchView.setIconified(m.searchIsVisible[0]);
-            searchView.setQuery(m.queryString, false);
+            searchView.setIconified(viewModel.searchIsActive.getValue());
+            searchView.setQuery(viewModel.queryString.getValue(), false);
             searchView.setOnSearchClickListener(new View.OnClickListener()
             {
                 @Override
                 public void onClick(View view)
                 {
-                    searchView.setQuery(m.queryString, false);
+                    viewModel.setSearchAsActive(true);
+                    searchView.setQuery(viewModel.queryString.getValue(), false);
                 }
             });
         }
@@ -401,7 +405,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             ContentValues values = new ContentValues();
             values.put(DatabaseHelper.COLUMN_Count_REPEAT, 1);
             String dictName = dictListSpinner.getSelectedItem().toString();
-            vm.setWordsList(dictName);
+            vm.setWordsList(dictName, -1);
         }
         if (id == 16908332) //16908332
         {

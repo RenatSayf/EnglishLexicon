@@ -22,10 +22,11 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
     private var _currentDict = MutableLiveData<String>()
 
     private var _wordsList = MutableLiveData<MutableList<Word>>()
+    @JvmField
     var wordsList: MutableLiveData<MutableList<Word>> = _wordsList
-    fun setWordsList(dictName: String)
+    fun setWordsList(dictName: String, repeat: Int = 1)
     {
-        composite.add(repository.getEntriesFromDbByDictName(dictName, 1, Int.MAX_VALUE)
+        composite.add(repository.getEntriesFromDbByDictName(dictName, 1, repeat, Int.MAX_VALUE)
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ list ->

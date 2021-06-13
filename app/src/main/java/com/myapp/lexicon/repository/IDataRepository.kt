@@ -11,7 +11,7 @@ interface IDataRepository
 
     fun getDictListFromDb() : Single<MutableList<String>>
 
-    fun getEntriesFromDbByDictName(dictName: String, id: Int = 1, limit: Int = 2) : Single<MutableList<Word>>
+    fun getEntriesFromDbByDictName(dictName: String, id: Int = 1, repeat: Int, limit: Int = 2) : Single<MutableList<Word>>
 
     fun getEntriesByIds(ids: List<Int>) : Single<MutableList<Word>>
 

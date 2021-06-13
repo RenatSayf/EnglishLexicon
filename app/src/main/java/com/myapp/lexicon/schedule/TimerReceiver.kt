@@ -45,7 +45,7 @@ class TimerReceiver : BroadcastReceiver()
                 {
                     0 ->
                     {
-                        repository.getEntriesFromDbByDictName(dictName, wordId, 2)
+                        repository.getEntriesFromDbByDictName(dictName, wordId, 1, 2)
                                 .subscribeOn(Schedulers.computation())
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe({ words ->

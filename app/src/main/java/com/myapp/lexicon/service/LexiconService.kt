@@ -63,7 +63,7 @@ class LexiconService : Service(), IStopServiceByUser, LifecycleOwner
 
         ServiceActivity.setStoppedByUserListener(this)
 
-        composite.add(repository.getEntriesFromDbByDictName(dictName, wordId, 2)
+        composite.add(repository.getEntriesFromDbByDictName(dictName, wordId, 1, 2)
                 .observeOn(Schedulers.computation())
                 .subscribe({ words ->
                     val json = Gson().toJson(words)
@@ -132,7 +132,7 @@ class LexiconService : Service(), IStopServiceByUser, LifecycleOwner
             {
                 if (action == actionScreenOff)
                 {
-                    repository.getEntriesFromDbByDictName(dictName, wordId, 2)
+                    repository.getEntriesFromDbByDictName(dictName, wordId, 1, 2)
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe({ words ->

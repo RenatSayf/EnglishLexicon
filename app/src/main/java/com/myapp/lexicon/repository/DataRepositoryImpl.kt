@@ -24,9 +24,9 @@ class DataRepositoryImpl @Inject constructor(private val appDB: AppDB,
         return db.getDictList()
     }
 
-    override fun getEntriesFromDbByDictName(dictName: String, id: Int, limit: Int): Single<MutableList<Word>>
+    override fun getEntriesFromDbByDictName(dictName: String, id: Int, repeat: Int, limit: Int): Single<MutableList<Word>>
     {
-        return db.getEntriesByDictName(dictName, id, limit)
+        return db.getEntriesByDictName(dictName, id, repeat, limit)
     }
 
     override fun getEntriesByIds(ids: List<Int>): Single<MutableList<Word>>

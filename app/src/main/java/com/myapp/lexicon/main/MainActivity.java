@@ -155,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
 
         mainViewPager = findViewById(R.id.mainViewPager);
-        mainViewModel.getWordsList().observe(this, entries  -> {
+        mainViewModel.wordsList.observe(this, entries  -> {
             if (entries != null && !entries.isEmpty())
             {
                 MainViewPagerAdapter pagerAdapter = new MainViewPagerAdapter(entries);
@@ -379,9 +379,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             int position = mainViewPager.getCurrentItem();
             Boolean isEnSpeech = speechViewModel.isEnSpeech().getValue();
             Boolean isRuSpeech = speechViewModel.isRuSpeech().getValue();
-            if (mainViewModel.getWordsList().getValue() != null)
+            if (mainViewModel.wordsList.getValue() != null)
             {
-                Word word = mainViewModel.getWordsList().getValue().get(position);
+                Word word = mainViewModel.wordsList.getValue().get(position);
                 String enText = word.getEnglish();
                 String ruText = word.getTranslate();
                 if (isEnSpeech != null)
@@ -404,7 +404,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (currentWord != null)
         {
             mainViewModel.saveCurrentWordToPref(currentWord);
-            List<Word> wordList = mainViewModel.getWordsList().getValue();
+            List<Word> wordList = mainViewModel.wordsList.getValue();
             if (wordList != null)
             {
                 int index = wordList.indexOf(currentWord);
@@ -423,7 +423,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         if (currentWord != null && errors > 0)
         {
-            List<Word> wordList = mainViewModel.getWordsList().getValue();
+            List<Word> wordList = mainViewModel.wordsList.getValue();
             if (wordList != null && mainViewModel.getIntermediateIndex().getValue() != null)
             {
                 int newIndex = mainViewModel.getIntermediateIndex().getValue();
@@ -468,7 +468,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 String item = list.remove(index);
                                 list.add(0, item);
                             }
-                            DictListDialog dictListDialog = DictListDialog.Companion.getInstance(list, dict -> mainViewModel.setWordsList(dict));
+                            DictListDialog dictListDialog = DictListDialog.Companion.getInstance(list, dict -> mainViewModel.setWordsList(dict, 1));
                             dictListDialog.show(getSupportFragmentManager(), DictListDialog.Companion.getTAG());
                             dictListDialog.getSelectedItem().observe(MainActivity.this, item -> {
                                 Word word = new Word(1, item, "", "", 1);

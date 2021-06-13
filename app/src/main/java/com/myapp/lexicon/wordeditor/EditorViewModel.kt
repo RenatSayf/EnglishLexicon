@@ -17,7 +17,11 @@ class EditorViewModel @Inject constructor(private val repository: DataRepository
 {
     private val composite = CompositeDisposable()
 
-    private var _deletedId = MutableLiveData<Int>(0)
+    private var _wordsList = MutableLiveData(mutableListOf<Word>())
+    @JvmField
+    val wordsList: LiveData<MutableList<Word>> = _wordsList
+
+    private var _deletedId = MutableLiveData(0)
     var deletedId: LiveData<Int> = _deletedId
 
     fun deleteWordFromDb(word: Word)
@@ -86,6 +90,20 @@ class EditorViewModel @Inject constructor(private val repository: DataRepository
                     t.printStackTrace()
                 })
         )
+    }
+
+    init
+    {
+        repository.getWordFromPref().apply {
+            composite.add(
+                repository.getEntriesFromDbByDictName(this.dictName, 1, -1, Int.MAX_VALUE)
+                    .subscribe({ list ->
+                        _wordsList.value = list
+                    }, { t ->
+                        t.printStackTrace()
+                    })
+            )
+        }
     }
 
     override fun onCleared()

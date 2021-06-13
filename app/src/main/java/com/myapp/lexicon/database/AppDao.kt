@@ -9,8 +9,8 @@ interface AppDao
     @Query("UPDATE Words SET dict_name = :newValue WHERE dict_name == :oldValue")
     fun updateColumnDictName(oldValue: String, newValue: String) : Single<Int>
 
-    @Query("SELECT * FROM Words WHERE dict_name == :name AND _id >= :id AND count_repeat <> 0 LIMIT :limit")
-    fun getEntriesByDictName(name: String, id: Int = 1, limit: Int = 2) : Single<MutableList<Word>>
+    @Query("SELECT * FROM Words WHERE dict_name == :name AND _id >= :id AND count_repeat >= :repeat LIMIT :limit")
+    fun getEntriesByDictName(name: String, id: Int = 1, repeat: Int = 1, limit: Int = 2) : Single<MutableList<Word>>
 
     @Query("SELECT * FROM Words WHERE _id IN(:id)")
     fun getEntriesById(id: List<Int>) : Single<MutableList<Word>>
