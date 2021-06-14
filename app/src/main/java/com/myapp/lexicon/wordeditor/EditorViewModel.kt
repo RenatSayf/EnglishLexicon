@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.myapp.lexicon.database.Word
+import com.myapp.lexicon.helpers.AppBus
 import com.myapp.lexicon.repository.DataRepositoryImpl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers

@@ -6,15 +6,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.myapp.lexicon.R
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.lang.IndexOutOfBoundsException
 import javax.inject.Inject
-import kotlin.random.Random
 
 
 @HiltViewModel
 class PageBackViewModel @Inject constructor(app: Application) : AndroidViewModel(app)
 {
-    private val imageArray = arrayOf(
+    private val imageArray = mutableListOf(
         R.drawable.img_uk4,
         R.drawable.img_uk4,
         R.drawable.img_uk6,
@@ -35,15 +33,7 @@ class PageBackViewModel @Inject constructor(app: Application) : AndroidViewModel
     )
 
     private var _imageBack = MutableLiveData(R.drawable.img_uk22).apply {
-        val range = imageArray.size
-        val randomIndex = Random.nextInt(range)
-        value = try
-        {
-            imageArray[randomIndex]
-        } catch (e: IndexOutOfBoundsException)
-        {
-            R.drawable.img_uk22
-        }
+        value = imageArray.random()
     }
     var imageBack: LiveData<Int> = _imageBack
 }

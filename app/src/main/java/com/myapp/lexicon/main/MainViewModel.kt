@@ -24,6 +24,14 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
     private var _wordsList = MutableLiveData<MutableList<Word>>()
     @JvmField
     var wordsList: MutableLiveData<MutableList<Word>> = _wordsList
+
+    fun refreshWordsList()
+    {
+        repository.getWordFromPref().apply {
+            setWordsList(this.dictName)
+        }
+    }
+
     fun setWordsList(dictName: String, repeat: Int = 1)
     {
         composite.add(repository.getEntriesFromDbByDictName(dictName, 1, repeat, Int.MAX_VALUE)

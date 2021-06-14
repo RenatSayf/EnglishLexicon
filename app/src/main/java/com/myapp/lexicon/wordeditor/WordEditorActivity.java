@@ -33,6 +33,8 @@ import com.myapp.lexicon.ads.AdsViewModel;
 import com.myapp.lexicon.billing.BillingViewModel;
 import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.database.Word;
+import com.myapp.lexicon.helpers.AppBus;
+import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.viewmodels.EditorSearchViewModel;
@@ -288,9 +290,9 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
         });
 
         evm.isWordUpdated.observe(this, isUpdated -> {
-            if (isUpdated != null)
+            if (isUpdated != null && isUpdated)
             {
-
+                AppBus.INSTANCE.updateWords(true);
             }
         });
 
@@ -310,36 +312,33 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
 
     private void buttonDelete_OnClick()
     {
-        buttonDelete.setOnClickListener(new View.OnClickListener()
+        buttonDelete.setOnClickListener( v ->
         {
-            @Override
-            public void onClick(View v)
-            {
-                //lockOrientation.lock();
-                final String tableName = dictListSpinner.getSelectedItem().toString();
+            LockOrientation orientation = new LockOrientation(WordEditorActivity.this);
+            orientation.lock();
+            final String tableName = dictListSpinner.getSelectedItem().toString();
 
-                new AlertDialog.Builder(WordEditorActivity.this) // TODO: AlertDialog с макетом по умолчанию
-                        .setTitle(R.string.dialog_title_confirm_action)
-                        .setIcon(R.drawable.icon_warning)
-                        .setMessage(getString(R.string.dialog_msg_delete_word) + tableName + "?")
-                        .setPositiveButton(R.string.button_text_yes, new DialogInterface.OnClickListener()
+            new AlertDialog.Builder(WordEditorActivity.this) // TODO: AlertDialog с макетом по умолчанию
+                    .setTitle(R.string.dialog_title_confirm_action)
+                    .setIcon(R.drawable.icon_warning)
+                    .setMessage(getString(R.string.dialog_msg_delete_word) + tableName + "?")
+                    .setPositiveButton(R.string.button_text_yes, new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which)
                         {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which)
-                            {
-
-                            }
-                        })
-                        .setNegativeButton(R.string.button_text_no, new DialogInterface.OnClickListener()
+                            orientation.unLock();
+                        }
+                    })
+                    .setNegativeButton(R.string.button_text_no, new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which)
                         {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which)
-                            {
-
-                            }
-                        })
-                        .create().show();
-            }
+                            orientation.unLock();
+                        }
+                    })
+                    .create().show();
         });
     }
 

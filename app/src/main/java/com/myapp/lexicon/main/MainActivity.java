@@ -40,6 +40,7 @@ import com.myapp.lexicon.databinding.ANavigMainBinding;
 import com.myapp.lexicon.dialogs.DictListDialog;
 import com.myapp.lexicon.dialogs.OrderPlayDialog;
 import com.myapp.lexicon.dialogs.RemoveDictDialog;
+import com.myapp.lexicon.helpers.AppBus;
 import com.myapp.lexicon.helpers.Share;
 import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.service.LexiconService;
@@ -514,6 +515,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             wordsInterval = mainViewModel.getTestInterval().getValue();
         }
         this.stopService(new Intent(this, LexiconService.class));
+        Boolean isRefresh = AppBus.INSTANCE.isRefresh().getValue();
+        if (isRefresh != null && isRefresh)
+        {
+            mainViewModel.refreshWordsList();
+        }
     }
 
     @Override
