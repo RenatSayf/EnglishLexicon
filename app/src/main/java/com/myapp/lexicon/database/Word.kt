@@ -10,16 +10,16 @@ import androidx.room.PrimaryKey
 data class Word(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
-    val _id: Int,
+    var _id: Int,
 
     @ColumnInfo(name = "dict_name")
-    val dictName: String,
+    var dictName: String,
 
     @ColumnInfo(name = "english")
-    val english: String,
+    var english: String,
 
     @ColumnInfo(name = "translate")
-    val translate: String,
+    var translate: String,
 
     @ColumnInfo(name = "count_repeat")
     var countRepeat: Int

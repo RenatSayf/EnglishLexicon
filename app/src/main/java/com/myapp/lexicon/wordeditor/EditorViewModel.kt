@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.myapp.lexicon.database.Word
-import com.myapp.lexicon.helpers.AppBus
 import com.myapp.lexicon.repository.DataRepositoryImpl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -21,6 +20,18 @@ class EditorViewModel @Inject constructor(private val repository: DataRepository
     private var _wordsList = MutableLiveData(mutableListOf<Word>())
     @JvmField
     val wordsList: LiveData<MutableList<Word>> = _wordsList
+
+    fun getAllWordsByDictName(dict: String)
+    {
+        composite.add(
+            repository.getEntriesFromDbByDictName(dict, 1, -1, Int.MAX_VALUE)
+                .subscribe({ list ->
+                    _wordsList.value = list
+                }, { t ->
+                    t.printStackTrace()
+                })
+        )
+    }
 
     private var _deletedId = MutableLiveData(0)
     var deletedId: LiveData<Int> = _deletedId
@@ -46,6 +57,7 @@ class EditorViewModel @Inject constructor(private val repository: DataRepository
     }
 
     private var _wordIsStudied = MutableLiveData<Boolean?>(null)
+    @JvmField
     var wordIsStudied: LiveData<Boolean?> = _wordIsStudied
     fun disableWord(isDisable: Boolean)
     {
@@ -75,9 +87,14 @@ class EditorViewModel @Inject constructor(private val repository: DataRepository
         _ruWord.value = text
     }
 
-    private var _isWordUpdated = MutableLiveData<Boolean?>(null)
+    private var _isWordUpdated = MutableLiveData<Boolean?>(null).apply {
+        value = false
+    }
     @JvmField
     var isWordUpdated: LiveData<Boolean?> = _isWordUpdated
+
+    @JvmField
+    var selectedWord: Word? = null
 
     fun updateWordInDb(words: List<Word>)
     {
@@ -96,14 +113,7 @@ class EditorViewModel @Inject constructor(private val repository: DataRepository
     init
     {
         repository.getWordFromPref().apply {
-            composite.add(
-                repository.getEntriesFromDbByDictName(this.dictName, 1, -1, Int.MAX_VALUE)
-                    .subscribe({ list ->
-                        _wordsList.value = list
-                    }, { t ->
-                        t.printStackTrace()
-                    })
-            )
+            getAllWordsByDictName(this.dictName)
         }
     }
 

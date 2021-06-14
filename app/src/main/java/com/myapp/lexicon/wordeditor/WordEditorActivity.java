@@ -29,6 +29,7 @@ import android.widget.ViewSwitcher;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.addword.AddWordViewModel;
 import com.myapp.lexicon.ads.AdsViewModel;
 import com.myapp.lexicon.billing.BillingViewModel;
 import com.myapp.lexicon.database.DatabaseHelper;
@@ -76,6 +77,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
 
     private MainViewModel vm;
     private EditorViewModel evm;
+    private AddWordViewModel addWordVM;
     private AdsViewModel adsVM;
 
     private void initViews()
@@ -138,6 +140,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
 
         vm = new ViewModelProvider(this).get(MainViewModel.class);
         evm = new ViewModelProvider(this).get(EditorViewModel.class);
+        addWordVM = new ViewModelProvider(WordEditorActivity.this).get(AddWordViewModel.class);
         BillingViewModel billingVM = new ViewModelProvider(this).get(BillingViewModel.class);
         adsVM = new ViewModelProvider(this).get(AdsViewModel.class);
 
@@ -176,7 +179,6 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
                 }
                 ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
                 spinnerDictToMove.setAdapter(adapterSpinner);
-
             }
         });
 
@@ -223,14 +225,11 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             if (id > 0)
             {
                 Toast.makeText(this, "Слово удалено", Toast.LENGTH_SHORT).show();
-                String dictName = dictListSpinner.getSelectedItem().toString();
-                vm.setWordsList(dictName, -1);
-                switcher.showPrevious();
+                listViewAdapter.notifyDataSetChanged();
             }
             else if (id < 0)
             {
                 Toast.makeText(WordEditorActivity.this, getString(R.string.msg_data_base_error), Toast.LENGTH_SHORT).show();
-                switcher.showPrevious();
             }
         });
 
@@ -243,7 +242,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
                 {
                     TextView textVie = (TextView) view;
                     String dictName = textVie.getText().toString();
-                    vm.setWordsList(dictName, -1);
+                    evm.getAllWordsByDictName(dictName);
                     List<String> list = vm.getDictionaryList().getValue();
                     if (list != null && !list.isEmpty())
                     {
@@ -255,31 +254,24 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             public void onNothingSelected(AdapterView<?> parent){}
         });
 
-
-        CheckBox checkStudied = findViewById(R.id.checkStudied);
-        if (checkStudied != null)
-        {
-            evm.getWordIsStudied().observe(this, isStudied -> {
-                if (isStudied != null)
+        CheckBox checkStudied2 = findViewById(R.id.checkStudied2);
+        evm.wordIsStudied.observe(this, isStudied -> {
+            if (isStudied != null && evm.selectedWord != null)
+            {
+                //checkStudied2.setChecked(isStudied);
+                if (isStudied)
                 {
-                    checkStudied.setChecked(isStudied);
-                }
-            });
-
-            checkStudied.setOnClickListener(view -> {
-                CheckBox checkBox = (CheckBox) view;
-                if (checkBox.isChecked())
-                {
-                    evm.disableWord(true);
-                    Toast.makeText(WordEditorActivity.this, getString(R.string.text_word_is_not_show), Toast.LENGTH_LONG).show();
+                    evm.selectedWord.setCountRepeat(-1);
                 }
                 else
                 {
-                    evm.disableWord(false);
-                    Toast.makeText(WordEditorActivity.this, getString(R.string.text_word_is_enabled), Toast.LENGTH_LONG).show();
+                    evm.selectedWord.setCountRepeat(1);
                 }
-            });
-        }
+                evm.updateWordInDb(Collections.singletonList(evm.selectedWord));
+                listViewAdapter.notifyDataSetChanged();
+            }
+        });
+
 
         evm.getEnWord().observe(this, s -> {
             editTextEn.setText(s);
@@ -292,7 +284,19 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
         evm.isWordUpdated.observe(this, isUpdated -> {
             if (isUpdated != null && isUpdated)
             {
-                AppBus.INSTANCE.updateWords(true);
+                if (evm.selectedWord != null)
+                {
+                    evm.getAllWordsByDictName(evm.selectedWord.getDictName());
+                    AppBus.INSTANCE.updateWords(true);
+                    Toast.makeText(getApplicationContext(), "Словарь обновлен...", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
+        addWordVM.getInsertedId().observe(this, id -> {
+            if (id > 0)
+            {
+                Toast.makeText(getApplicationContext(), "Словарь обновлен...", Toast.LENGTH_LONG).show();
             }
         });
 
@@ -328,6 +332,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
                         public void onClick(DialogInterface dialog, int which)
                         {
                             orientation.unLock();
+                            switcher.showPrevious();
                         }
                     })
                     .setNegativeButton(R.string.button_text_no, new DialogInterface.OnClickListener()
@@ -349,7 +354,41 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             @Override
             public void onClick(View v)
             {
+                if (evm.selectedWord != null)
+                {
+                    int id = evm.selectedWord.get_id();
+                    String dict = evm.selectedWord.getDictName();
+                    String enWord = editTextEn.getText().toString();
+                    String ruWord = editTextRu.getText().toString();
+                    int repeat = 1;
+                    CheckBox checkEnable = findViewById(R.id.checkStudied2);
+                    if (checkEnable.isChecked())
+                    {
+                        repeat = -1;
+                    }
+                    Word word = new Word(id, dict, enWord, ruWord, repeat);
+                    if (checkMove.isChecked())
+                    {
+                        String otherDict = spinnerDictToMove.getSelectedItem().toString();
+                        word.set_id(-1);
+                        word.setDictName(otherDict);
+                        if (checkCopy.isChecked())
+                        {
+                            addWordVM.insertEntryAsync(word);
+                        }
+                        else
+                        {
+                            addWordVM.insertEntryAsync(word);
+                            evm.deleteWordFromDb(evm.selectedWord);
+                        }
+                    }
+                    else
+                    {
+                        evm.updateWordInDb(Collections.singletonList(word));
+                    }
 
+                }
+                switcher.showPrevious();
             }
         });
     }
@@ -471,8 +510,11 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
     @Override
     public void onItemClickListener(Word word)
     {
+        evm.selectedWord = word;
         evm.setEnWord(word.getEnglish());
         evm.setRuWord(word.getTranslate());
+        CheckBox checkBox = findViewById(R.id.checkStudied2);
+        checkBox.setChecked(word.getCountRepeat() <= 0);
         switcher.showNext();
     }
 
@@ -481,10 +523,12 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
     {
         if (word.getCountRepeat() < 0 )
         {
+            evm.disableWord(false);
             Toast.makeText(WordEditorActivity.this, getString(R.string.text_word_is_not_show), Toast.LENGTH_LONG).show();
         }
         else
         {
+            evm.disableWord(true);
             Toast.makeText(WordEditorActivity.this, getString(R.string.text_word_is_enabled), Toast.LENGTH_LONG).show();
         }
         evm.updateWordInDb(Collections.singletonList(word)); //TODO надо проверить обновление слова

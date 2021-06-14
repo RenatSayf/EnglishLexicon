@@ -59,7 +59,7 @@ class AddWordViewModel @Inject constructor(private val repository: DataRepositor
     fun insertEntryAsync(word: Word)
     {
         composite.add(repository.insertEntry(word)
-                .subscribeOn(Schedulers.computation())
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ id ->
                     _insertedId.value = id
