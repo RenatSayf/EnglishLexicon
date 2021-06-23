@@ -574,23 +574,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (id == R.id.edit_word)
         {
-            Intent intent = new Intent(this, WordEditorActivity.class);
-            Bundle bundle = new Bundle();
-            bundle.putString(WordEditorActivity.KEY_EXTRA_DICT_NAME, btnViewDict.getText().toString());
-            String text = tvWordsCounter.getText().toString();
-            try
+            Word word = mainViewModel.getCurrentWord().getValue();
+            if (word != null)
             {
-                String[] splitArray = text.split(" ");
-                if (splitArray.length > 0)
-                {
-                    bundle.putInt(WordEditorActivity.KEY_ROW_ID, Integer.parseInt(splitArray[0]));
-                }
-
-            } catch (Exception e)
-            {
-                e.printStackTrace();
+                AppBus.INSTANCE.passWord(word); // отправляем слово в WordEditorActivity
             }
-            intent.replaceExtras(bundle);
+
+            Intent intent = new Intent(this, WordEditorActivity.class);
+//            Bundle bundle = new Bundle();
+//            bundle.putParcelable("sdfsd", word);
+//            bundle.putString(WordEditorActivity.KEY_EXTRA_DICT_NAME, btnViewDict.getText().toString());
+//            String text = tvWordsCounter.getText().toString();
+//            try
+//            {
+//                String[] splitArray = text.split(" ");
+//                if (splitArray.length > 0)
+//                {
+//                    bundle.putInt(WordEditorActivity.KEY_ROW_ID, Integer.parseInt(splitArray[0]));
+//                }
+//
+//            } catch (Exception e)
+//            {
+//                e.printStackTrace();
+//            }
+//            intent.replaceExtras(bundle);
             startActivity(intent);
         }
         if (id == R.id.edit_speech_data)

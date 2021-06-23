@@ -35,12 +35,16 @@ data class Word(
 
     override fun describeContents(): Int
     {
-        TODO("Not yet implemented")
+        return 0
     }
 
     override fun writeToParcel(p0: Parcel?, p1: Int)
     {
-        TODO("Not yet implemented")
+        p0?.writeInt(_id)
+        p0?.writeString(dictName)
+        p0?.writeString(english)
+        p0?.writeString(translate)
+        p0?.writeInt(countRepeat)
     }
 
     companion object CREATOR : Parcelable.Creator<Word>
