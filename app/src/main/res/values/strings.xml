@@ -229,6 +229,10 @@
     <string name="text_test_completed">Тест завершен…</string>
     <string name="text_do_speak">Говорите в микрофон…</string>
     <string name="text_word_is_enabled">Слово будет доступно для изучения</string>
+    <string name="text_disable_ads">Отключить рекламу навсегда за</string>
+    <string name="text_on_start">При старте</string>
+    <string name="text_ad">Реклама</string>
+    <string name="text_show_ads">Показывать рекламу</string>
     <string-array name="not_move">
         <item>Не перемещать</item>
     </string-array>

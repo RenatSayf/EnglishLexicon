@@ -4,15 +4,13 @@ package com.myapp.lexicon.settings
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.MenuItem
 import android.view.View
 import androidx.activity.addCallback
-import androidx.appcompat.widget.Toolbar
-import androidx.preference.CheckBoxPreference
-import androidx.preference.ListPreference
-import androidx.preference.Preference
-import androidx.preference.PreferenceFragmentCompat
+import androidx.lifecycle.ViewModelProvider
+import androidx.preference.*
 import com.myapp.lexicon.R
+import com.myapp.lexicon.billing.BillingViewModel
+import com.myapp.lexicon.dialogs.DisableAdsDialog
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.schedule.AlarmScheduler
 import com.myapp.lexicon.service.LexiconService
@@ -26,6 +24,7 @@ class SettingsFragment : PreferenceFragmentCompat()
     private lateinit var listDisplayModePref: ListPreference
     private lateinit var serviceCheckBoxPref: CheckBoxPreference
     private lateinit var showIntervalsPref: ListPreference
+    private lateinit var billing: BillingViewModel
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?)
     {
@@ -36,6 +35,22 @@ class SettingsFragment : PreferenceFragmentCompat()
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
+
+        billing = ViewModelProvider(this)[BillingViewModel::class.java]
+
+        findPreference<SwitchPreferenceCompat>("disableAds")?.apply {
+            onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener
+            {
+                override fun onPreferenceChange(preference: Preference?, newValue: Any?): Boolean
+                {
+                    if (newValue == false)
+                    {
+                        DisableAdsDialog().show(requireActivity().supportFragmentManager, "")
+                    }
+                    return true
+                }
+            }
+        }
 
         findPreference<ListPreference>(requireContext().getString(R.string.key_test_interval))?.apply {
             summary = this.entry
@@ -159,6 +174,21 @@ class SettingsFragment : PreferenceFragmentCompat()
 //            supportActionBar?.setDisplayHomeAsUpEnabled(true)
 //
 //        }
+
+        billing.noAdsToken.observe(viewLifecycleOwner, {
+            it?.let { token ->
+                if (token.isEmpty())
+                {
+                    findPreference<PreferenceCategory>("disableAdsCategory")?.isEnabled = true
+                    findPreference<SwitchPreferenceCompat>("disableAds")?.isChecked = true
+                }
+                else
+                {
+                    findPreference<PreferenceCategory>("disableAdsCategory")?.isEnabled = false
+                    findPreference<SwitchPreferenceCompat>("disableAds")?.isChecked = false
+                }
+            }
+        })
 
         requireActivity().onBackPressedDispatcher.addCallback{
             (requireActivity() as MainActivity).apply {

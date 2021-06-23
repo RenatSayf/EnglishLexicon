@@ -282,6 +282,10 @@
     <string name="text_test_completed">Тест завершено…</string>
     <string name="text_do_speak">Говоріть в мікрофон…</string>
     <string name="text_word_is_enabled">Слово буде доступне для вивчення</string>
+    <string name="text_disable_ads">Відключити рекламу назавжди за</string>
+    <string name="text_on_start">При старті</string>
+    <string name="text_ad">Реклама</string>
+    <string name="text_show_ads">Показувати рекламу</string>
 
     <string-array name="words_interval">
         <item>після 5 слів</item>

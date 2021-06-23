@@ -48,7 +48,7 @@ class BillingViewModel @Inject constructor(private val app: Application) : Andro
         .build()
 
     private var _noAdsToken = MutableLiveData<String?>(null)
-    val noAdsToken: LiveData<String?> = _noAdsToken //TODO перед релизом раскоментировать _purToken
+    val noAdsToken: LiveData<String?> = _noAdsToken //TODO перед релизом раскоментировать _noAdsToken
 
     private var _message = MutableLiveData<String?>(null)
     var message : LiveData<String?> = _message

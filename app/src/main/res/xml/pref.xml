@@ -2,11 +2,24 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/text_settings">
 
-    <CheckBoxPreference
-        android:defaultValue="true"
-        android:key="is_start_speech"
-        android:summary="@string/summary_is_start_speech"
-        android:title="@string/title_is_start_speech" />
+    <PreferenceCategory android:title="@string/text_on_start">
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="is_start_speech"
+            android:summary="@string/summary_is_start_speech"
+            />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="disableAdsCategory"
+        android:title="@string/text_ad">
+
+        <SwitchPreferenceCompat
+            android:key="disableAds"
+            android:title="@string/text_show_ads"
+            android:defaultValue="true"/>
+
+    </PreferenceCategory>
 
     <PreferenceCategory
         android:title="@string/text_knowledge_check">
