@@ -2,7 +2,6 @@ package com.myapp.lexicon.helpers
 
 import com.myapp.lexicon.database.Word
 import io.reactivex.subjects.BehaviorSubject
-import kotlin.collections.ArrayList
 
 object AppBus
 {
