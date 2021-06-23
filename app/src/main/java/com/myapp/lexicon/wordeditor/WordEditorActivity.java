@@ -3,7 +3,6 @@ package com.myapp.lexicon.wordeditor;
 import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -53,7 +52,6 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class WordEditorActivity extends AppCompatActivity implements ListViewAdapter.IListViewAdapter
 {
     public static final String KEY_EXTRA_DICT_NAME = "wordeditor_dict_name";
-    public static final String KEY_ROW_ID = "key_row_id";
 
     private Spinner dictListSpinner;
     private SearchView searchView;
@@ -122,6 +120,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
 
     }
 
+    @SuppressWarnings("CodeBlock2Expr")
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -254,11 +253,9 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             public void onNothingSelected(AdapterView<?> parent){}
         });
 
-        CheckBox checkStudied2 = findViewById(R.id.checkStudied2);
         evm.wordIsStudied.observe(this, isStudied -> {
             if (isStudied != null && evm.selectedWord != null)
             {
-                //checkStudied2.setChecked(isStudied);
                 if (isStudied)
                 {
                     evm.selectedWord.setCountRepeat(-1);
@@ -306,7 +303,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
         });
 
         Word wordFromMainActivity = AppBus.INSTANCE.getWord().getValue(); // получение слова из MainActivity
-        if (wordFromMainActivity != null && wordFromMainActivity.get_id() > 0)
+        if (wordFromMainActivity != null)
         {
             evm.setEnWord(wordFromMainActivity.getEnglish());
             evm.setRuWord(wordFromMainActivity.getTranslate());
@@ -339,76 +336,60 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
                     .setTitle(R.string.dialog_title_confirm_action)
                     .setIcon(R.drawable.icon_warning)
                     .setMessage(getString(R.string.dialog_msg_delete_word) + tableName + "?")
-                    .setPositiveButton(R.string.button_text_yes, new DialogInterface.OnClickListener()
-                    {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which)
+                    .setPositiveButton(R.string.button_text_yes, (dialog, which) -> {
+                        orientation.unLock();
+                        if (evm.selectedWord != null)
                         {
-                            orientation.unLock();
-                            if (evm.selectedWord != null)
-                            {
-                                evm.deleteWordFromDb(evm.selectedWord);
-                            }
-                            switcher.showPrevious();
+                            evm.deleteWordFromDb(evm.selectedWord);
                         }
+                        switcher.showPrevious();
                     })
-                    .setNegativeButton(R.string.button_text_no, new DialogInterface.OnClickListener()
-                    {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which)
-                        {
-                            orientation.unLock();
-                        }
-                    })
+                    .setNegativeButton(R.string.button_text_no, (dialog, which) -> orientation.unLock())
                     .create().show();
         });
     }
 
     private void buttonWrite_OnClick()
     {
-        buttonWrite.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
+        buttonWrite.setOnClickListener(v -> {
+            if (evm.selectedWord != null)
             {
-                if (evm.selectedWord != null)
+                int id = evm.selectedWord.get_id();
+                String dict = evm.selectedWord.getDictName();
+                String enWord = editTextEn.getText().toString();
+                String ruWord = editTextRu.getText().toString();
+                int repeat = 1;
+                CheckBox checkEnable = findViewById(R.id.checkStudied2);
+                if (checkEnable.isChecked())
                 {
-                    int id = evm.selectedWord.get_id();
-                    String dict = evm.selectedWord.getDictName();
-                    String enWord = editTextEn.getText().toString();
-                    String ruWord = editTextRu.getText().toString();
-                    int repeat = 1;
-                    CheckBox checkEnable = findViewById(R.id.checkStudied2);
-                    if (checkEnable.isChecked())
+                    repeat = -1;
+                }
+                Word word = new Word(id, dict, enWord, ruWord, repeat);
+                if (checkMove.isChecked())
+                {
+                    String otherDict = spinnerDictToMove.getSelectedItem().toString();
+                    word.set_id(0);
+                    word.setDictName(otherDict);
+                    if (checkCopy.isChecked())
                     {
-                        repeat = -1;
-                    }
-                    Word word = new Word(id, dict, enWord, ruWord, repeat);
-                    if (checkMove.isChecked())
-                    {
-                        String otherDict = spinnerDictToMove.getSelectedItem().toString();
-                        word.set_id(0);
-                        word.setDictName(otherDict);
-                        if (checkCopy.isChecked())
-                        {
-                            addWordVM.insertEntryAsync(word);
-                        }
-                        else
-                        {
-                            addWordVM.insertEntryAsync(word);
-                            evm.deleteWordFromDb(evm.selectedWord);
-                        }
+                        addWordVM.insertEntryAsync(word);
                     }
                     else
                     {
-                        evm.updateWordInDb(Collections.singletonList(word));
+                        addWordVM.insertEntryAsync(word);
+                        evm.deleteWordFromDb(evm.selectedWord);
                     }
                 }
-                switcher.showPrevious();
+                else
+                {
+                    evm.updateWordInDb(Collections.singletonList(word));
+                }
             }
+            switcher.showPrevious();
         });
     }
 
+    @SuppressWarnings("CodeBlock2Expr")
     private void checkMove_OnClick()
     {
         checkMove.setOnClickListener(v ->
@@ -435,14 +416,9 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
         {
             searchView.setIconified(viewModel.searchIsActive.getValue());
             searchView.setQuery(viewModel.queryString.getValue(), false);
-            searchView.setOnSearchClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View view)
-                {
-                    viewModel.setSearchAsActive(true);
-                    searchView.setQuery(viewModel.queryString.getValue(), false);
-                }
+            searchView.setOnSearchClickListener(view -> {
+                viewModel.setSearchAsActive(true);
+                searchView.setQuery(viewModel.queryString.getValue(), false);
             });
         }
         return true;

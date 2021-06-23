@@ -6,7 +6,7 @@ import io.reactivex.subjects.BehaviorSubject
 object AppBus
 {
     private val wordsToUpdate: BehaviorSubject<Boolean> = BehaviorSubject.createDefault(false)
-    private val wordToPass: BehaviorSubject<Word> = BehaviorSubject.createDefault(Word(-1, "", "", "", 0))
+    private val wordToPass: BehaviorSubject<Word> = BehaviorSubject.create()
 
     fun updateWords(flag: Boolean)
     {

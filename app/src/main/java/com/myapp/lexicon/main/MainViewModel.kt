@@ -88,9 +88,7 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
     }
 
     private var _currentWord = MutableLiveData<Word>().apply {
-        //repository.saveWordThePref(Word(1, "Наречия", "", "", 1))
         value = repository.getWordFromPref()
-        return@apply
     }
     var currentWord: MutableLiveData<Word> = _currentWord
     fun setCurrentWord(word: Word)
