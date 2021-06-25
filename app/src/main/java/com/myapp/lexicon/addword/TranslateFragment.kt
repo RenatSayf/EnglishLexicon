@@ -39,13 +39,16 @@ class TranslateFragment : Fragment(),View.OnKeyListener
         }
     }
 
-    @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View?
+    override fun onCreate(savedInstanceState: Bundle?)
     {
+        super.onCreate(savedInstanceState)
         billingVM = ViewModelProvider(this)[BillingViewModel::class.java]
         adsVM = ViewModelProvider(this)[AdsViewModel::class.java]
+    }
 
+    @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
+    {
         val root = inflater.inflate(R.layout.translate_fragment, container, false)
 
         val inputText = arguments?.getString(TEXT) ?: ""
@@ -65,16 +68,15 @@ class TranslateFragment : Fragment(),View.OnKeyListener
                 val banner = adsVM.getAddWordBanner()
                 adLayout.addView(banner)
                 banner.loadAd(AdRequest.Builder().build())
+                adsVM.loadAd2()
             }
         })
-
         return root
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?)
     {
-        super.onActivityCreated(savedInstanceState)
-
+        super.onViewCreated(view, savedInstanceState)
         btnSave.setOnClickListener {
             loadProgress.visibility = View.VISIBLE
             val url = webView.url
@@ -98,9 +100,12 @@ class TranslateFragment : Fragment(),View.OnKeyListener
             }
             loadProgress.visibility = View.GONE
         })
+    }
 
-
-
+    override fun onDestroyView()
+    {
+        super.onDestroyView()
+        adsVM.showAd2(requireActivity())
     }
 
     override fun onKey(p0: View?, p1: Int, p2: KeyEvent?): Boolean

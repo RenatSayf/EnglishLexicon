@@ -18,6 +18,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.myapp.lexicon.R
 import com.myapp.lexicon.adapters.OneFiveTestAdapter
+import com.myapp.lexicon.ads.AdsViewModel
+import com.myapp.lexicon.billing.BillingViewModel
 import com.myapp.lexicon.database.Word
 import com.myapp.lexicon.dialogs.TestCompleteDialog
 import com.myapp.lexicon.helpers.RandomNumberGenerator
@@ -37,6 +39,8 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
     private var answersRecyclerView: RecyclerView? = null
     private lateinit var mysteryWordView: TextView
     private lateinit var backPressedCallback: OnBackPressedCallback
+    private lateinit var billingVM: BillingViewModel
+    private lateinit var adsVM: AdsViewModel
 
 
     companion object
@@ -55,6 +59,8 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
+        billingVM = ViewModelProvider(this)[BillingViewModel::class.java]
+        adsVM = ViewModelProvider(this)[AdsViewModel::class.java]
         vm = ViewModelProvider(this)[OneOfFiveViewModel::class.java]
         if (!wordList.isNullOrEmpty()) vm.initTest(wordList as MutableList<Word>)
     }
@@ -62,6 +68,12 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View
     {
         val root = inflater.inflate(R.layout.one_of_five_fragm_new, container, false)
+
+        billingVM.noAdsToken.observe(viewLifecycleOwner, { t ->
+            t?.let {
+               if (it.isEmpty()) adsVM.loadAd1()
+            }
+        })
 
         answersRecyclerView = root.findViewById(R.id.answersRecyclerView)
         vm.adapterList.observe(viewLifecycleOwner, {
@@ -181,6 +193,7 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
                     override fun onAnimationEnd(p0: Animation?)
                     {
                         view.setBackgroundResource(R.drawable.text_button_for_test)
+                        adsVM.showAd1(requireActivity())
                     }
 
                     override fun onAnimationRepeat(p0: Animation?){}

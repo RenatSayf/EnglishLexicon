@@ -21,6 +21,8 @@ import androidx.fragment.app.viewModels
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.myapp.lexicon.R
+import com.myapp.lexicon.ads.AdsViewModel
+import com.myapp.lexicon.billing.BillingViewModel
 import com.myapp.lexicon.database.Word
 import com.myapp.lexicon.databinding.TestFragmentBinding
 import com.myapp.lexicon.dialogs.DictListDialog
@@ -51,6 +53,8 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     private val animVM: AnimViewModel by viewModels()
     private val speechVM: SpeechViewModel by viewModels()
     private val pageBackVM: PageBackViewModel by viewModels()
+    private val billingVM: BillingViewModel by viewModels()
+    private val adsVM: AdsViewModel by viewModels()
     private val composite = CompositeDisposable()
     private var completeDialog: DialogTestComplete? = null
 
@@ -67,6 +71,12 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     {
         super.onViewCreated(view, savedInstanceState)
         binding = TestFragmentBinding.bind(view)
+
+        billingVM.noAdsToken.observe(viewLifecycleOwner, { t ->
+            t?.let {
+                if (t.isEmpty()) adsVM.loadAd1()
+            }
+        })
 
         pageBackVM.imageBack.observe(viewLifecycleOwner, { img ->
             binding.imgBack.setImageResource(img)
@@ -127,6 +137,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                             override fun onAnimationEnd(p0: Animation?)
                             {
                                 binding.checkBtn.setBackgroundResource(R.drawable.text_button_for_test)
+                                adsVM.showAd1(requireActivity())
                             }
 
                             override fun onAnimationRepeat(p0: Animation?){}
@@ -333,6 +344,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 }
             }
         }
+        adsVM.showAd1(requireActivity())
         super.onDestroyView()
     }
 

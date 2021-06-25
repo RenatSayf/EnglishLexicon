@@ -23,8 +23,6 @@ public class TranslateActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.b_translate_activity);
 
-
-
         if (getSupportActionBar() != null)
         {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
