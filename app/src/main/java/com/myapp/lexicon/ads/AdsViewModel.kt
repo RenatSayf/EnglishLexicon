@@ -41,4 +41,18 @@ class AdsViewModel @Inject constructor(private val app: Application) : AndroidVi
         }
     }
 
+    fun getAddWordBanner() : AdView
+    {
+        return AdView(app).apply {
+            adSize = AdSize.BANNER
+            adUnitId = if (BuildConfig.DEBUG)
+            {
+                app.getString(R.string.tests_banner)
+            } else
+            {
+                app.getString(R.string.add_word_bottom_banner)
+            }
+        }
+    }
+
 }

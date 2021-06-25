@@ -16,11 +16,15 @@ import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public class TranslateActivity extends AppCompatActivity
 {
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.b_translate_activity);
+
+
+
         if (getSupportActionBar() != null)
         {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -41,7 +45,10 @@ public class TranslateActivity extends AppCompatActivity
                 }
             }
         }
+
+
     }
+
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item)

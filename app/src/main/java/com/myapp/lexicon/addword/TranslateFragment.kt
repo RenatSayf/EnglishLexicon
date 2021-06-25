@@ -3,8 +3,13 @@ package com.myapp.lexicon.addword
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.*
+import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import com.google.android.gms.ads.AdRequest
 import com.myapp.lexicon.R
+import com.myapp.lexicon.ads.AdsViewModel
+import com.myapp.lexicon.billing.BillingViewModel
 import kotlinx.android.synthetic.main.translate_fragment.*
 import kotlinx.android.synthetic.main.translate_fragment.view.*
 import java.net.URLDecoder
@@ -13,6 +18,8 @@ private const val TEXT = "translate_text"
 
 class TranslateFragment : Fragment(),View.OnKeyListener
 {
+    private lateinit var billingVM: BillingViewModel
+    private lateinit var adsVM: AdsViewModel
 
     companion object
     {
@@ -36,6 +43,9 @@ class TranslateFragment : Fragment(),View.OnKeyListener
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View?
     {
+        billingVM = ViewModelProvider(this)[BillingViewModel::class.java]
+        adsVM = ViewModelProvider(this)[AdsViewModel::class.java]
+
         val root = inflater.inflate(R.layout.translate_fragment, container, false)
 
         val inputText = arguments?.getString(TEXT) ?: ""
@@ -47,6 +57,16 @@ class TranslateFragment : Fragment(),View.OnKeyListener
             webViewClient = AppWebViewClient(this@TranslateFragment) //todo parsing WebView: Step 6
             loadUrl("https://translate.yandex.ru/?text=${inputText}")
         }
+
+        billingVM.noAdsToken.observe(viewLifecycleOwner, {
+            if (it != null && it.isEmpty())
+            {
+                val adLayout: LinearLayout = root.findViewById(R.id.adLayout)
+                val banner = adsVM.getAddWordBanner()
+                adLayout.addView(banner)
+                banner.loadAd(AdRequest.Builder().build())
+            }
+        })
 
         return root
     }
