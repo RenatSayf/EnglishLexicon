@@ -40,7 +40,7 @@ class BillingViewModel @Inject constructor(private val app: Application) : Andro
                 }
                 else if (result.responseCode == BillingClient.BillingResponseCode.USER_CANCELED)
                 {
-                    _message.value = "Нам очень жаль, что Вы передумали..."
+                    _wasCancelled.value = true
                 }
             }
         })
@@ -50,11 +50,11 @@ class BillingViewModel @Inject constructor(private val app: Application) : Andro
     private var _noAdsToken = MutableLiveData<String?>(null)
     val noAdsToken: LiveData<String?> = _noAdsToken //TODO перед релизом раскоментировать _noAdsToken
 
-    private var _message = MutableLiveData<String?>(null)
-    var message : LiveData<String?> = _message
+    private var _wasCancelled = MutableLiveData(false)
+    var wasCancelled : LiveData<Boolean> = _wasCancelled
 
-    private var _priceText = MutableLiveData<String?>(null)
-    var priceText: LiveData<String?> = _priceText
+    private var _priceText = MutableLiveData("")
+    var priceText: LiveData<String> = _priceText
 
     fun querySkuDetails()
     {

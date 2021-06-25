@@ -25,6 +25,7 @@ class SettingsFragment : PreferenceFragmentCompat()
     private lateinit var serviceCheckBoxPref: CheckBoxPreference
     private lateinit var showIntervalsPref: ListPreference
     private lateinit var billing: BillingViewModel
+    private val disableAdsDialog = DisableAdsDialog()
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?)
     {
@@ -37,20 +38,6 @@ class SettingsFragment : PreferenceFragmentCompat()
         super.onCreate(savedInstanceState)
 
         billing = ViewModelProvider(this)[BillingViewModel::class.java]
-
-        findPreference<SwitchPreferenceCompat>("disableAds")?.apply {
-            onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener
-            {
-                override fun onPreferenceChange(preference: Preference?, newValue: Any?): Boolean
-                {
-                    if (newValue == false)
-                    {
-                        DisableAdsDialog().show(requireActivity().supportFragmentManager, "")
-                    }
-                    return true
-                }
-            }
-        }
 
         findPreference<ListPreference>(requireContext().getString(R.string.key_test_interval))?.apply {
             summary = this.entry
@@ -71,7 +58,6 @@ class SettingsFragment : PreferenceFragmentCompat()
                         false
                     }
                 }
-
             }
         }
 
@@ -188,6 +174,32 @@ class SettingsFragment : PreferenceFragmentCompat()
                     findPreference<SwitchPreferenceCompat>("disableAds")?.isChecked = false
                 }
             }
+        })
+
+        val noAdsSwitch = findPreference<SwitchPreferenceCompat>("disableAds")
+        noAdsSwitch?.apply {
+            onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener
+            {
+                override fun onPreferenceChange(preference: Preference?, newValue: Any?): Boolean
+                {
+                    if (newValue == false)
+                    {
+                        disableAdsDialog.show(requireActivity().supportFragmentManager, "").run {
+                            disableAdsDialog.isCancel.observe(viewLifecycleOwner, {
+                                if (it)
+                                {
+                                    noAdsSwitch.isChecked = true
+                                }
+                            })
+                        }
+                    }
+                    return true
+                }
+            }
+        }
+
+        billing.wasCancelled.observe(viewLifecycleOwner, {
+            if (true) noAdsSwitch?.isChecked = true
         })
 
         requireActivity().onBackPressedDispatcher.addCallback{
