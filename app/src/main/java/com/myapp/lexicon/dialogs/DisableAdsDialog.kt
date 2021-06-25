@@ -55,7 +55,7 @@ class DisableAdsDialog : DialogFragment()
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View
     {
         billingVM.priceText.observe(viewLifecycleOwner, {
             val text = titleView?.text.toString() + " $it"
