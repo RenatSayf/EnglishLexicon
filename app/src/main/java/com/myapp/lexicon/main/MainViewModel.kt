@@ -193,6 +193,13 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
                 }))
     }
 
+    private var _isEndWordList = MutableLiveData(false)
+    @JvmField
+    val isEndWordList: LiveData<Boolean> = _isEndWordList
+    fun wordsIsEnded(isEnd:Boolean)
+    {
+        _isEndWordList.value = isEnd
+    }
 
     init
     {

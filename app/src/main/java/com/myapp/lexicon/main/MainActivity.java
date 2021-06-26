@@ -58,6 +58,7 @@ import javax.inject.Inject;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -201,6 +202,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     String concatText = (position + 1) + " / " + totalWords;
                     tvWordsCounter.setText(concatText);
                 }
+                if (position < mainViewModel.wordListSize() - 1)
+                {
+                    mainViewModel.wordsIsEnded(false);
+                }
+
             }
             @Override
             public void onPageScrollStateChanged(int state)
@@ -398,6 +404,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
+        AppCompatImageButton btnReplay = findViewById(R.id.btnReplay);
+        mainViewModel.isEndWordList.observe(this, isEnd -> {
+            if (isEnd)
+            {
+                btnReplay.setVisibility(View.VISIBLE);
+            }
+            else btnReplay.setVisibility(View.INVISIBLE);
+        });
+
+        btnReplay.setOnClickListener( view -> mainViewPager.setCurrentItem(0, true));
+
     }
 
     public void testPassed()
@@ -415,6 +432,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     mainViewPager.setCurrentItem(i, false);
                 }
                 else mainViewPager.setCurrentItem(0, false);
+                mainViewModel.wordsIsEnded(index + 1 == mainViewModel.wordListSize() - 1);
             }
         }
         mainViewModel.setMainControlVisibility(View.VISIBLE);
