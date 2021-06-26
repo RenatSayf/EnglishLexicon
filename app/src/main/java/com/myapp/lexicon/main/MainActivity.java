@@ -628,7 +628,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (id == R.id.nav_add_word)
         {
             TranslateFragment translateFragm = TranslateFragment.Companion.getInstance("");
-            getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, translateFragm).addToBackStack(null).commit();
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.setCustomAnimations(R.anim.from_right_to_left_anim, R.anim.from_left_to_right_anim);
+            transaction.replace(R.id.frame_to_page_fragm, translateFragm).addToBackStack(null).commit();
         }
         else if (id == R.id.nav_delete_dict)
         {
