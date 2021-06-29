@@ -1,11 +1,11 @@
 package com.myapp.lexicon.service;
 
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
@@ -13,10 +13,15 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.ads.AdsViewModel;
+import com.myapp.lexicon.billing.BillingViewModel;
 import com.myapp.lexicon.database.Word;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
 import com.myapp.lexicon.helpers.StringOperations;
@@ -53,6 +58,7 @@ public class TestModalFragment extends DialogFragment
 
     private MainViewModel viewModel;
     private SpeechViewModel speechVM;
+    private AdsViewModel adsVM;
     private final CompositeDisposable composite = new CompositeDisposable();
 
     public TestModalFragment()
@@ -86,19 +92,30 @@ public class TestModalFragment extends DialogFragment
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState)
     {
-        return super.onCreateDialog(savedInstanceState);
-    }
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.s_test_modal_fragment, new LinearLayout(requireContext()), false);
 
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-    {
-        View fragmentView = inflater.inflate(R.layout.s_test_modal_fragment, container, false);
+        AlertDialog dialog = new AlertDialog.Builder(requireContext()).setView(dialogView).create();
 
-        enTextView = fragmentView.findViewById(R.id.en_text_view);
-        ruBtn1 = fragmentView.findViewById(R.id.ru_btn_1);
+        BillingViewModel billingVM = new ViewModelProvider(this).get(BillingViewModel.class);
+        adsVM = new ViewModelProvider(this).get(AdsViewModel.class);
+        billingVM.getNoAdsToken().observe(this, token -> {
+            if (token != null && token.isEmpty())
+            {
+                LinearLayout adLayout = dialogView.findViewById(R.id.adLayout);
+                if (adLayout != null)
+                {
+                    AdView mainBanner = adsVM.getMainBanner();
+                    adLayout.addView(mainBanner);
+                    mainBanner.loadAd(new AdRequest.Builder().build());
+                }
+            }
+        });
+
+        enTextView = dialogView.findViewById(R.id.en_text_view);
+        ruBtn1 = dialogView.findViewById(R.id.ru_btn_1);
         ruBtn1.setText("");
         ruBtn1_OnClick(ruBtn1);
-        ruBtn2 = fragmentView.findViewById(R.id.ru_btn_2);
+        ruBtn2 = dialogView.findViewById(R.id.ru_btn_2);
         ruBtn2.setText("");
         ruBtn2_OnClick(ruBtn2);
 
@@ -114,10 +131,10 @@ public class TestModalFragment extends DialogFragment
                     if (words.length > 0)
                     {
                         enTextView.setText(words[0].getEnglish());
-                        TextView nameDictTV = fragmentView.findViewById(R.id.name_dict_tv_test_modal);
+                        TextView nameDictTV = dialogView.findViewById(R.id.name_dict_tv_test_modal);
                         nameDictTV.setText(words[0].getDictName());
 
-                        viewModel.getRandomWord(words[0]).observe(getViewLifecycleOwner(), word -> {
+                        viewModel.getRandomWord(words[0]).observe(this, word -> {
                             ArrayList<Word> listWords = new ArrayList<>();
                             listWords.add(words[0]);
                             listWords.add(word);
@@ -130,7 +147,7 @@ public class TestModalFragment extends DialogFragment
                         });
                     }
                 }
-                TextView wordsNumberTV = fragmentView.findViewById(R.id.words_number_tv_test_modal);
+                TextView wordsNumberTV = dialogView.findViewById(R.id.words_number_tv_test_modal);
                 if (_counters.size() >= 3)
                 {
                     String concatText = (_counters.get(0) + "")
@@ -147,7 +164,7 @@ public class TestModalFragment extends DialogFragment
 
         }
 
-        ImageButton speakButton = fragmentView.findViewById(R.id.btn_sound_modal);
+        ImageButton speakButton = dialogView.findViewById(R.id.btn_sound_modal);
         speakButton.setOnClickListener(view -> {
             String enText = enTextView.getText().toString();
             if (!enText.equals(""))
@@ -156,43 +173,25 @@ public class TestModalFragment extends DialogFragment
             }
         });
 
-        ImageButton btnClose = fragmentView.findViewById(R.id.modal_btn_close);
+        ImageButton btnClose = dialogView.findViewById(R.id.modal_btn_close);
         btnClose.setOnClickListener(view -> requireActivity().finish());
 
-        Button btnOpenApp = fragmentView.findViewById(R.id.btn_open_app);
+        Button btnOpenApp = dialogView.findViewById(R.id.btn_open_app);
         btnOpenApp.setOnClickListener(view1 -> iCallback.openApp());
 
-        Button btnStopService = fragmentView.findViewById(R.id.btn_stop_service);
+        Button btnStopService = dialogView.findViewById(R.id.btn_stop_service);
         btnStopService.setOnClickListener( view -> ((ServiceActivity)requireActivity()).stopAppService());
 
-        checkStudied_OnCheckedChange(fragmentView.findViewById(R.id.check_box_studied));
+        checkStudied_OnCheckedChange(dialogView.findViewById(R.id.check_box_studied));
 
-        ImageView orderPlayIcon = fragmentView.findViewById(R.id.order_play_icon_iv_test_modal);
+        ImageView orderPlayIcon = dialogView.findViewById(R.id.order_play_icon_iv_test_modal);
 
-        viewModel.getCountRepeat().observe(getViewLifecycleOwner(), id -> {
+        viewModel.getCountRepeat().observe(this, id -> {
             if (id > 0) Toast.makeText(getActivity(), R.string.text_word_is_not_show, Toast.LENGTH_LONG).show();
         });
 
-        return fragmentView;
-    }
-
-    @Override
-    public void onResume()
-    {
-        super.onResume();
-
-    }
-
-    @Override
-    public void onStart()
-    {
-        super.onStart();
-    }
-
-    @Override
-    public void onStop()
-    {
-        super.onStop();
+        if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawableResource(R.drawable.rounded_corners_background);
+        return dialog;
     }
 
     private void ruBtn1_OnClick(View view)
