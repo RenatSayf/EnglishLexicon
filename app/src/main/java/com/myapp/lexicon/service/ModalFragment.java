@@ -1,19 +1,25 @@
 package com.myapp.lexicon.service;
 
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.gson.JsonSyntaxException;
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.ads.AdsViewModel;
+import com.myapp.lexicon.billing.BillingViewModel;
 import com.myapp.lexicon.database.Word;
 import com.myapp.lexicon.helpers.StringOperations;
 import com.myapp.lexicon.interfaces.IModalFragment;
@@ -37,11 +43,13 @@ public class ModalFragment extends DialogFragment
     public static final String TAG = ModalFragment.class.getCanonicalName() + ".TAG";
     public static IModalFragment iCallback;
 
+    //private View fragmentView;
     private AppSettings appSettings;
     private TextView enTextView;
     private TextView ruTextView;
     private static List<Integer> _counters = new ArrayList<>();
     private SpeechViewModel speechVM;
+    private AdsViewModel adsVM;
 
     public ModalFragment()
     {
@@ -67,23 +75,40 @@ public class ModalFragment extends DialogFragment
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
 
         speechVM = new ViewModelProvider(this).get(SpeechViewModel.class);
 
         appSettings = new AppSettings(requireContext());
     }
 
+    @NonNull
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+    public Dialog onCreateDialog(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState)
     {
-        final View fragmentView = inflater.inflate(R.layout.s_repeat_modal_fragment, container, false);
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.s_repeat_modal_fragment, new LinearLayout(requireContext()), false);
 
-        enTextView = fragmentView.findViewById(R.id.en_text_view);
-        ruTextView = fragmentView.findViewById(R.id.ru_text_view);
+        AlertDialog dialog = new AlertDialog.Builder(requireContext()).setView(dialogView).create();
 
-        TextView nameDictTV = fragmentView.findViewById(R.id.name_dict_tv);
-        TextView wordsNumberTV = fragmentView.findViewById(R.id.words_number_tv_modal_sv);
+        BillingViewModel billingVM = new ViewModelProvider(this).get(BillingViewModel.class);
+        adsVM = new ViewModelProvider(this).get(AdsViewModel.class);
+        billingVM.getNoAdsToken().observe(this, token -> {
+            if (token != null && token.isEmpty())
+            {
+                LinearLayout adLayout = dialogView.findViewById(R.id.adLayout);
+                if (adLayout != null)
+                {
+                    AdView mainBanner = adsVM.getMainBanner();
+                    adLayout.addView(mainBanner);
+                    mainBanner.loadAd(new AdRequest.Builder().build());
+                }
+            }
+        });
+
+        enTextView = dialogView.findViewById(R.id.en_text_view);
+        ruTextView = dialogView.findViewById(R.id.ru_text_view);
+
+        TextView nameDictTV = dialogView.findViewById(R.id.name_dict_tv);
+        TextView wordsNumberTV = dialogView.findViewById(R.id.words_number_tv_modal_sv);
 
         ServiceActivity activity = (ServiceActivity)requireActivity();
         Bundle arguments = getArguments();
@@ -103,12 +128,12 @@ public class ModalFragment extends DialogFragment
                     }
                 }
 
-                if (_counters.size() > 0)
+                if (_counters.size() > 2)
                 {
-                    String concatText = (_counters.get(2) + "")
+                    String concatText = (_counters.get(0) + "")
                             .concat(" / ")
                             .concat(_counters.get(1) + "")
-                            .concat("  " + getString(R.string.text_studied) + " " + _counters.get(0));
+                            .concat("  " + getString(R.string.text_studied) + " " + _counters.get(2));
                     wordsNumberTV.setText(concatText);
                 }
             } catch (JsonSyntaxException e)
@@ -118,30 +143,30 @@ public class ModalFragment extends DialogFragment
                 activity.finish();
             }
 
-            Button btnStop = fragmentView.findViewById(R.id.btn_stop_service);
+            Button btnStop = dialogView.findViewById(R.id.btn_stop_service);
             btnStop.setOnClickListener( view -> ((ServiceActivity)requireActivity()).stopAppService());
 
-            ImageButton btnClose = fragmentView.findViewById(R.id.btn_close);
+            ImageButton btnClose = dialogView.findViewById(R.id.btn_close);
             btnClose.setOnClickListener(view -> requireActivity().finish());
 
-            Button btnOpenApp = fragmentView.findViewById(R.id.btn_open_app);
+            Button btnOpenApp = dialogView.findViewById(R.id.btn_open_app);
             btnOpenApp.setOnClickListener(view -> iCallback.openApp());
 
-            ImageButton btnSound = fragmentView.findViewById(R.id.btn_sound_modal);
+            ImageButton btnSound = dialogView.findViewById(R.id.btn_sound_modal);
             btnSound_OnClick(btnSound);
 
-            CheckBox checkBoxRu = fragmentView.findViewById(R.id.check_box_ru_speak_modal);
-            speechVM.isRuSpeech().observe(getViewLifecycleOwner(), checkBoxRu::setChecked);
+            CheckBox checkBoxRu = dialogView.findViewById(R.id.check_box_ru_speak_modal);
+            speechVM.isRuSpeech().observe(this, checkBoxRu::setChecked);
             checkBoxRu_OnCheckedChange(checkBoxRu);
 
-            speechVM.getSpeechDoneId().observe(getViewLifecycleOwner(), id -> {
+            speechVM.getSpeechDoneId().observe(this, id -> {
                 if (id.equals("En") && checkBoxRu.isChecked())
                 {
                     speechVM.doSpeech(ruTextView.getText().toString(), new Locale(getString(R.string.lang_code_translate)));
                 }
             });
 
-            ImageView orderPlayIcon = fragmentView.findViewById(R.id.order_play_icon_iv_modal);
+            ImageView orderPlayIcon = dialogView.findViewById(R.id.order_play_icon_iv_modal);
             if (appSettings.getOrderPlay() == 0)
             {
                 orderPlayIcon.setImageResource(R.drawable.ic_repeat_white);
@@ -152,15 +177,15 @@ public class ModalFragment extends DialogFragment
             }
         }
 
-        return fragmentView;
+        if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawableResource(R.drawable.rounded_corners_background);
+        return dialog;
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState)
+    public void onViewCreated(@NonNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState)
     {
-        super.onActivityCreated(savedInstanceState);
-
-        speechVM.getSpeechDoneId().observe(getViewLifecycleOwner(), id -> {
+        super.onViewCreated(view, savedInstanceState);
+        speechVM.getSpeechDoneId().observe(this, id -> {
             if (id.equals("En"))
             {
                 Boolean isRuSpeech = speechVM.isRuSpeech().getValue();
@@ -199,13 +224,8 @@ public class ModalFragment extends DialogFragment
     private void btnSound_OnClick(ImageButton button)
     {
         button.setOnClickListener(view -> {
-
-            Boolean isEnSpeech = speechVM.isEnSpeech().getValue();
             String enText = enTextView.getText().toString();
-            if (isEnSpeech != null && isEnSpeech)
-            {
-                speechVM.doSpeech(enText, Locale.US);
-            }
+            speechVM.doSpeech(enText, Locale.US);
         });
     }
 }

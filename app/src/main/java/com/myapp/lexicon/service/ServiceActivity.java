@@ -12,9 +12,7 @@ import com.myapp.lexicon.interfaces.IModalFragment;
 import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SplashScreenActivity;
 import com.myapp.lexicon.schedule.AlarmScheduler;
-import com.myapp.lexicon.settings.AppData;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 import androidx.annotation.Nullable;
@@ -79,60 +77,40 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
             }
         }
 
-
         int finalDisplayMode = displayMode;
 
-        vm.getWordCounters().observe(this, counters -> {
-            if (counters != null && counters.size() > 1)
+        String json = getIntent().getStringExtra(ServiceActivity.ARG_JSON);
+        if (json != null)
+        {
+            Word[] words = StringOperations.getInstance().jsonToWord(json);
+            if (words.length > 0)
             {
-                String json = getIntent().getStringExtra(ServiceActivity.ARG_JSON);
-                if (json != null)
+                String dictName = words[0].getDictName();
+                int id = words[0].get_id();
+                vm.getCountersById(dictName, id);
+            }
+            vm.getWordCounters().observe(this, counters -> {
+                if (counters != null && counters.size() > 1)
                 {
-                    Word[] words = StringOperations.getInstance().jsonToWord(json);
-                    ArrayList<Integer> countersList = new ArrayList<>();
-                    if (words.length > 0)
-                    {
-                        int id = words[0].get_id();
-                        int index = counters.indexOf(id);
-                        countersList.add(counters.get(0));
-                        countersList.add(counters.size() - 1);
-                        countersList.add(index);
-                        counters.clear();
-                    }
+
                     if (finalDisplayMode == 0)
                     {
-                        ModalFragment modalFragment = ModalFragment.newInstance(json, countersList, this);
+                        ModalFragment modalFragment = ModalFragment.newInstance(json, counters, this);
                         modalFragment.show(getSupportFragmentManager().beginTransaction(), ModalFragment.TAG);
                         vm.goForward(Arrays.asList(words));
                     }
                     else if (finalDisplayMode == 1)
                     {
-                        TestModalFragment testModalFragment = TestModalFragment.newInstance(json, countersList, this);
+                        TestModalFragment testModalFragment = TestModalFragment.newInstance(json, counters, this);
                         testModalFragment.show(getSupportFragmentManager().beginTransaction(), TestModalFragment.TAG);
                     }
                 }
-            }
-
-
-        });
-
-        AppData appData = AppData.getInstance();
-        int count = appData.getUnLookPhoneCount();
-        count++;
-        appData.setUnLookPhoneCount(count);
-
-        if (appData.isAdMob())
-        {
-            if (appData.isOnline(this) && appData.getUnLookPhoneCount() > 2)
-            {
-                if (savedInstanceState == null)
-                {
-                    appData.setUnLookPhoneCount(0);
-                    ModalBannerFragment bannerFragment = new ModalBannerFragment();
-                    getSupportFragmentManager().beginTransaction().replace(R.id.banner_frame_service, bannerFragment).commit();
-                }
-            }
+            });
         }
+
+
+
+
     }
 
 

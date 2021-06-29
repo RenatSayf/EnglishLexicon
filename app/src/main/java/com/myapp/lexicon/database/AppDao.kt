@@ -33,8 +33,11 @@ interface AppDao
     @Insert
     fun insert(word: Word): Single<Long>
 
-    @Query("SELECT count() FROM Words WHERE dict_name = :dict AND count_repeat == 0 UNION SELECT count() FROM Words WHERE dict_name = :dict")
+    @Query("SELECT count() FROM Words WHERE dict_name = :dict AND count_repeat <= 0 UNION SELECT count() FROM Words WHERE dict_name = :dict")
     fun getCounters(dict: String) : Single<List<Int>>
+
+    @Query("SELECT count() FROM Words WHERE _id <= :id AND dict_name == :dict AND count_repeat > 0 UNION ALL SELECT count() FROM Words WHERE dict_name == :dict UNION ALL SELECT count() FROM Words WHERE dict_name == :dict AND count_repeat <= 0")
+    fun getCounters(dict: String, id: Int) : Single<List<Int>>
 
     @Delete()
     fun delete(word: Word) : Single<Int>

@@ -1,6 +1,7 @@
 package com.myapp.lexicon.main
 
 import android.view.View
+import android.view.WindowId
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -108,7 +109,7 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
     private var _wordCounters = MutableLiveData<List<Int>>().apply {
         _currentWord.value?.let {
             repository.getCountersFromDb(it.dictName)
-                    .subscribeOn(Schedulers.computation())
+                    .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({ list ->
                         this.value = list
@@ -118,6 +119,20 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
         }
     }
     var wordCounters: LiveData<List<Int>> = _wordCounters
+
+    fun getCountersById(dictName: String, id: Int)
+    {
+        composite.add(
+            repository.getCountersFromDb(dictName, id)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ list ->
+                     _wordCounters.value = list
+                }, { t ->
+                    t.printStackTrace()
+                })
+        )
+    }
 
     private var _randomWord = MutableLiveData<Word>().apply {
         val dictName = _currentWord.value?.dictName ?: "default"

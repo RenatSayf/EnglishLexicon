@@ -78,7 +78,6 @@ public class TestModalFragment extends DialogFragment
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
         speechVM = new  ViewModelProvider(this).get(SpeechViewModel.class);
     }
@@ -134,10 +133,10 @@ public class TestModalFragment extends DialogFragment
                 TextView wordsNumberTV = fragmentView.findViewById(R.id.words_number_tv_test_modal);
                 if (_counters.size() >= 3)
                 {
-                    String concatText = (_counters.get(2) + "")
+                    String concatText = (_counters.get(0) + "")
                             .concat(" / ")
                             .concat(_counters.get(1) + "")
-                            .concat("  " + getString(R.string.text_studied) + " " + _counters.get(0));
+                            .concat("  " + getString(R.string.text_studied) + " " + _counters.get(2));
                     wordsNumberTV.setText(concatText);
                 }
             }
@@ -166,7 +165,7 @@ public class TestModalFragment extends DialogFragment
         Button btnStopService = fragmentView.findViewById(R.id.btn_stop_service);
         btnStopService.setOnClickListener( view -> ((ServiceActivity)requireActivity()).stopAppService());
 
-        checkStudied_OnCheckedChange((CheckBox) fragmentView.findViewById(R.id.check_box_studied));
+        checkStudied_OnCheckedChange(fragmentView.findViewById(R.id.check_box_studied));
 
         ImageView orderPlayIcon = fragmentView.findViewById(R.id.order_play_icon_iv_test_modal);
 

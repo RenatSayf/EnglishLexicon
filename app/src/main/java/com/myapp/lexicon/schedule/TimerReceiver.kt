@@ -19,6 +19,9 @@ import io.reactivex.schedulers.Schedulers
 
 class TimerReceiver : BroadcastReceiver()
 {
+    private var isWordsEnded = false
+    private var wordsCounter = 0
+
     override fun onReceive(context: Context?, intent: Intent?)
     {
         if (context != null && intent != null)
@@ -26,7 +29,7 @@ class TimerReceiver : BroadcastReceiver()
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             if (intent.action == AlarmScheduler.REPEAT_SHOOT_ACTION || intent.action == Intent.ACTION_SCREEN_OFF)
             {
-                println("**************** REPEAT_SHOOT_ACTION *********************")
+                //println("**************** REPEAT_SHOOT_ACTION *********************")
 
                 val appDB = AppDB(DatabaseHelper(context))
                 val dao = AppDataBase.getInstance(context).appDao()
@@ -41,6 +44,12 @@ class TimerReceiver : BroadcastReceiver()
                 val dictName = currentWord.dictName
                 val wordId = currentWord._id
 
+                if (isWordsEnded)
+                {
+                    wordsCounter = 0
+                }
+                else wordsCounter++
+
                 when (orderPlay)
                 {
                     0 ->
@@ -52,6 +61,11 @@ class TimerReceiver : BroadcastReceiver()
 
                                     if (words.size > 0)
                                     {
+                                        when (words.size)
+                                        {
+                                            2 -> isWordsEnded = false
+                                            1 -> isWordsEnded = true
+                                        }
                                         repository.goForward(words)
                                         val json = Gson().toJson(words)
                                         when (displayVariant)

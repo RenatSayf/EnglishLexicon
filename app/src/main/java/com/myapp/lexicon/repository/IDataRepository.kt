@@ -31,6 +31,8 @@ interface IDataRepository
 
     fun getCountersFromDb(dictName: String) : Single<List<Int>>
 
+    fun getCountersFromDb(dictName: String, id: Int) : Single<List<Int>>
+
     fun getCurrentWordFromSettings() : DataBaseEntry
 
     fun saveCurrentWordTheSettings(entry: DataBaseEntry)
