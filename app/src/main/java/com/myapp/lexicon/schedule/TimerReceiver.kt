@@ -31,8 +31,8 @@ class TimerReceiver : BroadcastReceiver()
             {
                 //println("**************** REPEAT_SHOOT_ACTION *********************")
 
-                val appDB = AppDB(DatabaseHelper(context))
-                val dao = AppDataBase.getInstance(context).appDao()
+                val dao = AppDataBase.buildDataBase(context).appDao()
+                val appDB = AppDB(DatabaseHelper(context), dao)
                 val appSettings = AppSettings(context)
                 val repository = DataRepositoryImpl(appDB, dao, appSettings)
 

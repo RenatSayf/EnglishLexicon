@@ -42,8 +42,8 @@ class LexiconService : Service(), IStopServiceByUser, LifecycleOwner
     {
         super.onCreate()
 
-        val appDB = AppDB(DatabaseHelper(this))
-        val dao = AppDataBase.getInstance(this).appDao()
+        val dao = AppDataBase.buildDataBase(this).appDao()
+        val appDB = AppDB(DatabaseHelper(this), dao)
         val appSettings = AppSettings(this)
         val repository = DataRepositoryImpl(appDB, dao, appSettings)
         val currentWord = repository.getWordFromPref()
@@ -113,8 +113,8 @@ class LexiconService : Service(), IStopServiceByUser, LifecycleOwner
         @Suppress("RedundantSamConstructor")
         override fun onReceive(context: Context, intent: Intent)
         {
-            val appDB = AppDB(DatabaseHelper(context))
-            val dao = AppDataBase.getInstance(context).appDao()
+            val dao = AppDataBase.buildDataBase(context).appDao()
+            val appDB = AppDB(DatabaseHelper(context), dao)
             val appSettings = AppSettings(context)
             val repository = DataRepositoryImpl(appDB, dao, appSettings)
 

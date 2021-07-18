@@ -23,6 +23,8 @@ interface IDataRepository
 
     fun insertEntry(word: Word): Single<Long>
 
+    fun insertEntry(list: List<Word>): List<Long>
+
     fun updateEntries(words: List<Word>) : Single<Int>
 
     fun deleteEntry(word: Word) : Single<Int>

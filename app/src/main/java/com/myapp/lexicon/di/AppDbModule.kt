@@ -1,6 +1,7 @@
 package com.myapp.lexicon.di
 
 import com.myapp.lexicon.database.AppDB
+import com.myapp.lexicon.database.AppDao
 import com.myapp.lexicon.database.DatabaseHelper
 import dagger.Module
 import dagger.Provides
@@ -14,8 +15,8 @@ object AppDbModule
 {
     @Provides
     @Singleton
-    fun provideAppDB(dbHelper: DatabaseHelper) : AppDB
+    fun provideAppDB(dbHelper: DatabaseHelper, dbRoom: AppDao) : AppDB
     {
-        return AppDB(dbHelper)
+        return AppDB(dbHelper, dbRoom)
     }
 }

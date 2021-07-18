@@ -7,12 +7,14 @@ import com.myapp.lexicon.helpers.StringOperations
 import io.reactivex.Observable
 import io.reactivex.ObservableSource
 import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 import java.util.*
 import javax.inject.Inject
 
-class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
+class AppDB @Inject constructor(private val dbHelper: DatabaseHelper, private val dbRoom: AppDao)
 {
 
     @NonNull
@@ -407,10 +409,7 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
             dbHelper.database.beginTransaction()
             if (dbHelper.database.isOpen)
             {
-                val cmd = "INSERT OR IGNORE INTO Words \n" +
-                        "(english, translate)\n" +
-                        "SELECT English, Translate \n" +
-                        "FROM $tableName"
+                val cmd = "INSERT OR IGNORE INTO Words (english, translate) SELECT English, Translate FROM $tableName"
                 val rawQuery = dbHelper.database.rawQuery(cmd, null)
                 val v = ContentValues().apply {
                     put("dict_name", tableName)
@@ -432,24 +431,92 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper)
         return res
     }
 
-    fun copyEntriesFromOtherTableAsync(tableName: String) : Single<Int>
+    fun copyEntriesFromOtherTableAsync(tableName: String) : Observable<MutableList<DataBaseEntry>>
     {
-        val list = mutableListOf("asdsa", "ddfgdfg")
-        Observable.fromIterable(list).subscribe {
-
-        }
-
-        return Single.create { emitter ->
+        return Observable.create { emitter ->
             try
             {
-                val res = copyEntriesFromOtherTable(tableName)
-                emitter.onSuccess(res)
+                val entriesFromDb = getEntriesFromDb(tableName, 1, "ASC", Int.MAX_VALUE)
+                emitter.onNext(entriesFromDb)
             }
             catch (e: Exception)
             {
                 emitter.onError(e)
             }
+            finally
+            {
+                emitter.onComplete()
+            }
         }
+    }
+
+    fun insertIntoWordsTable(list: List<Word>) : Observable<List<Long>>
+    {
+        return Observable.create { emitter ->
+            try
+            {
+                val res = dbRoom.insert(list)
+                emitter.onNext(res)
+            }
+            catch (e: Exception)
+            {
+                emitter.onError(e)
+            }
+            finally
+            {
+                emitter.onComplete()
+            }
+        }
+    }
+
+    fun migrateToWordsTable(): Disposable
+    {
+       return getTableListAsync()
+            .observeOn(Schedulers.io())
+            .subscribeOn(AndroidSchedulers.mainThread())
+            .subscribe { list ->
+                list.forEach { dictName ->
+                    copyEntriesFromOtherTableAsync(dictName)
+                        .observeOn(Schedulers.io())
+                        .subscribeOn(AndroidSchedulers.mainThread())
+                        .subscribe({ entries ->
+
+                            val words = mutableListOf<Word>()
+                            entries.forEach { entry ->
+                                val word = Word(
+                                    0,
+                                    dictName,
+                                    entry.english,
+                                    entry.translate,
+                                    entry.countRepeat.toInt()
+                                )
+                                words.add(word)
+                                println("*********************** ${word.english} ************************")
+                            }
+
+                            if (words.isNotEmpty())
+                            {
+                                insertIntoWordsTable(words)
+                                    .observeOn(Schedulers.io())
+                                    .subscribeOn(AndroidSchedulers.mainThread())
+                                    .subscribe({ list ->
+                                        list.forEach {
+                                            println("*********************** $it ************************")
+                                        }
+                                    }, { e ->
+                                        e.printStackTrace()
+                                    }, {
+
+                                    })
+                            }
+
+                        }, { t ->
+                            t.printStackTrace()
+                        }, {
+
+                        })
+                }
+            }
     }
 
 

@@ -54,6 +54,11 @@ class DataRepositoryImpl @Inject constructor(private val appDB: AppDB,
         return db.insert(word)
     }
 
+    override fun insertEntry(list: List<Word>): List<Long>
+    {
+        return db.insert(list)
+    }
+
     override fun updateEntries(words: List<Word>): Single<Int>
     {
         return db.updateEntries(words)

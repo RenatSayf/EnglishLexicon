@@ -19,6 +19,6 @@ object AppRoomDbModule
     @Singleton
     fun provideAppRoomDb(@ApplicationContext context: Context) : AppDao
     {
-        return AppDataBase.getInstance(context).appDao()
+        return AppDataBase.buildDataBase(context).appDao()
     }
 }

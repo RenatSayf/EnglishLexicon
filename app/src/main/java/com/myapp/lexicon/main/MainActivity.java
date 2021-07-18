@@ -35,6 +35,10 @@ import com.myapp.lexicon.addword.TranslateFragment;
 import com.myapp.lexicon.ads.AdsViewModel;
 import com.myapp.lexicon.billing.BillingViewModel;
 import com.myapp.lexicon.cloudstorage.StorageFragment2;
+import com.myapp.lexicon.database.AppDB;
+import com.myapp.lexicon.database.AppDao;
+import com.myapp.lexicon.database.AppDataBase;
+import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.database.Word;
 import com.myapp.lexicon.databinding.ANavigMainBinding;
 import com.myapp.lexicon.dialogs.DictListDialog;
@@ -309,16 +313,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             tvWordsCounter.setText(savedInstanceState.getString(KEY_TV_WORDS_COUNTER));
         }
 
-//        if (NetHelper.INSTANCE.isOnline(this))
-//        {
-//            if (savedInstanceState == null)
-//            {
-//
-//                MainBannerFragment bannerFragment = new MainBannerFragment();
-//                getSupportFragmentManager().beginTransaction().replace(R.id.banner_frame_main, bannerFragment).commit();
-//            }
-//        }
-
         CheckBox checkBoxEnView = findViewById(R.id.check_box_en_speak);
         //noinspection CodeBlock2Expr
         checkBoxEnView.setOnCheckedChangeListener((compoundButton, b) -> {
@@ -589,7 +583,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onOptionsItemSelected(MenuItem item)
     {
         int id = item.getItemId();
-
         if (id == R.id.edit_word)
         {
             Word word = mainViewModel.getCurrentWord().getValue();
@@ -606,16 +599,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             speechEditorIntent.setAction(Settings.ACTION_SETTINGS);
             startActivity(speechEditorIntent);
         }
-
         if (id == R.id.cloud_storage)
         {
             StorageFragment2 storageFragment = StorageFragment2.Companion.newInstance();
             getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, storageFragment).addToBackStack(null).commit();
         }
-
         if (id == R.id.menu_item_share)
         {
             new Share().doShare(this);
+        }
+        if (id == R.id.menu_run_migration_db)
+        {
+            DatabaseHelper helper = new DatabaseHelper(this);
+            AppDao roomDb = AppDataBase.Companion.buildDataBase(this).appDao();
+            AppDB appDB = new AppDB(helper, roomDb);
+            appDB.migrateToWordsTable();
         }
 
         return super.onOptionsItemSelected(item);
