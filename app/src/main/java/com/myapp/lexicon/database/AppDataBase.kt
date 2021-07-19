@@ -7,10 +7,6 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.myapp.lexicon.R
-import dagger.hilt.android.AndroidEntryPoint
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
-import javax.inject.Inject
 
 
 private const val DB_VERSION = 1
@@ -25,42 +21,42 @@ abstract class AppDataBase : RoomDatabase()
 
     companion object
     {
-        private var mContext: Context? = null
-        private var mDB: AppDataBase? = null
-//        private var instance : AppDataBase? = null
-//
-//        fun getInstance(context: Context) : AppDataBase
-//        {
-//            mContext = context
-//            return instance ?: synchronized(this){
-//                instance ?: buildDataBase(context).also {
-//                    instance = it
-//                }
-//            }
-//        }
+//        private var mContext: Context? = null
+//        private var mDB: AppDataBase? = null
 
-        fun buildDataBase(context: Context) : AppDataBase
+        fun buildDataBase(context: Context): AppDataBase
         {
-            mContext = context
             val dbName = context.getString(R.string.data_base_name)
-            mDB =  Room.databaseBuilder(context, AppDataBase::class.java, dbName)
-                    .addMigrations(MIGRATION)
-                    .createFromAsset("databases/$dbName")
-                    .allowMainThreadQueries()
-                    .build()
-            return mDB as AppDataBase
+            return Room.databaseBuilder(context, AppDataBase::class.java, dbName).apply {
+                createFromAsset("databases/$dbName")
+                allowMainThreadQueries()
+                addMigrations(getMigration(context, build()))
+            }.build()
         }
 
-        private val MIGRATION = object : Migration(DB_VERSION - 1, DB_VERSION)
+        private fun getMigration(context: Context, appDB: AppDataBase): Migration
         {
-            override fun migrate(database: SupportSQLiteDatabase)
+            return object : Migration(DB_VERSION - 1, DB_VERSION)
             {
-                if (database.needUpgrade(DB_VERSION))
+                override fun migrate(database: SupportSQLiteDatabase)
                 {
                     println("***************************** migrate to $DB_VERSION started *******************************")
-                    mDB?.let { room ->
-                        val db = AppDB(DatabaseHelper(mContext), room.appDao())
-                        db.migrateToWordsTable()
+                    val db = AppDB(DatabaseHelper(context), appDB.appDao())
+                    db.migrateToWordsTable()
+                }
+            }
+        }
+
+//        private val MIGRATION = object : Migration(DB_VERSION - 1, DB_VERSION)
+//        {
+//            override fun migrate(database: SupportSQLiteDatabase)
+//            {
+//                if (database.needUpgrade(DB_VERSION))
+//                {
+//                    println("***************************** migrate to $DB_VERSION started *******************************")
+//                    mDB?.let { room ->
+//                        val db = AppDB(DatabaseHelper(mContext), room.appDao())
+//                        //db.migrateToWordsTable()
 //                        db.getTableListAsync()
 //                            .observeOn(Schedulers.io())
 //                            .subscribeOn(AndroidSchedulers.mainThread())
@@ -83,17 +79,19 @@ abstract class AppDataBase : RoomDatabase()
 //                                                words.add(word)
 //                                            }
 //
-//                                            db.insertIntoWordsTable(words)
-//                                                .observeOn(Schedulers.io())
-//                                                .subscribeOn(AndroidSchedulers.mainThread())
-//                                                .subscribe({ list ->
+//                                            if (words.isNotEmpty())
+//                                            {
+//                                                db.insertIntoWordsTable(words)
+//                                                    .observeOn(Schedulers.io())
+//                                                    .subscribeOn(AndroidSchedulers.mainThread())
+//                                                    .subscribe({ list ->
 //
-//                                                }, { e ->
-//                                                    e.printStackTrace()
-//                                                }, {
-//                                                    mContext = null
-//                                                    mDB = null
-//                                                })
+//                                                    }, { e ->
+//                                                        e.printStackTrace()
+//                                                    }, {
+//
+//                                                    })
+//                                            }
 //
 //                                        }, { t ->
 //                                            t.printStackTrace()
@@ -102,10 +100,10 @@ abstract class AppDataBase : RoomDatabase()
 //                                        })
 //                                }
 //                            }
-                    }
-                }
-            }
-        }
+//                    }
+//                }
+//            }
+//        }
     }
 
 }

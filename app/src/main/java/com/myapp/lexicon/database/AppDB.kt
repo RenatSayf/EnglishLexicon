@@ -28,7 +28,7 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper, private va
             dbHelper.open()
             if (dbHelper.database.isOpen)
             {
-                cursor = dbHelper.database.rawQuery("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name", null)
+                cursor = dbHelper.database.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name NOT IN('android_metadata', 'com_myapp_lexicon_api_keys', 'sqlite_sequence', 'Words') ORDER BY name", null)
             }
             if (cursor != null && cursor.count > 0)
             {
@@ -491,7 +491,7 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper, private va
                                     entry.countRepeat.toInt()
                                 )
                                 words.add(word)
-                                println("*********************** ${word.english} ************************")
+                                //println("*********************** ${word.english} ************************")
                             }
 
                             if (words.isNotEmpty())
@@ -500,20 +500,20 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper, private va
                                     .observeOn(Schedulers.io())
                                     .subscribeOn(AndroidSchedulers.mainThread())
                                     .subscribe({ list ->
-                                        list.forEach {
-                                            println("*********************** $it ************************")
-                                        }
+                                        println("*********************** Вставлено ${list.size} новых слов ************************")
                                     }, { e ->
                                         e.printStackTrace()
+                                        println("*********************** ${e.message} ************************")
                                     }, {
-
+                                        println("*********************** Вставка завершена ************************")
                                     })
                             }
 
                         }, { t ->
                             t.printStackTrace()
+                            println("*********************** ${t.message} ************************")
                         }, {
-
+                            println("*********************** Миграция завершена ************************")
                         })
                 }
             }

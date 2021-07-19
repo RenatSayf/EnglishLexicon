@@ -21,6 +21,13 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
     private val composite = CompositeDisposable()
 
     private var _currentDict = MutableLiveData<String>()
+    @JvmField
+    var currentDict: LiveData<String> = _currentDict
+
+    fun setCurrentDict(dictName: String)
+    {
+        _currentDict.value = dictName
+    }
 
     private var _wordsList = MutableLiveData<MutableList<Word>>()
     @JvmField
@@ -31,6 +38,30 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
         repository.getWordFromPref().apply {
             setWordsList(this.dictName)
         }
+    }
+
+    fun resetWordsList()
+    {
+        composite.add(
+            repository.getDictListFromDb()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ list ->
+                    if (list.isNotEmpty())
+                    {
+                        setWordsList(list.first())
+                        saveCurrentWordToPref(Word(1, list.first(), "", "", 1))
+                        _currentDict.value = list.first()
+                    }
+                    else
+                    {
+                        setWordsList("XXXXXXXXXXXX")
+                        _currentDict.value = ""
+                    }
+                }, { e ->
+                    e.printStackTrace()
+                })
+        )
     }
 
     fun setWordsList(dictName: String, repeat: Int = 1)
@@ -62,9 +93,9 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
         return
     }
 
-    fun deleteDict(dictName: String) : Single<Boolean>
+    fun deleteDict(dictName: String) : Single<Int>
     {
-        return repository.dropTableFromDb(dictName)
+        return repository.deleteEntriesByDictName(dictName)
     }
 
     private var _dictionaryList = MutableLiveData<MutableList<String>>().apply {
@@ -89,7 +120,25 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
     }
 
     private var _currentWord = MutableLiveData<Word>().apply {
-        value = repository.getWordFromPref()
+        val wordFromPref = repository.getWordFromPref()
+        repository.getEntriesByIds(listOf(wordFromPref._id))
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ list ->
+                if (list.isNotEmpty())
+                {
+                    value = list.first()
+                }
+                else
+                {
+                    _dictionaryList.value?.let {
+                        value = Word(1, it.first(), "", "", 1)
+                    }
+                }
+            }, { e ->
+                e.printStackTrace()
+            })
+        //value = repository.getWordFromPref()
     }
     var currentWord: MutableLiveData<Word> = _currentWord
     fun setCurrentWord(word: Word)

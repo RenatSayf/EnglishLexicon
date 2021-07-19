@@ -131,6 +131,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if (adLayout != null)
                 {
                     AdView mainBanner = adsVM.getMainBanner();
+                    adLayout.removeAllViews();
                     adLayout.addView(mainBanner);
                     mainBanner.loadAd(new AdRequest.Builder().build());
                 }
@@ -142,6 +143,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mainViewModel.getCurrentWord().observe(this, word -> {
             currentWord = word;
             btnViewDict.setText(currentWord.getDictName());
+        });
+
+        mainViewModel.currentDict.observe(this, dict -> {
+            if (!dict.isEmpty())
+            {
+                btnViewDict.setText(dict);
+            } else
+            {
+                btnViewDict.setText(getString(R.string.text_dictionary));
+            }
         });
 
 
@@ -481,12 +492,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 String item = list.remove(index);
                                 list.add(0, item);
                             }
-                            DictListDialog dictListDialog = DictListDialog.Companion.getInstance(list, dict -> mainViewModel.setWordsList(dict, 1));
-                            dictListDialog.show(getSupportFragmentManager(), DictListDialog.Companion.getTAG());
-                            dictListDialog.getSelectedItem().observe(MainActivity.this, item -> {
-                                Word word = new Word(1, item, "", "", 1);
-                                mainViewModel.saveCurrentWordToPref(word);
-                            });
+                            DictListDialog.Companion.getInstance(list, new DictListDialog.ISelectItemListener()
+                            {
+                                @Override
+                                public void dictListItemOnSelected(@NonNull String dict)
+                                {
+                                    mainViewModel.setWordsList(dict, 1);
+                                    Word word = new Word(1, dict, "", "", 1);
+                                    mainViewModel.saveCurrentWordToPref(word);
+                                    mainViewModel.setCurrentWord(word);
+                                    mainViewModel.setCurrentDict(dict);
+                                }
+                            }).show(getSupportFragmentManager(), DictListDialog.Companion.getTAG());
+
                         }, Throwable::printStackTrace));
             }
         });
@@ -638,7 +656,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     .subscribe(list -> {
                         if (list != null && !list.isEmpty())
                         {
-                            RemoveDictDialog.Companion.getInstance((ArrayList<String>) list).show(getSupportFragmentManager(), RemoveDictDialog.TAG);
+                            //noinspection Convert2Lambda
+                            RemoveDictDialog.Companion.getInstance((ArrayList<String>) list, new RemoveDictDialog.IRemoveDictDialogCallback()
+                            {
+                                @Override
+                                public void removeDictDialogButtonClickListener(@NonNull List<String> list)
+                                {
+                                    boolean contains = list.contains(mainViewModel.currentDict.getValue());
+                                    if (contains)
+                                    {
+                                        mainViewModel.resetWordsList();
+                                    }
+                                }
+                            }).show(getSupportFragmentManager(), RemoveDictDialog.TAG);
                         }
                     }, Throwable::printStackTrace);
             composite.add(subscribe);

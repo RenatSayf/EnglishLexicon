@@ -45,6 +45,7 @@ class DictListDialog : DialogFragment()
         fun dictListItemOnSelected(dict: String)
     }
 
+    @Suppress("ObjectLiteralToLambda")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog
     {
         val builder = AlertDialog.Builder(requireContext()).apply {
@@ -59,6 +60,8 @@ class DictListDialog : DialogFragment()
                 }
             })
             setTitle(getString(R.string.text_dictionaries))
+            setCancelable(false)
+            isCancelable = false
         }
         return builder.create()
     }

@@ -34,7 +34,7 @@ interface AppDao
     @Insert
     fun insert(word: Word): Single<Long>
 
-    @Insert
+    @Insert(entity = Word::class, onConflict = OnConflictStrategy.REPLACE)
     fun insert(list: List<Word>): List<Long>
 
     @Query("SELECT count() FROM Words WHERE dict_name = :dict AND count_repeat <= 0 UNION SELECT count() FROM Words WHERE dict_name = :dict")
@@ -45,5 +45,8 @@ interface AppDao
 
     @Delete()
     fun delete(word: Word) : Single<Int>
+
+    @Query("DELETE FROM Words WHERE dict_name == :dict")
+    fun deleteEntriesByDictName(dict: String) : Single<Int>
 
 }

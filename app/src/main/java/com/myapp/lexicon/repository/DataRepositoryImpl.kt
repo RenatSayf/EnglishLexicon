@@ -69,6 +69,11 @@ class DataRepositoryImpl @Inject constructor(private val appDB: AppDB,
         return db.delete(word)
     }
 
+    override fun deleteEntriesByDictName(dictName: String): Single<Int>
+    {
+        return db.deleteEntriesByDictName(dictName)
+    }
+
     override fun getTableListFromSettings(): MutableList<String>
     {
         return settings.getPlayList(true)

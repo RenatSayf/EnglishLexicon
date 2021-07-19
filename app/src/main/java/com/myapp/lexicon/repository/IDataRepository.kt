@@ -29,6 +29,8 @@ interface IDataRepository
 
     fun deleteEntry(word: Word) : Single<Int>
 
+    fun deleteEntriesByDictName(dictName: String) : Single<Int>
+
     fun getTableListFromSettings() : MutableList<String>
 
     fun getCountersFromDb(dictName: String) : Single<List<Int>>
