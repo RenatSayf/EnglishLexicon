@@ -2,14 +2,13 @@
 
 package com.myapp.lexicon.settings
 
-import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.activity.addCallback
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.*
@@ -21,9 +20,6 @@ import com.myapp.lexicon.schedule.AlarmScheduler
 import com.myapp.lexicon.service.LexiconService
 import java.util.*
 
-/**
- * Created by Renat
- */
 
 class SettingsFragment : PreferenceFragmentCompat()
 {
@@ -37,10 +33,6 @@ class SettingsFragment : PreferenceFragmentCompat()
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?)
     {
         setPreferencesFromResource(R.xml.pref, rootKey)
-    }
-
-    private val permission = registerForActivityResult(ActivityResultContracts.RequestPermission()){ isGranted ->
-
     }
 
     @Suppress("ObjectLiteralToLambda")
@@ -98,8 +90,7 @@ class SettingsFragment : PreferenceFragmentCompat()
                 {
                     if (ContextCompat.checkSelfPermission(requireContext(), "") != PackageManager.PERMISSION_GRANTED)
                     {
-                        permission.launch(Manifest.permission.WRITE_SETTINGS)
-                        //redirectIfXiaomiDevice()
+                        view?.let { redirectIfXiaomiDevice() }
                     }
                 }
 
@@ -137,8 +128,7 @@ class SettingsFragment : PreferenceFragmentCompat()
                 {
                     if (ContextCompat.checkSelfPermission(requireContext(), "") != PackageManager.PERMISSION_GRANTED)
                     {
-                        permission.launch(Manifest.permission.SYSTEM_ALERT_WINDOW)
-                        //redirectIfXiaomiDevice()
+                        view?.let { redirectIfXiaomiDevice() }
                     }
                 }
 
@@ -180,6 +170,7 @@ class SettingsFragment : PreferenceFragmentCompat()
         }
     }
 
+    @Suppress("ObjectLiteralToLambda")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?)
     {
         super.onViewCreated(view, savedInstanceState)
@@ -231,7 +222,7 @@ class SettingsFragment : PreferenceFragmentCompat()
         }
 
         billing.wasCancelled.observe(viewLifecycleOwner, {
-            if (true) noAdsSwitch?.isChecked = true
+            noAdsSwitch?.isChecked = true
         })
 
         requireActivity().onBackPressedDispatcher.addCallback{
@@ -243,7 +234,6 @@ class SettingsFragment : PreferenceFragmentCompat()
                 supportFragmentManager.beginTransaction().remove(this@SettingsFragment).commit()
                 mainControlLayout.visibility = View.VISIBLE
             }
-
         }
     }
 
@@ -255,6 +245,7 @@ class SettingsFragment : PreferenceFragmentCompat()
             intent.setClassName("com.miui.securitycenter","com.miui.permcenter.permissions.PermissionsEditorActivity")
             intent.putExtra("extra_pkgname", mActivity.packageName)
             startActivity(intent)
+            Toast.makeText(mActivity, getString(R.string.text_enabled_permission_pop_up), Toast.LENGTH_LONG).show()
         }
     }
 
