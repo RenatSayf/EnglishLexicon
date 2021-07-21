@@ -225,15 +225,18 @@ class SettingsFragment : PreferenceFragmentCompat()
             noAdsSwitch?.isChecked = true
         })
 
-        requireActivity().onBackPressedDispatcher.addCallback{
-            (requireActivity() as MainActivity).apply {
-                if (this@SettingsFragment.isRemoving)
-                {
-                    finish()
-                }
-                supportFragmentManager.beginTransaction().remove(this@SettingsFragment).commit()
+
+    }
+
+    override fun onResume()
+    {
+        super.onResume()
+        mActivity.onBackPressedDispatcher.addCallback{
+            mActivity.apply {
+                supportFragmentManager.beginTransaction().detach(this@SettingsFragment).commit()
                 mainControlLayout.visibility = View.VISIBLE
             }
+            this.remove()
         }
     }
 

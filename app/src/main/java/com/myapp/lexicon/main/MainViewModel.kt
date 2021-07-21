@@ -184,16 +184,16 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
     }
 
     private var _randomWord = MutableLiveData<Word>().apply {
-        val dictName = _currentWord.value?.dictName ?: "default"
-        val id = _currentWord.value?._id ?: 1
-        composite.add(repository.getRandomEntriesFromDB(dictName, id)
-                .subscribeOn(Schedulers.computation())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    value = it
-                }, { t ->
-                    t.printStackTrace()
-                }))
+//        val dictName = _currentWord.value?.dictName ?: "default"
+//        val id = _currentWord.value?._id ?: 1
+//        composite.add(repository.getRandomEntriesFromDB(dictName, id)
+//                .subscribeOn(Schedulers.computation())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe({
+//                    value = it
+//                }, { t ->
+//                    t.printStackTrace()
+//                }))
     }
 
     fun getRandomWord(word: Word) : LiveData<Word>
