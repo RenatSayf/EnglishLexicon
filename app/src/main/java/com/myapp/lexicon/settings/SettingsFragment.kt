@@ -2,10 +2,15 @@
 
 package com.myapp.lexicon.settings
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.activity.addCallback
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.*
 import com.myapp.lexicon.R
@@ -14,6 +19,7 @@ import com.myapp.lexicon.dialogs.DisableAdsDialog
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.schedule.AlarmScheduler
 import com.myapp.lexicon.service.LexiconService
+import java.util.*
 
 /**
  * Created by Renat
@@ -26,16 +32,22 @@ class SettingsFragment : PreferenceFragmentCompat()
     private lateinit var showIntervalsPref: ListPreference
     private lateinit var billing: BillingViewModel
     private val disableAdsDialog = DisableAdsDialog()
+    private lateinit var mActivity: MainActivity
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?)
     {
         setPreferencesFromResource(R.xml.pref, rootKey)
     }
 
+    private val permission = registerForActivityResult(ActivityResultContracts.RequestPermission()){ isGranted ->
+
+    }
+
     @Suppress("ObjectLiteralToLambda")
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
+        mActivity = activity as MainActivity
 
         billing = ViewModelProvider(this)[BillingViewModel::class.java]
 
@@ -81,6 +93,16 @@ class SettingsFragment : PreferenceFragmentCompat()
                 listOnUnBlockingScreen.value = newValue.toString()
                 listOnUnBlockingScreen.summary = listOnUnBlockingScreen.entry
                 AppData.getInstance().displayVariant = newValue.toString().toInt()
+
+                if (newValue.toString().toInt() == 0)
+                {
+                    if (ContextCompat.checkSelfPermission(requireContext(), "") != PackageManager.PERMISSION_GRANTED)
+                    {
+                        permission.launch(Manifest.permission.WRITE_SETTINGS)
+                        //redirectIfXiaomiDevice()
+                    }
+                }
+
                 return true
             }
         }
@@ -110,6 +132,16 @@ class SettingsFragment : PreferenceFragmentCompat()
                         listOnUnBlockingScreen.isEnabled = false
                     }
                 }
+
+                if (newValue)
+                {
+                    if (ContextCompat.checkSelfPermission(requireContext(), "") != PackageManager.PERMISSION_GRANTED)
+                    {
+                        permission.launch(Manifest.permission.SYSTEM_ALERT_WINDOW)
+                        //redirectIfXiaomiDevice()
+                    }
+                }
+
                 return true
             }
 
@@ -212,6 +244,17 @@ class SettingsFragment : PreferenceFragmentCompat()
                 mainControlLayout.visibility = View.VISIBLE
             }
 
+        }
+    }
+
+    private fun redirectIfXiaomiDevice()
+    {
+        if (Build.MANUFACTURER.toLowerCase(Locale.ROOT) == "xiaomi")
+        {
+            val intent = Intent("miui.intent.action.APP_PERM_EDITOR")
+            intent.setClassName("com.miui.securitycenter","com.miui.permcenter.permissions.PermissionsEditorActivity")
+            intent.putExtra("extra_pkgname", mActivity.packageName)
+            startActivity(intent)
         }
     }
 

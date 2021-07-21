@@ -59,6 +59,7 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -550,6 +551,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             mainViewModel.refreshWordsList();
         }
+
+        this.getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true)
+        {
+            @Override
+            public void handleOnBackPressed()
+            {
+                getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
+                DrawerLayout drawer = findViewById(R.id.drawer_layout);
+
+                if (drawer != null)
+                {
+                    if (drawer.isDrawerOpen(GravityCompat.START))
+                    {
+                        drawer.closeDrawer(GravityCompat.START);
+                    }
+                }
+                alarmClockEnable(scheduler);
+                finish();
+            }
+        });
     }
 
     @Override
@@ -557,23 +578,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         mainViewModel.saveCurrentWordToPref(currentWord);
         super.onDestroy();
-    }
-
-    @Override
-    public void onBackPressed()
-    {
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-
-        if (drawer != null)
-        {
-            if (drawer.isDrawerOpen(GravityCompat.START))
-            {
-                drawer.closeDrawer(GravityCompat.START);
-            }
-        }
-        alarmClockEnable(scheduler);
-        super.onBackPressed();
     }
 
     private void alarmClockEnable(AlarmScheduler scheduler)

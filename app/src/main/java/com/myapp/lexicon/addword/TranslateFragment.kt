@@ -4,12 +4,14 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.*
 import android.widget.LinearLayout
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.ads.AdRequest
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.billing.BillingViewModel
+import com.myapp.lexicon.main.MainActivity
 import kotlinx.android.synthetic.main.translate_fragment.*
 import kotlinx.android.synthetic.main.translate_fragment.view.*
 import java.net.URLDecoder
@@ -44,6 +46,24 @@ class TranslateFragment : Fragment(),View.OnKeyListener
         super.onCreate(savedInstanceState)
         billingVM = ViewModelProvider(this)[BillingViewModel::class.java]
         adsVM = ViewModelProvider(this)[AdsViewModel::class.java]
+
+        activity?.onBackPressedDispatcher?.addCallback(object : OnBackPressedCallback(true)
+        {
+            override fun handleOnBackPressed()
+            {
+                when (activity)
+                {
+                    is MainActivity ->
+                    {
+                        (activity as MainActivity).supportFragmentManager.beginTransaction().detach(this@TranslateFragment).commit()
+                    }
+                    is TranslateActivity ->
+                    {
+                        (activity as TranslateActivity).finishAffinity()
+                    }
+                }
+            }
+        })
     }
 
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
