@@ -11,7 +11,6 @@ import com.myapp.lexicon.database.AppDataBase
 import com.myapp.lexicon.database.DatabaseHelper
 import com.myapp.lexicon.repository.DataRepositoryImpl
 import com.myapp.lexicon.service.ServiceActivity
-import com.myapp.lexicon.settings.AppData
 import com.myapp.lexicon.settings.AppSettings
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -78,7 +77,7 @@ class TimerReceiver : BroadcastReceiver()
                                                     addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                                                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                                     addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                                                    putExtra(AppData.ARG_JSON, json)
+                                                    putExtra(ServiceActivity.ARG_JSON, json)
                                                 }
                                                 context.startActivity(intentAct)
                                             }

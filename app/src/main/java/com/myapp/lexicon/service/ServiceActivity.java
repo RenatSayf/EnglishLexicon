@@ -107,6 +107,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                 }
             });
         }
+        else finish();
 
 
 

@@ -7,14 +7,15 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.BitmapFactory
 import android.os.Build
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
 import com.myapp.lexicon.R
 import com.myapp.lexicon.database.Word
 import com.myapp.lexicon.helpers.StringOperations
 import com.myapp.lexicon.main.SplashScreenActivity
-import com.myapp.lexicon.service.LexiconService
 import com.myapp.lexicon.service.ServiceActivity
 
 class AppNotification constructor(private val context: Context) : Notification()
@@ -41,6 +42,8 @@ class AppNotification constructor(private val context: Context) : Notification()
         notification = NotificationCompat.Builder(context, CHANEL_ID).apply {
             setOngoing(true)
             setSmallIcon(R.drawable.ic_lexicon_notify)
+            color = ContextCompat.getColor(context, R.color.colorGreen)
+            setLargeIcon(BitmapFactory.decodeResource(context.resources, R.mipmap.ic_launcher))
             setAutoCancel(true)
             priority = NotificationCompat.PRIORITY_MAX
             setChannelId(CHANEL_ID)
