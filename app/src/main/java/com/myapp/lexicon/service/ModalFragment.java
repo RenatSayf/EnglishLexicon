@@ -41,7 +41,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class ModalFragment extends DialogFragment
 {
     public static final String TAG = ModalFragment.class.getCanonicalName() + ".TAG";
-    public static IModalFragment iCallback;
+    private static IModalFragment iCallback;
 
     //private View fragmentView;
     private AppSettings appSettings;

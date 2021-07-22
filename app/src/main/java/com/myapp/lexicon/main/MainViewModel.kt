@@ -1,7 +1,6 @@
 package com.myapp.lexicon.main
 
 import android.view.View
-import android.view.WindowId
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -99,13 +98,14 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
     }
 
     private var _dictionaryList = MutableLiveData<MutableList<String>>().apply {
-        getDictList().subscribeOn(Schedulers.computation())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ list ->
-                    value = list
-                }, { t ->
-                    t.printStackTrace()
-                })
+        getDictList()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ list ->
+                value = list
+            }, { t ->
+                t.printStackTrace()
+            })
     }
     val dictionaryList: LiveData<MutableList<String>> = _dictionaryList
 
@@ -183,18 +183,7 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
         )
     }
 
-    private var _randomWord = MutableLiveData<Word>().apply {
-//        val dictName = _currentWord.value?.dictName ?: "default"
-//        val id = _currentWord.value?._id ?: 1
-//        composite.add(repository.getRandomEntriesFromDB(dictName, id)
-//                .subscribeOn(Schedulers.computation())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe({
-//                    value = it
-//                }, { t ->
-//                    t.printStackTrace()
-//                }))
-    }
+    private var _randomWord = MutableLiveData<Word>()
 
     fun getRandomWord(word: Word) : LiveData<Word>
     {

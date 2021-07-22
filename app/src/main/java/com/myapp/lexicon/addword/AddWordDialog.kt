@@ -42,7 +42,7 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult, Spea
     private var dialogView: View? = null
     private var inputList: ArrayList<String> = arrayListOf()
     private lateinit var adwvm: AddWordViewModel
-    private lateinit var vm: MainViewModel
+    private lateinit var mainVM: MainViewModel
     private var subscriber: Disposable? = null
     private lateinit var speaker: Speaker
     private var newDictName: String? = null
@@ -51,7 +51,7 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult, Spea
     {
         requireActivity().let { a ->
             adwvm = ViewModelProvider(this)[AddWordViewModel::class.java]
-            vm = ViewModelProvider(this)[MainViewModel::class.java]
+            mainVM = ViewModelProvider(this)[MainViewModel::class.java]
             dialogView = a.layoutInflater.inflate(R.layout.add_word_dialog, LinearLayout(a), false)
 
             val builder = AlertDialog.Builder(a).setView(dialogView).setCancelable(false)
@@ -83,33 +83,33 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult, Spea
 
         requireActivity().let { a ->
 
-            vm.dictionaryList.observe(viewLifecycleOwner, { list ->
+            mainVM.dictionaryList.observe(viewLifecycleOwner, { list ->
                 list.add(getString(R.string.text_new_dict))
                 if (!list.isNullOrEmpty())
                 {
-                    val dictName = vm.currentWord.value?.dictName
-                    if (dictName != null)
-                    {
-                        val index = list.indexOf(dictName)
-                        if (index >= 0)
+                    mainVM.currentWord.observe(viewLifecycleOwner, { word ->
+                        if (word.dictName.isNotEmpty())
                         {
-                            val adapter = ArrayAdapter(a, R.layout.app_spinner_item, list.distinct())
-                            dictListSpinner?.adapter = adapter
-                            when
+                            val index = list.indexOf(word.dictName)
+                            if (index >= 0)
                             {
-                                newDictName == null && index > -1 ->
+                                val adapter = ArrayAdapter(a, R.layout.app_spinner_item, list.distinct())
+                                dictListSpinner?.adapter = adapter
+                                when
                                 {
-                                    dictListSpinner?.setSelection(index)
-                                }
-                                newDictName != null ->
-                                {
-                                    val i = list.indexOf(newDictName)
-                                    dictListSpinner?.setSelection(i)
+                                    newDictName == null && index > -1 ->
+                                    {
+                                        dictListSpinner?.setSelection(index)
+                                    }
+                                    newDictName != null ->
+                                    {
+                                        val i = list.indexOf(newDictName)
+                                        dictListSpinner?.setSelection(i)
+                                    }
                                 }
                             }
                         }
-                    }
-
+                    })
                 }
             })
 
@@ -239,10 +239,10 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult, Spea
 
     override fun newDictDialogResult(dictName: String)
     {
-        val oldList = vm.dictionaryList.value
+        val oldList = mainVM.dictionaryList.value
         oldList?.let {
             it.add(0, dictName)
-            vm.setDictList(it)
+            mainVM.setDictList(it)
             adwvm.setSelected(0)
         }
     }
