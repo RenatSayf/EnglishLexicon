@@ -233,7 +233,7 @@ class SettingsFragment : PreferenceFragmentCompat()
         super.onResume()
         mActivity.onBackPressedDispatcher.addCallback{
             mActivity.apply {
-                supportFragmentManager.beginTransaction().detach(this@SettingsFragment).commit()
+                supportFragmentManager.popBackStack()
                 mainControlLayout.visibility = View.VISIBLE
             }
             this.remove()

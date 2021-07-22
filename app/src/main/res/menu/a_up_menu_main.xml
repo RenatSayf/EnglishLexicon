@@ -29,6 +29,7 @@
 
     <item
         android:id="@+id/menu_run_migration_db"
-        android:title="Запуск миграции БД"/>
+        android:title="Запуск миграции БД"
+        android:visible="false"/>
 
 </menu>

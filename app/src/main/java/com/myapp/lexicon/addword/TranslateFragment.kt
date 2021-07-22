@@ -46,24 +46,6 @@ class TranslateFragment : Fragment(),View.OnKeyListener
         super.onCreate(savedInstanceState)
         billingVM = ViewModelProvider(this)[BillingViewModel::class.java]
         adsVM = ViewModelProvider(this)[AdsViewModel::class.java]
-
-        activity?.onBackPressedDispatcher?.addCallback(object : OnBackPressedCallback(true)
-        {
-            override fun handleOnBackPressed()
-            {
-                when (activity)
-                {
-                    is MainActivity ->
-                    {
-                        (activity as MainActivity).supportFragmentManager.beginTransaction().detach(this@TranslateFragment).commit()
-                    }
-                    is TranslateActivity ->
-                    {
-                        (activity as TranslateActivity).finishAffinity()
-                    }
-                }
-            }
-        })
     }
 
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
@@ -119,6 +101,19 @@ class TranslateFragment : Fragment(),View.OnKeyListener
                 }
             }
             loadProgress.visibility = View.GONE
+        })
+    }
+
+    override fun onResume()
+    {
+        super.onResume()
+        activity?.onBackPressedDispatcher?.addCallback(object : OnBackPressedCallback(true)
+        {
+            override fun handleOnBackPressed()
+            {
+                activity?.supportFragmentManager?.popBackStack()
+                this.remove()
+            }
         })
     }
 
