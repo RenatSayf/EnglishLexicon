@@ -106,31 +106,6 @@
                 android:value=".main.MainActivity" />
         </activity>
         <activity
-            android:name=".wordstests.TestsActivity"
-            android:label="@string/title_activity_check_self"
-            android:parentActivityName=".main.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            tools:targetApi="jelly_bean">
-            <intent-filter
-                android:autoVerify="true"
-                android:label="Проверь знания английских слов"
-                tools:targetApi="m">
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:host="com.myapp.lexicon"
-                    android:pathPrefix="/lexicon"
-                    android:scheme="http" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".main.MainActivity" />
-        </activity>
-        <activity
             android:name=".service.ServiceActivity"
             android:theme="@style/popAppWindow">
         </activity>

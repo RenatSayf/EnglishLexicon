@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.*
 import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.ads.AdRequest
@@ -22,6 +23,8 @@ class TranslateFragment : Fragment(),View.OnKeyListener
 {
     private lateinit var billingVM: BillingViewModel
     private lateinit var adsVM: AdsViewModel
+    private lateinit var mActivity: AppCompatActivity
+    private var adsToken = ""
 
     companion object
     {
@@ -46,6 +49,13 @@ class TranslateFragment : Fragment(),View.OnKeyListener
         super.onCreate(savedInstanceState)
         billingVM = ViewModelProvider(this)[BillingViewModel::class.java]
         adsVM = ViewModelProvider(this)[AdsViewModel::class.java]
+        when (activity)
+        {
+            is MainActivity -> mActivity = activity as MainActivity
+            is TranslateActivity -> mActivity = activity as TranslateActivity
+        }
+
+        //mActivity.supportActionBar?.setHomeButtonEnabled(true)
     }
 
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
@@ -66,11 +76,23 @@ class TranslateFragment : Fragment(),View.OnKeyListener
         billingVM.noAdsToken.observe(viewLifecycleOwner, {
             if (it != null && it.isEmpty())
             {
+                adsToken = it
                 val adLayout: LinearLayout = root.findViewById(R.id.adLayout)
                 val banner = adsVM.getAddWordBanner()
                 adLayout.addView(banner)
                 banner.loadAd(AdRequest.Builder().build())
                 adsVM.loadAd2()
+            }
+        })
+
+        adsVM.isAdClosed2.observe(viewLifecycleOwner, {
+            if (it)
+            {
+                when(mActivity)
+                {
+                    is MainActivity -> mActivity.supportFragmentManager.popBackStack()
+                    is TranslateActivity -> mActivity.finish()
+                }
             }
         })
         return root
@@ -95,9 +117,7 @@ class TranslateFragment : Fragment(),View.OnKeyListener
                 val content = it.getContent()
                 if (!content.isNullOrEmpty())
                 {
-                    activity?.supportFragmentManager?.let { a -> AddWordDialog.getInstance(content).apply {
-
-                    }.show(a, AddWordDialog.TAG) }
+                    AddWordDialog.getInstance(content).show(mActivity.supportFragmentManager, AddWordDialog.TAG)
                 }
             }
             loadProgress.visibility = View.GONE
@@ -111,16 +131,42 @@ class TranslateFragment : Fragment(),View.OnKeyListener
         {
             override fun handleOnBackPressed()
             {
-                activity?.supportFragmentManager?.popBackStack()
+                when
+                {
+                    adsToken.isEmpty() -> adsVM.showAd2(mActivity)
+                    else ->
+                    {
+                        when(mActivity)
+                        {
+                            is MainActivity -> mActivity.supportFragmentManager.popBackStack()
+                            is TranslateActivity -> mActivity.finish()
+                        }
+                    }
+                }
                 this.remove()
             }
         })
     }
 
-    override fun onDestroyView()
+    override fun onOptionsItemSelected(item: MenuItem): Boolean
     {
-        super.onDestroyView()
-        adsVM.showAd2(requireActivity())
+        if (item.itemId == android.R.id.home)
+        {
+            when
+            {
+                adsToken.isEmpty() -> adsVM.showAd2(mActivity)
+                else ->
+                {
+                    when(mActivity)
+                    {
+                        is MainActivity -> mActivity.supportFragmentManager.popBackStack()
+                        is TranslateActivity -> mActivity.finish()
+                    }
+                }
+            }
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onKey(p0: View?, p1: Int, p2: KeyEvent?): Boolean
