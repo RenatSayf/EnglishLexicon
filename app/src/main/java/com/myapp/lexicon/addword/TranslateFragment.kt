@@ -19,7 +19,7 @@ import java.net.URLDecoder
 
 private const val TEXT = "translate_text"
 
-class TranslateFragment : Fragment(),View.OnKeyListener
+class TranslateFragment : Fragment()
 {
     private lateinit var billingVM: BillingViewModel
     private lateinit var adsVM: AdsViewModel
@@ -52,10 +52,13 @@ class TranslateFragment : Fragment(),View.OnKeyListener
         when (activity)
         {
             is MainActivity -> mActivity = activity as MainActivity
-            is TranslateActivity -> mActivity = activity as TranslateActivity
+            is TranslateActivity ->
+            {
+                mActivity = activity as TranslateActivity
+                mActivity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
+                mActivity.supportActionBar?.setHomeButtonEnabled(true)
+            }
         }
-
-        //mActivity.supportActionBar?.setHomeButtonEnabled(true)
     }
 
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
@@ -146,6 +149,7 @@ class TranslateFragment : Fragment(),View.OnKeyListener
                 this.remove()
             }
         })
+
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean
@@ -164,14 +168,9 @@ class TranslateFragment : Fragment(),View.OnKeyListener
                     }
                 }
             }
-            return true
         }
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onKey(p0: View?, p1: Int, p2: KeyEvent?): Boolean
-    {
-        return false
-    }
 
 }

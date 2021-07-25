@@ -121,14 +121,6 @@
             android:value="@string/admob_app_id" />
 
         <receiver
-            android:name=".appindex.AppIndexingUpdateReceiver"
-            android:exported="true"
-            android:permission="com.google.android.gms.permission.APPINDEXING">
-            <intent-filter>
-                <action android:name="com.google.firebase.appindexing.UPDATE_INDEX" />
-            </intent-filter>
-        </receiver>
-        <receiver
             android:name=".service.BroadcastReceiverOnBootComplete"
             android:enabled="true"
             android:exported="false">
@@ -159,33 +151,12 @@
         </receiver>
 
         <service
-            android:name=".main.SpeechService"
-            android:enabled="true"
-            android:exported="false">
-
-        </service>
-        <service
-            android:name=".appindex.AppIndexingService"
-            android:enabled="true"
-            android:exported="true"
-            android:permission="com.google.android.gms.permission.APPINDEXING">
-
-        </service>
-
-        <service
             android:name=".service.LexiconService"
             android:enabled="true"
             android:exported="false"
             android:permission="no">
-
         </service>
-        <service
-            android:name=".appindex.AppIndexingUpdateService"
-            android:enabled="true"
-            android:exported="true"
-            android:permission="android.permission.BIND_JOB_SERVICE">
 
-        </service>
     </application>
 
 </manifest>

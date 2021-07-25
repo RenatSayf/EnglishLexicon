@@ -50,7 +50,7 @@ import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.service.LexiconService;
 import com.myapp.lexicon.settings.SettingsFragment;
 import com.myapp.lexicon.wordeditor.WordEditorActivity;
-import com.myapp.lexicon.wordstests.OneOfFiveFragmNew;
+import com.myapp.lexicon.wordstests.OneOfFiveFragm;
 import com.myapp.lexicon.wordstests.TestFragment;
 
 import java.util.ArrayList;
@@ -281,7 +281,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         mainViewModel.setMainControlVisibility(View.INVISIBLE);
                         speechViewModel.setSpeechProgressVisibility(View.INVISIBLE);
                         Toast.makeText(MainActivity.this, getString(R.string.text_test_knowledge), Toast.LENGTH_LONG).show();
-                        OneOfFiveFragmNew testFragment = OneOfFiveFragmNew.newInstance(list);
+                        OneOfFiveFragm testFragment = OneOfFiveFragm.newInstance(list);
                         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                         transaction.setCustomAnimations(R.anim.from_right_to_left_anim, R.anim.from_left_to_right_anim);
                         transaction.replace(R.id.frame_to_page_fragm, testFragment).addToBackStack(null).commit();

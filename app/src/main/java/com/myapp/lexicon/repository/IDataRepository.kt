@@ -31,8 +31,6 @@ interface IDataRepository
 
     fun deleteEntriesByDictName(dictName: String) : Single<Int>
 
-    fun getTableListFromSettings() : MutableList<String>
-
     fun getCountersFromDb(dictName: String) : Single<List<Int>>
 
     fun getCountersFromDb(dictName: String, id: Int) : Single<List<Int>>
@@ -58,8 +56,6 @@ interface IDataRepository
     fun getWordsIdStringFromPref() : String
 
     fun getAllFromTable(tableName: String) : Single<MutableList<DataBaseEntry>>
-
-    fun removeTableFromSettings(tableName: String)
 
     fun deleteTableFromDb(tableName: String) : Observable<Boolean>
 

@@ -12,6 +12,8 @@ import com.myapp.lexicon.helpers.RandomNumberGenerator;
 
 import java.util.Date;
 
+import androidx.core.content.ContextCompat;
+
 /**
  * TODO: AdapterViewFlipper: 5. адаптер для AdapterViewFlipper
  */
@@ -40,7 +42,7 @@ public class FlipperAdapter extends BaseAdapter
     @Override
     public Object getItem(int i)
     {
-        return context.getResources().getDrawable(images[i]);
+        return ContextCompat.getDrawable(context, images[i]);
     }
 
     @Override

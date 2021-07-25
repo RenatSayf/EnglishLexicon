@@ -2,7 +2,6 @@ package com.myapp.lexicon.settings;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Bundle;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
@@ -26,25 +25,20 @@ import static android.content.Context.MODE_PRIVATE;
 
 public class AppSettings
 {
-    public final String KEY_SPINN_SELECT_ITEM = this.getClass().getCanonicalName() + ".KEY_SPINN_SELECT_ITEM";
-    public final String KEY_WORD_INDEX = this.getClass().getCanonicalName() + ".KEY_WORD_INDEX";
-    public final String KEY_COUNTER_RIGHT_ANSWER = this.getClass().getCanonicalName() + ".KEY_COUNTER_RIGHT_ANSWER";
 
     private final String KEY_IS_SOUND = this.getClass().getCanonicalName() + ".KEY_IS_SOUND";
     private final String KEY_ENG_SPEECH = this.getClass().getCanonicalName() + ".KEY_ENG_SPEECH";
     private final String KEY_RUS_SPEECH = this.getClass().getCanonicalName() + ".KEY_RUS_SPEECH";
-    private final String KEY_ENG_ONLY_MODAL = this.getClass().getCanonicalName() + ".KEY_ENG_ONLY_MODAL";
     private final String KEY_PLAY_LIST = this.getClass().getCanonicalName() + ".KEY_PLAY_LIST";
     private final String KEY_PLAY_LIST_ITEMS = this.getClass().getCanonicalName() + ".KEY_PLAY_LIST_ITEMS";
     private final String KEY_ORDER_PLAY = this.getClass().getCanonicalName() + ".KEY_ORDER_PLAY";
-    private final String KEY_N_DICT = this.getClass().getCanonicalName() + ".KEY_N_DICT";
     private final String KEY_N_WORD = this.getClass().getCanonicalName() + ".KEY_N_WORD";
     private final String KEY_ROW_ID = this.getClass().getCanonicalName() + ".KEY_ROW_ID";
     private final String KEY_CURRENT_DICT = this.getClass().getCanonicalName() + ".KEY_CURRENT_DICT";
     private final String KEY_CURRENT_WORD = this.getClass().getCanonicalName() + ".KEY_CURRENT_WORD";
     private final String KEY_EN_WORD = this.getClass().getCanonicalName() + ".KEY_EN_WORD";
     private final String KEY_RU_WORD = this.getClass().getCanonicalName() + ".KEY_RU_WORD";
-    private final String KEY_IS_PAUSE = this.getClass().getCanonicalName() + ".KEY_IS_PAUSE";;
+    private final String KEY_IS_PAUSE = this.getClass().getCanonicalName() + ".KEY_IS_PAUSE";
     private final String KEY_TRANSLATE_LANG = this.getClass().getCanonicalName() + ".KEY_TRANSLATE_LANG";
     private final String KEY_COUNT_REPEAT = this.getClass().getCanonicalName() + ".KEY_COUNT_REPEAT";
     private final String KEY_WORD_IDS = this.getClass().getCanonicalName() + ".KEY_WORD_IDS";
@@ -106,97 +100,6 @@ public class AppSettings
     }
 
     /**
-     * set the russian speech in the modal window
-     * @param isEngOnly true
-     */
-    public void setRuSpeechInModal(boolean isEngOnly)
-    {
-        if (isEngOnly)
-        {
-            context.getSharedPreferences(KEY_ENG_ONLY_MODAL, MODE_PRIVATE).edit().putBoolean(KEY_ENG_ONLY_MODAL, true).apply();
-        } else
-        {
-            context.getSharedPreferences(KEY_ENG_ONLY_MODAL, MODE_PRIVATE).edit().putBoolean(KEY_ENG_ONLY_MODAL, false).apply();
-        }
-    }
-
-    /**
-     *
-     * @return true if set english and russian speech, otherwise false
-     */
-    public boolean isRuSpeechInModal()
-    {
-        return context.getSharedPreferences(KEY_ENG_ONLY_MODAL, MODE_PRIVATE).getBoolean(KEY_ENG_ONLY_MODAL, false);
-    }
-
-    /**
-     * Save the ArrayList<String>, converting it to the String
-     * @param list (ArrayList)
-     */
-    public void savePlayList(ArrayList<String> list)
-    {
-        if (list != null && list.size() > 0)
-        {
-            String temp = ObjectSerializer.serialize(list);
-            context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putString(KEY_PLAY_LIST_ITEMS, temp).apply();
-            AppData appData = AppData.getInstance();
-
-            while (appData.getNdict() > list.size()-1)
-            {
-                appData.setNdict(appData.getNdict()-1);
-                set_N_Dict(appData.getNdict() - 1);
-                appData.setNword(1);
-            }
-            if (appData.getNdict() < 0)
-            {
-                appData.setNdict(0);
-                set_N_Dict(0);
-                appData.setNword(1);
-            }
-        }
-        else if (list != null)
-        {
-            AppData appData = AppData.getInstance();
-            appData.setNdict(0);
-            set_N_Dict(0);
-            appData.setNword(1);
-            set_N_Word(1);
-            context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putString(KEY_PLAY_LIST_ITEMS, ObjectSerializer.serialize(list)).apply();
-        }
-    }
-
-    /**
-     * Remove one item of ArrayList and retain it state in the SharedPreferences
-     * @param list ArrayList<String>
-     * @param position  int
-     */
-    public void removeItemFromPlayList(ArrayList<String> list, int position)
-    {
-        if (list != null && list.size() > 0 && position >= 0 && position < list.size() )
-        {
-            list.remove(position);
-            savePlayList(list);
-        }
-    }
-
-    /**
-     * Remove one item of ArrayList and retain it state in the SharedPreferences
-     * @param item  String
-     */
-    public void removeItemFromPlayList(String item)
-    {
-        if (item != null)
-        {
-            ArrayList<String> playList = getPlayList();
-            if (playList.contains(item))
-            {
-                playList.remove(item);
-                savePlayList(playList);
-            }
-        }
-    }
-
-    /**
      * gets ArrayList from SharedPreferences
      * @return  ArrayList(String)
      */
@@ -211,27 +114,6 @@ public class AppSettings
             list = (ArrayList<String>) ObjectSerializer.deserialize(play_list_items);
         }
         return list;
-    }
-
-    public ArrayList<String> getPlayList(boolean b)
-    {
-
-        String play_list_items = context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getString(KEY_PLAY_LIST_ITEMS, null);
-        if (play_list_items != null && play_list_items.length() > 0)
-        {
-            //noinspection unchecked
-            ArrayList<String> list = (ArrayList<String>) ObjectSerializer.deserialize(play_list_items);
-            return new ArrayList<>(list);
-        }
-        return new ArrayList<>();
-    }
-
-    /***
-     *
-     */
-    public void cleanPlayList()
-    {
-        savePlayList(new ArrayList<>());
     }
 
     /**
@@ -289,16 +171,6 @@ public class AppSettings
         return wordNumber;
     }
 
-    public void set_N_Dict(int number)
-    {
-        context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putInt(KEY_N_DICT, number).apply();
-    }
-
-    public int getDictNumber()
-    {
-        return context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getInt(KEY_N_DICT, 0);
-    }
-
     public void setCurrentDict(String name)
     {
         context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putString(KEY_CURRENT_DICT, name).apply();
@@ -319,35 +191,6 @@ public class AppSettings
         return context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getBoolean(KEY_IS_PAUSE, false);
     }
 
-
-
-    public void saveTestFragmentState(String tag, Bundle bundle)
-    {
-        SharedPreferences.Editor settingsEditor = context.getSharedPreferences(tag, MODE_PRIVATE).edit();
-        if (bundle != null)
-        {
-            settingsEditor.putString(KEY_SPINN_SELECT_ITEM, bundle.getString(KEY_SPINN_SELECT_ITEM));
-            settingsEditor.putInt(KEY_WORD_INDEX, bundle.getInt(KEY_WORD_INDEX));
-            settingsEditor.putInt(KEY_COUNTER_RIGHT_ANSWER, bundle.getInt(KEY_COUNTER_RIGHT_ANSWER));
-        } else
-        {
-            settingsEditor.remove(KEY_SPINN_SELECT_ITEM);
-            settingsEditor.remove(KEY_WORD_INDEX);
-            settingsEditor.remove(KEY_COUNTER_RIGHT_ANSWER);
-        }
-        settingsEditor.apply();
-    }
-
-    public Bundle getTestFragmentState(String tag)
-    {
-        Bundle bundle = new Bundle();
-        SharedPreferences sharedPreferences = context.getSharedPreferences(tag, MODE_PRIVATE);
-        bundle.putString(KEY_SPINN_SELECT_ITEM, sharedPreferences.getString(KEY_SPINN_SELECT_ITEM, null));
-        bundle.putInt(KEY_WORD_INDEX, sharedPreferences.getInt(KEY_WORD_INDEX, 1));
-        bundle.putInt(KEY_COUNTER_RIGHT_ANSWER, sharedPreferences.getInt(KEY_COUNTER_RIGHT_ANSWER, 0));
-
-        return bundle;
-    }
 
     public void setTranslateLang(String langCode)
     {

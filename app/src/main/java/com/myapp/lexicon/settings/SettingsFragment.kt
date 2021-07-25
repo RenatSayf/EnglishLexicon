@@ -84,8 +84,7 @@ class SettingsFragment : PreferenceFragmentCompat()
             {
                 listOnUnBlockingScreen.value = newValue.toString()
                 listOnUnBlockingScreen.summary = listOnUnBlockingScreen.entry
-                AppData.getInstance().displayVariant = newValue.toString().toInt()
-
+                
                 if (newValue.toString().toInt() == 0)
                 {
                     if (ContextCompat.checkSelfPermission(requireContext(), "") != PackageManager.PERMISSION_GRANTED)

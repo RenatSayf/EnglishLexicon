@@ -74,11 +74,6 @@ class DataRepositoryImpl @Inject constructor(private val appDB: AppDB,
         return db.deleteEntriesByDictName(dictName)
     }
 
-    override fun getTableListFromSettings(): MutableList<String>
-    {
-        return settings.getPlayList(true)
-    }
-
     override fun getCountersFromDb(dictName: String): Single<List<Int>>
     {
         return db.getCounters(dictName)
@@ -142,11 +137,6 @@ class DataRepositoryImpl @Inject constructor(private val appDB: AppDB,
     override fun getAllFromTable(tableName: String): Single<MutableList<DataBaseEntry>>
     {
         return appDB.getAllFromTableAsync(tableName)
-    }
-
-    override fun removeTableFromSettings(tableName: String)
-    {
-        return settings.removeItemFromPlayList(tableName)
     }
 
     override fun deleteTableFromDb(tableName: String): Observable<Boolean>

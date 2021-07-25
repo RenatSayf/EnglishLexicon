@@ -9,7 +9,6 @@ import android.view.animation.AnimationUtils
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
@@ -32,13 +31,13 @@ const val ROWS: Int = 5
 
 
 @AndroidEntryPoint
-class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogListener, OneFiveTestAdapter.ITestAdapterListener
+class OneOfFiveFragm : Fragment(), TestCompleteDialog.ITestCompleteDialogListener, OneFiveTestAdapter.ITestAdapterListener
 {
     private lateinit var vm: OneOfFiveViewModel
+    private lateinit var mActivity: MainActivity
 
     private var answersRecyclerView: RecyclerView? = null
     private lateinit var mysteryWordView: TextView
-    private lateinit var backPressedCallback: OnBackPressedCallback
     private lateinit var billingVM: BillingViewModel
     private lateinit var adsVM: AdsViewModel
 
@@ -48,17 +47,18 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
         private var wordList: List<Word>? = null
 
         @JvmStatic
-        fun newInstance(list: MutableList<Word>): OneOfFiveFragmNew
+        fun newInstance(list: MutableList<Word>): OneOfFiveFragm
         {
             val shuffledList = list.shuffled()
             wordList = shuffledList
-            return OneOfFiveFragmNew()
+            return OneOfFiveFragm()
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
+        mActivity = activity as MainActivity
         billingVM = ViewModelProvider(this)[BillingViewModel::class.java]
         adsVM = ViewModelProvider(this)[AdsViewModel::class.java]
         vm = ViewModelProvider(this)[OneOfFiveViewModel::class.java]
@@ -81,7 +81,7 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
                 this.adapter = OneFiveTestAdapter(it).apply {
                     setHasStableIds(true)
                     layoutManager = LinearLayoutManager(requireContext())
-                    setOnItemClickListener(this@OneOfFiveFragmNew)
+                    setOnItemClickListener(this@OneOfFiveFragm)
                 }
             }
         })
@@ -117,13 +117,10 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
     override fun onResume()
     {
         super.onResume()
-        backPressedCallback = requireActivity().onBackPressedDispatcher.addCallback {
-            if (this@OneOfFiveFragmNew.isAdded)
-            {
-                requireActivity().supportFragmentManager.beginTransaction().remove(this@OneOfFiveFragmNew).commit()
-                (requireActivity() as MainActivity).mainViewModel.setMainControlVisibility(View.VISIBLE)
-            }
-            else requireActivity().finish()
+        mActivity.onBackPressedDispatcher.addCallback {
+            mActivity.supportFragmentManager.popBackStack()
+            mActivity.mainViewModel.setMainControlVisibility(View.VISIBLE)
+            this.remove()
         }
     }
 
@@ -205,12 +202,12 @@ class OneOfFiveFragmNew : Fragment(), TestCompleteDialog.ITestCompleteDialogList
 
     override fun onTestPassed()
     {
-        (requireActivity() as MainActivity).testPassed()
+        mActivity.testPassed()
     }
 
     override fun onTestFailed(errors: Int)
     {
-        (requireActivity() as MainActivity).testFailed(errors)
+        mActivity.testFailed(errors)
     }
 
 }
