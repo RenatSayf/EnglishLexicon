@@ -615,10 +615,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         if (id == R.id.edit_speech_data)
         {
-            Intent speechEditorIntent = new Intent(Intent.ACTION_VIEW);
-            speechEditorIntent.setAction("com.android.settings.TTS_SETTINGS");
-            speechEditorIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(speechEditorIntent);
+            try
+            {
+                Intent speechEditorIntent = new Intent(Intent.ACTION_VIEW);
+                speechEditorIntent.setAction("com.android.settings.TTS_SETTINGS");
+                speechEditorIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(speechEditorIntent);
+            } catch (Exception e)
+            {
+                e.printStackTrace();
+            }
         }
         if (id == R.id.cloud_storage)
         {
