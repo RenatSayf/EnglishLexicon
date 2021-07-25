@@ -14,6 +14,7 @@ import android.view.animation.AnticipateOvershootInterpolator
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -29,6 +30,7 @@ import com.myapp.lexicon.dialogs.DictListDialog
 import com.myapp.lexicon.helpers.Keyboard
 import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.UiState
+import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.SpeechViewModel
 import com.myapp.lexicon.viewmodels.AnimViewModel
 import com.myapp.lexicon.viewmodels.PageBackViewModel
@@ -49,6 +51,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     }
 
     private lateinit var binding: TestFragmentBinding
+    private lateinit var mActivity: MainActivity
     private val testVM: TestViewModel by viewModels()
     private val animVM: AnimViewModel by viewModels()
     private val speechVM: SpeechViewModel by viewModels()
@@ -57,6 +60,18 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     private val adsVM: AdsViewModel by viewModels()
     private val composite = CompositeDisposable()
     private var completeDialog: DialogTestComplete? = null
+
+    override fun onCreate(savedInstanceState: Bundle?)
+    {
+        super.onCreate(savedInstanceState)
+        mActivity = activity as MainActivity
+        mActivity.onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true){
+            override fun handleOnBackPressed()
+            {
+                mActivity.supportFragmentManager.popBackStack()
+            }
+        })
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

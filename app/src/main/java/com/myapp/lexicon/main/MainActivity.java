@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -617,7 +616,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (id == R.id.edit_speech_data)
         {
             Intent speechEditorIntent = new Intent(Intent.ACTION_VIEW);
-            speechEditorIntent.setAction(Settings.ACTION_SETTINGS);
+            speechEditorIntent.setAction("com.android.settings.TTS_SETTINGS");
+            speechEditorIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(speechEditorIntent);
         }
         if (id == R.id.cloud_storage)
