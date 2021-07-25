@@ -56,7 +56,7 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.appcompat:appcompat:1.3.0'
+    implementation 'androidx.appcompat:appcompat:1.3.1'
     implementation 'com.google.android.material:material:1.4.0'
     implementation 'com.sothree.slidinguppanel:library:3.4.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
@@ -87,7 +87,7 @@ dependencies {
 
     implementation 'com.google.android.gms:play-services-ads:20.2.0'
     implementation 'com.google.android.gms:play-services-plus:17.0.0'
-    implementation 'com.google.android.gms:play-services-auth:19.0.0'
+    implementation 'com.google.android.gms:play-services-auth:19.2.0'
 
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1'
     //implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
@@ -132,7 +132,7 @@ dependencies {
 
     //region TODO Activity Result API. Runtime permission Step 1
     implementation 'androidx.activity:activity-ktx:1.3.0-rc02'
-    implementation 'androidx.fragment:fragment-ktx:1.3.5'
+    implementation 'androidx.fragment:fragment-ktx:1.3.6'
     //endregion
 
     //Google Play Billing Library
