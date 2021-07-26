@@ -1,6 +1,5 @@
 package com.myapp.lexicon.main;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -18,14 +17,21 @@ import android.speech.tts.UtteranceProgressListener;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.service.LexiconService;
 import com.myapp.lexicon.settings.AppSettings;
+import com.myapp.lexicon.viewmodels.DbMigrationViewModel;
 
 import java.util.HashMap;
 import java.util.Locale;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
+import dagger.hilt.android.AndroidEntryPoint;
+
 /**
  * The initial activity that checks the voice functions of the device
  */
-public class SplashScreenActivity extends Activity
+@SuppressWarnings("Convert2Lambda")
+@AndroidEntryPoint
+public class SplashScreenActivity extends AppCompatActivity
 {
     public static TextToSpeech speech;
     public HashMap<String, String> map = new HashMap<>();
@@ -44,13 +50,12 @@ public class SplashScreenActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a_layout_splash_screen);
 
+        new ViewModelProvider(this).get(DbMigrationViewModel.class);
+
         this.stopService(new Intent(this, LexiconService.class));
 
         preferences = PreferenceManager.getDefaultSharedPreferences(SplashScreenActivity.this);
-        //int serviceMode = Integer.parseInt(preferences.getString(getString(R.string.key_list_display_mode), "0"));
         appSettings = new AppSettings(SplashScreenActivity.this);
-        //AppData appData = AppData.getInstance();
-        //appData.setServiceMode(serviceMode);
 
         //region TODO: SpeechServiceReceiver. 5 - Регистрируем приёмник
         broadcastReceiver = new UpdateBroadcastReceiver();

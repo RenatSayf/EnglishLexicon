@@ -36,8 +36,8 @@ abstract class AppDataBase : RoomDatabase()
                 override fun migrate(database: SupportSQLiteDatabase)
                 {
                     println("***************************** migrate to $DB_VERSION started *******************************")
-                    val db = AppDB(DatabaseHelper(context), appDB.appDao())
-                    db.migrateToWordsTable()
+                    //val db = AppDB(DatabaseHelper(context), appDB.appDao())
+                    //db.migrateToWordsTable()
                 }
             }
         }

@@ -376,7 +376,7 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper, private va
         })
     }
 
-    private fun copyEntriesFromOtherTableAsync(tableName: String) : Observable<MutableList<DataBaseEntry>>
+    fun copyEntriesFromOtherTableAsync(tableName: String) : Observable<MutableList<DataBaseEntry>>
     {
         return Observable.create { emitter ->
             try
@@ -395,7 +395,7 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper, private va
         }
     }
 
-    private fun insertIntoWordsTable(list: List<Word>) : Observable<List<Long>>
+    fun insertIntoWordsTable(list: List<Word>) : Observable<List<Long>>
     {
         return Observable.create { emitter ->
             try
@@ -458,6 +458,7 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper, private va
                             t.printStackTrace()
                             println("*********************** ${t.message} ************************")
                         }, {
+
                             println("*********************** Миграция завершена ************************")
                         })
                 }
