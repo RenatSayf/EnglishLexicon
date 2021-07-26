@@ -1,49 +1,54 @@
 package com.myapp.lexicon.wordeditor;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.database.DataBaseEntry;
+import com.myapp.lexicon.database.Word;
 
 import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 
-/**
- * Created by Ренат on 29.03.2016.
- */
-// TODO: ListView adapter class
-public class ListViewAdapter extends ArrayAdapter implements Filterable
-{
-    private ArrayList<DataBaseEntry> entries;
-    private ArrayList<DataBaseEntry> tempEntries;
-    private Context context;
 
-    ListViewAdapter(ArrayList<DataBaseEntry> entries, Context context, int resource)
+
+// TODO: ListView adapter class
+public class ListViewAdapter extends BaseAdapter implements Filterable
+{
+    private ArrayList<Word> words;
+    private final ArrayList<Word> tempWords;
+    private final IListViewAdapter listener;
+
+    ListViewAdapter(ArrayList<Word> words, IListViewAdapter listener)
     {
-        super(context, resource);
-        this.entries = entries;
-        this.context = context;
-        this.tempEntries = new ArrayList<>(entries);
+        this.words = words;
+        this.tempWords = new ArrayList<>(words);
+        this.listener = listener;
+    }
+
+    public interface IListViewAdapter
+    {
+        void onItemClickListener(Word word);
+        void onItemCheckBoxClickListener(Word word);
     }
 
     @Override
     public int getCount()
     {
-        return entries.size();
+        return words.size();
     }
 
     @Override
-    public DataBaseEntry getItem(int position)
+    public Word getItem(int position)
     {
-        return entries.get(position);
+        return words.get(position);
     }
 
     @Override
@@ -56,22 +61,51 @@ public class ListViewAdapter extends ArrayAdapter implements Filterable
     @Override
     public View getView(int position, View convertView, @NonNull ViewGroup viewGroup)
     {
-        View wordView=convertView;
+        View wordView = convertView;
         if (wordView == null)
         {
-            wordView= LayoutInflater.from(context).inflate(R.layout.d_layout_word, viewGroup, false);
+            wordView= LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.d_layout_word, viewGroup, false);
         }
 
-        DataBaseEntry dataBaseEntry = entries.get(position);
+        Word word = words.get(position);
 
         TextView textEnglish = wordView.findViewById(R.id.english);
-        textEnglish.setText(dataBaseEntry.getEnglish());
+        textEnglish.setText(word.getEnglish());
 
         TextView textTranslate = wordView.findViewById(R.id.translate);
-        textTranslate.setText(dataBaseEntry.getTranslate());
+        textTranslate.setText(word.getTranslate());
 
-        TextView textCountRepeat = wordView.findViewById(R.id.count_repeat);
-        textCountRepeat.setText(dataBaseEntry.getCountRepeat());
+        CheckBox disableWordCheBox = wordView.findViewById(R.id.checkStudied);
+        int countRepeat = word.getCountRepeat();
+        disableWordCheBox.setChecked(countRepeat > 0);
+        disableWordCheBox.setOnClickListener(view ->
+        {
+            CheckBox checkBox = (CheckBox) view;
+            Word newWord;
+            if (checkBox.isChecked())
+            {
+                words.get(position).setCountRepeat(1);
+                newWord = new Word(word.get_id(), word.getDictName(), word.getEnglish(), word.getTranslate(), 1);
+            }
+            else
+            {
+                words.get(position).setCountRepeat(-1);
+                newWord = new Word(word.get_id(), word.getDictName(), word.getEnglish(), word.getTranslate(), -1);
+            }
+            if (listener != null)
+            {
+                listener.onItemCheckBoxClickListener(newWord);
+            }
+        });
+
+        LinearLayout itemLayout = wordView.findViewById(R.id.itemLayout);
+        itemLayout.setOnClickListener(view ->
+        {
+            if (listener != null)
+            {
+                listener.onItemClickListener(word);
+            }
+        });
 
         return wordView;
     }
@@ -88,13 +122,13 @@ public class ListViewAdapter extends ArrayAdapter implements Filterable
                 FilterResults results = new FilterResults();
                 if (constraint == null || constraint.length() == 0)
                 {
-                    results.values = tempEntries;
-                    results.count = tempEntries.size();
+                    results.values = tempWords;
+                    results.count = tempWords.size();
                 }
                 else
                 {
-                    ArrayList<DataBaseEntry> filteredEntries = new ArrayList<>();
-                    for (DataBaseEntry entry : tempEntries)
+                    ArrayList<Word> filteredEntries = new ArrayList<>();
+                    for (Word entry : tempWords)
                     {
                         if (entry.getEnglish().contains(constraint) || entry.getTranslate().contains(constraint))
                         {
@@ -111,7 +145,7 @@ public class ListViewAdapter extends ArrayAdapter implements Filterable
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results)
             {
-                entries = (ArrayList<DataBaseEntry>) results.values;
+                words = (ArrayList<Word>) results.values;
                 notifyDataSetChanged();
             }
         };

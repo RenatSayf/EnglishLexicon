@@ -62,7 +62,7 @@
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
                 android:inputType="text"
-                android:autofillHints=""
+                android:importantForAutofill="no"
                 android:hint="@string/label_english"/>
 
             <TextView
@@ -84,33 +84,26 @@
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
                 android:inputType="textMultiLine"
+                android:importantForAutofill="no"
                 android:hint="@string/label_russian"
-                android:autofillHints="" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="@string/label_count_repeat"
-                android:textColor="@color/colorWhite"
-                />
-
-            <Spinner
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                style="@style/spinner_style"
-                android:id="@+id/spinn_cout_repeat"
-                android:layout_marginTop="8dp"
-                android:entries="@array/count_repeat"
                 />
 
             <CheckBox
+                android:id="@+id/checkStudied2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/text_studied"
+                android:textColor="@color/colorWhite"
+                style="@android:style/Widget.Holo.Light.CompoundButton.CheckBox"
+                app:buttonTint="@color/colorWhite"/>
+
+            <CheckBox
+                android:id="@+id/check_move"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:text="@string/text_move_to_dict"
-                android:id="@+id/check_move"
                 android:textColor="@color/colorWhite"
                 style="@android:style/Widget.Holo.Light.CompoundButton.CheckBox"
                 app:buttonTint="@color/colorWhite"/>
@@ -123,15 +116,14 @@
                 >
 
                 <Spinner
+                    android:id="@+id/spinn_dict_to_move"
                     android:layout_width="wrap_content"
                     android:layout_height="36dp"
                     android:layout_marginEnd="5dp"
                     android:layout_weight="3"
                     style="@style/spinner_style"
-                    android:id="@+id/spinn_dict_to_move"
                     android:layout_marginTop="8dp"
-                    android:entries="@array/not_move"
-                    android:layout_marginRight="5dp" />
+                    android:entries="@array/not_move" />
 
                 <CheckBox
                     android:layout_width="wrap_content"

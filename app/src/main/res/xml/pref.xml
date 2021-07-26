@@ -1,44 +1,75 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?><!--suppress DeprecatedClassUsageInspection -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    android:title="@string/text_settings"
-    >
+    android:title="@string/text_settings">
 
-    <CheckBoxPreference
-        android:key="is_start_speech"
-        android:title="@string/title_is_start_speech"
-        android:summary="@string/summary_is_start_speech"
-        android:defaultValue="true"
-        />
-
-    <PreferenceCategory android:title="@string/title_service_group"
-        android:key="service_group">
-
+    <PreferenceCategory android:title="@string/text_on_start">
         <CheckBoxPreference
-            android:key="@string/key_service"
-            android:title="@string/title_service"
-            android:summary="@string/summary_service"
             android:defaultValue="true"
+            android:key="is_start_speech"
+            android:summary="@string/summary_is_start_speech"
             />
-
-        <ListPreference
-            android:key="@string/key_on_unbloking_screen"
-            android:title="Показывать слова через:"
-            android:summary="Всплывающее окно"
-            android:entries="@array/display_variant"
-            android:entryValues="@array/display_variant_values"
-            android:defaultValue="0" />
-
-        <ListPreference
-            android:key="@string/key_list_display_mode"
-            android:title="@string/title_display_mode"
-            android:summary="@string/summary_display_mode"
-            android:entries="@array/display_mode"
-            android:entryValues="@array/display_values"
-            android:defaultValue="0"
-            >
-
-        </ListPreference>
     </PreferenceCategory>
 
+    <PreferenceCategory
+        android:key="disableAdsCategory"
+        android:title="@string/text_ad">
+
+        <SwitchPreferenceCompat
+            android:key="disableAds"
+            android:title="@string/text_show_ads"
+            android:defaultValue="true"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/text_knowledge_check">
+
+        <ListPreference
+            android:key="@string/key_test_interval"
+            android:title="@string/text_test_after_learning"
+            android:entries="@array/words_interval"
+            android:entryValues="@array/words_interval_values"
+            android:defaultValue="10"
+            />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="service_group"
+        android:title="@string/title_service_group">
+
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/show_intervals"
+            android:entryValues="@array/show_intervals_values"
+            android:key="@string/key_show_intervals"
+            android:title="@string/title_show_interval" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="@string/key_service"
+            android:summary="@string/summary_service"
+            android:title="@string/title_service" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/text_display_mode">
+
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/display_variant"
+            android:entryValues="@array/display_variant_values"
+            android:key="@string/key_display_variant"
+            android:summary="@string/text_popup_window"
+            android:title="@string/text_show_words_over" />
+
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/display_mode"
+            android:entryValues="@array/display_values"
+            android:key="@string/key_list_display_mode"
+            android:summary="@string/summary_display_mode"
+            android:title="@string/title_display_mode" />
+
+    </PreferenceCategory>
 
 </PreferenceScreen>

@@ -4,12 +4,14 @@
     <item android:state_pressed="true">
         <shape android:shape="oval">
             <solid android:color="@color/colorWhiteOpacity"/>
+            <stroke android:color="@color/colorWhite" android:width="2dp" />
         </shape>
     </item>
 
     <item>
         <shape android:shape="oval">
-            <solid android:color="@color/colorTransparent"/>
+            <solid android:color="#20FFFFFF"/>
+            <stroke android:color="@color/colorWhite" android:width="0dp" />
         </shape>
     </item>
 

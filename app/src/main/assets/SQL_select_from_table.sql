@@ -1,0 +1,1 @@
+SELECT DISTINCT dict_name FROM Words

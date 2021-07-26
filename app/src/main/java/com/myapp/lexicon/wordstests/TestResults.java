@@ -20,23 +20,23 @@ class TestResults
     String getOverallResult(float right, float total)
     {
         String result = context.getString(R.string.text_excellent);
-        float precent;
+        float percent;
         try
         {
-            precent = (right / total) * 100;
+            percent = (right / total) * 100;
         } catch (Exception e)
         {
-            precent = 100;
+            percent = 100;
         }
-        if (precent == 100)
+        if (percent == 100)
         {
             result = context.getString(R.string.text_excellent); 
         }
-        else if (precent >= 70 && precent < 100)
+        else if (percent >= 70 && percent < 100)
         {
             result = context.getString(R.string.text_good);
         }
-        else if (precent < 70)
+        else if (percent < 70)
         {
             result = context.getString(R.string.text_bad);
         }

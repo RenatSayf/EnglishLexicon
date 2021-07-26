@@ -12,7 +12,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.database.DataBaseQueries;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
@@ -20,7 +19,6 @@ import androidx.fragment.app.DialogFragment;
 public class NewDictDialog extends DialogFragment
 {
     public static final String TAG = "new_dict_dialog";
-    private DataBaseQueries dataBaseQueries;
     private static NewDictDialog newDictDialog = null;
     private static INewDictDialogResult iNewDictDialogResult;
     public static NewDictDialog newInstance()
@@ -34,7 +32,7 @@ public class NewDictDialog extends DialogFragment
 
     public interface INewDictDialogResult
     {
-        void newDictDialogResult(boolean res, String dictName);
+        void newDictDialogResult(@NonNull String dictName);
     }
 
     public void setNewDictDialogListener(INewDictDialogResult listener)
@@ -64,11 +62,9 @@ public class NewDictDialog extends DialogFragment
                             {
                                 try
                                 {
-                                    dataBaseQueries = new DataBaseQueries(getActivity());
-                                    boolean res = dataBaseQueries.addTableToDbSync(dictName);
                                     if (iNewDictDialogResult != null)
                                     {
-                                        iNewDictDialogResult.newDictDialogResult(res, dictName);
+                                        iNewDictDialogResult.newDictDialogResult(dictName);
                                     }
                                 } catch (Exception e)
                                 {

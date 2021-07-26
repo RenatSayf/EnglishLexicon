@@ -14,7 +14,9 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.main.MainActivity;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -33,7 +35,6 @@ public class AboutAppFragment extends Fragment
     public void onCreate(@Nullable Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
     }
 
     @Override
@@ -58,30 +59,35 @@ public class AboutAppFragment extends Fragment
         }
 
         Button buttonEvaluate = fragment_view.findViewById(R.id.btn_evaluate);
-        buttonEvaluate.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse(getString(R.string.app_link)));
-                startActivity(intent);
-            }
+        buttonEvaluate.setOnClickListener( view -> {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse(getString(R.string.app_link)));
+            startActivity(intent);
         });
 
         final TextView tvLinkPrivacyPolicy = fragment_view.findViewById(R.id.tvLinkPrivacyPolicy);
-        tvLinkPrivacyPolicy.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-                tvLinkPrivacyPolicy.setTextColor(Color.RED);
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.privacy_policy_link)));
-                startActivity(intent);
-            }
+        tvLinkPrivacyPolicy.setOnClickListener( view -> {
+            tvLinkPrivacyPolicy.setTextColor(Color.RED);
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.privacy_policy_link)));
+            startActivity(intent);
         });
 
         return fragment_view;
     }
 
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+        MainActivity activity = (MainActivity) requireActivity();
+        activity.getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true)
+        {
+            @Override
+            public void handleOnBackPressed()
+            {
+                activity.getSupportFragmentManager().popBackStack();
+                this.remove();
+            }
+        });
+    }
 }

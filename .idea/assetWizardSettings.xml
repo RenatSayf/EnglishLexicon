@@ -23,7 +23,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material/icons/materialicons/edit/baseline_edit_24.xml" />
+                                      <entry key="url" value="file:/$USER_HOME$/AppData/Local/Android/Sdk/icons/material/materialicons/replay/baseline_replay_24.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -33,8 +33,8 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="color" value="ffffff" />
-                            <entry key="outputName" value="ic_edit_white" />
+                            <entry key="color" value="64e21e" />
+                            <entry key="outputName" value="ic_replay_green" />
                             <entry key="sourceFile" value="F:\Development_for_Android\MyProjects\EnglishLexicon" />
                           </map>
                         </option>

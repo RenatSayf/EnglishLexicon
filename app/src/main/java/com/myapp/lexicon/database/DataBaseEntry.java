@@ -8,10 +8,11 @@ import java.io.Serializable;
 
 public class DataBaseEntry implements Parcelable, Serializable
 {
+    private String dictName = "";
     private String english;
     private String translate;
-    private String countRepeat;
-    private int rowId;
+    private String countRepeat = "0";
+    private int rowId = -1;
 
     public DataBaseEntry(String english, String translate)
     {
@@ -34,9 +35,19 @@ public class DataBaseEntry implements Parcelable, Serializable
         this.countRepeat = count_repeat;
     }
 
+    public DataBaseEntry(int rowId, String dictName, String english, String translate, String count_repeat)
+    {
+        this.rowId = rowId;
+        this.dictName = dictName;
+        this.english = english;
+        this.translate = translate;
+        this.countRepeat = count_repeat;
+    }
+
     protected DataBaseEntry(Parcel in)
     {
         rowId = in.readInt();
+        dictName = in.readString();
         english = in.readString();
         translate = in.readString();
         countRepeat = in.readString();
@@ -56,6 +67,16 @@ public class DataBaseEntry implements Parcelable, Serializable
             return new DataBaseEntry[size];
         }
     };
+
+    public int getRowId()
+    {
+        return rowId;
+    }
+
+    public String getDictName()
+    {
+        return dictName;
+    }
 
     public String getEnglish()
     {
@@ -92,14 +113,14 @@ public class DataBaseEntry implements Parcelable, Serializable
     public void writeToParcel(Parcel parcel, int i)
     {
         parcel.writeInt(rowId);
+        parcel.writeString(dictName);
         parcel.writeString(english);
         parcel.writeString(translate);
         parcel.writeString(countRepeat);
     }
 
-    public int getRowId()
-    {
-        return rowId;
-    }
+
+
+
 
 }

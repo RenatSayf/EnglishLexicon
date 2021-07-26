@@ -10,7 +10,10 @@
     <string name="add_word_bottom_banner">ca-app-pub-1615119435047194/4096037737</string>
     <string name="word_editor_bottom_banner">ca-app-pub-1615119435047194/2399812684</string>
     <string name="play_list_banner">ca-app-pub-1615119435047194/2457004070</string>
-    <string name="tests_banner">ca-app-pub-4071145618173901/5962686672</string>
+    <string name="tests_banner">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="add_word_interstitial_ad">ca-app-pub-1615119435047194/9744059008</string>
+    <string name="main_interstitial_ad">ca-app-pub-1615119435047194/4664150389</string>
+    <string name="test_interstitial_ad">ca-app-pub-3940256099942544/1033173712</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -18,7 +21,7 @@
     <string name="add_word">Додати слово</string>
     <string name="add_dict">Додати словник</string>
     <string name="edit_word">Змінені слова</string>
-    <string name="check_your_self">Тести</string>
+    <string name="check_your_self">Перевір знання</string>
     <string name="exit">Вихід</string>
     <string name="title_activity_add_word">Додати слово</string>
     <string name="title_activity_check_self">Тести</string>
@@ -188,7 +191,7 @@
     <string name="translate_lang_en">en</string>
     <string name="text_settings">Параметри</string>
     <string name="summary_service">Показувати чергове слово при кожному розблокуванні екрану</string>
-    <string name="title_service_group">При розблокуванні екрану</string>
+    <string name="title_service_group">Коли додаток закрито</string>
     <string name="title_is_start_speech">Озвучувати при запуску</string>
     <string name="summary_is_start_speech">Озвучувати вступну фразу при запуску програми</string>
     <string name="btn_text_new">Новий</string>
@@ -196,7 +199,7 @@
 
     <string name="title_display_mode">Показувати слова в режимі:</string>
     <string name="summary_display_mode">Повтор</string>
-    <string name="title_service">Показувати слово</string>
+    <string name="title_service">Після розблокування</string>
     <string name="key_service">service</string>
     <string name="key_list_display_mode">list_display_mode</string>
     <string name="text_studied">Вивчено</string>
@@ -222,10 +225,15 @@
     <string name="cloud_storage_text">Хмарне сховище</string>
     <string name="text_read_by_eng">Читати по-англійськи</string>
     <string name="text_new_dict">Новий словник</string>
-    <string name="key_on_unbloking_screen">on_unbloking_screen</string>
+    <string name="key_display_variant">on_unbloking_screen</string>
     <string name="text_app_is_closed">Програма</string>
     <string name="text_app_is_closed_end">закрита</string>
     <string name="notify_new_word_text">Натисніть, щоб вивчити нове слово</string>
+    <string name="key_show_intervals">show_interval</string>
+    <string name="title_show_interval">Показати наступне слово</string>
+    <string name="text_popup_window">Спливаюче вікно</string>
+    <string name="text_display_mode">Режим відображення</string>
+    <string name="text_show_words_over">Показати слова через:</string>
 
     <string-array name="display_mode">
         <item>Повтор</item>
@@ -242,6 +250,64 @@
     <string-array name="display_variant_values">
         <item>0</item>
         <item>1</item>
+    </string-array>
+
+    <string-array name="show_intervals">
+        <item>Не показувати</item>
+        <item>через 1 мин</item>
+        <item>через 5 мин</item>
+        <item>через 10 мин</item>
+        <item>через 20 мин</item>
+    </string-array>
+    <string-array name="show_intervals_values">
+        <item>0</item>
+        <item>1</item>
+        <item>5</item>
+        <item>10</item>
+        <item>20</item>
+    </string-array>
+
+    <string name="key_test_interval">key_learning_mode</string>
+    <string name="text_test_after_learning">Пройти тест після вивчення</string>
+    <string name="text_knowledge_check">Перевірка знань</string>
+    <string name="text_test_passed">Відмінний результат, можна продовжувати вчитися!</string>
+    <string name="text_test_not_passed">Не всі слова вивчені, спробуйте ще раз…</string>
+    <string name="text_dictionaries">Словники</string>
+    <string name="text_test_knowledge">Перевірте свої знання!!!…</string>
+    <string name="text_all_words_learned">Всі слова вивчені!!!</string>
+    <string name="text_select_other_dict">Виберіть інший словник для вивчення.</string>
+    <string name="text_is_granted">Відмінно. Тепер ви можете розпізнавати мову…</string>
+    <string name="text_check">Перевірити…</string>
+    <string name="text_hint">Підказка…</string>
+    <string name="text_write_translation">Напиши переклад тут…</string>
+    <string name="text_is_right">Правильно…</string>
+    <string name="text_wrong">Неправильно…</string>
+    <string name="text_test_completed">Тест завершено…</string>
+    <string name="text_do_speak">Говоріть в мікрофон…</string>
+    <string name="text_word_is_enabled">Слово буде доступне для вивчення</string>
+    <string name="text_disable_ads">Відключити рекламу назавжди за</string>
+    <string name="text_on_start">При старті</string>
+    <string name="text_ad">Реклама</string>
+    <string name="text_show_ads">Показувати рекламу</string>
+    <string name="text_enabled_permission_pop_up">Увімкніть дозволи для спливаючих вікон і відображення на екрані блокування</string>
+
+    <string-array name="words_interval">
+        <item>після 5 слів</item>
+        <item>після 10 слів</item>
+        <item>після 15 слів</item>
+        <item>після 20 слів</item>
+        <item>після 30 слів</item>
+        <item>після 50 слів</item>
+        <item>Не проходить</item>
+    </string-array>
+    <string-array name="words_interval_values">
+        <item>5</item>
+        <item>10</item>
+        <item>15</item>
+        <item>20</item>
+        <item>30</item>
+        <item>50</item>
+        <item>10000000</item>
     </string-array>
 
 </resources>

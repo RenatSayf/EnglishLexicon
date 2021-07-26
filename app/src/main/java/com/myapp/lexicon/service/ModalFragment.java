@@ -1,324 +1,212 @@
 package com.myapp.lexicon.service;
 
 
-import android.content.Intent;
-import android.os.AsyncTask;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.os.Bundle;
-import android.speech.tts.TextToSpeech;
-import android.speech.tts.UtteranceProgressListener;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.gson.JsonSyntaxException;
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.database.DataBaseEntry;
-import com.myapp.lexicon.database.GetEntriesFromDbAsync;
-import com.myapp.lexicon.database.GetStudiedWordsCount;
-import com.myapp.lexicon.helpers.RandomNumberGenerator;
-import com.myapp.lexicon.main.MainActivityOnStart;
-import com.myapp.lexicon.main.SplashScreenActivity;
-import com.myapp.lexicon.settings.AppData;
+import com.myapp.lexicon.ads.AdsViewModel;
+import com.myapp.lexicon.billing.BillingViewModel;
+import com.myapp.lexicon.database.Word;
+import com.myapp.lexicon.helpers.StringOperations;
+import com.myapp.lexicon.interfaces.IModalFragment;
+import com.myapp.lexicon.main.SpeechViewModel;
 import com.myapp.lexicon.settings.AppSettings;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-
-import static com.myapp.lexicon.main.MainActivity.serviceIntent;
-import static com.myapp.lexicon.service.ServiceDialog.map;
-import static com.myapp.lexicon.service.ServiceDialog.speech;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
+import androidx.lifecycle.ViewModelProvider;
+import dagger.hilt.android.AndroidEntryPoint;
 
 
-public class ModalFragment extends Fragment
+@AndroidEntryPoint
+public class ModalFragment extends DialogFragment
 {
+    public static final String TAG = ModalFragment.class.getCanonicalName() + ".TAG";
+    private static IModalFragment iCallback;
+
+    //private View fragmentView;
     private AppSettings appSettings;
-    private AppData appData;
     private TextView enTextView;
     private TextView ruTextView;
-    private CheckBox checkBoxRu;
-    private TextView wordsNumberTV;
-    private TextView nameDictTV;
-    private ImageView orderPlayIcon;
-    private int repeatCount;
+    private static List<Integer> _counters = new ArrayList<>();
+    private SpeechViewModel speechVM;
+    private AdsViewModel adsVM;
 
     public ModalFragment()
     {
         // Required empty public constructor
     }
 
-    static ModalFragment newInstance()
+
+    static ModalFragment newInstance(@Nullable String json, List<Integer> counters, IModalFragment callback)
     {
-        return new ModalFragment();
+        ModalFragment fragment = new ModalFragment();
+        _counters = counters;
+        iCallback = callback;
+        if (json != null && counters.size() > 0)
+        {
+            Bundle bundle = new Bundle();
+            bundle.putString(ServiceActivity.ARG_JSON, json);
+            fragment.setArguments(bundle);
+        }
+        return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
-        if (getActivity() != null)
+
+        speechVM = new ViewModelProvider(this).get(SpeechViewModel.class);
+
+        appSettings = new AppSettings(requireContext());
+    }
+
+    @NonNull
+    @Override
+    public Dialog onCreateDialog(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState)
+    {
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.s_repeat_modal_fragment, new LinearLayout(requireContext()), false);
+
+        AlertDialog dialog = new AlertDialog.Builder(requireContext()).setView(dialogView).create();
+
+        BillingViewModel billingVM = new ViewModelProvider(this).get(BillingViewModel.class);
+        adsVM = new ViewModelProvider(this).get(AdsViewModel.class);
+        billingVM.getNoAdsToken().observe(this, token -> {
+            if (token != null && token.isEmpty())
+            {
+                LinearLayout adLayout = dialogView.findViewById(R.id.adLayout);
+                if (adLayout != null)
+                {
+                    AdView mainBanner = adsVM.getMainBanner();
+                    adLayout.addView(mainBanner);
+                    mainBanner.loadAd(new AdRequest.Builder().build());
+                }
+            }
+        });
+
+        enTextView = dialogView.findViewById(R.id.en_text_view);
+        ruTextView = dialogView.findViewById(R.id.ru_text_view);
+
+        TextView nameDictTV = dialogView.findViewById(R.id.name_dict_tv);
+        TextView wordsNumberTV = dialogView.findViewById(R.id.words_number_tv_modal_sv);
+
+        ServiceActivity activity = (ServiceActivity)requireActivity();
+        Bundle arguments = getArguments();
+        if (arguments != null)
         {
-            appSettings = new AppSettings(getActivity());
-            appData = AppData.getInstance();
-            appData.initAllSettings(getActivity());
-        } else
-        {
-            onDestroy();
-            onDetach();
+            String json = arguments.getString(ServiceActivity.ARG_JSON);
+            try
+            {
+                if (json != null)
+                {
+                    Word[] words = StringOperations.getInstance().jsonToWord(json);
+                    if (words.length > 0)
+                    {
+                        nameDictTV.setText(words[0].getDictName());
+                        enTextView.setText(words[0].getEnglish());
+                        ruTextView.setText(words[0].getTranslate());
+                    }
+                }
+
+                if (_counters.size() > 2)
+                {
+                    String concatText = (_counters.get(0) + "")
+                            .concat(" / ")
+                            .concat(_counters.get(1) + "")
+                            .concat("  " + getString(R.string.text_studied) + " " + _counters.get(2));
+                    wordsNumberTV.setText(concatText);
+                }
+            } catch (JsonSyntaxException e)
+            {
+                e.printStackTrace();
+                Toast.makeText(activity, "JSON parsing error", Toast.LENGTH_LONG).show();
+                activity.finish();
+            }
+
+            Button btnStop = dialogView.findViewById(R.id.btn_stop_service);
+            btnStop.setOnClickListener( view -> ((ServiceActivity)requireActivity()).stopAppService());
+
+            ImageButton btnClose = dialogView.findViewById(R.id.btn_close);
+            btnClose.setOnClickListener(view -> requireActivity().finish());
+
+            Button btnOpenApp = dialogView.findViewById(R.id.btn_open_app);
+            btnOpenApp.setOnClickListener(view -> iCallback.openApp());
+
+            ImageButton btnSound = dialogView.findViewById(R.id.btn_sound_modal);
+            btnSound_OnClick(btnSound);
+
+            CheckBox checkBoxRu = dialogView.findViewById(R.id.check_box_ru_speak_modal);
+            speechVM.isRuSpeech().observe(this, checkBoxRu::setChecked);
+            checkBoxRu_OnCheckedChange(checkBoxRu);
+
+            speechVM.getSpeechDoneId().observe(this, id -> {
+                if (id.equals("En") && checkBoxRu.isChecked())
+                {
+                    speechVM.doSpeech(ruTextView.getText().toString(), new Locale(getString(R.string.lang_code_translate)));
+                }
+            });
+
+            ImageView orderPlayIcon = dialogView.findViewById(R.id.order_play_icon_iv_modal);
+            if (appSettings.getOrderPlay() == 0)
+            {
+                orderPlayIcon.setImageResource(R.drawable.ic_repeat_white);
+            }
+            if (appSettings.getOrderPlay() == 1)
+            {
+                orderPlayIcon.setImageResource(R.drawable.ic_shuffle_white);
+            }
         }
+
+        if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawableResource(R.drawable.rounded_corners_background);
+        return dialog;
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+    public void onViewCreated(@NonNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState)
     {
-        final View fragmentView = inflater.inflate(R.layout.s_repeat_modal_fragment, container, false);
-
-        enTextView = fragmentView.findViewById(R.id.en_text_view);
-        ruTextView = fragmentView.findViewById(R.id.ru_text_view);
-
-        nameDictTV = fragmentView.findViewById(R.id.name_dict_tv);
-        wordsNumberTV = fragmentView.findViewById(R.id.words_number_tv_modal_sv);
-
-        final int dictNumber = appData.getNdict();
-        if (appSettings.getPlayList() != null && appSettings.getPlayList().size() > dictNumber)
-        {
-            final String currentDict = appSettings.getPlayList().get(dictNumber);
-
-            try
+        super.onViewCreated(view, savedInstanceState);
+        speechVM.getSpeechDoneId().observe(this, id -> {
+            if (id.equals("En"))
             {
-                nameDictTV.setText(currentDict);
-                int orderPlay = appSettings.getOrderPlay();
-                switch (orderPlay)
+                Boolean isRuSpeech = speechVM.isRuSpeech().getValue();
+                if (isRuSpeech != null && isRuSpeech)
                 {
-                    case 0:
-                        getNextWord();
-                        break;
-                    case 1:
-                        getRandomWordsFromDB();
-                        break;
-                    default:
-                        break;
-                }
-
-            } catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-        }
-
-        Button btnStop = fragmentView.findViewById(R.id.btn_stop_service);
-        btnStop.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-                FragmentActivity activity = getActivity();
-                if (activity != null)
-                {
-                    LexiconService.stopedByUser = true;
-                    EventBus.getDefault().post(new StopedServiceByUserEvent());
+                    String ruText = ruTextView.getText().toString();
+                    speechVM.doSpeech(ruText, new Locale(getString(R.string.lang_code_translate)));
                 }
             }
         });
-
-        ImageButton btnClose = fragmentView.findViewById(R.id.btn_close);
-        btnClose.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-                if (AppData.getInstance().getDoneRepeat() >= repeatCount)
-                {
-                    AppData.getInstance().setDoneRepeat(1);
-                }
-                else
-                {
-                    AppData.getInstance().setDoneRepeat(AppData.getInstance().getDoneRepeat() + 1);
-                }
-                if (getActivity() != null)
-                {
-                    appData.saveAllSettings(getActivity());
-                    getActivity().finish();
-                }
-            }
-        });
-
-        Button btnOpenApp = fragmentView.findViewById(R.id.btn_open_app);
-        btnOpenApp.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-                if (getActivity() != null)
-                {
-                    getActivity().startActivity(new Intent(getContext(), SplashScreenActivity.class));
-                    getActivity().finish();
-                    EventBus.getDefault().postSticky(new MainActivityOnStart(serviceIntent));
-                }
-            }
-        });
-
-        ImageButton btnSound = fragmentView.findViewById(R.id.btn_sound_modal);
-        btnSound_OnClick(btnSound);
-
-        checkBoxRu = fragmentView.findViewById(R.id.check_box_ru_speak_modal);
-        checkBoxRu.setChecked(appSettings.isRuSpeechInModal());
-        checkBoxRu_OnCheckedChange(checkBoxRu);
-
-        orderPlayIcon = fragmentView.findViewById(R.id.order_play_icon_iv_modal);
-
-        return fragmentView;
     }
 
     @Override
     public void onResume()
     {
         super.onResume();
-        if (appSettings.getOrderPlay() == 0)
-        {
-            orderPlayIcon.setImageResource(R.drawable.ic_repeat_white);
-        }
-        if (appSettings.getOrderPlay() == 1)
-        {
-            orderPlayIcon.setImageResource(R.drawable.ic_shuffle_white);
-        }
-    }
-
-    private void getRandomWordsFromDB()
-    {
-        if (appSettings.getPlayList().size() > 0)
-        {
-            RandomNumberGenerator numberGenerator = new RandomNumberGenerator(appSettings.getPlayList().size(), (int) new Date().getTime());
-            int nDict = numberGenerator.generate();
-            final String tableName = appSettings.getPlayList().get(nDict);
-            if (tableName == null) return;
-
-            GetStudiedWordsCount getStudiedWordsCount = new GetStudiedWordsCount(getActivity(), tableName, new GetStudiedWordsCount.GetCountListener()
-            {
-                @Override
-                public void onTaskComplete(Integer[] resArray)
-                {
-                    if (resArray != null && resArray.length > 1)
-                    {
-                        final int totalWords = resArray[3];
-                        final int studiedWords = resArray[2];
-                        if (studiedWords == totalWords && getActivity() != null)
-                        {
-                            appSettings.removeItemFromPlayList(tableName);
-                            getActivity().finish();
-                        }
-
-                        GetEntriesFromDbAsync getEntriesFromDbAsync = new GetEntriesFromDbAsync(getActivity(), tableName, new GetEntriesFromDbAsync.GetEntriesListener()
-                        {
-                            @Override
-                            public void getEntriesListener(ArrayList<DataBaseEntry> entries)
-                            {
-                                int wordsNumber = 0;
-                                if (entries.size() == 1)
-                                {
-                                    wordsNumber = entries.get(0).getRowId();
-                                    enTextView.setText(entries.get(0).getEnglish());
-                                    ruTextView.setText(entries.get(0).getTranslate());
-                                }
-                                if (entries.size() > 1)
-                                {
-                                    wordsNumber = entries.get(0).getRowId();
-                                    enTextView.setText(entries.get(0).getEnglish());
-                                    ruTextView.setText(entries.get(0).getTranslate());
-                                }
-                                nameDictTV.setText(tableName);
-                                try
-                                {
-                                    String concatText = (wordsNumber + "").concat(" / ").concat(Integer.toString(totalWords)).concat(" " + getString(R.string.text_studied) + " " + studiedWords);
-                                    wordsNumberTV.setText(concatText);
-                                } catch (Exception e)
-                                {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
-                        if (getEntriesFromDbAsync.getStatus() != AsyncTask.Status.RUNNING)
-                        {
-                            getEntriesFromDbAsync.execute();
-                        }
-                    }
-                }
-            });
-            if (getStudiedWordsCount.getStatus() != AsyncTask.Status.RUNNING)
-            {
-                getStudiedWordsCount.execute();
-            }
-        }
-    }
-
-    private void getNextWord()
-    {
-        if (appSettings.getPlayList().size() > 0)
-        {
-            GetStudiedWordsCount getStudiedWordsCount = new GetStudiedWordsCount(getActivity(), appData.getPlayList().get(appData.getNdict()), new GetStudiedWordsCount.GetCountListener()
-            {
-                @Override
-                public void onTaskComplete(Integer[] resArray)
-                {
-                    if (resArray != null && resArray.length > 1)
-                    {
-                        final int studiedWords = resArray[2];
-                        final int totalWords = resArray[3];
-                        appData.getNextNword(getActivity(), new AppData.IGetWordListerner()
-                        {
-                            @Override
-                            public void getWordComplete(ArrayList<DataBaseEntry> entries, Integer[] dictSize)
-                            {
-                                if (entries.size() > 0)
-                                {
-                                    DataBaseEntry dataBaseEntry = entries.get(0);
-                                    enTextView.setText(dataBaseEntry.getEnglish());
-                                    ruTextView.setText(dataBaseEntry.getTranslate());
-                                    nameDictTV.setText(appData.getPlayList().get(appData.getNdict()));
-                                    try
-                                    {
-                                        String concatText = (dataBaseEntry.getRowId() + "").concat(" / ").concat(Integer.toString(totalWords)).concat("  " + getString(R.string.text_studied) + " " + studiedWords);
-                                        wordsNumberTV.setText(concatText);
-                                    } catch (Exception e)
-                                    {
-                                        e.printStackTrace();
-                                    }
-                                    repeatCount = Integer.parseInt(dataBaseEntry.getCountRepeat());
-                                }
-                            }
-                        });
-                    }
-                }
-            });
-            if (getStudiedWordsCount.getStatus() != AsyncTask.Status.RUNNING)
-            {
-                getStudiedWordsCount.execute();
-            }
-        }
     }
 
     private void checkBoxRu_OnCheckedChange(CheckBox checkBoxRu)
     {
-        checkBoxRu.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
-        {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked)
-            {
-                appSettings.setRuSpeechInModal(isChecked);
-            }
-        });
+        checkBoxRu.setOnCheckedChangeListener((compoundButton, isChecked) -> speechVM.setRuSpeech(isChecked));
     }
 
     @Override
@@ -335,57 +223,9 @@ public class ModalFragment extends Fragment
 
     private void btnSound_OnClick(ImageButton button)
     {
-        button.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-                if (speech == null || speech.isSpeaking())
-                {
-                    return;
-                }
-                String enText = enTextView.getText().toString();
-                final String ruText = ruTextView.getText().toString();
-                if (!enText.equals(""))
-                {
-                    speech.speak(enText, TextToSpeech.QUEUE_ADD, map);
-                }
-                speech.setOnUtteranceProgressListener(new UtteranceProgressListener()
-                {
-                    @Override
-                    public void onStart(String s)
-                    {
-
-                    }
-
-                    @Override
-                    public void onDone(String s)
-                    {
-                        if (checkBoxRu.isChecked() && !ruText.equals("") && s.equals(Locale.US.getDisplayLanguage()))
-                        {
-                            int res = speech.isLanguageAvailable(Locale.getDefault());
-                            if (res == TextToSpeech.LANG_COUNTRY_AVAILABLE)
-                            {
-                                speech.setLanguage(Locale.getDefault());
-                                map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.getDefault().getDisplayLanguage());
-                                speech.speak(ruText, TextToSpeech.QUEUE_ADD, map);
-                            }
-                        }
-                        if (s.equals(Locale.getDefault().getDisplayLanguage()))
-                        {
-                            speech.stop();
-                            map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.US.getDisplayLanguage());
-                            speech.setLanguage(Locale.US);
-                        }
-                    }
-
-                    @Override
-                    public void onError(String s)
-                    {
-
-                    }
-                });
-            }
+        button.setOnClickListener(view -> {
+            String enText = enTextView.getText().toString();
+            speechVM.doSpeech(enText, Locale.US);
         });
     }
 }

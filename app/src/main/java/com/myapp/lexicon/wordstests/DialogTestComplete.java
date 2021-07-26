@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.myapp.lexicon.R;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.DialogFragment;
 
 
@@ -22,6 +23,9 @@ public class DialogTestComplete extends DialogFragment
 {
     String KEY_RESULT = "result";
     String KEY_ERRORS = "errors";
+    public static final String TAG = "DialogTestComplete.TAG";
+    public static final String TOTAL_NUM = "TOTAL_NUM";
+    public static final String CORRECTLY_NUM = "CORRECTLY_NUM";
     private static IDialogComplete_Result iDialogCompleteResult;
 
     public DialogTestComplete()
@@ -34,7 +38,7 @@ public class DialogTestComplete extends DialogFragment
         void dialogCompleteResult(int res);
     }
 
-    void setIDialogCompleteResult(IDialogComplete_Result result)
+    void setListener(IDialogComplete_Result result)
     {
         iDialogCompleteResult = result;
     }
@@ -48,67 +52,66 @@ public class DialogTestComplete extends DialogFragment
             final View dialogView = getActivity().getLayoutInflater().inflate(R.layout.t_dialog_complete_test, new LinearLayout(getContext()), false);
             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
                     .setTitle(getResources().getString(R.string.text_test_is_finish))
+                    .setCancelable(false)
                     .setView(dialogView);
 
-            if (getArguments().get(KEY_RESULT) == getString(R.string.text_excellent))
+            double total = (double) getArguments().getInt(TOTAL_NUM, 0);
+            double correctly = (double) getArguments().getInt(CORRECTLY_NUM, 0);
+            double res = correctly / total * 100;
+
+            String result = "";
+
+            if (res >= 100)
             {
-                builder.setIcon(getResources().getDrawable(R.drawable.icon_smiling_face));
+                result = getString(R.string.text_excellent);
+                builder.setIcon(ResourcesCompat.getDrawable(requireContext().getResources(), R.drawable.icon_smiling_face, null));
             }
-            if (getArguments().get(KEY_RESULT) == getString(R.string.text_good))
+            if (res >= 90 && res < 100)
             {
-                builder.setIcon(getResources().getDrawable(R.drawable.icon_calm_face));
+                result = getString(R.string.text_good);
+                builder.setIcon(ResourcesCompat.getDrawable(requireContext().getResources(), R.drawable.icon_calm_face, null));
             }
-            if (getArguments().get(KEY_RESULT) == getString(R.string.text_bad))
+            if (res < 90)
             {
-                builder.setIcon(getResources().getDrawable(R.drawable.icon_sad_face));
+                result = getString(R.string.text_bad);
+                builder.setIcon(ResourcesCompat.getDrawable(requireContext().getResources(), R.drawable.icon_sad_face, null));
             }
 
             TextView textViewResult = dialogView.findViewById(R.id.txt_view_result);
-            textViewResult.setText(getArguments().getString(KEY_RESULT, ""));
+            textViewResult.setText(result);
 
+            String errors = (int)correctly + " из " + (int)total;
             TextView textViewErrors = dialogView.findViewById(R.id.txt_view_errors);
-            textViewErrors.setText(getArguments().getString(KEY_ERRORS, ""));
+            textViewErrors.setText(errors);
 
             Button buttonNext = dialogView.findViewById(R.id.btn_next);
-            buttonNext.setOnClickListener(new View.OnClickListener()
+            buttonNext.setOnClickListener( v ->
             {
-                @Override
-                public void onClick(View v)
+                if (iDialogCompleteResult != null)
                 {
-                    if (iDialogCompleteResult != null)
-                    {
-                        iDialogCompleteResult.dialogCompleteResult(1);
-                    }
-                    dismiss();
+                    iDialogCompleteResult.dialogCompleteResult(1);
                 }
+                dismiss();
             });
 
             Button buttonRepeat = dialogView.findViewById(R.id.btn_repeat);
-            buttonRepeat.setOnClickListener(new View.OnClickListener()
+            buttonRepeat.setOnClickListener( v ->
             {
-                @Override
-                public void onClick(View v)
+                if (iDialogCompleteResult != null)
                 {
-                    if (iDialogCompleteResult != null)
-                    {
-                        iDialogCompleteResult.dialogCompleteResult(0);
-                    }
-                    dismiss();
+                    iDialogCompleteResult.dialogCompleteResult(0);
                 }
+                dismiss();
             });
 
             Button buttonComplete = dialogView.findViewById(R.id.btn_complete);
-            buttonComplete.setOnClickListener(new View.OnClickListener()
+            buttonComplete.setOnClickListener( v ->
             {
-                @Override
-                public void onClick(View v)
+                if (iDialogCompleteResult != null)
                 {
-                    if (iDialogCompleteResult != null)
-                    {
-                        iDialogCompleteResult.dialogCompleteResult(-1);
-                    }
-                    dismiss();
+                    iDialogCompleteResult.dialogCompleteResult(-1);
                 }
+                dismiss();
             });
 
             return builder.create();

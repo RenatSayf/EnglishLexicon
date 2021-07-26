@@ -2,12 +2,19 @@ package com.myapp.lexicon.settings;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Bundle;
 
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.database.DataBaseEntry;
+import com.myapp.lexicon.database.Word;
 import com.myapp.lexicon.helpers.ObjectSerializer;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import javax.inject.Inject;
+
+import androidx.preference.PreferenceManager;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -18,140 +25,78 @@ import static android.content.Context.MODE_PRIVATE;
 
 public class AppSettings
 {
-    private Context context;
 
-    private final String KEY_ENG_ONLY = "eng_only";
-    private final String KEY_ENG_ONLY_MODAL = "eng_only_modal";
-    private final String KEY_PLAY_LIST = "play_list";
-    private final String KEY_PLAY_LIST_ITEMS = "play_list_items";
-    private final String KEY_ORDER_PLAY = "order_play";
-    private final String KEY_N_DICT = "N_dict";
-    private final String KEY_N_WORD = "N_word";
-    private final String KEY_CURRENT_DICT = "current_dict";
-    private final String KEY_IS_PAUSE = "is_pause";
-    private final String KEY_TRANSLATE_LANG = "translate_lang";
+    private final String KEY_IS_SOUND = this.getClass().getCanonicalName() + ".KEY_IS_SOUND";
+    private final String KEY_ENG_SPEECH = this.getClass().getCanonicalName() + ".KEY_ENG_SPEECH";
+    private final String KEY_RUS_SPEECH = this.getClass().getCanonicalName() + ".KEY_RUS_SPEECH";
+    private final String KEY_PLAY_LIST = this.getClass().getCanonicalName() + ".KEY_PLAY_LIST";
+    private final String KEY_PLAY_LIST_ITEMS = this.getClass().getCanonicalName() + ".KEY_PLAY_LIST_ITEMS";
+    private final String KEY_ORDER_PLAY = this.getClass().getCanonicalName() + ".KEY_ORDER_PLAY";
+    private final String KEY_N_WORD = this.getClass().getCanonicalName() + ".KEY_N_WORD";
+    private final String KEY_ROW_ID = this.getClass().getCanonicalName() + ".KEY_ROW_ID";
+    private final String KEY_CURRENT_DICT = this.getClass().getCanonicalName() + ".KEY_CURRENT_DICT";
+    private final String KEY_CURRENT_WORD = this.getClass().getCanonicalName() + ".KEY_CURRENT_WORD";
+    private final String KEY_EN_WORD = this.getClass().getCanonicalName() + ".KEY_EN_WORD";
+    private final String KEY_RU_WORD = this.getClass().getCanonicalName() + ".KEY_RU_WORD";
+    private final String KEY_IS_PAUSE = this.getClass().getCanonicalName() + ".KEY_IS_PAUSE";
+    private final String KEY_TRANSLATE_LANG = this.getClass().getCanonicalName() + ".KEY_TRANSLATE_LANG";
+    private final String KEY_COUNT_REPEAT = this.getClass().getCanonicalName() + ".KEY_COUNT_REPEAT";
+    private final String KEY_WORD_IDS = this.getClass().getCanonicalName() + ".KEY_WORD_IDS";
 
-    private String transLang;
+    private final Context context;
+    private final String transLang;
 
+    @Inject
     public AppSettings(Context context)
     {
         this.context = context;
         transLang = context.getString(R.string.lang_code_translate);
     }
 
+    public boolean isSpeech()
+    {
+        return context.getSharedPreferences(KEY_IS_SOUND, MODE_PRIVATE).getBoolean(KEY_IS_SOUND, false);
+    }
+
+    public void enableSpeech(Boolean isEnable)
+    {
+        context.getSharedPreferences(KEY_IS_SOUND, MODE_PRIVATE).edit().putBoolean(KEY_IS_SOUND, isEnable).apply();
+    }
+
     /**
      *  Set the setting of english speech synthesis only, either no
-     * @param isEngOnly    true - set only english speech or false - set english and default speech
+     * @param isSpeech    true - set only english speech or false - set english and default speech
      */
-    public void setEnglishSpeechOnly(boolean isEngOnly)
+    public void setEngSpeech(boolean isSpeech)
     {
-        if (isEngOnly)
-        {
-            context.getSharedPreferences(KEY_ENG_ONLY, MODE_PRIVATE).edit().putBoolean(KEY_ENG_ONLY, true).apply();
-        } else
-        {
-            context.getSharedPreferences(KEY_ENG_ONLY, MODE_PRIVATE).edit().putBoolean(KEY_ENG_ONLY, false).apply();
-        }
+        context.getSharedPreferences(KEY_ENG_SPEECH, MODE_PRIVATE).edit().putBoolean(KEY_ENG_SPEECH, isSpeech).apply();
     }
 
     /**
      *
-     * @return  true if set english speech only otherwise false
+     * @return  true if set english speech, otherwise false
      */
-    public boolean isEnglishSpeechOnly()
+    public boolean isEngSpeech()
     {
-        return context.getSharedPreferences(KEY_ENG_ONLY, MODE_PRIVATE).getBoolean(KEY_ENG_ONLY, true);
+        return context.getSharedPreferences(KEY_ENG_SPEECH, MODE_PRIVATE).getBoolean(KEY_ENG_SPEECH, true);
     }
 
     /**
-     * set the russian speech in the modal window
-     * @param isEngOnly true
+     *  Set the setting of default speech synthesis, either no
+     * @param isSpeech    true - enable default speech or false - disable default speech
      */
-    public void setRuSpeechInModal(boolean isEngOnly)
+    public void setRusSpeech(boolean isSpeech)
     {
-        if (isEngOnly)
-        {
-            context.getSharedPreferences(KEY_ENG_ONLY_MODAL, MODE_PRIVATE).edit().putBoolean(KEY_ENG_ONLY_MODAL, true).apply();
-        } else
-        {
-            context.getSharedPreferences(KEY_ENG_ONLY_MODAL, MODE_PRIVATE).edit().putBoolean(KEY_ENG_ONLY_MODAL, false).apply();
-        }
+        context.getSharedPreferences(KEY_RUS_SPEECH, MODE_PRIVATE).edit().putBoolean(KEY_RUS_SPEECH, isSpeech).apply();
     }
 
     /**
      *
-     * @return true if set english and russian speech, otherwise false
+     * @return  true if set default speech, otherwise false
      */
-    public boolean isRuSpeechInModal()
+    public boolean isRusSpeech()
     {
-        return context.getSharedPreferences(KEY_ENG_ONLY_MODAL, MODE_PRIVATE).getBoolean(KEY_ENG_ONLY_MODAL, false);
-    }
-
-    /**
-     * Save the ArrayList<String>, converting it to the String
-     * @param list (ArrayList)
-     */
-    public void savePlayList(ArrayList<String> list)
-    {
-        if (list != null && list.size() > 0)
-        {
-            String temp = ObjectSerializer.serialize(list);
-            context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putString(KEY_PLAY_LIST_ITEMS, temp).apply();
-            AppData appData = AppData.getInstance();
-
-            while (appData.getNdict() > list.size()-1)
-            {
-                appData.setNdict(appData.getNdict()-1);
-                setDictNumber(appData.getNdict() - 1);
-                appData.setNword(1);
-            }
-            if (appData.getNdict() < 0)
-            {
-                appData.setNdict(0);
-                setDictNumber(0);
-                appData.setNword(1);
-            }
-        }
-        else if (list != null)
-        {
-            AppData appData = AppData.getInstance();
-            appData.setNdict(0);
-            setDictNumber(0);
-            appData.setNword(1);
-            setWordNumber(1);
-            context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putString(KEY_PLAY_LIST_ITEMS, ObjectSerializer.serialize(list)).apply();
-        }
-    }
-
-    /**
-     * Remove one item of ArrayList and retain it state in the SharedPreferences
-     * @param list ArrayList<String>
-     * @param position  int
-     */
-    public void removeItemFromPlayList(ArrayList<String> list, int position)
-    {
-        if (list != null && list.size() > 0 && position >= 0 && position < list.size() )
-        {
-            list.remove(position);
-            savePlayList(list);
-        }
-    }
-
-    /**
-     * Remove one item of ArrayList and retain it state in the SharedPreferences
-     * @param item  String
-     */
-    public void removeItemFromPlayList(String item)
-    {
-        if (item != null)
-        {
-            ArrayList<String> playList = getPlayList();
-            if (playList.contains(item))
-            {
-                playList.remove(item);
-                savePlayList(playList);
-            }
-        }
+        return context.getSharedPreferences(KEY_RUS_SPEECH, MODE_PRIVATE).getBoolean(KEY_RUS_SPEECH, false);
     }
 
     /**
@@ -171,14 +116,6 @@ public class AppSettings
         return list;
     }
 
-    /***
-     *
-     */
-    public void cleanPlayList()
-    {
-        savePlayList(new ArrayList<String>());
-    }
-
     /**
      *
      * @param order  int
@@ -193,7 +130,33 @@ public class AppSettings
         return context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getInt(KEY_ORDER_PLAY, 0);
     }
 
-    public void setWordNumber(int number)
+    public void saveCurrentWord(DataBaseEntry entry)
+    {
+        SharedPreferences preferences = context.getSharedPreferences(KEY_CURRENT_WORD, MODE_PRIVATE);
+        preferences.edit().putInt(KEY_ROW_ID, entry.getRowId()).apply();
+        preferences.edit().putString(KEY_CURRENT_DICT, entry.getDictName()).apply();
+        preferences.edit().putString(KEY_EN_WORD, entry.getEnglish()).apply();
+        preferences.edit().putString(KEY_RU_WORD, entry.getTranslate()).apply();
+        preferences.edit().putString(KEY_COUNT_REPEAT, entry.getCountRepeat()).apply();
+    }
+
+    public DataBaseEntry getCurrentWord()
+    {
+        SharedPreferences preferences = context.getSharedPreferences(KEY_CURRENT_WORD, MODE_PRIVATE);
+        int rowId = preferences.getInt(KEY_ROW_ID, 0);
+        String defaultDict = "";
+        if (!getPlayList().isEmpty())
+        {
+            defaultDict = getPlayList().get(0);
+        }
+        String dictName = preferences.getString(KEY_CURRENT_DICT, defaultDict);
+        String english = preferences.getString(KEY_EN_WORD, "");
+        String translate = preferences.getString(KEY_RU_WORD, "");
+        String countRepeat = preferences.getString(KEY_COUNT_REPEAT, "");
+        return new DataBaseEntry(rowId, dictName, english, translate, countRepeat);
+    }
+
+    public void set_N_Word(int number)
     {
         context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putInt(KEY_N_WORD, number).apply();
     }
@@ -208,33 +171,7 @@ public class AppSettings
         return wordNumber;
     }
 
-    public void setDictNumber(int number)
-    {
-        context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putInt(KEY_N_DICT, number).apply();
-        ArrayList<String> list = getPlayList();
-        if (list != null && list.size() > 0 && number >= 0)
-        {
-            try
-            {
-                setCurrentDict(list.get(number));
-            } catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public int getDictNumber()
-    {
-        int dictNumber = context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getInt(KEY_N_DICT, 0);
-        if (dictNumber < 0 || dictNumber > getPlayList().size() - 1)
-        {
-            dictNumber = 0;
-        }
-        return dictNumber;
-    }
-
-    private void setCurrentDict(String name)
+    public void setCurrentDict(String name)
     {
         context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putString(KEY_CURRENT_DICT, name).apply();
     }
@@ -254,37 +191,6 @@ public class AppSettings
         return context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getBoolean(KEY_IS_PAUSE, false);
     }
 
-    public final String KEY_SPINN_SELECT_ITEM = "key_spinn_select_item";
-    public final String KEY_WORD_INDEX = "key_word_index";
-    public final String KEY_COUNTER_RIGHT_ANSWER = "key_counter_right_answer";
-
-    public void saveTestFragmentState(String tag, Bundle bundle)
-    {
-        SharedPreferences.Editor settingsEditor = context.getSharedPreferences(tag, MODE_PRIVATE).edit();
-        if (bundle != null)
-        {
-            settingsEditor.putString(KEY_SPINN_SELECT_ITEM, bundle.getString(KEY_SPINN_SELECT_ITEM));
-            settingsEditor.putInt(KEY_WORD_INDEX, bundle.getInt(KEY_WORD_INDEX));
-            settingsEditor.putInt(KEY_COUNTER_RIGHT_ANSWER, bundle.getInt(KEY_COUNTER_RIGHT_ANSWER));
-        } else
-        {
-            settingsEditor.remove(KEY_SPINN_SELECT_ITEM);
-            settingsEditor.remove(KEY_WORD_INDEX);
-            settingsEditor.remove(KEY_COUNTER_RIGHT_ANSWER);
-        }
-        settingsEditor.apply();
-    }
-
-    public Bundle getTestFragmentState(String tag)
-    {
-        Bundle bundle = new Bundle();
-        SharedPreferences sharedPreferences = context.getSharedPreferences(tag, MODE_PRIVATE);
-        bundle.putString(KEY_SPINN_SELECT_ITEM, sharedPreferences.getString(KEY_SPINN_SELECT_ITEM, null));
-        bundle.putInt(KEY_WORD_INDEX, sharedPreferences.getInt(KEY_WORD_INDEX, 1));
-        bundle.putInt(KEY_COUNTER_RIGHT_ANSWER, sharedPreferences.getInt(KEY_COUNTER_RIGHT_ANSWER, 0));
-
-        return bundle;
-    }
 
     public void setTranslateLang(String langCode)
     {
@@ -302,5 +208,59 @@ public class AppSettings
         return transLang;
     }
 
+    public void goForward(List<Word> words)
+    {
+        if (words != null)
+        {
+            if (words.size() > 1)
+            {
+                saveWordThePref(words.get(1));
+            }
+            if (words.size() == 1)
+            {
+                Word word = new Word(1, words.get(0).getDictName(), "", "", 1);
+                saveWordThePref(word);
+            }
+            if (words.isEmpty())
+            {
+                Word word = new Word(1, "default", "", "", 1);
+                saveWordThePref(word);
+            }
+        }
+    }
 
+    public int getWordsInterval()
+    {
+        String wordsInterval = PreferenceManager.getDefaultSharedPreferences(context).getString(context.getString(R.string.key_test_interval), "10");
+        if (wordsInterval != null)
+        {
+            return Integer.parseInt(wordsInterval);
+        }
+        return Integer.MAX_VALUE;
+    }
+
+    private final String WORD_ID = this.getClass().getCanonicalName() + ".WORD_ID";
+    public Word getWordFromPref()
+    {
+        String defaultText = context.getString(R.string.nav_play_list);
+        String dict = Objects.requireNonNull(context.getSharedPreferences(WORD_ID, MODE_PRIVATE).getString(KEY_CURRENT_DICT, defaultText));
+        int id = context.getSharedPreferences(WORD_ID, MODE_PRIVATE).getInt(WORD_ID, 1);
+        return new Word(id, dict, "", "", 1);
+    }
+
+    public void saveWordThePref(Word word)
+    {
+        context.getSharedPreferences(WORD_ID, MODE_PRIVATE).edit().putString(KEY_CURRENT_DICT, word.getDictName()).apply();
+        context.getSharedPreferences(WORD_ID, MODE_PRIVATE).edit().putInt(WORD_ID, word.get_id()).apply();
+    }
+
+    public void saveWordsIdAsString(String strIds)
+    {
+        context.getSharedPreferences(WORD_ID, MODE_PRIVATE).edit().putString(KEY_WORD_IDS, strIds).apply();
+    }
+
+    public String getWordsIdsAsString()
+    {
+        return context.getSharedPreferences(WORD_ID, MODE_PRIVATE).getString(KEY_WORD_IDS, "");
+    }
 }

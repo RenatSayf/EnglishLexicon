@@ -1,18 +1,9 @@
 package com.myapp.lexicon.wordeditor;
 
 import android.app.AlertDialog;
-import android.app.LoaderManager;
 import android.app.SearchManager;
-import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Loader;
-import android.content.pm.ActivityInfo;
-import android.database.Cursor;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.speech.tts.TextToSpeech;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,35 +22,38 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.database.DataBaseEntry;
-import com.myapp.lexicon.database.DataBaseQueries;
-import com.myapp.lexicon.database.DatabaseHelper;
-import com.myapp.lexicon.database.GetAllFromTableLoader;
-import com.myapp.lexicon.database.GetEntriesLoader;
-import com.myapp.lexicon.database.GetTableListLoader;
-import com.myapp.lexicon.database.UpdateDBEntryAsync;
+import com.myapp.lexicon.addword.AddWordViewModel;
+import com.myapp.lexicon.ads.AdsViewModel;
+import com.myapp.lexicon.billing.BillingViewModel;
+import com.myapp.lexicon.database.Word;
+import com.myapp.lexicon.helpers.AppBus;
 import com.myapp.lexicon.helpers.LockOrientation;
-import com.myapp.lexicon.helpers.StringOperations;
-import com.myapp.lexicon.main.SplashScreenActivity;
-import com.myapp.lexicon.settings.AppData;
+import com.myapp.lexicon.main.MainViewModel;
+import com.myapp.lexicon.main.SpeechViewModel;
+import com.myapp.lexicon.viewmodels.EditorSearchViewModel;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.ViewModelProvider;
+import dagger.hilt.android.AndroidEntryPoint;
 
-public class WordEditorActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>
+
+@AndroidEntryPoint
+public class WordEditorActivity extends AppCompatActivity implements ListViewAdapter.IListViewAdapter
 {
     public static final String KEY_EXTRA_DICT_NAME = "wordeditor_dict_name";
-    public static final String KEY_ROW_ID = "key_row_id";
 
     private Spinner dictListSpinner;
-    private int spinner_select_pos = -1;
     private SearchView searchView;
     private ListView listView;
     private ImageButton buttonWrite;
@@ -67,39 +61,24 @@ public class WordEditorActivity extends AppCompatActivity implements LoaderManag
     private ImageButton buttonCancel;
     private EditText editTextEn, editTextRu;
     private TextView tvAmountWords;
-    private Spinner spinnerCountRepeat, spinnerDictToMove;
+    private Spinner spinnerDictToMove;
     private CheckBox checkCopy, checkMove;
     private LinearLayout layoutSpinner;
     private ListViewAdapter listViewAdapter;
     private ProgressBar progressBar;
-    private DataBaseQueries dataBaseQueries;
     private ViewSwitcher switcher;
-    private LockOrientation lockOrientation;
-    private WordEditorFields m;
 
-    private final String KEY_SWITCHER_DISPLAYED_CHILD = "sw-d-ch";
-    private final String KEY_SPINNER_SELECT_INDEX = "sp-slt-idx";
-    private final String KEY_SPINNER_COUNT_REPEAT_SELECT_INDEX = "sp-cnt-rep-slt-idx";
-    private final String KEY_SPINNER_ITEMS = "sp-items";
-    private final String KEY_SPINNER_2_ITEMS = "sp-2-items";
-    private final String KEY_EDITTEXT_EN = "edit-txt-en";
-    private final String KEY_EDITTEXT_RU = "edit-txt-ru";
-    private final String KEY_CHECK_COPY = "check-copy";
-    private final String KEY_CHECK_MOVE = "check-move";
-    private final String KEY_FIELDS = "key_fields";
-
-    private final int LOADER_GET_ENTRIES = 1;
-    private final int LOADER_GET_TABLE_LIST = 2;
-    private final int LOADER_GET_ALL_FROM_TABLE = 3;
+    private MainViewModel vm;
+    private EditorViewModel evm;
+    private AddWordViewModel addWordVM;
+    private AdsViewModel adsVM;
+    private SpeechViewModel spechVM;
 
     private void initViews()
     {
         dictListSpinner = findViewById(R.id.spinner);
-
         listView = findViewById(R.id.listView);
-
-        progressBar= findViewById(R.id.progressBar);
-
+        progressBar= findViewById(R.id.speechProgress);
         switcher = findViewById(R.id.viewSwitcher);
         Animation slide_in_left = AnimationUtils.loadAnimation(this,
                 android.R.anim.slide_in_left);
@@ -113,15 +92,10 @@ public class WordEditorActivity extends AppCompatActivity implements LoaderManag
         {
             buttonWrite.setEnabled(true);
         }
-
-        buttonDelete = findViewById(R.id.btn_delete);
-
         buttonCancel = findViewById(R.id.btn_cancel);
-
         tvAmountWords = findViewById(R.id.tv_amount_words);
         editTextEn = findViewById(R.id.edit_text_en);
         editTextRu = findViewById(R.id.edit_text_ru);
-        spinnerCountRepeat = findViewById(R.id.spinn_cout_repeat);
         spinnerDictToMove = findViewById(R.id.spinn_dict_to_move);
 
         checkCopy = findViewById(R.id.check_copy);
@@ -131,13 +105,10 @@ public class WordEditorActivity extends AppCompatActivity implements LoaderManag
         layoutSpinner = findViewById(R.id.lin_layout_spin);
         if (layoutSpinner != null)
         {
-            layoutSpinner.setVisibility(View.GONE);
+            layoutSpinner.setVisibility(View.INVISIBLE);
         }
 
-        spinner_OnItemSelected();
-        listView_OnItemClick();
         buttonWrite_OnClick();
-        buttonDelete_OnClick();
         buttonCancel_OnClick();
         checkMove_OnClick();
     }
@@ -146,37 +117,10 @@ public class WordEditorActivity extends AppCompatActivity implements LoaderManag
     protected void onSaveInstanceState(@NonNull Bundle outState)
     {
         super.onSaveInstanceState(outState);
-        m.searchIsVisible[0] = searchView.isIconified();
-        m.queryString = searchView.getQuery().toString();
-        outState.putParcelable(KEY_FIELDS, m);
 
-        outState.putInt(KEY_SWITCHER_DISPLAYED_CHILD, switcher.getDisplayedChild());
-        outState.putInt(KEY_SPINNER_SELECT_INDEX, dictListSpinner.getSelectedItemPosition());
-        outState.putInt(KEY_SPINNER_COUNT_REPEAT_SELECT_INDEX, spinnerCountRepeat.getSelectedItemPosition());
-//        String KEY_SEARCH_QUERY = "srch-query";
-//        outState.putString(KEY_SEARCH_QUERY, searchView.getQuery().toString());
-
-        ArrayList<String> spinnerItems = new ArrayList<>();
-        for (int i = 0; i < dictListSpinner.getCount(); i++)
-        {
-            spinnerItems.add(dictListSpinner.getItemAtPosition(i).toString());
-        }
-        outState.putStringArrayList(KEY_SPINNER_ITEMS, spinnerItems);
-
-        ArrayList<String> spinner2Items = new ArrayList<>();
-        for (int i = 0; i < spinnerDictToMove.getCount(); i++)
-        {
-            spinner2Items.add(spinnerDictToMove.getItemAtPosition(i).toString());
-        }
-        outState.putStringArrayList(KEY_SPINNER_2_ITEMS, spinner2Items);
-
-        outState.putString(KEY_EDITTEXT_EN, editTextEn.getText().toString());
-        outState.putString(KEY_EDITTEXT_RU, editTextRu.getText().toString());
-        outState.putBoolean(KEY_CHECK_COPY, checkCopy.isChecked());
-        outState.putBoolean(KEY_CHECK_MOVE, checkMove.isChecked());
-        AppData.getInstance().setListViewAdapter((ListViewAdapter) listView.getAdapter());
     }
 
+    @SuppressWarnings("CodeBlock2Expr")
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -189,95 +133,184 @@ public class WordEditorActivity extends AppCompatActivity implements LoaderManag
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-
-        lockOrientation = new LockOrientation(this);
-        dataBaseQueries = new DataBaseQueries(this);
+        vm = new ViewModelProvider(this).get(MainViewModel.class);
+        evm = new ViewModelProvider(this).get(EditorViewModel.class);
+        addWordVM = new ViewModelProvider(WordEditorActivity.this).get(AddWordViewModel.class);
+        BillingViewModel billingVM = new ViewModelProvider(this).get(BillingViewModel.class);
+        adsVM = new ViewModelProvider(this).get(AdsViewModel.class);
+        spechVM = new ViewModelProvider(this).get(SpeechViewModel.class);
 
         initViews();
 
-        if (savedInstanceState == null)
-        {
-            m = new WordEditorFields();
-            spinnerCountRepeat.setSelection(1);
-        }
-
-        // TODO: AsyncTaskLoader - 3. инициализация
-        getLoaderManager().initLoader(LOADER_GET_ENTRIES, savedInstanceState, this);
-
-        if (savedInstanceState != null)
-        {
-            m = savedInstanceState.getParcelable(KEY_FIELDS);
-
-            switcher.setDisplayedChild(savedInstanceState.getInt(KEY_SWITCHER_DISPLAYED_CHILD));
-            ArrayList<String> arrayList = savedInstanceState.getStringArrayList(KEY_SPINNER_ITEMS);
-            if (arrayList != null)
+        vm.getDictionaryList().observe(this, dicts -> {
+            if (!dicts.isEmpty())
             {
-                ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, arrayList);
+                ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, dicts);
                 dictListSpinner.setAdapter(adapterSpinner);
-                int index = savedInstanceState.getInt(KEY_SPINNER_SELECT_INDEX);
-                if (index < adapterSpinner.getCount())
+                Word currentWord = vm.getCurrentWord().getValue();
+                if (currentWord != null)
                 {
-                    dictListSpinner.setSelection(savedInstanceState.getInt(KEY_SPINNER_SELECT_INDEX));
+                    int index = dicts.indexOf(currentWord.getDictName());
+                    if (index >= 0)
+                    {
+                        dictListSpinner.setSelection(index);
+                    }
+                    List<String> subList = dicts.subList(0, dicts.size());
+                    evm.setDictsToMove(subList);
                 }
             }
+        });
 
-            ArrayList<String> arrayList2 = savedInstanceState.getStringArrayList(KEY_SPINNER_2_ITEMS);
-            if (arrayList2 != null)
+        evm.getDictsToMove().observe(this, dicts -> {
+            if (!dicts.isEmpty())
             {
-                ArrayAdapter<String> adapterSpinner2= new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, arrayList2);
-                spinnerDictToMove.setAdapter(adapterSpinner2);
+                String selectedItem = dictListSpinner.getSelectedItem().toString();
+                ArrayList<String> list = new ArrayList<>();
+                for (String i : dicts)
+                {
+                    if (!i.equals(selectedItem))
+                    {
+                        list.add(i);
+                    }
+                }
+                ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
+                spinnerDictToMove.setAdapter(adapterSpinner);
             }
+        });
 
-            spinnerCountRepeat.setSelection(savedInstanceState.getInt(KEY_SPINNER_COUNT_REPEAT_SELECT_INDEX));
-            spinner_select_pos = dictListSpinner.getSelectedItemPosition();
-            listViewSetSource(false);
+        evm.isMoveWord().observe(this, isMove -> {
+            if (isMove != null && checkMove != null)
+            {
+                checkMove.setChecked(isMove);
+                if (isMove)
+                {
+                    layoutSpinner.setVisibility(View.VISIBLE);
+                }
+                else
+                {
+                    layoutSpinner.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
 
-            editTextEn.setText(savedInstanceState.getString(KEY_EDITTEXT_EN));
-            editTextRu.setText(savedInstanceState.getString(KEY_EDITTEXT_RU));
-            checkCopy.setChecked(savedInstanceState.getBoolean(KEY_CHECK_COPY));
-            checkMove.setChecked(savedInstanceState.getBoolean(KEY_CHECK_MOVE));
-            if (checkMove.isChecked())
-            {
-                layoutSpinner.setVisibility(View.VISIBLE);
-            }
-            else
-            {
-                layoutSpinner.setVisibility(View.GONE);
-            }
-            String text = getString(R.string.text_words) + "  " + m.amountWords;
+
+        evm.wordsList.observe(this, words -> {
+            listViewAdapter = new ListViewAdapter((ArrayList<Word>) words, this);
+            listView.setAdapter(listViewAdapter); // TODO: ListView setAdapter
+            progressBar.setVisibility(View.GONE);
+            String text = getString(R.string.text_words) + "  " + words.size();
             tvAmountWords.setText(text);
-        }
-        else
-        {
-            getLoaderManager().restartLoader(LOADER_GET_TABLE_LIST, null, WordEditorActivity.this).forceLoad();
-        }
+        });
 
-
-        AppData appData = AppData.getInstance();
-        if (appData.isAdMob())
-        {
-            if (appData.isOnline(this))
+        billingVM.getNoAdsToken().observe(this, t -> {
+            if (t != null && t.isEmpty())
             {
-                BottomBannerFragmentWE bannerFragment = (BottomBannerFragmentWE) getSupportFragmentManager().findFragmentByTag(BottomBannerFragmentWE.TAG);
-                if (bannerFragment == null)
+                LinearLayout adLayout = findViewById(R.id.adLayout);
+                if (adLayout != null)
                 {
-                    bannerFragment = new BottomBannerFragmentWE();
+                    AdView banner = adsVM.getEditorBanner();
+                    adLayout.addView(banner);
+                    banner.loadAd(new AdRequest.Builder().build());
                 }
-                getSupportFragmentManager().beginTransaction().replace(R.id.bottom_banner_frame_we, bannerFragment).commit();
             }
+        });
+
+        buttonDelete = findViewById(R.id.btn_delete);
+        buttonDelete_OnClick();
+        evm.getDeletedId().observe(this, id -> {
+            if (id > 0)
+            {
+                if (evm.selectedWord != null)
+                {
+                    Toast.makeText(this, "Слово удалено", Toast.LENGTH_SHORT).show();
+                    evm.getAllWordsByDictName(evm.selectedWord.getDictName());
+                }
+            }
+            else if (id < 0)
+            {
+                Toast.makeText(WordEditorActivity.this, getString(R.string.msg_data_base_error), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        dictListSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
+        {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+            {
+                if (view != null)
+                {
+                    TextView textVie = (TextView) view;
+                    String dictName = textVie.getText().toString();
+                    evm.getAllWordsByDictName(dictName);
+                    List<String> list = vm.getDictionaryList().getValue();
+                    if (list != null && !list.isEmpty())
+                    {
+                        evm.setDictsToMove(list);
+                    }
+                }
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent){}
+        });
+
+        evm.wordIsStudied.observe(this, isStudied -> {
+            if (isStudied != null && evm.selectedWord != null)
+            {
+                if (isStudied)
+                {
+                    evm.selectedWord.setCountRepeat(-1);
+                }
+                else
+                {
+                    evm.selectedWord.setCountRepeat(1);
+                }
+                evm.updateWordInDb(Collections.singletonList(evm.selectedWord));
+                listViewAdapter.notifyDataSetChanged();
+            }
+        });
+
+
+        evm.getEnWord().observe(this, s -> {
+            editTextEn.setText(s);
+        });
+
+        evm.getRuWord().observe(this, s -> {
+            editTextRu.setText(s);
+        });
+
+        evm.isWordUpdated.observe(this, isUpdated -> {
+            if (isUpdated != null && isUpdated)
+            {
+                evm.getAllWordsByDictName(dictListSpinner.getSelectedItem().toString());
+                AppBus.INSTANCE.updateWords(true);
+                Toast.makeText(getApplicationContext(), "Словарь обновлен...", Toast.LENGTH_LONG).show();
+            }
+        });
+
+        addWordVM.getInsertedId().observe(this, id -> {
+            if (id > 0)
+            {
+                Toast.makeText(getApplicationContext(), "Словарь обновлен...", Toast.LENGTH_LONG).show();
+            }
+        });
+
+        vm.getCountRepeat().observe(this, id -> {
+            if (id != null && id > 0)
+            {
+                evm.getAllWordsByDictName(dictListSpinner.getSelectedItem().toString());
+                AppBus.INSTANCE.updateWords(true);
+            }
+        });
+
+        Word wordFromMainActivity = AppBus.INSTANCE.getWord().getValue(); // получение слова из MainActivity
+        if (wordFromMainActivity != null)
+        {
+            evm.setEnWord(wordFromMainActivity.getEnglish());
+            evm.setRuWord(wordFromMainActivity.getTranslate());
+            switcher.showNext();
         }
-    }
 
-    @Override
-    protected void onStart()
-    {
-        super.onStart();
-    }
 
-    @Override
-    protected void onPause()
-    {
-        super.onPause();
     }
 
     @Override
@@ -286,261 +319,82 @@ public class WordEditorActivity extends AppCompatActivity implements LoaderManag
         super.onDestroy();
     }
 
-    private void spinner_OnItemSelected()
-    {
-        dictListSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
-        {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
-            {
-                if(spinner_select_pos == position) return;
-                progressBar.setVisibility(View.VISIBLE);
-                listViewSetSource(true);
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent){}
-        });
-    }
-
-    private void listViewSetSource(final boolean update)
-    {
-        if (update)
-        {
-            Bundle bundle = new Bundle();
-            bundle.putString(GetAllFromTableLoader.KEY_TABLE_NAME, dictListSpinner.getSelectedItem().toString());
-            getLoaderManager().restartLoader(LOADER_GET_ALL_FROM_TABLE, bundle, WordEditorActivity.this).forceLoad();
-        }
-        else
-        {
-            listView.setAdapter(AppData.getInstance().getListViewAdapter());
-            progressBar.setVisibility(View.GONE);
-        }
-    }
-
-    private void listView_OnItemClick()
-    {
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
-        {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
-            {
-                m.rowID = position + 1;
-                TextView textViewEn = view.findViewById(R.id.english);
-                m.oldTextEn = textViewEn.getText().toString();
-                editTextEn.setText(textViewEn.getText().toString());
-
-                TextView textViewRu = view.findViewById(R.id.translate);
-                m.oldTextRu = textViewRu.getText().toString();
-                editTextRu.setText(textViewRu.getText().toString());
-
-                TextView textViewCounRepeat = view.findViewById(R.id.count_repeat);
-                try
-                {
-                    m.oldCountRepeat = Integer.parseInt(textViewCounRepeat.getText().toString());
-                } catch (NumberFormatException e)
-                {
-                    m.oldCountRepeat = 1;
-                }
-
-                ArrayList<String> list2 = new ArrayList<>(m.dictNames);
-                list2.remove(dictListSpinner.getSelectedItem().toString());
-                ArrayAdapter<String> adapterSpinner2 = new ArrayAdapter<>(WordEditorActivity.this, android.R.layout.simple_list_item_1, list2);
-                spinnerDictToMove.setAdapter(adapterSpinner2);
-
-                spinnerCountRepeat.setSelection(m.oldCountRepeat);
-                m.oldCurrentDict = dictListSpinner.getSelectedItem().toString();
-
-                checkMove.setChecked(false);
-                layoutSpinner.setVisibility(View.GONE);
-                switcher.showNext();
-            }
-        });
-        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener()
-        {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id)
-            {
-
-                return false;
-            }
-        });
-    }
-
     private void buttonCancel_OnClick()
     {
-        buttonCancel.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                switcher.showPrevious();
-            }
-        });
+        buttonCancel.setOnClickListener(v -> switcher.showPrevious());
     }
 
     private void buttonDelete_OnClick()
     {
-        buttonDelete.setOnClickListener(new View.OnClickListener()
+        buttonDelete.setOnClickListener( v ->
         {
-            @Override
-            public void onClick(View v)
-            {
-                lockOrientation.lock();
-                final String tableName = dictListSpinner.getSelectedItem().toString();
+            LockOrientation orientation = new LockOrientation(WordEditorActivity.this);
+            orientation.lock();
+            final String tableName = dictListSpinner.getSelectedItem().toString();
 
-                new AlertDialog.Builder(WordEditorActivity.this) // TODO: AlertDialog с макетом по умолчанию
-                        .setTitle(R.string.dialog_title_confirm_action)
-                        .setIcon(R.drawable.icon_warning)
-                        .setMessage(getString(R.string.dialog_msg_delete_word) + tableName + "?")
-                        .setPositiveButton(R.string.button_text_yes, new DialogInterface.OnClickListener()
+            new AlertDialog.Builder(WordEditorActivity.this) // TODO: AlertDialog с макетом по умолчанию
+                    .setTitle(R.string.dialog_title_confirm_action)
+                    .setIcon(R.drawable.icon_warning)
+                    .setMessage(getString(R.string.dialog_msg_delete_word) + tableName + "?")
+                    .setPositiveButton(R.string.button_text_yes, (dialog, which) -> {
+                        orientation.unLock();
+                        if (evm.selectedWord != null)
                         {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which)
-                            {
-                                try
-                                {
-                                    dataBaseQueries.deleteWordInTableSync(tableName, editTextEn.getText().toString(), editTextRu.getText().toString());
-                                    dataBaseQueries.dataBaseVacuum(tableName);
-                                    listViewSetSource(true);
-                                } catch (Exception e)
-                                {
-                                    Toast.makeText(WordEditorActivity.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
-                                    WordEditorActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-                                }
-                                listViewSetSource(true);
-                                switcher.showPrevious();
-                                lockOrientation.unLock();
-                            }
-                        })
-                        .setNegativeButton(R.string.button_text_no, new DialogInterface.OnClickListener()
-                        {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which)
-                            {
-                                lockOrientation.unLock();
-                            }
-                        })
-                        .create().show();
-            }
+                            evm.deleteWordFromDb(evm.selectedWord);
+                        }
+                        switcher.showPrevious();
+                    })
+                    .setNegativeButton(R.string.button_text_no, (dialog, which) -> orientation.unLock())
+                    .create().show();
         });
     }
 
     private void buttonWrite_OnClick()
     {
-        buttonWrite.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
+        buttonWrite.setOnClickListener(v -> {
+            if (evm.selectedWord != null)
             {
-                if (editTextEn.getText().toString().equals("") || editTextRu.getText().toString().equals(""))
+                int id = evm.selectedWord.get_id();
+                String dict = evm.selectedWord.getDictName();
+                String enWord = editTextEn.getText().toString();
+                String ruWord = editTextRu.getText().toString();
+                int repeat = 1;
+                CheckBox checkEnable = findViewById(R.id.checkStudied2);
+                if (checkEnable.isChecked())
                 {
-                    return;
+                    repeat = -1;
                 }
-
-                try
+                Word word = new Word(id, dict, enWord, ruWord, repeat);
+                if (checkMove.isChecked())
                 {
-                    if (editTextEn.getText().toString().equals(m.oldTextEn) && editTextRu.getText().toString().equals(m.oldTextRu) && Integer.parseInt(spinnerCountRepeat.getSelectedItem().toString()) == m.oldCountRepeat && spinnerDictToMove.getSelectedItem().toString().equals(m.oldCurrentDict))
+                    String otherDict = spinnerDictToMove.getSelectedItem().toString();
+                    word.set_id(0);
+                    word.setDictName(otherDict);
+                    if (checkCopy.isChecked())
                     {
-                        return;
-                    }
-
-                    StringOperations stringOperations = StringOperations.getInstance();
-                    if (stringOperations.getLangOfText(WordEditorActivity.this, editTextEn.getText().toString())[1].equals("en") && !stringOperations.getLangOfText(WordEditorActivity.this, editTextRu.getText().toString())[1].equals("en"))
-                    {
-                        String tableName = dictListSpinner.getSelectedItem().toString();
-                        String new_table_name = spinnerDictToMove.getSelectedItem().toString();
-                        DataBaseEntry baseEntry = new DataBaseEntry(editTextEn.getText().toString(), editTextRu.getText().toString(), spinnerCountRepeat.getSelectedItem().toString());
-                        if (!checkMove.isChecked())
-                        {
-                            long res = dataBaseQueries.updateWordInTableSync(tableName, m.rowID, baseEntry);
-                            if (res >= 0)
-                            {
-                                Toast.makeText(WordEditorActivity.this, R.string.text_updated_successfully, Toast.LENGTH_SHORT).show();
-                            }
-                            else
-                            {
-                                Toast.makeText(WordEditorActivity.this, R.string.text_write_error,Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                        else
-                        {
-                            checkMove.isChecked();
-                            if (!checkCopy.isChecked())
-                            {
-                                long res = dataBaseQueries.deleteWordInTableSync(tableName, editTextEn.getText().toString(), editTextRu.getText().toString());
-                                dataBaseQueries.dataBaseVacuum(tableName);
-                                if (res >= 0)
-                                {
-                                    Toast.makeText(WordEditorActivity.this, R.string.text_updated_successfully, Toast.LENGTH_SHORT).show();
-                                }
-                                else
-                                {
-                                    Toast.makeText(WordEditorActivity.this, R.string.text_deleting_error,Toast.LENGTH_SHORT).show();
-                                }
-                                dataBaseQueries.insertWordInTableSync(new_table_name, baseEntry);
-                            }
-                            else if (checkMove.isChecked() && checkCopy.isChecked())
-                            {
-                                try
-                                {
-                                    dataBaseQueries.updateWordInTableSync(tableName, m.rowID, baseEntry);
-                                } catch (Exception e)
-                                {
-                                    Toast.makeText(WordEditorActivity.this, getString(R.string.msg_data_base_error)+e.getMessage(), Toast.LENGTH_SHORT).show();
-                                }
-                                dataBaseQueries.insertWordInTableSync(new_table_name, baseEntry);
-                            }
-                        }
-                        listViewSetSource(true);
-                        switcher.showPrevious();
+                        addWordVM.insertEntryAsync(word);
                     }
                     else
                     {
-                        new AlertDialog.Builder(WordEditorActivity.this)
-                                .setMessage(R.string.msg_wrong_text)
-                                .setPositiveButton("Ok", new DialogInterface.OnClickListener()
-                                {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which)
-                                    {
-
-                                    }
-                                }).create().show();
+                        addWordVM.insertEntryAsync(word);
+                        evm.deleteWordFromDb(evm.selectedWord);
                     }
-                } catch (Exception e)
-                {
-                    e.printStackTrace();
-                    new AlertDialog.Builder(WordEditorActivity.this)
-                            .setMessage(R.string.msg_wrong_text)
-                            .setPositiveButton("Ok", new DialogInterface.OnClickListener()
-                            {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which)
-                                {
-                                    dialog.dismiss();
-                                }
-                            }).create().show();
-                }
-            }
-        });
-    }
-
-    private void checkMove_OnClick()
-    {
-        checkMove.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                if (checkMove.isChecked())
-                {
-                    layoutSpinner.setVisibility(View.VISIBLE);
                 }
                 else
                 {
-                    layoutSpinner.setVisibility(View.GONE);
+                    evm.updateWordInDb(Collections.singletonList(word));
                 }
             }
+            switcher.showPrevious();
+        });
+    }
+
+    @SuppressWarnings("CodeBlock2Expr")
+    private void checkMove_OnClick()
+    {
+        checkMove.setOnClickListener(v ->
+        {
+            evm.setMoveWord(checkMove.isChecked());
         });
     }
 
@@ -551,22 +405,20 @@ public class WordEditorActivity extends AppCompatActivity implements LoaderManag
         MenuItem searchItem = menu.findItem(R.id.word_search);
         searchView = (SearchView) searchItem.getActionView();
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        EditorSearchViewModel viewModel = new ViewModelProvider(this).get(EditorSearchViewModel.class);
+
         if (searchManager != null)
         {
             searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         }
         searchView_onListeners(searchView);
-        if (m != null && m.searchIsVisible.length > 0)
+        if (viewModel.searchIsActive.getValue() != null)
         {
-            searchView.setIconified(m.searchIsVisible[0]);
-            searchView.setQuery(m.queryString, false);
-            searchView.setOnSearchClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View view)
-                {
-                    searchView.setQuery(m.queryString, false);
-                }
+            searchView.setIconified(viewModel.searchIsActive.getValue());
+            searchView.setQuery(viewModel.queryString.getValue(), false);
+            searchView.setOnSearchClickListener(view -> {
+                viewModel.setSearchAsActive(true);
+                searchView.setQuery(viewModel.queryString.getValue(), false);
             });
         }
         return true;
@@ -576,26 +428,11 @@ public class WordEditorActivity extends AppCompatActivity implements LoaderManag
     public boolean onOptionsItemSelected(MenuItem item)
     {
         int id = item.getItemId();
-
         if (id == R.id.do_repeat)
         {
-            ContentValues values = new ContentValues();
-            values.put(DatabaseHelper.COLUMN_Count_REPEAT, 1);
-            String dictName = dictListSpinner.getSelectedItem().toString();
-            UpdateDBEntryAsync updateDBEntryAsync = new UpdateDBEntryAsync(this, dictName, values, null, null, new UpdateDBEntryAsync.IUpdateDBListener()
-            {
-                @Override
-                public void updateDBEntry_OnComplete(int rows)
-                {
-                    listViewSetSource(true);
-                }
-            });
-            if (updateDBEntryAsync.getStatus() != AsyncTask.Status.RUNNING)
-            {
-                updateDBEntryAsync.execute();
-            }
+            vm.setCountRepeat(1, 1, Integer.MAX_VALUE);
         }
-        return super.onOptionsItemSelected(item);
+        return true;
     }
 
     private void searchView_onListeners(SearchView searchView)
@@ -629,246 +466,45 @@ public class WordEditorActivity extends AppCompatActivity implements LoaderManag
     }
 
 
-//    @Override
-//    protected void onNewIntent(Intent intent)
-//    {
-//        if (Intent.ACTION_SEARCH.equals(intent.getAction()))
-//        {
-//            // Здесь будет храниться то, что пользователь ввёл в поисковой строке
-//            String search = intent.getStringExtra(SearchManager.QUERY);
-//        }
-//    }
-
-    // TODO: AsyncTaskLoader - 1. WordEditor реализует интерфейс LoaderManager.LoaderCallbacks
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle bundle)
-    {
-        Loader<Cursor> loader = null;
-        switch (id)
-        {
-            case LOADER_GET_ENTRIES:
-                loader = new GetEntriesLoader(this, bundle);
-                break;
-            case LOADER_GET_TABLE_LIST:
-                loader = new GetTableListLoader(this);
-                break;
-            case LOADER_GET_ALL_FROM_TABLE:
-                loader = new GetAllFromTableLoader(this, bundle);
-                break;
-        }
-        return loader;
-    }
-
-    @Override   // TODO: AsyncTaskLoader - 2. Реализация интерфейса LoaderManager.LoaderCallbacks
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data)
-    {
-        if (loader.getId() == LOADER_GET_ENTRIES)
-        {
-            loadDbEntryHandler(data);
-        }
-        if (loader.getId() == LOADER_GET_TABLE_LIST)
-        {
-            loadDbTableListHandler(data);
-        }
-        if (loader.getId() == LOADER_GET_ALL_FROM_TABLE)
-        {
-            loadDbAllHandler(data);
-        }
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader)
-    {
-
-    }
-
-    private void loadDbAllHandler(Cursor cursor)
-    {
-        ArrayList<DataBaseEntry> entriesFromDB = new ArrayList<>();
-        try
-        {
-            if (cursor != null && cursor.getCount() > 0)
-            {
-                if (cursor.moveToFirst())
-                {
-                    while (!cursor.isAfterLast())
-                    {
-                        DataBaseEntry dataBaseEntry = new DataBaseEntry(cursor.getString(0), cursor.getString(1), cursor.getString(3));
-                        entriesFromDB.add(dataBaseEntry);
-                        cursor.moveToNext();
-                    }
-                }
-                listViewAdapter = new ListViewAdapter(entriesFromDB, WordEditorActivity.this, R.id.word_search);
-                listView.setAdapter(listViewAdapter); // TODO: ListView setAdapter
-                progressBar.setVisibility(View.GONE);
-                m.amountWords = entriesFromDB.size();
-                String text = getString(R.string.text_words) + "  " + m.amountWords;
-                tvAmountWords.setText(text);
-
-                if (getIntent().getExtras() != null && getIntent().getExtras().containsKey(WordEditorActivity.KEY_ROW_ID))
-                {
-                    int index = getIntent().getExtras().getInt(WordEditorActivity.KEY_ROW_ID);
-                    m.rowID = index;
-                    DataBaseEntry entry = listViewAdapter.getItem(index-1);
-                    if (entry != null)
-                    {
-                        editTextEn.setText(entry.getEnglish());
-                        editTextRu.setText(entry.getTranslate());
-                        spinnerCountRepeat.setSelection(Integer.parseInt(entry.getCountRepeat()));
-                        switcher.showNext();
-                    }
-
-                    getIntent().removeExtra(WordEditorActivity.KEY_ROW_ID);
-                }
-            }
-            else
-            {
-                listView.setAdapter(null);
-                progressBar.setVisibility(View.GONE);
-                m.amountWords = 0;
-                String text = getString(R.string.text_words) + "  " + m.amountWords;
-                tvAmountWords.setText(text);
-            }
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        finally
-        {
-            if (cursor != null)
-            {
-                cursor.close();
-            }
-        }
-    }
-
-    private void loadDbEntryHandler(Cursor cursor)
-    {
-        try
-        {
-            if (cursor != null && cursor.getCount() == 1)
-            {
-                if (cursor.moveToFirst())
-                {
-                    while ( !cursor.isAfterLast() )
-                    {
-                        editTextEn.setText(cursor.getString(0));
-                        editTextRu.setText(cursor.getString(1));
-                        spinnerCountRepeat.setSelection(Integer.parseInt(cursor.getString(3)));
-                        cursor.moveToNext();
-                    }
-                }
-            }
-        } catch (Exception e)
-        {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        }
-        finally
-        {
-            if (cursor != null)
-            {
-                cursor.close();
-            }
-        }
-    }
-
-    private void loadDbTableListHandler(Cursor cursor)
-    {
-        String nameNotDict;
-
-        m.dictNames.clear();
-        try
-        {
-            if (cursor != null && cursor.getCount() > 0)
-            {
-                if (cursor.moveToFirst())
-                {
-                    while ( !cursor.isAfterLast() )
-                    {
-                        nameNotDict = cursor.getString( cursor.getColumnIndex("name"));
-                        if (!nameNotDict.equals(DatabaseHelper.TABLE_METADATA) && !nameNotDict.equals(DatabaseHelper.TABLE_SEQUENCE) && !nameNotDict.equals(DatabaseHelper.TABLE_API_KEY))
-                        {
-                            String table_name = cursor.getString(cursor.getColumnIndex("name"));
-                            table_name = StringOperations.getInstance().underscoreToSpace(table_name);
-                            m.dictNames.add( table_name );
-                        }
-                        cursor.moveToNext();
-                    }
-                }
-            }
-            if (m.dictNames.size() > 0)
-            {
-                ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, m.dictNames);
-                dictListSpinner.setAdapter(adapterSpinner);
-                int position = 0;
-//                if (spinnerDictSelectItem != null)
-//                {
-//                    position = adapterSpinner.getPosition(spinnerDictSelectItem);
-//                } else
-//                {
-//                    try
-//                    {
-//                        position = adapterSpinner.getPosition(getIntent().getExtras().getString(WordEditor.KEY_EXTRA_DICT_NAME));
-//                    } catch (Exception e)
-//                    {
-//                        position = 0;
-//                    }
-//                }
-
-                try
-                {
-                    if (getIntent().getExtras() != null)
-                    {
-                        position = adapterSpinner.getPosition(getIntent().getExtras().getString(WordEditorActivity.KEY_EXTRA_DICT_NAME));
-                    }
-                } catch (Exception e)
-                {
-                    e.printStackTrace();
-                }
-                dictListSpinner.setSelection(position);
-
-                ArrayList<String> list2 = new ArrayList<>(m.dictNames);
-                list2.remove(dictListSpinner.getSelectedItem().toString());
-                ArrayAdapter<String> adapterSpinner2 = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list2);
-                spinnerDictToMove.setAdapter(adapterSpinner2);
-            }
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        finally
-        {
-            if (cursor != null)
-            {
-                cursor.close();
-            }
-        }
-    }
-
     public void btn_Speak_OnClick(View view)
     {
-        HashMap<String, String> hashMap = new HashMap<>();
-        hashMap.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "word_editor_btn_speak_onclick");
-        try
+        String text = editTextEn.getText().toString();
+        if (!text.equals(""))
         {
-            SplashScreenActivity.speech.setLanguage(Locale.US);
-        } catch (Exception e)
-        {
-            return;
-        }
-        SplashScreenActivity.speech.setOnUtteranceProgressListener(null);
-        if (!editTextEn.getText().toString().equals(""))
-        {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            try
             {
-                SplashScreenActivity.speech.speak(editTextEn.getText().toString(), TextToSpeech.QUEUE_ADD, null, hashMap.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
-            } else
+                spechVM.doSpeech(text, Locale.US);
+            } catch (Exception e)
             {
-                SplashScreenActivity.speech.speak(editTextEn.getText().toString(), TextToSpeech.QUEUE_ADD, hashMap);
+                e.printStackTrace();
             }
         }
+    }
+
+    @Override
+    public void onItemClickListener(Word word)
+    {
+        evm.selectedWord = word;
+        evm.setEnWord(word.getEnglish());
+        evm.setRuWord(word.getTranslate());
+        CheckBox checkBox = findViewById(R.id.checkStudied2);
+        checkBox.setChecked(word.getCountRepeat() <= 0);
+        switcher.showNext();
+    }
+
+    @Override
+    public void onItemCheckBoxClickListener(Word word)
+    {
+        if (word.getCountRepeat() < 0 )
+        {
+            evm.disableWord(false);
+            Toast.makeText(WordEditorActivity.this, getString(R.string.text_word_is_not_show), Toast.LENGTH_LONG).show();
+        }
+        else
+        {
+            evm.disableWord(true);
+            Toast.makeText(WordEditorActivity.this, getString(R.string.text_word_is_enabled), Toast.LENGTH_LONG).show();
+        }
+        evm.updateWordInDb(Collections.singletonList(word)); //TODO надо проверить обновление слова
     }
 }

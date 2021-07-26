@@ -10,19 +10,20 @@ import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import dagger.hilt.android.AndroidEntryPoint;
 
+
+@AndroidEntryPoint
 public class TranslateActivity extends AppCompatActivity
 {
+    private TranslateFragment translateFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.b_translate_activity);
-        if (getSupportActionBar() != null)
-        {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setHomeButtonEnabled(true);
-        }
+
         String enWord;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M)
         {
@@ -33,28 +34,22 @@ public class TranslateActivity extends AppCompatActivity
                 if (sequence != null)
                 {
                     enWord = Objects.requireNonNull(intent.getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT)).toString().toLowerCase();
-                    TranslateFragment translateFragment = TranslateFragment.Companion.getInstance(enWord);
+                    translateFragment = TranslateFragment.Companion.getInstance(enWord);
                     getSupportFragmentManager().beginTransaction().add(R.id.translate_fragment, translateFragment).addToBackStack(null).commit();
                 }
             }
         }
+
+
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item)
     {
-        if (item.getItemId() == android.R.id.home)
+        if (translateFragment != null)
         {
-            onBackPressed();
-            return true;
+            translateFragment.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onBackPressed()
-    {
-        finish();
-        super.onBackPressed();
+        return false;
     }
 }

@@ -1,71 +1,118 @@
 package com.myapp.lexicon.main;
 
-import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Build;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.HashMap;
 import java.util.Locale;
 
-public class Speaker extends TextToSpeech
+public class Speaker
 {
-    private AppSettings appSettings;
+    public static final String ARG_SETUP = "SETUP";
+    public static final String ARG_CONTINUE_WITHOUT = "CONTINUE_WITHOUT";
 
-    public Speaker(final Activity activity, OnInitListener listener)
+    private final TextToSpeech speaker;
+    private final IOnSpeechListener listener;
+    private final Context context;
+    private Locale localeRu;
+    private boolean isSpeech = true;
+    private boolean isEnSpeech = true;
+    private boolean isRuSpeech = true;
+
+    @SuppressWarnings("Convert2Lambda")
+    public Speaker(Context context, IOnSpeechListener listener)
     {
-        super(activity, listener);
-        appSettings = new AppSettings(activity);
+        this.context = context;
+        this.listener = listener;
+        speaker = new TextToSpeech(context, new TextToSpeech.OnInitListener()
+        {
+            @Override
+            public void onInit(int status)
+            {
+                speechInit(status, context, null);
+            }
+        });
     }
 
-    public void speechInit(int status, Activity activity, TextToSpeech speaker)
+    public interface IOnSpeechListener
+    {
+        void onSpeechStart(String id);
+        void onSpeechDone(String id);
+        void onSpeechError(String id);
+        void onContinued(String arg);
+        void onSpeechInitNotSuccess(int status);
+        void onEngLangNotSupported(int status);
+        void onRusLangNotSupported(int status);
+    }
+
+    public void speechInit(int status, Context context, TextToSpeech speaker)
     {
         if (status == TextToSpeech.SUCCESS)
         {
-            int resultRu = speaker.isLanguageAvailable(new Locale(appSettings.getTranslateLang()));
+            localeRu = new Locale(this.context.getString(R.string.lang_code_translate));
+
+            int resultRu = this.speaker.isLanguageAvailable(localeRu);
             if (resultRu == TextToSpeech.LANG_MISSING_DATA || resultRu == TextToSpeech.LANG_NOT_SUPPORTED)
             {
-                Intent installTTSdata = new Intent();
-                installTTSdata.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
-                dialogErrorTTS(activity, installTTSdata, Locale.getDefault().getDisplayCountry() + " not supported", true);
-                return;
+                if (listener != null)
+                {
+                    isRuSpeech = false;
+                    listener.onRusLangNotSupported(resultRu);
+                }
+//                Intent installTTSdata = new Intent();
+//                installTTSdata.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
+//                dialogErrorTTS(this.context, installTTSdata, Locale.getDefault().getDisplayCountry() + " not supported", true);
             }
 
-            int resultEn = speaker.isLanguageAvailable(Locale.US);
+            int resultEn = this.speaker.isLanguageAvailable(Locale.US);
             if (resultEn == TextToSpeech.LANG_MISSING_DATA || resultEn == TextToSpeech.LANG_NOT_SUPPORTED)
             {
-                Intent installTTSdata = new Intent();
-                installTTSdata.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
-                dialogErrorTTS(activity, installTTSdata, activity.getString(R.string.message_inst_tts_data), false);
+                if (listener != null)
+                {
+                    isEnSpeech = false;
+                    listener.onEngLangNotSupported(resultEn);
+                }
+//                Intent installTTSdata = new Intent();
+//                installTTSdata.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
+//                dialogErrorTTS(this.context, installTTSdata, this.context.getString(R.string.message_inst_tts_data), false);
             }
         }
         else
         {
-            Intent instTTSengine = new Intent(Intent.ACTION_VIEW);
-            instTTSengine.setData(Uri.parse(activity.getString(R.string.url_google_tts)));
-            dialogErrorTTS(activity, instTTSengine, activity.getString(R.string.message_inst_tts_engine), false);
+            if (listener != null)
+            {
+                isSpeech = false;
+                listener.onSpeechInitNotSuccess(status);
+            }
+//            Intent instTTSengine = new Intent(Intent.ACTION_VIEW);
+//            instTTSengine.setData(Uri.parse(this.context.getString(R.string.url_google_tts)));
+//            dialogErrorTTS(this.context, instTTSengine, this.context.getString(R.string.message_inst_tts_engine), false);
         }
     }
 
-    private void dialogErrorTTS(final Activity activity, final Intent intent, String message, boolean isContinue)
+    private void dialogErrorTTS(final Context context, final Intent intent, String message, boolean isContinue)
     {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(activity).setTitle(R.string.dialog_title_warning).setIcon(R.drawable.icon_warning)
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(context).setTitle(R.string.dialog_title_warning).setIcon(R.drawable.icon_warning)
                 .setPositiveButton(R.string.btn_text_setup, (dialog, which) -> {
-                    activity.startActivity(intent);
-                    activity.finish();
+                    context.startActivity(intent);
+                    if (listener != null)
+                    {
+                        listener.onContinued(ARG_SETUP);
+                    }
                 });
         if (isContinue)
         {
             alertDialog.setNegativeButton(R.string.btn_text_continue, (dialog, which) -> {
-                appSettings.setEnglishSpeechOnly(false);
-                Intent intent1 = new Intent(activity, MainActivity.class);
-                activity.startActivity(intent1);
-                activity.finish();
+                if (listener != null)
+                {
+                    listener.onContinued(ARG_CONTINUE_WITHOUT);
+                }
             });
         }
         alertDialog.setMessage(message);
@@ -74,22 +121,90 @@ public class Speaker extends TextToSpeech
         alertDialog.show();
     }
 
-    public void doSpeech(String text, Locale locale)
+    public int doSpeech(String text, Locale locale)
     {
-        HashMap<String, String> utterance_Id = new HashMap<>();
-        int supportCode;
-        supportCode = this.setLanguage(locale);
-        utterance_Id.clear();
-        utterance_Id.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "translate_dialog");
-        if (supportCode >= 0)
+        int speakResult = Integer.MIN_VALUE;
+        if (isSpeech)
         {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            HashMap<String, String> utterance_Id = new HashMap<>();
+            utterance_Id.clear();
+            if (locale.equals(Locale.US))
             {
-                this.speak(text, TextToSpeech.QUEUE_ADD, null, utterance_Id.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
-            } else
+                if (isEnSpeech)
+                {
+                    utterance_Id.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "En");
+                } else
+                {
+                    return speakResult;
+                }
+            }
+
+            if (locale.equals(localeRu))
             {
-                this.speak(text, TextToSpeech.QUEUE_ADD, utterance_Id);
+                if (isRuSpeech)
+                {
+                    utterance_Id.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "Ru");
+                } else
+                {
+                    return speakResult;
+                }
+            }
+            int supportCode;
+            supportCode = speaker.setLanguage(locale);
+
+            if (supportCode >= 0)
+            {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                {
+
+                    speakResult = speaker.speak(text, TextToSpeech.QUEUE_FLUSH, null, utterance_Id.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
+                } else
+                {
+                    speakResult = speaker.speak(text, TextToSpeech.QUEUE_FLUSH, utterance_Id);
+                }
             }
         }
+
+        speaker.setOnUtteranceProgressListener(new UtteranceProgressListener()
+        {
+            @Override
+            public void onStart(String id)
+            {
+                if (listener != null)
+                {
+                    listener.onSpeechStart(id);
+                }
+            }
+
+            @Override
+            public void onDone(String id)
+            {
+                if (listener != null)
+                {
+                    listener.onSpeechDone(id);
+                }
+            }
+
+            @Override
+            public void onError(String id)
+            {
+                if (listener != null)
+                {
+                    listener.onSpeechError(id);
+                }
+            }
+        });
+        return speakResult;
     }
+
+    public void shutdown()
+    {
+        speaker.shutdown();
+    }
+
+    public int stop()
+    {
+        return speaker.stop();
+    }
+
 }

@@ -16,6 +16,7 @@ import androidx.fragment.app.DialogFragment;
 
 public class DialogWarning extends DialogFragment
 {
+    public static final String DIALOG_TAG = "DIALOG_TAG";
     public final String TAG = "lexicon_warning_dialog";
     final String KEY_TEXT_OK_BUTTON = "key_text_ok_btn";
     final String KEY_TEXT_NO_BUTTON = "key_text_no_btn";
@@ -39,6 +40,7 @@ public class DialogWarning extends DialogFragment
         void dialogListener(boolean result);
     }
 
+    @SuppressWarnings("Convert2Lambda")
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState)

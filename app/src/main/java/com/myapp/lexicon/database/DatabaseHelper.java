@@ -3,7 +3,6 @@ package com.myapp.lexicon.database;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.Build;
 import android.os.Environment;
 import android.widget.Toast;
 
@@ -33,7 +32,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
     public static final String TABLE_SEQUENCE = "sqlite_sequence";
 
     public SQLiteDatabase database;
-    private Context context;
+    private final Context context;
     private static String actualPathDb;
 
     public DatabaseHelper(Context context)
@@ -54,6 +53,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
                 DB_NAME = "lexicon_DB";
             }
         }
+        create_db();
     }
 
     @Override
@@ -72,10 +72,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
     public void onOpen(SQLiteDatabase db)
     {
         super.onOpen(db);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-        {
-            db.disableWriteAheadLogging();
-        }
+        db.disableWriteAheadLogging();
     }
 
     public void create_db()
@@ -161,6 +158,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
         {
             e.printStackTrace();
         }
+        //database = SQLiteDatabase.openDatabase(actualPathDb, null, SQLiteDatabase.NO_LOCALIZED_COLLATORS);
     }
 
     @Override

@@ -18,210 +18,135 @@
         >
     </FrameLayout>
 
+
     <LinearLayout
+        android:id="@+id/main_control_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:background="@color/colorSemitransparent"
         >
 
-        <FrameLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/semitransparent_background"
-            >
+            android:layout_height="50dp"
+            android:layout_gravity="top"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal">
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <FrameLayout android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="top"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_marginTop="5dp"
-                android:orientation="horizontal">
+                android:layout_weight="1"
+                android:layout_gravity="center_vertical">
 
-                <TextView
-                    android:id="@+id/textViewDict"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                <Button
+                    android:id="@+id/btnViewDict"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_gravity="center_vertical"
-                    android:gravity="start"
+                    android:padding="10dp"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:textColor="@color/colorWhite"
-                    android:text="@string/text_name_dict"
-                    />
+                    android:background="@drawable/semitransparent_background"
+                    tools:text="Dict Name" />
+            </FrameLayout>
+
+            <FrameLayout android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:layout_gravity="center_vertical">
 
                 <ImageView
                     android:id="@+id/order_play_icon_iv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0"
+                    android:layout_gravity="center"
+                    android:padding="10dp"
                     android:contentDescription="@string/btn_close_discribtion"
-                    android:src="@drawable/ic_repeat_white"/>
+                    android:src="@drawable/ic_repeat_white"
+                    android:background="@drawable/selector_transp_to_white_back"/>
+            </FrameLayout>
 
-                <TextView
-                    android:id="@+id/tv_words_counter"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="end"
-                    android:layout_gravity="center_vertical"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="@color/colorWhite"
-                    />
+            <TextView
+                android:id="@+id/tv_words_counter"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:layout_gravity="center_vertical"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/colorWhite"
+                tools:text="1/150 Изучено 0"
+                />
 
-            </LinearLayout>
+        </LinearLayout>
 
 
-            <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:layout_margin="15dp"
+            >
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/mainViewPager"
                 android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/btnReplay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:src="@drawable/selector_icon_replay"
+                android:background="@drawable/selector_transp_to_white_back"
+                style="?android:attr/buttonStyleSmall"
+                android:visibility="invisible"
+                tools:visibility="visible"/>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <LinearLayout
+            android:id="@+id/bottomPanel"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_gravity="bottom"
+            android:layout_margin="5dp"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <CheckBox
+                android:id="@+id/check_box_en_speak"
+                style="@android:style/Widget.Holo.Light.CompoundButton.CheckBox"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_margin="15dp"
-                android:orientation="vertical">
+                android:text="@string/text_en"
+                android:textColor="@color/colorWhite"
+                android:visibility="visible"
+                app:buttonTint="@color/colorWhite"
+                android:layoutDirection="rtl"/>
 
-                <TextView
-                    android:id="@+id/enTextView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0"
-                    android:background="@android:color/transparent"
-                    android:gravity="center"
-                    android:textAlignment="center"
-                    android:textColor="@color/colorWhite"
-                    android:textSize="40sp"
-                    android:textStyle="normal|bold"/>
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"/>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="5dp"
-                    android:layout_marginTop="5dp"
-                    android:gravity="center"
-                    android:orientation="horizontal">
-
-                    <ImageButton
-                        android:id="@+id/btn_previous"
-                        style="?android:attr/buttonStyleSmall"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/selector_transp_to_white_back"
-                        android:contentDescription="@string/content_describt"
-                        android:gravity="center_horizontal"
-                        android:onClick="btnNextBackClick"
-                        android:src="@drawable/selector_icon_skip_prev"
-                        android:visibility="visible"
-                        />
-
-                    <Space
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"/>
-
-                    <ImageButton
-                        android:id="@+id/btn_play"
-                        style="?android:attr/buttonStyleSmall"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:background="@drawable/selector_transp_to_white_back"
-                        android:contentDescription="@string/content_describt"
-                        android:onClick="btnPlayClick"
-                        android:src="@drawable/selector_icon_play_arrow"
-                        />
-
-                    <Space
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        />
-
-                    <ImageButton
-                        android:id="@+id/btn_next"
-                        style="?android:attr/buttonStyleSmall"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/selector_transp_to_white_back"
-                        android:contentDescription="@string/content_describt"
-                        android:gravity="end"
-                        android:onClick="btnNextBackClick"
-                        android:src="@drawable/selector_icon_skip_next"
-                        android:visibility="visible"
-                        />
-
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/ruTextView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0"
-                    android:background="@android:color/transparent"
-                    android:gravity="center"
-                    android:textAlignment="center"
-                    android:textColor="@color/colorLightGreen"
-                    android:textSize="40sp"
-                    android:textStyle="normal|bold"/>
-
-                <ProgressBar
-                    android:id="@+id/progressBar"
-                    style="?android:attr/progressBarStyleLarge"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:visibility="gone"
-                    />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/bottomPanel"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_gravity="bottom"
-                android:layout_margin="5dp"
-                android:gravity="center_horizontal"
-                android:orientation="horizontal">
-
-                <CheckBox
-                    style="@android:style/Widget.Holo.Light.CompoundButton.CheckBox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="@string/text_ru"
-                    android:textColor="@color/colorWhite"
-                    android:visibility="invisible"
-                    app:buttonTint="@color/colorWhite"/>
-
-                <Space
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"/>
-
-                <ImageButton
-                    android:id="@+id/btn_pause"
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/selector_transp_to_white_back"
-                    android:contentDescription="@string/content_describt"
-                    android:onClick="btnPauseClick"
-                    android:src="@drawable/selector_icon_pause"
-                    android:visibility="visible"
-                    />
-
-                <ImageButton
-                    android:id="@+id/btn_stop"
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/selector_transp_to_white_back"
-                    android:contentDescription="@string/content_describt"
-                    android:onClick="btnStopClick"
-                    android:src="@drawable/selector_icon_stop"
-                    android:visibility="visible"
-                    />
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
 
                 <ImageButton
                     android:id="@+id/btn_speak"
@@ -230,38 +155,51 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/selector_transp_to_white_back"
                     android:contentDescription="@string/content_describt"
-                    android:onClick="btnSpeak_OnClick"
                     android:src="@drawable/selector_icon_sound"
-                    android:visibility="visible"
-                    />
+                    android:visibility="visible" />
 
-                <Space
+                <ProgressBar
+                    android:id="@+id/speechProgress"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"/>
-
-                <CheckBox
-                    android:id="@+id/check_box_ru_speak"
-                    style="@android:style/Widget.Holo.Light.CompoundButton.CheckBox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    style="@android:style/Widget.DeviceDefault.Light.ProgressBar"
+                    android:indeterminateTint="@color/colorWhite"
                     android:layout_gravity="center"
-                    android:text="@string/text_ru"
-                    android:textColor="@color/colorWhite"
-                    app:buttonTint="@color/colorWhite"/>
+                    android:visibility="invisible"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:visibility="visible"
+                    tools:targetApi="lollipop" />
 
-            </LinearLayout>
-        </FrameLayout>
+            </FrameLayout>
 
-        <FrameLayout
-            android:id="@+id/banner_frame_main"
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"/>
+
+            <CheckBox
+                android:id="@+id/check_box_ru_speak"
+                style="@android:style/Widget.Holo.Light.CompoundButton.CheckBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/text_ru"
+                android:textColor="@color/colorWhite"
+                app:buttonTint="@color/colorWhite"
+                android:layoutDirection="ltr"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/adLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="0"
-            android:foreground="@drawable/semitransparent_background"
-            >
-
-        </FrameLayout>
+            android:layout_gravity="bottom"
+            android:orientation="vertical">
+        </LinearLayout>
 
     </LinearLayout>
 

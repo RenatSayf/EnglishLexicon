@@ -27,7 +27,10 @@
 
     <!--TODO overridden theme for popapp-->
     <style name="popAppWindow" parent="@style/Theme.AppCompat.Dialog.Alert">
-        <item name="android:colorBackground">#192b45</item>
+        <item name="android:colorBackground">@color/colorTransparent</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:textColor">@color/colorTransparent</item>
     </style>
 
     <!--TODO overridden them for transparent activity-->

@@ -16,6 +16,7 @@ import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.service.LexiconService;
 import com.myapp.lexicon.settings.AppSettings;
 
 import java.util.HashMap;
@@ -42,6 +43,8 @@ public class SplashScreenActivity extends Activity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a_layout_splash_screen);
+
+        this.stopService(new Intent(this, LexiconService.class));
 
         preferences = PreferenceManager.getDefaultSharedPreferences(SplashScreenActivity.this);
         //int serviceMode = Integer.parseInt(preferences.getString(getString(R.string.key_list_display_mode), "0"));
@@ -209,7 +212,7 @@ public class SplashScreenActivity extends Activity
                 @Override
                 public void onClick(DialogInterface dialog, int which)
                 {
-                    appSettings.setEnglishSpeechOnly(false);
+                    appSettings.setEngSpeech(false);
                     Intent intent = new Intent(SplashScreenActivity.this, MainActivity.class);
                     SplashScreenActivity.this.startActivity(intent);
                     SplashScreenActivity.this.finish();
@@ -250,7 +253,7 @@ public class SplashScreenActivity extends Activity
                 }
                 if (id.equals(Locale.getDefault().getDisplayLanguage()))
                 {
-                    if (appSettings.isEnglishSpeechOnly())
+                    if (appSettings.isEngSpeech())
                     {
                         dialogErrorTTS(installTTSdata, getString(R.string.message_inst_tts_data_ru), true);
                     }

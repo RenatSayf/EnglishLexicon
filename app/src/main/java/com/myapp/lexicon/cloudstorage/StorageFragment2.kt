@@ -7,16 +7,16 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
-import kotlinx.android.synthetic.main.storage_fragment2.*
+import com.myapp.lexicon.databinding.StorageFragment2Binding
 
-class StorageFragment2 : Fragment()
+class StorageFragment2 : Fragment(R.layout.storage_fragment2)
 {
-
     companion object
     {
         fun newInstance() = StorageFragment2()
     }
 
+    private lateinit var binding: StorageFragment2Binding
     private lateinit var viewModel: StorageViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -25,19 +25,21 @@ class StorageFragment2 : Fragment()
         return inflater.inflate(R.layout.storage_fragment2, container, false)
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?)
     {
-        super.onActivityCreated(savedInstanceState)
+        super.onViewCreated(view, savedInstanceState)
+        binding = StorageFragment2Binding.bind(view)
+
         viewModel = ViewModelProvider(this).get(StorageViewModel::class.java)
 
-        uploadBtn.setOnClickListener {
+        binding.uploadBtn.setOnClickListener {
             activity?.let {
                 val taskResult = viewModel.createUpLoadTask(it)
                 taskResult?.uploadTask?.addOnSuccessListener{
                     val taskUrl = taskResult.lexiconReference.downloadUrl
                     taskUrl.addOnSuccessListener { ur ->
-                        val uri = ur.toString()
-                        return@addOnSuccessListener
+                        ur.toString()
+                        //return@addOnSuccessListener
                     }
                 }?.addOnFailureListener{ err ->
                     err.printStackTrace()
@@ -45,7 +47,6 @@ class StorageFragment2 : Fragment()
                 }
             }
         }
-
 
     }
 

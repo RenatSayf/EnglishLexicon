@@ -2,28 +2,25 @@
 
 <!--TODO ServiceDialiog activity layout-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical"
-              tools:context="com.myapp.lexicon.service.ServiceDialog">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/colorTransparent"
+    tools:context="com.myapp.lexicon.service.ServiceActivity">
 
     <FrameLayout
         android:id="@+id/fragment_frame"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_margin="0dp"
-        android:layout_weight="1"
-        >
-    </FrameLayout>
+        android:layout_weight="1" />
 
     <FrameLayout
         android:id="@+id/banner_frame_service"
         android:layout_width="match_parent"
         android:layout_height="80dp"
-        android:layout_weight="0"
-        >
-    </FrameLayout>
+        android:layout_weight="1" />
 
 </LinearLayout>
 

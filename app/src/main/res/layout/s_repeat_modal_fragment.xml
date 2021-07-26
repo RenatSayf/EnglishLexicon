@@ -109,6 +109,7 @@
         android:layout_marginBottom="20dp"
         android:layout_weight="6"
         android:gravity="center"
+        android:layout_marginTop="20dp"
         android:textSize="26sp"
         android:textStyle="normal|bold"
         android:textColor="@color/colorLightGreen"
@@ -119,6 +120,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="center"
+        android:layout_marginBottom="20dp"
         android:orientation="horizontal">
 
         <CheckBox
@@ -157,6 +159,14 @@
             android:textColor="@drawable/selector_white_to_orange_color"
             />
 
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/adLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="vertical">
     </LinearLayout>
 
 </LinearLayout>
