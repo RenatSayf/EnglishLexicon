@@ -7,37 +7,33 @@ import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.Button
-import android.widget.ProgressBar
-import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.myapp.lexicon.R
 import com.myapp.lexicon.adapters.OneFiveTestAdapter
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.billing.BillingViewModel
 import com.myapp.lexicon.database.Word
+import com.myapp.lexicon.databinding.OneOfFiveFragmNewBinding
 import com.myapp.lexicon.dialogs.TestCompleteDialog
 import com.myapp.lexicon.helpers.RandomNumberGenerator
 import com.myapp.lexicon.main.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.one_of_five_fragm_new.*
 import java.util.*
 
 const val ROWS: Int = 5
 
 
 @AndroidEntryPoint
-class OneOfFiveFragm : Fragment(), TestCompleteDialog.ITestCompleteDialogListener, OneFiveTestAdapter.ITestAdapterListener
+class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDialog.ITestCompleteDialogListener, OneFiveTestAdapter.ITestAdapterListener
 {
+    private lateinit var binding: OneOfFiveFragmNewBinding
     private lateinit var vm: OneOfFiveViewModel
     private lateinit var mActivity: MainActivity
 
-    private var answersRecyclerView: RecyclerView? = null
-    private lateinit var mysteryWordView: TextView
     private lateinit var billingVM: BillingViewModel
     private lateinit var adsVM: AdsViewModel
 
@@ -74,10 +70,16 @@ class OneOfFiveFragm : Fragment(), TestCompleteDialog.ITestCompleteDialogListene
                if (it.isEmpty()) adsVM.loadAd1()
             }
         })
+        return root
+    }
 
-        answersRecyclerView = root.findViewById(R.id.answersRecyclerView)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?)
+    {
+        super.onViewCreated(view, savedInstanceState)
+        binding = OneOfFiveFragmNewBinding.bind(view)
+
         vm.adapterList.observe(viewLifecycleOwner, {
-            answersRecyclerView?.apply {
+            binding.answersRecyclerView.apply {
                 this.adapter = OneFiveTestAdapter(it).apply {
                     setHasStableIds(true)
                     layoutManager = LinearLayoutManager(requireContext())
@@ -86,23 +88,19 @@ class OneOfFiveFragm : Fragment(), TestCompleteDialog.ITestCompleteDialogListene
             }
         })
 
-        mysteryWordView = root.findViewById(R.id.mysteryWordView)
         vm.mysteryWord.observe(viewLifecycleOwner, {
-            mysteryWordView.text = it
+            binding.mysteryWordView.text = it
         })
 
-        val progressView = root.findViewById<ProgressBar>(R.id.progressView1of5)
         vm.progressMax.observe(viewLifecycleOwner, {
-            progressView.max = it
+            binding.progressView1of5.max = it
         })
-
-        val progressValueView = root.findViewById<TextView>(R.id.progressValueView)
 
         vm.progress.observe(viewLifecycleOwner, {
-            progressView.progress = it
+            binding.progressView1of5.progress = it
             val progressValue = "$it/${vm.progressMax.value}"
-            progressValueView.text = progressValue
-            if (it == progressView.max)
+            binding.progressValueView.text = progressValue
+            if (it == binding.progressView1of5.max)
             {
                 val errors = vm.wrongAnswerCount.value
                 val dialog = errors?.let { err -> TestCompleteDialog.getInstance(err, this) }
@@ -110,8 +108,6 @@ class OneOfFiveFragm : Fragment(), TestCompleteDialog.ITestCompleteDialogListene
                 requireActivity().supportFragmentManager.beginTransaction().remove(this).commit()
             }
         })
-
-        return root
     }
 
     override fun onResume()
@@ -126,11 +122,11 @@ class OneOfFiveFragm : Fragment(), TestCompleteDialog.ITestCompleteDialogListene
 
     override fun onItemClickListener(position: Int, word: Word, view: Button)
     {
-        val testAdapter = answersRecyclerView?.adapter as OneFiveTestAdapter
+        val testAdapter = binding.answersRecyclerView.adapter as OneFiveTestAdapter
         val items = testAdapter.getItems()
         if (!items.isNullOrEmpty())
         {
-            val translate = mysteryWordView.text.toString()
+            val translate = binding.mysteryWordView.text.toString()
             val english = view.text.toString()
             val result = items.any { w -> w.english == english && w.translate == translate }
             if (result)
@@ -148,8 +144,8 @@ class OneOfFiveFragm : Fragment(), TestCompleteDialog.ITestCompleteDialogListene
                 {
                     vm.mysteryWord = MutableLiveData()
                 }
-                vm.setProgress(progressView1of5.progress + 1)
-                mysteryWordView.startAnimation(animRight.apply {
+                vm.setProgress(binding.progressView1of5.progress + 1)
+                binding.mysteryWordView.startAnimation(animRight.apply {
                     setAnimationListener(object : Animation.AnimationListener
                     {
                         override fun onAnimationStart(p0: Animation?)

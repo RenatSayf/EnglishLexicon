@@ -19,7 +19,6 @@ import com.myapp.lexicon.main.Speaker
 import com.myapp.lexicon.settings.AppSettings
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.disposables.Disposable
-import kotlinx.android.synthetic.main.add_word_dialog.*
 import java.util.*
 
 

@@ -15,9 +15,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import java.util.*
 import javax.inject.Inject
-import kotlin.collections.ArrayList
 
 
 @AndroidEntryPoint
@@ -70,31 +68,38 @@ class RemoveDictDialog : DialogFragment()
         val choice = BooleanArray(inputArray.size)
 
         return AlertDialog.Builder(requireContext()).setTitle(R.string.title_del_dict)
-               .setMultiChoiceItems(inputArray, choice) { dialog, which, isChecked -> deleteItems.add(inputArray[which]) }
-               .setPositiveButton(R.string.button_text_delete) { dialog, which ->
+               .setMultiChoiceItems(inputArray, choice,
+                   fun(dialog: DialogInterface, which: Int, isChecked: Boolean)
+                   {
+                       deleteItems.add(inputArray[which])
+                   })
+               .setPositiveButton(R.string.button_text_delete,
+                   fun(dialog: DialogInterface, which: Int)
+                   {
+                       if (deleteItems.size <= 0) return
+                       AlertDialog.Builder(requireContext()).setTitle(R.string.dialog_are_you_sure)
+                           .setPositiveButton(R.string.button_text_yes) { dialog1: DialogInterface?, which1: Int ->
 
-                    if (deleteItems.size <= 0) return@setPositiveButton
-                    AlertDialog.Builder(requireContext()).setTitle(R.string.dialog_are_you_sure)
-                            .setPositiveButton(R.string.button_text_yes) { dialog1: DialogInterface?, which1: Int ->
-
-                                deleteItems.forEachIndexed { index, item ->
-                                    subscribe = viewModel.deleteDict(item)
-                                            .subscribeOn(Schedulers.newThread())
-                                            .observeOn(AndroidSchedulers.mainThread())
-                                            .subscribe({
-                                                if (index == deleteItems.size - 1)
-                                                {
-                                                    Toast.makeText(requireContext(), R.string.msg_selected_dict_removed, Toast.LENGTH_LONG).show()
-                                                    dialogCallback.removeDictDialogButtonClickListener(deleteItems)
-                                                }
-//                                                if (item == repository.getWordFromPref().dictName)
-//                                                {
-//
-//                                                }
-                                            },{ obj: Throwable -> obj.printStackTrace() })
-                                }
-                            }.setNegativeButton(R.string.button_text_no, null).create().show()
-                }
+                               deleteItems.forEachIndexed { index, item ->
+                                   subscribe = viewModel.deleteDict(item)
+                                       .subscribeOn(Schedulers.newThread())
+                                       .observeOn(AndroidSchedulers.mainThread())
+                                       .subscribe({
+                                           if (index == deleteItems.size - 1)
+                                           {
+                                               Toast.makeText(
+                                                   requireContext(),
+                                                   R.string.msg_selected_dict_removed,
+                                                   Toast.LENGTH_LONG
+                                               ).show()
+                                               dialogCallback.removeDictDialogButtonClickListener(
+                                                   deleteItems
+                                               )
+                                           }
+                                       }, { obj: Throwable -> obj.printStackTrace() })
+                               }
+                           }.setNegativeButton(R.string.button_text_no, null).create().show()
+                   })
                 .setNegativeButton(R.string.button_text_cancel, null).create()
     }
 

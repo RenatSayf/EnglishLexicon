@@ -1,6 +1,5 @@
 package com.myapp.lexicon.database
 
-import android.content.ContentValues
 import android.database.Cursor
 import androidx.annotation.NonNull
 import com.myapp.lexicon.helpers.StringOperations
@@ -9,7 +8,6 @@ import io.reactivex.ObservableSource
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
-import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 import java.util.*
 import javax.inject.Inject
@@ -267,13 +265,6 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper, private va
         return entriesFromDB
     }
 
-    /**
-     * @param order String сортировка по RowId, если не передавать этот
-     * параметр, то order='ASC', для обратной сортировки передайте 'DESC'
-     *
-     * return Single<LinkedList<DataBaseEntry>> Возвращает 1 случайную запись из таблицы где ROWID записи
-     * не равен параметру rowId
-     */
     fun getRandomEntriesFromDbAsync(tableName: String, rowId: Int) : Single<MutableList<DataBaseEntry>>
     {
         return Single.create { emitter ->
@@ -323,8 +314,8 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper, private va
                                 2 -> key = "studiedWords"
                                 3 -> key = "totalWords"
                             }
-                            val int = cursor.getInt(0)
-                            amounts.put(key, cursor.getInt(0))
+                            cursor.getInt(0)
+                            amounts[key] = cursor.getInt(0)
                         }
                         catch (e: java.lang.Exception)
                         {
@@ -347,21 +338,6 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper, private va
             dbHelper.close()
         }
         return amounts
-    }
-
-    fun getWordsCountAsync(tableName: String) : Single<MutableMap<String, Int>>
-    {
-        return Single.create { emitter ->
-            try
-            {
-                val countList = getWordsCount(tableName)
-                emitter.onSuccess(countList)
-            }
-            catch (e: Exception)
-            {
-                emitter.onError(e)
-            }
-        }
     }
 
     @Suppress("RedundantSamConstructor")
@@ -400,38 +376,7 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper, private va
         })
     }
 
-    private fun copyEntriesFromOtherTable(tableName: String) : Int
-    {
-        var res = -1
-        try
-        {
-            dbHelper.open()
-            dbHelper.database.beginTransaction()
-            if (dbHelper.database.isOpen)
-            {
-                val cmd = "INSERT OR IGNORE INTO Words (english, translate) SELECT English, Translate FROM $tableName"
-                val rawQuery = dbHelper.database.rawQuery(cmd, null)
-                val v = ContentValues().apply {
-                    put("dict_name", tableName)
-                }
-                res = dbHelper.database.update("Words", v, "dict_name = ", arrayOf("Общий"))
-                dbHelper.database.setTransactionSuccessful()
-                dbHelper.database.endTransaction()
-            }
-        }
-        catch (e: java.lang.Exception)
-        {
-            e.printStackTrace()
-        }
-        finally
-        {
-            dbHelper.close()
-        }
-        println("*************************** res = $res ****************************************")
-        return res
-    }
-
-    fun copyEntriesFromOtherTableAsync(tableName: String) : Observable<MutableList<DataBaseEntry>>
+    private fun copyEntriesFromOtherTableAsync(tableName: String) : Observable<MutableList<DataBaseEntry>>
     {
         return Observable.create { emitter ->
             try
@@ -450,7 +395,7 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper, private va
         }
     }
 
-    fun insertIntoWordsTable(list: List<Word>) : Observable<List<Long>>
+    private fun insertIntoWordsTable(list: List<Word>) : Observable<List<Long>>
     {
         return Observable.create { emitter ->
             try

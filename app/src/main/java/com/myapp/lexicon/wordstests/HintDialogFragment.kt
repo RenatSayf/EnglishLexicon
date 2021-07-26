@@ -3,9 +3,7 @@ package com.myapp.lexicon.wordstests
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.DialogInterface
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -33,7 +31,7 @@ class HintDialogFragment : DialogFragment()
         }
     }
 
-    private lateinit var viewModel: HintDialogViewModel
+    @Suppress("ObjectLiteralToLambda")
     private var _selectedItem = MutableLiveData<String>()
     var selectedItem: LiveData<String> = _selectedItem
 
@@ -45,6 +43,7 @@ class HintDialogFragment : DialogFragment()
         return inflater.inflate(R.layout.hint_dialog_fragment, container, false)
     }
 
+    @Suppress("ObjectLiteralToLambda")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog
     {
         randomList.apply {
@@ -52,7 +51,7 @@ class HintDialogFragment : DialogFragment()
             shuffle()
         }
         var ruArray: Array<String> = emptyArray()
-        randomList.forEachIndexed { index, word ->
+        randomList.forEachIndexed { _, word ->
             ruArray += word.translate
         }
 
