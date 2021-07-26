@@ -55,11 +55,10 @@
     <PreferenceCategory android:title="@string/text_display_mode">
 
         <ListPreference
-            android:defaultValue="0"
+            android:defaultValue="1"
             android:entries="@array/display_variant"
             android:entryValues="@array/display_variant_values"
             android:key="@string/key_display_variant"
-            android:summary="@string/text_popup_window"
             android:title="@string/text_show_words_over" />
 
         <ListPreference
@@ -67,7 +66,6 @@
             android:entries="@array/display_mode"
             android:entryValues="@array/display_values"
             android:key="@string/key_list_display_mode"
-            android:summary="@string/summary_display_mode"
             android:title="@string/title_display_mode" />
 
     </PreferenceCategory>
