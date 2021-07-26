@@ -47,7 +47,7 @@ class AppNotification constructor(private val context: Context) : Notification()
             setAutoCancel(true)
             priority = NotificationCompat.PRIORITY_MAX
             setChannelId(CHANEL_ID)
-            setDefaults(DEFAULT_SOUND)
+            setDefaults(DEFAULT_ALL)
 
             if (words.isNotEmpty())
             {

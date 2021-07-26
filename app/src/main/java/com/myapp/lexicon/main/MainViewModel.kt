@@ -133,12 +133,12 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
                 {
                     _dictionaryList.value?.let {
                         value = Word(1, it.first(), "", "", 1)
+                        setWordsList(it.first())
                     }
                 }
             }, { e ->
                 e.printStackTrace()
             })
-        //value = repository.getWordFromPref()
     }
     var currentWord: MutableLiveData<Word> = _currentWord
     fun setCurrentWord(word: Word)

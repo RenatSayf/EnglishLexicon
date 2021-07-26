@@ -9,7 +9,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.myapp.lexicon.R
 
 
-private const val DB_VERSION = 2
+private const val DB_VERSION = 1
 
 
 @Database(entities = [Word::class], version = DB_VERSION, exportSchema = false)
