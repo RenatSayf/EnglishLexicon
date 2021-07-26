@@ -23,10 +23,14 @@ import com.myapp.lexicon.repository.DataRepositoryImpl
 import com.myapp.lexicon.schedule.AppNotification
 import com.myapp.lexicon.service.ServiceActivity.IStopServiceByUser
 import com.myapp.lexicon.settings.AppSettings
+import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import javax.inject.Inject
 
+
+@AndroidEntryPoint
 class LexiconService : Service(), IStopServiceByUser, LifecycleOwner
 {
     private var blockReceiver: PhoneUnlockedReceiver? = null
@@ -107,17 +111,17 @@ class LexiconService : Service(), IStopServiceByUser, LifecycleOwner
 
 
     // TODO: обработчик событий нажатия кнопки блокировки, выключения экрана....
+    @AndroidEntryPoint
     class PhoneUnlockedReceiver : BroadcastReceiver()
     {
+        @Inject
+        lateinit var repository: DataRepositoryImpl
+
         @SuppressLint("CheckResult")
         @Suppress("RedundantSamConstructor")
         override fun onReceive(context: Context, intent: Intent)
         {
-            val dao = AppDataBase.buildDataBase(context).appDao()
-            val appDB = AppDB(DatabaseHelper(context), dao)
-            val appSettings = AppSettings(context)
-            val repository = DataRepositoryImpl(appDB, dao, appSettings)
-
+            //println("*********************** ACTION_SCREEN_OFF ***************************")
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val displayVariant = preferences.getString(context.getString(R.string.key_display_variant), "0")
             val displayMode = preferences.getString(context.getString(R.string.key_list_display_mode), "0")

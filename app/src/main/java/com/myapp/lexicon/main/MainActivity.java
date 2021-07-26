@@ -587,7 +587,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             int parseInt = Integer.parseInt(interval);
             if (parseInt != 0)
             {
-                scheduler.scheduleRepeat((parseInt*60*1000), (parseInt*60*1000));
+                //scheduler.scheduleRepeat((parseInt*60*1000), (parseInt*60*1000));
+                scheduler.scheduleOne(parseInt * 60 * 1000);
             }
         }
     }

@@ -6,34 +6,38 @@ import android.content.Intent
 import androidx.preference.PreferenceManager
 import com.google.gson.Gson
 import com.myapp.lexicon.R
-import com.myapp.lexicon.database.AppDB
-import com.myapp.lexicon.database.AppDataBase
-import com.myapp.lexicon.database.DatabaseHelper
 import com.myapp.lexicon.repository.DataRepositoryImpl
 import com.myapp.lexicon.service.ServiceActivity
 import com.myapp.lexicon.settings.AppSettings
+import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import javax.inject.Inject
 
 
+@AndroidEntryPoint
 class TimerReceiver : BroadcastReceiver()
 {
     private var isWordsEnded = false
     private var wordsCounter = 0
+
+    @Inject
+    lateinit var repository: DataRepositoryImpl
 
     override fun onReceive(context: Context?, intent: Intent?)
     {
         if (context != null && intent != null)
         {
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-            if (intent.action == AlarmScheduler.REPEAT_SHOOT_ACTION || intent.action == Intent.ACTION_SCREEN_OFF)
+            val strInterval = preferences.getString(context.getString(R.string.key_show_intervals), "0")
+            strInterval?.toLong()?.let {
+                AlarmScheduler(context).scheduleOne(it * 60 * 1000)
+            }
+
+            if (intent.action == AlarmScheduler.ONE_SHOOT_ACTION || intent.action == Intent.ACTION_SCREEN_OFF)
             {
                 //println("**************** REPEAT_SHOOT_ACTION *********************")
-
-                val dao = AppDataBase.buildDataBase(context).appDao()
-                val appDB = AppDB(DatabaseHelper(context), dao)
-                val appSettings = AppSettings(context)
-                val repository = DataRepositoryImpl(appDB, dao, appSettings)
+                //println("**************** ONE_SHOOT_ACTION *********************")
 
                 val displayVariant = preferences.getString(context.getString(R.string.key_display_variant), "0")
                 preferences.getString(context.getString(R.string.key_list_display_mode), "0")
