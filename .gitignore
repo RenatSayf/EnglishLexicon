@@ -1,7 +1,13 @@
+.idea
+.gradle
+.build
 /app/build/
 /.gradle/
 /EnglishLexicon.zip
 /local.properties
 libraries/Gradle__androidx_constraintlayout_constraintlayout_solver_2_0_0_beta6_jar.xml
 libraries/Gradle__androidx_core_core_1_2_0_aar.xml
-/.idea
+app/release/
+app/src/main/res/drawable-anydpi-v24/
+app/src/main/res/layout-v26/
+build/
