@@ -1,6 +1,8 @@
-.gradle
 .idea
+.gradle
+.build
 /app/build/
+/.gradle/
 /EnglishLexicon.zip
 /local.properties
 libraries/Gradle__androidx_constraintlayout_constraintlayout_solver_2_0_0_beta6_jar.xml
