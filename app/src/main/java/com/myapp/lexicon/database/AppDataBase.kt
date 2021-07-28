@@ -26,19 +26,17 @@ abstract class AppDataBase : RoomDatabase()
             return Room.databaseBuilder(context, AppDataBase::class.java, dbName).apply {
                 createFromAsset("databases/$dbName")
                 allowMainThreadQueries()
-                addMigrations(getMigration(context, build()))
+                addMigrations(getMigration())
             }.build()
         }
 
-        private fun getMigration(context: Context, appDB: AppDataBase): Migration
+        private fun getMigration(): Migration
         {
             return object : Migration(DB_VERSION - 1, DB_VERSION)
             {
                 override fun migrate(database: SupportSQLiteDatabase)
                 {
                     println("***************************** migrate to $DB_VERSION started *******************************")
-                    //val db = AppDB(DatabaseHelper(context), appDB.appDao())
-                    //db.migrateToWordsTable()
                 }
             }
         }

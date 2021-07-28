@@ -50,12 +50,15 @@ public class SplashScreenActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a_layout_splash_screen);
 
-        new ViewModelProvider(this).get(DbMigrationViewModel.class);
-
-        this.stopService(new Intent(this, LexiconService.class));
-
         preferences = PreferenceManager.getDefaultSharedPreferences(SplashScreenActivity.this);
         appSettings = new AppSettings(SplashScreenActivity.this);
+
+        if (appSettings.isRequireDbMigration())
+        {
+            new ViewModelProvider(this).get(DbMigrationViewModel.class);
+        }
+
+        this.stopService(new Intent(this, LexiconService.class));
 
         //region TODO: SpeechServiceReceiver. 5 - Регистрируем приёмник
         broadcastReceiver = new UpdateBroadcastReceiver();
