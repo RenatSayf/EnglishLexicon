@@ -16,7 +16,7 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.adapters.OneFiveTestAdapter
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.billing.BillingViewModel
-import com.myapp.lexicon.database.Word
+import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.databinding.OneOfFiveFragmNewBinding
 import com.myapp.lexicon.dialogs.TestCompleteDialog
 import com.myapp.lexicon.helpers.RandomNumberGenerator

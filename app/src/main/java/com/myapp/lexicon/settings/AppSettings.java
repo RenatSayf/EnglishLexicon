@@ -5,7 +5,7 @@ import android.content.SharedPreferences;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
-import com.myapp.lexicon.database.Word;
+import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.helpers.ObjectSerializer;
 
 import java.util.ArrayList;

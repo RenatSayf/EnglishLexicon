@@ -5,8 +5,7 @@ import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import com.google.gson.reflect.TypeToken
 import com.myapp.lexicon.R
-import com.myapp.lexicon.database.Word
-import java.util.ArrayList
+import com.myapp.lexicon.models.Word
 
 /**
  * Performs various operations on strings

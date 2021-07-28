@@ -1,4 +1,4 @@
-package com.myapp.lexicon.database
+package com.myapp.lexicon.models
 
 import android.os.Parcel
 import android.os.Parcelable

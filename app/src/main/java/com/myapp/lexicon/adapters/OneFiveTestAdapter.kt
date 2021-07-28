@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.recyclerview.widget.RecyclerView
 import com.myapp.lexicon.R
-import com.myapp.lexicon.database.Word
+import com.myapp.lexicon.models.Word
 
 class OneFiveTestAdapter constructor(private val list: MutableList<Word>) : RecyclerView.Adapter<OneFiveTestAdapter.ViewHolder>()
 {

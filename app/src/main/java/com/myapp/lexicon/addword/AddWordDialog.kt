@@ -11,7 +11,7 @@ import android.widget.*
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
-import com.myapp.lexicon.database.Word
+import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.dialogs.NewDictDialog
 import com.myapp.lexicon.helpers.Keyboard
 import com.myapp.lexicon.main.MainViewModel

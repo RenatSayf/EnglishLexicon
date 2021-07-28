@@ -7,6 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.myapp.lexicon.R
+import com.myapp.lexicon.models.Word
 
 
 private const val DB_VERSION = 1

@@ -3,7 +3,7 @@ package com.myapp.lexicon.viewmodels
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import com.myapp.lexicon.database.AppDB
-import com.myapp.lexicon.database.Word
+import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.AppSettings
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers

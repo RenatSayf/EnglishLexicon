@@ -20,7 +20,7 @@ import com.google.gson.JsonSyntaxException;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.ads.AdsViewModel;
 import com.myapp.lexicon.billing.BillingViewModel;
-import com.myapp.lexicon.database.Word;
+import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.helpers.StringOperations;
 import com.myapp.lexicon.interfaces.IModalFragment;
 import com.myapp.lexicon.main.SpeechViewModel;

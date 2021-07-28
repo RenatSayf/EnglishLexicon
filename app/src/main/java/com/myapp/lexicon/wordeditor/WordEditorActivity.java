@@ -28,7 +28,7 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.addword.AddWordViewModel;
 import com.myapp.lexicon.ads.AdsViewModel;
 import com.myapp.lexicon.billing.BillingViewModel;
-import com.myapp.lexicon.database.Word;
+import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.helpers.AppBus;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.main.MainViewModel;

@@ -1,7 +1,7 @@
 package com.myapp.lexicon.repository
 
 import com.myapp.lexicon.database.DataBaseEntry
-import com.myapp.lexicon.database.Word
+import com.myapp.lexicon.models.Word
 import io.reactivex.Observable
 import io.reactivex.Single
 

@@ -11,7 +11,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.myapp.lexicon.R
-import com.myapp.lexicon.database.Word
+import com.myapp.lexicon.models.Word
 import dagger.hilt.android.AndroidEntryPoint
 
 

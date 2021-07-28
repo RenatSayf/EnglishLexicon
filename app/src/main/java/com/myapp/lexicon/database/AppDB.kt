@@ -3,6 +3,7 @@ package com.myapp.lexicon.database
 import android.database.Cursor
 import androidx.annotation.NonNull
 import com.myapp.lexicon.helpers.StringOperations
+import com.myapp.lexicon.models.Word
 import io.reactivex.Observable
 import io.reactivex.ObservableSource
 import io.reactivex.Single

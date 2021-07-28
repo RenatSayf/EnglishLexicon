@@ -38,7 +38,7 @@ import com.myapp.lexicon.database.AppDB;
 import com.myapp.lexicon.database.AppDao;
 import com.myapp.lexicon.database.AppDataBase;
 import com.myapp.lexicon.database.DatabaseHelper;
-import com.myapp.lexicon.database.Word;
+import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.databinding.ANavigMainBinding;
 import com.myapp.lexicon.dialogs.DictListDialog;
 import com.myapp.lexicon.dialogs.OrderPlayDialog;

@@ -13,7 +13,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
 import com.myapp.lexicon.R
-import com.myapp.lexicon.database.Word
+import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.helpers.StringOperations
 import com.myapp.lexicon.main.SplashScreenActivity
 import com.myapp.lexicon.service.ServiceActivity
