@@ -28,11 +28,11 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.addword.AddWordViewModel;
 import com.myapp.lexicon.ads.AdsViewModel;
 import com.myapp.lexicon.billing.BillingViewModel;
-import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.helpers.AppBus;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SpeechViewModel;
+import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.viewmodels.EditorSearchViewModel;
 
 import java.util.ArrayList;
@@ -431,6 +431,10 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
         if (id == R.id.do_repeat)
         {
             vm.setCountRepeat(1, 1, Integer.MAX_VALUE);
+        }
+        if (id == android.R.id.home)
+        {
+            onBackPressed();
         }
         return true;
     }
