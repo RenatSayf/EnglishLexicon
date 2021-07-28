@@ -7,9 +7,10 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.myapp.lexicon.R
+import com.myapp.lexicon.models.Word
 
 
-private const val DB_VERSION = 2
+private const val DB_VERSION = 1
 
 
 @Database(entities = [Word::class], version = DB_VERSION, exportSchema = false)
@@ -25,19 +26,17 @@ abstract class AppDataBase : RoomDatabase()
             return Room.databaseBuilder(context, AppDataBase::class.java, dbName).apply {
                 createFromAsset("databases/$dbName")
                 allowMainThreadQueries()
-                addMigrations(getMigration(context, build()))
+                addMigrations(getMigration())
             }.build()
         }
 
-        private fun getMigration(context: Context, appDB: AppDataBase): Migration
+        private fun getMigration(): Migration
         {
             return object : Migration(DB_VERSION - 1, DB_VERSION)
             {
                 override fun migrate(database: SupportSQLiteDatabase)
                 {
                     println("***************************** migrate to $DB_VERSION started *******************************")
-                    val db = AppDB(DatabaseHelper(context), appDB.appDao())
-                    db.migrateToWordsTable()
                 }
             }
         }

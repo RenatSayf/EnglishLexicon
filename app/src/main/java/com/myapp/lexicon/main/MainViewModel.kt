@@ -4,7 +4,7 @@ import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.myapp.lexicon.database.Word
+import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.repository.DataRepositoryImpl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.Single
@@ -133,12 +133,12 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
                 {
                     _dictionaryList.value?.let {
                         value = Word(1, it.first(), "", "", 1)
+                        setWordsList(it.first())
                     }
                 }
             }, { e ->
                 e.printStackTrace()
             })
-        //value = repository.getWordFromPref()
     }
     var currentWord: MutableLiveData<Word> = _currentWord
     fun setCurrentWord(word: Word)

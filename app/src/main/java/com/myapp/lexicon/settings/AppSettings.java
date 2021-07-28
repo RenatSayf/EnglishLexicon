@@ -5,7 +5,7 @@ import android.content.SharedPreferences;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.database.DataBaseEntry;
-import com.myapp.lexicon.database.Word;
+import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.helpers.ObjectSerializer;
 
 import java.util.ArrayList;
@@ -42,6 +42,7 @@ public class AppSettings
     private final String KEY_TRANSLATE_LANG = this.getClass().getCanonicalName() + ".KEY_TRANSLATE_LANG";
     private final String KEY_COUNT_REPEAT = this.getClass().getCanonicalName() + ".KEY_COUNT_REPEAT";
     private final String KEY_WORD_IDS = this.getClass().getCanonicalName() + ".KEY_WORD_IDS";
+    private final String KEY_REQUIRE_MIGRATION = this.getClass().getCanonicalName() + ".KEY_REQUIRE_MIGRATION";
 
     private final Context context;
     private final String transLang;
@@ -262,5 +263,15 @@ public class AppSettings
     public String getWordsIdsAsString()
     {
         return context.getSharedPreferences(WORD_ID, MODE_PRIVATE).getString(KEY_WORD_IDS, "");
+    }
+
+    public boolean isRequireDbMigration()
+    {
+        return context.getSharedPreferences(KEY_REQUIRE_MIGRATION, MODE_PRIVATE).getBoolean(KEY_REQUIRE_MIGRATION, true);
+    }
+
+    public void setNotRequireDbMigration()
+    {
+        context.getSharedPreferences(KEY_REQUIRE_MIGRATION, MODE_PRIVATE).edit().putBoolean(KEY_REQUIRE_MIGRATION, false).apply();
     }
 }

@@ -1,7 +1,7 @@
 package com.myapp.lexicon.database
 
 import androidx.room.*
-import io.reactivex.Observable
+import com.myapp.lexicon.models.Word
 import io.reactivex.Single
 
 @Dao

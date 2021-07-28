@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.database.Word;
+import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.helpers.StringOperations;
 import com.myapp.lexicon.interfaces.IModalFragment;
 import com.myapp.lexicon.main.MainViewModel;

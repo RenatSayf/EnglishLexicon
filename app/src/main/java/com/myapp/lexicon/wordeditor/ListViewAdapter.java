@@ -11,7 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.database.Word;
+import com.myapp.lexicon.models.Word;
 
 import java.util.ArrayList;
 

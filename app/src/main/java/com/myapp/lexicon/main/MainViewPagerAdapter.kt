@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.myapp.lexicon.R
-import com.myapp.lexicon.database.Word
+import com.myapp.lexicon.models.Word
 
 class MainViewPagerAdapter constructor(private val list: MutableList<Word>) : RecyclerView.Adapter<PagerViewHolder>()
 {

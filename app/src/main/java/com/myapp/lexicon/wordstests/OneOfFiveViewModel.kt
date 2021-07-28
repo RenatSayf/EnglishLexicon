@@ -3,7 +3,7 @@ package com.myapp.lexicon.wordstests
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.myapp.lexicon.database.Word
+import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.helpers.RandomNumberGenerator
 import java.util.*
 import kotlin.collections.ArrayList

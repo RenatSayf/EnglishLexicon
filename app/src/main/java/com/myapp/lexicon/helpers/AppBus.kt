@@ -1,6 +1,6 @@
 package com.myapp.lexicon.helpers
 
-import com.myapp.lexicon.database.Word
+import com.myapp.lexicon.models.Word
 import io.reactivex.subjects.BehaviorSubject
 
 object AppBus
