@@ -36,7 +36,7 @@ abstract class AppDataBase : RoomDatabase()
             {
                 override fun migrate(database: SupportSQLiteDatabase)
                 {
-                    println("***************************** migrate to $DB_VERSION started *******************************")
+                    //println("***************************** migrate to $DB_VERSION started *******************************")
                 }
             }
         }
