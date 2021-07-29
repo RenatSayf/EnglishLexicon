@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -38,13 +39,12 @@ import com.myapp.lexicon.database.AppDB;
 import com.myapp.lexicon.database.AppDao;
 import com.myapp.lexicon.database.AppDataBase;
 import com.myapp.lexicon.database.DatabaseHelper;
-import com.myapp.lexicon.models.Word;
-import com.myapp.lexicon.databinding.ANavigMainBinding;
 import com.myapp.lexicon.dialogs.DictListDialog;
 import com.myapp.lexicon.dialogs.OrderPlayDialog;
 import com.myapp.lexicon.dialogs.RemoveDictDialog;
 import com.myapp.lexicon.helpers.AppBus;
 import com.myapp.lexicon.helpers.Share;
+import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.service.LexiconService;
 import com.myapp.lexicon.settings.SettingsFragment;
@@ -102,8 +102,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        ANavigMainBinding navBinding = ANavigMainBinding.inflate(getLayoutInflater());
-        View root = navBinding.getRoot();
+        View root = LayoutInflater.from(this).inflate(R.layout.a_navig_main, new DrawerLayout(this));
         setContentView(root);
 
         Toolbar toolbar = findViewById(R.id.toolbar_word_editor);
@@ -338,12 +337,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         speechViewModel.getEnCheckboxEnable().observe(this, checkBoxEnView::setEnabled);
 
         CheckBox checkBoxRuSpeak = findViewById(R.id.check_box_ru_speak);
-        checkBoxRuSpeak.setOnCheckedChangeListener((compoundButton, b) -> {
-            speechViewModel.setRuSpeech(b);
-            if (b)
+        checkBoxRuSpeak.setOnClickListener( view -> {
+            CheckBox checkBox = (CheckBox) view;
+            if (checkBox.isChecked())
+            {
                 Toast.makeText(MainActivity.this, R.string.text_ru_speech_on, Toast.LENGTH_SHORT).show();
-            else
+            } else
+            {
                 Toast.makeText(MainActivity.this, R.string.text_ru_speech_off, Toast.LENGTH_SHORT).show();
+            }
         });
 
         speechViewModel.isRuSpeech().observe(this, checked -> {
@@ -389,22 +391,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         btnSpeak.setOnClickListener(view -> {
             int position = mainViewPager.getCurrentItem();
             Boolean isEnSpeech = speechViewModel.isEnSpeech().getValue();
-            Boolean isRuSpeech = speechViewModel.isRuSpeech().getValue();
             if (mainViewModel.wordsList.getValue() != null)
             {
                 Word word = mainViewModel.wordsList.getValue().get(position);
                 String enText = word.getEnglish();
-                String ruText = word.getTranslate();
                 if (isEnSpeech != null)
                 {
                     speechViewModel.doSpeech(enText, Locale.US);
                     speechViewModel.setSpeechProgressVisibility(View.VISIBLE);
                 }
-                if (isRuSpeech != null && isRuSpeech)
-                {
-                    Locale localeRu = new Locale(getString(R.string.lang_code_translate));
-                    speechViewModel.doSpeech(ruText, localeRu);
-                }
+
             }
         });
 
@@ -588,7 +584,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (parseInt != 0)
             {
                 //scheduler.scheduleRepeat((parseInt*60*1000), (parseInt*60*1000));
-                scheduler.scheduleOne(parseInt * 60 * 1000);
+                scheduler.scheduleOne((long) parseInt * 60 * 1000);
             }
         }
     }
@@ -694,11 +690,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         else if (id == R.id.nav_check_your_self)
         {
             getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, TestFragment.Companion.newInstance()).addToBackStack(null).commit();
-//            if (testsIntent == null)
-//            {
-//                testsIntent = new Intent(this, TestsActivity.class);
-//            }
-//            startActivity(testsIntent);
         }
         else if (id == R.id.nav_settings)
         {
