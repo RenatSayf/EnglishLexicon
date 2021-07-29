@@ -232,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Boolean isEnSpeech = speechViewModel.isEnSpeech().getValue();
                     if (state == 1 && isEnSpeech != null && isEnSpeech)
                     {
-                        if (!currentWord.getEnglish().equals(""))
+                        if (currentWord != null && !currentWord.getEnglish().equals(""))
                         {
                             speechViewModel.setSpeechProgressVisibility(View.VISIBLE);
                         }
