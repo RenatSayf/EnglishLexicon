@@ -48,7 +48,7 @@
                     android:layout_gravity="center_vertical"
                     android:padding="10dp"
                     android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="@color/colorWhite"
+                    android:textColor="@drawable/selector_white_to_black"
                     android:background="@drawable/semitransparent_background"
                     tools:text="Dict Name" />
             </FrameLayout>
