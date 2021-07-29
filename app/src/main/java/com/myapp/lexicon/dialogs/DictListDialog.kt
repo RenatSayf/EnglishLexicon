@@ -60,8 +60,8 @@ class DictListDialog : DialogFragment()
                 }
             })
             setTitle(getString(R.string.text_dictionaries))
-            setCancelable(false)
-            isCancelable = false
+            setCancelable(true)
+            isCancelable = true
         }
         return builder.create()
     }
