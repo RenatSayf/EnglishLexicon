@@ -12,7 +12,7 @@ android {
         applicationId "com.myapp.lexicon"
         minSdkVersion 19
         targetSdkVersion 30
-        versionName '3.1'
+        versionName '3.2'
         versionCode 41
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
