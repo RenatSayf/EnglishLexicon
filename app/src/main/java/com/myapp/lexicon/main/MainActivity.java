@@ -327,6 +327,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         checkBoxEnView.setOnCheckedChangeListener((compoundButton, b) -> {
             speechViewModel.setEnSpeech(b);
         });
+
         speechViewModel.isEnSpeech().observe(this, checked -> {
             checkBoxEnView.setChecked(checked);
             if (!checked)
@@ -334,11 +335,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 speechViewModel.setSpeechProgressVisibility(View.INVISIBLE);
             }
         });
+
         speechViewModel.getEnCheckboxEnable().observe(this, checkBoxEnView::setEnabled);
 
         CheckBox checkBoxRuSpeak = findViewById(R.id.check_box_ru_speak);
         checkBoxRuSpeak.setOnClickListener( view -> {
             CheckBox checkBox = (CheckBox) view;
+            speechViewModel.setRuSpeech(checkBox.isChecked());
             if (checkBox.isChecked())
             {
                 Toast.makeText(MainActivity.this, R.string.text_ru_speech_on, Toast.LENGTH_SHORT).show();
@@ -352,8 +355,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             //noinspection Convert2MethodRef
             checkBoxRuSpeak.setChecked(checked);
         });
-        speechViewModel.getRuCheckboxEnable().observe(this, checkBoxRuSpeak::setEnabled);
 
+        speechViewModel.getRuCheckboxEnable().observe(this, checkBoxRuSpeak::setEnabled);
 
         ProgressBar speechProgress = findViewById(R.id.speechProgress);
         //noinspection CodeBlock2Expr

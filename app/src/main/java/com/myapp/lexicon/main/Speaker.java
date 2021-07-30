@@ -127,7 +127,6 @@ public class Speaker
         if (isSpeech)
         {
             HashMap<String, String> utterance_Id = new HashMap<>();
-            utterance_Id.clear();
             if (locale.equals(Locale.US))
             {
                 if (isEnSpeech)
