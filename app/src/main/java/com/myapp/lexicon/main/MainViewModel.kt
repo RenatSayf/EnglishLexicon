@@ -98,14 +98,16 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
     }
 
     private var _dictionaryList = MutableLiveData<MutableList<String>>().apply {
-        getDictList()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ list ->
-                value = list
-            }, { t ->
-                t.printStackTrace()
-            })
+        composite.add(
+            getDictList()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ list ->
+                    value = list
+                }, { t ->
+                    t.printStackTrace()
+                })
+        )
     }
     val dictionaryList: LiveData<MutableList<String>> = _dictionaryList
 
@@ -121,24 +123,26 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
 
     private var _currentWord = MutableLiveData<Word>().apply {
         val wordFromPref = repository.getWordFromPref()
-        repository.getEntriesByIds(listOf(wordFromPref._id))
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ list ->
-                if (list.isNotEmpty())
-                {
-                    value = list.first()
-                }
-                else
-                {
-                    _dictionaryList.value?.let {
-                        value = Word(1, it.first(), "", "", 1)
-                        setWordsList(it.first())
+        composite.add(
+            repository.getEntriesByIds(listOf(wordFromPref._id))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ list ->
+                    if (list.isNotEmpty())
+                    {
+                        value = list.first()
                     }
-                }
-            }, { e ->
-                e.printStackTrace()
-            })
+                    else
+                    {
+                        _dictionaryList.value?.let {
+                            value = Word(1, it.first(), "", "", 1)
+                            setWordsList(it.first())
+                        }
+                    }
+                }, { e ->
+                    e.printStackTrace()
+                })
+        )
     }
     var currentWord: MutableLiveData<Word> = _currentWord
     fun setCurrentWord(word: Word)
@@ -157,7 +161,8 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
 
     private var _wordCounters = MutableLiveData<List<Int>>().apply {
         _currentWord.value?.let {
-            repository.getCountersFromDb(it.dictName)
+            composite.add(
+                repository.getCountersFromDb(it.dictName)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({ list ->
@@ -165,6 +170,7 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
                     }, { t ->
                         t.printStackTrace()
                     })
+            )
         }
     }
     var wordCounters: LiveData<List<Int>> = _wordCounters
@@ -200,7 +206,6 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
                     }))
         }
     }
-
 
     var testInterval: LiveData<Int> = MutableLiveData(repository.getTestIntervalFromPref())
 
