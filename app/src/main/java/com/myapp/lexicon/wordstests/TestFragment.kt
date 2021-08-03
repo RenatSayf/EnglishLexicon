@@ -44,10 +44,15 @@ import java.util.concurrent.TimeUnit
 class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectItemListener, DialogWarning.IDialogResult,
     DialogTestComplete.IDialogComplete_Result
 {
-
     companion object
     {
-        fun newInstance() = TestFragment()
+        private var instance: TestFragment? = null
+        fun getInstance() = if (instance == null)
+        {
+            instance = TestFragment()
+            instance
+        }
+        else instance as TestFragment
     }
 
     private lateinit var binding: TestFragmentBinding
@@ -69,6 +74,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
             override fun handleOnBackPressed()
             {
                 mActivity.supportFragmentManager.popBackStack()
+                this.remove()
             }
         })
     }
