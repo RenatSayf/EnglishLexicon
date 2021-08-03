@@ -44,15 +44,10 @@ import java.util.concurrent.TimeUnit
 class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectItemListener, DialogWarning.IDialogResult,
     DialogTestComplete.IDialogComplete_Result
 {
+
     companion object
     {
-        private var instance: TestFragment? = null
-        fun getInstance() = if (instance == null)
-        {
-            instance = TestFragment()
-            instance
-        }
-        else instance as TestFragment
+        fun newInstance() = TestFragment()
     }
 
     private lateinit var binding: TestFragmentBinding
