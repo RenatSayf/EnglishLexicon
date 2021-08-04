@@ -117,6 +117,8 @@ class LexiconService : Service(), IStopServiceByUser, LifecycleOwner
         @Inject
         lateinit var repository: DataRepositoryImpl
 
+        private val composite = CompositeDisposable()
+
         @SuppressLint("CheckResult")
         @Suppress("RedundantSamConstructor")
         override fun onReceive(context: Context, intent: Intent)
@@ -136,7 +138,8 @@ class LexiconService : Service(), IStopServiceByUser, LifecycleOwner
             {
                 if (action == actionScreenOff)
                 {
-                    repository.getEntriesFromDbByDictName(dictName, wordId, 1, 2)
+                    composite.add(
+                        repository.getEntriesFromDbByDictName(dictName, wordId, 1, 2)
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe({ words ->
@@ -162,10 +165,19 @@ class LexiconService : Service(), IStopServiceByUser, LifecycleOwner
                                         repository.goForward(words)
                                     }
                                 }
+                                composite.apply {
+                                    dispose()
+                                    clear()
+                                }
 
                             }, { t ->
                                 t.printStackTrace()
+                                composite.apply {
+                                    dispose()
+                                    clear()
+                                }
                             })
+                    )
                 }
             }
         }

@@ -11,6 +11,7 @@ import com.myapp.lexicon.service.ServiceActivity
 import com.myapp.lexicon.settings.AppSettings
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
@@ -20,6 +21,7 @@ class TimerReceiver : BroadcastReceiver()
 {
     private var isWordsEnded = false
     private var wordsCounter = 0
+    private val composite = CompositeDisposable()
 
     @Inject
     lateinit var repository: DataRepositoryImpl
@@ -57,7 +59,8 @@ class TimerReceiver : BroadcastReceiver()
                 {
                     0 ->
                     {
-                        repository.getEntriesFromDbByDictName(dictName, wordId, 1, 2)
+                        composite.add(
+                            repository.getEntriesFromDbByDictName(dictName, wordId, 1, 2)
                                 .subscribeOn(Schedulers.computation())
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe({ words ->
@@ -94,10 +97,19 @@ class TimerReceiver : BroadcastReceiver()
                                             }
                                         }
                                     }
+                                    composite.apply {
+                                        dispose()
+                                        clear()
+                                    }
 
                                 }, { t ->
                                     t.printStackTrace()
+                                    composite.apply {
+                                        dispose()
+                                        clear()
+                                    }
                                 })
+                        )
                     }
                     1 ->
                     {

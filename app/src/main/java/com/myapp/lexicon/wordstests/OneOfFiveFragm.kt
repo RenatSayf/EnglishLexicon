@@ -1,5 +1,6 @@
 package com.myapp.lexicon.wordstests
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -7,6 +8,7 @@ import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.Button
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
@@ -16,11 +18,11 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.adapters.OneFiveTestAdapter
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.billing.BillingViewModel
-import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.databinding.OneOfFiveFragmNewBinding
 import com.myapp.lexicon.dialogs.TestCompleteDialog
 import com.myapp.lexicon.helpers.RandomNumberGenerator
 import com.myapp.lexicon.main.MainActivity
+import com.myapp.lexicon.models.Word
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
@@ -41,13 +43,17 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDia
     companion object
     {
         private var wordList: List<Word>? = null
+        private var instance: OneOfFiveFragm? = null
 
         @JvmStatic
         fun newInstance(list: MutableList<Word>): OneOfFiveFragm
         {
             val shuffledList = list.shuffled()
             wordList = shuffledList
-            return OneOfFiveFragm()
+            return if (instance == null)
+            {
+                OneOfFiveFragm()
+            } else instance as OneOfFiveFragm
         }
     }
 
@@ -104,20 +110,26 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDia
             {
                 val errors = vm.wrongAnswerCount.value
                 val dialog = errors?.let { err -> TestCompleteDialog.getInstance(err, this) }
-                dialog?.show(requireActivity().supportFragmentManager, TestCompleteDialog.TAG)
-                requireActivity().supportFragmentManager.beginTransaction().remove(this).commit()
+                dialog?.show(mActivity.supportFragmentManager, TestCompleteDialog.TAG)
+                mActivity.supportFragmentManager.popBackStack()
             }
         })
     }
 
+    private lateinit var backPressedCallback: OnBackPressedCallback
     override fun onResume()
     {
         super.onResume()
-        mActivity.onBackPressedDispatcher.addCallback {
+        backPressedCallback = mActivity.onBackPressedDispatcher.addCallback {
             mActivity.supportFragmentManager.popBackStack()
             mActivity.mainViewModel.setMainControlVisibility(View.VISIBLE)
-            this.remove()
         }
+    }
+
+    override fun onDestroy()
+    {
+        backPressedCallback.remove()
+        super.onDestroy()
     }
 
     override fun onItemClickListener(position: Int, word: Word, view: Button)
@@ -148,6 +160,7 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDia
                 binding.mysteryWordView.startAnimation(animRight.apply {
                     setAnimationListener(object : Animation.AnimationListener
                     {
+                        @SuppressLint("NotifyDataSetChanged")
                         override fun onAnimationStart(p0: Animation?)
                         {
                             if (!vm.wordsList.value.isNullOrEmpty())
@@ -198,11 +211,13 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDia
 
     override fun onTestPassed()
     {
+        mActivity.supportFragmentManager.popBackStack()
         mActivity.testPassed()
     }
 
     override fun onTestFailed(errors: Int)
     {
+        mActivity.supportFragmentManager.popBackStack()
         mActivity.testFailed(errors)
     }
 

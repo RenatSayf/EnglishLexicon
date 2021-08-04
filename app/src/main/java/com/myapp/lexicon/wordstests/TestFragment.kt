@@ -69,6 +69,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
             override fun handleOnBackPressed()
             {
                 mActivity.supportFragmentManager.popBackStack()
+                this.remove()
             }
         })
     }
