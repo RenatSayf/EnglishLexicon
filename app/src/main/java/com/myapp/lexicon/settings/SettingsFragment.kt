@@ -47,7 +47,7 @@ class SettingsFragment : PreferenceFragmentCompat()
             summary = this.entry
             onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener
             {
-                override fun onPreferenceChange(preference: Preference?, newValue: Any?): Boolean
+                override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean
                 {
                     return try
                     {
@@ -69,7 +69,7 @@ class SettingsFragment : PreferenceFragmentCompat()
         // при новом создании экрана заполняем summary значением настройки
         listDisplayModePref.summary = listDisplayModePref.entry
         listDisplayModePref.onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener{
-            override fun onPreferenceChange(preference: Preference?, newValue: Any?): Boolean
+            override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean
             {
                 listDisplayModePref.value = newValue.toString()
                 listDisplayModePref.summary = listDisplayModePref.entry
@@ -80,7 +80,7 @@ class SettingsFragment : PreferenceFragmentCompat()
         val listOnUnBlockingScreen = findPreference<ListPreference>(requireContext().getString(R.string.key_display_variant))!!
         listOnUnBlockingScreen.summary = listOnUnBlockingScreen.entry
         listOnUnBlockingScreen.onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener{
-            override fun onPreferenceChange(preference: Preference?, newValue: Any?): Boolean
+            override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean
             {
                 listOnUnBlockingScreen.value = newValue.toString()
                 listOnUnBlockingScreen.summary = listOnUnBlockingScreen.entry
@@ -99,7 +99,7 @@ class SettingsFragment : PreferenceFragmentCompat()
 
         serviceCheckBoxPref = findPreference(requireContext().getString(R.string.key_service))!!
         serviceCheckBoxPref.onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener{
-            override fun onPreferenceChange(preference: Preference?, newValue: Any?): Boolean
+            override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean
             {
                 listDisplayModePref.isEnabled = (newValue as Boolean)
                 listOnUnBlockingScreen.isEnabled = newValue
@@ -139,7 +139,7 @@ class SettingsFragment : PreferenceFragmentCompat()
         showIntervalsPref = findPreference(requireContext().getString(R.string.key_show_intervals))!!
         showIntervalsPref.summary = showIntervalsPref.entry
         showIntervalsPref.onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener{
-            override fun onPreferenceChange(preference: Preference?, newValue: Any?): Boolean
+            override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean
             {
                 showIntervalsPref.value = newValue as String
                 showIntervalsPref.summary = showIntervalsPref.entry
@@ -174,45 +174,33 @@ class SettingsFragment : PreferenceFragmentCompat()
     {
         super.onViewCreated(view, savedInstanceState)
         view.setBackgroundColor(resources.getColor(R.color.colorWhite))
-//        val toolbar = requireActivity().findViewById<Toolbar>(R.id.toolbar_word_editor)?.apply {
-//            title = "Настройки"
-//        }
-//        (requireActivity() as MainActivity).apply {
-//            setSupportActionBar(toolbar)
-//            supportActionBar?.setDisplayHomeAsUpEnabled(true)
-//
-//        }
 
-        billing.noAdsToken.observe(viewLifecycleOwner, {
+        billing.noAdsToken.observe(viewLifecycleOwner) {
             it?.let { token ->
-                if (token.isEmpty())
-                {
+                if (token.isEmpty()) {
                     findPreference<PreferenceCategory>("disableAdsCategory")?.isEnabled = true
                     findPreference<SwitchPreferenceCompat>("disableAds")?.isChecked = true
-                }
-                else
-                {
+                } else {
                     findPreference<PreferenceCategory>("disableAdsCategory")?.isEnabled = false
                     findPreference<SwitchPreferenceCompat>("disableAds")?.isChecked = false
                 }
             }
-        })
+        }
 
         val noAdsSwitch = findPreference<SwitchPreferenceCompat>("disableAds")
         noAdsSwitch?.apply {
             onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener
             {
-                override fun onPreferenceChange(preference: Preference?, newValue: Any?): Boolean
+                override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean
                 {
                     if (newValue == false)
                     {
                         disableAdsDialog.show(requireActivity().supportFragmentManager, "").run {
-                            disableAdsDialog.isCancel.observe(viewLifecycleOwner, {
-                                if (it)
-                                {
+                            disableAdsDialog.isCancel.observe(viewLifecycleOwner) {
+                                if (it) {
                                     noAdsSwitch.isChecked = true
                                 }
-                            })
+                            }
                         }
                     }
                     return true
@@ -220,9 +208,9 @@ class SettingsFragment : PreferenceFragmentCompat()
             }
         }
 
-        billing.wasCancelled.observe(viewLifecycleOwner, {
+        billing.wasCancelled.observe(viewLifecycleOwner) {
             noAdsSwitch?.isChecked = true
-        })
+        }
 
 
     }

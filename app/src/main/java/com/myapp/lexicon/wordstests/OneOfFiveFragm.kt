@@ -11,18 +11,22 @@ import android.widget.Button
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.myapp.lexicon.R
 import com.myapp.lexicon.adapters.OneFiveTestAdapter
-import com.myapp.lexicon.ads.AdsViewModel
+import com.myapp.lexicon.ads.AdViewModel2
+import com.myapp.lexicon.ads.showInterstitialAd
 import com.myapp.lexicon.billing.BillingViewModel
 import com.myapp.lexicon.databinding.OneOfFiveFragmNewBinding
 import com.myapp.lexicon.dialogs.TestCompleteDialog
 import com.myapp.lexicon.helpers.RandomNumberGenerator
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.models.Word
+import com.yandex.mobile.ads.common.AdRequestError
+import com.yandex.mobile.ads.interstitial.InterstitialAd
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
@@ -37,7 +41,8 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDia
     private lateinit var mActivity: MainActivity
 
     private lateinit var billingVM: BillingViewModel
-    private lateinit var adsVM: AdsViewModel
+    private val adsVM2: AdViewModel2 by viewModels()
+    private var yandexAd2: InterstitialAd? = null
 
 
     companion object
@@ -62,7 +67,6 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDia
         super.onCreate(savedInstanceState)
         mActivity = activity as MainActivity
         billingVM = ViewModelProvider(this)[BillingViewModel::class.java]
-        adsVM = ViewModelProvider(this)[AdsViewModel::class.java]
         vm = ViewModelProvider(this)[OneOfFiveViewModel::class.java]
         if (!wordList.isNullOrEmpty()) vm.initTest(wordList as MutableList<Word>)
     }
@@ -71,11 +75,18 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDia
     {
         val root = inflater.inflate(R.layout.one_of_five_fragm_new, container, false)
 
-        billingVM.noAdsToken.observe(viewLifecycleOwner, { t ->
-            t?.let {
-               if (it.isEmpty()) adsVM.loadAd1()
+        billingVM.noAdsToken.observe(viewLifecycleOwner) { t ->
+            if (t.isNullOrEmpty()) {
+                adsVM2.loadYandexAd(2, listener = object : AdViewModel2.YandexAdListener {
+                    override fun onYandexAdLoaded(ad: InterstitialAd) {
+                        yandexAd2 = ad
+                    }
+                    override fun onYandexAdFailed(error: AdRequestError) {
+                        yandexAd2 = null
+                    }
+                })
             }
-        })
+        }
         return root
     }
 
@@ -84,7 +95,7 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDia
         super.onViewCreated(view, savedInstanceState)
         binding = OneOfFiveFragmNewBinding.bind(view)
 
-        vm.adapterList.observe(viewLifecycleOwner, {
+        vm.adapterList.observe(viewLifecycleOwner) {
             binding.answersRecyclerView.apply {
                 this.adapter = OneFiveTestAdapter(it).apply {
                     setHasStableIds(true)
@@ -92,28 +103,27 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDia
                     setOnItemClickListener(this@OneOfFiveFragm)
                 }
             }
-        })
+        }
 
-        vm.mysteryWord.observe(viewLifecycleOwner, {
+        vm.mysteryWord.observe(viewLifecycleOwner) {
             binding.mysteryWordView.text = it
-        })
+        }
 
-        vm.progressMax.observe(viewLifecycleOwner, {
+        vm.progressMax.observe(viewLifecycleOwner) {
             binding.progressView1of5.max = it
-        })
+        }
 
-        vm.progress.observe(viewLifecycleOwner, {
+        vm.progress.observe(viewLifecycleOwner) {
             binding.progressView1of5.progress = it
             val progressValue = "$it/${vm.progressMax.value}"
             binding.progressValueView.text = progressValue
-            if (it == binding.progressView1of5.max)
-            {
+            if (it == binding.progressView1of5.max) {
                 val errors = vm.wrongAnswerCount.value
                 val dialog = errors?.let { err -> TestCompleteDialog.getInstance(err, this) }
                 dialog?.show(mActivity.supportFragmentManager, TestCompleteDialog.TAG)
                 mActivity.supportFragmentManager.popBackStack()
             }
-        })
+        }
     }
 
     private lateinit var backPressedCallback: OnBackPressedCallback
@@ -136,7 +146,7 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDia
     {
         val testAdapter = binding.answersRecyclerView.adapter as OneFiveTestAdapter
         val items = testAdapter.getItems()
-        if (!items.isNullOrEmpty())
+        if (items.isNotEmpty())
         {
             val translate = binding.mysteryWordView.text.toString()
             val english = view.text.toString()
@@ -146,7 +156,7 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDia
                 view.setBackgroundResource(R.drawable.text_btn_for_test_green)
                 testAdapter.removeItem(english, translate)
                 val animRight = AnimationUtils.loadAnimation(requireContext(), R.anim.from_right_to_left_anim)
-                if (!testAdapter.getItems().isNullOrEmpty())
+                if (testAdapter.getItems().isNotEmpty())
                 {
                     val itemCount = testAdapter.itemCount
                     val randomIndex = RandomNumberGenerator(itemCount, (Date().time.toInt())).generate()
@@ -199,7 +209,6 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDia
                     override fun onAnimationEnd(p0: Animation?)
                     {
                         view.setBackgroundResource(R.drawable.text_button_for_test)
-                        adsVM.showAd1(requireActivity())
                     }
 
                     override fun onAnimationRepeat(p0: Animation?){}
@@ -211,14 +220,24 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDia
 
     override fun onTestPassed()
     {
-        mActivity.supportFragmentManager.popBackStack()
-        mActivity.testPassed()
+        yandexAd2?.showInterstitialAd {
+            mActivity.supportFragmentManager.popBackStack()
+            mActivity.testPassed()
+        }?: run {
+            mActivity.supportFragmentManager.popBackStack()
+            mActivity.testPassed()
+        }
     }
 
     override fun onTestFailed(errors: Int)
     {
-        mActivity.supportFragmentManager.popBackStack()
-        mActivity.testFailed(errors)
+        yandexAd2?.showInterstitialAd {
+            mActivity.supportFragmentManager.popBackStack()
+            mActivity.testFailed(errors)
+        }?: run {
+            mActivity.supportFragmentManager.popBackStack()
+            mActivity.testFailed(errors)
+        }
     }
 
 }

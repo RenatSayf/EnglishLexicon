@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
@@ -118,15 +117,9 @@ public class SplashScreenActivity extends AppCompatActivity
                         {
                             try
                             {
-                                map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.US.getDisplayLanguage());
+                                map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "US");
                                 speech.setLanguage(Locale.US);
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                                {
-                                    speech.speak(getString(R.string.start_speech_en), TextToSpeech.QUEUE_ADD, null, map.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
-                                } else
-                                {
-                                    speech.speak(getString(R.string.start_speech_en),TextToSpeech.QUEUE_ADD,map);
-                                }
+                                speech.speak(getString(R.string.start_speech_en), TextToSpeech.QUEUE_ADD, null, map.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
                             } catch (Exception e)
                             {
                                 e.printStackTrace();
@@ -152,7 +145,7 @@ public class SplashScreenActivity extends AppCompatActivity
             @Override
             public void onStart(String utteranceId)
             {
-                if (utteranceId.equals(Locale.getDefault().getDisplayLanguage()))
+                if (utteranceId.equals("US"))
                 {
                     Intent intent = new Intent(SplashScreenActivity.this, MainActivity.class);
                     SplashScreenActivity.this.startActivity(intent);
@@ -163,17 +156,11 @@ public class SplashScreenActivity extends AppCompatActivity
             @Override
             public void onDone(String utteranceId)
             {
-                if (utteranceId.equals(Locale.US.getDisplayLanguage()))
+                if (utteranceId.equals("RU"))
                 {
-                    map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, Locale.getDefault().getDisplayLanguage());
+                    map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "RU");
                     speech.setLanguage(new Locale(appSettings.getTransLang()));
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                    {
-                        speech.speak(getString(R.string.start_speech_ru), TextToSpeech.QUEUE_ADD, null, map.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
-                    } else
-                    {
-                        speech.speak(getString(R.string.start_speech_ru), TextToSpeech.QUEUE_ADD, map);
-                    }
+                    speech.speak(getString(R.string.start_speech_ru), TextToSpeech.QUEUE_ADD, null, map.get(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID));
                 }
             }
 

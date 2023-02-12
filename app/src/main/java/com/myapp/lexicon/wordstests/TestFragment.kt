@@ -88,23 +88,22 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         super.onViewCreated(view, savedInstanceState)
         binding = TestFragmentBinding.bind(view)
 
-        billingVM.noAdsToken.observe(viewLifecycleOwner, { t ->
+        billingVM.noAdsToken.observe(viewLifecycleOwner) { t ->
             t?.let {
                 if (t.isEmpty()) adsVM.loadAd1()
             }
-        })
+        }
 
-        pageBackVM.imageBack.observe(viewLifecycleOwner, { img ->
+        pageBackVM.imageBack.observe(viewLifecycleOwner) { img ->
             binding.imgBack.setImageResource(img)
-        })
+        }
 
-        testVM.currentWord.observe(viewLifecycleOwner, {
+        testVM.currentWord.observe(viewLifecycleOwner) {
             binding.btnViewDict.text = it.dictName
-        })
+        }
 
-        testVM.wordsList.observe(viewLifecycleOwner, {
-            if (it.isNotEmpty())
-            {
+        testVM.wordsList.observe(viewLifecycleOwner) {
+            if (it.isNotEmpty()) {
                 binding.btnViewDict.text = testVM.wordsList.value!![0].dictName
                 binding.enWordTV.text = testVM.wordsList.value!![0].english
                 binding.enWordTV.apply {
@@ -113,15 +112,13 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 }
                 binding.ruWordTV.text = testVM.wordsList.value!![0].translate
             }
-        })
+        }
 
         testVM.resetRight()
-        testVM.isRight.observe(viewLifecycleOwner, { isRight ->
+        testVM.isRight.observe(viewLifecycleOwner) { isRight ->
             isRight?.let {
-                when(it)
-                {
-                    true ->
-                    {
+                when (it) {
+                    true -> {
                         LockOrientation(requireActivity()).lock()
                         testVM.rightAnswerCounter++
                         Keyboard.getInstance().forceHide(requireContext(), binding.editTextView)
@@ -132,37 +129,42 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                             startDelay = 0
                             animIncreaseScaleListener(this)
                         }.start()
-                        Toast.makeText(requireContext(), getString(R.string.text_is_right), Toast.LENGTH_LONG).apply {
+                        Toast.makeText(
+                            requireContext(),
+                            getString(R.string.text_is_right),
+                            Toast.LENGTH_LONG
+                        ).apply {
                             setGravity(Gravity.TOP, 0, 0)
                         }.show()
                     }
-                    else ->
-                    {
+                    else -> {
                         testVM.rightAnswerCounter--
-                        Toast.makeText(requireContext(), getString(R.string.text_wrong), Toast.LENGTH_LONG).apply {
+                        Toast.makeText(
+                            requireContext(),
+                            getString(R.string.text_wrong),
+                            Toast.LENGTH_LONG
+                        ).apply {
                             setGravity(Gravity.TOP, 0, 0)
                         }.show()
-                        val animNotRight = AnimationUtils.loadAnimation(requireContext(), R.anim.anim_not_right)
-                        animNotRight.setAnimationListener(object : Animation.AnimationListener
-                        {
-                            override fun onAnimationStart(p0: Animation?)
-                            {
+                        val animNotRight =
+                            AnimationUtils.loadAnimation(requireContext(), R.anim.anim_not_right)
+                        animNotRight.setAnimationListener(object : Animation.AnimationListener {
+                            override fun onAnimationStart(p0: Animation?) {
                                 binding.checkBtn.setBackgroundResource(R.drawable.text_btn_for_test_red)
                             }
 
-                            override fun onAnimationEnd(p0: Animation?)
-                            {
+                            override fun onAnimationEnd(p0: Animation?) {
                                 binding.checkBtn.setBackgroundResource(R.drawable.text_button_for_test)
                                 adsVM.showAd1(requireActivity())
                             }
 
-                            override fun onAnimationRepeat(p0: Animation?){}
+                            override fun onAnimationRepeat(p0: Animation?) {}
                         })
                         binding.checkBtn.startAnimation(animNotRight)
                     }
                 }
             }
-        })
+        }
 
         composite.add(
             RxTextView.textChanges(binding.editTextView)
@@ -177,19 +179,22 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                     t.printStackTrace()
                 }))
 
-        testVM.similarWords.observe(viewLifecycleOwner, { words ->
-            if (words.isNotEmpty())
-            {
+        testVM.similarWords.observe(viewLifecycleOwner) { words ->
+            if (words.isNotEmpty()) {
                 val translates = arrayListOf<String>()
                 words.forEach {
                     translates.add(it.translate)
                 }
-                val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, translates)
+                val adapter = ArrayAdapter(
+                    requireContext(),
+                    android.R.layout.simple_dropdown_item_1line,
+                    translates
+                )
                 binding.editTextView.apply {
                     setAdapter(adapter)
                 }
             }
-        })
+        }
 
         binding.checkBtn.setOnClickListener {
             val translateText = binding.editTextView.text.toString()
@@ -206,52 +211,46 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         }
 
         animVM.apply {
-            uiState.observe(viewLifecycleOwner, { state ->
-                if (state is UiState.TextViewCreated)
-                {
+            uiState.observe(viewLifecycleOwner) { state ->
+                if (state is UiState.TextViewCreated) {
+                    binding.ruWordTV.apply {
+                        scaleX = state.scaleX
+                        scaleY = state.scaleY
+                    }
+                } else if (state is UiState.TextViewAfterAnim) {
                     binding.ruWordTV.apply {
                         scaleX = state.scaleX
                         scaleY = state.scaleY
                     }
                 }
-                else if (state is UiState.TextViewAfterAnim)
-                {
-                    binding.ruWordTV.apply {
-                        scaleX = state.scaleX
-                        scaleY = state.scaleY
-                    }
-                }
-            })
+            }
         }
 
-        testVM.wordsCount.observe(viewLifecycleOwner, {
+        testVM.wordsCount.observe(viewLifecycleOwner) {
             binding.progressBar.max = it
             val progressValue = "1 / $it"
             binding.progressValueTV.text = progressValue
-        })
+        }
 
-        testVM.wordIndex.observe(viewLifecycleOwner, {
+        testVM.wordIndex.observe(viewLifecycleOwner) {
             binding.progressBar.progress = it
             val progressValue = "$it / ${testVM.wordsCount.value}"
             binding.progressValueTV.text = progressValue
-        })
+        }
 
-        animVM.animState.observe(viewLifecycleOwner, {
-            when (it)
-            {
+        animVM.animState.observe(viewLifecycleOwner) {
+            when (it) {
                 is UiState.AnimStarted -> LockOrientation(requireActivity()).lock()
-                is UiState.AnimEnded, is UiState.AnimCanceled ->
-                {
+                is UiState.AnimEnded, is UiState.AnimCanceled -> {
                     binding.checkBtn.setBackgroundResource(R.drawable.text_button_for_test)
                     LockOrientation(requireActivity()).unLock()
                 }
-                else ->
-                {
+                else -> {
                     binding.checkBtn.setBackgroundResource(R.drawable.text_button_for_test)
                     LockOrientation(requireActivity()).unLock()
                 }
             }
-        })
+        }
 
         binding.microphoneBtnView.setOnClickListener {
             // TODO Runtime permission Step 4
@@ -278,13 +277,13 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
             val ruWord = binding.ruWordTV.text.toString()
             val dictName = binding.btnViewDict.text.toString()
             val targetWord = Word(-1, dictName, enWord, ruWord, 1)
-            if (!subList.isNullOrEmpty())
+            if (subList.isNotEmpty())
             {
                 val hintDialog = HintDialogFragment.newInstance(targetWord, subList.toMutableList())
                 hintDialog.show(parentFragmentManager, HintDialogFragment.TAG)
-                hintDialog.selectedItem.observe(viewLifecycleOwner, {
+                hintDialog.selectedItem.observe(viewLifecycleOwner) {
                     binding.editTextView.setText(it)
-                })
+                }
             }
         }
 
@@ -293,12 +292,11 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
             dictList?.let {
                 val dictsDialog = DictListDialog.getInstance(it, this)
                 dictsDialog.show(parentFragmentManager, DictListDialog.TAG)
-                dictsDialog.selectedItem.observe(viewLifecycleOwner, { dict ->
-                    if (dict.isNotEmpty())
-                    {
+                dictsDialog.selectedItem.observe(viewLifecycleOwner) { dict ->
+                    if (dict.isNotEmpty()) {
                         testVM.getWordsByDictName(dict)
                     }
-                })
+                }
             }
         }
 
@@ -321,21 +319,19 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     override fun onStart()
     {
         super.onStart()
-        testVM.liveState.observe(viewLifecycleOwner, {
-            when(it)
-            {
-                is UiState.Initial ->
-                {
+        testVM.liveState.observe(viewLifecycleOwner) {
+            when (it) {
+                is UiState.Initial -> {
                     testVM.setLiveState(UiState.Active())
                     val wordIds = testVM.getWordIdsFromPref()
-                    if (wordIds.isNotEmpty())
-                    {
+                    if (wordIds.isNotEmpty()) {
                         DialogWarning().apply {
                             setListener(this@TestFragment)
-                        }.show(requireActivity().supportFragmentManager.beginTransaction(), DialogWarning.DIALOG_TAG)
-                    }
-                    else
-                    {
+                        }.show(
+                            requireActivity().supportFragmentManager.beginTransaction(),
+                            DialogWarning.DIALOG_TAG
+                        )
+                    } else {
                         val dictName = testVM.currentWord.value?.dictName
                         dictName?.let { dict ->
                             testVM.getWordsByDictName(dict)
@@ -345,7 +341,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 is UiState.Active -> {}
                 else -> {}
             }
-        })
+        }
 
     }
 
@@ -369,12 +365,12 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     {
         animator.setListener(object : Animator.AnimatorListener
         {
-            override fun onAnimationStart(p0: Animator?)
+            override fun onAnimationStart(p0: Animator)
             {
                 animVM.setAnimState(UiState.AnimStarted)
             }
 
-            override fun onAnimationEnd(p0: Animator?)
+            override fun onAnimationEnd(p0: Animator)
             {
                 binding.enWordTV.animate().scaleX(0f).scaleY(0f).apply {
                     duration = 500
@@ -391,12 +387,12 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 }.start()
             }
 
-            override fun onAnimationCancel(p0: Animator?)
+            override fun onAnimationCancel(p0: Animator)
             {
                 binding.checkBtn.setBackgroundResource(R.drawable.text_button_for_test)
             }
 
-            override fun onAnimationRepeat(p0: Animator?)
+            override fun onAnimationRepeat(p0: Animator)
             {
 
             }
@@ -407,12 +403,12 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     {
         animator.setListener(object : Animator.AnimatorListener
         {
-            override fun onAnimationStart(p0: Animator?)
+            override fun onAnimationStart(p0: Animator)
             {
 
             }
 
-            override fun onAnimationEnd(p0: Animator?)
+            override fun onAnimationEnd(p0: Animator)
             {
                 binding.editTextView.apply {
                     text.clear()
@@ -427,20 +423,20 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                         interpolator = AccelerateInterpolator()
                         setListener(object : Animator.AnimatorListener
                         {
-                            override fun onAnimationStart(p0: Animator?)
+                            override fun onAnimationStart(p0: Animator)
                             {}
 
-                            override fun onAnimationEnd(p0: Animator?)
+                            override fun onAnimationEnd(p0: Animator)
                             {
                                 animVM.setAnimState(UiState.AnimEnded())
                             }
 
-                            override fun onAnimationCancel(p0: Animator?)
+                            override fun onAnimationCancel(p0: Animator)
                             {
                                 animVM.setAnimState(UiState.AnimCanceled())
                             }
 
-                            override fun onAnimationRepeat(p0: Animator?)
+                            override fun onAnimationRepeat(p0: Animator)
                             {}
 
                         })
@@ -467,16 +463,9 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 }
             }
 
-            override fun onAnimationCancel(p0: Animator?)
-            {
+            override fun onAnimationCancel(p0: Animator) {}
 
-            }
-
-            override fun onAnimationRepeat(p0: Animator?)
-            {
-
-            }
-
+            override fun onAnimationRepeat(p0: Animator) {}
         })
     }
 
@@ -564,12 +553,11 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 dictList?.let {
                     val dictsDialog = DictListDialog.getInstance(it, this)
                     dictsDialog.show(parentFragmentManager, DictListDialog.TAG)
-                    dictsDialog.selectedItem.observe(viewLifecycleOwner, { dict ->
-                        if (dict.isNotEmpty())
-                        {
+                    dictsDialog.selectedItem.observe(viewLifecycleOwner) { dict ->
+                        if (dict.isNotEmpty()) {
                             testVM.getWordsByDictName(dict)
                         }
-                    })
+                    }
                 }
             }
             -1 ->
