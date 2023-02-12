@@ -23,7 +23,8 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".addword.TranslateActivity"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:exported="false">
 
             <intent-filter>
                 <action android:name="android.intent.action.PROCESS_TEXT" />
@@ -34,7 +35,8 @@
         </activity>
         <activity
             android:name=".main.SplashScreenActivity"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -59,7 +61,8 @@
             android:name=".main.MainActivity"
             android:label="@string/app_name"
             android:parentActivityName=".main.SplashScreenActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:exported="true">
             <intent-filter
                 android:autoVerify="true"
                 android:label="Английский изучай"
@@ -82,7 +85,8 @@
             android:screenOrientation="unspecified"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden"
-            tools:targetApi="jelly_bean">
+            tools:targetApi="jelly_bean"
+            android:exported="true">
             <intent-filter
                 android:autoVerify="true"
                 android:label="Англо-русский переводчик"
@@ -143,7 +147,8 @@
 <!--                <action android:name="android.intent.action.SCREEN_ON" />-->
 <!--            </intent-filter>-->
         </receiver>
-        <receiver android:name=".service.LexiconService$PhoneUnlockedReceiver">
+        <receiver android:name=".service.LexiconService$PhoneUnlockedReceiver"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.SCREEN_ON" />
                 <action android:name="android.intent.action.SCREEN_OFF" />
