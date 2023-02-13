@@ -115,7 +115,6 @@ class TestViewModel @Inject constructor(app: Application, private val repository
         _isRight.value?.let {
             if (it && _wordsList.value!!.isNotEmpty())
             {
-                _nextWordsPair.value = _wordsList.value!![0]
                 _wordIndex.value = _wordsCount.value!! - _wordsList.value!!.size
             }
             else if (it && _wordsList.value!!.isEmpty())
@@ -125,8 +124,6 @@ class TestViewModel @Inject constructor(app: Application, private val repository
         }
     }
 
-    private var _nextWordsPair = MutableLiveData<Word>()
-    var nextWordsPair: LiveData<Word> = _nextWordsPair
     fun getNextWords() : Word?
     {
         return if (_wordsList.value!!.isNotEmpty())
@@ -140,7 +137,7 @@ class TestViewModel @Inject constructor(app: Application, private val repository
     }
 
     private var _wordsCount = MutableLiveData<Int>().apply {
-        value = _wordsList.value!!.size
+        value = _wordsList.value?.size?: 0
     }
     var wordsCount: LiveData<Int> = _wordsCount
 

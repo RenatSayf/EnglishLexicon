@@ -63,7 +63,6 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     private val adsVM2 by viewModels<AdViewModel2>()
     private var yandexAd2: InterstitialAd? = null
     private val composite = CompositeDisposable()
-    private var completeDialog: DialogTestComplete? = null
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
@@ -366,7 +365,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 }
             }
         }
-        yandexAd2?.showInterstitialAd {}
+        //yandexAd2?.showInterstitialAd {}
         super.onDestroyView()
     }
 
@@ -399,7 +398,6 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 binding.enWordTV.animate().scaleX(0f).scaleY(0f).apply {
                     duration = 500
                     interpolator = AnticipateOvershootInterpolator()
-                    animDecreaseScaleListener(this)
                     startDelay = 1000
                 }.start()
 
@@ -471,19 +469,17 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                         setGravity(Gravity.TOP, 0, 0)
                     }.show()
 
-                    val total = testVM.wordsCount.value!!
+                    val total = testVM.wordsCount.value?: 0
+                    binding.checkBtn.setBackgroundResource(R.drawable.text_button_for_test)
                     val correctly = testVM.rightAnswerCounter
-                    if (completeDialog == null)
-                    {
-                        completeDialog = DialogTestComplete().apply {
-                            arguments = Bundle().apply {
-                                putInt(DialogTestComplete.TOTAL_NUM, total)
-                                putInt(DialogTestComplete.CORRECTLY_NUM, correctly)
-                            }
-                            setListener(this@TestFragment)
+                    val completeDialog = DialogTestComplete().apply {
+                        arguments = Bundle().apply {
+                            putInt(DialogTestComplete.TOTAL_NUM, total)
+                            putInt(DialogTestComplete.CORRECTLY_NUM, correctly)
                         }
-                        completeDialog?.show(requireActivity().supportFragmentManager, DialogTestComplete.TAG)
+                        setListener(this@TestFragment)
                     }
+                    completeDialog.show(parentFragmentManager, DialogTestComplete.TAG)
                 }
             }
 
