@@ -22,9 +22,9 @@ import androidx.fragment.app.viewModels
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.myapp.lexicon.R
-import com.myapp.lexicon.ads.AdsViewModel
+import com.myapp.lexicon.ads.AdViewModel2
+import com.myapp.lexicon.ads.showInterstitialAd
 import com.myapp.lexicon.billing.BillingViewModel
-import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.databinding.TestFragmentBinding
 import com.myapp.lexicon.dialogs.DictListDialog
 import com.myapp.lexicon.helpers.Keyboard
@@ -32,8 +32,11 @@ import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.UiState
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.SpeechViewModel
+import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.viewmodels.AnimViewModel
 import com.myapp.lexicon.viewmodels.PageBackViewModel
+import com.yandex.mobile.ads.common.AdRequestError
+import com.yandex.mobile.ads.interstitial.InterstitialAd
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.disposables.CompositeDisposable
 import java.util.*
@@ -57,7 +60,8 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     private val speechVM: SpeechViewModel by viewModels()
     private val pageBackVM: PageBackViewModel by viewModels()
     private val billingVM: BillingViewModel by viewModels()
-    private val adsVM: AdsViewModel by viewModels()
+    private val adsVM2 by viewModels<AdViewModel2>()
+    private var yandexAd2: InterstitialAd? = null
     private val composite = CompositeDisposable()
     private var completeDialog: DialogTestComplete? = null
 
@@ -89,8 +93,15 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         binding = TestFragmentBinding.bind(view)
 
         billingVM.noAdsToken.observe(viewLifecycleOwner) { t ->
-            t?.let {
-                if (t.isEmpty()) adsVM.loadAd1()
+            if (t.isNullOrEmpty()) {
+                adsVM2.loadYandexAd(2, listener = object : AdViewModel2.YandexAdListener {
+                    override fun onYandexAdLoaded(ad: InterstitialAd) {
+                        yandexAd2 = ad
+                    }
+                    override fun onYandexAdFailed(error: AdRequestError) {
+                        yandexAd2 = null
+                    }
+                })
             }
         }
 
@@ -155,7 +166,6 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
 
                             override fun onAnimationEnd(p0: Animation?) {
                                 binding.checkBtn.setBackgroundResource(R.drawable.text_button_for_test)
-                                adsVM.showAd1(requireActivity())
                             }
 
                             override fun onAnimationRepeat(p0: Animation?) {}
@@ -356,8 +366,22 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 }
             }
         }
-        adsVM.showAd1(requireActivity())
+        yandexAd2?.showInterstitialAd {}
         super.onDestroyView()
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                yandexAd2?.showInterstitialAd {
+                    requireActivity().supportFragmentManager.popBackStack()
+                }?: run {
+                    requireActivity().supportFragmentManager.popBackStack()
+                }
+            }
+        })
     }
 
     // TODO ViewPropertyAnimation.Scale Step 6 слушатель анимации
@@ -562,7 +586,11 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
             }
             -1 ->
             {
-                requireActivity().onBackPressed()
+                yandexAd2?.showInterstitialAd {
+                    requireActivity().supportFragmentManager.popBackStack()
+                }?: run {
+                    requireActivity().supportFragmentManager.popBackStack()
+                }
             }
             else ->
             {
