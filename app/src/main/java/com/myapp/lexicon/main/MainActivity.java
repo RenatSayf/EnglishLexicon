@@ -21,8 +21,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.appindexing.Action;
@@ -32,7 +30,7 @@ import com.google.firebase.appindexing.builders.Actions;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
-import com.myapp.lexicon.ads.AdsViewModel;
+import com.myapp.lexicon.ads.AdViewModel2;
 import com.myapp.lexicon.billing.BillingViewModel;
 import com.myapp.lexicon.cloudstorage.StorageFragment2;
 import com.myapp.lexicon.database.AppDB;
@@ -51,6 +49,11 @@ import com.myapp.lexicon.settings.SettingsFragment;
 import com.myapp.lexicon.wordeditor.WordEditorActivity;
 import com.myapp.lexicon.wordstests.OneOfFiveFragm;
 import com.myapp.lexicon.wordstests.TestFragment;
+import com.yandex.mobile.ads.banner.AdSize;
+import com.yandex.mobile.ads.banner.BannerAdEventListener;
+import com.yandex.mobile.ads.banner.BannerAdView;
+import com.yandex.mobile.ads.common.AdRequestError;
+import com.yandex.mobile.ads.common.ImpressionData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +63,7 @@ import javax.inject.Inject;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageButton;
@@ -89,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public MainViewModel mainViewModel;
     private SpeechViewModel speechViewModel;
-    private AdsViewModel adsVM;
+    private AdViewModel2 adsVM;
     private final CompositeDisposable composite = new CompositeDisposable();
     private Word currentWord;
     private int wordsInterval = Integer.MAX_VALUE;
@@ -120,18 +124,56 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
         speechViewModel = new ViewModelProvider(this).get(SpeechViewModel.class);
         BillingViewModel billingVM = new ViewModelProvider(this).get(BillingViewModel.class);
-        adsVM = new ViewModelProvider(this).get(AdsViewModel.class);
+        adsVM = new ViewModelProvider(this).get(AdViewModel2.class);
 
         billingVM.getNoAdsToken().observe(this, t -> {
-            if (t != null && t.isEmpty())
+            if (t == null || t.isEmpty())
             {
-                LinearLayout adLayout = findViewById(R.id.adLayout);
-                if (adLayout != null)
+                BannerAdView adBanner = findViewById(R.id.banner_main);
+                if (adBanner != null)
                 {
-                    AdView mainBanner = adsVM.getMainBanner();
-                    adLayout.removeAllViews();
-                    adLayout.addView(mainBanner);
-                    mainBanner.loadAd(new AdRequest.Builder().build());
+                    String adId = adsVM.getBannerAdId(0);
+                    adBanner.setAdUnitId(adId);
+                    adBanner.setAdSize(AdSize.stickySize(AdSize.FULL_SCREEN.getWidth()));
+                    adBanner.loadAd(new com.yandex.mobile.ads.common.AdRequest.Builder().build());
+                    adBanner.setBannerAdEventListener(new BannerAdEventListener()
+                    {
+                        @Override
+                        public void onAdLoaded()
+                        {
+                            System.out.println("************* Banner is loaded ******************");
+                        }
+
+                        @Override
+                        public void onAdFailedToLoad(@NonNull AdRequestError adRequestError)
+                        {
+                            System.out.println("**************** Banner Error" + adRequestError.getDescription() + " *******************");
+                        }
+
+                        @Override
+                        public void onAdClicked()
+                        {
+
+                        }
+
+                        @Override
+                        public void onLeftApplication()
+                        {
+
+                        }
+
+                        @Override
+                        public void onReturnedToApplication()
+                        {
+
+                        }
+
+                        @Override
+                        public void onImpression(@Nullable ImpressionData impressionData)
+                        {
+
+                        }
+                    });
                 }
             }
         });
@@ -581,14 +623,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         String interval = preferences.getString(getString(R.string.key_show_intervals), "0");
-        if (interval != null)
+        int parseInt = Integer.parseInt(interval);
+        if (parseInt != 0)
         {
-            int parseInt = Integer.parseInt(interval);
-            if (parseInt != 0)
-            {
-                //scheduler.scheduleRepeat((parseInt*60*1000), (parseInt*60*1000));
-                scheduler.scheduleOne((long) parseInt * 60 * 1000);
-            }
+            scheduler.scheduleOne((long) parseInt * 60 * 1000);
         }
     }
 

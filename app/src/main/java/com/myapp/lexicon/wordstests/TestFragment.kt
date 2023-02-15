@@ -93,7 +93,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
 
         billingVM.noAdsToken.observe(viewLifecycleOwner) { t ->
             if (t.isNullOrEmpty()) {
-                adsVM2.loadYandexAd(2, listener = object : AdViewModel2.YandexAdListener {
+                adsVM2.loadInterstitialAd(2, listener = object : AdViewModel2.YandexAdListener {
                     override fun onYandexAdLoaded(ad: InterstitialAd) {
                         yandexAd2 = ad
                     }

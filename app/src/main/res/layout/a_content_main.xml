@@ -50,7 +50,7 @@
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:textColor="@drawable/selector_white_to_black"
                     android:background="@drawable/semitransparent_background"
-                    tools:text="Dict Name" />
+                    tools:text="@string/text_dictionaries" />
             </FrameLayout>
 
             <FrameLayout android:layout_width="0dp"
@@ -139,7 +139,7 @@
                 app:buttonTint="@color/colorWhite"
                 android:layoutDirection="rtl"/>
 
-            <Space
+            <View
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"/>
@@ -171,11 +171,11 @@
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     tools:visibility="visible"
-                    tools:targetApi="lollipop" />
+                    />
 
             </FrameLayout>
 
-            <Space
+            <View
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"/>
@@ -194,11 +194,14 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/adLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:orientation="vertical">
+            android:layout_height="wrap_content">
+
+            <com.yandex.mobile.ads.banner.BannerAdView
+                android:id="@+id/banner_main"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
         </LinearLayout>
 
     </LinearLayout>

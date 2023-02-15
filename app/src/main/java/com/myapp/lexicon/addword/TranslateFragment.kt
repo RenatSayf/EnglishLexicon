@@ -7,13 +7,18 @@ import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.ads.AdRequest
 import com.myapp.lexicon.R
+import com.myapp.lexicon.ads.AdViewModel2
 import com.myapp.lexicon.ads.AdsViewModel
+import com.myapp.lexicon.ads.showInterstitialAd
 import com.myapp.lexicon.billing.BillingViewModel
 import com.myapp.lexicon.databinding.TranslateFragmentBinding
 import com.myapp.lexicon.main.MainActivity
+import com.yandex.mobile.ads.common.AdRequestError
+import com.yandex.mobile.ads.interstitial.InterstitialAd
 import java.net.URLDecoder
 
 private const val TEXT = "translate_text"
@@ -23,6 +28,8 @@ class TranslateFragment : Fragment(R.layout.translate_fragment)
     private lateinit var binding: TranslateFragmentBinding
     private lateinit var billingVM: BillingViewModel
     private lateinit var adsVM: AdsViewModel
+    private val adsVM2 by viewModels<AdViewModel2>()
+    private var yandexAd: InterstitialAd? = null
     private lateinit var mActivity: AppCompatActivity
     private var adsToken = ""
 
@@ -66,9 +73,8 @@ class TranslateFragment : Fragment(R.layout.translate_fragment)
     {
         val root = inflater.inflate(R.layout.translate_fragment, container, false)
 
-        billingVM.noAdsToken.observe(viewLifecycleOwner, {
-            if (it != null && it.isEmpty())
-            {
+        billingVM.noAdsToken.observe(viewLifecycleOwner) {
+            if (it != null && it.isEmpty()) {
                 adsToken = it
                 val adLayout: LinearLayout = root.findViewById(R.id.adLayout)
                 val banner = adsVM.getAddWordBanner()
@@ -76,18 +82,27 @@ class TranslateFragment : Fragment(R.layout.translate_fragment)
                 banner.loadAd(AdRequest.Builder().build())
                 adsVM.loadAd2()
             }
-        })
 
-        adsVM.isAdClosed2.observe(viewLifecycleOwner, {
-            if (it)
-            {
-                when(mActivity)
-                {
+            if (it.isNullOrEmpty()) {
+                adsVM2.loadInterstitialAd(1, listener = object : AdViewModel2.YandexAdListener {
+                    override fun onYandexAdLoaded(ad: InterstitialAd) {
+                        yandexAd = ad
+                    }
+                    override fun onYandexAdFailed(error: AdRequestError) {
+                        yandexAd = null
+                    }
+                })
+            }
+        }
+
+        adsVM.isAdClosed2.observe(viewLifecycleOwner) {
+            if (it) {
+                when (mActivity) {
                     is MainActivity -> mActivity.supportFragmentManager.popBackStack()
                     is TranslateActivity -> mActivity.finish()
                 }
             }
-        })
+        }
         return root
     }
 
@@ -117,58 +132,55 @@ class TranslateFragment : Fragment(R.layout.translate_fragment)
         }
 
         //todo Отправка события в активити/фрагмент: Step 4. End
-        AppJavaScriptInterface.parseEvent.observe(viewLifecycleOwner, {
-            if (!it.hasBeenHandled)
-            {
+        AppJavaScriptInterface.parseEvent.observe(viewLifecycleOwner) {
+            if (!it.hasBeenHandled) {
                 val content = it.getContent()
-                if (!content.isNullOrEmpty())
-                {
-                    AddWordDialog.getInstance(content).show(mActivity.supportFragmentManager, AddWordDialog.TAG)
+                if (!content.isNullOrEmpty()) {
+                    AddWordDialog.getInstance(content)
+                        .show(mActivity.supportFragmentManager, AddWordDialog.TAG)
                 }
             }
             binding.loadProgress.visibility = View.GONE
-        })
+        }
     }
 
     override fun onResume()
     {
         super.onResume()
-        activity?.onBackPressedDispatcher?.addCallback(object : OnBackPressedCallback(true)
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true)
         {
             override fun handleOnBackPressed()
             {
-                when
-                {
-                    adsToken.isEmpty() -> adsVM.showAd2(mActivity)
-                    else ->
+                yandexAd?.showInterstitialAd {
+                    when(mActivity)
                     {
-                        when(mActivity)
-                        {
-                            is MainActivity -> mActivity.supportFragmentManager.popBackStack()
-                            is TranslateActivity -> mActivity.finish()
-                        }
+                        is MainActivity -> parentFragmentManager.popBackStack()
+                        is TranslateActivity -> requireActivity().finish()
+                    }
+                }?: run {
+                    when (mActivity) {
+                        is MainActivity -> parentFragmentManager.popBackStack()
+                        is TranslateActivity -> requireActivity().finish()
                     }
                 }
-                this.remove()
             }
         })
-
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean
     {
         if (item.itemId == android.R.id.home)
         {
-            when
-            {
-                adsToken.isEmpty() -> adsVM.showAd2(mActivity)
-                else ->
+            yandexAd?.showInterstitialAd {
+                when(mActivity)
                 {
-                    when(mActivity)
-                    {
-                        is MainActivity -> mActivity.supportFragmentManager.popBackStack()
-                        is TranslateActivity -> mActivity.finish()
-                    }
+                    is MainActivity -> mActivity.supportFragmentManager.popBackStack()
+                    is TranslateActivity -> mActivity.finish()
+                }
+            }?: run {
+                when (mActivity) {
+                    is MainActivity -> mActivity.supportFragmentManager.popBackStack()
+                    is TranslateActivity -> mActivity.finish()
                 }
             }
         }

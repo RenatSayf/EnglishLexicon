@@ -237,6 +237,7 @@
     <string name="text_ad">Реклама</string>
     <string name="text_show_ads">Показывать рекламу</string>
     <string name="text_enabled_permission_pop_up">Включите разрешения для всплывающих окон, и отображения на экране блокировки</string>
+    <string name="text_dictionries">Словари</string>
     <string-array name="not_move">
         <item>Не перемещать</item>
     </string-array>

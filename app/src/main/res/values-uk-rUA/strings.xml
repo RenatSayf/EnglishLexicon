@@ -290,6 +290,7 @@
     <string name="text_ad">Реклама</string>
     <string name="text_show_ads">Показувати рекламу</string>
     <string name="text_enabled_permission_pop_up">Увімкніть дозволи для спливаючих вікон і відображення на екрані блокування</string>
+    <string name="text_dictionries">Словари</string>
 
     <string-array name="words_interval">
         <item>після 5 слів</item>

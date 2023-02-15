@@ -14,9 +14,8 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class AdViewModel2 @Inject constructor(private val app: Application): AndroidViewModel(app) {
+open class AdViewModel2 @Inject constructor(val app: Application): AndroidViewModel(app) {
 
-    private var googleInitStatus: Boolean = false
     private var yandexInitStatus: Boolean = false
     private val isDisabled = false
     private val yandexAdRequest = com.yandex.mobile.ads.common.AdRequest.Builder().build()
@@ -28,6 +27,13 @@ class AdViewModel2 @Inject constructor(private val app: Application): AndroidVie
     )
     private val interstitialTestAdId = "demo-interstitial-yandex"
 
+    private val bannerAdIds = listOf(
+        "R-M-711878-1",
+        "R-M-711878-2",
+        "R-M-711878-3"
+    )
+    private val testBannerAdId = "demo-banner-yandex"
+
     init {
         com.yandex.mobile.ads.common.MobileAds.initialize(app, object : InitializationListener {
             override fun onInitializationCompleted() {
@@ -37,9 +43,9 @@ class AdViewModel2 @Inject constructor(private val app: Application): AndroidVie
         })
     }
 
-    fun loadYandexAd(indexId: Int = 0, listener: YandexAdListener) {
+    fun loadInterstitialAd(indexId: Int = 0, listener: YandexAdListener) {
         if (!isDisabled) {
-            val yandexAdId = getYandexAdId(indexId)
+            val yandexAdId = getInterstitialAdId(indexId)
             com.yandex.mobile.ads.interstitial.InterstitialAd(app).apply {
                 setAdUnitId(yandexAdId)
                 loadAd(yandexAdRequest)
@@ -71,7 +77,7 @@ class AdViewModel2 @Inject constructor(private val app: Application): AndroidVie
         }
     }
 
-    private fun getYandexAdId(index: Int = 0): String {
+    private fun getInterstitialAdId(index: Int = 0): String {
         return if (BuildConfig.DEBUG) {
             interstitialTestAdId
         } else {
@@ -79,7 +85,20 @@ class AdViewModel2 @Inject constructor(private val app: Application): AndroidVie
                 interstitialAdIds[index]
             } catch (e: IndexOutOfBoundsException) {
                 if (BuildConfig.DEBUG) e.printStackTrace()
-                ""
+                interstitialAdIds[0]
+            }
+        }
+    }
+
+    fun getBannerAdId(index: Int = 0): String {
+        return if (BuildConfig.DEBUG) {
+            testBannerAdId
+        }else {
+            try {
+                bannerAdIds[index]
+            } catch (e: IndexOutOfBoundsException) {
+                if (BuildConfig.DEBUG) e.printStackTrace()
+                bannerAdIds[0]
             }
         }
     }
