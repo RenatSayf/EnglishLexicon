@@ -3,16 +3,17 @@ package com.myapp.lexicon.addword
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.*
-import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.gms.ads.AdRequest
+import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdViewModel2
 import com.myapp.lexicon.ads.AdsViewModel
+import com.myapp.lexicon.ads.loadBanner
 import com.myapp.lexicon.ads.showInterstitialAd
 import com.myapp.lexicon.billing.BillingViewModel
 import com.myapp.lexicon.databinding.TranslateFragmentBinding
@@ -20,6 +21,7 @@ import com.myapp.lexicon.main.MainActivity
 import com.yandex.mobile.ads.common.AdRequestError
 import com.yandex.mobile.ads.interstitial.InterstitialAd
 import java.net.URLDecoder
+import androidx.core.view.MenuProvider
 
 private const val TEXT = "translate_text"
 
@@ -31,7 +33,6 @@ class TranslateFragment : Fragment(R.layout.translate_fragment)
     private val adsVM2 by viewModels<AdViewModel2>()
     private var yandexAd: InterstitialAd? = null
     private lateinit var mActivity: AppCompatActivity
-    private var adsToken = ""
 
     companion object
     {
@@ -73,17 +74,8 @@ class TranslateFragment : Fragment(R.layout.translate_fragment)
     {
         val root = inflater.inflate(R.layout.translate_fragment, container, false)
 
-        billingVM.noAdsToken.observe(viewLifecycleOwner) {
-            if (it != null && it.isEmpty()) {
-                adsToken = it
-                val adLayout: LinearLayout = root.findViewById(R.id.adLayout)
-                val banner = adsVM.getAddWordBanner()
-                adLayout.addView(banner)
-                banner.loadAd(AdRequest.Builder().build())
-                adsVM.loadAd2()
-            }
-
-            if (it.isNullOrEmpty()) {
+        billingVM.noAdsToken.observe(viewLifecycleOwner) { token ->
+            if (token.isNullOrEmpty()) {
                 adsVM2.loadInterstitialAd(1, listener = object : AdViewModel2.YandexAdListener {
                     override fun onYandexAdLoaded(ad: InterstitialAd) {
                         yandexAd = ad
@@ -91,6 +83,13 @@ class TranslateFragment : Fragment(R.layout.translate_fragment)
                     override fun onYandexAdFailed(error: AdRequestError) {
                         yandexAd = null
                     }
+                })
+
+                val adView = binding.bannerTranslator
+                loadBanner(index = 2, adView = adView, success = {
+                    if (BuildConfig.DEBUG) println("****************** Ad has success loaded *****************")
+                }, error = { err ->
+                    if (BuildConfig.DEBUG) println("******************* Ad request error - code: ${err.code}, ${err.description} *****************")
                 })
             }
         }
@@ -165,27 +164,51 @@ class TranslateFragment : Fragment(R.layout.translate_fragment)
                 }
             }
         })
+
+        val toolbar = requireActivity().findViewById<Toolbar>(R.id.toolbar_word_editor)
+        toolbar.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {}
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                if (menuItem.itemId == android.R.id.home)
+                {
+                    yandexAd?.showInterstitialAd {
+                        when(mActivity)
+                        {
+                            is MainActivity -> mActivity.supportFragmentManager.popBackStack()
+                            is TranslateActivity -> mActivity.finish()
+                        }
+                    }?: run {
+                        when (mActivity) {
+                            is MainActivity -> mActivity.supportFragmentManager.popBackStack()
+                            is TranslateActivity -> mActivity.finish()
+                        }
+                    }
+                }
+                return false
+            }
+        })
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean
-    {
-        if (item.itemId == android.R.id.home)
-        {
-            yandexAd?.showInterstitialAd {
-                when(mActivity)
-                {
-                    is MainActivity -> mActivity.supportFragmentManager.popBackStack()
-                    is TranslateActivity -> mActivity.finish()
-                }
-            }?: run {
-                when (mActivity) {
-                    is MainActivity -> mActivity.supportFragmentManager.popBackStack()
-                    is TranslateActivity -> mActivity.finish()
-                }
-            }
-        }
-        return super.onOptionsItemSelected(item)
-    }
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean
+//    {
+//        if (item.itemId == android.R.id.home)
+//        {
+//            yandexAd?.showInterstitialAd {
+//                when(mActivity)
+//                {
+//                    is MainActivity -> mActivity.supportFragmentManager.popBackStack()
+//                    is TranslateActivity -> mActivity.finish()
+//                }
+//            }?: run {
+//                when (mActivity) {
+//                    is MainActivity -> mActivity.supportFragmentManager.popBackStack()
+//                    is TranslateActivity -> mActivity.finish()
+//                }
+//            }
+//        }
+//        return super.onOptionsItemSelected(item)
+//    }
 
 
 }

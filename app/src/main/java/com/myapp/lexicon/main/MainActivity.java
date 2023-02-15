@@ -27,6 +27,7 @@ import com.google.firebase.appindexing.Action;
 import com.google.firebase.appindexing.FirebaseAppIndex;
 import com.google.firebase.appindexing.FirebaseUserActions;
 import com.google.firebase.appindexing.builders.Actions;
+import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
@@ -127,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         adsVM = new ViewModelProvider(this).get(AdViewModel2.class);
 
         billingVM.getNoAdsToken().observe(this, t -> {
-            if (t == null || t.isEmpty())
+            if (t == null)
             {
                 BannerAdView adBanner = findViewById(R.id.banner_main);
                 if (adBanner != null)
@@ -135,45 +136,43 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     String adId = adsVM.getBannerAdId(0);
                     adBanner.setAdUnitId(adId);
                     adBanner.setAdSize(AdSize.stickySize(AdSize.FULL_SCREEN.getWidth()));
-                    adBanner.loadAd(new com.yandex.mobile.ads.common.AdRequest.Builder().build());
                     adBanner.setBannerAdEventListener(new BannerAdEventListener()
                     {
                         @Override
                         public void onAdLoaded()
                         {
-                            System.out.println("************* Banner is loaded ******************");
+                            if (BuildConfig.DEBUG)
+                            {
+                                System.out.println("************* Banner is loaded ******************");
+                            }
                         }
 
                         @Override
                         public void onAdFailedToLoad(@NonNull AdRequestError adRequestError)
                         {
-                            System.out.println("**************** Banner Error" + adRequestError.getDescription() + " *******************");
+                            if (BuildConfig.DEBUG)
+                            {
+                                System.out.println("**************** Banner Error" + adRequestError.getDescription() + " *******************");
+                            }
                         }
 
                         @Override
                         public void onAdClicked()
-                        {
-
-                        }
+                        {}
 
                         @Override
                         public void onLeftApplication()
-                        {
-
-                        }
+                        {}
 
                         @Override
                         public void onReturnedToApplication()
-                        {
-
-                        }
+                        {}
 
                         @Override
                         public void onImpression(@Nullable ImpressionData impressionData)
-                        {
-
-                        }
+                        {}
                     });
+                    adBanner.loadAd(new com.yandex.mobile.ads.common.AdRequest.Builder().build());
                 }
             }
         });

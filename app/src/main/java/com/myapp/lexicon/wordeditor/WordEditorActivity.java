@@ -22,11 +22,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
+import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.addword.AddWordViewModel;
-import com.myapp.lexicon.ads.AdsViewModel;
+import com.myapp.lexicon.ads.AdViewModel2;
 import com.myapp.lexicon.billing.BillingViewModel;
 import com.myapp.lexicon.helpers.AppBus;
 import com.myapp.lexicon.helpers.LockOrientation;
@@ -34,6 +33,11 @@ import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SpeechViewModel;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.viewmodels.EditorSearchViewModel;
+import com.yandex.mobile.ads.banner.AdSize;
+import com.yandex.mobile.ads.banner.BannerAdEventListener;
+import com.yandex.mobile.ads.banner.BannerAdView;
+import com.yandex.mobile.ads.common.AdRequestError;
+import com.yandex.mobile.ads.common.ImpressionData;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,6 +45,7 @@ import java.util.List;
 import java.util.Locale;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
@@ -71,7 +76,6 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
     private MainViewModel vm;
     private EditorViewModel evm;
     private AddWordViewModel addWordVM;
-    private AdsViewModel adsVM;
     private SpeechViewModel spechVM;
 
     private void initViews()
@@ -137,7 +141,6 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
         evm = new ViewModelProvider(this).get(EditorViewModel.class);
         addWordVM = new ViewModelProvider(WordEditorActivity.this).get(AddWordViewModel.class);
         BillingViewModel billingVM = new ViewModelProvider(this).get(BillingViewModel.class);
-        adsVM = new ViewModelProvider(this).get(AdsViewModel.class);
         spechVM = new ViewModelProvider(this).get(SpeechViewModel.class);
 
         initViews();
@@ -202,15 +205,53 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             tvAmountWords.setText(text);
         });
 
+        AdViewModel2 adsVM = new ViewModelProvider(this).get(AdViewModel2.class);
         billingVM.getNoAdsToken().observe(this, t -> {
-            if (t != null && t.isEmpty())
+            if (t == null)
             {
-                LinearLayout adLayout = findViewById(R.id.adLayout);
-                if (adLayout != null)
+                BannerAdView adBanner = findViewById(R.id.banner_editor);
+                if (adBanner != null)
                 {
-                    AdView banner = adsVM.getEditorBanner();
-                    adLayout.addView(banner);
-                    banner.loadAd(new AdRequest.Builder().build());
+                    String adId = adsVM.getBannerAdId(1);
+                    adBanner.setAdUnitId(adId);
+                    adBanner.setAdSize(AdSize.stickySize(AdSize.FULL_SCREEN.getWidth()));
+                    adBanner.setBannerAdEventListener(new BannerAdEventListener()
+                    {
+                        @Override
+                        public void onAdLoaded()
+                        {
+                            if (BuildConfig.DEBUG)
+                            {
+                                System.out.println("************* Banner is loaded ******************");
+                            }
+                        }
+
+                        @Override
+                        public void onAdFailedToLoad(@NonNull AdRequestError adRequestError)
+                        {
+                            if (BuildConfig.DEBUG)
+                            {
+                                System.out.println("**************** Banner Error" + adRequestError.getDescription() + " *******************");
+                            }
+                        }
+
+                        @Override
+                        public void onAdClicked()
+                        {}
+
+                        @Override
+                        public void onLeftApplication()
+                        {}
+
+                        @Override
+                        public void onReturnedToApplication()
+                        {}
+
+                        @Override
+                        public void onImpression(@Nullable ImpressionData impressionData)
+                        {}
+                    });
+                    adBanner.loadAd(new com.yandex.mobile.ads.common.AdRequest.Builder().build());
                 }
             }
         });

@@ -116,7 +116,7 @@ class BillingViewModel @Inject constructor(private val app: Application) : Andro
 
     init
     {
-        val token = app.getSharedPreferences(KEY_BILLING, Context.MODE_PRIVATE).getString(KEY_PURCHASE_TOKEN, "")
+        val token = app.getSharedPreferences(KEY_BILLING, Context.MODE_PRIVATE).getString(KEY_PURCHASE_TOKEN, null)
         if (!token.isNullOrEmpty())
         {
             _noAdsToken.value = token
@@ -142,14 +142,14 @@ class BillingViewModel @Inject constructor(private val app: Application) : Andro
                                     return@launch
                                 }
                             }
-                            _noAdsToken.postValue("")
+                            //_noAdsToken.postValue("")
                         }
                     }
                 }
 
                 override fun onBillingServiceDisconnected()
                 {
-                    _noAdsToken.postValue("ZZZZZZZZZZZZZZZZZZZZ")
+                    _noAdsToken.postValue(null)
                 }
             })
         }
