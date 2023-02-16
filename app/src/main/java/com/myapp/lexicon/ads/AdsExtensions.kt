@@ -25,7 +25,7 @@ private val interstitialAdIds = listOf(
     "R-M-711878-5",
     "R-M-711878-4"
 )
-private const val interstitialTestAdId = "demo-interstitial-yandex"
+private const val testInterstitialAdId = "demo-interstitial-yandex"
 
 fun InterstitialAd.showInterstitialAd(
     success: () -> Unit = {},
@@ -66,7 +66,7 @@ fun Context.loadInterstitialAd(
     val ad = InterstitialAd(this)
     ad.apply {
         if (BuildConfig.DEBUG) {
-            setAdUnitId(interstitialTestAdId)
+            setAdUnitId(testInterstitialAdId)
         }else {
             val id = try {
                 interstitialAdIds[index]

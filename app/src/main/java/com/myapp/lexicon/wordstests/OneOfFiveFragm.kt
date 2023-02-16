@@ -231,7 +231,15 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDia
 
     override fun onTestFailed(errors: Int)
     {
-        onTestPassed()
+        yandexAd2?.showInterstitialAd(
+            dismiss = {
+                mActivity.supportFragmentManager.popBackStack()
+                mActivity.testFailed(errors)
+            }
+        )?: run {
+            mActivity.supportFragmentManager.popBackStack()
+            mActivity.testFailed(errors)
+        }
     }
 
 }
