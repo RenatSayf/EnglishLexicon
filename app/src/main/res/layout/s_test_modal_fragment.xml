@@ -220,6 +220,12 @@
         android:layout_gravity="bottom"
         android:layout_marginTop="20dp"
         android:orientation="vertical">
+
+        <com.yandex.mobile.ads.banner.BannerAdView
+            android:id="@+id/banner_test_dialog"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
     </LinearLayout>
 
 </LinearLayout>

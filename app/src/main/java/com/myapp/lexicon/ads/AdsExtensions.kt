@@ -1,6 +1,7 @@
 package com.myapp.lexicon.ads
 
 import android.content.Context
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import com.myapp.lexicon.BuildConfig
 import com.yandex.mobile.ads.banner.AdSize
@@ -16,7 +17,9 @@ import com.yandex.mobile.ads.interstitial.InterstitialAdEventListener
 private val bannerAdIds = listOf(
     "R-M-711878-1",
     "R-M-711878-2",
-    "R-M-711878-3"
+    "R-M-711878-3",
+    "R-M-711878-7",
+    "R-M-711878-8"
 )
 private const val testBannerAdId = "demo-banner-yandex"
 
@@ -160,6 +163,15 @@ fun Fragment.loadBanner(
 ) {
     requireContext().loadBanner(index, adView, success, error)
 }
+
+//fun DialogFragment.loadBanner(
+//    index: Int,
+//    adView: BannerAdView,
+//    success: () -> Unit = {},
+//    error: (error: AdRequestError) -> Unit = {}
+//) {
+//    requireContext().loadBanner(index, adView, success, error)
+//}
 
 
 

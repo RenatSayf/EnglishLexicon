@@ -4,7 +4,6 @@ package com.myapp.lexicon.service;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -17,17 +16,18 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
+import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.ads.AdsViewModel;
 import com.myapp.lexicon.billing.BillingViewModel;
-import com.myapp.lexicon.models.Word;
+import com.myapp.lexicon.helpers.JavaKotlinMediator;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
 import com.myapp.lexicon.helpers.StringOperations;
 import com.myapp.lexicon.interfaces.IModalFragment;
 import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SpeechViewModel;
+import com.myapp.lexicon.models.Word;
+import com.yandex.mobile.ads.banner.BannerAdView;
+import com.yandex.mobile.ads.common.AdRequestError;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,7 +58,6 @@ public class TestModalFragment extends DialogFragment
 
     private MainViewModel viewModel;
     private SpeechViewModel speechVM;
-    private AdsViewModel adsVM;
     private final CompositeDisposable composite = new CompositeDisposable();
 
     public TestModalFragment()
@@ -92,21 +91,38 @@ public class TestModalFragment extends DialogFragment
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState)
     {
-        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.s_test_modal_fragment, new LinearLayout(requireContext()), false);
+        View dialogView = getLayoutInflater().inflate(R.layout.s_test_modal_fragment, new LinearLayout(requireContext()), false);
 
         AlertDialog dialog = new AlertDialog.Builder(requireContext()).setView(dialogView).create();
 
         BillingViewModel billingVM = new ViewModelProvider(this).get(BillingViewModel.class);
-        adsVM = new ViewModelProvider(this).get(AdsViewModel.class);
         billingVM.getNoAdsToken().observe(this, token -> {
-            if (token != null && token.isEmpty())
+            if (token == null)
             {
-                LinearLayout adLayout = dialogView.findViewById(R.id.adLayout);
-                if (adLayout != null)
+                BannerAdView adBanner = dialogView.findViewById(R.id.banner_test_dialog);
+                if (adBanner != null)
                 {
-                    AdView mainBanner = adsVM.getMainBanner();
-                    adLayout.addView(mainBanner);
-                    mainBanner.loadAd(new AdRequest.Builder().build());
+                    JavaKotlinMediator mediator = new JavaKotlinMediator();
+                    mediator.loadBannerAd(requireContext(), 4, adBanner, new JavaKotlinMediator.BannerAdListener()
+                    {
+                        @Override
+                        public void onSuccess()
+                        {
+                            if (BuildConfig.DEBUG)
+                            {
+                                System.out.println("************* Banner is loaded ******************");
+                            }
+                        }
+
+                        @Override
+                        public void onError(@NonNull AdRequestError error)
+                        {
+                            if (BuildConfig.DEBUG)
+                            {
+                                System.out.println("**************** Banner Error" + error.getDescription() + " *******************");
+                            }
+                        }
+                    });
                 }
             }
         });
@@ -263,7 +279,7 @@ public class TestModalFragment extends DialogFragment
             {
                 viewModel.goForward(Arrays.asList(words));
                 button.setBackgroundResource(R.drawable.btn_for_test_modal_green);
-                button.setTextColor(requireContext().getResources().getColor(R.color.colorWhite));
+                button.setTextColor(requireContext().getResources().getColor(R.color.colorWhite, null));
 
                 if (wordIsStudied)
                 {
@@ -279,7 +295,7 @@ public class TestModalFragment extends DialogFragment
             public void onAnimationEnd(Animation animation)
             {
                 button.setBackgroundResource(R.drawable.btn_for_test_modal_transp);
-                button.setTextColor(requireContext().getResources().getColor(R.color.colorLightGreen));
+                button.setTextColor(requireContext().getResources().getColor(R.color.colorLightGreen, null));
                 requireActivity().finish();
             }
 
@@ -303,7 +319,7 @@ public class TestModalFragment extends DialogFragment
                 if (getActivity() != null)
                 {
                     button.setBackgroundResource(R.drawable.btn_for_test_modal_red);
-                    button.setTextColor(getActivity().getResources().getColor(R.color.colorWhite));
+                    button.setTextColor(getActivity().getResources().getColor(R.color.colorWhite, null));
                     wordIsStudied = false;
                 }
             }
@@ -314,7 +330,7 @@ public class TestModalFragment extends DialogFragment
                 if (getActivity() != null)
                 {
                     button.setBackgroundResource(R.drawable.btn_for_test_modal_transp);
-                    button.setTextColor(getActivity().getResources().getColor(R.color.colorLightGreen));
+                    button.setTextColor(getActivity().getResources().getColor(R.color.colorLightGreen, null));
                 }
             }
 
