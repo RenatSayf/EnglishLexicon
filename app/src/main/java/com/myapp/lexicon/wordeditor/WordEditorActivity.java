@@ -25,19 +25,16 @@ import android.widget.ViewSwitcher;
 import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.addword.AddWordViewModel;
-import com.myapp.lexicon.ads.AdViewModel2;
 import com.myapp.lexicon.billing.BillingViewModel;
 import com.myapp.lexicon.helpers.AppBus;
+import com.myapp.lexicon.helpers.JavaKotlinMediator;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SpeechViewModel;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.viewmodels.EditorSearchViewModel;
-import com.yandex.mobile.ads.banner.AdSize;
-import com.yandex.mobile.ads.banner.BannerAdEventListener;
 import com.yandex.mobile.ads.banner.BannerAdView;
 import com.yandex.mobile.ads.common.AdRequestError;
-import com.yandex.mobile.ads.common.ImpressionData;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,7 +42,6 @@ import java.util.List;
 import java.util.Locale;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
@@ -73,8 +69,8 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
     private ProgressBar progressBar;
     private ViewSwitcher switcher;
 
-    private MainViewModel vm;
-    private EditorViewModel evm;
+    private MainViewModel mainVM;
+    private EditorViewModel editorVM;
     private AddWordViewModel addWordVM;
     private SpeechViewModel spechVM;
 
@@ -137,20 +133,20 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        vm = new ViewModelProvider(this).get(MainViewModel.class);
-        evm = new ViewModelProvider(this).get(EditorViewModel.class);
+        mainVM = new ViewModelProvider(this).get(MainViewModel.class);
+        editorVM = new ViewModelProvider(this).get(EditorViewModel.class);
         addWordVM = new ViewModelProvider(WordEditorActivity.this).get(AddWordViewModel.class);
         BillingViewModel billingVM = new ViewModelProvider(this).get(BillingViewModel.class);
         spechVM = new ViewModelProvider(this).get(SpeechViewModel.class);
 
         initViews();
 
-        vm.getDictionaryList().observe(this, dicts -> {
+        mainVM.getDictionaryList().observe(this, dicts -> {
             if (!dicts.isEmpty())
             {
                 ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, dicts);
                 dictListSpinner.setAdapter(adapterSpinner);
-                Word currentWord = vm.getCurrentWord().getValue();
+                Word currentWord = mainVM.getCurrentWord().getValue();
                 if (currentWord != null)
                 {
                     int index = dicts.indexOf(currentWord.getDictName());
@@ -159,12 +155,12 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
                         dictListSpinner.setSelection(index);
                     }
                     List<String> subList = dicts.subList(0, dicts.size());
-                    evm.setDictsToMove(subList);
+                    editorVM.setDictsToMove(subList);
                 }
             }
         });
 
-        evm.getDictsToMove().observe(this, dicts -> {
+        editorVM.getDictsToMove().observe(this, dicts -> {
             if (!dicts.isEmpty())
             {
                 String selectedItem = dictListSpinner.getSelectedItem().toString();
@@ -181,7 +177,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             }
         });
 
-        evm.isMoveWord().observe(this, isMove -> {
+        editorVM.isMoveWord().observe(this, isMove -> {
             if (isMove != null && checkMove != null)
             {
                 checkMove.setChecked(isMove);
@@ -197,7 +193,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
         });
 
 
-        evm.wordsList.observe(this, words -> {
+        editorVM.wordsList.observe(this, words -> {
             listViewAdapter = new ListViewAdapter((ArrayList<Word>) words, this);
             listView.setAdapter(listViewAdapter); // TODO: ListView setAdapter
             progressBar.setVisibility(View.GONE);
@@ -205,20 +201,17 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             tvAmountWords.setText(text);
         });
 
-        AdViewModel2 adsVM = new ViewModelProvider(this).get(AdViewModel2.class);
         billingVM.getNoAdsToken().observe(this, t -> {
             if (t == null)
             {
                 BannerAdView adBanner = findViewById(R.id.banner_editor);
                 if (adBanner != null)
                 {
-                    String adId = adsVM.getBannerAdId(1);
-                    adBanner.setAdUnitId(adId);
-                    adBanner.setAdSize(AdSize.stickySize(AdSize.FULL_SCREEN.getWidth()));
-                    adBanner.setBannerAdEventListener(new BannerAdEventListener()
+                    JavaKotlinMediator mediator = new JavaKotlinMediator();
+                    mediator.loadBannerAd(this, 1, adBanner, new JavaKotlinMediator.BannerAdListener()
                     {
                         @Override
-                        public void onAdLoaded()
+                        public void onSuccess()
                         {
                             if (BuildConfig.DEBUG)
                             {
@@ -227,44 +220,27 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
                         }
 
                         @Override
-                        public void onAdFailedToLoad(@NonNull AdRequestError adRequestError)
+                        public void onError(@NonNull AdRequestError error)
                         {
                             if (BuildConfig.DEBUG)
                             {
-                                System.out.println("**************** Banner Error" + adRequestError.getDescription() + " *******************");
+                                System.out.println("**************** Banner Error" + error.getDescription() + " *******************");
                             }
                         }
-
-                        @Override
-                        public void onAdClicked()
-                        {}
-
-                        @Override
-                        public void onLeftApplication()
-                        {}
-
-                        @Override
-                        public void onReturnedToApplication()
-                        {}
-
-                        @Override
-                        public void onImpression(@Nullable ImpressionData impressionData)
-                        {}
                     });
-                    adBanner.loadAd(new com.yandex.mobile.ads.common.AdRequest.Builder().build());
                 }
             }
         });
 
         buttonDelete = findViewById(R.id.btn_delete);
         buttonDelete_OnClick();
-        evm.getDeletedId().observe(this, id -> {
+        editorVM.getDeletedId().observe(this, id -> {
             if (id > 0)
             {
-                if (evm.selectedWord != null)
+                if (editorVM.selectedWord != null)
                 {
                     Toast.makeText(this, "Слово удалено", Toast.LENGTH_SHORT).show();
-                    evm.getAllWordsByDictName(evm.selectedWord.getDictName());
+                    editorVM.getAllWordsByDictName(editorVM.selectedWord.getDictName());
                 }
             }
             else if (id < 0)
@@ -282,11 +258,11 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
                 {
                     TextView textVie = (TextView) view;
                     String dictName = textVie.getText().toString();
-                    evm.getAllWordsByDictName(dictName);
-                    List<String> list = vm.getDictionaryList().getValue();
+                    editorVM.getAllWordsByDictName(dictName);
+                    List<String> list = mainVM.getDictionaryList().getValue();
                     if (list != null && !list.isEmpty())
                     {
-                        evm.setDictsToMove(list);
+                        editorVM.setDictsToMove(list);
                     }
                 }
             }
@@ -294,35 +270,35 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             public void onNothingSelected(AdapterView<?> parent){}
         });
 
-        evm.wordIsStudied.observe(this, isStudied -> {
-            if (isStudied != null && evm.selectedWord != null)
+        editorVM.wordIsStudied.observe(this, isStudied -> {
+            if (isStudied != null && editorVM.selectedWord != null)
             {
                 if (isStudied)
                 {
-                    evm.selectedWord.setCountRepeat(-1);
+                    editorVM.selectedWord.setCountRepeat(-1);
                 }
                 else
                 {
-                    evm.selectedWord.setCountRepeat(1);
+                    editorVM.selectedWord.setCountRepeat(1);
                 }
-                evm.updateWordInDb(Collections.singletonList(evm.selectedWord));
+                editorVM.updateWordInDb(Collections.singletonList(editorVM.selectedWord));
                 listViewAdapter.notifyDataSetChanged();
             }
         });
 
 
-        evm.getEnWord().observe(this, s -> {
+        editorVM.getEnWord().observe(this, s -> {
             editTextEn.setText(s);
         });
 
-        evm.getRuWord().observe(this, s -> {
+        editorVM.getRuWord().observe(this, s -> {
             editTextRu.setText(s);
         });
 
-        evm.isWordUpdated.observe(this, isUpdated -> {
+        editorVM.isWordUpdated.observe(this, isUpdated -> {
             if (isUpdated != null && isUpdated)
             {
-                evm.getAllWordsByDictName(dictListSpinner.getSelectedItem().toString());
+                editorVM.getAllWordsByDictName(dictListSpinner.getSelectedItem().toString());
                 AppBus.INSTANCE.updateWords(true);
                 Toast.makeText(getApplicationContext(), "Словарь обновлен...", Toast.LENGTH_LONG).show();
             }
@@ -335,10 +311,10 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             }
         });
 
-        vm.getCountRepeat().observe(this, id -> {
+        mainVM.getCountRepeat().observe(this, id -> {
             if (id != null && id > 0)
             {
-                evm.getAllWordsByDictName(dictListSpinner.getSelectedItem().toString());
+                editorVM.getAllWordsByDictName(dictListSpinner.getSelectedItem().toString());
                 AppBus.INSTANCE.updateWords(true);
             }
         });
@@ -346,8 +322,8 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
         Word wordFromMainActivity = AppBus.INSTANCE.getWord().getValue(); // получение слова из MainActivity
         if (wordFromMainActivity != null)
         {
-            evm.setEnWord(wordFromMainActivity.getEnglish());
-            evm.setRuWord(wordFromMainActivity.getTranslate());
+            editorVM.setEnWord(wordFromMainActivity.getEnglish());
+            editorVM.setRuWord(wordFromMainActivity.getTranslate());
             switcher.showNext();
         }
 
@@ -379,9 +355,9 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
                     .setMessage(getString(R.string.dialog_msg_delete_word) + tableName + "?")
                     .setPositiveButton(R.string.button_text_yes, (dialog, which) -> {
                         orientation.unLock();
-                        if (evm.selectedWord != null)
+                        if (editorVM.selectedWord != null)
                         {
-                            evm.deleteWordFromDb(evm.selectedWord);
+                            editorVM.deleteWordFromDb(editorVM.selectedWord);
                         }
                         switcher.showPrevious();
                     })
@@ -393,10 +369,10 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
     private void buttonWrite_OnClick()
     {
         buttonWrite.setOnClickListener(v -> {
-            if (evm.selectedWord != null)
+            if (editorVM.selectedWord != null)
             {
-                int id = evm.selectedWord.get_id();
-                String dict = evm.selectedWord.getDictName();
+                int id = editorVM.selectedWord.get_id();
+                String dict = editorVM.selectedWord.getDictName();
                 String enWord = editTextEn.getText().toString();
                 String ruWord = editTextRu.getText().toString();
                 int repeat = 1;
@@ -418,12 +394,12 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
                     else
                     {
                         addWordVM.insertEntryAsync(word);
-                        evm.deleteWordFromDb(evm.selectedWord);
+                        editorVM.deleteWordFromDb(editorVM.selectedWord);
                     }
                 }
                 else
                 {
-                    evm.updateWordInDb(Collections.singletonList(word));
+                    editorVM.updateWordInDb(Collections.singletonList(word));
                 }
             }
             switcher.showPrevious();
@@ -435,7 +411,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
     {
         checkMove.setOnClickListener(v ->
         {
-            evm.setMoveWord(checkMove.isChecked());
+            editorVM.setMoveWord(checkMove.isChecked());
         });
     }
 
@@ -471,7 +447,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
         int id = item.getItemId();
         if (id == R.id.do_repeat)
         {
-            vm.setCountRepeat(1, 1, Integer.MAX_VALUE);
+            mainVM.setCountRepeat(1, 1, Integer.MAX_VALUE);
         }
         if (id == android.R.id.home)
         {
@@ -529,9 +505,9 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
     @Override
     public void onItemClickListener(Word word)
     {
-        evm.selectedWord = word;
-        evm.setEnWord(word.getEnglish());
-        evm.setRuWord(word.getTranslate());
+        editorVM.selectedWord = word;
+        editorVM.setEnWord(word.getEnglish());
+        editorVM.setRuWord(word.getTranslate());
         CheckBox checkBox = findViewById(R.id.checkStudied2);
         checkBox.setChecked(word.getCountRepeat() <= 0);
         switcher.showNext();
@@ -542,14 +518,14 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
     {
         if (word.getCountRepeat() < 0 )
         {
-            evm.disableWord(false);
+            editorVM.disableWord(false);
             Toast.makeText(WordEditorActivity.this, getString(R.string.text_word_is_not_show), Toast.LENGTH_LONG).show();
         }
         else
         {
-            evm.disableWord(true);
+            editorVM.disableWord(true);
             Toast.makeText(WordEditorActivity.this, getString(R.string.text_word_is_enabled), Toast.LENGTH_LONG).show();
         }
-        evm.updateWordInDb(Collections.singletonList(word)); //TODO надо проверить обновление слова
+        editorVM.updateWordInDb(Collections.singletonList(word)); //TODO надо проверить обновление слова
     }
 }

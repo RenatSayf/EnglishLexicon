@@ -154,7 +154,7 @@ class TranslateFragment : Fragment(R.layout.translate_fragment)
             }
         })
 
-        val toolbar = requireActivity().findViewById<Toolbar>(R.id.toolbar_word_editor)
+        val toolbar = (requireActivity() as MainActivity).findViewById<Toolbar>(R.id.toolbar_word_editor)
         toolbar.addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {}
 

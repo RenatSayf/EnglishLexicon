@@ -11,13 +11,12 @@ import android.widget.Button
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.myapp.lexicon.R
 import com.myapp.lexicon.adapters.OneFiveTestAdapter
-import com.myapp.lexicon.ads.AdViewModel2
+import com.myapp.lexicon.ads.loadInterstitialAd
 import com.myapp.lexicon.ads.showInterstitialAd
 import com.myapp.lexicon.billing.BillingViewModel
 import com.myapp.lexicon.databinding.OneOfFiveFragmNewBinding
@@ -25,7 +24,6 @@ import com.myapp.lexicon.dialogs.TestCompleteDialog
 import com.myapp.lexicon.helpers.RandomNumberGenerator
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.models.Word
-import com.yandex.mobile.ads.common.AdRequestError
 import com.yandex.mobile.ads.interstitial.InterstitialAd
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
@@ -41,7 +39,6 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDia
     private lateinit var mActivity: MainActivity
 
     private lateinit var billingVM: BillingViewModel
-    private val adsVM2: AdViewModel2 by viewModels()
     private var yandexAd2: InterstitialAd? = null
 
 
@@ -77,14 +74,15 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDia
 
         billingVM.noAdsToken.observe(viewLifecycleOwner) { t ->
             if (t.isNullOrEmpty()) {
-                adsVM2.loadInterstitialAd(2, listener = object : AdViewModel2.YandexAdListener {
-                    override fun onYandexAdLoaded(ad: InterstitialAd) {
+                this.loadInterstitialAd(
+                    index = 2,
+                    success = { ad ->
                         yandexAd2 = ad
-                    }
-                    override fun onYandexAdFailed(error: AdRequestError) {
+                    },
+                    error = {
                         yandexAd2 = null
                     }
-                })
+                )
             }
         }
         return root
@@ -220,10 +218,12 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDia
 
     override fun onTestPassed()
     {
-        yandexAd2?.showInterstitialAd {
-            mActivity.supportFragmentManager.popBackStack()
-            mActivity.testPassed()
-        }?: run {
+        yandexAd2?.showInterstitialAd(
+            dismiss = {
+                mActivity.supportFragmentManager.popBackStack()
+                mActivity.testPassed()
+            }
+        )?: run {
             mActivity.supportFragmentManager.popBackStack()
             mActivity.testPassed()
         }
@@ -231,13 +231,7 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDia
 
     override fun onTestFailed(errors: Int)
     {
-        yandexAd2?.showInterstitialAd {
-            mActivity.supportFragmentManager.popBackStack()
-            mActivity.testFailed(errors)
-        }?: run {
-            mActivity.supportFragmentManager.popBackStack()
-            mActivity.testFailed(errors)
-        }
+        onTestPassed()
     }
 
 }
