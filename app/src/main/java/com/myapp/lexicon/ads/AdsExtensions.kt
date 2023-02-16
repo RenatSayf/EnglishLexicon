@@ -18,23 +18,35 @@ private val bannerAdIds = listOf(
     "R-M-711878-2",
     "R-M-711878-3"
 )
+private const val testBannerAdId = "demo-banner-yandex"
+
+private val interstitialAdIds = listOf(
+    "R-M-711878-6",
+    "R-M-711878-5",
+    "R-M-711878-4"
+)
+private const val interstitialTestAdId = "demo-interstitial-yandex"
 
 fun InterstitialAd.showInterstitialAd(
-    callback: () -> Unit
+    success: () -> Unit = {},
+    error: (error: AdRequestError) -> Unit = {},
+    dismiss: () -> Unit = {}
 ) {
     this.let { ad ->
         ad.setInterstitialAdEventListener(object : InterstitialAdEventListener {
-            override fun onAdLoaded() {}
-            override fun onAdFailedToLoad(error: AdRequestError) {
+            override fun onAdLoaded() {
+                success.invoke()
+            }
+            override fun onAdFailedToLoad(err: AdRequestError) {
                 if (BuildConfig.DEBUG) {
-                    val exception = Exception("**************** ${error.description} *******************")
+                    val exception = Exception("**************** ${err.description} *******************")
                     exception.printStackTrace()
                 }
-                callback.invoke()
+                error.invoke(err)
             }
             override fun onAdShown() {}
             override fun onAdDismissed() {
-                callback.invoke()
+                dismiss.invoke()
             }
             override fun onAdClicked() {}
             override fun onLeftApplication() {}
@@ -45,6 +57,62 @@ fun InterstitialAd.showInterstitialAd(
     }
 }
 
+fun Context.loadInterstitialAd(
+    index: Int,
+    success: (ad: InterstitialAd) -> Unit = {},
+    error: (error: AdRequestError) -> Unit = {},
+    dismiss: () -> Unit = {}
+) {
+    val ad = InterstitialAd(this)
+    ad.apply {
+        if (BuildConfig.DEBUG) {
+            setAdUnitId(interstitialTestAdId)
+        }else {
+            val id = try {
+                interstitialAdIds[index]
+            }
+            catch (e: IndexOutOfBoundsException) {
+                interstitialAdIds[0]
+            }
+            setAdUnitId(id)
+        }
+        setInterstitialAdEventListener(object : InterstitialAdEventListener {
+            override fun onAdLoaded() {
+                success.invoke(this@apply)
+            }
+
+            override fun onAdFailedToLoad(p0: AdRequestError) {
+                error.invoke(p0)
+            }
+
+            override fun onAdShown() {}
+
+            override fun onAdDismissed() {
+                dismiss.invoke()
+            }
+
+            override fun onAdClicked() {}
+
+            override fun onLeftApplication() {}
+
+            override fun onReturnedToApplication() {}
+
+            override fun onImpression(p0: ImpressionData?) {}
+        })
+    }
+    val adRequest = AdRequest.Builder().build()
+    ad.loadAd(adRequest)
+}
+
+fun Fragment.loadInterstitialAd(
+    index: Int,
+    success: (ad: InterstitialAd) -> Unit = {},
+    error: (error: AdRequestError) -> Unit = {},
+    dismiss: () -> Unit = {}
+) {
+    requireContext().loadInterstitialAd(index, success, error, dismiss)
+}
+
 fun Context.loadBanner(
     index: Int,
     adView: BannerAdView,
@@ -53,7 +121,17 @@ fun Context.loadBanner(
 ) {
 
     adView.apply {
-        setAdUnitId(bannerAdIds[index])
+        if (BuildConfig.DEBUG) {
+            setAdUnitId(testBannerAdId)
+        }else {
+            val id = try {
+                bannerAdIds[index]
+            }
+            catch (e: IndexOutOfBoundsException) {
+                bannerAdIds[0]
+            }
+            setAdUnitId(id)
+        }
         setAdSize(AdSize.stickySize(AdSize.FULL_SCREEN.width))
         setBannerAdEventListener(object : BannerAdEventListener {
             override fun onAdLoaded() {
