@@ -90,16 +90,8 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         binding = TestFragmentBinding.bind(view)
 
         billingVM.noAdsToken.observe(viewLifecycleOwner) { t ->
-            if (t.isNullOrEmpty()) {
-//                adsVM2.loadInterstitialAd(2, listener = object : AdViewModel2.YandexAdListener {
-//                    override fun onYandexAdLoaded(ad: InterstitialAd) {
-//                        yandexAd2 = ad
-//                    }
-//                    override fun onYandexAdFailed(error: AdRequestError) {
-//                        yandexAd2 = null
-//                    }
-//                })
 
+            if (t.isNullOrEmpty()) {
                 this.loadInterstitialAd(
                     index = 2,
                     success = { ad ->
@@ -373,7 +365,6 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 }
             }
         }
-        //yandexAd2?.showInterstitialAd {}
         super.onDestroyView()
     }
 
@@ -391,6 +382,15 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 }
             }
         })
+        binding.toolBar.setNavigationOnClickListener {
+            yandexAd2?.showInterstitialAd(
+                dismiss = {
+                    parentFragmentManager.popBackStack()
+                }
+            )?: run {
+                parentFragmentManager.popBackStack()
+            }
+        }
     }
 
     // TODO ViewPropertyAnimation.Scale Step 6 слушатель анимации
@@ -425,9 +425,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
             }
 
             override fun onAnimationRepeat(p0: Animator)
-            {
-
-            }
+            {}
         })
     }
 
@@ -436,9 +434,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         animator.setListener(object : Animator.AnimatorListener
         {
             override fun onAnimationStart(p0: Animator)
-            {
-
-            }
+            {}
 
             override fun onAnimationEnd(p0: Animator)
             {

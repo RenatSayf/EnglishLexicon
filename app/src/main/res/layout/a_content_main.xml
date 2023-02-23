@@ -27,6 +27,17 @@
         android:background="@color/colorSemitransparent"
         >
 
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/tool_bar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:menu="@menu/a_up_menu_main"
+            android:theme="@style/AppToolbarStyle"
+            app:titleTextColor="@color/colorWhite"
+            app:title="@string/app_name"
+            app:navigationIcon="@drawable/ic_hamburger_white"
+            android:background="@drawable/bg_tool_bar"/>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="50dp"

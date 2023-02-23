@@ -1,62 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+<androidx.appcompat.widget.LinearLayoutCompat android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    tools:background="@color/colorGreen"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:background="@drawable/img_uk16"
     tools:context=".wordstests.OneOfFiveFragm">
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/mysteryWordView"
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/tool_bar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
+        android:layout_height="?attr/actionBarSize"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="english"
-        android:textSize="18sp"
-        android:textColor="@color/eng_text_color"
-        android:textStyle="bold"
-        android:inputType="textMultiLine"
-        android:padding="12dp"
-        android:background="@drawable/semitransparent_back_white"/>
+        android:theme="@style/AppToolbarStyle"
+        app:titleTextColor="@color/colorWhite"
+        app:title="@string/check_your_self"
+        app:navigationIcon="@drawable/ic_arrow_back_white"
+        android:background="@drawable/bg_tool_bar" />
 
-    <FrameLayout
-        android:id="@+id/progressLayout"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@+id/mysteryWordView"
-        android:layout_marginTop="10dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp">
+        android:layout_height="match_parent"
+        android:padding="16dp"
+        >
 
-        <ProgressBar
-            android:id="@+id/progressView1of5"
-            style="@android:style/Widget.ProgressBar.Horizontal"
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/mysteryWordView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:indeterminate="false"
-            android:visibility="visible"
-            tools:max="20"
-            tools:progress="10"/>
+            android:gravity="center_horizontal"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="english"
+            android:textSize="18sp"
+            android:textColor="@color/eng_text_color"
+            android:textStyle="bold"
+            android:inputType="textMultiLine"
+            android:padding="12dp"
+            android:background="@drawable/semitransparent_back_white" />
 
-        <TextView
-            android:id="@+id/progressValueView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            tools:text="0%"
-            android:textColor="@color/colorWhite"/>
+        <FrameLayout
+            android:id="@+id/progressLayout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toBottomOf="@+id/mysteryWordView"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp">
 
-    </FrameLayout>
+            <ProgressBar
+                android:id="@+id/progressView1of5"
+                style="@android:style/Widget.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:indeterminate="false"
+                android:visibility="visible"
+                tools:max="20"
+                tools:progress="10" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/answersRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@+id/progressLayout"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginTop="10dp"/>
+            <TextView
+                android:id="@+id/progressValueView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                tools:text="0%"
+                android:textColor="@color/colorWhite" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        </FrameLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/answersRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toBottomOf="@+id/progressLayout"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginTop="10dp" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.appcompat.widget.LinearLayoutCompat>

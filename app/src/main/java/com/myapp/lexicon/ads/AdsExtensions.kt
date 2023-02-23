@@ -26,7 +26,8 @@ private const val testBannerAdId = "demo-banner-yandex"
 private val interstitialAdIds = listOf(
     "R-M-711878-6",
     "R-M-711878-5",
-    "R-M-711878-4"
+    "R-M-711878-4",
+    "R-M-711878-9"
 )
 private const val testInterstitialAdId = "demo-interstitial-yandex"
 

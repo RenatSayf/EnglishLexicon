@@ -23,5 +23,6 @@
     <color name="colorLightGrey">#e9ebec</color>
     <color name="colorLightBlue">#C3E9FC</color>
     <color name="colorYellow">#ffdc61</color>
+    <color name="colorYellowDark">#FFC107</color>
     <color name="colorSemitransparent">#640b0b0b</color>
 </resources>

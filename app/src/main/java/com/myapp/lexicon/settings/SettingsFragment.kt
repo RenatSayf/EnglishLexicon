@@ -8,7 +8,6 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
-import androidx.activity.addCallback
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.*
@@ -28,7 +27,6 @@ class SettingsFragment : PreferenceFragmentCompat()
     private lateinit var showIntervalsPref: ListPreference
     private lateinit var billing: BillingViewModel
     private val disableAdsDialog = DisableAdsDialog()
-    private lateinit var mActivity: MainActivity
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?)
     {
@@ -39,7 +37,6 @@ class SettingsFragment : PreferenceFragmentCompat()
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
-        mActivity = activity as MainActivity
 
         billing = ViewModelProvider(this)[BillingViewModel::class.java]
 
@@ -215,27 +212,15 @@ class SettingsFragment : PreferenceFragmentCompat()
 
     }
 
-    override fun onResume()
-    {
-        super.onResume()
-        mActivity.onBackPressedDispatcher.addCallback{
-            mActivity.apply {
-                supportFragmentManager.popBackStack()
-                mainControlLayout.visibility = View.VISIBLE
-            }
-            this.remove()
-        }
-    }
-
     private fun redirectIfXiaomiDevice()
     {
         if (Build.MANUFACTURER.toLowerCase(Locale.ROOT) == "xiaomi")
         {
             val intent = Intent("miui.intent.action.APP_PERM_EDITOR")
             intent.setClassName("com.miui.securitycenter","com.miui.permcenter.permissions.PermissionsEditorActivity")
-            intent.putExtra("extra_pkgname", mActivity.packageName)
+            intent.putExtra("extra_pkgname", (requireActivity() as MainActivity).packageName)
             startActivity(intent)
-            Toast.makeText(mActivity, getString(R.string.text_enabled_permission_pop_up), Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), getString(R.string.text_enabled_permission_pop_up), Toast.LENGTH_LONG).show()
         }
     }
 

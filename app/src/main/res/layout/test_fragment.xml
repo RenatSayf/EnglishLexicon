@@ -20,11 +20,22 @@
         android:layout_height="match_parent"
         android:background="@color/colorSemitransparent">
 
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/tool_bar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:layout_constraintTop_toTopOf="parent"
+            android:theme="@style/AppToolbarStyle"
+            app:titleTextColor="@color/colorWhite"
+            app:title="@string/check_your_self"
+            app:navigationIcon="@drawable/ic_arrow_back_white"
+            android:background="@drawable/bg_tool_bar"/>
+
         <FrameLayout
             android:id="@+id/prog_bar_frame"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tool_bar"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginTop="30dp"

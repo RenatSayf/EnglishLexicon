@@ -75,7 +75,7 @@
     <string name="translate_yandex_ru">https://translate.yandex.ru</string>
     <string name="msg_not_internet">Немає з`єднання з інтернетом. Онлайн переклад недоступний</string>
     <string name="btn_translate_text">Перевести</string>
-    <string name="add_to_dict">Додати до словника:</string>
+    <string name="add_to_dict">Додати до словника</string>
     <string name="text_add">Додати</string>
     <string name="new_word_is_added">" додано нове слово"</string>
     <string name="in_dictionary">"У словник "</string>
@@ -291,6 +291,7 @@
     <string name="text_show_ads">Показувати рекламу</string>
     <string name="text_enabled_permission_pop_up">Увімкніть дозволи для спливаючих вікон і відображення на екрані блокування</string>
     <string name="text_dictionries">Словари</string>
+    <string name="text_back">Назад</string>
 
     <string-array name="words_interval">
         <item>після 5 слів</item>

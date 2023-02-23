@@ -9,7 +9,6 @@ import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.Button
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
@@ -124,20 +123,21 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDia
         }
     }
 
-    private lateinit var backPressedCallback: OnBackPressedCallback
     override fun onResume()
     {
         super.onResume()
-        backPressedCallback = mActivity.onBackPressedDispatcher.addCallback {
-            mActivity.supportFragmentManager.popBackStack()
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                mActivity.supportFragmentManager.popBackStack()
+                mActivity.mainViewModel.setMainControlVisibility(View.VISIBLE)
+            }
+        })
+
+        binding.toolBar.setNavigationOnClickListener {
+            parentFragmentManager.popBackStack()
             mActivity.mainViewModel.setMainControlVisibility(View.VISIBLE)
         }
-    }
-
-    override fun onDestroy()
-    {
-        backPressedCallback.remove()
-        super.onDestroy()
     }
 
     override fun onItemClickListener(position: Int, word: Word, view: Button)

@@ -7,19 +7,26 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterViewFlipper;
 
+import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.billing.BillingViewModel;
+import com.myapp.lexicon.helpers.JavaKotlinMediator;
+import com.yandex.mobile.ads.banner.BannerAdView;
+import com.yandex.mobile.ads.common.AdRequestError;
+import com.yandex.mobile.ads.interstitial.InterstitialAd;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.ViewModelProvider;
 
-/**
- * A simple {@link Fragment} subclass.
- */
+
 public class BackgroundFragm extends Fragment
 {
     private View fragmentView = null;
+    public InterstitialAd yandexAd = null;
 
     // картинки для фона
     public static int[] imagesId = new int[]
@@ -58,15 +65,68 @@ public class BackgroundFragm extends Fragment
             };
 
     public BackgroundFragm()
-    {
-        // Required empty public constructor
-    }
+    {}
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setRetainInstance(true); // TODO: Fragment 3. true - что бы фрагмент не пересоздавался при изменении конфигурации
+
+        BillingViewModel billingVM = new ViewModelProvider(this).get(BillingViewModel.class);
+        billingVM.getNoAdsToken().observe(this, t -> {
+
+            if (t == null) {
+                JavaKotlinMediator mediator = new JavaKotlinMediator();
+                mediator.loadInterstitialAd(requireContext(), 3, new JavaKotlinMediator.InterstitialAdListener()
+                {
+                    @Override
+                    public void onSuccess(@NonNull InterstitialAd ad)
+                    {
+                        if (BuildConfig.DEBUG)
+                        {
+                            System.out.println("************* InterstitialAd is loaded ******************");
+                        }
+                        yandexAd = ad;
+                    }
+
+                    @Override
+                    public void onError(@NonNull AdRequestError error)
+                    {
+                        if (BuildConfig.DEBUG) {
+                            System.out.println("**************** InterstitialAd Error: " + error.getDescription() + " *******************");
+                        }
+                    }
+                });
+
+                BannerAdView adBanner = requireActivity().findViewById(R.id.banner_main);
+                if (adBanner != null)
+                {
+                    mediator = new JavaKotlinMediator();
+                    mediator.loadBannerAd(requireContext(), 0, adBanner, new JavaKotlinMediator.BannerAdListener()
+                    {
+                        @Override
+                        public void onSuccess()
+                        {
+                            if (BuildConfig.DEBUG)
+                            {
+                                System.out.println("************* Banner is loaded ******************");
+                            }
+                        }
+
+                        @Override
+                        public void onError(@NonNull AdRequestError error)
+                        {
+                            if (BuildConfig.DEBUG)
+                            {
+                                System.out.println("**************** Banner Error: " + error.getDescription() + " *******************");
+                            }
+                        }
+                    });
+                }
+            }
+        });
+
     }
 
     @Override
@@ -101,12 +161,23 @@ public class BackgroundFragm extends Fragment
     }
 
     @Override
-    public void onDestroy()
+    public void onResume()
     {
-        if (getActivity() != null)
+        super.onResume();
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true)
         {
-            getActivity().finish();
-        }
-        super.onDestroy();
+            @Override
+            public void handleOnBackPressed()
+            {
+                if (yandexAd != null)
+                {
+                    new JavaKotlinMediator().showInterstitialAd(yandexAd, () -> requireActivity().finish());
+                } else
+                {
+                    requireActivity().finish();
+                }
+            }
+        });
     }
+
 }

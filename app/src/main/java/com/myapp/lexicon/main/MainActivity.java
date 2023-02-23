@@ -27,11 +27,9 @@ import com.google.firebase.appindexing.Action;
 import com.google.firebase.appindexing.FirebaseAppIndex;
 import com.google.firebase.appindexing.FirebaseUserActions;
 import com.google.firebase.appindexing.builders.Actions;
-import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
-import com.myapp.lexicon.billing.BillingViewModel;
 import com.myapp.lexicon.cloudstorage.StorageFragment2;
 import com.myapp.lexicon.database.AppDB;
 import com.myapp.lexicon.database.AppDao;
@@ -46,12 +44,10 @@ import com.myapp.lexicon.helpers.Share;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.service.LexiconService;
-import com.myapp.lexicon.settings.SettingsFragment;
+import com.myapp.lexicon.settings.ContainerFragment;
 import com.myapp.lexicon.wordeditor.WordEditorActivity;
 import com.myapp.lexicon.wordstests.OneOfFiveFragm;
 import com.myapp.lexicon.wordstests.TestFragment;
-import com.yandex.mobile.ads.banner.BannerAdView;
-import com.yandex.mobile.ads.common.AdRequestError;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -93,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private final CompositeDisposable composite = new CompositeDisposable();
     private Word currentWord;
     private int wordsInterval = Integer.MAX_VALUE;
+    public BackgroundFragm backgroundFragm = null;
 
     @Inject
     AlarmScheduler scheduler;
@@ -105,8 +102,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         View root = LayoutInflater.from(this).inflate(R.layout.a_navig_main, new DrawerLayout(this));
         setContentView(root);
 
-        Toolbar toolbar = findViewById(R.id.toolbar_word_editor);
-        setSupportActionBar(toolbar);
+        //Toolbar toolbar = findViewById(R.id.toolbar_word_editor);
+        Toolbar toolBar = findViewById(R.id.tool_bar);
+        setSupportActionBar(toolBar);
 
         MobileAds.initialize(this);
 
@@ -119,38 +117,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
         speechViewModel = new ViewModelProvider(this).get(SpeechViewModel.class);
-        BillingViewModel billingVM = new ViewModelProvider(this).get(BillingViewModel.class);
-
-        billingVM.getNoAdsToken().observe(this, t -> {
-            if (t == null)
-            {
-                BannerAdView adBanner = findViewById(R.id.banner_main);
-                if (adBanner != null)
-                {
-                    JavaKotlinMediator mediator = new JavaKotlinMediator();
-                    mediator.loadBannerAd(this, 0, adBanner, new JavaKotlinMediator.BannerAdListener()
-                    {
-                        @Override
-                        public void onSuccess()
-                        {
-                            if (BuildConfig.DEBUG)
-                            {
-                                System.out.println("************* Banner is loaded ******************");
-                            }
-                        }
-
-                        @Override
-                        public void onError(@NonNull AdRequestError error)
-                        {
-                            if (BuildConfig.DEBUG)
-                            {
-                                System.out.println("**************** Banner Error" + error.getDescription() + " *******************");
-                            }
-                        }
-                    });
-                }
-            }
-        });
 
         btnViewDict = findViewById(R.id.btnViewDict);
         btnViewDictOnClick(btnViewDict);
@@ -317,13 +283,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (savedInstanceState == null)
         {
-            BackgroundFragm backgroundFragm = new BackgroundFragm();
+            backgroundFragm = new BackgroundFragm();
             getSupportFragmentManager().beginTransaction().replace(R.id.background_fragment, backgroundFragm).commit();
         }
 
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolBar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         //noinspection deprecation
         drawer.setDrawerListener(toggle);
         toggle.syncState();
@@ -708,7 +674,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         else if (id == R.id.nav_settings)
         {
-            getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, new SettingsFragment()).addToBackStack(null).commit();
+            //getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, new SettingsFragment()).addToBackStack(null).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, new ContainerFragment()).addToBackStack(null).commit();
         }
         else if (id == R.id.nav_evaluate_app)
         {
@@ -733,7 +700,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 SplashScreenActivity.speech.shutdown();
             }
             alarmClockEnable(scheduler);
-            this.finish();
+            if (backgroundFragm != null && backgroundFragm.yandexAd != null)
+            {
+                new JavaKotlinMediator().showInterstitialAd(backgroundFragm.yandexAd, this::finish);
+            } else
+            {
+                finish();
+            }
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -771,9 +744,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         wordsInterval = value;
     }
-
-
-
 
 }
 

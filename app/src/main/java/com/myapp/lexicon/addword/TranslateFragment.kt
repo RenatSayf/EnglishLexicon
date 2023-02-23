@@ -25,7 +25,7 @@ import java.net.URLDecoder
 private const val TEXT = "translate_text"
 
 @AndroidEntryPoint
-class TranslateFragment : Fragment(R.layout.translate_fragment)
+class TranslateFragment : Fragment()
 {
     private lateinit var binding: TranslateFragmentBinding
     private lateinit var billingVM: BillingViewModel
@@ -67,9 +67,9 @@ class TranslateFragment : Fragment(R.layout.translate_fragment)
     }
 
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View
     {
-        val root = inflater.inflate(R.layout.translate_fragment, container, false)
+        binding = TranslateFragmentBinding.inflate(inflater, container, false)
 
         billingVM.noAdsToken.observe(viewLifecycleOwner) { token ->
             if (token.isNullOrEmpty()) {
@@ -91,7 +91,7 @@ class TranslateFragment : Fragment(R.layout.translate_fragment)
                 })
             }
         }
-        return root
+        return binding.root
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -115,11 +115,11 @@ class TranslateFragment : Fragment(R.layout.translate_fragment)
             val url = binding.webView.url
             val decode = URLDecoder.decode(url, "UTF-8")
             javaScriptInterface.setInputText(decode)
-            //todo parsing WebView: Step 7
+            //Hint parsing WebView: Step 7
             binding.webView.loadUrl("javascript:window.HtmlHandler.handleHtml('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>');")
         }
 
-        //todo Отправка события в активити/фрагмент: Step 4. End
+        //Hint Отправка события в активити/фрагмент: Step 4. End
         AppJavaScriptInterface.parseEvent.observe(viewLifecycleOwner) {
             if (!it.hasBeenHandled) {
                 val content = it.getContent()
@@ -154,31 +154,47 @@ class TranslateFragment : Fragment(R.layout.translate_fragment)
             }
         })
 
-        val toolbar = (requireActivity() as MainActivity).findViewById<Toolbar>(R.id.toolbar_word_editor)
-        toolbar.addMenuProvider(object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {}
+        binding.btnBack.setOnClickListener {
 
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                if (menuItem.itemId == android.R.id.home)
+            yandexAd?.showInterstitialAd {
+                when(mActivity)
                 {
-                    yandexAd?.showInterstitialAd(
-                        dismiss =  {
-                            when(mActivity)
-                            {
-                                is MainActivity -> mActivity.supportFragmentManager.popBackStack()
-                                is TranslateActivity -> mActivity.finish()
-                            }
-                        }
-                    )?: run {
-                        when (mActivity) {
-                            is MainActivity -> mActivity.supportFragmentManager.popBackStack()
-                            is TranslateActivity -> mActivity.finish()
-                        }
-                    }
+                    is MainActivity -> parentFragmentManager.popBackStack()
+                    is TranslateActivity -> requireActivity().finish()
                 }
-                return false
+            }?: run {
+                when (mActivity) {
+                    is MainActivity -> parentFragmentManager.popBackStack()
+                    is TranslateActivity -> requireActivity().finish()
+                }
             }
-        })
+        }
+
+//        val toolbar = (requireActivity() as MainActivity).findViewById<Toolbar>(R.id.toolbar_word_editor)
+//        toolbar.addMenuProvider(object : MenuProvider {
+//            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {}
+//
+//            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+//                if (menuItem.itemId == android.R.id.home)
+//                {
+//                    yandexAd?.showInterstitialAd(
+//                        dismiss =  {
+//                            when(mActivity)
+//                            {
+//                                is MainActivity -> mActivity.supportFragmentManager.popBackStack()
+//                                is TranslateActivity -> mActivity.finish()
+//                            }
+//                        }
+//                    )?: run {
+//                        when (mActivity) {
+//                            is MainActivity -> mActivity.supportFragmentManager.popBackStack()
+//                            is TranslateActivity -> mActivity.finish()
+//                        }
+//                    }
+//                }
+//                return false
+//            }
+//        })
     }
 
 

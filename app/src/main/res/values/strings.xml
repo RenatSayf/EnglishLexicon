@@ -53,7 +53,7 @@
     <string name="translate_yandex_ru">https://translate.yandex.ru</string>
     <string name="msg_not_internet">Нет соединения с интернетом. Онлайн перевод недоступен</string>
     <string name="btn_translate_text">Перевести</string>
-    <string name="add_to_dict">Добавить в словарь:</string>
+    <string name="add_to_dict">Добавить в словарь</string>
     <string name="text_add">Добавить</string>
     <string name="new_word_is_added">" добавлено новое слово"</string>
     <string name="in_dictionary">"В словарь "</string>
@@ -238,6 +238,7 @@
     <string name="text_show_ads">Показывать рекламу</string>
     <string name="text_enabled_permission_pop_up">Включите разрешения для всплывающих окон, и отображения на экране блокировки</string>
     <string name="text_dictionries">Словари</string>
+    <string name="text_back">Назад</string>
     <string-array name="not_move">
         <item>Не перемещать</item>
     </string-array>
