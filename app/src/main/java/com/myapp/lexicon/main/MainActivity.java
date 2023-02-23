@@ -102,7 +102,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         View root = LayoutInflater.from(this).inflate(R.layout.a_navig_main, new DrawerLayout(this));
         setContentView(root);
 
-        //Toolbar toolbar = findViewById(R.id.toolbar_word_editor);
         Toolbar toolBar = findViewById(R.id.tool_bar);
         setSupportActionBar(toolBar);
 

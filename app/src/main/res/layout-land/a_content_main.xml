@@ -9,7 +9,7 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".main.MainActivity"
     tools:showIn="@layout/a_layout_main"
-    android:background="@drawable/side_nav_bar">
+    >
 
     <FrameLayout
         android:id="@+id/background_fragment"

@@ -1,7 +1,6 @@
 package com.myapp.lexicon.ads
 
 import android.content.Context
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import com.myapp.lexicon.BuildConfig
 import com.yandex.mobile.ads.banner.AdSize
@@ -165,14 +164,6 @@ fun Fragment.loadBanner(
     requireContext().loadBanner(index, adView, success, error)
 }
 
-//fun DialogFragment.loadBanner(
-//    index: Int,
-//    adView: BannerAdView,
-//    success: () -> Unit = {},
-//    error: (error: AdRequestError) -> Unit = {}
-//) {
-//    requireContext().loadBanner(index, adView, success, error)
-//}
 
 
 

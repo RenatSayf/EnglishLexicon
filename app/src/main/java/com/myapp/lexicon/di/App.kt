@@ -20,7 +20,7 @@ class App : Application()
         super.onCreate()
 
         com.yandex.mobile.ads.common.MobileAds.initialize(this) {
-            if (BuildConfig.DEBUG) println("*************** Yandex mobile ads has been initialized *****************")
+            if (BuildConfig.DEBUG) println("*************** ${this::class.java.simpleName}: Yandex mobile ads has been initialized *****************")
         }
     }
 }

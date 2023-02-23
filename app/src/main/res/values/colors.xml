@@ -25,4 +25,5 @@
     <color name="colorYellow">#ffdc61</color>
     <color name="colorYellowDark">#FFC107</color>
     <color name="colorSemitransparent">#640b0b0b</color>
+    <color name="color_status_bar">#192b45</color>
 </resources>
