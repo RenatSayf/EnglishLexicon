@@ -128,7 +128,7 @@ dependencies {
     //endregion
 
     //Google Play Billing Library
-    implementation 'com.android.billingclient:billing-ktx:4.0.0'
+    implementation 'com.android.billingclient:billing-ktx:5.1.0'
 
     //Yandex ads
     implementation 'com.yandex.android:mobileads:5.6.0'
