@@ -82,15 +82,15 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:31.2.0')
     implementation 'com.google.firebase:firebase-core:21.1.1'
     implementation 'com.google.firebase:firebase-storage:20.1.0'
-    implementation 'com.google.firebase:firebase-ads:20.2.0'
+    implementation 'com.google.firebase:firebase-ads:21.5.0'
     implementation 'com.google.firebase:firebase-appindexing:20.0.0'
 
-    implementation 'com.google.android.gms:play-services-ads:20.2.0'
+    implementation 'com.google.android.gms:play-services-ads:21.5.0'
     implementation 'com.google.android.gms:play-services-plus:17.0.0'
     implementation 'com.google.android.gms:play-services-auth:20.4.1'
 
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.0'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.0'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
@@ -124,7 +124,7 @@ dependencies {
     implementation 'org.greenrobot:eventbus:3.1.1'
 
     //GSON
-    implementation 'com.google.code.gson:gson:2.9.0'
+    implementation 'com.google.code.gson:gson:2.10.1'
 
     //region TODO Activity Result API. Runtime permission Step 1
     implementation 'androidx.activity:activity-ktx:1.6.1'
@@ -135,7 +135,7 @@ dependencies {
     implementation 'com.android.billingclient:billing-ktx:4.0.0'
 
     //Yandex ads
-    implementation 'com.yandex.android:mobileads:5.5.0'
+    implementation 'com.yandex.android:mobileads:5.6.0'
 
 }
 

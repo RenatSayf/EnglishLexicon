@@ -10,9 +10,6 @@ import android.os.Bundle
 import android.os.IBinder
 import android.widget.Toast
 import androidx.core.content.ContextCompat.startActivity
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ServiceLifecycleDispatcher
 import androidx.preference.PreferenceManager
 import com.google.gson.Gson
 import com.myapp.lexicon.R
@@ -31,7 +28,7 @@ import javax.inject.Inject
 
 
 @AndroidEntryPoint
-class LexiconService : Service(), IStopServiceByUser, LifecycleOwner
+class LexiconService : Service(), IStopServiceByUser//, LifecycleOwner
 {
     private var blockReceiver: PhoneUnlockedReceiver? = null
     private var startId = 0
@@ -183,10 +180,6 @@ class LexiconService : Service(), IStopServiceByUser, LifecycleOwner
         }
     }
 
-    override fun getLifecycle(): Lifecycle
-    {
-        return ServiceLifecycleDispatcher(this).lifecycle
-    }
 
 
 }
