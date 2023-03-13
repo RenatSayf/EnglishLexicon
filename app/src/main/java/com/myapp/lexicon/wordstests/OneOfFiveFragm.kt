@@ -17,10 +17,10 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.adapters.OneFiveTestAdapter
 import com.myapp.lexicon.ads.loadInterstitialAd
 import com.myapp.lexicon.ads.showInterstitialAd
-import com.myapp.lexicon.billing.BillingViewModel
 import com.myapp.lexicon.databinding.OneOfFiveFragmNewBinding
 import com.myapp.lexicon.dialogs.TestCompleteDialog
 import com.myapp.lexicon.helpers.RandomNumberGenerator
+import com.myapp.lexicon.helpers.checkAdsToken
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.models.Word
 import com.yandex.mobile.ads.interstitial.InterstitialAd
@@ -37,7 +37,6 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDia
     private lateinit var vm: OneOfFiveViewModel
     private lateinit var mActivity: MainActivity
 
-    private lateinit var billingVM: BillingViewModel
     private var yandexAd2: InterstitialAd? = null
 
 
@@ -62,7 +61,6 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDia
     {
         super.onCreate(savedInstanceState)
         mActivity = activity as MainActivity
-        billingVM = ViewModelProvider(this)[BillingViewModel::class.java]
         vm = ViewModelProvider(this)[OneOfFiveViewModel::class.java]
         if (!wordList.isNullOrEmpty()) vm.initTest(wordList as MutableList<Word>)
     }
@@ -71,19 +69,18 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDia
     {
         val root = inflater.inflate(R.layout.one_of_five_fragm_new, container, false)
 
-        billingVM.noAdsToken.observe(viewLifecycleOwner) { t ->
-            if (t.isNullOrEmpty()) {
-                this.loadInterstitialAd(
-                    index = 2,
-                    success = { ad ->
-                        yandexAd2 = ad
-                    },
-                    error = {
-                        yandexAd2 = null
-                    }
-                )
-            }
-        }
+        this.checkAdsToken(noToken = {
+            this.loadInterstitialAd(
+                index = 2,
+                success = { ad ->
+                    yandexAd2 = ad
+                },
+                error = {
+                    yandexAd2 = null
+                }
+            )
+        })
+
         return root
     }
 

@@ -24,12 +24,12 @@ import com.jakewharton.rxbinding2.widget.RxTextView
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.loadInterstitialAd
 import com.myapp.lexicon.ads.showInterstitialAd
-import com.myapp.lexicon.billing.BillingViewModel
 import com.myapp.lexicon.databinding.TestFragmentBinding
 import com.myapp.lexicon.dialogs.DictListDialog
 import com.myapp.lexicon.helpers.Keyboard
 import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.UiState
+import com.myapp.lexicon.helpers.checkAdsToken
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.SpeechViewModel
 import com.myapp.lexicon.models.Word
@@ -46,7 +46,6 @@ import java.util.concurrent.TimeUnit
 class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectItemListener, DialogWarning.IDialogResult,
     DialogTestComplete.IDialogComplete_Result
 {
-
     companion object
     {
         fun newInstance() = TestFragment()
@@ -58,7 +57,6 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     private val animVM: AnimViewModel by viewModels()
     private val speechVM: SpeechViewModel by viewModels()
     private val pageBackVM: PageBackViewModel by viewModels()
-    private val billingVM: BillingViewModel by viewModels()
     private var yandexAd2: InterstitialAd? = null
     private val composite = CompositeDisposable()
 
@@ -89,20 +87,17 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         super.onViewCreated(view, savedInstanceState)
         binding = TestFragmentBinding.bind(view)
 
-        billingVM.noAdsToken.observe(viewLifecycleOwner) { t ->
-
-            if (t.isNullOrEmpty()) {
-                this.loadInterstitialAd(
-                    index = 2,
-                    success = { ad ->
-                        yandexAd2 = ad
-                    },
-                    error = {
-                        yandexAd2 = null
-                    }
-                )
-            }
-        }
+        this.checkAdsToken(noToken = {
+            this.loadInterstitialAd(
+                index = 2,
+                success = { ad ->
+                    yandexAd2 = ad
+                },
+                error = {
+                    yandexAd2 = null
+                }
+            )
+        })
 
         pageBackVM.imageBack.observe(viewLifecycleOwner) { img ->
             binding.imgBack.setImageResource(img)

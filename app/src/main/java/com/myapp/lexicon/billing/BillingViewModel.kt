@@ -22,8 +22,7 @@ const val KEY_BILLING = "KEY_BILLING_525454554"
 private const val PRODUCT_ID = "no_ads"
 
 @Suppress("ObjectLiteralToLambda")
-@HiltViewModel
-class BillingViewModel @Inject constructor(private val app: Application) : AndroidViewModel(app)
+class BillingViewModel2 @Inject constructor(private val app: Application) : AndroidViewModel(app)
 {
     private var skuDetails: SkuDetails? = null
 

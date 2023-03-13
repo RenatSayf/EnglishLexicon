@@ -11,14 +11,13 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.billing.BillingViewModel;
+import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.JavaKotlinMediator;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
 import com.myapp.lexicon.helpers.StringOperations;
@@ -95,36 +94,34 @@ public class TestModalFragment extends DialogFragment
 
         AlertDialog dialog = new AlertDialog.Builder(requireContext()).setView(dialogView).create();
 
-        BillingViewModel billingVM = new ViewModelProvider(this).get(BillingViewModel.class);
-        billingVM.getNoAdsToken().observe(this, token -> {
-            if (token == null)
-            {
-                BannerAdView adBanner = dialogView.findViewById(R.id.banner_test_dialog);
-                if (adBanner != null)
-                {
-                    JavaKotlinMediator mediator = new JavaKotlinMediator();
-                    mediator.loadBannerAd(requireContext(), 4, adBanner, new JavaKotlinMediator.BannerAdListener()
-                    {
-                        @Override
-                        public void onSuccess()
-                        {
-                            if (BuildConfig.DEBUG)
-                            {
-                                System.out.println("************* Banner is loaded ******************");
-                            }
-                        }
+        ExtensionsKt.checkAdsToken(this, () -> {
 
-                        @Override
-                        public void onError(@NonNull AdRequestError error)
+            BannerAdView adBanner = dialogView.findViewById(R.id.banner_test_dialog);
+            if (adBanner != null)
+            {
+                JavaKotlinMediator mediator = new JavaKotlinMediator();
+                mediator.loadBannerAd(requireContext(), 4, adBanner, new JavaKotlinMediator.BannerAdListener()
+                {
+                    @Override
+                    public void onSuccess()
+                    {
+                        if (BuildConfig.DEBUG)
                         {
-                            if (BuildConfig.DEBUG)
-                            {
-                                System.out.println("**************** Banner Error" + error.getDescription() + " *******************");
-                            }
+                            System.out.println("************* Banner is loaded ******************");
                         }
-                    });
-                }
+                    }
+
+                    @Override
+                    public void onError(@NonNull AdRequestError error)
+                    {
+                        if (BuildConfig.DEBUG)
+                        {
+                            System.out.println("**************** Banner Error" + error.getDescription() + " *******************");
+                        }
+                    }
+                });
             }
+            return null;
         });
 
         enTextView = dialogView.findViewById(R.id.en_text_view);
@@ -199,8 +196,6 @@ public class TestModalFragment extends DialogFragment
         btnStopService.setOnClickListener( view -> ((ServiceActivity)requireActivity()).stopAppService());
 
         checkStudied_OnCheckedChange(dialogView.findViewById(R.id.check_box_studied));
-
-        ImageView orderPlayIcon = dialogView.findViewById(R.id.order_play_icon_iv_test_modal);
 
         viewModel.getCountRepeat().observe(this, id -> {
             if (id > 0) Toast.makeText(getActivity(), R.string.text_word_is_not_show, Toast.LENGTH_LONG).show();

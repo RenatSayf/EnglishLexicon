@@ -16,7 +16,7 @@ import android.widget.Toast;
 import com.google.gson.JsonSyntaxException;
 import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.billing.BillingViewModel;
+import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.JavaKotlinMediator;
 import com.myapp.lexicon.helpers.StringOperations;
 import com.myapp.lexicon.interfaces.IModalFragment;
@@ -88,36 +88,33 @@ public class ModalFragment extends DialogFragment
 
         AlertDialog dialog = new AlertDialog.Builder(requireContext()).setView(dialogView).create();
 
-        BillingViewModel billingVM = new ViewModelProvider(this).get(BillingViewModel.class);
-        billingVM.getNoAdsToken().observe(this, token -> {
-            if (token == null)
+        ExtensionsKt.checkAdsToken(this, () -> {
+            BannerAdView adBanner = dialogView.findViewById(R.id.banner_modal_dalog);
+            if (adBanner != null)
             {
-                BannerAdView adBanner = dialogView.findViewById(R.id.banner_modal_dalog);
-                if (adBanner != null)
+                JavaKotlinMediator mediator = new JavaKotlinMediator();
+                mediator.loadBannerAd(requireContext(), 3, adBanner, new JavaKotlinMediator.BannerAdListener()
                 {
-                    JavaKotlinMediator mediator = new JavaKotlinMediator();
-                    mediator.loadBannerAd(requireContext(), 3, adBanner, new JavaKotlinMediator.BannerAdListener()
+                    @Override
+                    public void onSuccess()
                     {
-                        @Override
-                        public void onSuccess()
+                        if (BuildConfig.DEBUG)
                         {
-                            if (BuildConfig.DEBUG)
-                            {
-                                System.out.println("************* Banner is loaded ******************");
-                            }
+                            System.out.println("************* Banner is loaded ******************");
                         }
+                    }
 
-                        @Override
-                        public void onError(@NonNull AdRequestError error)
+                    @Override
+                    public void onError(@NonNull AdRequestError error)
+                    {
+                        if (BuildConfig.DEBUG)
                         {
-                            if (BuildConfig.DEBUG)
-                            {
-                                System.out.println("**************** Banner Error" + error.getDescription() + " *******************");
-                            }
+                            System.out.println("**************** Banner Error" + error.getDescription() + " *******************");
                         }
-                    });
-                }
+                    }
+                });
             }
+            return null;
         });
 
         enTextView = dialogView.findViewById(R.id.en_text_view);

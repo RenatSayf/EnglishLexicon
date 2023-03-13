@@ -8,13 +8,12 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.ads.loadBanner
 import com.myapp.lexicon.ads.loadInterstitialAd
 import com.myapp.lexicon.ads.showInterstitialAd
-import com.myapp.lexicon.billing.BillingViewModel
 import com.myapp.lexicon.databinding.TranslateFragmentBinding
+import com.myapp.lexicon.helpers.checkAdsToken
 import com.myapp.lexicon.main.MainActivity
 import com.yandex.mobile.ads.interstitial.InterstitialAd
 import dagger.hilt.android.AndroidEntryPoint
@@ -27,7 +26,6 @@ private const val TEXT = "translate_text"
 class TranslateFragment : Fragment()
 {
     private lateinit var binding: TranslateFragmentBinding
-    private lateinit var billingVM: BillingViewModel
     private var yandexAd: InterstitialAd? = null
     private lateinit var mActivity: AppCompatActivity
 
@@ -52,7 +50,6 @@ class TranslateFragment : Fragment()
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
-        billingVM = ViewModelProvider(this)[BillingViewModel::class.java]
         when (activity)
         {
             is MainActivity -> mActivity = activity as MainActivity
@@ -70,26 +67,24 @@ class TranslateFragment : Fragment()
     {
         binding = TranslateFragmentBinding.inflate(inflater, container, false)
 
-        billingVM.noAdsToken.observe(viewLifecycleOwner) { token ->
-            if (token.isNullOrEmpty()) {
-                this.loadInterstitialAd(
-                    index = 1,
-                    success = { ad ->
-                        yandexAd = ad
-                    },
-                    error = {
-                        yandexAd = null
-                    }
-                )
-
-                val adView = binding.bannerTranslator
-                loadBanner(index = 2, adView = adView, success = {
-                    if (BuildConfig.DEBUG) println("****************** Ad has success loaded *****************")
-                }, error = { err ->
-                    if (BuildConfig.DEBUG) println("******************* Ad request error - code: ${err.code}, ${err.description} *****************")
-                })
-            }
+        checkAdsToken {
+            this.loadInterstitialAd(
+                index = 1,
+                success = { ad ->
+                    yandexAd = ad
+                },
+                error = {
+                    yandexAd = null
+                }
+            )
+            val adView = binding.bannerTranslator
+            loadBanner(index = 2, adView = adView, success = {
+                if (BuildConfig.DEBUG) println("****************** Ad has success loaded *****************")
+            }, error = { err ->
+                if (BuildConfig.DEBUG) println("******************* Ad request error - code: ${err.code}, ${err.description} *****************")
+            })
         }
+
         return binding.root
     }
 

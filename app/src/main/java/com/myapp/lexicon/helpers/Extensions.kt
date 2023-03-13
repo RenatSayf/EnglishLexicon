@@ -25,12 +25,23 @@ fun Fragment.saveNoAdsToken(token: String) {
     requireContext().saveNoAdsToken(token)
 }
 
-val Context.noAdsToken: String
+val Context.noAdsToken: String?
     get() {
-        return appPref.getString(NO_ADS_TOKEN, null)?: ""
+        return appPref.getString(NO_ADS_TOKEN, null)
     }
 
-val Fragment.noAdsToken: String
+val Fragment.noAdsToken: String?
     get() {
         return requireContext().noAdsToken
     }
+
+fun Context.checkAdsToken(noToken: () -> Unit = {}) {
+    if (noAdsToken.isNullOrEmpty()) {
+        noToken.invoke()
+    }
+}
+
+fun Fragment.checkAdsToken(noToken: () -> Unit = {}) {
+    requireContext().checkAdsToken(noToken)
+}
+

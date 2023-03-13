@@ -173,19 +173,7 @@ class SettingsFragment : PreferenceFragmentCompat()
         super.onViewCreated(view, savedInstanceState)
         view.setBackgroundColor(resources.getColor(R.color.colorWhite))
 
-//        billing.noAdsToken.observe(viewLifecycleOwner) {
-//            it?.let { token ->
-//                if (token.isEmpty()) {
-//                    findPreference<PreferenceCategory>("disableAdsCategory")?.isEnabled = true
-//                    findPreference<SwitchPreferenceCompat>("disableAds")?.isChecked = true
-//                } else {
-//                    findPreference<PreferenceCategory>("disableAdsCategory")?.isEnabled = false
-//                    findPreference<SwitchPreferenceCompat>("disableAds")?.isChecked = false
-//                }
-//            }
-//        }
-
-        if (noAdsToken.isEmpty()) {
+        if (noAdsToken.isNullOrEmpty()) {
             findPreference<PreferenceCategory>("disableAdsCategory")?.isEnabled = true
             findPreference<SwitchPreferenceCompat>("disableAds")?.isChecked = true
         }

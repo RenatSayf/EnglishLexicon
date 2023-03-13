@@ -9,7 +9,7 @@ import android.widget.AdapterViewFlipper;
 
 import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.billing.BillingViewModel;
+import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.JavaKotlinMediator;
 import com.yandex.mobile.ads.banner.BannerAdView;
 import com.yandex.mobile.ads.common.AdRequestError;
@@ -20,7 +20,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.ViewModelProvider;
 
 
 public class BackgroundFragm extends Fragment
@@ -73,58 +72,55 @@ public class BackgroundFragm extends Fragment
         super.onCreate(savedInstanceState);
         setRetainInstance(true); // TODO: Fragment 3. true - что бы фрагмент не пересоздавался при изменении конфигурации
 
-        BillingViewModel billingVM = new ViewModelProvider(this).get(BillingViewModel.class);
-        billingVM.getNoAdsToken().observe(this, t -> {
+        ExtensionsKt.checkAdsToken(this, () -> {
+            JavaKotlinMediator mediator = new JavaKotlinMediator();
+            mediator.loadInterstitialAd(requireContext(), 3, new JavaKotlinMediator.InterstitialAdListener()
+            {
+                @Override
+                public void onSuccess(@NonNull InterstitialAd ad)
+                {
+                    if (BuildConfig.DEBUG)
+                    {
+                        System.out.println("************* InterstitialAd is loaded ******************");
+                    }
+                    yandexAd = ad;
+                }
 
-            if (t == null) {
-                JavaKotlinMediator mediator = new JavaKotlinMediator();
-                mediator.loadInterstitialAd(requireContext(), 3, new JavaKotlinMediator.InterstitialAdListener()
+                @Override
+                public void onError(@NonNull AdRequestError error)
+                {
+                    if (BuildConfig.DEBUG) {
+                        System.out.println("**************** InterstitialAd Error: " + error.getDescription() + " *******************");
+                    }
+                }
+            });
+
+            BannerAdView adBanner = requireActivity().findViewById(R.id.banner_main);
+            if (adBanner != null)
+            {
+                mediator = new JavaKotlinMediator();
+                mediator.loadBannerAd(requireContext(), 0, adBanner, new JavaKotlinMediator.BannerAdListener()
                 {
                     @Override
-                    public void onSuccess(@NonNull InterstitialAd ad)
+                    public void onSuccess()
                     {
                         if (BuildConfig.DEBUG)
                         {
-                            System.out.println("************* InterstitialAd is loaded ******************");
+                            System.out.println("************* Banner is loaded ******************");
                         }
-                        yandexAd = ad;
                     }
 
                     @Override
                     public void onError(@NonNull AdRequestError error)
                     {
-                        if (BuildConfig.DEBUG) {
-                            System.out.println("**************** InterstitialAd Error: " + error.getDescription() + " *******************");
+                        if (BuildConfig.DEBUG)
+                        {
+                            System.out.println("**************** Banner Error: " + error.getDescription() + " *******************");
                         }
                     }
                 });
-
-                BannerAdView adBanner = requireActivity().findViewById(R.id.banner_main);
-                if (adBanner != null)
-                {
-                    mediator = new JavaKotlinMediator();
-                    mediator.loadBannerAd(requireContext(), 0, adBanner, new JavaKotlinMediator.BannerAdListener()
-                    {
-                        @Override
-                        public void onSuccess()
-                        {
-                            if (BuildConfig.DEBUG)
-                            {
-                                System.out.println("************* Banner is loaded ******************");
-                            }
-                        }
-
-                        @Override
-                        public void onError(@NonNull AdRequestError error)
-                        {
-                            if (BuildConfig.DEBUG)
-                            {
-                                System.out.println("**************** Banner Error: " + error.getDescription() + " *******************");
-                            }
-                        }
-                    });
-                }
             }
+            return null;
         });
 
     }

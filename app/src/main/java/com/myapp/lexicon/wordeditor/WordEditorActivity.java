@@ -25,8 +25,8 @@ import android.widget.ViewSwitcher;
 import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.addword.AddWordViewModel;
-import com.myapp.lexicon.billing.BillingViewModel;
 import com.myapp.lexicon.helpers.AppBus;
+import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.JavaKotlinMediator;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.main.MainViewModel;
@@ -136,7 +136,6 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
         mainVM = new ViewModelProvider(this).get(MainViewModel.class);
         editorVM = new ViewModelProvider(this).get(EditorViewModel.class);
         addWordVM = new ViewModelProvider(WordEditorActivity.this).get(AddWordViewModel.class);
-        BillingViewModel billingVM = new ViewModelProvider(this).get(BillingViewModel.class);
         spechVM = new ViewModelProvider(this).get(SpeechViewModel.class);
 
         initViews();
@@ -201,35 +200,34 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             tvAmountWords.setText(text);
         });
 
-        billingVM.getNoAdsToken().observe(this, t -> {
-            if (t == null)
-            {
-                BannerAdView adBanner = findViewById(R.id.banner_editor);
-                if (adBanner != null)
-                {
-                    JavaKotlinMediator mediator = new JavaKotlinMediator();
-                    mediator.loadBannerAd(this, 1, adBanner, new JavaKotlinMediator.BannerAdListener()
-                    {
-                        @Override
-                        public void onSuccess()
-                        {
-                            if (BuildConfig.DEBUG)
-                            {
-                                System.out.println("************* Banner is loaded ******************");
-                            }
-                        }
+        ExtensionsKt.checkAdsToken(this, () -> {
 
-                        @Override
-                        public void onError(@NonNull AdRequestError error)
+            BannerAdView adBanner = findViewById(R.id.banner_editor);
+            if (adBanner != null)
+            {
+                JavaKotlinMediator mediator = new JavaKotlinMediator();
+                mediator.loadBannerAd(this, 1, adBanner, new JavaKotlinMediator.BannerAdListener()
+                {
+                    @Override
+                    public void onSuccess()
+                    {
+                        if (BuildConfig.DEBUG)
                         {
-                            if (BuildConfig.DEBUG)
-                            {
-                                System.out.println("**************** Banner Error" + error.getDescription() + " *******************");
-                            }
+                            System.out.println("************* Banner is loaded ******************");
                         }
-                    });
-                }
+                    }
+
+                    @Override
+                    public void onError(@NonNull AdRequestError error)
+                    {
+                        if (BuildConfig.DEBUG)
+                        {
+                            System.out.println("**************** Banner Error" + error.getDescription() + " *******************");
+                        }
+                    }
+                });
             }
+            return null;
         });
 
         buttonDelete = findViewById(R.id.btn_delete);
