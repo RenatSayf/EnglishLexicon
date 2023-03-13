@@ -9,23 +9,26 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.activityViewModels
 import androidx.preference.*
 import com.myapp.lexicon.R
-import com.myapp.lexicon.billing.BillingViewModel
+import com.myapp.lexicon.billing.DonateViewModel
 import com.myapp.lexicon.dialogs.DisableAdsDialog
+import com.myapp.lexicon.helpers.noAdsToken
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.schedule.AlarmScheduler
 import com.myapp.lexicon.service.LexiconService
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
 
+@AndroidEntryPoint
 class SettingsFragment : PreferenceFragmentCompat()
 {
     private lateinit var listDisplayModePref: ListPreference
     private lateinit var serviceCheckBoxPref: CheckBoxPreference
     private lateinit var showIntervalsPref: ListPreference
-    private lateinit var billing: BillingViewModel
+    private val billingVM: DonateViewModel by activityViewModels()
     private val disableAdsDialog = DisableAdsDialog()
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?)
@@ -37,8 +40,6 @@ class SettingsFragment : PreferenceFragmentCompat()
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
-
-        billing = ViewModelProvider(this)[BillingViewModel::class.java]
 
         findPreference<ListPreference>(requireContext().getString(R.string.key_test_interval))?.apply {
             summary = this.entry
@@ -172,16 +173,25 @@ class SettingsFragment : PreferenceFragmentCompat()
         super.onViewCreated(view, savedInstanceState)
         view.setBackgroundColor(resources.getColor(R.color.colorWhite))
 
-        billing.noAdsToken.observe(viewLifecycleOwner) {
-            it?.let { token ->
-                if (token.isEmpty()) {
-                    findPreference<PreferenceCategory>("disableAdsCategory")?.isEnabled = true
-                    findPreference<SwitchPreferenceCompat>("disableAds")?.isChecked = true
-                } else {
-                    findPreference<PreferenceCategory>("disableAdsCategory")?.isEnabled = false
-                    findPreference<SwitchPreferenceCompat>("disableAds")?.isChecked = false
-                }
-            }
+//        billing.noAdsToken.observe(viewLifecycleOwner) {
+//            it?.let { token ->
+//                if (token.isEmpty()) {
+//                    findPreference<PreferenceCategory>("disableAdsCategory")?.isEnabled = true
+//                    findPreference<SwitchPreferenceCompat>("disableAds")?.isChecked = true
+//                } else {
+//                    findPreference<PreferenceCategory>("disableAdsCategory")?.isEnabled = false
+//                    findPreference<SwitchPreferenceCompat>("disableAds")?.isChecked = false
+//                }
+//            }
+//        }
+
+        if (noAdsToken.isEmpty()) {
+            findPreference<PreferenceCategory>("disableAdsCategory")?.isEnabled = true
+            findPreference<SwitchPreferenceCompat>("disableAds")?.isChecked = true
+        }
+        else {
+            findPreference<PreferenceCategory>("disableAdsCategory")?.isEnabled = false
+            findPreference<SwitchPreferenceCompat>("disableAds")?.isChecked = false
         }
 
         val noAdsSwitch = findPreference<SwitchPreferenceCompat>("disableAds")
@@ -205,10 +215,12 @@ class SettingsFragment : PreferenceFragmentCompat()
             }
         }
 
-        billing.wasCancelled.observe(viewLifecycleOwner) {
+//        billing.wasCancelled.observe(viewLifecycleOwner) {
+//            noAdsSwitch?.isChecked = true
+//        }
+        billingVM.wasCancelled.observe(viewLifecycleOwner) {
             noAdsSwitch?.isChecked = true
         }
-
 
     }
 

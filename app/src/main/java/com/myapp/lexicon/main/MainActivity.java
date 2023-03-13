@@ -119,9 +119,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
         donateVM = new ViewModelProvider(this).get(DonateViewModel.class);
-        donateVM.getPurchasedToken().observe(this, token -> {
+        donateVM.getNoAdsToken().observe(this, token -> {
             if (token != null) {
-                ExtensionsKt.saveToken(this, token);
+                ExtensionsKt.saveNoAdsToken(this, token);
             }
         });
 

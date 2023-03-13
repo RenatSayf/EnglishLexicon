@@ -1,7 +1,8 @@
-@file:Suppress("ObjectLiteralToLambda")
+@file:Suppress("ObjectLiteralToLambda", "UNUSED_ANONYMOUS_PARAMETER")
 
 package com.myapp.lexicon.billing
 
+import android.app.Activity
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -22,8 +23,14 @@ private const val PRODUCT_NO_ADS = "no_ads"
 @HiltViewModel
 class DonateViewModel @Inject constructor(app: Application) : AndroidViewModel(app), PurchasesUpdatedListener {
 
-    private val _purchasedToken : MutableLiveData<String?> = MutableLiveData(null)
-    val purchasedToken: LiveData<String?> = _purchasedToken
+    private val _noAdsToken : MutableLiveData<String?> = MutableLiveData(null)
+    val noAdsToken: LiveData<String?> = _noAdsToken
+
+    private var _wasCancelled = MutableLiveData(false)
+    var wasCancelled : LiveData<Boolean> = _wasCancelled
+
+    private var _noAdsProduct = MutableLiveData<ProductDetails>()
+    val noAdsProduct: LiveData<ProductDetails> = _noAdsProduct
 
     val billingClient = BillingClient.newBuilder(app)
         .setListener(this)
@@ -38,30 +45,31 @@ class DonateViewModel @Inject constructor(app: Application) : AndroidViewModel(a
         billingClient.startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(result: BillingResult) {
                 if (result.responseCode == BillingClient.BillingResponseCode.OK) {
+
                     queryProductDetails(billingClient)
+
                     billingClient.queryPurchaseHistoryAsync(params, object : PurchaseHistoryResponseListener {
                         override fun onPurchaseHistoryResponse(
-                            p0: BillingResult,
-                            p1: MutableList<PurchaseHistoryRecord>?
+                            result: BillingResult,
+                            historyRecords: MutableList<PurchaseHistoryRecord>?
                         ) {
-                            p1?.forEach {
+                            historyRecords?.forEach {
                                 val json = it.originalJson
                                 val purchase = Gson().fromJson(json, UserPurchase::class.java)
-                                if (purchase.productId == PRODUCT_NO_ADS && purchase.purchaseToken.isNotEmpty()) {
-                                    _purchasedToken.postValue(purchase.purchaseToken)
-                                } else {
-                                    _purchasedToken.postValue(null)
+
+                                when(purchase.productId) {
+                                    PRODUCT_NO_ADS -> {
+                                        if (purchase.purchaseToken.isNotEmpty()) {
+                                            _noAdsToken.postValue(purchase.purchaseToken)
+                                        }
+                                    }
                                 }
-                            }?: run {
-                                _purchasedToken.postValue(null)
                             }
                         }
                     })
                 }
             }
-            override fun onBillingServiceDisconnected() {
-                _donateList.postValue(listOf())
-            }
+            override fun onBillingServiceDisconnected() {}
         })
     }
 
@@ -70,12 +78,15 @@ class DonateViewModel @Inject constructor(app: Application) : AndroidViewModel(a
         val productList = listOf(
             buildProduct(PRODUCT_NO_ADS)
         )
-        val params = QueryProductDetailsParams.newBuilder().setProductList(productList)
-        billingClient.queryProductDetailsAsync(params.build()) { billingResult, products ->
-            val code = billingResult.responseCode
+        val params = QueryProductDetailsParams.newBuilder().setProductList(productList).build()
+
+        billingClient.queryProductDetailsAsync(params) { billingResult, products ->
             if (products.isNotEmpty()) {
-                products.sortByDescending { p -> p.oneTimePurchaseOfferDetails?.formattedPrice }
-                _donateList.postValue(products)
+
+                val noAdsProduct = products.first {
+                    it.productId == PRODUCT_NO_ADS
+                }
+                _noAdsProduct.postValue(noAdsProduct)
             }
         }
     }
@@ -87,28 +98,21 @@ class DonateViewModel @Inject constructor(app: Application) : AndroidViewModel(a
         }.build()
     }
 
-    private var _donateList = MutableLiveData<List<ProductDetails>>()
-    var donateList: LiveData<List<ProductDetails>> = _donateList
-
-    fun buildBillingFlowParams(price: String): LiveData<BillingFlowParams?> {
-        val flowParams = MutableLiveData<BillingFlowParams>(null)
-        val value = _donateList.value
-        if(!value.isNullOrEmpty())
-        {
-            val productDetails = value.first { details ->
-                details.oneTimePurchaseOfferDetails?.formattedPrice == price
-            }
+    fun disableAds(activity: Activity)
+    {
+        noAdsProduct.value?.let {  details ->
 
             val productDetailsParamsList = listOf(
                 BillingFlowParams.ProductDetailsParams.newBuilder()
-                    .setProductDetails(productDetails)
+                    .setProductDetails(details)
                     .build()
             )
-            flowParams.value = BillingFlowParams.newBuilder()
+            val flowParams = BillingFlowParams.newBuilder()
                 .setProductDetailsParamsList(productDetailsParamsList)
                 .build()
+
+            billingClient.launchBillingFlow(activity, flowParams)
         }
-        return flowParams
     }
 
     private fun handlePurchase(billingClient: BillingClient, purchase: Purchase)
@@ -127,11 +131,26 @@ class DonateViewModel @Inject constructor(app: Application) : AndroidViewModel(a
                             .setPurchaseToken(purchase.purchaseToken)
                         viewModelScope.launch {
                             withContext(Dispatchers.IO) {
-                                billingClient.acknowledgePurchase(acknowledgePurchaseParams.build())
+                                val result = billingClient.acknowledgePurchase(acknowledgePurchaseParams.build())
+
+                                when(result.responseCode) {
+
+                                    BillingClient.BillingResponseCode.OK -> {
+                                        val json = purchase.originalJson
+                                        val userPurchase = Gson().fromJson(json, UserPurchase::class.java)
+                                        when(userPurchase.productId) {
+                                            PRODUCT_NO_ADS -> {
+                                                if (purchase.purchaseToken.isNotEmpty()) {
+                                                    _noAdsToken.postValue(purchase.purchaseToken)
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
-                    _purchasedToken.postValue(outToken)
+
                 }
                 return@consumeAsync
             }
@@ -144,7 +163,7 @@ class DonateViewModel @Inject constructor(app: Application) : AndroidViewModel(a
                 handlePurchase(billingClient, purchase)
             }
         } else if (billingResult.responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
-            _purchasedToken.postValue(null)
+            _wasCancelled.value = true
         }
     }
 }

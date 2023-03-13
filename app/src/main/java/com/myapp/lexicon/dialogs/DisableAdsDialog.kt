@@ -10,12 +10,15 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
-import com.myapp.lexicon.billing.BillingViewModel
+import com.myapp.lexicon.billing.DonateViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+
+@AndroidEntryPoint
 class DisableAdsDialog : DialogFragment()
 {
     private lateinit var dialogView: View
@@ -23,19 +26,13 @@ class DisableAdsDialog : DialogFragment()
     private var btnNo: Button? = null
     private var titleView: TextView? = null
 
-    private lateinit var billingVM: BillingViewModel
+    private val billingVM: DonateViewModel by activityViewModels()
     private var _isCancel = MutableLiveData(false)
     var isCancel: LiveData<Boolean> = _isCancel
 
-    override fun onCreate(savedInstanceState: Bundle?)
-    {
-        super.onCreate(savedInstanceState)
-        billingVM = ViewModelProvider(this)[BillingViewModel::class.java]
-    }
-
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog
     {
-        dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.disable_ads_layout, ConstraintLayout(requireContext()), false)
+        dialogView = layoutInflater.inflate(R.layout.disable_ads_layout, ConstraintLayout(requireContext()), false)
         btnYes = dialogView.findViewById(R.id.btnYes)
         btnNo = dialogView.findViewById(R.id.btnNo)
         titleView = dialogView.findViewById(R.id.titleTV)
@@ -57,11 +54,21 @@ class DisableAdsDialog : DialogFragment()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View
     {
-        billingVM.priceText.observe(viewLifecycleOwner, {
-            val text = titleView?.text.toString() + " $it"
-            titleView?.text = text
-        })
         return dialogView
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        btnYes?.isEnabled = false
+
+        billingVM.noAdsProduct.observe(viewLifecycleOwner) { details ->
+            val price = details.oneTimePurchaseOfferDetails?.formattedPrice
+            val text = titleView?.text.toString() + " $price"
+            titleView?.text = text
+
+            btnYes?.isEnabled = true
+        }
     }
 
 }
