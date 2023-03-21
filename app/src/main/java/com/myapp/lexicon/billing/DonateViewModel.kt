@@ -10,6 +10,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.android.billingclient.api.*
 import com.google.gson.Gson
+import com.myapp.lexicon.models.PurchaseToken
 import com.myapp.lexicon.models.UserPurchase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -23,8 +24,8 @@ private const val PRODUCT_NO_ADS = "no_ads"
 @HiltViewModel
 class DonateViewModel @Inject constructor(app: Application) : AndroidViewModel(app), PurchasesUpdatedListener {
 
-    private val _noAdsToken : MutableLiveData<String?> = MutableLiveData(null)
-    val noAdsToken: LiveData<String?> = _noAdsToken
+    private val _noAdsToken : MutableLiveData<PurchaseToken> = MutableLiveData(null)
+    val noAdsToken: LiveData<PurchaseToken> = _noAdsToken
 
     private var _wasCancelled = MutableLiveData(false)
     var wasCancelled : LiveData<Boolean> = _wasCancelled
@@ -60,7 +61,10 @@ class DonateViewModel @Inject constructor(app: Application) : AndroidViewModel(a
                                 when(purchase.productId) {
                                     PRODUCT_NO_ADS -> {
                                         if (purchase.purchaseToken.isNotEmpty()) {
-                                            _noAdsToken.postValue(purchase.purchaseToken)
+                                            _noAdsToken.postValue(PurchaseToken.YES)
+                                        }
+                                        else {
+                                            _noAdsToken.postValue(PurchaseToken.NO)
                                         }
                                     }
                                 }
@@ -128,7 +132,7 @@ class DonateViewModel @Inject constructor(app: Application) : AndroidViewModel(a
                 {
                     if (!purchase.isAcknowledged) {
                         val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
-                            .setPurchaseToken(purchase.purchaseToken)
+                            .setPurchaseToken(outToken)
                         viewModelScope.launch {
                             withContext(Dispatchers.IO) {
                                 val result = billingClient.acknowledgePurchase(acknowledgePurchaseParams.build())
@@ -141,7 +145,10 @@ class DonateViewModel @Inject constructor(app: Application) : AndroidViewModel(a
                                         when(userPurchase.productId) {
                                             PRODUCT_NO_ADS -> {
                                                 if (purchase.purchaseToken.isNotEmpty()) {
-                                                    _noAdsToken.postValue(purchase.purchaseToken)
+                                                    _noAdsToken.postValue(PurchaseToken.YES)
+                                                }
+                                                else {
+                                                    _noAdsToken.postValue(PurchaseToken.NO)
                                                 }
                                             }
                                         }

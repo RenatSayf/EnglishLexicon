@@ -30,7 +30,6 @@ import com.google.firebase.appindexing.builders.Actions;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
-import com.myapp.lexicon.billing.DonateViewModel;
 import com.myapp.lexicon.cloudstorage.StorageFragment2;
 import com.myapp.lexicon.database.AppDB;
 import com.myapp.lexicon.database.AppDao;
@@ -40,7 +39,6 @@ import com.myapp.lexicon.dialogs.DictListDialog;
 import com.myapp.lexicon.dialogs.OrderPlayDialog;
 import com.myapp.lexicon.dialogs.RemoveDictDialog;
 import com.myapp.lexicon.helpers.AppBus;
-import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.JavaKotlinMediator;
 import com.myapp.lexicon.helpers.Share;
 import com.myapp.lexicon.models.Word;
@@ -88,7 +86,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public MainViewModel mainViewModel;
     private SpeechViewModel speechViewModel;
-    private DonateViewModel donateVM;
     private final CompositeDisposable composite = new CompositeDisposable();
     private Word currentWord;
     private int wordsInterval = Integer.MAX_VALUE;
@@ -117,14 +114,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         scheduler.cancel(AlarmScheduler.REQUEST_CODE, AlarmScheduler.REPEAT_SHOOT_ACTION);
 
-
-        donateVM = new ViewModelProvider(this).get(DonateViewModel.class);
-        donateVM.getNoAdsToken().observe(this, token -> {
-            if (token != null) {
-                ExtensionsKt.saveNoAdsToken(this, token);
-            }
-        });
-
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
         speechViewModel = new ViewModelProvider(this).get(SpeechViewModel.class);
 
@@ -144,7 +133,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 btnViewDict.setText(getString(R.string.text_dictionary));
             }
         });
-
 
         orderPlayView = findViewById(R.id.order_play_icon_iv);
         orderPlayViewOnClick(orderPlayView);
