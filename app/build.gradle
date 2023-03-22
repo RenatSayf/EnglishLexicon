@@ -37,7 +37,14 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    flavorDimensions "test_ads"
     productFlavors {
+        ADS_ALWAYS_ {
+            buildConfigField 'Boolean', 'IS_ALWAYS_ADS', 'true'
+        }
+        ADS_NORMAL_ {
+            buildConfigField 'Boolean', 'IS_ALWAYS_ADS', 'false'
+        }
     }
     lintOptions {
         checkReleaseBuilds false
@@ -50,6 +57,7 @@ android {
         sourceCompatibility = 1.11
         targetCompatibility = 1.11
     }
+    flavorDimensions 'test_ads'
 
 }
 

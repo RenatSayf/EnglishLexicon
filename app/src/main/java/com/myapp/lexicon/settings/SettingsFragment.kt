@@ -12,7 +12,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import androidx.preference.*
 import com.myapp.lexicon.R
-import com.myapp.lexicon.billing.DonateViewModel
+import com.myapp.lexicon.billing.BillingViewModel
 import com.myapp.lexicon.dialogs.DisableAdsDialog
 import com.myapp.lexicon.helpers.checkAdsToken
 import com.myapp.lexicon.helpers.noAdsToken
@@ -29,7 +29,7 @@ class SettingsFragment : PreferenceFragmentCompat()
     private lateinit var listDisplayModePref: ListPreference
     private lateinit var serviceCheckBoxPref: CheckBoxPreference
     private lateinit var showIntervalsPref: ListPreference
-    private val billingVM: DonateViewModel by activityViewModels()
+    private val billingVM: BillingViewModel by activityViewModels()
     private val disableAdsDialog = DisableAdsDialog()
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?)

@@ -1,6 +1,7 @@
 package com.myapp.lexicon.ads
 
 import android.content.Context
+import android.view.View
 import androidx.fragment.app.Fragment
 import com.myapp.lexicon.BuildConfig
 import com.yandex.mobile.ads.banner.AdSize
@@ -125,7 +126,11 @@ fun Context.loadBanner(
 
     adView.apply {
         if (BuildConfig.DEBUG) {
-            setAdUnitId(testBannerAdId)
+            try {
+                setAdUnitId(testBannerAdId)
+            } catch (e: IllegalArgumentException) {
+                if (BuildConfig.DEBUG) e.printStackTrace()
+            }
         }else {
             val id = try {
                 bannerAdIds[index]
@@ -135,23 +140,27 @@ fun Context.loadBanner(
             }
             setAdUnitId(id)
         }
-        setAdSize(AdSize.stickySize(AdSize.FULL_SCREEN.width))
-        setBannerAdEventListener(object : BannerAdEventListener {
-            override fun onAdLoaded() {
-                success.invoke()
-            }
-            override fun onAdFailedToLoad(p0: AdRequestError) {
-                error.invoke(p0)
-            }
-            override fun onAdClicked() {}
+        try {
+            setAdSize(AdSize.stickySize(AdSize.FULL_SCREEN.width))
+            setBannerAdEventListener(object : BannerAdEventListener {
+                override fun onAdLoaded() {
+                    success.invoke()
+                }
+                override fun onAdFailedToLoad(p0: AdRequestError) {
+                    error.invoke(p0)
+                }
+                override fun onAdClicked() {}
 
-            override fun onLeftApplication() {}
+                override fun onLeftApplication() {}
 
-            override fun onReturnedToApplication() {}
+                override fun onReturnedToApplication() {}
 
-            override fun onImpression(p0: ImpressionData?) {}
-        })
-        loadAd(AdRequest.Builder().build())
+                override fun onImpression(p0: ImpressionData?) {}
+            })
+            loadAd(AdRequest.Builder().build())
+        } catch (e: IllegalArgumentException) {
+            if (BuildConfig.DEBUG) e.printStackTrace()
+        }
     }
 }
 

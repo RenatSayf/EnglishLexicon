@@ -14,7 +14,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.myapp.lexicon.R
-import com.myapp.lexicon.billing.DonateViewModel
+import com.myapp.lexicon.billing.BillingViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -26,7 +26,7 @@ class DisableAdsDialog : DialogFragment()
     private var btnNo: Button? = null
     private var titleView: TextView? = null
 
-    private val billingVM: DonateViewModel by activityViewModels()
+    private val billingVM: BillingViewModel by activityViewModels()
     private var _isCancel = MutableLiveData(false)
     var isCancel: LiveData<Boolean> = _isCancel
 

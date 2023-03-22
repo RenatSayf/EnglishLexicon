@@ -9,7 +9,6 @@ import android.widget.AdapterViewFlipper;
 
 import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.billing.DonateViewModel;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.JavaKotlinMediator;
 import com.myapp.lexicon.models.PurchaseToken;
@@ -22,7 +21,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.ViewModelProvider;
 
 
 public class BackgroundFragm extends Fragment
@@ -31,7 +29,7 @@ public class BackgroundFragm extends Fragment
     public InterstitialAd yandexAd = null;
 
     // картинки для фона
-    public static int[] imagesId = new int[]
+    private final int[] imagesId = new int[]
             {
                     R.drawable.img_uk,
                     R.drawable.img_uk1,
@@ -74,6 +72,19 @@ public class BackgroundFragm extends Fragment
     {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+
+        MainActivity mainActivity = (MainActivity) requireActivity();
+        mainActivity.billingVM.getNoAdsToken().observe(this, token -> {
+            if (token == PurchaseToken.YES) {
+                ExtensionsKt.saveNoAdsToken(this, "XXXXXXXXXXXXXXXXXXX");
+                hideAdBanner();
+                yandexAd = null;
+            }
+            else if (token == PurchaseToken.NO) {
+                ExtensionsKt.saveNoAdsToken(this, "");
+                loadAds();
+            }
+        });
     }
 
     private void loadAds()
@@ -127,6 +138,13 @@ public class BackgroundFragm extends Fragment
         }
     }
 
+    private void hideAdBanner() {
+        BannerAdView adBanner = requireActivity().findViewById(R.id.banner_main);
+        if (adBanner != null) {
+            adBanner.setVisibility(View.GONE);
+        }
+    }
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
@@ -156,31 +174,6 @@ public class BackgroundFragm extends Fragment
         }
 
         return fragmentView;
-    }
-
-    @Override
-    public void onStart()
-    {
-        super.onStart();
-
-        DonateViewModel donateVM = new ViewModelProvider(this).get(DonateViewModel.class);
-
-        ExtensionsKt.checkAdsToken(this, () -> {
-
-            donateVM.getNoAdsToken().observe(this, token -> {
-                if (token == PurchaseToken.YES) {
-                    ExtensionsKt.saveNoAdsToken(this, "XXXXXXXXXXXXXXXXXXX");
-                }
-                else if (token == PurchaseToken.NO) {
-                    ExtensionsKt.saveNoAdsToken(this, "");
-                    loadAds();
-                }
-            });
-            return null;
-        }, () -> {
-            loadAds();
-            return null;
-        }, () -> null);
     }
 
     @Override
