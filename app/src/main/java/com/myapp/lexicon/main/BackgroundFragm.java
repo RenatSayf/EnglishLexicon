@@ -73,7 +73,7 @@ public class BackgroundFragm extends Fragment
     public void onCreate(@Nullable Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true); // TODO: Fragment 3. true - что бы фрагмент не пересоздавался при изменении конфигурации
+        setRetainInstance(true);
     }
 
     private void loadAds()

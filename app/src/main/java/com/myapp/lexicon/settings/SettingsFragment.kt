@@ -14,6 +14,7 @@ import androidx.preference.*
 import com.myapp.lexicon.R
 import com.myapp.lexicon.billing.DonateViewModel
 import com.myapp.lexicon.dialogs.DisableAdsDialog
+import com.myapp.lexicon.helpers.checkAdsToken
 import com.myapp.lexicon.helpers.noAdsToken
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.schedule.AlarmScheduler
@@ -202,13 +203,14 @@ class SettingsFragment : PreferenceFragmentCompat()
                 }
             }
         }
-
-//        billing.wasCancelled.observe(viewLifecycleOwner) {
-//            noAdsSwitch?.isChecked = true
-//        }
         billingVM.wasCancelled.observe(viewLifecycleOwner) {
             noAdsSwitch?.isChecked = true
         }
+        this.checkAdsToken(noToken = {
+            noAdsSwitch?.isChecked = true
+        }, hasToken = {
+            noAdsSwitch?.isChecked = false
+        })
 
     }
 

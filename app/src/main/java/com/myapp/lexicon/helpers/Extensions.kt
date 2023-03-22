@@ -38,17 +38,17 @@ val Fragment.noAdsToken: String?
 fun Context.checkAdsToken(
     init: () -> Unit = {},
     noToken: () -> Unit,
-    yesToken: () -> Unit = {}
+    hasToken: () -> Unit = {}
 ) {
     noAdsToken?.let { token ->
         if (token.isEmpty()) noToken.invoke()
-        else yesToken.invoke()
+        else hasToken.invoke()
     }?: run {
         init.invoke()
     }
 }
 
-fun Fragment.checkAdsToken(init: () -> Unit = {}, noToken: () -> Unit, yesToken: () -> Unit = {}) {
-    requireContext().checkAdsToken(init, noToken, yesToken)
+fun Fragment.checkAdsToken(init: () -> Unit = {}, noToken: () -> Unit, hasToken: () -> Unit = {}) {
+    requireContext().checkAdsToken(init, noToken, hasToken)
 }
 
