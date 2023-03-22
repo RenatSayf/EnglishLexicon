@@ -94,7 +94,7 @@ public class TestModalFragment extends DialogFragment
 
         AlertDialog dialog = new AlertDialog.Builder(requireContext()).setView(dialogView).create();
 
-        ExtensionsKt.checkAdsToken(this, () -> {
+        ExtensionsKt.checkAdsToken(this, () -> null, () -> {
 
             BannerAdView adBanner = dialogView.findViewById(R.id.banner_test_dialog);
             if (adBanner != null)
@@ -122,7 +122,7 @@ public class TestModalFragment extends DialogFragment
                 });
             }
             return null;
-        });
+        }, () -> null);
 
         enTextView = dialogView.findViewById(R.id.en_text_view);
         ruBtn1 = dialogView.findViewById(R.id.ru_btn_1);

@@ -74,66 +74,57 @@ public class BackgroundFragm extends Fragment
     {
         super.onCreate(savedInstanceState);
         setRetainInstance(true); // TODO: Fragment 3. true - что бы фрагмент не пересоздавался при изменении конфигурации
+    }
 
-        DonateViewModel donateVM = new ViewModelProvider(this).get(DonateViewModel.class);
-        donateVM.getNoAdsToken().observe(this, token -> {
-            if (token == PurchaseToken.YES) {
-                ExtensionsKt.saveNoAdsToken(this, token.toString());
+    private void loadAds()
+    {
+        JavaKotlinMediator mediator = new JavaKotlinMediator();
+        mediator.loadInterstitialAd(requireContext(), 3, new JavaKotlinMediator.InterstitialAdListener()
+        {
+            @Override
+            public void onSuccess(@NonNull InterstitialAd ad)
+            {
+                if (BuildConfig.DEBUG)
+                {
+                    System.out.println("************* InterstitialAd is loaded ******************");
+                }
+                yandexAd = ad;
             }
-            else if (token == PurchaseToken.NO) {
-                ExtensionsKt.checkAdsToken(this, () -> {
-                    JavaKotlinMediator mediator = new JavaKotlinMediator();
-                    mediator.loadInterstitialAd(requireContext(), 3, new JavaKotlinMediator.InterstitialAdListener()
-                    {
-                        @Override
-                        public void onSuccess(@NonNull InterstitialAd ad)
-                        {
-                            if (BuildConfig.DEBUG)
-                            {
-                                System.out.println("************* InterstitialAd is loaded ******************");
-                            }
-                            yandexAd = ad;
-                        }
 
-                        @Override
-                        public void onError(@NonNull AdRequestError error)
-                        {
-                            if (BuildConfig.DEBUG) {
-                                System.out.println("**************** InterstitialAd Error: " + error.getDescription() + " *******************");
-                            }
-                        }
-                    });
-
-                    BannerAdView adBanner = requireActivity().findViewById(R.id.banner_main);
-                    if (adBanner != null)
-                    {
-                        mediator = new JavaKotlinMediator();
-                        mediator.loadBannerAd(requireContext(), 0, adBanner, new JavaKotlinMediator.BannerAdListener()
-                        {
-                            @Override
-                            public void onSuccess()
-                            {
-                                if (BuildConfig.DEBUG)
-                                {
-                                    System.out.println("************* Banner is loaded ******************");
-                                }
-                            }
-
-                            @Override
-                            public void onError(@NonNull AdRequestError error)
-                            {
-                                if (BuildConfig.DEBUG)
-                                {
-                                    System.out.println("**************** Banner Error: " + error.getDescription() + " *******************");
-                                }
-                            }
-                        });
-                    }
-                    return null;
-                });
+            @Override
+            public void onError(@NonNull AdRequestError error)
+            {
+                if (BuildConfig.DEBUG) {
+                    System.out.println("**************** InterstitialAd Error: " + error.getDescription() + " *******************");
+                }
             }
         });
 
+        BannerAdView adBanner = requireActivity().findViewById(R.id.banner_main);
+        if (adBanner != null)
+        {
+            mediator = new JavaKotlinMediator();
+            mediator.loadBannerAd(requireContext(), 0, adBanner, new JavaKotlinMediator.BannerAdListener()
+            {
+                @Override
+                public void onSuccess()
+                {
+                    if (BuildConfig.DEBUG)
+                    {
+                        System.out.println("************* Banner is loaded ******************");
+                    }
+                }
+
+                @Override
+                public void onError(@NonNull AdRequestError error)
+                {
+                    if (BuildConfig.DEBUG)
+                    {
+                        System.out.println("**************** Banner Error: " + error.getDescription() + " *******************");
+                    }
+                }
+            });
+        }
     }
 
     @Override
@@ -168,9 +159,35 @@ public class BackgroundFragm extends Fragment
     }
 
     @Override
+    public void onStart()
+    {
+        super.onStart();
+
+        DonateViewModel donateVM = new ViewModelProvider(this).get(DonateViewModel.class);
+
+        ExtensionsKt.checkAdsToken(this, () -> {
+
+            donateVM.getNoAdsToken().observe(this, token -> {
+                if (token == PurchaseToken.YES) {
+                    ExtensionsKt.saveNoAdsToken(this, "XXXXXXXXXXXXXXXXXXX");
+                }
+                else if (token == PurchaseToken.NO) {
+                    ExtensionsKt.saveNoAdsToken(this, "");
+                    loadAds();
+                }
+            });
+            return null;
+        }, () -> {
+            loadAds();
+            return null;
+        }, () -> null);
+    }
+
+    @Override
     public void onResume()
     {
         super.onResume();
+
         requireActivity().getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true)
         {
             @Override

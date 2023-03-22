@@ -68,6 +68,8 @@ class DonateViewModel @Inject constructor(app: Application) : AndroidViewModel(a
                                         }
                                     }
                                 }
+                            }?: run {
+                                _noAdsToken.postValue(PurchaseToken.NO)
                             }
                         }
                     })
@@ -153,6 +155,7 @@ class DonateViewModel @Inject constructor(app: Application) : AndroidViewModel(a
                                             }
                                         }
                                     }
+                                    else -> _noAdsToken.postValue(PurchaseToken.NO)
                                 }
                             }
                         }

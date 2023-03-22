@@ -200,7 +200,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             tvAmountWords.setText(text);
         });
 
-        ExtensionsKt.checkAdsToken(this, () -> {
+        ExtensionsKt.checkAdsToken(this, () -> null, () -> {
 
             BannerAdView adBanner = findViewById(R.id.banner_editor);
             if (adBanner != null)
@@ -228,7 +228,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
                 });
             }
             return null;
-        });
+        }, () -> null);
 
         buttonDelete = findViewById(R.id.btn_delete);
         buttonDelete_OnClick();

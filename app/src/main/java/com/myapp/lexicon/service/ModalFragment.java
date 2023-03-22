@@ -88,7 +88,7 @@ public class ModalFragment extends DialogFragment
 
         AlertDialog dialog = new AlertDialog.Builder(requireContext()).setView(dialogView).create();
 
-        ExtensionsKt.checkAdsToken(this, () -> {
+        ExtensionsKt.checkAdsToken(this, () -> null, () -> {
             BannerAdView adBanner = dialogView.findViewById(R.id.banner_modal_dalog);
             if (adBanner != null)
             {
@@ -115,7 +115,7 @@ public class ModalFragment extends DialogFragment
                 });
             }
             return null;
-        });
+        }, () -> null);
 
         enTextView = dialogView.findViewById(R.id.en_text_view);
         ruTextView = dialogView.findViewById(R.id.ru_text_view);

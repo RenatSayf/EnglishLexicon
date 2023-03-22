@@ -67,7 +67,7 @@ class TranslateFragment : Fragment()
     {
         binding = TranslateFragmentBinding.inflate(inflater, container, false)
 
-        checkAdsToken {
+        checkAdsToken(noToken = {
             this.loadInterstitialAd(
                 index = 1,
                 success = { ad ->
@@ -83,7 +83,7 @@ class TranslateFragment : Fragment()
             }, error = { err ->
                 if (BuildConfig.DEBUG) println("******************* Ad request error - code: ${err.code}, ${err.description} *****************")
             })
-        }
+        })
 
         return binding.root
     }
