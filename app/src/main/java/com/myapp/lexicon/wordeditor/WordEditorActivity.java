@@ -329,6 +329,18 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
     }
 
     @Override
+    public void onBackPressed()
+    {
+        int index = switcher.getDisplayedChild();
+        if (index > 0) {
+            switcher.showPrevious();
+        }
+        else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
     protected void onDestroy()
     {
         super.onDestroy();
