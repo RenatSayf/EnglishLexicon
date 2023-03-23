@@ -23,10 +23,6 @@ import android.widget.Toast;
 
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.appindexing.Action;
-import com.google.firebase.appindexing.FirebaseAppIndex;
-import com.google.firebase.appindexing.FirebaseUserActions;
-import com.google.firebase.appindexing.builders.Actions;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
@@ -442,19 +438,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mainViewModel.setMainControlVisibility(View.VISIBLE);
     }
 
-    public Action getAction()
-    {
-        return Actions.newView(getResources().getString(R.string.app_name), getResources().getString(R.string.app_link));
-    }
-
-    @Override
-    protected void onStart()
-    {
-        super.onStart();
-        FirebaseAppIndex.getInstance(this).update();
-        FirebaseUserActions.getInstance(this).start(getAction());
-    }
-
     @SuppressWarnings("Convert2Lambda")
     private void btnViewDictOnClick(Button button)
     {
@@ -508,13 +491,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         super.onSaveInstanceState(outState);
         outState.putString(KEY_TV_WORDS_COUNTER, tvWordsCounter.getText().toString());
-    }
-
-    @Override
-    protected void onStop()
-    {
-        FirebaseUserActions.getInstance(this).end(getAction());
-        super.onStop();
     }
 
     @Override
