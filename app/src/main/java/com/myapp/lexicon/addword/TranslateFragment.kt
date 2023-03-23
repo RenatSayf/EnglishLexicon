@@ -2,29 +2,32 @@ package com.myapp.lexicon.addword
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.view.*
-import android.widget.LinearLayout
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
-import com.google.android.gms.ads.AdRequest
-import com.myapp.lexicon.R
-import com.myapp.lexicon.ads.AdsViewModel
-import com.myapp.lexicon.billing.BillingViewModel
+import com.myapp.lexicon.BuildConfig
+import com.myapp.lexicon.ads.loadBanner
+import com.myapp.lexicon.ads.loadInterstitialAd
+import com.myapp.lexicon.ads.showInterstitialAd
 import com.myapp.lexicon.databinding.TranslateFragmentBinding
+import com.myapp.lexicon.helpers.checkAdsToken
 import com.myapp.lexicon.main.MainActivity
+import com.yandex.mobile.ads.interstitial.InterstitialAd
+import dagger.hilt.android.AndroidEntryPoint
 import java.net.URLDecoder
+
 
 private const val TEXT = "translate_text"
 
-class TranslateFragment : Fragment(R.layout.translate_fragment)
+@AndroidEntryPoint
+class TranslateFragment : Fragment()
 {
     private lateinit var binding: TranslateFragmentBinding
-    private lateinit var billingVM: BillingViewModel
-    private lateinit var adsVM: AdsViewModel
+    private var yandexAd: InterstitialAd? = null
     private lateinit var mActivity: AppCompatActivity
-    private var adsToken = ""
 
     companion object
     {
@@ -47,8 +50,6 @@ class TranslateFragment : Fragment(R.layout.translate_fragment)
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
-        billingVM = ViewModelProvider(this)[BillingViewModel::class.java]
-        adsVM = ViewModelProvider(this)[AdsViewModel::class.java]
         when (activity)
         {
             is MainActivity -> mActivity = activity as MainActivity
@@ -62,33 +63,29 @@ class TranslateFragment : Fragment(R.layout.translate_fragment)
     }
 
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View
     {
-        val root = inflater.inflate(R.layout.translate_fragment, container, false)
+        binding = TranslateFragmentBinding.inflate(inflater, container, false)
 
-        billingVM.noAdsToken.observe(viewLifecycleOwner, {
-            if (it != null && it.isEmpty())
-            {
-                adsToken = it
-                val adLayout: LinearLayout = root.findViewById(R.id.adLayout)
-                val banner = adsVM.getAddWordBanner()
-                adLayout.addView(banner)
-                banner.loadAd(AdRequest.Builder().build())
-                adsVM.loadAd2()
-            }
-        })
-
-        adsVM.isAdClosed2.observe(viewLifecycleOwner, {
-            if (it)
-            {
-                when(mActivity)
-                {
-                    is MainActivity -> mActivity.supportFragmentManager.popBackStack()
-                    is TranslateActivity -> mActivity.finish()
+        checkAdsToken(noToken = {
+            this.loadInterstitialAd(
+                index = 1,
+                success = { ad ->
+                    yandexAd = ad
+                },
+                error = {
+                    yandexAd = null
                 }
-            }
+            )
+            val adView = binding.bannerTranslator
+            loadBanner(index = 2, adView = adView, success = {
+                if (BuildConfig.DEBUG) println("****************** Ad has success loaded *****************")
+            }, error = { err ->
+                if (BuildConfig.DEBUG) println("******************* Ad request error - code: ${err.code}, ${err.description} *****************")
+            })
         })
-        return root
+
+        return binding.root
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -112,67 +109,86 @@ class TranslateFragment : Fragment(R.layout.translate_fragment)
             val url = binding.webView.url
             val decode = URLDecoder.decode(url, "UTF-8")
             javaScriptInterface.setInputText(decode)
-            //todo parsing WebView: Step 7
+            //Hint parsing WebView: Step 7
             binding.webView.loadUrl("javascript:window.HtmlHandler.handleHtml('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>');")
         }
 
-        //todo Отправка события в активити/фрагмент: Step 4. End
-        AppJavaScriptInterface.parseEvent.observe(viewLifecycleOwner, {
-            if (!it.hasBeenHandled)
-            {
+        //Hint Отправка события в активити/фрагмент: Step 4. End
+        AppJavaScriptInterface.parseEvent.observe(viewLifecycleOwner) {
+            if (!it.hasBeenHandled) {
                 val content = it.getContent()
-                if (!content.isNullOrEmpty())
-                {
-                    AddWordDialog.getInstance(content).show(mActivity.supportFragmentManager, AddWordDialog.TAG)
+                if (!content.isNullOrEmpty()) {
+                    AddWordDialog.getInstance(content)
+                        .show(mActivity.supportFragmentManager, AddWordDialog.TAG)
                 }
             }
             binding.loadProgress.visibility = View.GONE
-        })
+        }
     }
 
     override fun onResume()
     {
         super.onResume()
-        activity?.onBackPressedDispatcher?.addCallback(object : OnBackPressedCallback(true)
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true)
         {
             override fun handleOnBackPressed()
             {
-                when
-                {
-                    adsToken.isEmpty() -> adsVM.showAd2(mActivity)
-                    else ->
+                yandexAd?.showInterstitialAd {
+                    when(mActivity)
                     {
-                        when(mActivity)
-                        {
-                            is MainActivity -> mActivity.supportFragmentManager.popBackStack()
-                            is TranslateActivity -> mActivity.finish()
-                        }
+                        is MainActivity -> parentFragmentManager.popBackStack()
+                        is TranslateActivity -> requireActivity().finish()
+                    }
+                }?: run {
+                    when (mActivity) {
+                        is MainActivity -> parentFragmentManager.popBackStack()
+                        is TranslateActivity -> requireActivity().finish()
                     }
                 }
-                this.remove()
             }
         })
 
-    }
+        binding.btnBack.setOnClickListener {
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean
-    {
-        if (item.itemId == android.R.id.home)
-        {
-            when
-            {
-                adsToken.isEmpty() -> adsVM.showAd2(mActivity)
-                else ->
+            yandexAd?.showInterstitialAd {
+                when(mActivity)
                 {
-                    when(mActivity)
-                    {
-                        is MainActivity -> mActivity.supportFragmentManager.popBackStack()
-                        is TranslateActivity -> mActivity.finish()
-                    }
+                    is MainActivity -> parentFragmentManager.popBackStack()
+                    is TranslateActivity -> requireActivity().finish()
+                }
+            }?: run {
+                when (mActivity) {
+                    is MainActivity -> parentFragmentManager.popBackStack()
+                    is TranslateActivity -> requireActivity().finish()
                 }
             }
         }
-        return super.onOptionsItemSelected(item)
+
+//        val toolbar = (requireActivity() as MainActivity).findViewById<Toolbar>(R.id.toolbar_word_editor)
+//        toolbar.addMenuProvider(object : MenuProvider {
+//            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {}
+//
+//            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+//                if (menuItem.itemId == android.R.id.home)
+//                {
+//                    yandexAd?.showInterstitialAd(
+//                        dismiss =  {
+//                            when(mActivity)
+//                            {
+//                                is MainActivity -> mActivity.supportFragmentManager.popBackStack()
+//                                is TranslateActivity -> mActivity.finish()
+//                            }
+//                        }
+//                    )?: run {
+//                        when (mActivity) {
+//                            is MainActivity -> mActivity.supportFragmentManager.popBackStack()
+//                            is TranslateActivity -> mActivity.finish()
+//                        }
+//                    }
+//                }
+//                return false
+//            }
+//        })
     }
 
 

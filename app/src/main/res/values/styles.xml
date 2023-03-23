@@ -1,18 +1,27 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimaryDark">@color/color_status_bar</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="statusBarBackground">@color/color_status_bar</item>
     </style>
-    <style name="AppTheme.NoActionBar">
+    <style name="AppTheme.NoActionBar" parent="AppTheme">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
+
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light">
+        <item name="android:textColorSecondary">@color/colorWhite</item>
+    </style>
+
+    <style name="AppToolbarStyle" parent="ThemeOverlay.AppCompat.Light">
+        <item name="android:textColorSecondary">@color/colorWhite</item>
+    </style>
 
     <style name="spinner_style">
         <item name="android:background">@drawable/gradient_spinner</item>
@@ -25,7 +34,7 @@
         <!--<item name="android:paddingBottom">4dp</item>-->
     </style>
 
-    <!--TODO overridden theme for popapp-->
+    <!--Hint overridden theme for popapp-->
     <style name="popAppWindow" parent="@style/Theme.AppCompat.Dialog.Alert">
         <item name="android:colorBackground">@color/colorTransparent</item>
         <item name="android:windowBackground">@android:color/transparent</item>
@@ -33,7 +42,7 @@
         <item name="android:textColor">@color/colorTransparent</item>
     </style>
 
-    <!--TODO overridden them for transparent activity-->
+    <!--Hint overridden them for transparent activity-->
     <style name="Theme.AppCompat.Translucent" parent="Theme.AppCompat.NoActionBar">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>

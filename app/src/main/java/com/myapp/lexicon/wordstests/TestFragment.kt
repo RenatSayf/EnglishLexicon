@@ -22,18 +22,20 @@ import androidx.fragment.app.viewModels
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.myapp.lexicon.R
-import com.myapp.lexicon.ads.AdsViewModel
-import com.myapp.lexicon.billing.BillingViewModel
-import com.myapp.lexicon.models.Word
+import com.myapp.lexicon.ads.loadInterstitialAd
+import com.myapp.lexicon.ads.showInterstitialAd
 import com.myapp.lexicon.databinding.TestFragmentBinding
 import com.myapp.lexicon.dialogs.DictListDialog
 import com.myapp.lexicon.helpers.Keyboard
 import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.UiState
+import com.myapp.lexicon.helpers.checkAdsToken
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.SpeechViewModel
+import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.viewmodels.AnimViewModel
 import com.myapp.lexicon.viewmodels.PageBackViewModel
+import com.yandex.mobile.ads.interstitial.InterstitialAd
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.disposables.CompositeDisposable
 import java.util.*
@@ -44,7 +46,6 @@ import java.util.concurrent.TimeUnit
 class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectItemListener, DialogWarning.IDialogResult,
     DialogTestComplete.IDialogComplete_Result
 {
-
     companion object
     {
         fun newInstance() = TestFragment()
@@ -56,10 +57,8 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     private val animVM: AnimViewModel by viewModels()
     private val speechVM: SpeechViewModel by viewModels()
     private val pageBackVM: PageBackViewModel by viewModels()
-    private val billingVM: BillingViewModel by viewModels()
-    private val adsVM: AdsViewModel by viewModels()
+    private var yandexAd2: InterstitialAd? = null
     private val composite = CompositeDisposable()
-    private var completeDialog: DialogTestComplete? = null
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
@@ -88,11 +87,17 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         super.onViewCreated(view, savedInstanceState)
         binding = TestFragmentBinding.bind(view)
 
-        billingVM.noAdsToken.observe(viewLifecycleOwner) { t ->
-            t?.let {
-                if (t.isEmpty()) adsVM.loadAd1()
-            }
-        }
+        this.checkAdsToken(noToken = {
+            this.loadInterstitialAd(
+                index = 2,
+                success = { ad ->
+                    yandexAd2 = ad
+                },
+                error = {
+                    yandexAd2 = null
+                }
+            )
+        })
 
         pageBackVM.imageBack.observe(viewLifecycleOwner) { img ->
             binding.imgBack.setImageResource(img)
@@ -155,7 +160,6 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
 
                             override fun onAnimationEnd(p0: Animation?) {
                                 binding.checkBtn.setBackgroundResource(R.drawable.text_button_for_test)
-                                adsVM.showAd1(requireActivity())
                             }
 
                             override fun onAnimationRepeat(p0: Animation?) {}
@@ -356,8 +360,32 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 }
             }
         }
-        adsVM.showAd1(requireActivity())
         super.onDestroyView()
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                yandexAd2?.showInterstitialAd(
+                    dismiss = {
+                        parentFragmentManager.popBackStack()
+                    }
+                )?: run {
+                    parentFragmentManager.popBackStack()
+                }
+            }
+        })
+        binding.toolBar.setNavigationOnClickListener {
+            yandexAd2?.showInterstitialAd(
+                dismiss = {
+                    parentFragmentManager.popBackStack()
+                }
+            )?: run {
+                parentFragmentManager.popBackStack()
+            }
+        }
     }
 
     // TODO ViewPropertyAnimation.Scale Step 6 слушатель анимации
@@ -375,7 +403,6 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 binding.enWordTV.animate().scaleX(0f).scaleY(0f).apply {
                     duration = 500
                     interpolator = AnticipateOvershootInterpolator()
-                    animDecreaseScaleListener(this)
                     startDelay = 1000
                 }.start()
 
@@ -393,9 +420,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
             }
 
             override fun onAnimationRepeat(p0: Animator)
-            {
-
-            }
+            {}
         })
     }
 
@@ -404,9 +429,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         animator.setListener(object : Animator.AnimatorListener
         {
             override fun onAnimationStart(p0: Animator)
-            {
-
-            }
+            {}
 
             override fun onAnimationEnd(p0: Animator)
             {
@@ -447,19 +470,17 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                         setGravity(Gravity.TOP, 0, 0)
                     }.show()
 
-                    val total = testVM.wordsCount.value!!
+                    val total = testVM.wordsCount.value?: 0
+                    binding.checkBtn.setBackgroundResource(R.drawable.text_button_for_test)
                     val correctly = testVM.rightAnswerCounter
-                    if (completeDialog == null)
-                    {
-                        completeDialog = DialogTestComplete().apply {
-                            arguments = Bundle().apply {
-                                putInt(DialogTestComplete.TOTAL_NUM, total)
-                                putInt(DialogTestComplete.CORRECTLY_NUM, correctly)
-                            }
-                            setListener(this@TestFragment)
+                    val completeDialog = DialogTestComplete().apply {
+                        arguments = Bundle().apply {
+                            putInt(DialogTestComplete.TOTAL_NUM, total)
+                            putInt(DialogTestComplete.CORRECTLY_NUM, correctly)
                         }
-                        completeDialog?.show(requireActivity().supportFragmentManager, DialogTestComplete.TAG)
+                        setListener(this@TestFragment)
                     }
+                    completeDialog.show(parentFragmentManager, DialogTestComplete.TAG)
                 }
             }
 
@@ -562,7 +583,13 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
             }
             -1 ->
             {
-                requireActivity().onBackPressed()
+                yandexAd2?.showInterstitialAd(
+                    dismiss = {
+                        parentFragmentManager.popBackStack()
+                    }
+                )?: run {
+                    parentFragmentManager.popBackStack()
+                }
             }
             else ->
             {

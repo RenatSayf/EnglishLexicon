@@ -21,18 +21,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.appindexing.Action;
-import com.google.firebase.appindexing.FirebaseAppIndex;
-import com.google.firebase.appindexing.FirebaseUserActions;
-import com.google.firebase.appindexing.builders.Actions;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
-import com.myapp.lexicon.ads.AdsViewModel;
 import com.myapp.lexicon.billing.BillingViewModel;
 import com.myapp.lexicon.cloudstorage.StorageFragment2;
 import com.myapp.lexicon.database.AppDB;
@@ -43,11 +36,12 @@ import com.myapp.lexicon.dialogs.DictListDialog;
 import com.myapp.lexicon.dialogs.OrderPlayDialog;
 import com.myapp.lexicon.dialogs.RemoveDictDialog;
 import com.myapp.lexicon.helpers.AppBus;
+import com.myapp.lexicon.helpers.JavaKotlinMediator;
 import com.myapp.lexicon.helpers.Share;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.service.LexiconService;
-import com.myapp.lexicon.settings.SettingsFragment;
+import com.myapp.lexicon.settings.ContainerFragment;
 import com.myapp.lexicon.wordeditor.WordEditorActivity;
 import com.myapp.lexicon.wordstests.OneOfFiveFragm;
 import com.myapp.lexicon.wordstests.TestFragment;
@@ -89,10 +83,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public MainViewModel mainViewModel;
     private SpeechViewModel speechViewModel;
-    private AdsViewModel adsVM;
+    public BillingViewModel billingVM;
     private final CompositeDisposable composite = new CompositeDisposable();
     private Word currentWord;
     private int wordsInterval = Integer.MAX_VALUE;
+    public BackgroundFragm backgroundFragm = null;
 
     @Inject
     AlarmScheduler scheduler;
@@ -105,8 +100,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         View root = LayoutInflater.from(this).inflate(R.layout.a_navig_main, new DrawerLayout(this));
         setContentView(root);
 
-        Toolbar toolbar = findViewById(R.id.toolbar_word_editor);
-        setSupportActionBar(toolbar);
+        Toolbar toolBar = findViewById(R.id.tool_bar);
+        setSupportActionBar(toolBar);
 
         MobileAds.initialize(this);
 
@@ -119,22 +114,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
         speechViewModel = new ViewModelProvider(this).get(SpeechViewModel.class);
-        BillingViewModel billingVM = new ViewModelProvider(this).get(BillingViewModel.class);
-        adsVM = new ViewModelProvider(this).get(AdsViewModel.class);
-
-        billingVM.getNoAdsToken().observe(this, t -> {
-            if (t != null && t.isEmpty())
-            {
-                LinearLayout adLayout = findViewById(R.id.adLayout);
-                if (adLayout != null)
-                {
-                    AdView mainBanner = adsVM.getMainBanner();
-                    adLayout.removeAllViews();
-                    adLayout.addView(mainBanner);
-                    mainBanner.loadAd(new AdRequest.Builder().build());
-                }
-            }
-        });
+        billingVM = new ViewModelProvider(this).get(BillingViewModel.class);
 
         btnViewDict = findViewById(R.id.btnViewDict);
         btnViewDictOnClick(btnViewDict);
@@ -152,7 +132,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 btnViewDict.setText(getString(R.string.text_dictionary));
             }
         });
-
 
         orderPlayView = findViewById(R.id.order_play_icon_iv);
         orderPlayViewOnClick(orderPlayView);
@@ -301,13 +280,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (savedInstanceState == null)
         {
-            BackgroundFragm backgroundFragm = new BackgroundFragm();
+            backgroundFragm = new BackgroundFragm();
             getSupportFragmentManager().beginTransaction().replace(R.id.background_fragment, backgroundFragm).commit();
         }
 
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolBar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         //noinspection deprecation
         drawer.setDrawerListener(toggle);
         toggle.syncState();
@@ -459,19 +438,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mainViewModel.setMainControlVisibility(View.VISIBLE);
     }
 
-    public Action getAction()
-    {
-        return Actions.newView(getResources().getString(R.string.app_name), getResources().getString(R.string.app_link));
-    }
-
-    @Override
-    protected void onStart()
-    {
-        super.onStart();
-        FirebaseAppIndex.getInstance(this).update();
-        FirebaseUserActions.getInstance(this).start(getAction());
-    }
-
     @SuppressWarnings("Convert2Lambda")
     private void btnViewDictOnClick(Button button)
     {
@@ -528,13 +494,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    protected void onStop()
-    {
-        FirebaseUserActions.getInstance(this).end(getAction());
-        super.onStop();
-    }
-
-    @Override
     protected void onResume()
     {
         super.onResume();
@@ -581,14 +540,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         String interval = preferences.getString(getString(R.string.key_show_intervals), "0");
-        if (interval != null)
+        int parseInt = Integer.parseInt(interval);
+        if (parseInt != 0)
         {
-            int parseInt = Integer.parseInt(interval);
-            if (parseInt != 0)
-            {
-                //scheduler.scheduleRepeat((parseInt*60*1000), (parseInt*60*1000));
-                scheduler.scheduleOne((long) parseInt * 60 * 1000);
-            }
+            scheduler.scheduleOne((long) parseInt * 60 * 1000);
         }
     }
 
@@ -696,7 +651,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         else if (id == R.id.nav_settings)
         {
-            getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, new SettingsFragment()).addToBackStack(null).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, new ContainerFragment()).addToBackStack(null).commit();
         }
         else if (id == R.id.nav_evaluate_app)
         {
@@ -721,7 +676,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 SplashScreenActivity.speech.shutdown();
             }
             alarmClockEnable(scheduler);
-            this.finish();
+            if (backgroundFragm != null && backgroundFragm.yandexAd != null)
+            {
+                new JavaKotlinMediator().showInterstitialAd(backgroundFragm.yandexAd, this::finish);
+            } else
+            {
+                finish();
+            }
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -759,9 +720,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         wordsInterval = value;
     }
-
-
-
 
 }
 

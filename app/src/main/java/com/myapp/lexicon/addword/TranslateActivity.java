@@ -25,18 +25,15 @@ public class TranslateActivity extends AppCompatActivity
         setContentView(R.layout.b_translate_activity);
 
         String enWord;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M)
+        Intent intent = getIntent();
+        if (intent != null)
         {
-            Intent intent = getIntent();
-            if (intent != null)
+            CharSequence sequence = intent.getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT);
+            if (sequence != null)
             {
-                CharSequence sequence = intent.getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT);
-                if (sequence != null)
-                {
-                    enWord = Objects.requireNonNull(intent.getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT)).toString().toLowerCase();
-                    translateFragment = TranslateFragment.Companion.getInstance(enWord);
-                    getSupportFragmentManager().beginTransaction().add(R.id.translate_fragment, translateFragment).addToBackStack(null).commit();
-                }
+                enWord = Objects.requireNonNull(intent.getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT)).toString().toLowerCase();
+                translateFragment = TranslateFragment.Companion.getInstance(enWord);
+                getSupportFragmentManager().beginTransaction().add(R.id.translate_fragment, translateFragment).addToBackStack(null).commit();
             }
         }
 

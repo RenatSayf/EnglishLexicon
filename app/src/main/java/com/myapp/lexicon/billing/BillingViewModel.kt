@@ -1,86 +1,128 @@
+@file:Suppress("ObjectLiteralToLambda", "UNUSED_ANONYMOUS_PARAMETER") @file:JvmName("BillingViewModelKt")
+
 package com.myapp.lexicon.billing
 
 import android.app.Activity
 import android.app.Application
-import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
 import com.android.billingclient.api.*
 import com.google.gson.Gson
+import com.myapp.lexicon.BuildConfig
+import com.myapp.lexicon.models.PurchaseToken
 import com.myapp.lexicon.models.UserPurchase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
-const val KEY_PURCHASE_TOKEN = "KEY_PURCHASE_TOKEN_575456645458"
-const val KEY_BILLING = "KEY_BILLING_525454554"
-private const val PRODUCT_ID = "no_ads"
+private const val PRODUCT_NO_ADS = "no_ads"
 
-@Suppress("ObjectLiteralToLambda")
 @HiltViewModel
-class BillingViewModel @Inject constructor(private val app: Application) : AndroidViewModel(app)
-{
-    private var skuDetails: SkuDetails? = null
+class BillingViewModel @Inject constructor(app: Application) : AndroidViewModel(app), PurchasesUpdatedListener {
 
-    private val billingClient = BillingClient.newBuilder(app)
-        .setListener(object : PurchasesUpdatedListener
-        {
-            override fun onPurchasesUpdated(result: BillingResult, purchases: MutableList<Purchase>?)
-            {
-                if (result.responseCode == BillingClient.BillingResponseCode.OK && purchases != null)
-                {
-                    purchases.forEach {
-                        handlePurchase(it)
-                    }
-                }
-                else if (result.responseCode == BillingClient.BillingResponseCode.USER_CANCELED)
-                {
-                    _wasCancelled.value = true
-                }
-            }
-        })
-        .enablePendingPurchases()
-        .build()
-
-    private var _noAdsToken = MutableLiveData<String?>(null)
-    val noAdsToken: LiveData<String?> = _noAdsToken //TODO перед релизом раскоментировать _noAdsToken
+    private val _noAdsToken : MutableLiveData<PurchaseToken> = MutableLiveData(null)
+    val noAdsToken: LiveData<PurchaseToken> = _noAdsToken
 
     private var _wasCancelled = MutableLiveData(false)
     var wasCancelled : LiveData<Boolean> = _wasCancelled
 
-    private var _priceText = MutableLiveData("")
-    var priceText: LiveData<String> = _priceText
+    private var _noAdsProduct = MutableLiveData<ProductDetails>()
+    val noAdsProduct: LiveData<ProductDetails> = _noAdsProduct
 
-    fun querySkuDetails()
-    {
-        var skuDetailsResult: SkuDetailsResult?
-        val skuList = ArrayList<String>()
-        skuList.add(PRODUCT_ID)
-        val params = SkuDetailsParams.newBuilder()
-        params.setSkusList(skuList).setType(BillingClient.SkuType.INAPP)
-        viewModelScope.launch {
-            skuDetailsResult = withContext(Dispatchers.IO) {
-                billingClient.querySkuDetails(params.build())
-            }
-            val list = skuDetailsResult?.skuDetailsList
-            if (!list.isNullOrEmpty())
-            {
-                skuDetails = list.first()
-                skuDetails.let { d ->
-                    val price = d?.price
-                    _priceText.value = price
+    val billingClient = BillingClient.newBuilder(app)
+        .setListener(this)
+        .enablePendingPurchases()
+        .build()
+
+    init {
+
+        val params = QueryPurchaseHistoryParams.newBuilder()
+            .setProductType(BillingClient.ProductType.INAPP).build()
+
+        billingClient.startConnection(object : BillingClientStateListener {
+            override fun onBillingSetupFinished(result: BillingResult) {
+                if (result.responseCode == BillingClient.BillingResponseCode.OK) {
+
+                    queryProductDetails(billingClient)
+
+                    billingClient.queryPurchaseHistoryAsync(params, object : PurchaseHistoryResponseListener {
+                        override fun onPurchaseHistoryResponse(
+                            result: BillingResult,
+                            historyRecords: MutableList<PurchaseHistoryRecord>?
+                        ) {
+                            historyRecords?.forEach {
+                                val json = it.originalJson
+                                val purchase = Gson().fromJson(json, UserPurchase::class.java)
+
+                                when(purchase.productId) {
+                                    PRODUCT_NO_ADS -> {
+                                        if (purchase.purchaseToken.isNotEmpty()) {
+                                            if (BuildConfig.IS_ALWAYS_ADS) {
+                                                _noAdsToken.postValue(PurchaseToken.NO)
+                                            } else {
+                                                _noAdsToken.postValue(PurchaseToken.YES)
+                                            }
+                                        }
+                                        else {
+                                            _noAdsToken.postValue(PurchaseToken.NO)
+                                        }
+                                    }
+                                }
+                            }?: run {
+                                _noAdsToken.postValue(PurchaseToken.NO)
+                            }
+                        }
+                    })
                 }
             }
-            return@launch
+            override fun onBillingServiceDisconnected() {}
+        })
+    }
+
+    fun queryProductDetails(billingClient: BillingClient) {
+
+        val productList = listOf(
+            buildProduct(PRODUCT_NO_ADS)
+        )
+        val params = QueryProductDetailsParams.newBuilder().setProductList(productList).build()
+
+        billingClient.queryProductDetailsAsync(params) { billingResult, products ->
+            if (products.isNotEmpty()) {
+
+                val noAdsProduct = products.first {
+                    it.productId == PRODUCT_NO_ADS
+                }
+                _noAdsProduct.postValue(noAdsProduct)
+            }
         }
     }
 
-    private fun handlePurchase(purchase: Purchase)
+    private fun buildProduct(id: String): QueryProductDetailsParams.Product {
+        return QueryProductDetailsParams.Product.newBuilder().apply {
+            setProductId(id)
+            setProductType(BillingClient.ProductType.INAPP)
+        }.build()
+    }
+
+    fun disableAds(activity: Activity)
+    {
+        noAdsProduct.value?.let {  details ->
+
+            val productDetailsParamsList = listOf(
+                BillingFlowParams.ProductDetailsParams.newBuilder()
+                    .setProductDetails(details)
+                    .build()
+            )
+            val flowParams = BillingFlowParams.newBuilder()
+                .setProductDetailsParamsList(productDetailsParamsList)
+                .build()
+
+            billingClient.launchBillingFlow(activity, flowParams)
+        }
+    }
+
+    private fun handlePurchase(billingClient: BillingClient, purchase: Purchase)
     {
         val consumeParams = ConsumeParams.newBuilder()
             .setPurchaseToken(purchase.purchaseToken)
@@ -91,67 +133,39 @@ class BillingViewModel @Inject constructor(private val app: Application) : Andro
             {
                 if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED)
                 {
-                    _noAdsToken.value = purchase.purchaseToken
-                    app.getSharedPreferences(KEY_BILLING, Context.MODE_PRIVATE).edit().putString(KEY_PURCHASE_TOKEN, purchase.purchaseToken).apply()
-                    if (!purchase.isAcknowledged)
-                    {
-                        val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder().setPurchaseToken(purchase.purchaseToken)
-                        viewModelScope.launch {
-                            billingClient.acknowledgePurchase(acknowledgePurchaseParams.build())
+                    val json = purchase.originalJson
+                    val userPurchase = Gson().fromJson(json, UserPurchase::class.java)
+                    when(userPurchase.productId) {
+                        PRODUCT_NO_ADS -> {
+                            if (outToken.isNotEmpty()) {
+                                _noAdsToken.postValue(PurchaseToken.YES)
+                            }
+                            else {
+                                _noAdsToken.postValue(PurchaseToken.NO)
+                            }
                         }
                     }
                 }
+                else {
+                    _noAdsToken.postValue(PurchaseToken.NO)
+                    _wasCancelled.postValue(true)
+                }
                 return@consumeAsync
+            }
+            else {
+                _noAdsToken.postValue(PurchaseToken.NO)
+                _wasCancelled.postValue(true)
             }
         }
     }
 
-    fun disableAds(activity: Activity)
-    {
-        skuDetails?.let {
-            val flowParams = BillingFlowParams.newBuilder().setSkuDetails(it).build()
-            billingClient.launchBillingFlow(activity, flowParams)
-        }
-    }
-
-    init
-    {
-        val token = app.getSharedPreferences(KEY_BILLING, Context.MODE_PRIVATE).getString(KEY_PURCHASE_TOKEN, "")
-        if (!token.isNullOrEmpty())
-        {
-            _noAdsToken.value = token
-        }
-        else
-        {
-            billingClient.startConnection(object : BillingClientStateListener
-            {
-                override fun onBillingSetupFinished(result: BillingResult)
-                {
-                    querySkuDetails()
-                    viewModelScope.launch {
-                        val purchases = billingClient.queryPurchaseHistory(BillingClient.SkuType.INAPP)
-                        val purchasesList = purchases.purchaseHistoryRecordList
-                        purchasesList?.let { list ->
-                            list.forEach {
-                                val json = it.originalJson
-                                val purchase = Gson().fromJson(json, UserPurchase::class.java)
-                                if (purchase.productId == PRODUCT_ID && purchase.purchaseToken.isNotEmpty())
-                                {
-                                    app.getSharedPreferences(KEY_BILLING, Context.MODE_PRIVATE).edit().putString(KEY_PURCHASE_TOKEN, purchase.purchaseToken).apply()
-                                    _noAdsToken.postValue(purchase.purchaseToken)
-                                    return@launch
-                                }
-                            }
-                            _noAdsToken.postValue("")
-                        }
-                    }
-                }
-
-                override fun onBillingServiceDisconnected()
-                {
-                    _noAdsToken.postValue("ZZZZZZZZZZZZZZZZZZZZ")
-                }
-            })
+    override fun onPurchasesUpdated(billingResult: BillingResult, purchases: MutableList<Purchase>?) {
+        if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && purchases != null) {
+            for (purchase in purchases) {
+                handlePurchase(billingClient, purchase)
+            }
+        } else if (billingResult.responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
+            _wasCancelled.value = true
         }
     }
 }

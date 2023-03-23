@@ -9,23 +9,20 @@ import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.Button
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.myapp.lexicon.R
 import com.myapp.lexicon.adapters.OneFiveTestAdapter
-import com.myapp.lexicon.ads.AdViewModel2
+import com.myapp.lexicon.ads.loadInterstitialAd
 import com.myapp.lexicon.ads.showInterstitialAd
-import com.myapp.lexicon.billing.BillingViewModel
 import com.myapp.lexicon.databinding.OneOfFiveFragmNewBinding
 import com.myapp.lexicon.dialogs.TestCompleteDialog
 import com.myapp.lexicon.helpers.RandomNumberGenerator
+import com.myapp.lexicon.helpers.checkAdsToken
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.models.Word
-import com.yandex.mobile.ads.common.AdRequestError
 import com.yandex.mobile.ads.interstitial.InterstitialAd
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
@@ -40,8 +37,6 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDia
     private lateinit var vm: OneOfFiveViewModel
     private lateinit var mActivity: MainActivity
 
-    private lateinit var billingVM: BillingViewModel
-    private val adsVM2: AdViewModel2 by viewModels()
     private var yandexAd2: InterstitialAd? = null
 
 
@@ -66,7 +61,6 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDia
     {
         super.onCreate(savedInstanceState)
         mActivity = activity as MainActivity
-        billingVM = ViewModelProvider(this)[BillingViewModel::class.java]
         vm = ViewModelProvider(this)[OneOfFiveViewModel::class.java]
         if (!wordList.isNullOrEmpty()) vm.initTest(wordList as MutableList<Word>)
     }
@@ -75,18 +69,18 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDia
     {
         val root = inflater.inflate(R.layout.one_of_five_fragm_new, container, false)
 
-        billingVM.noAdsToken.observe(viewLifecycleOwner) { t ->
-            if (t.isNullOrEmpty()) {
-                adsVM2.loadYandexAd(2, listener = object : AdViewModel2.YandexAdListener {
-                    override fun onYandexAdLoaded(ad: InterstitialAd) {
-                        yandexAd2 = ad
-                    }
-                    override fun onYandexAdFailed(error: AdRequestError) {
-                        yandexAd2 = null
-                    }
-                })
-            }
-        }
+        this.checkAdsToken(noToken = {
+            this.loadInterstitialAd(
+                index = 2,
+                success = { ad ->
+                    yandexAd2 = ad
+                },
+                error = {
+                    yandexAd2 = null
+                }
+            )
+        })
+
         return root
     }
 
@@ -126,20 +120,21 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDia
         }
     }
 
-    private lateinit var backPressedCallback: OnBackPressedCallback
     override fun onResume()
     {
         super.onResume()
-        backPressedCallback = mActivity.onBackPressedDispatcher.addCallback {
-            mActivity.supportFragmentManager.popBackStack()
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                mActivity.supportFragmentManager.popBackStack()
+                mActivity.mainViewModel.setMainControlVisibility(View.VISIBLE)
+            }
+        })
+
+        binding.toolBar.setNavigationOnClickListener {
+            parentFragmentManager.popBackStack()
             mActivity.mainViewModel.setMainControlVisibility(View.VISIBLE)
         }
-    }
-
-    override fun onDestroy()
-    {
-        backPressedCallback.remove()
-        super.onDestroy()
     }
 
     override fun onItemClickListener(position: Int, word: Word, view: Button)
@@ -220,10 +215,12 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDia
 
     override fun onTestPassed()
     {
-        yandexAd2?.showInterstitialAd {
-            mActivity.supportFragmentManager.popBackStack()
-            mActivity.testPassed()
-        }?: run {
+        yandexAd2?.showInterstitialAd(
+            dismiss = {
+                mActivity.supportFragmentManager.popBackStack()
+                mActivity.testPassed()
+            }
+        )?: run {
             mActivity.supportFragmentManager.popBackStack()
             mActivity.testPassed()
         }
@@ -231,10 +228,12 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDia
 
     override fun onTestFailed(errors: Int)
     {
-        yandexAd2?.showInterstitialAd {
-            mActivity.supportFragmentManager.popBackStack()
-            mActivity.testFailed(errors)
-        }?: run {
+        yandexAd2?.showInterstitialAd(
+            dismiss = {
+                mActivity.supportFragmentManager.popBackStack()
+                mActivity.testFailed(errors)
+            }
+        )?: run {
             mActivity.supportFragmentManager.popBackStack()
             mActivity.testFailed(errors)
         }

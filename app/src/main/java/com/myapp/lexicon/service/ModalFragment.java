@@ -4,7 +4,6 @@ package com.myapp.lexicon.service;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -14,17 +13,18 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
 import com.google.gson.JsonSyntaxException;
+import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.ads.AdsViewModel;
-import com.myapp.lexicon.billing.BillingViewModel;
-import com.myapp.lexicon.models.Word;
+import com.myapp.lexicon.helpers.ExtensionsKt;
+import com.myapp.lexicon.helpers.JavaKotlinMediator;
 import com.myapp.lexicon.helpers.StringOperations;
 import com.myapp.lexicon.interfaces.IModalFragment;
 import com.myapp.lexicon.main.SpeechViewModel;
+import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.settings.AppSettings;
+import com.yandex.mobile.ads.banner.BannerAdView;
+import com.yandex.mobile.ads.common.AdRequestError;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +49,6 @@ public class ModalFragment extends DialogFragment
     private TextView ruTextView;
     private static List<Integer> _counters = new ArrayList<>();
     private SpeechViewModel speechVM;
-    private AdsViewModel adsVM;
 
     public ModalFragment()
     {
@@ -85,24 +84,38 @@ public class ModalFragment extends DialogFragment
     @Override
     public Dialog onCreateDialog(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState)
     {
-        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.s_repeat_modal_fragment, new LinearLayout(requireContext()), false);
+        View dialogView = getLayoutInflater().inflate(R.layout.s_repeat_modal_fragment, new LinearLayout(requireContext()), false);
 
         AlertDialog dialog = new AlertDialog.Builder(requireContext()).setView(dialogView).create();
 
-        BillingViewModel billingVM = new ViewModelProvider(this).get(BillingViewModel.class);
-        adsVM = new ViewModelProvider(this).get(AdsViewModel.class);
-        billingVM.getNoAdsToken().observe(this, token -> {
-            if (token != null && token.isEmpty())
+        ExtensionsKt.checkAdsToken(this, () -> null, () -> {
+            BannerAdView adBanner = dialogView.findViewById(R.id.banner_modal_dalog);
+            if (adBanner != null)
             {
-                LinearLayout adLayout = dialogView.findViewById(R.id.adLayout);
-                if (adLayout != null)
+                JavaKotlinMediator mediator = new JavaKotlinMediator();
+                mediator.loadBannerAd(requireContext(), 3, adBanner, new JavaKotlinMediator.BannerAdListener()
                 {
-                    AdView mainBanner = adsVM.getMainBanner();
-                    adLayout.addView(mainBanner);
-                    mainBanner.loadAd(new AdRequest.Builder().build());
-                }
+                    @Override
+                    public void onSuccess()
+                    {
+                        if (BuildConfig.DEBUG)
+                        {
+                            System.out.println("************* Banner is loaded ******************");
+                        }
+                    }
+
+                    @Override
+                    public void onError(@NonNull AdRequestError error)
+                    {
+                        if (BuildConfig.DEBUG)
+                        {
+                            System.out.println("**************** Banner Error" + error.getDescription() + " *******************");
+                        }
+                    }
+                });
             }
-        });
+            return null;
+        }, () -> null);
 
         enTextView = dialogView.findViewById(R.id.en_text_view);
         ruTextView = dialogView.findViewById(R.id.ru_text_view);

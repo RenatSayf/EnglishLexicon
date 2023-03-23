@@ -1,11 +1,23 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:tools="http://schemas.android.com/tools"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             tools:context="com.myapp.lexicon.aboutapp.AboutAppFragment"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context="com.myapp.lexicon.aboutapp.AboutAppFragment"
     android:background="@drawable/side_nav_bar"
     android:orientation="vertical"
     android:gravity="center_horizontal">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/tool_bar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:layout_constraintTop_toTopOf="parent"
+        android:theme="@style/AppToolbarStyle"
+        app:titleTextColor="@color/colorWhite"
+        app:title="@string/text_about_app"
+        app:navigationIcon="@drawable/ic_arrow_back_white"
+        android:background="@drawable/bg_tool_bar" />
 
 
     <ImageView
@@ -54,10 +66,11 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:autoLink="email"
+        android:minHeight="48dp"
         android:text="@string/text_developer_email"
         android:textAlignment="center"
         android:textColor="@color/colorWhite"
-        android:textStyle="bold"/>
+        android:textStyle="bold" />
 
     <Button
         android:id="@+id/btn_evaluate"
@@ -73,18 +86,18 @@
         />
 
 
-    <Space
+    <androidx.legacy.widget.Space
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"/>
+        android:layout_weight="2"/>
 
     <TextView
         android:id="@+id/tvLinkPrivacyPolicy"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.5"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.1"
         android:paddingBottom="20dp"
-        android:gravity="bottom"
+        android:gravity="center"
         android:autoLink="web"
         android:linksClickable="true"
         android:textAppearance="?android:attr/textAppearanceMedium"

@@ -11,12 +11,24 @@
     android:background="@drawable/side_nav_bar"
     >
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_word_editor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        android:theme="@style/AppToolbarStyle"
+        app:menu="@menu/d_word_editor_menu"
+        app:titleTextColor="@color/colorWhite"
+        app:title="@string/nav_words_editor"
+        android:background="@color/colorSemitransparent"
+        />
+
     <ViewSwitcher
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:id="@+id/viewSwitcher"
         android:background="@drawable/side_nav_bar"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar_word_editor"
         app:layout_constraintBottom_toTopOf="@+id/adLayout"
         >
 
@@ -86,6 +98,12 @@
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_gravity="bottom"
         android:orientation="vertical">
+
+        <com.yandex.mobile.ads.banner.BannerAdView
+            android:id="@+id/banner_editor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
     </LinearLayout>
 
     <ProgressBar

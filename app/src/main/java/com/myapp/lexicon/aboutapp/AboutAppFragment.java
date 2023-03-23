@@ -19,6 +19,7 @@ import com.myapp.lexicon.main.MainActivity;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
 
@@ -27,9 +28,7 @@ public class AboutAppFragment extends Fragment
     private View fragment_view = null;
 
     public AboutAppFragment()
-    {
-        // Required empty public constructor
-    }
+    {}
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState)
@@ -44,6 +43,9 @@ public class AboutAppFragment extends Fragment
         {
             fragment_view = inflater.inflate(R.layout.fragment_about_app, container, false);
         }
+
+        Toolbar toolBar = fragment_view.findViewById(R.id.tool_bar);
+        toolBar.setNavigationOnClickListener( v -> getParentFragmentManager().popBackStack());
 
         TextView versionNameTV = fragment_view.findViewById(R.id.version_name_tv);
         try
