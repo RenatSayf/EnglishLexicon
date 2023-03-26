@@ -52,3 +52,16 @@ fun Fragment.checkAdsToken(init: () -> Unit = {}, noToken: () -> Unit, hasToken:
     requireContext().checkAdsToken(init, noToken, hasToken)
 }
 
+private const val DB_REF = "DB_REF"
+
+fun Context.saveCloudDbRefToPref(ref: String) {
+    appPref.edit().putString(DB_REF, ref).apply()
+}
+
+fun Context.getCloudDbRefFromPref(onSuccess: (String) -> Unit) {
+    val ref = appPref.getString(DB_REF, null)
+    ref?.let {
+        onSuccess.invoke(it)
+    }
+}
+

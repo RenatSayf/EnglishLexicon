@@ -36,14 +36,13 @@ class UploadDbWorker(
             }.build()
         }
 
-        fun uploadDbToCloud(context: Context, userId: String, listener: Listener): WorkManager {
+        fun uploadDbToCloud(context: Context, userId: String, listener: Listener) {
 
             this.listener = listener
             val workManager = WorkManager.getInstance(context)
             this.userId = userId
             val workRequest = createWorkRequest()
             workManager.enqueueUniqueWork(TAG, ExistingWorkPolicy.REPLACE, workRequest)
-            return workManager
         }
     }
 
