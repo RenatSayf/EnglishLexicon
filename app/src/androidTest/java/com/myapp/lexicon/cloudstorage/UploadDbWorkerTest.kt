@@ -1,5 +1,6 @@
 package com.myapp.lexicon.cloudstorage
 
+import android.net.Uri
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner
@@ -38,8 +39,10 @@ class UploadDbWorkerTest {
             activity.getAdvertisingID( onSuccess = { id ->
 
                 UploadDbWorker.uploadDbToCloud(activity, id, object : UploadDbWorker.Listener {
-                    override fun onSuccess() {
-                        Assert.assertTrue(true)
+                    override fun onSuccess(uri: Uri) {
+                        val lastSegment = uri.lastPathSegment
+                        val actualResult = lastSegment?.contains("lexicon_DB.db")
+                        Assert.assertEquals(true, actualResult)
                     }
                     override fun onFailure(error: String) {
                         Assert.assertTrue(error, false)

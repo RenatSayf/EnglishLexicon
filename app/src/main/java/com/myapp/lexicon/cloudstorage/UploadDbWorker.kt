@@ -69,17 +69,21 @@ class UploadDbWorker(
                 val uploadTask = storageRef.child("/users/$id/${userFile.lastPathSegment}").putFile(userFile)
 
                 uploadTask
-                    .addOnSuccessListener {
-                        listener?.onSuccess()
-                        result = Result.success()
+                    .addOnSuccessListener { task ->
+                        task.storage.downloadUrl.addOnSuccessListener { uri ->
+                            listener?.onSuccess(uri)
+                            result = Result.success()
+                        }.addOnFailureListener { e ->
+                            listener?.onFailure(e.message?: "****** Unknown error *******")
+                        }.addOnCompleteListener {
+                            isWorked = false
+                            listener?.onComplete()
+                        }
                     }
                     .addOnFailureListener { e ->
                         listener?.onFailure(e.message?: "****** Unknown error *******")
                         result = Result.failure()
-                    }
-                    .addOnCompleteListener {
                         isWorked = false
-                        listener?.onComplete()
                     }
             } catch (e: Exception) {
                 listener?.onFailure(e.message?: "****** Unknown error *******")
@@ -97,7 +101,7 @@ class UploadDbWorker(
     }
 
     interface Listener {
-        fun onSuccess()
+        fun onSuccess(uri: Uri)
         fun onFailure(error: String)
         fun onComplete()
     }
