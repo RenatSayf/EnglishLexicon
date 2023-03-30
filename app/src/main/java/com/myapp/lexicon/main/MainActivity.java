@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
@@ -23,11 +22,14 @@ import android.widget.Toast;
 
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.material.navigation.NavigationView;
+import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
+import com.myapp.lexicon.ads.AdsExtensionsKt;
 import com.myapp.lexicon.billing.BillingViewModel;
 import com.myapp.lexicon.cloudstorage.StorageFragment2;
+import com.myapp.lexicon.cloudstorage.UploadDbWorker;
 import com.myapp.lexicon.database.AppDB;
 import com.myapp.lexicon.database.AppDao;
 import com.myapp.lexicon.database.AppDataBase;
@@ -36,6 +38,7 @@ import com.myapp.lexicon.dialogs.DictListDialog;
 import com.myapp.lexicon.dialogs.OrderPlayDialog;
 import com.myapp.lexicon.dialogs.RemoveDictDialog;
 import com.myapp.lexicon.helpers.AppBus;
+import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.JavaKotlinMediator;
 import com.myapp.lexicon.helpers.Share;
 import com.myapp.lexicon.models.Word;
@@ -52,7 +55,6 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -508,43 +510,38 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             mainViewModel.refreshWordsList();
         }
 
-        this.getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true)
-        {
-            @Override
-            public void handleOnBackPressed()
-            {
-                getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
-                DrawerLayout drawer = findViewById(R.id.drawer_layout);
-
-                if (drawer != null)
-                {
-                    if (drawer.isDrawerOpen(GravityCompat.START))
-                    {
-                        drawer.closeDrawer(GravityCompat.START);
-                    }
-                }
-                alarmClockEnable(scheduler);
-                finish();
-            }
-        });
+//        this.getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true)
+//        {
+//            @Override
+//            public void handleOnBackPressed()
+//            {
+//                getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
+//                DrawerLayout drawer = findViewById(R.id.drawer_layout);
+//
+//                if (drawer != null)
+//                {
+//                    if (drawer.isDrawerOpen(GravityCompat.START))
+//                    {
+//                        drawer.closeDrawer(GravityCompat.START);
+//                    }
+//                }
+//                alarmClockEnable(scheduler);
+//                finish();
+//            }
+//        });
     }
 
     @Override
     protected void onDestroy()
     {
-        mainViewModel.saveCurrentWordToPref(currentWord);
-        super.onDestroy();
-    }
-
-    private void alarmClockEnable(AlarmScheduler scheduler)
-    {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        String interval = preferences.getString(getString(R.string.key_show_intervals), "0");
-        int parseInt = Integer.parseInt(interval);
-        if (parseInt != 0)
+        try
         {
-            scheduler.scheduleOne((long) parseInt * 60 * 1000);
+            mainViewModel.saveCurrentWordToPref(currentWord);
+        } catch (Exception e)
+        {
+            if (BuildConfig.DEBUG) e.printStackTrace();
         }
+        super.onDestroy();
     }
 
     @Override
@@ -670,12 +667,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         else if (id == R.id.nav_exit)
         {
-            if (SplashScreenActivity.speech != null)
-            {
-                SplashScreenActivity.speech.stop();
-                SplashScreenActivity.speech.shutdown();
-            }
-            alarmClockEnable(scheduler);
+//            if (SplashScreenActivity.speech != null)
+//            {
+//                SplashScreenActivity.speech.stop();
+//                SplashScreenActivity.speech.shutdown();
+//            }
+            ExtensionsKt.alarmClockEnable(this);
+            AdsExtensionsKt.getAdvertisingID(this, adsId -> {
+                        UploadDbWorker.Companion.uploadDbToCloud(this, adsId, null);
+                        return null;
+                    }, () -> null,
+                    error -> null,
+                    () -> null);
+
             if (backgroundFragm != null && backgroundFragm.yandexAd != null)
             {
                 new JavaKotlinMediator().showInterstitialAd(backgroundFragm.yandexAd, this::finish);

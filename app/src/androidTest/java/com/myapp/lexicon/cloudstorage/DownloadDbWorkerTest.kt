@@ -3,6 +3,7 @@ package com.myapp.lexicon.cloudstorage
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner
+import com.myapp.lexicon.ads.getAdvertisingID
 import com.myapp.lexicon.testing.TestActivity
 import org.junit.*
 import org.junit.runner.RunWith
@@ -32,24 +33,45 @@ class DownloadDbWorkerTest {
         println("**************************** start doWork() test ***********************")
         var isRunning = true
 
-        val remoteRef =
-            "https://firebasestorage.googleapis.com/v0/b/lexicon-b5d1a.appspot.com/o/users%2F75b55127-6d92-4339-b230-c3c6beed67b3%2Flexicon_DB.db?alt=media&token=87364069-8833-4a68-aaeb-d56cb0b16e5c"
-
         scenario.onActivity { activity ->
 
-            DownloadDbWorker.downloadDbFromCloud(activity, remoteRef, object : DownloadDbWorker.Listener {
-                override fun onSuccess(bytes: ByteArray) {
-                    Assert.assertTrue(bytes.isNotEmpty())
-                }
+            activity.getAdvertisingID( onSuccess = { adsId ->
 
-                override fun onFailure(error: String) {
-                    Assert.assertTrue(error, false)
-                }
+                DownloadDbWorker.downloadDbFromCloud(activity, adsId, object : DownloadDbWorker.Listener {
+                    override fun onSuccess(bytes: ByteArray) {
+                        Assert.assertTrue(bytes.isNotEmpty())
+                        val dbName = activity.databaseList().first {
+                            it == "lexicon_DB.db"
+                        }
+                        val databaseFile = activity.getDatabasePath(dbName)
+                        val localBytes = databaseFile.readBytes()
+                        val result = localBytes.contentEquals(bytes)
+                        Assert.assertEquals(true, result)
+                        return
+                    }
 
-                override fun onComplete() {
-                    isRunning = false
-                }
+                    override fun onFailure(error: String) {
+                        Assert.assertTrue(error, false)
+                    }
+
+                    override fun onComplete() {
+                        isRunning = false
+                    }
+                })
+            }, onUnavailable = {
+
+                val message = "*********** AdvertisingID is unavailable **************"
+                println(message)
+                Assert.assertTrue(message, false)
+            }, onFailure = { error ->
+
+                println("*********** $error **************")
+                Assert.assertTrue(error, false)
+            }, onComplete = {
+                isRunning = false
             })
+
+
         }
 
         while (isRunning) {

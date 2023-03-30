@@ -4,10 +4,12 @@ package com.myapp.lexicon.cloudstorage
 
 import android.content.Context
 import android.net.Uri
+import android.os.FileUtils
 import androidx.work.*
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.myapp.lexicon.BuildConfig
+import com.myapp.lexicon.helpers.saveCloudDbRefToPref
 import kotlinx.coroutines.delay
 
 
@@ -36,7 +38,7 @@ class UploadDbWorker(
             }.build()
         }
 
-        fun uploadDbToCloud(context: Context, userId: String, listener: Listener) {
+        fun uploadDbToCloud(context: Context, userId: String, listener: Listener?) {
 
             this.listener = listener
             val workManager = WorkManager.getInstance(context)
@@ -71,6 +73,7 @@ class UploadDbWorker(
                     .addOnSuccessListener { task ->
                         task.storage.downloadUrl.addOnSuccessListener { uri ->
                             listener?.onSuccess(uri)
+                            context.saveCloudDbRefToPref(uri.toString())
                             result = Result.success()
                         }.addOnFailureListener { e ->
                             listener?.onFailure(e.message?: "****** Unknown error *******")

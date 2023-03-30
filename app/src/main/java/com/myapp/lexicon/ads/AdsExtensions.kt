@@ -176,7 +176,8 @@ fun Fragment.loadBanner(
 fun Context.getAdvertisingID(
     onSuccess: (String) -> Unit,
     onUnavailable: () -> Unit,
-    onFailure: (String) -> Unit = {}
+    onFailure: (String) -> Unit = {},
+    onComplete: () -> Unit = {}
 ) {
     val client = AdvertisingIdClient(this)
     var thread: Thread? = null
@@ -199,6 +200,7 @@ fun Context.getAdvertisingID(
                     it.interrupt()
                 }
             }
+            onComplete.invoke()
         }
     }
     thread.start()

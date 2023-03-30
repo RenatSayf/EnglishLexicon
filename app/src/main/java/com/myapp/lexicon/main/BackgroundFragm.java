@@ -9,6 +9,8 @@ import android.widget.AdapterViewFlipper;
 
 import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.ads.AdsExtensionsKt;
+import com.myapp.lexicon.cloudstorage.UploadDbWorker;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.JavaKotlinMediator;
 import com.myapp.lexicon.models.PurchaseToken;
@@ -186,6 +188,13 @@ public class BackgroundFragm extends Fragment
             @Override
             public void handleOnBackPressed()
             {
+                ExtensionsKt.alarmClockEnable(requireContext());
+                AdsExtensionsKt.getAdvertisingID(requireContext(), id -> {
+                            UploadDbWorker.Companion.uploadDbToCloud(requireContext(), id, null);
+                            return null;
+                        }, () -> null,
+                        error -> null,
+                        () -> null);
                 if (yandexAd != null)
                 {
                     new JavaKotlinMediator().showInterstitialAd(yandexAd, () -> requireActivity().finish());

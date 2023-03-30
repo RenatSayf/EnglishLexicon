@@ -3,6 +3,9 @@ package com.myapp.lexicon.helpers
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.fragment.app.Fragment
+import androidx.preference.PreferenceManager
+import com.myapp.lexicon.R
+import com.myapp.lexicon.schedule.AlarmScheduler
 
 private const val APP_SETTINGS = "APP_SETTINGS"
 private const val NO_ADS_TOKEN = "NO_ADS_TOKEN"
@@ -63,5 +66,18 @@ fun Context.getCloudDbRefFromPref(onSuccess: (String) -> Unit) {
     ref?.let {
         onSuccess.invoke(it)
     }
+}
+
+fun Context.alarmClockEnable() {
+    val preferences = PreferenceManager.getDefaultSharedPreferences(this)
+    val interval = preferences.getString(getString(R.string.key_show_intervals), "0")
+    val parseInt = interval!!.toInt()
+    if (parseInt > 0) {
+        AlarmScheduler(this).scheduleOne(parseInt.toLong() * 60 * 1000)
+    }
+}
+
+fun Fragment.alarmClockEnable() {
+    requireContext().alarmClockEnable()
 }
 

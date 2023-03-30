@@ -5,6 +5,7 @@ import androidx.work.*
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.myapp.lexicon.R
+import com.myapp.lexicon.helpers.getCloudDbRefFromPref
 import kotlinx.coroutines.delay
 
 
@@ -17,7 +18,7 @@ class DownloadDbWorker(
 
         val TAG = "${DownloadDbWorker::class.java.simpleName}.tag3333"
 
-        private var dbRemoteRef: String? = null
+        private var userId: String? = null
 
         private var listener: Listener? = null
 
@@ -35,11 +36,15 @@ class DownloadDbWorker(
             }.build()
         }
 
-        fun downloadDbFromCloud(context: Context, ref: String, listener: Listener) {
+        fun downloadDbFromCloud(context: Context, userId: String?, listener: Listener?) {
 
             this.listener = listener
+            if (userId.isNullOrEmpty()) {
+                context.getCloudDbRefFromPref {
+                    this.userId = it
+                }
+            } else this.userId = userId
             val workManager = WorkManager.getInstance(context)
-            this.dbRemoteRef = ref
             val workRequest = createWorkRequest()
             workManager.enqueueUniqueWork(TAG, ExistingWorkPolicy.KEEP, workRequest)
         }
@@ -51,14 +56,14 @@ class DownloadDbWorker(
         var isWorked = true
         val dbName = context.getString(R.string.data_base_name)
 
-        dbRemoteRef?.let { ref ->
+        userId?.let { id ->
 
-            val storageRef = Firebase.storage.getReferenceFromUrl(ref)
+            val storageRef = Firebase.storage.reference.child("/users/$id/$dbName")
 
             storageRef.getBytes(ONE_MEGABYTE).addOnSuccessListener { bytes ->
                 result = try {
-                    val output = context.openFileOutput(dbName, Context.MODE_PRIVATE)
-                    output.write(bytes)
+//                    val output = context.openFileOutput(dbName, Context.MODE_PRIVATE)
+//                    output.write(bytes)
                     listener?.onSuccess(bytes)
                     Result.success()
                 } catch (e: Exception) {
