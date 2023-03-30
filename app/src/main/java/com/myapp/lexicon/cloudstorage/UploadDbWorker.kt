@@ -4,12 +4,11 @@ package com.myapp.lexicon.cloudstorage
 
 import android.content.Context
 import android.net.Uri
-import android.os.FileUtils
 import androidx.work.*
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.myapp.lexicon.BuildConfig
-import com.myapp.lexicon.helpers.saveCloudDbRefToPref
+import com.myapp.lexicon.R
 import kotlinx.coroutines.delay
 
 
@@ -23,6 +22,7 @@ class UploadDbWorker(
         val TAG = "${UploadDbWorker::class.java.simpleName}.tag5555"
 
         private var userId: String? = null
+        private var dbName: String? = null
 
         private var listener: Listener? = null
 
@@ -38,10 +38,16 @@ class UploadDbWorker(
             }.build()
         }
 
-        fun uploadDbToCloud(context: Context, userId: String, listener: Listener?) {
+        fun uploadDbToCloud(
+            context: Context,
+            dbName: String = context.getString(R.string.data_base_name),
+            userId: String,
+            listener: Listener?
+        ) {
 
             this.listener = listener
             val workManager = WorkManager.getInstance(context)
+            this.dbName = dbName
             this.userId = userId
             val workRequest = createWorkRequest()
             workManager.enqueueUniqueWork(TAG, ExistingWorkPolicy.REPLACE, workRequest)
@@ -57,7 +63,7 @@ class UploadDbWorker(
             try {
                 val databaseList = context.databaseList()
                 val dbName = databaseList.first {
-                    it == "lexicon_DB.db"
+                    it == dbName
                 }
                 val databaseFile = context.getDatabasePath(dbName)
                 val userFile = Uri.fromFile(databaseFile)
@@ -73,7 +79,6 @@ class UploadDbWorker(
                     .addOnSuccessListener { task ->
                         task.storage.downloadUrl.addOnSuccessListener { uri ->
                             listener?.onSuccess(uri)
-                            context.saveCloudDbRefToPref(uri.toString())
                             result = Result.success()
                         }.addOnFailureListener { e ->
                             listener?.onFailure(e.message?: "****** Unknown error *******")

@@ -674,7 +674,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //            }
             ExtensionsKt.alarmClockEnable(this);
             AdsExtensionsKt.getAdvertisingID(this, adsId -> {
-                        UploadDbWorker.Companion.uploadDbToCloud(this, adsId, null);
+                        UploadDbWorker.Companion.uploadDbToCloud(
+                                this,
+                                this.getString(R.string.data_base_name),
+                                adsId,
+                                null);
                         return null;
                     }, () -> null,
                     error -> null,

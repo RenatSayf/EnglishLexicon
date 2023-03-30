@@ -5,12 +5,11 @@ import androidx.work.*
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.myapp.lexicon.R
-import com.myapp.lexicon.helpers.getCloudDbRefFromPref
 import kotlinx.coroutines.delay
 
 
 class DownloadDbWorker(
-    private val context: Context,
+    context: Context,
     params: WorkerParameters
 ): CoroutineWorker(context, params) {
 
@@ -19,6 +18,7 @@ class DownloadDbWorker(
         val TAG = "${DownloadDbWorker::class.java.simpleName}.tag3333"
 
         private var userId: String? = null
+        private var dbName: String? = null
 
         private var listener: Listener? = null
 
@@ -36,14 +36,16 @@ class DownloadDbWorker(
             }.build()
         }
 
-        fun downloadDbFromCloud(context: Context, userId: String?, listener: Listener?) {
+        fun downloadDbFromCloud(
+            context: Context,
+            dbName: String = context.getString(R.string.data_base_name),
+            userId: String?,
+            listener: Listener?
+        ) {
 
             this.listener = listener
-            if (userId.isNullOrEmpty()) {
-                context.getCloudDbRefFromPref {
-                    this.userId = it
-                }
-            } else this.userId = userId
+            this.dbName = dbName
+            this.userId = userId
             val workManager = WorkManager.getInstance(context)
             val workRequest = createWorkRequest()
             workManager.enqueueUniqueWork(TAG, ExistingWorkPolicy.KEEP, workRequest)
@@ -54,7 +56,6 @@ class DownloadDbWorker(
 
         var result = Result.failure(Data.EMPTY)
         var isWorked = true
-        val dbName = context.getString(R.string.data_base_name)
 
         userId?.let { id ->
 

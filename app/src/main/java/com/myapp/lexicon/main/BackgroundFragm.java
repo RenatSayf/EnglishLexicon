@@ -190,7 +190,12 @@ public class BackgroundFragm extends Fragment
             {
                 ExtensionsKt.alarmClockEnable(requireContext());
                 AdsExtensionsKt.getAdvertisingID(requireContext(), id -> {
-                            UploadDbWorker.Companion.uploadDbToCloud(requireContext(), id, null);
+                            UploadDbWorker.Companion.uploadDbToCloud(
+                                    requireContext(),
+                                    getString(R.string.data_base_name),
+                                    id,
+                                    null
+                            );
                             return null;
                         }, () -> null,
                         error -> null,
