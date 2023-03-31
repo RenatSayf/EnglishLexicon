@@ -22,6 +22,18 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        android:key="cloudStorageCategory"
+        android:title="Облачное хранилище">
+
+        <SwitchPreferenceCompat
+            android:key="restoreWords"
+            android:title="Сохранять мои словари"
+            android:summary="При переустановке приложения, или смене устройства, ваши словари автоматически восстановятся"
+            android:defaultValue="false"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
         android:title="@string/text_knowledge_check">
 
         <ListPreference

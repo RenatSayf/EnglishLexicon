@@ -13,6 +13,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.preference.*
 import com.myapp.lexicon.R
 import com.myapp.lexicon.billing.BillingViewModel
+import com.myapp.lexicon.cloudstorage.StorageDialog
 import com.myapp.lexicon.dialogs.DisableAdsDialog
 import com.myapp.lexicon.helpers.checkAdsToken
 import com.myapp.lexicon.helpers.noAdsToken
@@ -211,6 +212,27 @@ class SettingsFragment : PreferenceFragmentCompat()
         }, hasToken = {
             noAdsSwitch?.isChecked = false
         })
+
+        val restoreWordsSwitch = findPreference<SwitchPreferenceCompat>("restoreWords")
+        restoreWordsSwitch?.let { switch ->
+            switch.onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener {
+                override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean {
+
+                    if (newValue == true) {
+                        StorageDialog.newInstance(object : StorageDialog.Listener {
+                            override fun onRestoreClick() {
+                                switch.isChecked = false
+                            }
+
+                            override fun onCancelClick() {
+                                switch.isChecked = false
+                            }
+                        }).show(parentFragmentManager, StorageDialog.TAG)
+                    }
+                    return true
+                }
+            }
+        }
 
     }
 

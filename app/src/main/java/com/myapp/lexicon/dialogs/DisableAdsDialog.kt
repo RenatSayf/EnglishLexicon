@@ -41,8 +41,15 @@ class DisableAdsDialog : DialogFragment()
             setView(dialogView)
         }.create().apply {
             this.window?.setBackgroundDrawableResource(R.drawable.rounded_corners_background)
+
             btnYes?.setOnClickListener {
-                billingVM.disableAds(requireActivity())
+
+                billingVM.noAdsProduct.value?.let {
+                    it.onSuccess { details ->
+                        billingVM.purchaseProduct(requireActivity(), details)
+                    }
+                }
+                //billingVM.disableAds(requireActivity())
                 dismiss()
             }
             btnNo?.setOnClickListener {
@@ -62,12 +69,16 @@ class DisableAdsDialog : DialogFragment()
 
         btnYes?.isEnabled = false
 
-        billingVM.noAdsProduct.observe(viewLifecycleOwner) { details ->
-            val price = details.oneTimePurchaseOfferDetails?.formattedPrice
-            val text = titleView?.text.toString() + " $price"
-            titleView?.text = text
+        billingVM.noAdsProduct.observe(viewLifecycleOwner) { result ->
+            result.onSuccess { details ->
+                val price = details.oneTimePurchaseOfferDetails?.formattedPrice
+                val text = titleView?.text.toString() + " $price"
+                titleView?.text = text
 
-            btnYes?.isEnabled = true
+                btnYes?.isEnabled = true
+            }
+
+
         }
     }
 

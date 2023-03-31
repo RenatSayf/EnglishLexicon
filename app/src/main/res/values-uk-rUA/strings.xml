@@ -292,6 +292,8 @@
     <string name="text_enabled_permission_pop_up">Увімкніть дозволи для спливаючих вікон і відображення на екрані блокування</string>
     <string name="text_dictionries">Словари</string>
     <string name="text_back">Назад</string>
+    <string name="text_enable_cloud">Подключить</string>
+    <string name="text_close">Закрыть</string>
 
     <string-array name="words_interval">
         <item>після 5 слів</item>

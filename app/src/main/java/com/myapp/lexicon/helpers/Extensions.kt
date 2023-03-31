@@ -9,6 +9,7 @@ import com.myapp.lexicon.schedule.AlarmScheduler
 
 private const val APP_SETTINGS = "APP_SETTINGS"
 private const val NO_ADS_TOKEN = "NO_ADS_TOKEN"
+private const val CLOUD_TOKEN = "CLOUD_TOKEN"
 
 val Context.appPref: SharedPreferences
     get() {
@@ -55,17 +56,28 @@ fun Fragment.checkAdsToken(init: () -> Unit = {}, noToken: () -> Unit, hasToken:
     requireContext().checkAdsToken(init, noToken, hasToken)
 }
 
-private const val DB_REF = "DB_REF"
-
-fun Context.saveCloudDbRefToPref(ref: String) {
-    appPref.edit().putString(DB_REF, ref).apply()
+fun Context.saveCloudToken(token: String) {
+    appPref.edit().putString(CLOUD_TOKEN, token).apply()
 }
 
-fun Context.getCloudDbRefFromPref(onSuccess: (String) -> Unit) {
-    val ref = appPref.getString(DB_REF, null)
-    ref?.let {
-        onSuccess.invoke(it)
+fun Fragment.saveCloudToken(token: String) {
+    requireContext().saveCloudToken(token)
+}
+
+fun Context.checkCloudToken(hasToken: () -> Unit, noToken: () -> Unit) {
+    val token = appPref.getString(CLOUD_TOKEN, null)
+    token?.let {
+        if (it.isNotEmpty()) {
+            hasToken.invoke()
+        }
+        else noToken.invoke()
+    }?: run {
+        noToken.invoke()
     }
+}
+
+fun Fragment.checkCloudToken(hasToken: () -> Unit, noToken: () -> Unit) {
+    requireContext().checkCloudToken(hasToken, noToken)
 }
 
 fun Context.alarmClockEnable() {

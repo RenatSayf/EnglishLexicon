@@ -239,6 +239,8 @@
     <string name="text_enabled_permission_pop_up">Включите разрешения для всплывающих окон, и отображения на экране блокировки</string>
     <string name="text_dictionries">Словари</string>
     <string name="text_back">Назад</string>
+    <string name="text_enable_cloud">Подключить</string>
+    <string name="text_close">Закрыть</string>
     <string-array name="not_move">
         <item>Не перемещать</item>
     </string-array>

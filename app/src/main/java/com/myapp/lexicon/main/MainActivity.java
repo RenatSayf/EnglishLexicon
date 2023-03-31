@@ -28,7 +28,6 @@ import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
 import com.myapp.lexicon.ads.AdsExtensionsKt;
 import com.myapp.lexicon.billing.BillingViewModel;
-import com.myapp.lexicon.cloudstorage.StorageFragment2;
 import com.myapp.lexicon.cloudstorage.UploadDbWorker;
 import com.myapp.lexicon.database.AppDB;
 import com.myapp.lexicon.database.AppDao;
@@ -580,8 +579,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         if (id == R.id.cloud_storage)
         {
-            StorageFragment2 storageFragment = StorageFragment2.Companion.newInstance();
-            getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, storageFragment).addToBackStack(null).commit();
+//            StorageDialog storageFragment = StorageDialog.Companion.newInstance();
+//            getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, storageFragment).addToBackStack(null).commit();
         }
         if (id == R.id.menu_item_share)
         {
