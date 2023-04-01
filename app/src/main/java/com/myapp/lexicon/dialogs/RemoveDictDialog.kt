@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED_ANONYMOUS_PARAMETER")
+
 package com.myapp.lexicon.dialogs
 
 import android.app.AlertDialog
@@ -10,6 +12,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
+import com.myapp.lexicon.databinding.DialogConfirmationBinding
 import com.myapp.lexicon.databinding.TitleAlertDialogBinding
 import com.myapp.lexicon.main.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -68,6 +71,7 @@ class RemoveDictDialog : DialogFragment()
             ivIconTitle.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_trash_can))
         }
 
+        var confirmDialog: AlertDialog? = null
         return AlertDialog.Builder(requireContext(), R.style.AppAlertDialog)
             .setCustomTitle(titleBinding.root)
                .setMultiChoiceItems(inputArray, choice,
@@ -79,28 +83,47 @@ class RemoveDictDialog : DialogFragment()
                    fun(dialog: DialogInterface, which: Int)
                    {
                        if (deleteItems.size <= 0) return
-                       AlertDialog.Builder(requireContext()).setTitle(R.string.dialog_are_you_sure)
-                           .setPositiveButton(R.string.button_text_yes) { dialog1: DialogInterface?, which1: Int ->
 
-                               deleteItems.forEachIndexed { index, item ->
-                                   subscribe = viewModel.deleteDict(item)
-                                       .subscribeOn(Schedulers.newThread())
-                                       .observeOn(AndroidSchedulers.mainThread())
-                                       .subscribe({
-                                           if (index == deleteItems.size - 1)
-                                           {
-                                               Toast.makeText(
-                                                   requireContext(),
-                                                   R.string.msg_selected_dict_removed,
-                                                   Toast.LENGTH_LONG
-                                               ).show()
-                                               dialogCallback.removeDictDialogButtonClickListener(
-                                                   deleteItems
-                                               )
-                                           }
-                                       }, { obj: Throwable -> obj.printStackTrace() })
+                       confirmDialog = AlertDialog.Builder(requireContext()).apply {
+                           val binding = DialogConfirmationBinding.inflate(
+                               layoutInflater,
+                               ConstraintLayout(requireContext()),
+                               false
+                           )
+                           with(binding) {
+                               tvMessage.text = getString(R.string.dialog_are_you_sure)
+                               btnOk.setOnClickListener {
+                                   deleteItems.forEachIndexed { index, item ->
+                                       subscribe = viewModel.deleteDict(item)
+                                           .subscribeOn(Schedulers.newThread())
+                                           .observeOn(AndroidSchedulers.mainThread())
+                                           .subscribe({
+                                               if (index == deleteItems.size - 1) {
+                                                   Toast.makeText(
+                                                       requireContext(),
+                                                       R.string.msg_selected_dict_removed,
+                                                       Toast.LENGTH_LONG
+                                                   ).show()
+                                                   dialogCallback.removeDictDialogButtonClickListener(
+                                                       deleteItems
+                                                   )
+                                               }
+                                               confirmDialog?.dismiss()
+                                           }, { t: Throwable ->
+                                               t.printStackTrace()
+                                               confirmDialog?.dismiss()
+                                           })
+                                   }
                                }
-                           }.setNegativeButton(R.string.button_text_no, null).create().show()
+                               btnCancel.setOnClickListener {
+                                   confirmDialog?.dismiss()
+                               }
+                               setView(binding.root)
+                           }
+                       }.create().apply {
+                           this.window?.setBackgroundDrawableResource(R.drawable.bg_popup_dialog)
+                       }
+                       confirmDialog?.show()
                    })
                 .setNegativeButton(R.string.button_text_cancel, null)
             .create().apply {

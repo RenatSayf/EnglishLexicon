@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:padding="16dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/color_status_bar">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iv_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:src="@drawable/ic_warning_yellow"
+        />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_message"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        app:layout_constraintStart_toEndOf="@+id/iv_icon"
+        app:layout_constraintTop_toTopOf="@+id/iv_icon"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_icon"
+        android:paddingStart="28dp"
+        android:paddingEnd="28dp"
+        tools:text="Message for user"
+        android:textColor="@color/colorWhite"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:includeFontPadding="false"/>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/btn_ok"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_message"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp"
+        android:paddingStart="28dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="28dp"
+        android:paddingBottom="8dp"
+        android:text="@string/text_ok"
+        android:textColor="@color/colorYellowDark"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:includeFontPadding="false"/>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/btn_cancel"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toTopOf="@+id/btn_ok"
+        app:layout_constraintEnd_toStartOf="@+id/btn_ok"
+        app:layout_constraintBottom_toBottomOf="@+id/btn_ok"
+        android:paddingStart="26dp"
+        android:paddingEnd="26dp"
+        android:text="@string/text_cancel"
+        android:textColor="@color/color_CCC3C3"
+        android:textSize="16sp"
+        android:includeFontPadding="false"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
