@@ -49,7 +49,6 @@ class DisableAdsDialog : DialogFragment()
                         billingVM.purchaseProduct(requireActivity(), details)
                     }
                 }
-                //billingVM.disableAds(requireActivity())
                 dismiss()
             }
             btnNo?.setOnClickListener {

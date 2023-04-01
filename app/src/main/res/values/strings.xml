@@ -38,7 +38,7 @@
     <string name="no_playlist">Не задан список обучения</string>
     <string name="message_about_pause">Пауза</string>
     <string name="message_about_start">Подождите немного сейчас начнем</string>
-    <string name="title_del_dict">Укажите удаляемый словарь</string>
+    <string name="title_del_dict">Выберите словари</string>
     <string name="button_text_delete">Удалить</string>
     <string name="button_text_cancel">Отмена</string>
     <string name="button_text_yes">Да</string>
@@ -241,6 +241,9 @@
     <string name="text_back">Назад</string>
     <string name="text_enable_cloud">Подключить</string>
     <string name="text_close">Закрыть</string>
+    <string name="text_cloud_storage">Облачное хранилище</string>
+    <string name="text_price">Цена:</string>
+    <string name="text_no_ads">Без рекламы</string>
     <string-array name="not_move">
         <item>Не перемещать</item>
     </string-array>

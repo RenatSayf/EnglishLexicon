@@ -1,44 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout android:layout_width="match_parent"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:background="@drawable/bg_bottom_dialog"
-    android:backgroundTint="@color/color_CEF5FE"
-    >
+    android:backgroundTint="@color/color_status_bar">
 
-    <androidx.appcompat.widget.LinearLayoutCompat
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
         android:paddingStart="32dp"
         android:paddingEnd="32dp"
         android:paddingBottom="32dp">
 
-        <ImageView
-            android:id="@+id/cloudImageView"
-            android:layout_width="wrap_content"
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/img_title_icon"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="35dp"
-            android:contentDescription="@string/app_name"
-            android:src="@drawable/ic_cloud" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="27dp"
+            android:src="@drawable/ic_no_ads"/>
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tv_message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/img_title_icon"
             android:layout_marginTop="14dp"
             android:gravity="center"
-            android:text="@string/text_cloud_storage"
-            android:textColor="@color/color_7E8E1A"
+            android:text="@string/text_no_ads"
+            android:textColor="@color/color_A4BA21"
             android:textSize="18sp"
             android:textStyle="bold" />
 
         <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/layout_price"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/tv_message"
             android:layout_marginTop="14dp"
             android:gravity="center"
             android:orientation="horizontal">
@@ -61,14 +61,15 @@
                 android:gravity="center"
                 android:textColor="@color/color_7E8E1A_09"
                 android:textSize="14sp"
-                tools:text="RUB 100" />
+                tools:text="RUB 50" />
 
         </androidx.appcompat.widget.LinearLayoutCompat>
 
         <TextView
-            android:id="@+id/btn_cloud_enable"
+            android:id="@+id/btn_disable_ads"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/layout_price"
             android:layout_marginTop="32dp"
             android:background="@drawable/bg_ripple_btn_restore"
             android:gravity="center"
@@ -84,6 +85,9 @@
             style="@android:style/Widget.Material.Light.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btn_disable_ads"
+            app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginTop="16dp"
             android:padding="8dp"
             android:text="@string/text_close"
@@ -91,5 +95,6 @@
             android:textAllCaps="false"
             android:textColor="@color/colorGrey"/>
 
-    </androidx.appcompat.widget.LinearLayoutCompat>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 </FrameLayout>

@@ -136,25 +136,6 @@ class BillingViewModel @Inject constructor(app: Application) : AndroidViewModel(
         }.build()
     }
 
-    fun disableAds(activity: Activity)
-    {
-        _noAdsProduct.value?.let { result ->
-
-            result.onSuccess { details ->
-                val productDetailsParamsList = listOf(
-                    BillingFlowParams.ProductDetailsParams.newBuilder()
-                        .setProductDetails(details)
-                        .build()
-                )
-                val flowParams = BillingFlowParams.newBuilder()
-                    .setProductDetailsParamsList(productDetailsParamsList)
-                    .build()
-
-                billingClient.launchBillingFlow(activity, flowParams)
-            }
-        }
-    }
-
     fun purchaseProduct(activity: Activity, productDetails: ProductDetails) {
         val productDetailsParamsList = listOf(
             BillingFlowParams.ProductDetailsParams.newBuilder()
