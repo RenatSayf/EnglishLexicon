@@ -1,12 +1,9 @@
 package com.myapp.lexicon.cloudstorage
 
-import android.app.AlertDialog
-import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -22,8 +19,13 @@ class StorageDialog : BottomSheetDialogFragment()
     {
         val TAG = "${StorageDialog::class.simpleName}.TAG"
         private var listener: Listener? = null
-        fun newInstance(listener: Listener): StorageDialog {
+        private var productName: String? = null
+        private var productPrice: String? = null
 
+        fun newInstance(productName: String, productPrice: String, listener: Listener): StorageDialog {
+
+            this.productName = productName
+            this.productPrice = productPrice
             this.listener = listener
             return StorageDialog()
         }
@@ -53,10 +55,15 @@ class StorageDialog : BottomSheetDialogFragment()
 
         with(binding) {
 
-            tvPriceValue.text = "RUB 100"
+            tvProductName.text = productName
+            tvPriceValue.text = productPrice
+
+            if (productPrice.isNullOrEmpty()) {
+                btnCloudEnable.isEnabled = false
+            }
 
             btnCloudEnable.setOnClickListener {
-                listener?.onRestoreClick()
+                listener?.onEnableClick()
                 dismiss()
             }
 
@@ -74,7 +81,7 @@ class StorageDialog : BottomSheetDialogFragment()
     }
 
     interface Listener {
-        fun onRestoreClick()
+        fun onEnableClick()
         fun onCancelClick()
     }
 

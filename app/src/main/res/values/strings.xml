@@ -240,10 +240,15 @@
     <string name="text_dictionries">Словари</string>
     <string name="text_back">Назад</string>
     <string name="text_enable_cloud">Подключить</string>
+    <string name="text_enabled">Подключено</string>
     <string name="text_close">Закрыть</string>
     <string name="text_cloud_storage">Облачное хранилище</string>
     <string name="text_price">Цена:</string>
     <string name="text_no_ads">Без рекламы</string>
+    <string name="text_cloud_description">При переустановке приложения, или смене устройства, ваши словари автоматически восстановятся</string>
+    <string name="text_save_my_dicts">Сохранять мои словари</string>
+    <string name="KEY_CLOUD_STORAGE">cloud_storage</string>
+    <string name="KEY_IS_ADS_DISABLED">is_ads_disabled</string>
     <string-array name="not_move">
         <item>Не перемещать</item>
     </string-array>

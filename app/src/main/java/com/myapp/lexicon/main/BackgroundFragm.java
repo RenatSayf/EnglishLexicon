@@ -13,7 +13,7 @@ import com.myapp.lexicon.ads.AdsExtensionsKt;
 import com.myapp.lexicon.cloudstorage.UploadDbWorker;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.JavaKotlinMediator;
-import com.myapp.lexicon.models.PurchaseToken;
+import com.myapp.lexicon.settings.SettingsExtKt;
 import com.yandex.mobile.ads.banner.BannerAdView;
 import com.yandex.mobile.ads.common.AdRequestError;
 import com.yandex.mobile.ads.interstitial.InterstitialAd;
@@ -75,18 +75,20 @@ public class BackgroundFragm extends Fragment
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
 
-        MainActivity mainActivity = (MainActivity) requireActivity();
-        mainActivity.billingVM.getNoAdsToken().observe(this, token -> {
-            if (token == PurchaseToken.YES) {
-                ExtensionsKt.saveNoAdsToken(this, "XXXXXXXXXXXXXXXXXXX");
-                hideAdBanner();
-                yandexAd = null;
-            }
-            else if (token == PurchaseToken.NO) {
-                ExtensionsKt.saveNoAdsToken(this, "");
-                loadAds();
-            }
-        });
+
+
+//        BillingViewModel billingVM = new ViewModelProvider(this).get(BillingViewModel.class);
+//        billingVM.getNoAdsToken().observe(this, token -> {
+//            if (token == PurchaseToken.YES) {
+//                ExtensionsKt.saveNoAdsToken(this, "XXXXXXXXXXXXXXXXXXX");
+//                hideAdBanner();
+//                yandexAd = null;
+//            }
+//            else if (token == PurchaseToken.NO) {
+//                ExtensionsKt.saveNoAdsToken(this, "");
+//                loadAds();
+//            }
+//        });
     }
 
     private void loadAds()
@@ -176,6 +178,21 @@ public class BackgroundFragm extends Fragment
         }
 
         return fragmentView;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
+    {
+        super.onViewCreated(view, savedInstanceState);
+
+        boolean adsIsDisabled = SettingsExtKt.getAdsIsDisabled(this);
+        if (adsIsDisabled) {
+            hideAdBanner();
+            yandexAd = null;
+        }
+        else {
+            loadAds();
+        }
     }
 
     @Override

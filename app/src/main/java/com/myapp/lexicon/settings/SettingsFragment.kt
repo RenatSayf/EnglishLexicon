@@ -9,7 +9,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.preference.*
 import com.myapp.lexicon.R
 import com.myapp.lexicon.billing.BillingViewModel
@@ -18,6 +18,7 @@ import com.myapp.lexicon.dialogs.DisableAdsDialog
 import com.myapp.lexicon.helpers.checkAdsToken
 import com.myapp.lexicon.helpers.noAdsToken
 import com.myapp.lexicon.main.MainActivity
+import com.myapp.lexicon.models.PurchaseToken
 import com.myapp.lexicon.schedule.AlarmScheduler
 import com.myapp.lexicon.service.LexiconService
 import dagger.hilt.android.AndroidEntryPoint
@@ -30,7 +31,9 @@ class SettingsFragment : PreferenceFragmentCompat()
     private lateinit var listDisplayModePref: ListPreference
     private lateinit var serviceCheckBoxPref: CheckBoxPreference
     private lateinit var showIntervalsPref: ListPreference
-    private val billingVM: BillingViewModel by activityViewModels()
+    private val billingVM: BillingViewModel by lazy {
+        ViewModelProvider(this)[BillingViewModel::class.java]
+    }
     private val disableAdsDialog = DisableAdsDialog()
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?)
@@ -184,7 +187,7 @@ class SettingsFragment : PreferenceFragmentCompat()
             findPreference<SwitchPreferenceCompat>("disableAds")?.isChecked = false
         }
 
-        val noAdsSwitch = findPreference<SwitchPreferenceCompat>("disableAds")
+        val noAdsSwitch = findPreference<SwitchPreferenceCompat>(getString(R.string.KEY_IS_ADS_DISABLED))
         noAdsSwitch?.apply {
             onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener
             {
@@ -207,29 +210,83 @@ class SettingsFragment : PreferenceFragmentCompat()
         billingVM.wasCancelled.observe(viewLifecycleOwner) {
             noAdsSwitch?.isChecked = true
         }
-        this.checkAdsToken(noToken = {
-            noAdsSwitch?.isChecked = true
-        }, hasToken = {
-            noAdsSwitch?.isChecked = false
-        })
 
-        val restoreWordsSwitch = findPreference<SwitchPreferenceCompat>("restoreWords")
-        restoreWordsSwitch?.let { switch ->
+        billingVM.noAdsToken.observe(viewLifecycleOwner) { t ->
+            when(t) {
+                PurchaseToken.YES -> {
+                    noAdsSwitch?.let {
+                        it.isChecked = false
+                        it.isEnabled = false
+                    }
+                }
+                else -> {
+                    noAdsSwitch?.let {
+                        it.isChecked = true
+                        it.isEnabled = true
+                    }
+                }
+            }
+        }
+//        this.checkAdsToken(noToken = {
+//            noAdsSwitch?.isChecked = true
+//        }, hasToken = {
+//            noAdsSwitch?.isChecked = false
+//        })
+
+        val cloudStorageSwitch = findPreference<SwitchPreferenceCompat>(getString(R.string.KEY_CLOUD_STORAGE))
+        cloudStorageSwitch?.let { switch ->
             switch.onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener {
                 override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean {
 
                     if (newValue == true) {
-                        StorageDialog.newInstance(object : StorageDialog.Listener {
-                            override fun onRestoreClick() {
-                                switch.isChecked = false
-                            }
 
-                            override fun onCancelClick() {
-                                switch.isChecked = false
-                            }
-                        }).show(parentFragmentManager, StorageDialog.TAG)
+                        val result = billingVM.cloudStorageProduct.value
+                        result?.onSuccess { details ->
+                            val productName = details.name
+                            val price = details.oneTimePurchaseOfferDetails?.formattedPrice
+                            StorageDialog.newInstance(
+                                productName,
+                                price?: "",
+                                object : StorageDialog.Listener {
+                                override fun onEnableClick() {
+                                    billingVM.purchaseProduct(requireActivity(), details)
+                                }
+
+                                override fun onCancelClick() {
+                                    switch.isChecked = false
+                                }
+                            }).show(parentFragmentManager, StorageDialog.TAG)
+                        }
                     }
                     return true
+                }
+            }
+        }
+
+        billingVM.cloudStorageToken.observe(viewLifecycleOwner) { token ->
+            token.onSuccess {
+                when(it) {
+                    PurchaseToken.YES -> {
+                        cloudStorageSwitch?.let { switch ->
+                            switch.isChecked = true
+                            switch.isEnabled = false
+                            val title = switch.title
+                            val newTitle = "$title (${getString(R.string.text_enabled)})"
+                            switch.title = newTitle
+                        }
+                    }
+                    PurchaseToken.NO -> {
+                        cloudStorageSwitch?.let { sw ->
+                            sw.isChecked = false
+                            sw.title = getString(R.string.text_save_my_dicts)
+                        }
+                    }
+                }
+            }
+            token.onFailure {
+                cloudStorageSwitch?.let { sw ->
+                    sw.isChecked = false
+                    sw.title = getString(R.string.text_save_my_dicts)
                 }
             }
         }

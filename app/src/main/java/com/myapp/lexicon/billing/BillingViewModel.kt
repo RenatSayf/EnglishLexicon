@@ -77,16 +77,16 @@ class BillingViewModel @Inject constructor(app: Application) : AndroidViewModel(
                                     }
                                     PRODUCT_CLOUD_STORAGE -> {
                                         if (purchase.purchaseToken.isNotEmpty()) {
-                                            _cloudStorageToken.value = Result.success(PurchaseToken.YES)
+                                            _cloudStorageToken.postValue(Result.success(PurchaseToken.YES))
                                         }
                                         else {
-                                            _cloudStorageToken.value = Result.success(PurchaseToken.NO)
+                                            _cloudStorageToken.postValue(Result.success(PurchaseToken.NO))
                                         }
                                     }
                                 }
                             }?: run {
                                 _noAdsToken.postValue(PurchaseToken.NO)
-                                _cloudStorageToken.value = Result.failure(Throwable("******** historyRecords is null ************"))
+                                _cloudStorageToken.postValue(Result.failure(Throwable("******** historyRecords is null ************")))
                             }
                         }
                     })

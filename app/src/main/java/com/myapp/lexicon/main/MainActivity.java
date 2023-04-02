@@ -27,7 +27,6 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
 import com.myapp.lexicon.ads.AdsExtensionsKt;
-import com.myapp.lexicon.billing.BillingViewModel;
 import com.myapp.lexicon.cloudstorage.UploadDbWorker;
 import com.myapp.lexicon.database.AppDB;
 import com.myapp.lexicon.database.AppDao;
@@ -84,7 +83,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public MainViewModel mainViewModel;
     private SpeechViewModel speechViewModel;
-    public BillingViewModel billingVM;
     private final CompositeDisposable composite = new CompositeDisposable();
     private Word currentWord;
     private int wordsInterval = Integer.MAX_VALUE;
@@ -115,7 +113,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
         speechViewModel = new ViewModelProvider(this).get(SpeechViewModel.class);
-        billingVM = new ViewModelProvider(this).get(BillingViewModel.class);
 
         btnViewDict = findViewById(R.id.btnViewDict);
         btnViewDictOnClick(btnViewDict);
@@ -577,11 +574,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 e.printStackTrace();
             }
         }
-        if (id == R.id.cloud_storage)
-        {
-//            StorageDialog storageFragment = StorageDialog.Companion.newInstance();
-//            getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, storageFragment).addToBackStack(null).commit();
-        }
         if (id == R.id.menu_item_share)
         {
             new Share().doShare(this);
@@ -666,11 +658,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         else if (id == R.id.nav_exit)
         {
-//            if (SplashScreenActivity.speech != null)
-//            {
-//                SplashScreenActivity.speech.stop();
-//                SplashScreenActivity.speech.shutdown();
-//            }
             ExtensionsKt.alarmClockEnable(this);
             AdsExtensionsKt.getAdvertisingID(this, adsId -> {
                         UploadDbWorker.Companion.uploadDbToCloud(

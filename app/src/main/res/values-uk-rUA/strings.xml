@@ -293,10 +293,15 @@
     <string name="text_dictionries">Словник</string>
     <string name="text_back">Назад</string>
     <string name="text_enable_cloud">Підключивши</string>
+    <string name="text_enabled">Підключений</string>
     <string name="text_close">Заплющити</string>
     <string name="text_cloud_storage">Хмарне сховище</string>
     <string name="text_price">Ціна:</string>
     <string name="text_no_ads">Без реклами</string>
+    <string name="text_cloud_description">При перевстановлення програми, або зміні пристрою, ваші словники автоматично відновляться</string>
+    <string name="text_save_my_dicts">Зберігати мої словники</string>
+    <string name="KEY_CLOUD_STORAGE">cloud_storage</string>
+    <string name="KEY_IS_ADS_DISABLED">is_ads_disabled</string>
 
     <string-array name="words_interval">
         <item>після 5 слів</item>

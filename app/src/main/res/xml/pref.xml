@@ -15,7 +15,7 @@
         android:title="@string/text_ad">
 
         <SwitchPreferenceCompat
-            android:key="disableAds"
+            android:key="@string/KEY_IS_ADS_DISABLED"
             android:title="@string/text_show_ads"
             android:defaultValue="true"/>
 
@@ -26,9 +26,9 @@
         android:title="Облачное хранилище">
 
         <SwitchPreferenceCompat
-            android:key="restoreWords"
-            android:title="Сохранять мои словари"
-            android:summary="При переустановке приложения, или смене устройства, ваши словари автоматически восстановятся"
+            android:key="@string/KEY_CLOUD_STORAGE"
+            android:title="@string/text_save_my_dicts"
+            android:summary="@string/text_cloud_description"
             android:defaultValue="false"/>
 
     </PreferenceCategory>
