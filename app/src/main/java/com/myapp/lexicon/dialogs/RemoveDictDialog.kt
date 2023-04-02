@@ -6,7 +6,6 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
-import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
@@ -14,18 +13,15 @@ import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.DialogConfirmationBinding
 import com.myapp.lexicon.databinding.TitleAlertDialogBinding
+import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.main.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 
 
 @AndroidEntryPoint
 class RemoveDictDialog : DialogFragment()
 {
     private lateinit var viewModel: MainViewModel
-    private var subscribe: Disposable? = null
 
     companion object
     {
@@ -93,27 +89,16 @@ class RemoveDictDialog : DialogFragment()
                            with(binding) {
                                tvMessage.text = getString(R.string.dialog_are_you_sure)
                                btnOk.setOnClickListener {
-                                   deleteItems.forEachIndexed { index, item ->
-                                       subscribe = viewModel.deleteDict(item)
-                                           .subscribeOn(Schedulers.newThread())
-                                           .observeOn(AndroidSchedulers.mainThread())
-                                           .subscribe({
-                                               if (index == deleteItems.size - 1) {
-                                                   Toast.makeText(
-                                                       requireContext(),
-                                                       R.string.msg_selected_dict_removed,
-                                                       Toast.LENGTH_LONG
-                                                   ).show()
-                                                   dialogCallback.removeDictDialogButtonClickListener(
-                                                       deleteItems
-                                                   )
-                                               }
-                                               confirmDialog?.dismiss()
-                                           }, { t: Throwable ->
-                                               t.printStackTrace()
-                                               confirmDialog?.dismiss()
-                                           })
+
+                                   viewModel.deleteDicts(deleteItems).observe(viewLifecycleOwner) { result ->
+                                       result.onSuccess {
+                                           showSnackBar(getString(R.string.msg_selected_dict_removed))
+                                       }
+                                       result.onFailure {
+                                           showSnackBar(it.message?: "Unknown error")
+                                       }
                                    }
+                                   confirmDialog?.dismiss()
                                }
                                btnCancel.setOnClickListener {
                                    confirmDialog?.dismiss()
@@ -131,9 +116,4 @@ class RemoveDictDialog : DialogFragment()
             }
     }
 
-    override fun onDestroy()
-    {
-        super.onDestroy()
-        subscribe?.dispose()
-    }
 }

@@ -2,8 +2,10 @@ package com.myapp.lexicon.helpers
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
+import com.google.android.material.snackbar.Snackbar
 import com.myapp.lexicon.R
 import com.myapp.lexicon.schedule.AlarmScheduler
 
@@ -91,5 +93,15 @@ fun Context.alarmClockEnable() {
 
 fun Fragment.alarmClockEnable() {
     requireContext().alarmClockEnable()
+}
+
+fun View.showSnackBar(message: String, duration: Int = Snackbar.LENGTH_LONG): Snackbar {
+    return Snackbar.make(this, message, duration).apply {
+        show()
+    }
+}
+
+fun Fragment.showSnackBar(message: String, duration: Int = Snackbar.LENGTH_LONG): Snackbar {
+    return requireView().showSnackBar(message, duration)
 }
 

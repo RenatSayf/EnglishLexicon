@@ -92,9 +92,23 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
         return
     }
 
-    fun deleteDict(dictName: String) : Single<Int>
-    {
-        return repository.deleteEntriesByDictName(dictName)
+    fun deleteDicts(dictList: List<String>): MutableLiveData<Result<Int>> {
+        val result = MutableLiveData<Result<Int>>()
+        var quantity = 0
+        dictList.forEachIndexed() { index, item ->
+            composite.add(repository.deleteEntriesByDictName(item)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    quantity += it
+                    if (index == dictList.size - 1) {
+                        result.value = Result.success(quantity)
+                    }
+                }, {
+                    result.value = Result.failure(it)
+                }))
+        }
+        return result
     }
 
     private var _dictionaryList = MutableLiveData<MutableList<String>>().apply {
