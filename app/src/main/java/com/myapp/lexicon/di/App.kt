@@ -6,6 +6,8 @@ import android.util.Log
 import androidx.multidex.MultiDex
 import androidx.work.Configuration
 import com.myapp.lexicon.BuildConfig
+import com.myapp.lexicon.settings.adsIsDisabled
+import com.myapp.lexicon.settings.cloudStorageEnabled
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
@@ -24,6 +26,12 @@ class App : Application(), Configuration.Provider
         com.yandex.mobile.ads.common.MobileAds.initialize(this) {
             if (BuildConfig.DEBUG) println("*************** ${this::class.java.simpleName}: Yandex mobile ads has been initialized *****************")
         }
+
+        if (BuildConfig.IS_PURCHASE_TEST) {
+            this.adsIsDisabled = false
+            this.cloudStorageEnabled = false
+        }
+
     }
 
     override fun getWorkManagerConfiguration(): Configuration {

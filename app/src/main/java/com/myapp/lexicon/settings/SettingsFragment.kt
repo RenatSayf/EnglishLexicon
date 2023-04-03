@@ -11,12 +11,13 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.*
+import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.billing.BillingViewModel
 import com.myapp.lexicon.cloudstorage.StorageDialog
 import com.myapp.lexicon.dialogs.DisableAdsDialog
-import com.myapp.lexicon.helpers.checkAdsToken
 import com.myapp.lexicon.helpers.noAdsToken
+import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.models.PurchaseToken
 import com.myapp.lexicon.schedule.AlarmScheduler
@@ -34,7 +35,6 @@ class SettingsFragment : PreferenceFragmentCompat()
     private val billingVM: BillingViewModel by lazy {
         ViewModelProvider(this)[BillingViewModel::class.java]
     }
-    private val disableAdsDialog = DisableAdsDialog()
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?)
     {
@@ -195,12 +195,19 @@ class SettingsFragment : PreferenceFragmentCompat()
                 {
                     if (newValue == false)
                     {
-                        disableAdsDialog.show(requireActivity().supportFragmentManager, "").run {
-                            disableAdsDialog.isCancel.observe(viewLifecycleOwner) {
-                                if (it) {
-                                    noAdsSwitch.isChecked = true
-                                }
-                            }
+                        val result = billingVM.noAdsProduct.value
+                        result?.onSuccess { details ->
+                            val productName = details.name
+                            val price = details.oneTimePurchaseOfferDetails?.formattedPrice
+                            DisableAdsDialog.newInstance(productName, price, onPurchase = {
+                                billingVM.purchaseProduct(requireActivity(), details)
+                            }, onCancel = {
+                                noAdsSwitch.isChecked = true
+                            }).show(parentFragmentManager, DisableAdsDialog.TAG)
+                        }
+                        result?.onFailure {
+                            showSnackBar(it.message?: getString(R.string.text_something_went_wrong))
+                            noAdsSwitch.isChecked = false
                         }
                     }
                     return true

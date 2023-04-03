@@ -302,6 +302,7 @@
     <string name="text_save_my_dicts">Зберігати мої словники</string>
     <string name="KEY_CLOUD_STORAGE">cloud_storage</string>
     <string name="KEY_IS_ADS_DISABLED">is_ads_disabled</string>
+    <string name="text_something_went_wrong">Ой, що щось пішло не так</string>
 
     <string-array name="words_interval">
         <item>після 5 слів</item>

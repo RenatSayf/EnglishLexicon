@@ -74,21 +74,6 @@ public class BackgroundFragm extends Fragment
     {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-
-
-
-//        BillingViewModel billingVM = new ViewModelProvider(this).get(BillingViewModel.class);
-//        billingVM.getNoAdsToken().observe(this, token -> {
-//            if (token == PurchaseToken.YES) {
-//                ExtensionsKt.saveNoAdsToken(this, "XXXXXXXXXXXXXXXXXXX");
-//                hideAdBanner();
-//                yandexAd = null;
-//            }
-//            else if (token == PurchaseToken.NO) {
-//                ExtensionsKt.saveNoAdsToken(this, "");
-//                loadAds();
-//            }
-//        });
     }
 
     private void loadAds()
@@ -206,17 +191,22 @@ public class BackgroundFragm extends Fragment
             public void handleOnBackPressed()
             {
                 ExtensionsKt.alarmClockEnable(requireContext());
-                AdsExtensionsKt.getAdvertisingID(requireContext(), id -> {
-                            UploadDbWorker.Companion.uploadDbToCloud(
-                                    requireContext(),
-                                    getString(R.string.data_base_name),
-                                    id,
-                                    null
-                            );
-                            return null;
-                        }, () -> null,
-                        error -> null,
-                        () -> null);
+
+                boolean storageEnabled = SettingsExtKt.getCloudStorageEnabled(requireContext());
+                if (storageEnabled) {
+                    AdsExtensionsKt.getAdvertisingID(requireContext(), id -> {
+                                UploadDbWorker.Companion.uploadDbToCloud(
+                                        requireContext(),
+                                        getString(R.string.data_base_name),
+                                        id,
+                                        null
+                                );
+                                return null;
+                            }, () -> null,
+                            error -> null,
+                            () -> null);
+                }
+
                 if (yandexAd != null)
                 {
                     new JavaKotlinMediator().showInterstitialAd(yandexAd, () -> requireActivity().finish());

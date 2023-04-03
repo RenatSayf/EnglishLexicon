@@ -65,7 +65,7 @@ class BillingViewModel @Inject constructor(app: Application) : AndroidViewModel(
                                 when(purchase.productId) {
                                     PRODUCT_NO_ADS -> {
                                         if (purchase.purchaseToken.isNotEmpty()) {
-                                            if (BuildConfig.IS_ALWAYS_ADS) {
+                                            if (BuildConfig.IS_PURCHASE_TEST) {
                                                 _noAdsToken.postValue(PurchaseToken.NO)
                                             } else {
                                                 _noAdsToken.postValue(PurchaseToken.YES)
@@ -77,7 +77,11 @@ class BillingViewModel @Inject constructor(app: Application) : AndroidViewModel(
                                     }
                                     PRODUCT_CLOUD_STORAGE -> {
                                         if (purchase.purchaseToken.isNotEmpty()) {
-                                            _cloudStorageToken.postValue(Result.success(PurchaseToken.YES))
+                                            if (BuildConfig.IS_PURCHASE_TEST) {
+                                                _cloudStorageToken.postValue(Result.success(PurchaseToken.NO))
+                                            } else {
+                                                _cloudStorageToken.postValue(Result.success(PurchaseToken.YES))
+                                            }
                                         }
                                         else {
                                             _cloudStorageToken.postValue(Result.success(PurchaseToken.NO))

@@ -37,13 +37,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    flavorDimensions "test_ads"
+    flavorDimensions "purchases_test"
     productFlavors {
-        ADS_ALWAYS_ {
-            buildConfigField 'Boolean', 'IS_ALWAYS_ADS', 'true'
+        PURCHASE_TEST_ {
+            buildConfigField 'Boolean', 'IS_PURCHASE_TEST', 'true'
         }
-        ADS_NORMAL_ {
-            buildConfigField 'Boolean', 'IS_ALWAYS_ADS', 'false'
+        PURCHASE_NORMAL_ {
+            buildConfigField 'Boolean', 'IS_PURCHASE_TEST', 'false'
         }
     }
     lintOptions {

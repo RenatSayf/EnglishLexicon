@@ -249,6 +249,7 @@
     <string name="text_save_my_dicts">Сохранять мои словари</string>
     <string name="KEY_CLOUD_STORAGE">cloud_storage</string>
     <string name="KEY_IS_ADS_DISABLED">is_ads_disabled</string>
+    <string name="text_something_went_wrong">Ой, что то пошло не так</string>
     <string-array name="not_move">
         <item>Не перемещать</item>
     </string-array>

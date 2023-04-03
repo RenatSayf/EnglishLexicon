@@ -32,7 +32,6 @@ class StorageDialog : BottomSheetDialogFragment()
     }
 
     private lateinit var binding: DialogStorageBinding
-    private val viewModel: StorageViewModel by viewModels()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): BottomSheetDialog {
 
