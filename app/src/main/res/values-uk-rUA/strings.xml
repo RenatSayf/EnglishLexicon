@@ -301,8 +301,10 @@
     <string name="text_cloud_description">При перевстановлення програми, або зміні пристрою, ваші словники автоматично відновляться</string>
     <string name="text_save_my_dicts">Зберігати мої словники</string>
     <string name="KEY_CLOUD_STORAGE">cloud_storage</string>
-    <string name="KEY_IS_ADS_DISABLED">is_ads_disabled</string>
+    <string name="KEY_IS_ADS_ENABLED">is_ads_enabled</string>
     <string name="text_something_went_wrong">Ой, що щось пішло не так</string>
+    <string name="id_no_ads">no_ads</string>
+    <string name="id_cloud_storage">cloud_storage</string>
 
     <string-array name="words_interval">
         <item>після 5 слів</item>

@@ -143,17 +143,24 @@ class BillingViewModelTest {
                 }
             }
 
-            billingVM.noAdsToken.observe(activity) { token ->
-                when(token) {
-                    PurchaseToken.YES -> {
-                        Assert.assertTrue(token.name, true)
-                        isRunning = false
+            billingVM.noAdsToken.observe(activity) { result ->
+
+                result.onSuccess { token ->
+                    when(token) {
+                        PurchaseToken.YES -> {
+                            Assert.assertTrue(token.name, true)
+                            isRunning = false
+                        }
+                        PurchaseToken.NO -> {
+                            Assert.assertTrue(token.name, false)
+                            isRunning = false
+                        }
+                        else -> {}
                     }
-                    PurchaseToken.NO -> {
-                        Assert.assertTrue(token.name, false)
-                        isRunning = false
-                    }
-                    else -> {}
+                }
+                result.onFailure {
+                    Assert.assertTrue(it.message, false)
+                    isRunning = false
                 }
             }
         }

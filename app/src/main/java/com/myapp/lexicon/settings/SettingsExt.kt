@@ -16,20 +16,20 @@ val Fragment.appSettings: SharedPreferences
         return requireContext().appSettings
     }
 
-var Context.adsIsDisabled: Boolean
+var Context.adsIsEnabled: Boolean
     get() {
-        return appSettings.getBoolean(getString(R.string.KEY_IS_ADS_DISABLED), false)
+        return appSettings.getBoolean(getString(R.string.KEY_IS_ADS_ENABLED), true)
     }
     set(value) {
-        appSettings.edit().putBoolean(getString(R.string.KEY_IS_ADS_DISABLED), value).apply()
+        appSettings.edit().putBoolean(getString(R.string.KEY_IS_ADS_ENABLED), value).apply()
     }
 
-var Fragment.adsIsDisabled: Boolean
+var Fragment.adsIsEnabled: Boolean
     get() {
-        return requireContext().adsIsDisabled
+        return requireContext().adsIsEnabled
     }
     set(value) {
-        requireContext().adsIsDisabled = value
+        requireContext().adsIsEnabled = value
     }
 
 var Context.cloudStorageEnabled: Boolean

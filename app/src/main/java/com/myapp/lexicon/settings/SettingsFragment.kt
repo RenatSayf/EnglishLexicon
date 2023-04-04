@@ -11,12 +11,10 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.*
-import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.billing.BillingViewModel
 import com.myapp.lexicon.cloudstorage.StorageDialog
 import com.myapp.lexicon.dialogs.DisableAdsDialog
-import com.myapp.lexicon.helpers.noAdsToken
 import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.models.PurchaseToken
@@ -178,16 +176,11 @@ class SettingsFragment : PreferenceFragmentCompat()
         super.onViewCreated(view, savedInstanceState)
         view.setBackgroundColor(resources.getColor(R.color.colorWhite))
 
-        if (noAdsToken.isNullOrEmpty()) {
-            findPreference<PreferenceCategory>("disableAdsCategory")?.isEnabled = true
-            findPreference<SwitchPreferenceCompat>("disableAds")?.isChecked = true
-        }
-        else {
-            findPreference<PreferenceCategory>("disableAdsCategory")?.isEnabled = false
-            findPreference<SwitchPreferenceCompat>("disableAds")?.isChecked = false
-        }
-
-        val noAdsSwitch = findPreference<SwitchPreferenceCompat>(getString(R.string.KEY_IS_ADS_DISABLED))
+        val noAdsSwitch = findPreference<SwitchPreferenceCompat>(getString(R.string.KEY_IS_ADS_ENABLED))
+        val b = this.adsIsEnabled
+        findPreference<PreferenceCategory>("disableAdsCategory")?.isEnabled = adsIsEnabled
+        noAdsSwitch?.isChecked = this.adsIsEnabled
+        noAdsSwitch?.isEnabled = this.adsIsEnabled
         noAdsSwitch?.apply {
             onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener
             {
@@ -215,32 +208,44 @@ class SettingsFragment : PreferenceFragmentCompat()
             }
         }
         billingVM.wasCancelled.observe(viewLifecycleOwner) {
-            noAdsSwitch?.isChecked = true
+            if (it == true) {
+                noAdsSwitch?.isChecked = it
+            }
         }
 
-        billingVM.noAdsToken.observe(viewLifecycleOwner) { t ->
-            when(t) {
-                PurchaseToken.YES -> {
-                    noAdsSwitch?.let {
-                        it.isChecked = false
-                        it.isEnabled = false
+        billingVM.noAdsToken.observe(viewLifecycleOwner) { result ->
+            result.onSuccess { token ->
+                when(token) {
+                    PurchaseToken.YES -> {
+                        noAdsSwitch?.let { sw ->
+                            sw.isChecked = false
+                            sw.isEnabled = false
+                        }
                     }
-                }
-                else -> {
-                    noAdsSwitch?.let {
-                        it.isChecked = true
-                        it.isEnabled = true
+                    else -> {
+                        noAdsSwitch?.let { sw ->
+                            sw.isChecked = true
+                            sw.isEnabled = true
+                        }
                     }
                 }
             }
+            result.onFailure {
+                noAdsSwitch?.let { sw ->
+                    sw.isChecked = true
+                    sw.isEnabled = true
+                }
+            }
+
         }
-//        this.checkAdsToken(noToken = {
-//            noAdsSwitch?.isChecked = true
-//        }, hasToken = {
-//            noAdsSwitch?.isChecked = false
-//        })
 
         val cloudStorageSwitch = findPreference<SwitchPreferenceCompat>(getString(R.string.KEY_CLOUD_STORAGE))
+        if (cloudStorageSwitch?.isChecked == true) {
+            cloudStorageSwitch.isEnabled = false
+            val title = cloudStorageSwitch.title
+            val newTitle = "$title (${getString(R.string.text_enabled)})"
+            cloudStorageSwitch.title = newTitle
+        }
         cloudStorageSwitch?.let { switch ->
             switch.onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener {
                 override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean {
@@ -270,9 +275,9 @@ class SettingsFragment : PreferenceFragmentCompat()
             }
         }
 
-        billingVM.cloudStorageToken.observe(viewLifecycleOwner) { token ->
-            token.onSuccess {
-                when(it) {
+        billingVM.cloudStorageToken.observe(viewLifecycleOwner) { result ->
+            result.onSuccess { token ->
+                when(token) {
                     PurchaseToken.YES -> {
                         cloudStorageSwitch?.let { switch ->
                             switch.isChecked = true
@@ -290,7 +295,7 @@ class SettingsFragment : PreferenceFragmentCompat()
                     }
                 }
             }
-            token.onFailure {
+            result.onFailure {
                 cloudStorageSwitch?.let { sw ->
                     sw.isChecked = false
                     sw.title = getString(R.string.text_save_my_dicts)

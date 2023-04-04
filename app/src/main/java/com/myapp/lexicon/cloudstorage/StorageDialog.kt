@@ -73,12 +73,6 @@ class StorageDialog : BottomSheetDialogFragment()
         }
     }
 
-    override fun onDestroyView() {
-
-        listener?.onCancelClick()
-        super.onDestroyView()
-    }
-
     interface Listener {
         fun onEnableClick()
         fun onCancelClick()

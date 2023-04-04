@@ -505,26 +505,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             mainViewModel.refreshWordsList();
         }
-
-//        this.getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true)
-//        {
-//            @Override
-//            public void handleOnBackPressed()
-//            {
-//                getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
-//                DrawerLayout drawer = findViewById(R.id.drawer_layout);
-//
-//                if (drawer != null)
-//                {
-//                    if (drawer.isDrawerOpen(GravityCompat.START))
-//                    {
-//                        drawer.closeDrawer(GravityCompat.START);
-//                    }
-//                }
-//                alarmClockEnable(scheduler);
-//                finish();
-//            }
-//        });
     }
 
     @Override

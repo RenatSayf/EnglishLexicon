@@ -170,20 +170,22 @@ public class BackgroundFragm extends Fragment
     {
         super.onViewCreated(view, savedInstanceState);
 
-        boolean adsIsDisabled = SettingsExtKt.getAdsIsDisabled(this);
-        if (adsIsDisabled) {
-            hideAdBanner();
-            yandexAd = null;
-        }
-        else {
-            loadAds();
-        }
+
     }
 
     @Override
     public void onResume()
     {
         super.onResume();
+
+        boolean adsIsEnabled = SettingsExtKt.getAdsIsEnabled(this);
+        if (adsIsEnabled) {
+            loadAds();
+        }
+        else {
+            hideAdBanner();
+            yandexAd = null;
+        }
 
         requireActivity().getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true)
         {
