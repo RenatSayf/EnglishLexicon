@@ -67,10 +67,12 @@ class LexiconService : Service(), IStopServiceByUser//, LifecycleOwner
         composite.add(repository.getEntriesFromDbByDictName(dictName, wordId, 1, 2)
                 .observeOn(Schedulers.computation())
                 .subscribe({ words ->
-                    val json = Gson().toJson(words)
-                    json?.let {
-                        val appNotification = AppNotification(this).create(json)
-                        startForeground(AppNotification.NOTIFICATION_ID, appNotification)
+                    if (words.isNotEmpty()) {
+                        val json = Gson().toJson(words)
+                        json?.let {
+                            val appNotification = AppNotification(this).create(json)
+                            startForeground(AppNotification.NOTIFICATION_ID, appNotification)
+                        }
                     }
                 }, { t ->
                     t.printStackTrace()
