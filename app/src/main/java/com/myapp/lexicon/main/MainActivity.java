@@ -64,10 +64,6 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 import dagger.hilt.android.AndroidEntryPoint;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
 
 
 @AndroidEntryPoint
@@ -83,7 +79,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public MainViewModel mainViewModel;
     private SpeechViewModel speechViewModel;
-    private final CompositeDisposable composite = new CompositeDisposable();
     private Word currentWord;
     private int wordsInterval = Integer.MAX_VALUE;
     public BackgroundFragm backgroundFragm = null;
@@ -444,30 +439,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onClick(View view)
             {
-                String buttonText = button.getText().toString();
-                composite.add(mainViewModel.getDictList().subscribeOn(Schedulers.computation())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe( list -> {
-                            int index = list.indexOf(buttonText);
-                            if (index >= 0)
-                            {
-                                String item = list.remove(index);
-                                list.add(0, item);
-                            }
-                            DictListDialog.Companion.getInstance(list, new DictListDialog.ISelectItemListener()
-                            {
-                                @Override
-                                public void dictListItemOnSelected(@NonNull String dict)
-                                {
-                                    mainViewModel.setWordsList(dict, 1);
-                                    Word word = new Word(1, dict, "", "", 1);
-                                    mainViewModel.saveCurrentWordToPref(word);
-                                    mainViewModel.setCurrentWord(word);
-                                    mainViewModel.setCurrentDict(dict);
-                                }
-                            }).show(getSupportFragmentManager(), DictListDialog.Companion.getTAG());
+                mainViewModel.getDictList(list -> {
 
-                        }, Throwable::printStackTrace));
+                    String buttonText = button.getText().toString();
+                    int index = list.indexOf(buttonText);
+                    if (index >= 0)
+                    {
+                        String item = list.remove(index);
+                        list.add(0, item);
+                    }
+                    DictListDialog.Companion.getInstance(list, new DictListDialog.ISelectItemListener()
+                    {
+                        @Override
+                        public void dictListItemOnSelected(@NonNull String dict)
+                        {
+                            mainViewModel.setWordsList(dict, 1);
+                            Word word = new Word(1, dict, "", "", 1);
+                            mainViewModel.saveCurrentWordToPref(word);
+                            mainViewModel.setCurrentWord(word);
+                            mainViewModel.setCurrentDict(dict);
+                        }
+                    }).show(getSupportFragmentManager(), DictListDialog.Companion.getTAG());
+                    return null;
+                }, throwable -> {
+                    if (BuildConfig.DEBUG) throwable.printStackTrace();
+                    return null;
+                });
             }
         });
     }
@@ -569,6 +566,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return super.onOptionsItemSelected(item);
     }
 
+    @SuppressWarnings("Convert2Lambda")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item)
     {
@@ -582,28 +580,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         else if (id == R.id.nav_delete_dict)
         {
-            Disposable subscribe = mainViewModel.getDictList()
-                    .subscribeOn(Schedulers.newThread())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(list -> {
-                        if (list != null && !list.isEmpty())
+            mainViewModel.getDictList(list -> {
+                if (!list.isEmpty()) {
+                    RemoveDictDialog.Companion.getInstance((ArrayList<String>) list, new RemoveDictDialog.IRemoveDictDialogCallback()
+                    {
+                        @Override
+                        public void removeDictDialogButtonClickListener(@NonNull List<String> list)
                         {
-                            //noinspection Convert2Lambda
-                            RemoveDictDialog.Companion.getInstance((ArrayList<String>) list, new RemoveDictDialog.IRemoveDictDialogCallback()
+                            boolean contains = list.contains(mainViewModel.currentDict.getValue());
+                            if (contains)
                             {
-                                @Override
-                                public void removeDictDialogButtonClickListener(@NonNull List<String> list)
-                                {
-                                    boolean contains = list.contains(mainViewModel.currentDict.getValue());
-                                    if (contains)
-                                    {
-                                        mainViewModel.resetWordsList();
-                                    }
-                                }
-                            }).show(getSupportFragmentManager(), RemoveDictDialog.TAG);
+                                mainViewModel.resetWordsList();
+                            }
                         }
-                    }, Throwable::printStackTrace);
-            composite.add(subscribe);
+                    }).show(getSupportFragmentManager(), RemoveDictDialog.TAG);
+                }
+                return null;
+            }, throwable -> {
+                if (BuildConfig.DEBUG)
+                {
+                    throwable.printStackTrace();
+                }
+                return null;
+            });
         }
         else if (id == R.id.nav_edit)
         {

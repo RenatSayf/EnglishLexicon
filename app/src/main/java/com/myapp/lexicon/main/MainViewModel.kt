@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.repository.DataRepositoryImpl
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -112,22 +111,27 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
     }
 
     private var _dictionaryList = MutableLiveData<MutableList<String>>().apply {
-        composite.add(
-            getDictList()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ list ->
-                    value = list
-                }, { t ->
-                    t.printStackTrace()
-                })
-        )
+
+        getDictList(onSuccess = { list ->
+            value = list.toMutableList()
+        }, onFailure = { t ->
+            t.printStackTrace()
+        })
     }
     val dictionaryList: LiveData<MutableList<String>> = _dictionaryList
 
-    fun getDictList() : Single<MutableList<String>>
-    {
-        return repository.getDictListFromDb()
+    fun getDictList(onSuccess: (List<String>) -> Unit, onFailure: (Throwable) -> Unit) {
+
+        composite.add(
+            repository.getDictListFromDb()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ list ->
+                    onSuccess.invoke(list)
+                }, { t ->
+                    onFailure.invoke(t)
+                })
+        )
     }
 
     fun setDictList(list: MutableList<String>)
