@@ -177,8 +177,7 @@ class SettingsFragment : PreferenceFragmentCompat()
         view.setBackgroundColor(resources.getColor(R.color.colorWhite))
 
         val noAdsSwitch = findPreference<SwitchPreferenceCompat>(getString(R.string.KEY_IS_ADS_ENABLED))
-        val b = this.adsIsEnabled
-        findPreference<PreferenceCategory>("disableAdsCategory")?.isEnabled = adsIsEnabled
+        findPreference<PreferenceCategory>("disableAdsCategory")?.isEnabled = this.adsIsEnabled
         noAdsSwitch?.isChecked = this.adsIsEnabled
         noAdsSwitch?.isEnabled = this.adsIsEnabled
         noAdsSwitch?.apply {
@@ -205,11 +204,6 @@ class SettingsFragment : PreferenceFragmentCompat()
                     }
                     return true
                 }
-            }
-        }
-        billingVM.wasCancelled.observe(viewLifecycleOwner) {
-            if (it == true) {
-                noAdsSwitch?.isChecked = it
             }
         }
 
@@ -240,6 +234,8 @@ class SettingsFragment : PreferenceFragmentCompat()
         }
 
         val cloudStorageSwitch = findPreference<SwitchPreferenceCompat>(getString(R.string.KEY_CLOUD_STORAGE))
+        findPreference<PreferenceCategory>("cloudStorageCategory")?.isEnabled = !this.cloudStorageEnabled
+        cloudStorageSwitch?.isChecked = this.cloudStorageEnabled
         if (cloudStorageSwitch?.isChecked == true) {
             cloudStorageSwitch.isEnabled = false
             val title = cloudStorageSwitch.title
@@ -299,6 +295,21 @@ class SettingsFragment : PreferenceFragmentCompat()
                 cloudStorageSwitch?.let { sw ->
                     sw.isChecked = false
                     sw.title = getString(R.string.text_save_my_dicts)
+                }
+            }
+        }
+
+        billingVM.wasCancelled.observe(viewLifecycleOwner) { result ->
+            result.onSuccess { details ->
+                when(details.productId) {
+                    getString(R.string.id_no_ads) -> {
+                        noAdsSwitch?.isChecked = true
+                        noAdsSwitch?.isEnabled = true
+                    }
+                    getString(R.string.id_cloud_storage) -> {
+                        cloudStorageSwitch?.isChecked = false
+                        cloudStorageSwitch?.isEnabled = true
+                    }
                 }
             }
         }

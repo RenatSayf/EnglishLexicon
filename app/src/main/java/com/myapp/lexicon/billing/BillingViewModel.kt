@@ -30,8 +30,10 @@ class BillingViewModel @Inject constructor(app: Application) : AndroidViewModel(
     private var productIdNoAds: String
     private var productIdCloudStorage: String
 
-    private var _wasCancelled = MutableLiveData<Boolean?>(null)
-    var wasCancelled : LiveData<Boolean?> = _wasCancelled
+    private var currentPurchase: ProductDetails? = null
+
+    private var _wasCancelled = MutableLiveData<Result<ProductDetails>>()
+    var wasCancelled : LiveData<Result<ProductDetails>> = _wasCancelled
 
     private var _noAdsProduct = MutableLiveData<Result<ProductDetails>>()
     val noAdsProduct: LiveData<Result<ProductDetails>> = _noAdsProduct
@@ -107,6 +109,7 @@ class BillingViewModel @Inject constructor(app: Application) : AndroidViewModel(
     }
 
     fun purchaseProduct(activity: Activity, productDetails: ProductDetails) {
+        currentPurchase = null
         val productDetailsParamsList = listOf(
             BillingFlowParams.ProductDetailsParams.newBuilder()
                 .setProductDetails(productDetails)
@@ -117,6 +120,7 @@ class BillingViewModel @Inject constructor(app: Application) : AndroidViewModel(
             .build()
 
         billingClient.launchBillingFlow(activity, flowParams)
+        currentPurchase = productDetails
     }
 
     private fun handlePurchase(billingClient: BillingClient, purchase: Purchase)
@@ -129,20 +133,38 @@ class BillingViewModel @Inject constructor(app: Application) : AndroidViewModel(
         val userPurchase = Gson().fromJson(json, UserPurchase::class.java)
 
         billingClient.consumeAsync(consumeParams) { billingResult, outToken ->
-            if (billingResult.responseCode == BillingClient.BillingResponseCode.OK)
-            {
-                if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED && !purchase.isAcknowledged)
-                {
-                    confirmPurchase(billingClient, purchase, onSuccess = {
-                        when(userPurchase.productId) {
-                            productIdNoAds -> {
-                                _noAdsToken.postValue(Result.success(PurchaseToken.YES))
+            when (billingResult.responseCode) {
+                BillingClient.BillingResponseCode.OK -> {
+                    if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED && !purchase.isAcknowledged) {
+                        confirmPurchase(billingClient, purchase, onSuccess = {
+                            when(userPurchase.productId) {
+                                productIdNoAds -> {
+                                    _noAdsToken.postValue(Result.success(PurchaseToken.YES))
+                                }
+                                productIdCloudStorage -> {
+                                    _cloudStorageToken.postValue(Result.success(PurchaseToken.YES))
+                                }
                             }
-                            productIdCloudStorage -> {
-                                _cloudStorageToken.postValue(Result.success(PurchaseToken.YES))
+                        }, onCanceled = {
+                            when(userPurchase.productId) {
+                                productIdNoAds -> {
+                                    _noAdsToken.postValue(Result.failure(Throwable("Purchase has been canceled by user")))
+                                }
+                                productIdCloudStorage -> {
+                                    _cloudStorageToken.postValue(Result.failure(Throwable("Purchase has been canceled by user")))
+                                }
                             }
-                        }
-                    }, onCanceled = {
+                        }, onError = {
+                            when(userPurchase.productId) {
+                                productIdNoAds -> {
+                                    _noAdsToken.postValue(Result.failure(Throwable("************ ${billingResult.debugMessage} *****************")))
+                                }
+                                productIdCloudStorage -> {
+                                    _cloudStorageToken.postValue(Result.failure(Throwable("************ ${billingResult.debugMessage} *****************")))
+                                }
+                            }
+                        })
+                    } else {
                         when(userPurchase.productId) {
                             productIdNoAds -> {
                                 _noAdsToken.postValue(Result.failure(Throwable("Purchase has been canceled by user")))
@@ -151,44 +173,22 @@ class BillingViewModel @Inject constructor(app: Application) : AndroidViewModel(
                                 _cloudStorageToken.postValue(Result.failure(Throwable("Purchase has been canceled by user")))
                             }
                         }
-                    }, onError = {
-//                        when(userPurchase.productId) {
-//                            productIdNoAds -> {
-//                                _noAdsToken.postValue(Result.failure(Throwable(it)))
-//                            }
-//                            productIdCloudStorage -> {
-//                                _cloudStorageToken.postValue(Result.failure(Throwable(it)))
-//                            }
-//                        }
-                    })
-                }
-                else {
-                    when(userPurchase.productId) {
-                        productIdNoAds -> {
-                            _noAdsToken.postValue(Result.failure(Throwable("Purchase has been canceled by user")))
-                        }
-                        productIdCloudStorage -> {
-                            _cloudStorageToken.postValue(Result.failure(Throwable("Purchase has been canceled by user")))
-                        }
                     }
+                    return@consumeAsync
                 }
-                return@consumeAsync
-            }
-            else {
-//                _noAdsToken.postValue(Result.failure(Throwable("Error. Billing result: code ${billingResult.responseCode}")))
-//                _cloudStorageToken.postValue(Result.failure(Throwable("Error. Billing result: code ${billingResult.responseCode}")))
-//                _wasCancelled.postValue(true)
             }
         }
     }
 
     override fun onPurchasesUpdated(billingResult: BillingResult, purchases: MutableList<Purchase>?) {
-        if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && purchases != null) {
-            for (purchase in purchases) {
-                handlePurchase(billingClient, purchase)
+        if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+            purchases?.forEach {
+                handlePurchase(billingClient, it)
             }
         } else if (billingResult.responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
-            _wasCancelled.value = true
+            currentPurchase?.let {
+                _wasCancelled.value = Result.success(it)
+            }
         }
     }
 
@@ -214,8 +214,11 @@ class BillingViewModel @Inject constructor(app: Application) : AndroidViewModel(
                 BillingClient.BillingResponseCode.USER_CANCELED -> {
                     onCanceled.invoke(purchase)
                 }
-                else -> {
+                in (1..4) -> {
                     onError.invoke(ackPurchaseResult.debugMessage)
+                }
+                else -> {
+                    onSuccess.invoke(purchase)
                 }
             }
         }

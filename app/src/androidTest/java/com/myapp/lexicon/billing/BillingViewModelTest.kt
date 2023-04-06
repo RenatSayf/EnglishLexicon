@@ -1,5 +1,6 @@
 package com.myapp.lexicon.billing
 
+import androidx.lifecycle.lifecycleScope
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -8,6 +9,9 @@ import com.myapp.lexicon.models.PurchaseToken
 import com.myapp.lexicon.testing.TestActivity
 import org.junit.*
 import org.junit.runner.RunWith
+import com.myapp.lexicon.R
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 @RunWith(AndroidJUnit4ClassRunner::class)
@@ -40,7 +44,8 @@ class BillingViewModelTest {
             billingVM.noAdsProduct.observe(activity) { result ->
                 result.onSuccess {
                     val productId = it.productId
-                    Assert.assertEquals("no_ads", productId)
+                    val expectedId = activity.getString(R.string.id_no_ads)
+                    Assert.assertEquals(expectedId, productId)
                     isRunning = false
                 }
                 result.onFailure {
@@ -65,7 +70,8 @@ class BillingViewModelTest {
             billingVM.cloudStorageProduct.observe(activity) { result ->
                 result.onSuccess { details ->
                     val productId = details.productId
-                    Assert.assertEquals("cloud_storage", productId)
+                    val expectedId = activity.getString(R.string.id_cloud_storage)
+                    Assert.assertEquals(expectedId, productId)
                     isRunning = false
                 }
                 result.onFailure {
@@ -86,6 +92,12 @@ class BillingViewModelTest {
         var isRunning = true
 
         scenario.onActivity { activity ->
+
+            activity.lifecycleScope.launch {
+                delay(120000)
+                Assert.assertTrue("********** Test timeout ***********", false)
+                isRunning = false
+            }
 
             billingVM.cloudStorageProduct.observe(activity) { result ->
                 result.onSuccess {
@@ -116,6 +128,19 @@ class BillingViewModelTest {
                     isRunning = false
                 }
             }
+
+            billingVM.wasCancelled.observe(activity) { result ->
+                result.onSuccess { details ->
+                    val productId = details.productId
+                    val expectedId = activity.getString(R.string.id_cloud_storage)
+                    Assert.assertEquals(expectedId, productId)
+                    isRunning = false
+                }
+                result.onFailure {
+                    Assert.assertTrue(false)
+                    isRunning = false
+                }
+            }
         }
         while (isRunning) {
             Thread.sleep(100)
@@ -128,6 +153,12 @@ class BillingViewModelTest {
         var isRunning = true
 
         scenario.onActivity { activity ->
+
+            activity.lifecycleScope.launch {
+                delay(120000)
+                Assert.assertTrue("********** Test timeout ***********", false)
+                isRunning = false
+            }
 
             billingVM.noAdsProduct.observe(activity) { result ->
                 result.onSuccess {
@@ -160,6 +191,19 @@ class BillingViewModelTest {
                 }
                 result.onFailure {
                     Assert.assertTrue(it.message, false)
+                    isRunning = false
+                }
+            }
+
+            billingVM.wasCancelled.observe(activity) { result ->
+                result.onSuccess { details ->
+                    val productId = details.productId
+                    val expectedId = activity.getString(R.string.id_no_ads)
+                    Assert.assertEquals(expectedId, productId)
+                    isRunning = false
+                }
+                result.onFailure {
+                    Assert.assertTrue(false)
                     isRunning = false
                 }
             }
