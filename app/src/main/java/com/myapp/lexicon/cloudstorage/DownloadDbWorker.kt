@@ -63,8 +63,6 @@ class DownloadDbWorker(
 
             storageRef.getBytes(ONE_MEGABYTE).addOnSuccessListener { bytes ->
                 result = try {
-//                    val output = context.openFileOutput(dbName, Context.MODE_PRIVATE)
-//                    output.write(bytes)
                     listener?.onSuccess(bytes)
                     Result.success()
                 } catch (e: Exception) {

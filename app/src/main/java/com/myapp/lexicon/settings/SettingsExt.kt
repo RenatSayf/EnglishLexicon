@@ -47,3 +47,11 @@ var Fragment.cloudStorageEnabled: Boolean
     set(value) {
         requireContext().cloudStorageEnabled = value
     }
+
+var Context.checkFirstLaunch: Boolean
+    get() {
+        return appSettings.getBoolean(getString(R.string.KEY_FIRST_LAUNCH), true)
+    }
+    set(value) {
+        appSettings.edit().putBoolean(getString(R.string.KEY_FIRST_LAUNCH), value).apply()
+    }

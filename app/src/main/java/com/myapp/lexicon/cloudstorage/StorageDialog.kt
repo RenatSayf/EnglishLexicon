@@ -10,6 +10,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.DialogStorageBinding
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Singleton
 
 
 @AndroidEntryPoint
@@ -22,12 +23,14 @@ class StorageDialog : BottomSheetDialogFragment()
         private var productName: String? = null
         private var productPrice: String? = null
 
+        private var instance: StorageDialog? = null
+
         fun newInstance(productName: String, productPrice: String, listener: Listener): StorageDialog {
 
             this.productName = productName
             this.productPrice = productPrice
             this.listener = listener
-            return StorageDialog()
+            return if (instance == null) StorageDialog() else instance!!
         }
     }
 
@@ -52,6 +55,8 @@ class StorageDialog : BottomSheetDialogFragment()
     {
         super.onViewCreated(view, savedInstanceState)
 
+        listener?.onLaunch(binding)
+
         with(binding) {
 
             tvProductName.text = productName
@@ -74,6 +79,7 @@ class StorageDialog : BottomSheetDialogFragment()
     }
 
     interface Listener {
+        fun onLaunch(binding: DialogStorageBinding)
         fun onEnableClick()
         fun onCancelClick()
     }

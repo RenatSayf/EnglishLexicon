@@ -14,6 +14,7 @@ import androidx.preference.*
 import com.myapp.lexicon.R
 import com.myapp.lexicon.billing.BillingViewModel
 import com.myapp.lexicon.cloudstorage.StorageDialog
+import com.myapp.lexicon.databinding.DialogStorageBinding
 import com.myapp.lexicon.dialogs.DisableAdsDialog
 import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.main.MainActivity
@@ -256,7 +257,9 @@ class SettingsFragment : PreferenceFragmentCompat()
                                 productName,
                                 price?: "",
                                 object : StorageDialog.Listener {
-                                override fun onEnableClick() {
+                                    override fun onLaunch(binding: DialogStorageBinding) {}
+
+                                    override fun onEnableClick() {
                                     billingVM.purchaseProduct(requireActivity(), details)
                                 }
 

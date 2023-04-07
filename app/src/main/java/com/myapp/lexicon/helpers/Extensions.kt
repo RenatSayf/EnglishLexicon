@@ -8,6 +8,7 @@ import androidx.preference.PreferenceManager
 import com.google.android.material.snackbar.Snackbar
 import com.myapp.lexicon.R
 import com.myapp.lexicon.schedule.AlarmScheduler
+import java.io.File
 
 private const val APP_SETTINGS = "APP_SETTINGS"
 
@@ -42,5 +43,9 @@ fun View.showSnackBar(message: String, duration: Int = Snackbar.LENGTH_LONG): Sn
 
 fun Fragment.showSnackBar(message: String, duration: Int = Snackbar.LENGTH_LONG): Snackbar {
     return requireView().showSnackBar(message, duration)
+}
+
+fun Fragment.fileToBytes(file: File): ByteArray {
+    return file.readBytes()
 }
 

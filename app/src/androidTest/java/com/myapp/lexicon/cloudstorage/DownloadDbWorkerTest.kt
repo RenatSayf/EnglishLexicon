@@ -1,5 +1,6 @@
 package com.myapp.lexicon.cloudstorage
 
+import android.content.Context
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner
@@ -44,6 +45,9 @@ class DownloadDbWorkerTest {
                     val localBytes = databaseFile.readBytes()
                     val result = localBytes.contentEquals(bytes)
                     Assert.assertEquals(true, result)
+
+                    val output = activity.openFileOutput(dbName, Context.MODE_PRIVATE)
+                    output.write(bytes)
                 }
 
                 override fun onFailure(error: String) {

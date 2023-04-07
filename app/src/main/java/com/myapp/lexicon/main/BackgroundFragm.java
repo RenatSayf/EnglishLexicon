@@ -7,16 +7,26 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterViewFlipper;
 
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.ads.AdsExtensionsKt;
+import com.myapp.lexicon.cloudstorage.DownloadDbWorker;
+import com.myapp.lexicon.cloudstorage.StorageDialog;
 import com.myapp.lexicon.cloudstorage.UploadDbWorker;
+import com.myapp.lexicon.databinding.DialogStorageBinding;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.JavaKotlinMediator;
 import com.myapp.lexicon.settings.SettingsExtKt;
 import com.yandex.mobile.ads.banner.BannerAdView;
 import com.yandex.mobile.ads.common.AdRequestError;
 import com.yandex.mobile.ads.interstitial.InterstitialAd;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -170,6 +180,43 @@ public class BackgroundFragm extends Fragment
     {
         super.onViewCreated(view, savedInstanceState);
 
+        String dbName = getString(R.string.data_base_name);
+        if (!SettingsExtKt.getCheckFirstLaunch(requireContext()))
+        {
+            AdsExtensionsKt.getAdvertisingID(requireContext(), id -> {
+
+                DownloadDbWorker.Companion.downloadDbFromCloud(requireContext(), dbName, id, new DownloadDbWorker.Listener()
+                {
+                    @Override
+                    public void onSuccess(@NonNull byte[] bytes)
+                    {
+                        String[] databaseList = requireContext().databaseList();
+                        List<String> list = Arrays.stream(databaseList).filter(Predicate.isEqual(dbName)).collect(Collectors.toList());
+                        if (!list.isEmpty()) {
+                            File databaseFile = requireContext().getDatabasePath(list.get(0));
+                            byte[] currentBytes = ExtensionsKt.fileToBytes(BackgroundFragm.this, databaseFile);
+                            boolean isEquals = Arrays.equals(currentBytes, bytes);
+                            if (isEquals) {
+                                showCloudDialog();
+                            }
+                        }
+                    }
+                    @Override
+                    public void onFailure(@NonNull String error)
+                    {
+                        if (BuildConfig.DEBUG) {
+                            new Exception(error).printStackTrace();
+                        }
+                    }
+                    @Override
+                    public void onComplete()
+                    {
+                        SettingsExtKt.setCheckFirstLaunch(requireContext(), false);
+                    }
+                });
+                return null;
+            }, () -> null, err -> null, () -> null);
+        }
 
     }
 
@@ -218,6 +265,37 @@ public class BackgroundFragm extends Fragment
                 }
             }
         });
+    }
+
+    private void showCloudDialog() {
+        BottomSheetDialogFragment dialog = (BottomSheetDialogFragment)getParentFragmentManager().findFragmentByTag(StorageDialog.Companion.getTAG());
+        if (dialog == null) {
+            dialog = StorageDialog.Companion.newInstance("", "", new StorageDialog.Listener()
+            {
+                @Override
+                public void onLaunch(@NonNull DialogStorageBinding binding)
+                {
+                    String title = getString(R.string.text_cloud_storage);
+                    binding.tvProductName.setText(title);
+                    binding.tvPriceTitle.setText("В облачном хранилище найдена резервная копия Ваших словарей.\nВосстановить слова?");
+                    binding.btnCloudEnable.setText("Восстановить");
+                    binding.btnCancel.setText(getString(R.string.btn_text_cancel));
+                }
+
+                @Override
+                public void onEnableClick()
+                {
+
+                }
+
+                @Override
+                public void onCancelClick()
+                {
+
+                }
+            });
+            dialog.show(getParentFragmentManager(), StorageDialog.Companion.getTAG());
+        }
     }
 
 }
