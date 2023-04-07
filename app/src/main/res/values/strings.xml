@@ -252,6 +252,7 @@
     <string name="text_something_went_wrong">Ой, что то пошло не так</string>
     <string name="id_no_ads">no_ads</string>
     <string name="id_cloud_storage">cloud_storage</string>
+    <string name="text_select_dict">Выберите словарь для изучения</string>
     <string-array name="not_move">
         <item>Не перемещать</item>
     </string-array>

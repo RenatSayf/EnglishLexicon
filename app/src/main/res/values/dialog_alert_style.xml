@@ -3,7 +3,7 @@
 
     <style name="AppAlertDialog" parent="Theme.MaterialComponents.Dialog.Alert">
         <item name="textColorAlertDialogListItem">@color/colorWhite</item>
-        <item name="android:backgroundTint">@color/color_status_bar</item>
+        <item name="android:backgroundTint">@color/color_3B5E91</item>
         <item name="android:buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
         <item name="android:buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>
         <item name="colorAccent">@color/colorWhite</item>

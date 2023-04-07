@@ -305,6 +305,7 @@
     <string name="text_something_went_wrong">Ой, що щось пішло не так</string>
     <string name="id_no_ads">no_ads</string>
     <string name="id_cloud_storage">cloud_storage</string>
+    <string name="text_select_dict">Виберіть словник для вивчення</string>
 
     <string-array name="words_interval">
         <item>після 5 слів</item>
