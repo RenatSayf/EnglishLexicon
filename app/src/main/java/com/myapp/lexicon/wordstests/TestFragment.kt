@@ -29,10 +29,10 @@ import com.myapp.lexicon.dialogs.DictListDialog
 import com.myapp.lexicon.helpers.Keyboard
 import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.UiState
-import com.myapp.lexicon.helpers.checkAdsToken
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.SpeechViewModel
 import com.myapp.lexicon.models.Word
+import com.myapp.lexicon.settings.adsIsEnabled
 import com.myapp.lexicon.viewmodels.AnimViewModel
 import com.myapp.lexicon.viewmodels.PageBackViewModel
 import com.yandex.mobile.ads.interstitial.InterstitialAd
@@ -87,7 +87,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         super.onViewCreated(view, savedInstanceState)
         binding = TestFragmentBinding.bind(view)
 
-        this.checkAdsToken(noToken = {
+        if (this.adsIsEnabled) {
             this.loadInterstitialAd(
                 index = 2,
                 success = { ad ->
@@ -97,7 +97,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                     yandexAd2 = null
                 }
             )
-        })
+        }
 
         pageBackVM.imageBack.observe(viewLifecycleOwner) { img ->
             binding.imgBack.setImageResource(img)

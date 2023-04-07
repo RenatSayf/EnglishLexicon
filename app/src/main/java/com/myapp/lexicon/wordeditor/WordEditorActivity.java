@@ -26,12 +26,12 @@ import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.addword.AddWordViewModel;
 import com.myapp.lexicon.helpers.AppBus;
-import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.JavaKotlinMediator;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SpeechViewModel;
 import com.myapp.lexicon.models.Word;
+import com.myapp.lexicon.settings.SettingsExtKt;
 import com.myapp.lexicon.viewmodels.EditorSearchViewModel;
 import com.yandex.mobile.ads.banner.BannerAdView;
 import com.yandex.mobile.ads.common.AdRequestError;
@@ -191,7 +191,6 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             }
         });
 
-
         editorVM.wordsList.observe(this, words -> {
             listViewAdapter = new ListViewAdapter((ArrayList<Word>) words, this);
             listView.setAdapter(listViewAdapter); // TODO: ListView setAdapter
@@ -200,8 +199,8 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             tvAmountWords.setText(text);
         });
 
-        ExtensionsKt.checkAdsToken(this, () -> null, () -> {
-
+        boolean adsIsEnabled = SettingsExtKt.getAdsIsEnabled(this);
+        if (adsIsEnabled) {
             BannerAdView adBanner = findViewById(R.id.banner_editor);
             if (adBanner != null)
             {
@@ -227,8 +226,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
                     }
                 });
             }
-            return null;
-        }, () -> null);
+        }
 
         buttonDelete = findViewById(R.id.btn_delete);
         buttonDelete_OnClick();

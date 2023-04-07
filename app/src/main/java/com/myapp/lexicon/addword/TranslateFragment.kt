@@ -13,8 +13,8 @@ import com.myapp.lexicon.ads.loadBanner
 import com.myapp.lexicon.ads.loadInterstitialAd
 import com.myapp.lexicon.ads.showInterstitialAd
 import com.myapp.lexicon.databinding.TranslateFragmentBinding
-import com.myapp.lexicon.helpers.checkAdsToken
 import com.myapp.lexicon.main.MainActivity
+import com.myapp.lexicon.settings.adsIsEnabled
 import com.yandex.mobile.ads.interstitial.InterstitialAd
 import dagger.hilt.android.AndroidEntryPoint
 import java.net.URLDecoder
@@ -67,7 +67,7 @@ class TranslateFragment : Fragment()
     {
         binding = TranslateFragmentBinding.inflate(inflater, container, false)
 
-        checkAdsToken(noToken = {
+        if (this.adsIsEnabled) {
             this.loadInterstitialAd(
                 index = 1,
                 success = { ad ->
@@ -83,8 +83,7 @@ class TranslateFragment : Fragment()
             }, error = { err ->
                 if (BuildConfig.DEBUG) println("******************* Ad request error - code: ${err.code}, ${err.description} *****************")
             })
-        })
-
+        }
         return binding.root
     }
 
@@ -164,32 +163,6 @@ class TranslateFragment : Fragment()
             }
         }
 
-//        val toolbar = (requireActivity() as MainActivity).findViewById<Toolbar>(R.id.toolbar_word_editor)
-//        toolbar.addMenuProvider(object : MenuProvider {
-//            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {}
-//
-//            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-//                if (menuItem.itemId == android.R.id.home)
-//                {
-//                    yandexAd?.showInterstitialAd(
-//                        dismiss =  {
-//                            when(mActivity)
-//                            {
-//                                is MainActivity -> mActivity.supportFragmentManager.popBackStack()
-//                                is TranslateActivity -> mActivity.finish()
-//                            }
-//                        }
-//                    )?: run {
-//                        when (mActivity) {
-//                            is MainActivity -> mActivity.supportFragmentManager.popBackStack()
-//                            is TranslateActivity -> mActivity.finish()
-//                        }
-//                    }
-//                }
-//                return false
-//            }
-//        })
     }
-
 
 }

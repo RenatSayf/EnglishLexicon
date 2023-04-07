@@ -16,13 +16,13 @@ import android.widget.Toast;
 import com.google.gson.JsonSyntaxException;
 import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.JavaKotlinMediator;
 import com.myapp.lexicon.helpers.StringOperations;
 import com.myapp.lexicon.interfaces.IModalFragment;
 import com.myapp.lexicon.main.SpeechViewModel;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.settings.AppSettings;
+import com.myapp.lexicon.settings.SettingsExtKt;
 import com.yandex.mobile.ads.banner.BannerAdView;
 import com.yandex.mobile.ads.common.AdRequestError;
 
@@ -88,7 +88,8 @@ public class ModalFragment extends DialogFragment
 
         AlertDialog dialog = new AlertDialog.Builder(requireContext()).setView(dialogView).create();
 
-        ExtensionsKt.checkAdsToken(this, () -> null, () -> {
+        boolean adsIsEnabled = SettingsExtKt.getAdsIsEnabled(this);
+        if (adsIsEnabled) {
             BannerAdView adBanner = dialogView.findViewById(R.id.banner_modal_dalog);
             if (adBanner != null)
             {
@@ -114,8 +115,7 @@ public class ModalFragment extends DialogFragment
                     }
                 });
             }
-            return null;
-        }, () -> null);
+        }
 
         enTextView = dialogView.findViewById(R.id.en_text_view);
         ruTextView = dialogView.findViewById(R.id.ru_text_view);

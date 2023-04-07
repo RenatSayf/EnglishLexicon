@@ -28,7 +28,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class ServiceActivity extends AppCompatActivity implements IModalFragment
 {
     private boolean isServiceEnabled = false;
-    public static IStopServiceByUser iStopServiceByUser;
+    public static Listener listener;
     public static final String ARG_JSON = ServiceActivity.class.getCanonicalName() + ".ARG_JSON";
     private boolean stoppedByUser;
 
@@ -40,14 +40,14 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         startActivity(new Intent(this, SplashScreenActivity.class));
     }
 
-    public interface IStopServiceByUser
+    public interface Listener
     {
         void onStoppedByUser();
     }
 
-    public static void setStoppedByUserListener(IStopServiceByUser listener)
+    public static void setStoppedByUserListener(Listener listener)
     {
-        iStopServiceByUser = listener;
+        ServiceActivity.listener = listener;
     }
 
     @Override
@@ -66,15 +66,12 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         String displayVariantStr = preferences.getString(getString(R.string.key_display_variant), "0");
         isServiceEnabled = preferences.getBoolean(getString(R.string.key_service), false);
         int displayMode = 0;
-        if (preferencesString != null && displayVariantStr != null)
+        try
         {
-            try
-            {
-                displayMode = Integer.parseInt(preferencesString);
-            } catch (NumberFormatException e)
-            {
-                e.printStackTrace();
-            }
+            displayMode = Integer.parseInt(preferencesString);
+        } catch (NumberFormatException e)
+        {
+            e.printStackTrace();
         }
 
         int finalDisplayMode = displayMode;
@@ -148,11 +145,12 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
 
     public void stopAppService()
     {
-        if (iStopServiceByUser != null)
+        if (listener != null)
         {
             stoppedByUser = true;
-            iStopServiceByUser.onStoppedByUser();
+            listener.onStoppedByUser();
             new AlarmScheduler(this).cancel(AlarmScheduler.REQUEST_CODE, AlarmScheduler.REPEAT_SHOOT_ACTION);
+            finish();
         }
     }
 

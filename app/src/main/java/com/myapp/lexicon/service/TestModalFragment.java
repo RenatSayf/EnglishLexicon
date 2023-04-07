@@ -17,7 +17,6 @@ import android.widget.Toast;
 
 import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.JavaKotlinMediator;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
 import com.myapp.lexicon.helpers.StringOperations;
@@ -25,6 +24,7 @@ import com.myapp.lexicon.interfaces.IModalFragment;
 import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SpeechViewModel;
 import com.myapp.lexicon.models.Word;
+import com.myapp.lexicon.settings.SettingsExtKt;
 import com.yandex.mobile.ads.banner.BannerAdView;
 import com.yandex.mobile.ads.common.AdRequestError;
 
@@ -94,8 +94,8 @@ public class TestModalFragment extends DialogFragment
 
         AlertDialog dialog = new AlertDialog.Builder(requireContext()).setView(dialogView).create();
 
-        ExtensionsKt.checkAdsToken(this, () -> null, () -> {
-
+        boolean adsIsEnabled = SettingsExtKt.getAdsIsEnabled(this);
+        if (adsIsEnabled) {
             BannerAdView adBanner = dialogView.findViewById(R.id.banner_test_dialog);
             if (adBanner != null)
             {
@@ -121,9 +121,7 @@ public class TestModalFragment extends DialogFragment
                     }
                 });
             }
-            return null;
-        }, () -> null);
-
+        }
         enTextView = dialogView.findViewById(R.id.en_text_view);
         ruBtn1 = dialogView.findViewById(R.id.ru_btn_1);
         ruBtn1.setText("");

@@ -18,7 +18,7 @@ import com.myapp.lexicon.database.AppDataBase
 import com.myapp.lexicon.database.DatabaseHelper
 import com.myapp.lexicon.repository.DataRepositoryImpl
 import com.myapp.lexicon.schedule.AppNotification
-import com.myapp.lexicon.service.ServiceActivity.IStopServiceByUser
+import com.myapp.lexicon.service.ServiceActivity.Listener
 import com.myapp.lexicon.settings.AppSettings
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -28,7 +28,7 @@ import javax.inject.Inject
 
 
 @AndroidEntryPoint
-class LexiconService : Service(), IStopServiceByUser//, LifecycleOwner
+class LexiconService : Service(), Listener
 {
     private var blockReceiver: PhoneUnlockedReceiver? = null
     private var startId = 0
