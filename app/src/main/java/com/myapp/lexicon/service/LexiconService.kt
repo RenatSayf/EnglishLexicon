@@ -13,9 +13,7 @@ import androidx.core.content.ContextCompat.startActivity
 import androidx.preference.PreferenceManager
 import com.google.gson.Gson
 import com.myapp.lexicon.R
-import com.myapp.lexicon.database.AppDB
 import com.myapp.lexicon.database.AppDataBase
-import com.myapp.lexicon.database.DatabaseHelper
 import com.myapp.lexicon.repository.DataRepositoryImpl
 import com.myapp.lexicon.schedule.AppNotification
 import com.myapp.lexicon.service.ServiceActivity.Listener
@@ -44,9 +42,8 @@ class LexiconService : Service(), Listener
         super.onCreate()
 
         val dao = AppDataBase.buildDataBase(this).appDao()
-        val appDB = AppDB(DatabaseHelper(this), dao)
         val appSettings = AppSettings(this)
-        val repository = DataRepositoryImpl(appDB, dao, appSettings)
+        val repository = DataRepositoryImpl(dao, appSettings)
         val currentWord = repository.getWordFromPref()
         val dictName = currentWord.dictName
         val wordId = currentWord._id

@@ -27,10 +27,6 @@ import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
 import com.myapp.lexicon.ads.AdsExtensionsKt;
 import com.myapp.lexicon.cloudstorage.UploadDbWorker;
-import com.myapp.lexicon.database.AppDB;
-import com.myapp.lexicon.database.AppDao;
-import com.myapp.lexicon.database.AppDataBase;
-import com.myapp.lexicon.database.DatabaseHelper;
 import com.myapp.lexicon.dialogs.DictListDialog;
 import com.myapp.lexicon.dialogs.OrderPlayDialog;
 import com.myapp.lexicon.dialogs.RemoveDictDialog;
@@ -552,14 +548,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             new Share().doShare(this);
         }
-        if (id == R.id.menu_run_migration_db)
-        {
-            DatabaseHelper helper = new DatabaseHelper(this);
-            AppDao roomDb = AppDataBase.Companion.buildDataBase(this).appDao();
-            AppDB appDB = new AppDB(helper, roomDb);
-            appDB.migrateToWordsTable();
-        }
-
         return super.onOptionsItemSelected(item);
     }
 

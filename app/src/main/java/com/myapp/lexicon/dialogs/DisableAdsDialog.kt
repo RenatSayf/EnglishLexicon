@@ -40,6 +40,13 @@ class DisableAdsDialog : BottomSheetDialogFragment()
     }
 
     private lateinit var binding: DialogDisableAdsBinding
+    private var locker: LockOrientation? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        locker = LockOrientation(requireActivity())
+    }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): BottomSheetDialog
     {
@@ -73,15 +80,14 @@ class DisableAdsDialog : BottomSheetDialogFragment()
         }
     }
 
-    private val locker = LockOrientation(requireActivity())
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        locker.lock()
+        locker?.lock()
     }
 
     override fun onDestroy() {
 
-        locker.unLock()
+        locker?.unLock()
         super.onDestroy()
     }
 }

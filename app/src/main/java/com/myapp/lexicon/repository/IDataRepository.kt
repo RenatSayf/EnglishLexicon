@@ -2,13 +2,10 @@ package com.myapp.lexicon.repository
 
 import com.myapp.lexicon.database.DataBaseEntry
 import com.myapp.lexicon.models.Word
-import io.reactivex.Observable
 import io.reactivex.Single
 
 interface IDataRepository
 {
-    fun getTableListFromDb() : Observable<MutableList<String>>
-
     fun getDictListFromDb() : Single<MutableList<String>>
 
     fun getEntriesFromDbByDictName(dictName: String, id: Int = 1, repeat: Int, limit: Int = 2) : Single<MutableList<Word>>
@@ -29,7 +26,7 @@ interface IDataRepository
 
     fun deleteEntry(word: Word) : Single<Int>
 
-    fun deleteEntriesByDictName(dictName: String) : Single<Int>
+    fun deleteEntriesByDictName(dictName: String) : Single<Int?>
 
     fun getCountersFromDb(dictName: String) : Single<List<Int>>
 
@@ -54,16 +51,6 @@ interface IDataRepository
     fun saveWordsIdStringToPref(strIds: String)
 
     fun getWordsIdStringFromPref() : String
-
-    fun getAllFromTable(tableName: String) : Single<MutableList<DataBaseEntry>>
-
-    fun deleteTableFromDb(tableName: String) : Observable<Boolean>
-
-    fun dropTableFromDb(tableName: String) : Single<Boolean>
-
-    fun getRandomEntriesFromDb(tableName: String, rowId: Int) : Single<MutableList<DataBaseEntry>>
-
-    fun getEntriesAndCountersFromDb(tableName: String, rowId: Int, order: String, limit: Int) : Observable<Pair<MutableMap<String, Int>, MutableList<DataBaseEntry>>>
 
     fun isSpeechEnable() : Boolean
 

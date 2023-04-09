@@ -16,13 +16,11 @@ import android.speech.tts.UtteranceProgressListener;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.service.LexiconService;
 import com.myapp.lexicon.settings.AppSettings;
-import com.myapp.lexicon.viewmodels.DbMigrationViewModel;
 
 import java.util.HashMap;
 import java.util.Locale;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProvider;
 import dagger.hilt.android.AndroidEntryPoint;
 
 /**
@@ -51,11 +49,6 @@ public class SplashScreenActivity extends AppCompatActivity
 
         preferences = PreferenceManager.getDefaultSharedPreferences(SplashScreenActivity.this);
         appSettings = new AppSettings(SplashScreenActivity.this);
-
-        if (appSettings.isRequireDbMigration())
-        {
-            new ViewModelProvider(this).get(DbMigrationViewModel.class);
-        }
 
         this.stopService(new Intent(this, LexiconService.class));
 

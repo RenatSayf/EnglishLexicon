@@ -100,7 +100,7 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
-                    quantity += it
+                    quantity += it?: 0
                     if (index == dictList.size - 1) {
                         result.postValue(Result.success(quantity))
                     }
