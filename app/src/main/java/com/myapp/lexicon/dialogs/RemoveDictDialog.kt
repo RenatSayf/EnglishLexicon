@@ -6,15 +6,12 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
-import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
-import com.myapp.lexicon.databinding.DialogConfirmationBinding
 import com.myapp.lexicon.databinding.TitleAlertDialogBinding
-import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.main.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -29,11 +26,11 @@ class RemoveDictDialog : DialogFragment()
         const val TAG = "remove_dict_dialog"
         const val ARG_INPUT = "arg_input_list"
         private var instance: RemoveDictDialog? = null
-        private lateinit var dialogCallback: IRemoveDictDialogCallback
+        private lateinit var listener: Listener
 
-        fun getInstance(list: ArrayList<String>, callback: IRemoveDictDialogCallback) : RemoveDictDialog = if (instance == null)
+        fun getInstance(list: ArrayList<String>, listener: Listener) : RemoveDictDialog = if (instance == null)
         {
-            dialogCallback = callback
+            this.listener = listener
             RemoveDictDialog().apply {
                 arguments = Bundle().apply {
                     val array : Array<out String> = list.toArray(emptyArray())
@@ -41,12 +38,12 @@ class RemoveDictDialog : DialogFragment()
                 }
             }
         }
-        else instance as RemoveDictDialog
+        else instance!!
     }
 
-    interface IRemoveDictDialogCallback
+    interface Listener
     {
-        fun removeDictDialogButtonClickListener(list: MutableList<String>)
+        fun onRemoveButtonClick(list: MutableList<String>)
     }
 
     override fun onCreate(savedInstanceState: Bundle?)
@@ -68,7 +65,6 @@ class RemoveDictDialog : DialogFragment()
             ivIconTitle.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_trash_can))
         }
 
-        var confirmDialog: AlertDialog? = null
         return AlertDialog.Builder(requireContext(), R.style.AppAlertDialog)
             .setCustomTitle(titleBinding.root)
                .setMultiChoiceItems(inputArray, choice,
@@ -80,45 +76,12 @@ class RemoveDictDialog : DialogFragment()
                    fun(dialog: DialogInterface, which: Int)
                    {
                        if (deleteItems.size <= 0) return
-
-                       confirmDialog = AlertDialog.Builder(requireContext()).apply {
-                           val binding = DialogConfirmationBinding.inflate(
-                               layoutInflater,
-                               ConstraintLayout(requireContext()),
-                               false
-                           )
-                           with(binding) {
-                               tvMessage.text = getString(R.string.dialog_are_you_sure)
-                               btnOk.setOnClickListener {
-
-                                   viewModel.deleteDicts(deleteItems).observe(this@RemoveDictDialog) { result ->
-                                       result.onSuccess {
-                                           showSnackBar(getString(R.string.msg_selected_dict_removed))
-                                       }
-                                       result.onFailure {
-                                           showSnackBar(it.message?: "Unknown error")
-                                       }
-                                   }
-                                   confirmDialog?.dismiss()
-                               }
-                               btnCancel.setOnClickListener {
-                                   confirmDialog?.dismiss()
-                               }
-                               setView(binding.root)
-                           }
-                       }.create().apply {
-                           this.window?.setBackgroundDrawableResource(R.drawable.bg_popup_dialog)
-                       }
-                       confirmDialog?.show()
+                       listener.onRemoveButtonClick(deleteItems)
                    })
                 .setNegativeButton(R.string.button_text_cancel, null)
             .create().apply {
                     this.window?.setBackgroundDrawableResource(R.drawable.bg_popup_dialog)
             }
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
     }
 
 }

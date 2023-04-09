@@ -21,12 +21,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
 import com.myapp.lexicon.ads.AdsExtensionsKt;
 import com.myapp.lexicon.cloudstorage.UploadDbWorker;
+import com.myapp.lexicon.dialogs.ConfirmDialog;
 import com.myapp.lexicon.dialogs.DictListDialog;
 import com.myapp.lexicon.dialogs.OrderPlayDialog;
 import com.myapp.lexicon.dialogs.RemoveDictDialog;
@@ -567,16 +569,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             mainViewModel.getDictList(list -> {
                 if (!list.isEmpty()) {
-                    RemoveDictDialog.Companion.getInstance((ArrayList<String>) list, new RemoveDictDialog.IRemoveDictDialogCallback()
+                    RemoveDictDialog.Companion.getInstance((ArrayList<String>) list, new RemoveDictDialog.Listener()
                     {
                         @Override
-                        public void removeDictDialogButtonClickListener(@NonNull List<String> list)
+                        public void onRemoveButtonClick(@NonNull List<String> list)
                         {
-                            boolean contains = list.contains(mainViewModel.currentDict.getValue());
-                            if (contains)
-                            {
-                                mainViewModel.resetWordsList();
-                            }
+                            showRemoveDictDialog(list);
                         }
                     }).show(getSupportFragmentManager(), RemoveDictDialog.TAG);
                 }
@@ -677,6 +675,37 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void testIntervalOnChange(int value)
     {
         wordsInterval = value;
+    }
+
+    @SuppressWarnings("CodeBlock2Expr")
+    private void showRemoveDictDialog(List<String> list) {
+        ConfirmDialog.Companion.newInstance((dialog, binding) -> {
+            binding.tvMessage.setText(getString(R.string.dialog_are_you_sure));
+            binding.btnCancel.setOnClickListener(v -> {
+                dialog.dismiss();
+            });
+            binding.btnOk.setOnClickListener(v -> {
+                mainViewModel.deleteDicts(list, integer -> {
+                    if (integer > 0) {
+                        ExtensionsKt.showSnackBar(mainControlLayout, getString(R.string.msg_selected_dict_removed), Snackbar.LENGTH_LONG);
+                        boolean contains = list.contains(mainViewModel.currentDict.getValue());
+                        if (contains)
+                        {
+                            mainViewModel.resetWordsList();
+                        }
+                    }
+                    dialog.dismiss();
+                    return null;
+                }, t -> {
+                    if (t.getMessage() != null) {
+                        ExtensionsKt.showSnackBar(mainControlLayout, t.getMessage(), Snackbar.LENGTH_LONG);
+                    }
+                    dialog.dismiss();
+                    return null;
+                });
+            });
+            return null;
+        }).show(getSupportFragmentManager(), ConfirmDialog.Companion.getTAG());
     }
 
 }
