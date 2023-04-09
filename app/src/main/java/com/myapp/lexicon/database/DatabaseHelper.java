@@ -21,11 +21,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
     private static String DB_NAME; // название бд
     private static final int version = 1; // версия базы данных
 
-    // названия столбцов
-    static final String COLUMN_ENGLISH = "English";
-    static final String COLUMN_TRANS = "Translate";
-    static final String COLUMN_IMAGE = "Image";
-    public static final String COLUMN_Count_REPEAT = "CountRepeat";
     // имена служебных таблиц
     public static final String TABLE_API_KEY = "com_myapp_lexicon_api_keys";
     public static final String TABLE_METADATA = "android_metadata";

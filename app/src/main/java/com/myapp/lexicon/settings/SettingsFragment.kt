@@ -16,6 +16,7 @@ import com.myapp.lexicon.billing.BillingViewModel
 import com.myapp.lexicon.cloudstorage.StorageDialog
 import com.myapp.lexicon.databinding.DialogStorageBinding
 import com.myapp.lexicon.dialogs.DisableAdsDialog
+import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.models.PurchaseToken
@@ -251,15 +252,24 @@ class SettingsFragment : PreferenceFragmentCompat()
 
                         val result = billingVM.cloudStorageProduct.value
                         result?.onSuccess { details ->
-                            val productName = details.name
-                            val price = details.oneTimePurchaseOfferDetails?.formattedPrice
-                            StorageDialog.newInstance(
-                                productName,
-                                price?: "",
-                                object : StorageDialog.Listener {
-                                    override fun onLaunch(binding: DialogStorageBinding) {}
 
-                                    override fun onEnableClick() {
+                            StorageDialog.newInstance(listener = object : StorageDialog.Listener {
+                                private val locker = LockOrientation(requireActivity())
+                                override fun onLaunch(binding: DialogStorageBinding) {
+                                    locker.lock()
+                                    with(binding) {
+                                        tvProductName.text = details.name
+                                        tvPriceTitle.text = getString(R.string.text_price)
+                                        tvPriceValue.text =
+                                            details.oneTimePurchaseOfferDetails?.formattedPrice
+                                    }
+                                }
+
+                                override fun onDestroy() {
+                                    locker.unLock()
+                                }
+
+                                override fun onPositiveClick() {
                                     billingVM.purchaseProduct(requireActivity(), details)
                                 }
 

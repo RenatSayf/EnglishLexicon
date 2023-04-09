@@ -35,12 +35,15 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper, private va
                 {
                     while (!cursor.isAfterLast)
                     {
-                        nameNotDict = cursor.getString(cursor.getColumnIndex("name"))
-                        if (nameNotDict != DatabaseHelper.TABLE_METADATA && nameNotDict != DatabaseHelper.TABLE_SEQUENCE && nameNotDict != DatabaseHelper.TABLE_API_KEY)
-                        {
-                            var tableName = cursor.getString(cursor.getColumnIndex("name"))
-                            tableName = StringOperations.instance.underscoreToSpace(tableName)
-                            list.add(tableName)
+                        val columnIndex = cursor.getColumnIndex("name")
+                        if (columnIndex >= 0) {
+                            nameNotDict = cursor.getString(columnIndex)
+                            if (nameNotDict != DatabaseHelper.TABLE_METADATA && nameNotDict != DatabaseHelper.TABLE_SEQUENCE && nameNotDict != DatabaseHelper.TABLE_API_KEY)
+                            {
+                                var tableName = cursor.getString(columnIndex)
+                                tableName = StringOperations.instance.underscoreToSpace(tableName)
+                                list.add(tableName)
+                            }
                         }
                         cursor.moveToNext()
                     }
@@ -417,12 +420,13 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper, private va
 
     fun migrateToWordsTable(): Disposable
     {
-       return getTableListAsync()
+        var subscribe: Disposable? = null
+        return getTableListAsync()
             .observeOn(Schedulers.io())
             .subscribeOn(AndroidSchedulers.mainThread())
             .subscribe { list ->
                 list.forEach { dictName ->
-                    copyEntriesFromOtherTableAsync(dictName)
+                    subscribe = copyEntriesFromOtherTableAsync(dictName)
                         .observeOn(Schedulers.io())
                         .subscribeOn(AndroidSchedulers.mainThread())
                         .subscribe({ entries ->
@@ -437,12 +441,10 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper, private va
                                     entry.countRepeat.toInt()
                                 )
                                 words.add(word)
-                                //println("*********************** ${word.english} ************************")
                             }
 
-                            if (words.isNotEmpty())
-                            {
-                                insertIntoWordsTable(words)
+                            if (words.isNotEmpty()) {
+                                subscribe = insertIntoWordsTable(words)
                                     .observeOn(Schedulers.io())
                                     .subscribeOn(AndroidSchedulers.mainThread())
                                     .subscribe({ list ->
@@ -459,7 +461,7 @@ class AppDB @Inject constructor(private val dbHelper: DatabaseHelper, private va
                             t.printStackTrace()
                             println("*********************** ${t.message} ************************")
                         }, {
-
+                            subscribe?.dispose()
                             println("*********************** Миграция завершена ************************")
                         })
                 }

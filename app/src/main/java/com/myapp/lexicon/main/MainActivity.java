@@ -20,7 +20,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.ads.MobileAds;
 import com.google.android.material.navigation.NavigationView;
 import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
@@ -96,8 +95,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         Toolbar toolBar = findViewById(R.id.tool_bar);
         setSupportActionBar(toolBar);
-
-        MobileAds.initialize(this);
 
         NotificationManager nmg = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (nmg != null)

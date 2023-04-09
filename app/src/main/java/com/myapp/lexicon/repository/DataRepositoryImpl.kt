@@ -7,6 +7,7 @@ import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.AppSettings
 import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
 class DataRepositoryImpl @Inject constructor(private val appDB: AppDB,
@@ -71,7 +72,8 @@ class DataRepositoryImpl @Inject constructor(private val appDB: AppDB,
 
     override fun deleteEntriesByDictName(dictName: String): Single<Int>
     {
-        return db.deleteEntriesByDictName(dictName)
+        val result = db.deleteEntriesByDictName(dictName)
+        return result
     }
 
     override fun getCountersFromDb(dictName: String): Single<List<Int>>

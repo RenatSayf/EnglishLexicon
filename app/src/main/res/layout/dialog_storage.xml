@@ -50,7 +50,7 @@
                 android:gravity="center"
                 android:paddingStart="0dp"
                 android:paddingEnd="8dp"
-                android:text="@string/text_price"
+                tools:text="Цена:"
                 android:textColor="@color/color_7E8E1A_09"
                 android:textSize="14sp" />
 

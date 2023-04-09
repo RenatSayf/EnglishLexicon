@@ -92,6 +92,7 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
     }
 
     fun deleteDicts(dictList: List<String>): MutableLiveData<Result<Int>> {
+
         val result = MutableLiveData<Result<Int>>()
         var quantity = 0
         dictList.forEachIndexed() { index, item ->
@@ -101,10 +102,10 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
                 .subscribe({
                     quantity += it
                     if (index == dictList.size - 1) {
-                        result.value = Result.success(quantity)
+                        result.postValue(Result.success(quantity))
                     }
                 }, {
-                    result.value = Result.failure(it)
+                    result.postValue(Result.failure(it))
                 }))
         }
         return result

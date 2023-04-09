@@ -25,7 +25,7 @@ abstract class AppDataBase : RoomDatabase()
             val dbName = context.getString(R.string.data_base_name)
             return Room.databaseBuilder(context, AppDataBase::class.java, dbName).apply {
                 createFromAsset("databases/$dbName")
-                allowMainThreadQueries()
+                //allowMainThreadQueries()
                 addMigrations(getMigration())
             }.build()
         }

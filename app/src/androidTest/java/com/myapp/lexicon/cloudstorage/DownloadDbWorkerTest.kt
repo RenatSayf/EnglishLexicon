@@ -46,8 +46,8 @@ class DownloadDbWorkerTest {
                     val result = localBytes.contentEquals(bytes)
                     Assert.assertEquals(true, result)
 
-                    val output = activity.openFileOutput(dbName, Context.MODE_PRIVATE)
-                    output.write(bytes)
+//                    val output = activity.openFileOutput(dbName, Context.MODE_PRIVATE)
+//                    output.write(bytes)
                 }
 
                 override fun onFailure(error: String) {

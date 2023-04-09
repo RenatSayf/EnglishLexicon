@@ -1,5 +1,6 @@
 package com.myapp.lexicon.dialogs
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +9,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.DialogDisableAdsBinding
+import com.myapp.lexicon.helpers.LockOrientation
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -22,7 +24,12 @@ class DisableAdsDialog : BottomSheetDialogFragment()
         private var onPurchase: () -> Unit = {}
         private var onCancel: () -> Unit = {}
 
-        fun newInstance(productName: String?, productPrice: String?, onPurchase: () -> Unit, onCancel: () -> Unit): DisableAdsDialog {
+        fun newInstance(
+            productName: String?,
+            productPrice: String?,
+            onPurchase: () -> Unit,
+            onCancel: () -> Unit
+        ): DisableAdsDialog {
 
             this.productName = productName
             this.productPrice = productPrice
@@ -66,5 +73,15 @@ class DisableAdsDialog : BottomSheetDialogFragment()
         }
     }
 
+    private val locker = LockOrientation(requireActivity())
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        locker.lock()
+    }
 
+    override fun onDestroy() {
+
+        locker.unLock()
+        super.onDestroy()
+    }
 }

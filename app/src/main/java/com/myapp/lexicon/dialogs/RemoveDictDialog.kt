@@ -6,6 +6,7 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
+import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
@@ -90,7 +91,7 @@ class RemoveDictDialog : DialogFragment()
                                tvMessage.text = getString(R.string.dialog_are_you_sure)
                                btnOk.setOnClickListener {
 
-                                   viewModel.deleteDicts(deleteItems).observe(viewLifecycleOwner) { result ->
+                                   viewModel.deleteDicts(deleteItems).observe(this@RemoveDictDialog) { result ->
                                        result.onSuccess {
                                            showSnackBar(getString(R.string.msg_selected_dict_removed))
                                        }
@@ -114,6 +115,10 @@ class RemoveDictDialog : DialogFragment()
             .create().apply {
                     this.window?.setBackgroundDrawableResource(R.drawable.bg_popup_dialog)
             }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
     }
 
 }

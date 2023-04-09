@@ -25,9 +25,10 @@ class DbMigrationViewModel @Inject constructor(app: Application, private val app
                 .observeOn(Schedulers.io())
                 .subscribe({ list ->
                     list.forEach { dictName ->
-                        appDB.copyEntriesFromOtherTableAsync(dictName)
-                            .observeOn(Schedulers.io())
-                            .subscribeOn(AndroidSchedulers.mainThread())
+
+                        val subscribe = appDB.copyEntriesFromOtherTableAsync(dictName)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
                             .subscribe({ entries ->
 
                                 val words = mutableListOf<Word>()
@@ -40,14 +41,12 @@ class DbMigrationViewModel @Inject constructor(app: Application, private val app
                                         entry.countRepeat.toInt()
                                     )
                                     words.add(word)
-                                    //println("*********************** ${word.english} ************************")
                                 }
 
-                                if (words.isNotEmpty())
-                                {
-                                    appDB.insertIntoWordsTable(words)
-                                        .observeOn(Schedulers.io())
-                                        .subscribeOn(AndroidSchedulers.mainThread())
+                                if (words.isNotEmpty()) {
+                                    val subscribe = appDB.insertIntoWordsTable(words)
+                                        .subscribeOn(Schedulers.io())
+                                        .observeOn(AndroidSchedulers.mainThread())
                                         .subscribe({ list ->
                                             println("*********************** Вставлено ${list.size} новых слов ************************")
                                             appSettings.setNotRequireDbMigration()
@@ -57,15 +56,17 @@ class DbMigrationViewModel @Inject constructor(app: Application, private val app
                                         }, {
                                             println("*********************** Вставка завершена ************************")
                                         })
+                                    composite.add(subscribe)
                                 }
+
 
                             }, { t ->
                                 t.printStackTrace()
                                 println("*********************** ${t.message} ************************")
                             }, {
-
                                 println("*********************** Миграция завершена ************************")
                             })
+                        composite.add(subscribe)
                     }
                 }, { e ->
                     e.printStackTrace()

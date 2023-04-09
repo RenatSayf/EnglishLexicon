@@ -1,6 +1,7 @@
 package com.myapp.lexicon.main;
 
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,12 +18,14 @@ import com.myapp.lexicon.cloudstorage.UploadDbWorker;
 import com.myapp.lexicon.databinding.DialogStorageBinding;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.JavaKotlinMediator;
+import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.settings.SettingsExtKt;
 import com.yandex.mobile.ads.banner.BannerAdView;
 import com.yandex.mobile.ads.common.AdRequestError;
 import com.yandex.mobile.ads.interstitial.InterstitialAd;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
@@ -35,6 +38,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
 
+@SuppressWarnings("Convert2Lambda")
 public class BackgroundFragm extends Fragment
 {
     private View fragmentView = null;
@@ -181,7 +185,7 @@ public class BackgroundFragm extends Fragment
         super.onViewCreated(view, savedInstanceState);
 
         String dbName = getString(R.string.data_base_name);
-        if (!SettingsExtKt.getCheckFirstLaunch(requireContext()))
+        if (SettingsExtKt.getCheckFirstLaunch(requireContext()))
         {
             AdsExtensionsKt.getAdvertisingID(requireContext(), id -> {
 
@@ -196,8 +200,8 @@ public class BackgroundFragm extends Fragment
                             File databaseFile = requireContext().getDatabasePath(list.get(0));
                             byte[] currentBytes = ExtensionsKt.fileToBytes(BackgroundFragm.this, databaseFile);
                             boolean isEquals = Arrays.equals(currentBytes, bytes);
-                            if (isEquals) {
-                                showCloudDialog();
+                            if (!isEquals) {
+                                showCloudDialog(list.get(0), bytes);
                             }
                         }
                     }
@@ -267,32 +271,44 @@ public class BackgroundFragm extends Fragment
         });
     }
 
-    private void showCloudDialog() {
+    private void showCloudDialog(String file, byte[] bytes) {
         BottomSheetDialogFragment dialog = (BottomSheetDialogFragment)getParentFragmentManager().findFragmentByTag(StorageDialog.Companion.getTAG());
         if (dialog == null) {
-            dialog = StorageDialog.Companion.newInstance("", "", new StorageDialog.Listener()
+            dialog = StorageDialog.Companion.newInstance(new StorageDialog.Listener()
             {
+                @Override
+                public void onDestroy()
+                {
+                    new LockOrientation(requireActivity()).unLock();
+                }
+
                 @Override
                 public void onLaunch(@NonNull DialogStorageBinding binding)
                 {
-                    String title = getString(R.string.text_cloud_storage);
-                    binding.tvProductName.setText(title);
+                    new LockOrientation(requireActivity()).lock();
+                    binding.tvProductName.setText(getString(R.string.text_cloud_storage));
                     binding.tvPriceTitle.setText("В облачном хранилище найдена резервная копия Ваших словарей.\nВосстановить слова?");
                     binding.btnCloudEnable.setText("Восстановить");
                     binding.btnCancel.setText(getString(R.string.btn_text_cancel));
                 }
 
                 @Override
-                public void onEnableClick()
+                public void onPositiveClick()
                 {
-
+                    try
+                    {
+                        FileOutputStream outputStream = requireContext().openFileOutput(file, Context.MODE_PRIVATE);
+                        outputStream.write(bytes);
+                        outputStream.close();
+                    } catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
                 }
 
                 @Override
                 public void onCancelClick()
-                {
-
-                }
+                {}
             });
             dialog.show(getParentFragmentManager(), StorageDialog.Companion.getTAG());
         }
