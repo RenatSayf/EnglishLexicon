@@ -4,15 +4,14 @@ import android.net.Uri
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner
+import com.myapp.lexicon.TEST_DB_NAME
+import com.myapp.lexicon.createTestDB
 import com.myapp.lexicon.testing.TestActivity
 import org.junit.*
 import org.junit.runner.RunWith
-import java.io.File
-import java.io.FileOutputStream
 
 
 const val TEST_ADS_ID = "Test-55555-44444-33333-22222-11111"
-const val TEST_DB_NAME = "test_data_base.db"
 
 @RunWith(AndroidJUnit4ClassRunner::class)
 class UploadDbWorkerTest {
@@ -26,26 +25,7 @@ class UploadDbWorkerTest {
     fun setUp() {
         scenario = rule.scenario
         scenario.onActivity { activity ->
-            try {
-                activity.databaseList().first {
-                    it == TEST_DB_NAME
-                }
-            } catch (e: NoSuchElementException) {
-                val inputStream = activity.assets.open("databases/$TEST_DB_NAME")
-                val bytes = inputStream.readBytes()
-                val dbPath = activity.databaseList().first {
-                    it == "lexicon_DB.db"
-                }
-                val dbFolder = activity.getDatabasePath(dbPath).parent
-                val file = File(dbFolder, TEST_DB_NAME)
-                if (!file.exists()) {
-                    file.createNewFile()
-                    FileOutputStream(file).apply {
-                        this.write(bytes)
-                        this.close()
-                    }
-                }
-            }
+            activity.createTestDB()
         }
     }
 

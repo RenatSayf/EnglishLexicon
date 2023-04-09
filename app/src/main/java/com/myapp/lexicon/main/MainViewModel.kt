@@ -96,17 +96,17 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
         val result = MutableLiveData<Result<Int>>()
         var quantity = 0
         dictList.forEachIndexed() { index, item ->
-            composite.add(repository.deleteEntriesByDictName(item)
+            repository.deleteEntriesByDictName(item)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
-                    quantity += it?: 0
-                    if (index == dictList.size - 1) {
-                        result.postValue(Result.success(quantity))
+                    quantity += it
+                    if (index >= dictList.size - 1) {
+                        result.value = Result.success(quantity)
                     }
                 }, {
-                    result.postValue(Result.failure(it))
-                }))
+                    result.value = Result.failure(it)
+                })
         }
         return result
     }

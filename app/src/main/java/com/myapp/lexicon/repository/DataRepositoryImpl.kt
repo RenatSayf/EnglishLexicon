@@ -62,7 +62,7 @@ class DataRepositoryImpl @Inject constructor(
         return db.delete(word)
     }
 
-    override fun deleteEntriesByDictName(dictName: String): Single<Int?>
+    override fun deleteEntriesByDictName(dictName: String): Single<Int>
     {
         val result = db.deleteEntriesByDictName(dictName)
         return result

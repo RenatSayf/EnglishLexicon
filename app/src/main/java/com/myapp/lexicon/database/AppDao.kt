@@ -47,6 +47,6 @@ interface AppDao
     fun delete(word: Word) : Single<Int>
 
     @Query("DELETE FROM Words WHERE dict_name == :dict")
-    fun deleteEntriesByDictName(dict: String) : Single<Int?>
+    fun deleteEntriesByDictName(dict: String) : Single<Int>
 
 }
