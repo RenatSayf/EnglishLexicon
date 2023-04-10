@@ -254,6 +254,7 @@
     <string name="id_cloud_storage">cloud_storage</string>
     <string name="text_select_dict">Выберите словарь для изучения</string>
     <string name="KEY_FIRST_LAUNCH">KEY_FIRST_LAUNCH</string>
+    <string name="text_dict_not_found">Не найден словарь</string>
     <string-array name="not_move">
         <item>Не перемещать</item>
     </string-array>

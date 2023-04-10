@@ -34,7 +34,7 @@ class DictListDialog : DialogFragment()
             {
                 DictListDialog()
             }
-            else instance as DictListDialog
+            else instance!!
         }
     }
 

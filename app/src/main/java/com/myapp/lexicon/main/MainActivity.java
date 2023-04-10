@@ -443,18 +443,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         String item = list.remove(index);
                         list.add(0, item);
                     }
-                    DictListDialog.Companion.getInstance(list, new DictListDialog.ISelectItemListener()
-                    {
-                        @Override
-                        public void dictListItemOnSelected(@NonNull String dict)
-                        {
-                            mainViewModel.setWordsList(dict, 1);
-                            Word word = new Word(1, dict, "", "", 1);
-                            mainViewModel.saveCurrentWordToPref(word);
-                            mainViewModel.setCurrentWord(word);
-                            mainViewModel.setCurrentDict(dict);
-                        }
-                    }).show(getSupportFragmentManager(), DictListDialog.Companion.getTAG());
+                    ExtensionsKt.showDialogAsSingleton(
+                            MainActivity.this,
+                            DictListDialog.Companion.getInstance(list, new DictListDialog.ISelectItemListener()
+                            {
+                                @Override
+                                public void dictListItemOnSelected(@NonNull String dict)
+                                {
+                                    mainViewModel.setWordsList(dict, 1);
+                                    Word word = new Word(1, dict, "", "", 1);
+                                    mainViewModel.saveCurrentWordToPref(word);
+                                    mainViewModel.setCurrentWord(word);
+                                    mainViewModel.setCurrentDict(dict);
+                                }
+                            }),
+                            DictListDialog.Companion.getTAG()
+                    );
                     return null;
                 }, throwable -> {
                     if (BuildConfig.DEBUG) throwable.printStackTrace();
@@ -569,14 +573,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             mainViewModel.getDictList(list -> {
                 if (!list.isEmpty()) {
-                    RemoveDictDialog.Companion.getInstance((ArrayList<String>) list, new RemoveDictDialog.Listener()
-                    {
-                        @Override
-                        public void onRemoveButtonClick(@NonNull List<String> list)
-                        {
-                            showRemoveDictDialog(list);
-                        }
-                    }).show(getSupportFragmentManager(), RemoveDictDialog.TAG);
+                    ExtensionsKt.showDialogAsSingleton(
+                            this,
+                            RemoveDictDialog.Companion.getInstance((ArrayList<String>) list, new RemoveDictDialog.Listener()
+                            {
+                                @Override
+                                public void onRemoveButtonClick(@NonNull List<String> list)
+                                {
+                                    showRemoveDictDialog(list);
+                                }
+                            }),
+                            RemoveDictDialog.TAG);
                 }
                 return null;
             }, throwable -> {
@@ -679,7 +686,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @SuppressWarnings("CodeBlock2Expr")
     private void showRemoveDictDialog(List<String> list) {
-        ConfirmDialog.Companion.newInstance((dialog, binding) -> {
+        ExtensionsKt.showDialogAsSingleton(
+                MainActivity.this,
+                ConfirmDialog.Companion.newInstance((dialog, binding) -> {
             binding.tvMessage.setText(getString(R.string.dialog_are_you_sure));
             binding.btnCancel.setOnClickListener(v -> {
                 dialog.dismiss();
@@ -696,6 +705,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     }
                     dialog.dismiss();
                     return null;
+                }, dict -> {
+                    String message = getString(R.string.text_dict_not_found).concat(" ").concat(dict);
+                    ExtensionsKt.showSnackBar(mainControlLayout, message, Snackbar.LENGTH_LONG);
+                    return null;
                 }, t -> {
                     if (t.getMessage() != null) {
                         ExtensionsKt.showSnackBar(mainControlLayout, t.getMessage(), Snackbar.LENGTH_LONG);
@@ -705,7 +718,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 });
             });
             return null;
-        }).show(getSupportFragmentManager(), ConfirmDialog.Companion.getTAG());
+        }), ConfirmDialog.Companion.getTAG());
     }
 
 }

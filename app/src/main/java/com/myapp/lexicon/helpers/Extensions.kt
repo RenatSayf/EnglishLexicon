@@ -1,8 +1,12 @@
 package com.myapp.lexicon.helpers
 
+import android.app.Activity
+import android.app.Dialog
 import android.content.Context
 import android.content.SharedPreferences
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import com.google.android.material.snackbar.Snackbar
@@ -45,7 +49,14 @@ fun Fragment.showSnackBar(message: String, duration: Int = Snackbar.LENGTH_LONG)
     return requireView().showSnackBar(message, duration)
 }
 
-fun Fragment.fileToBytes(file: File): ByteArray {
-    return file.readBytes()
+fun File.fileToBytes(): ByteArray {
+    return this.readBytes()
+}
+
+fun<T: DialogFragment> AppCompatActivity.showDialogAsSingleton(dialog: T, tag: String) {
+    val fragment = this.supportFragmentManager.findFragmentByTag(dialog.tag)
+    if (fragment == null) {
+        dialog.show(this.supportFragmentManager, tag)
+    }
 }
 

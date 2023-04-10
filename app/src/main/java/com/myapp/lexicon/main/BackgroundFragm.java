@@ -198,7 +198,7 @@ public class BackgroundFragm extends Fragment
                         List<String> list = Arrays.stream(databaseList).filter(Predicate.isEqual(dbName)).collect(Collectors.toList());
                         if (!list.isEmpty()) {
                             File databaseFile = requireContext().getDatabasePath(list.get(0));
-                            byte[] currentBytes = ExtensionsKt.fileToBytes(BackgroundFragm.this, databaseFile);
+                            byte[] currentBytes = ExtensionsKt.fileToBytes(databaseFile);
                             boolean isEquals = Arrays.equals(currentBytes, bytes);
                             if (!isEquals) {
                                 showCloudDialog(list.get(0), bytes);

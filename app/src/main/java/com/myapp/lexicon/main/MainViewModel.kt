@@ -94,21 +94,29 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
     fun deleteDicts(
         dictList: List<String>,
         onSuccess: (Int) -> Unit,
+        onNotFound: (String) -> Unit,
         onFailure: (Throwable) -> Unit
     ) {
         var quantity = 0
         dictList.forEachIndexed() { index, item ->
-            repository.deleteEntriesByDictName(item)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    quantity += it
-                    if (index >= dictList.size - 1) {
-                        onSuccess.invoke(quantity)
-                    }
-                }, {
-                    onFailure.invoke(it)
-                })
+            composite.add(
+                repository.deleteEntriesByDictName(item)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({
+                        if (it > 0) {
+                            quantity += it
+                            if (index >= dictList.size - 1) {
+                                onSuccess.invoke(quantity)
+                            }
+                        }
+                        else {
+                            onNotFound.invoke(item)
+                        }
+                    }, { t ->
+                        onFailure.invoke(t)
+                    })
+            )
         }
     }
 
