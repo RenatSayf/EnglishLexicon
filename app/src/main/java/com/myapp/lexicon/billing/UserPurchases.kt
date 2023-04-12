@@ -16,10 +16,10 @@ class UserPurchases @Inject constructor (
     ) : PurchasesUpdatedListener {
 
     interface Listener {
-        fun disableAds()
-        fun enableAds()
-        fun disableCloudStorage()
-        fun enableCloudStorage()
+        fun onExistsAdsToken()
+        fun onEmptyAdsToken()
+        fun onExistsCloudToken()
+        fun onEmptyCloudToken()
     }
 
     private var productIdNoAds: String
@@ -54,18 +54,18 @@ class UserPurchases @Inject constructor (
                                 when(purchase.productId) {
                                     productIdNoAds -> {
                                         if (purchase.purchaseToken.isNotEmpty()) {
-                                            listener.disableAds()
+                                            listener.onExistsAdsToken()
                                         }
                                         else {
-                                            listener.enableAds()
+                                            listener.onEmptyAdsToken()
                                         }
                                     }
                                     productIdCloudStorage -> {
                                         if (purchase.purchaseToken.isNotEmpty()) {
-                                            listener.enableCloudStorage()
+                                            listener.onEmptyCloudToken()
                                         }
                                         else {
-                                            listener.disableCloudStorage()
+                                            listener.onExistsCloudToken()
                                         }
                                     }
                                 }
@@ -74,7 +74,10 @@ class UserPurchases @Inject constructor (
                     })
                 }
             }
-            override fun onBillingServiceDisconnected() {}
+            override fun onBillingServiceDisconnected() {
+                listener.onEmptyAdsToken()
+                listener.onEmptyCloudToken()
+            }
         })
     }
 

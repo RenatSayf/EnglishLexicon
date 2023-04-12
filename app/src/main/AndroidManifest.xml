@@ -22,25 +22,13 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity
-            android:name=".addword.TranslateActivity"
-            android:exported="true"
-            android:label="@string/app_name">
-            <intent-filter>
-                <action android:name="android.intent.action.PROCESS_TEXT" />
 
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="text/plain" />
-            </intent-filter>
-        </activity>
         <activity
-            android:name=".testing.TestActivity"
-            android:exported="false"/>
-        <activity
-            android:name=".main.SplashScreenActivity"
+            android:name=".splash.SplashActivity"
             android:exported="true"
-            android:label="@string/app_name">
+            android:screenOrientation="userPortrait"
+            android:configChanges="orientation|keyboardHidden"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -61,6 +49,31 @@
                     android:scheme="http" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".addword.TranslateActivity"
+            android:exported="true"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.PROCESS_TEXT" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".testing.TestActivity"
+            android:exported="false">
+        </activity>
+
+<!--        <activity-->
+<!--            android:name=".main.SplashScreenActivity"-->
+<!--            android:exported="true"-->
+<!--            android:label="@string/app_name">            -->
+<!--        </activity>-->
+
         <activity
             android:name=".main.MainActivity"
             android:exported="true"
@@ -81,6 +94,7 @@
                     android:scheme="http" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".wordeditor.WordEditorActivity"
             android:exported="true"
@@ -113,7 +127,7 @@
         </activity>
         <activity
             android:name=".service.ServiceActivity"
-            android:theme="@style/popAppWindow"></activity>
+            android:theme="@style/popAppWindow" />
         <!--
              ATTENTION: This was auto-generated to add Google Play services to your project for
              App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -162,7 +176,7 @@
             android:name=".service.LexiconService"
             android:enabled="true"
             android:exported="false"
-            android:permission="no"></service>
+            android:permission="no" />
     </application>
 
 </manifest>

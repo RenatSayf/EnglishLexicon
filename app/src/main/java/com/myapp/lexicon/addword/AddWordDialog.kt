@@ -23,7 +23,8 @@ import java.util.*
 
 
 @AndroidEntryPoint
-class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult, Speaker.IOnSpeechListener
+class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult,
+    Speaker.Listener
 {
     companion object
     {
@@ -82,35 +83,30 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult, Spea
 
         requireActivity().let { a ->
 
-            mainVM.dictionaryList.observe(viewLifecycleOwner, { list ->
+            mainVM.dictionaryList.observe(viewLifecycleOwner) { list ->
                 list.add(getString(R.string.text_new_dict))
-                if (!list.isNullOrEmpty())
-                {
-                    mainVM.currentWord.observe(viewLifecycleOwner, { word ->
-                        if (word.dictName.isNotEmpty())
-                        {
+                if (!list.isNullOrEmpty()) {
+                    mainVM.currentWord.observe(viewLifecycleOwner) { word ->
+                        if (word.dictName.isNotEmpty()) {
                             val index = list.indexOf(word.dictName)
-                            if (index >= 0)
-                            {
-                                val adapter = ArrayAdapter(a, R.layout.app_spinner_item, list.distinct())
+                            if (index >= 0) {
+                                val adapter =
+                                    ArrayAdapter(a, R.layout.app_spinner_item, list.distinct())
                                 dictListSpinner?.adapter = adapter
-                                when
-                                {
-                                    newDictName == null && index > -1 ->
-                                    {
+                                when {
+                                    newDictName == null && index > -1 -> {
                                         dictListSpinner?.setSelection(index)
                                     }
-                                    newDictName != null ->
-                                    {
+                                    newDictName != null -> {
                                         val i = list.indexOf(newDictName)
                                         dictListSpinner?.setSelection(i)
                                     }
                                 }
                             }
                         }
-                    })
+                    }
                 }
-            })
+            }
 
             dictListSpinner?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener
             {
@@ -178,14 +174,19 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult, Spea
                                     val enWord = inputWordTV.text.toString()
                                     val ruWord = translateTV.text.toString()
                                     val word = Word(0, dictName, enWord, ruWord, 1)
-                                    adwvm.insertedId.observe(viewLifecycleOwner, {
-                                        if (it > 0)
-                                        {
-                                            val toast = Toast.makeText(a, getString(R.string.in_dictionary) + dictName + getString(R.string.new_word_is_added), Toast.LENGTH_SHORT)
+                                    adwvm.insertedId.observe(viewLifecycleOwner) {
+                                        if (it > 0) {
+                                            val toast = Toast.makeText(
+                                                a,
+                                                getString(R.string.in_dictionary) + dictName + getString(
+                                                    R.string.new_word_is_added
+                                                ),
+                                                Toast.LENGTH_SHORT
+                                            )
                                             toast.setGravity(Gravity.CENTER, 0, 0)
                                             toast.show()
                                         }
-                                    })
+                                    }
                                     adwvm.insertEntryAsync(word)
                                     dismiss()
                                 }
@@ -230,9 +231,9 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult, Spea
             }
         }
 
-        adwvm.spinnerSelectedIndex().observe(viewLifecycleOwner, {
+        adwvm.spinnerSelectedIndex().observe(viewLifecycleOwner) {
             dictListSpinner?.setSelection(it)
-        })
+        }
 
     }
 
@@ -251,6 +252,10 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult, Spea
         super.onDestroy()
         subscriber?.dispose()
         speaker.shutdown()
+    }
+
+    override fun onSuccessInit() {
+
     }
 
     override fun onSpeechStart(id: String?)
