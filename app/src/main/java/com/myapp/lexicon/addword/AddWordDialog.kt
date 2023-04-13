@@ -11,12 +11,11 @@ import android.widget.*
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
-import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.dialogs.NewDictDialog
 import com.myapp.lexicon.helpers.Keyboard
 import com.myapp.lexicon.main.MainViewModel
 import com.myapp.lexicon.main.Speaker
-import com.myapp.lexicon.settings.AppSettings
+import com.myapp.lexicon.models.Word
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.disposables.Disposable
 import java.util.*
@@ -271,11 +270,6 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult,
     override fun onSpeechError(id: String?)
     {
 
-    }
-
-    override fun onContinued(arg: String?)
-    {
-        AppSettings(requireContext()).isEngSpeech = false
     }
 
     override fun onSpeechInitNotSuccess(status: Int)

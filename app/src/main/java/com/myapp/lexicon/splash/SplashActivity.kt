@@ -115,11 +115,6 @@ class SplashActivity : AppCompatActivity() {
                 return
             }
 
-            override fun onContinued(arg: String?) {
-                speechChecked = true
-                return
-            }
-
             override fun onSpeechInitNotSuccess(status: Int) {
 
                 this@SplashActivity.showDialogAsSingleton(ConfirmDialog.newInstance(onLaunch = {dialog, binding ->

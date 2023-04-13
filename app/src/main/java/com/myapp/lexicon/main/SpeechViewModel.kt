@@ -41,11 +41,6 @@ class SpeechViewModel @Inject constructor(app: Application, private val reposito
         _speechErrorId.postValue(id)
     }
 
-    override fun onContinued(arg: String)
-    {
-        return
-    }
-
     override fun onSpeechInitNotSuccess(status: Int)
     {
         if (status < 0)

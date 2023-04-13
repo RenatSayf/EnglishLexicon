@@ -46,7 +46,6 @@ public class Speaker
         void onSpeechStart(String id);
         void onSpeechDone(String id);
         void onSpeechError(String id);
-        void onContinued(String arg);
         void onSpeechInitNotSuccess(int status);
         void onEngLangNotSupported(int status);
         void onRusLangNotSupported(int status);
