@@ -13,10 +13,10 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
 import com.myapp.lexicon.R
-import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.helpers.StringOperations
-import com.myapp.lexicon.main.SplashScreenActivity
+import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.service.ServiceActivity
+import com.myapp.lexicon.splash.SplashActivity
 
 class AppNotification constructor(private val context: Context) : Notification()
 {
@@ -71,7 +71,7 @@ class AppNotification constructor(private val context: Context) : Notification()
             {
                 setContentTitle(context.getString(R.string.text_all_words_learned))
                 setContentText(context.getString(R.string.text_select_other_dict))
-                val intent = Intent(context, SplashScreenActivity::class.java)
+                val intent = Intent(context, SplashActivity::class.java)
                 val activity = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
                 setContentIntent(activity)
             }

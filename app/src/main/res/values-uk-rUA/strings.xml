@@ -194,6 +194,7 @@
     <string name="title_service_group">Коли додаток закрито</string>
     <string name="title_is_start_speech">Озвучувати при запуску</string>
     <string name="summary_is_start_speech">Озвучувати вступну фразу при запуску програми</string>
+    <string name="KEY_ON_START_SPEECH">KEY_ON_START_SPEECH</string>
     <string name="btn_text_new">Новий</string>
     <string name="text_create_dict_fails">Не вдалося створити словник</string>
 

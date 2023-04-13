@@ -6,12 +6,12 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.helpers.StringOperations;
 import com.myapp.lexicon.interfaces.IModalFragment;
 import com.myapp.lexicon.main.MainViewModel;
-import com.myapp.lexicon.main.SplashScreenActivity;
+import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.schedule.AlarmScheduler;
+import com.myapp.lexicon.splash.SplashActivity;
 
 import java.util.Arrays;
 
@@ -37,7 +37,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
     {
         stoppedByUser = true;
         finish();
-        startActivity(new Intent(this, SplashScreenActivity.class));
+        startActivity(new Intent(this, SplashActivity.class));
     }
 
     public interface Listener

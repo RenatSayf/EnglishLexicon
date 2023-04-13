@@ -22,18 +22,22 @@ import kotlinx.coroutines.launch
 import java.util.*
 
 
-
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : AppCompatActivity() {
 
     private lateinit var binding: ALayoutSplashScreenBinding
     private var speaker: Speaker? = null
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ALayoutSplashScreenBinding.inflate(layoutInflater, CoordinatorLayout(this), false)
         setContentView(binding.root)
+    }
+
+    override fun onResume() {
+        super.onResume()
 
         var adsChecked = false
         var cloudChecked = false
@@ -75,7 +79,7 @@ class SplashActivity : AppCompatActivity() {
             }
 
             override fun onCloudTokenExists() {
-                this@SplashActivity.cloudStorageEnabled = true
+                this@SplashActivity.cloudStorageEnabled = !BuildConfig.IS_PURCHASE_TEST
                 cloudChecked = true
             }
 
@@ -87,23 +91,33 @@ class SplashActivity : AppCompatActivity() {
 
         speaker = Speaker(this, object : Speaker.Listener {
             override fun onSuccessInit() {
-                speaker?.doSpeech(getString(R.string.start_speech_en), Locale.US)
+                this@SplashActivity.checkOnStartSpeech(
+                    onEnabled = {
+                        speaker?.doSpeech(getString(R.string.start_speech_en), Locale.US)
+                    },
+                    onDisabled = {
+                        speechChecked = true
+                    }
+                )
             }
 
             override fun onSpeechStart(id: String?) {
-
+                return
             }
 
             override fun onSpeechDone(id: String?) {
                 speechChecked = true
+                return
             }
 
             override fun onSpeechError(id: String?) {
                 speechChecked = true
+                return
             }
 
             override fun onContinued(arg: String?) {
                 speechChecked = true
+                return
             }
 
             override fun onSpeechInitNotSuccess(status: Int) {
@@ -188,15 +202,14 @@ class SplashActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             while (!adsChecked || !cloudChecked || !speechChecked) {
+                delay(500)
                 if (adsChecked && cloudChecked && speechChecked) {
                     val intent = Intent(this@SplashActivity, MainActivity::class.java)
                     startActivity(intent)
                     this@SplashActivity.finish()
                 }
-                delay(100)
             }
         }
-
 
     }
 }

@@ -1,8 +1,6 @@
 package com.myapp.lexicon.main;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 
@@ -15,8 +13,6 @@ import androidx.annotation.NonNull;
 
 public class Speaker
 {
-    public static final String ARG_SETUP = "SETUP";
-    public static final String ARG_CONTINUE_WITHOUT = "CONTINUE_WITHOUT";
 
     private final TextToSpeech speaker;
 
@@ -75,9 +71,6 @@ public class Speaker
             {
                 isEnSpeech = false;
                 listener.onEngLangNotSupported(resultEn);
-                //                Intent installTTSdata = new Intent();
-//                installTTSdata.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
-//                dialogErrorTTS(this.context, installTTSdata, this.context.getString(R.string.message_inst_tts_data), false);
             }
             else {
                 listener.onSuccessInit();
@@ -87,35 +80,7 @@ public class Speaker
         {
             isSpeech = false;
             listener.onSpeechInitNotSuccess(status);
-            //            Intent instTTSengine = new Intent(Intent.ACTION_VIEW);
-//            instTTSengine.setData(Uri.parse(this.context.getString(R.string.url_google_tts)));
-//            dialogErrorTTS(this.context, instTTSengine, this.context.getString(R.string.message_inst_tts_engine), false);
         }
-    }
-
-    private void dialogErrorTTS(final Context context, final Intent intent, String message, boolean isContinue)
-    {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(context).setTitle(R.string.dialog_title_warning).setIcon(R.drawable.icon_warning)
-                .setPositiveButton(R.string.btn_text_setup, (dialog, which) -> {
-                    context.startActivity(intent);
-                    if (listener != null)
-                    {
-                        listener.onContinued(ARG_SETUP);
-                    }
-                });
-        if (isContinue)
-        {
-            alertDialog.setNegativeButton(R.string.btn_text_continue, (dialog, which) -> {
-                if (listener != null)
-                {
-                    listener.onContinued(ARG_CONTINUE_WITHOUT);
-                }
-            });
-        }
-        alertDialog.setMessage(message);
-        alertDialog.setCancelable(false);
-        alertDialog.create();
-        alertDialog.show();
     }
 
     public int doSpeech(String text, Locale locale)

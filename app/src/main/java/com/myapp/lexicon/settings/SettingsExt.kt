@@ -1,3 +1,5 @@
+@file:Suppress("MoveVariableDeclarationIntoWhen")
+
 package com.myapp.lexicon.settings
 
 import android.content.Context
@@ -70,12 +72,21 @@ interface PurchasesTokenListener {
 fun Context.checkPurchasesTokens(listener: PurchasesTokenListener) {
     val adsToken = appSettings.getString(KEY_ADS_TOKEN, null)
     val cloudToken = appSettings.getString(KEY_CLOUD_TOKEN, null)
-    when {
-        adsToken == null || cloudToken == null -> listener.onInit()
-        adsToken.isEmpty() -> listener.onAdsTokenEmpty()
-        adsToken.isNotEmpty() -> listener.onAdsTokenExists() // здесь выходит, и до след. ветки не доходит
-        cloudToken.isEmpty() -> listener.onCloudTokenEmpty()
-        cloudToken.isNotEmpty() -> listener.onCloudTokenExists()
+    if (adsToken == null || cloudToken == null) {
+        listener.onInit()
+        return
+    }
+    if (adsToken.isEmpty()) {
+        listener.onAdsTokenEmpty()
+    }
+    if (adsToken.isNotEmpty()) {
+        listener.onAdsTokenExists()
+    }
+    if (cloudToken.isEmpty()) {
+        listener.onCloudTokenEmpty()
+    }
+    if (cloudToken.isNotEmpty()) {
+        listener.onCloudTokenExists()
     }
 }
 
@@ -106,6 +117,14 @@ fun Context.setCloudSetting(token: String) {
             putBoolean(getString(R.string.KEY_CLOUD_STORAGE), false)
             putString(KEY_CLOUD_TOKEN, "")
         }.apply()
+    }
+}
+
+fun Context.checkOnStartSpeech(onEnabled: () -> Unit, onDisabled: () -> Unit) {
+    val isSpeech = appSettings.getBoolean(getString(R.string.KEY_ON_START_SPEECH), true)
+    when(isSpeech) {
+        true -> onEnabled.invoke()
+        false -> onDisabled.invoke()
     }
 }
 

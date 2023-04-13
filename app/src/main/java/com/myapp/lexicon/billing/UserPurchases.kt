@@ -62,10 +62,10 @@ class UserPurchases @Inject constructor (
                                     }
                                     productIdCloudStorage -> {
                                         if (purchase.purchaseToken.isNotEmpty()) {
-                                            listener.onEmptyCloudToken()
+                                            listener.onExistsCloudToken()
                                         }
                                         else {
-                                            listener.onExistsCloudToken()
+                                            listener.onEmptyCloudToken()
                                         }
                                     }
                                 }
