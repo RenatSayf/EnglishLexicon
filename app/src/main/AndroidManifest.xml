@@ -68,12 +68,6 @@
             android:exported="false">
         </activity>
 
-<!--        <activity-->
-<!--            android:name=".main.SplashScreenActivity"-->
-<!--            android:exported="true"-->
-<!--            android:label="@string/app_name">            -->
-<!--        </activity>-->
-
         <activity
             android:name=".main.MainActivity"
             android:exported="true"
