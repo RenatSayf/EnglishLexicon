@@ -1,19 +1,26 @@
 package com.myapp.lexicon.wordeditor
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.repository.DataRepositoryImpl
+import com.myapp.lexicon.settings.getWordFromPref
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
 @HiltViewModel
-class EditorViewModel @Inject constructor(private val repository: DataRepositoryImpl) : ViewModel()
+class EditorViewModel @Inject constructor(
+    private val repository: DataRepositoryImpl,
+    app: Application
+) : AndroidViewModel(app)
 {
     private val composite = CompositeDisposable()
 
@@ -112,9 +119,18 @@ class EditorViewModel @Inject constructor(private val repository: DataRepository
 
     init
     {
-        repository.getWordFromPref().apply {
-            getAllWordsByDictName(this.dictName)
-        }
+        app.getWordFromPref(
+            onInit = {
+                viewModelScope.launch {
+                    val word = repository.getFirstEntryAsync().await()
+                    getAllWordsByDictName(word.dictName)
+                }
+            },
+            onSuccess = { word ->
+                getAllWordsByDictName(word.dictName)
+            },
+            onFailure = {}
+        )
     }
 
     override fun onCleared()

@@ -38,7 +38,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
 
-@SuppressWarnings("Convert2Lambda")
 public class BackgroundFragm extends Fragment
 {
     private View fragmentView = null;

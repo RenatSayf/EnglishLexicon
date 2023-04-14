@@ -6,7 +6,9 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
+import com.google.gson.Gson
 import com.myapp.lexicon.R
+import com.myapp.lexicon.models.Word
 
 val Context.appSettings: SharedPreferences
     get() {
@@ -123,6 +125,33 @@ fun Context.setCloudSetting(token: String) {
 fun Context.checkOnStartSpeech(onEnabled: () -> Unit, onDisabled: () -> Unit) {
     val isSpeech = appSettings.getBoolean(getString(R.string.KEY_ON_START_SPEECH), true)
     when(isSpeech) {
+        true -> onEnabled.invoke()
+        false -> onDisabled.invoke()
+    }
+}
+
+fun Context.saveWordToPref(word: Word) {
+    val json = Gson().toJson(word)
+    appSettings.edit().putString("KEY_CURRENT_WORD", json).apply()
+}
+
+fun Context.getWordFromPref(onInit: () -> Unit, onSuccess: (Word) -> Unit, onFailure: (Exception) -> Unit) {
+    val string = appSettings.getString("KEY_CURRENT_WORD", null)
+    string?.let {
+        try {
+            val word = Gson().fromJson(it, Word::class.java)
+            onSuccess.invoke(word)
+        } catch (e: Exception) {
+            onFailure.invoke(e)
+        }
+    }?: run {
+        onInit.invoke()
+    }
+}
+
+fun Context.checkUnLockedBroadcast(onEnabled: () -> Unit, onDisabled: () -> Unit) {
+    val isEnabled = appSettings.getBoolean(getString(R.string.key_service), true)
+    when(isEnabled) {
         true -> onEnabled.invoke()
         false -> onDisabled.invoke()
     }

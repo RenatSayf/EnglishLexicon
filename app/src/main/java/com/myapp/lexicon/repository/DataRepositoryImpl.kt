@@ -1,10 +1,12 @@
 package com.myapp.lexicon.repository
 
 import com.myapp.lexicon.database.AppDao
-import com.myapp.lexicon.database.DataBaseEntry
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.AppSettings
 import io.reactivex.Single
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import javax.inject.Inject
 
 class DataRepositoryImpl @Inject constructor(
@@ -76,25 +78,15 @@ class DataRepositoryImpl @Inject constructor(
         return db.getCounters(dictName, id)
     }
 
-    override fun getCurrentWordFromSettings(): DataBaseEntry
-    {
-        return settings.currentWord
-    }
-
-    override fun saveCurrentWordTheSettings(entry: DataBaseEntry)
-    {
-        settings.saveCurrentWord(entry)
-    }
-
-    override fun getWordFromPref(): Word
-    {
-        return settings.wordFromPref
-    }
-
-    override fun saveWordThePref(word: Word)
-    {
-        settings.saveWordThePref(word)
-    }
+//    override fun getWordFromPref(): Word
+//    {
+//        return settings.wordFromPref
+//    }
+//
+//    override fun saveWordThePref(word: Word)
+//    {
+//        settings.saveWordThePref(word)
+//    }
 
     override fun goForward(words: List<Word>)
     {
@@ -154,5 +146,34 @@ class DataRepositoryImpl @Inject constructor(
     override fun setRusSpeech(isSpeech: Boolean)
     {
         settings.isRusSpeech = isSpeech
+    }
+
+    override suspend fun getEntriesByDictNameAsync(
+        dict: String,
+        id: Long,
+        repeat: Int,
+        limit: Int
+    ): Deferred<List<Word>> {
+        return coroutineScope {
+            async {
+                db.getEntriesByDictName(dict, id, repeat, limit)
+            }
+        }
+    }
+
+    override suspend fun getFirstEntryAsync(): Deferred<Word> {
+        return coroutineScope {
+            async {
+                db.getFirstEntry()
+            }
+        }
+    }
+
+    override suspend fun deleteEntriesByDictNameAsync(dicts: List<String>): Deferred<Int> {
+        return coroutineScope {
+            async {
+                db.deleteEntriesByDictName(dicts)
+            }
+        }
     }
 }

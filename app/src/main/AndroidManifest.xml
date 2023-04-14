@@ -158,11 +158,13 @@
             <!-- </intent-filter> -->
         </receiver>
         <receiver
-            android:name=".service.LexiconService$PhoneUnlockedReceiver"
+            android:name=".service.PhoneUnlockedReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.SCREEN_ON" />
                 <action android:name="android.intent.action.SCREEN_OFF" />
+                <action android:name="android.intent.action.USER_PRESENT" />
+                <action android:name="android.intent.action.USER_UNLOCKED" />
             </intent-filter>
         </receiver>
 

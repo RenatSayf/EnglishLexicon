@@ -3,10 +3,8 @@ package com.myapp.lexicon.main;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -39,7 +37,9 @@ import com.myapp.lexicon.helpers.Share;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.service.LexiconService;
+import com.myapp.lexicon.service.PhoneUnlockedReceiver;
 import com.myapp.lexicon.settings.ContainerFragment;
+import com.myapp.lexicon.settings.SettingsExtKt;
 import com.myapp.lexicon.wordeditor.WordEditorActivity;
 import com.myapp.lexicon.wordstests.OneOfFiveFragm;
 import com.myapp.lexicon.wordstests.TestFragment;
@@ -83,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Inject
     AlarmScheduler scheduler;
 
+    private PhoneUnlockedReceiver unlockReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -93,6 +94,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         Toolbar toolBar = findViewById(R.id.tool_bar);
         setSupportActionBar(toolBar);
+
+        unlockReceiver = PhoneUnlockedReceiver.INSTANCE;
 
         NotificationManager nmg = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (nmg != null)
@@ -513,6 +516,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             if (BuildConfig.DEBUG) e.printStackTrace();
         }
+        SettingsExtKt.checkUnLockedBroadcast(
+                this,
+                () -> {
+                    registerReceiver(unlockReceiver, unlockReceiver.getFilter());
+                    return null;
+                },
+                () -> null);
         super.onDestroy();
     }
 
@@ -669,13 +679,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onDetachedFromWindow()
     {
         super.onDetachedFromWindow();
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean isUseService = preferences.getBoolean("service", true);
-        if (isUseService)
-        {
-            Intent serviceIntent = new Intent(this, LexiconService.class);
-            startService(serviceIntent);
-        }
         isActivityRunning = false;
     }
 
@@ -706,7 +709,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     dialog.dismiss();
                     return null;
                 }, dict -> {
-                    String message = getString(R.string.text_dict_not_found).concat(" ").concat(dict);
+                    String message = getString(R.string.text_dict_not_found);
                     ExtensionsKt.showSnackBar(mainControlLayout, message, Snackbar.LENGTH_LONG);
                     return null;
                 }, t -> {

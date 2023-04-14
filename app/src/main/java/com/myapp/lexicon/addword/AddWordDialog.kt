@@ -40,7 +40,7 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult,
 
     private var dialogView: View? = null
     private var inputList: ArrayList<String> = arrayListOf()
-    private lateinit var adwvm: AddWordViewModel
+    private lateinit var addWordVM: AddWordViewModel
     private lateinit var mainVM: MainViewModel
     private var subscriber: Disposable? = null
     private lateinit var speaker: Speaker
@@ -49,7 +49,7 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult,
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog
     {
         requireActivity().let { a ->
-            adwvm = ViewModelProvider(this)[AddWordViewModel::class.java]
+            addWordVM = ViewModelProvider(this)[AddWordViewModel::class.java]
             mainVM = ViewModelProvider(this)[MainViewModel::class.java]
             dialogView = a.layoutInflater.inflate(R.layout.add_word_dialog, LinearLayout(a), false)
 
@@ -83,14 +83,13 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult,
         requireActivity().let { a ->
 
             mainVM.dictionaryList.observe(viewLifecycleOwner) { list ->
-                list.add(getString(R.string.text_new_dict))
+                list.add(0, getString(R.string.text_new_dict))
                 if (!list.isNullOrEmpty()) {
                     mainVM.currentWord.observe(viewLifecycleOwner) { word ->
                         if (word.dictName.isNotEmpty()) {
                             val index = list.indexOf(word.dictName)
                             if (index >= 0) {
-                                val adapter =
-                                    ArrayAdapter(a, R.layout.app_spinner_item, list.distinct())
+                                val adapter = ArrayAdapter(a, R.layout.app_spinner_item, list.distinct())
                                 dictListSpinner?.adapter = adapter
                                 when {
                                     newDictName == null && index > -1 -> {
@@ -112,7 +111,7 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult,
                 override fun onItemSelected(adapterView: AdapterView<*>?, view: View?, index: Int, p3: Long)
                 {
                     view?.let {
-                        adwvm.setSelected(index)
+                        addWordVM.setSelected(index)
                         when ((view as TextView).text)
                         {
                             getString(R.string.text_new_dict) ->
@@ -173,7 +172,7 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult,
                                     val enWord = inputWordTV.text.toString()
                                     val ruWord = translateTV.text.toString()
                                     val word = Word(0, dictName, enWord, ruWord, 1)
-                                    adwvm.insertedId.observe(viewLifecycleOwner) {
+                                    addWordVM.insertedId.observe(viewLifecycleOwner) {
                                         if (it > 0) {
                                             val toast = Toast.makeText(
                                                 a,
@@ -186,7 +185,7 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult,
                                             toast.show()
                                         }
                                     }
-                                    adwvm.insertEntryAsync(word)
+                                    addWordVM.insertEntryAsync(word)
                                     dismiss()
                                 }
                             }
@@ -230,7 +229,7 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult,
             }
         }
 
-        adwvm.spinnerSelectedIndex().observe(viewLifecycleOwner) {
+        addWordVM.spinnerSelectedIndex().observe(viewLifecycleOwner) {
             dictListSpinner?.setSelection(it)
         }
 
@@ -242,7 +241,7 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult,
         oldList?.let {
             it.add(0, dictName)
             mainVM.setDictList(it)
-            adwvm.setSelected(0)
+            addWordVM.setSelected(0)
         }
     }
 
