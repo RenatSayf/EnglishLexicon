@@ -78,7 +78,7 @@
                 android:label="Английский изучай"
                 tools:targetApi="m">
                 <action android:name="android.intent.action.VIEW" />
-
+                <action android:name="com.myapp.lexicon.main.MainActivity" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 

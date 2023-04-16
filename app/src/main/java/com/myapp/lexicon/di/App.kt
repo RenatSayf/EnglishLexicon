@@ -10,14 +10,13 @@ import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
 class App : Application(), Configuration.Provider {
-    override fun attachBaseContext(base: Context?)
-    {
+
+    override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
         MultiDex.install(this)
     }
 
-    override fun onCreate()
-    {
+    override fun onCreate() {
         super.onCreate()
 
         com.yandex.mobile.ads.common.MobileAds.initialize(this) {

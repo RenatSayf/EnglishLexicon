@@ -19,6 +19,7 @@ import com.myapp.lexicon.databinding.DialogStorageBinding;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.JavaKotlinMediator;
 import com.myapp.lexicon.helpers.LockOrientation;
+import com.myapp.lexicon.service.PhoneUnlockedReceiver;
 import com.myapp.lexicon.settings.SettingsExtKt;
 import com.yandex.mobile.ads.banner.BannerAdView;
 import com.yandex.mobile.ads.common.AdRequestError;
@@ -243,6 +244,17 @@ public class BackgroundFragm extends Fragment
             public void handleOnBackPressed()
             {
                 ExtensionsKt.alarmClockEnable(requireContext());
+
+                SettingsExtKt.checkUnLockedBroadcast(
+                        requireContext(),
+                        () -> {
+                            PhoneUnlockedReceiver unlockedReceiver = PhoneUnlockedReceiver.Companion.getInstance();
+                            requireContext().registerReceiver(
+                                    unlockedReceiver,
+                                    unlockedReceiver.getFilter());
+                            return null;
+                        },
+                        () -> null);
 
                 boolean storageEnabled = SettingsExtKt.getCloudStorageEnabled(requireContext());
                 if (storageEnabled) {

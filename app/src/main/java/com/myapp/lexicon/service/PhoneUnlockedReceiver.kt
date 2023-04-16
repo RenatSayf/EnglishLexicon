@@ -23,21 +23,47 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+
 @AndroidEntryPoint
-object PhoneUnlockedReceiver : BroadcastReceiver()
+class PhoneUnlockedReceiver : BroadcastReceiver()
 {
+    companion object {
+        private var instance: PhoneUnlockedReceiver? = null
+        private var isBroadcast: Boolean = true
+
+        fun getInstance(): PhoneUnlockedReceiver {
+
+            isBroadcast = true
+            if (instance == null)
+                instance = PhoneUnlockedReceiver()
+            return instance!!
+        }
+
+        fun disableBroadcast() {
+            isBroadcast = false
+        }
+    }
+
     private lateinit var repository: DataRepositoryImpl
 
     @SuppressLint("CheckResult")
     @Suppress("RedundantSamConstructor")
     override fun onReceive(context: Context, intent: Intent)
     {
+        var isRegister = true
         context.checkUnLockedBroadcast(
             onEnabled = {},
             onDisabled = {
                 context.unregisterReceiver(this)
+                isRegister = false
             }
         )
+        if (!isRegister) return
+
+        if (!isBroadcast) {
+            context.unregisterReceiver(this)
+            return
+        }
 
         val dao = AppDataBase.buildDataBase(context).appDao()
         val appSettings = AppSettings(context)
@@ -111,5 +137,6 @@ object PhoneUnlockedReceiver : BroadcastReceiver()
             addAction(Intent.ACTION_SCREEN_OFF)
         }
     }
+
 
 }

@@ -1,7 +1,5 @@
 package com.myapp.lexicon.helpers
 
-import android.app.Activity
-import android.app.Dialog
 import android.content.Context
 import android.content.SharedPreferences
 import android.view.View
@@ -12,7 +10,6 @@ import androidx.preference.PreferenceManager
 import com.google.android.material.snackbar.Snackbar
 import com.myapp.lexicon.R
 import com.myapp.lexicon.schedule.AlarmScheduler
-import com.myapp.lexicon.service.PhoneUnlockedReceiver
 import java.io.File
 
 private const val APP_SETTINGS = "APP_SETTINGS"

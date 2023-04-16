@@ -83,7 +83,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Inject
     AlarmScheduler scheduler;
 
-    private PhoneUnlockedReceiver unlockReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -95,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Toolbar toolBar = findViewById(R.id.tool_bar);
         setSupportActionBar(toolBar);
 
-        unlockReceiver = PhoneUnlockedReceiver.INSTANCE;
+        PhoneUnlockedReceiver.Companion.disableBroadcast();
 
         NotificationManager nmg = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (nmg != null)
@@ -516,13 +515,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             if (BuildConfig.DEBUG) e.printStackTrace();
         }
-        SettingsExtKt.checkUnLockedBroadcast(
-                this,
-                () -> {
-                    registerReceiver(unlockReceiver, unlockReceiver.getFilter());
-                    return null;
-                },
-                () -> null);
         super.onDestroy();
     }
 
@@ -638,6 +630,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         else if (id == R.id.nav_exit)
         {
             ExtensionsKt.alarmClockEnable(this);
+
+            SettingsExtKt.checkUnLockedBroadcast(
+                    this,
+                    () -> {
+                        PhoneUnlockedReceiver unlockedReceiver = PhoneUnlockedReceiver.Companion.getInstance();
+                        registerReceiver(
+                                unlockedReceiver,
+                                unlockedReceiver.getFilter());
+                        return null;
+                    },
+                    () -> null);
+
             AdsExtensionsKt.getAdvertisingID(this, adsId -> {
                         UploadDbWorker.Companion.uploadDbToCloud(
                                 this,
