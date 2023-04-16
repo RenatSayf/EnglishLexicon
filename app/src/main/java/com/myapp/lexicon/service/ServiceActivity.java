@@ -20,22 +20,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import dagger.hilt.android.AndroidEntryPoint;
 
-/**
- * Created by Renat
- */
+
 
 @AndroidEntryPoint
 public class ServiceActivity extends AppCompatActivity implements IModalFragment
 {
-    private boolean isServiceEnabled = false;
     public static Listener listener;
     public static final String ARG_JSON = ServiceActivity.class.getCanonicalName() + ".ARG_JSON";
-    private boolean stoppedByUser;
 
     @Override
     public void openApp()
     {
-        stoppedByUser = true;
         finish();
         startActivity(new Intent(this, SplashActivity.class));
     }
@@ -45,26 +40,17 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         void onStoppedByUser();
     }
 
-    public static void setStoppedByUserListener(Listener listener)
-    {
-        ServiceActivity.listener = listener;
-    }
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.service_dialog_activity);
 
-        Intent intent = new Intent(this, LexiconService.class);
-        stopService(intent);
-
         MainViewModel vm = new ViewModelProvider(this).get(MainViewModel.class);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ServiceActivity.this);
         String preferencesString = preferences.getString(getString(R.string.key_list_display_mode), "0");
         String displayVariantStr = preferences.getString(getString(R.string.key_display_variant), "0");
-        isServiceEnabled = preferences.getBoolean(getString(R.string.key_service), false);
         int displayMode = 0;
         try
         {
@@ -124,32 +110,13 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         super.onDetachedFromWindow();
     }
 
-    @Override
-    protected void onDestroy()
-    {
-        super.onDestroy();
-        if (isServiceEnabled)
-        {
-            Intent intent = new Intent(this, LexiconService.class);
-            if (!stoppedByUser)
-            {
-                startService(intent);
-            }
-            else
-            {
-                stopService(intent);
-                stoppedByUser = false;
-            }
-        }
-    }
 
     public void stopAppService()
     {
         if (listener != null)
         {
-            stoppedByUser = true;
             listener.onStoppedByUser();
-            new AlarmScheduler(this).cancel(AlarmScheduler.REQUEST_CODE, AlarmScheduler.REPEAT_SHOOT_ACTION);
+            new AlarmScheduler(this).cancel();
             finish();
         }
     }

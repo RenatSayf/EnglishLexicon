@@ -21,7 +21,6 @@ import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.models.PurchaseToken
 import com.myapp.lexicon.schedule.AlarmScheduler
-import com.myapp.lexicon.service.LexiconService
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
@@ -104,20 +103,21 @@ class SettingsFragment : PreferenceFragmentCompat()
         serviceCheckBoxPref.onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener{
             override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean
             {
-                listDisplayModePref.isEnabled = (newValue as Boolean)
-                listOnUnBlockingScreen.isEnabled = newValue
-                if (!newValue)
-                {
-                    requireContext().stopService(Intent(requireContext(), LexiconService::class.java))
-                }
-                if (newValue)
+                listDisplayModePref.isEnabled = (newValue as? Boolean)?: false
+                listOnUnBlockingScreen.isEnabled = (newValue as? Boolean)?: false
+
+                if (newValue == true)
                 {
                     showIntervalsPref.apply {
                         value = requireContext().resources.getStringArray(R.array.show_intervals_values)[0]
                         summary = requireContext().resources.getStringArray(R.array.show_intervals)[0]
                     }
+                    if (ContextCompat.checkSelfPermission(requireContext(), "") != PackageManager.PERMISSION_GRANTED)
+                    {
+                        view?.let { redirectIfXiaomiDevice() }
+                    }
                 }
-                else
+                else if (newValue == null)
                 {
                     if (showIntervalsPref.value == requireContext().resources.getStringArray(R.array.show_intervals)[0])
                     {
@@ -125,15 +125,6 @@ class SettingsFragment : PreferenceFragmentCompat()
                         listOnUnBlockingScreen.isEnabled = false
                     }
                 }
-
-                if (newValue)
-                {
-                    if (ContextCompat.checkSelfPermission(requireContext(), "") != PackageManager.PERMISSION_GRANTED)
-                    {
-                        view?.let { redirectIfXiaomiDevice() }
-                    }
-                }
-
                 return true
             }
 
@@ -154,7 +145,7 @@ class SettingsFragment : PreferenceFragmentCompat()
                 }
                 else
                 {
-                    AlarmScheduler(requireActivity()).cancel(AlarmScheduler.REQUEST_CODE, AlarmScheduler.REPEAT_SHOOT_ACTION)
+                    AlarmScheduler(requireActivity()).cancel()
                     if (!serviceCheckBoxPref.isChecked)
                     {
                         listDisplayModePref.isEnabled = false

@@ -36,7 +36,6 @@ import com.myapp.lexicon.helpers.JavaKotlinMediator;
 import com.myapp.lexicon.helpers.Share;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.schedule.AlarmScheduler;
-import com.myapp.lexicon.service.LexiconService;
 import com.myapp.lexicon.service.PhoneUnlockedReceiver;
 import com.myapp.lexicon.settings.ContainerFragment;
 import com.myapp.lexicon.settings.SettingsExtKt;
@@ -101,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             nmg.cancelAll();
         }
-        scheduler.cancel(AlarmScheduler.REQUEST_CODE, AlarmScheduler.REPEAT_SHOOT_ACTION);
+        scheduler.cancel();
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
         speechViewModel = new ViewModelProvider(this).get(SpeechViewModel.class);
@@ -497,7 +496,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             wordsInterval = mainViewModel.getTestInterval().getValue();
         }
-        this.stopService(new Intent(this, LexiconService.class));
         Boolean isRefresh = AppBus.INSTANCE.isRefresh().getValue();
         if (isRefresh != null && isRefresh)
         {

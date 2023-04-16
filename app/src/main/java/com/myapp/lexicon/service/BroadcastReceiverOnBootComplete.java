@@ -9,9 +9,6 @@ import android.preference.PreferenceManager;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.settings.AppSettings;
 
-/**
- * Created by Renat
- */
 
 public class BroadcastReceiverOnBootComplete extends BroadcastReceiver
 {
@@ -31,8 +28,7 @@ public class BroadcastReceiverOnBootComplete extends BroadcastReceiver
                         boolean isUseService = preferences.getBoolean(context.getString(R.string.key_service), true);
                         if (isUseService)
                         {
-                            Intent serviceIntent = new Intent(context, LexiconService.class);
-                            context.startService(serviceIntent);
+
                         }
                     }
                 }
