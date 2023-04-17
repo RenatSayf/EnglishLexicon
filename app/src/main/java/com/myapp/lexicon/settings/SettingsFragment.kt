@@ -145,7 +145,7 @@ class SettingsFragment : PreferenceFragmentCompat()
                 }
                 else
                 {
-                    AlarmScheduler(requireActivity()).cancel()
+                    AlarmScheduler(requireActivity()).cancel(AlarmScheduler.ONE_SHOOT_ACTION)
                     if (!serviceCheckBoxPref.isChecked)
                     {
                         listDisplayModePref.isEnabled = false

@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             nmg.cancelAll();
         }
-        scheduler.cancel();
+        scheduler.cancel(AlarmScheduler.ONE_SHOOT_ACTION);
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
         speechViewModel = new ViewModelProvider(this).get(SpeechViewModel.class);

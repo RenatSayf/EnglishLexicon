@@ -17,9 +17,9 @@ class AlarmScheduler @Inject constructor(private val context: Context)
         const val REPEAT_SHOOT_ACTION = "$REQUEST_CODE.repeat_shoot_action"
     }
 
-    private fun createPendingIntent(): PendingIntent {
+    private fun createPendingIntent(action: String): PendingIntent {
         val intent = Intent(context, TimerReceiver::class.java).apply {
-            this.action = ONE_SHOOT_ACTION
+            this.action = action
         }
         return PendingIntent.getBroadcast(
             context,
@@ -31,7 +31,7 @@ class AlarmScheduler @Inject constructor(private val context: Context)
 
     fun scheduleOne(overTime: Long)
     {
-        val pendingIntent = createPendingIntent()
+        val pendingIntent = createPendingIntent(ONE_SHOOT_ACTION)
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         alarmManager.apply {
             setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + overTime, pendingIntent)
@@ -50,10 +50,10 @@ class AlarmScheduler @Inject constructor(private val context: Context)
         }
     }
 
-    fun cancel()
+    fun cancel(action: String)
     {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val pendingIntent = createPendingIntent()
+        val pendingIntent = createPendingIntent(action)
         alarmManager.cancel(pendingIntent)
     }
 }

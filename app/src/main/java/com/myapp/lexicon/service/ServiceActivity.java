@@ -116,7 +116,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         if (listener != null)
         {
             listener.onStoppedByUser();
-            new AlarmScheduler(this).cancel();
+            new AlarmScheduler(this).cancel(AlarmScheduler.ONE_SHOOT_ACTION);
             finish();
         }
     }
