@@ -18,7 +18,7 @@
         android:orderInCategory="100"
         android:title="@string/cloud_storage_text"
         app:showAsAction="never"
-        android:visible="false"/>
+        android:visible="true"/>
 
     <item
         android:id="@+id/menu_item_share"

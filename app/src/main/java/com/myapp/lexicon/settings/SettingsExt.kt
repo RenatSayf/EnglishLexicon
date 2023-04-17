@@ -157,6 +157,14 @@ fun Context.checkUnLockedBroadcast(onEnabled: () -> Unit, onDisabled: () -> Unit
     }
 }
 
+var Context.isRequireCloudSync: Boolean
+    get() {
+        return appSettings.getBoolean("KEY_CLOUD_SYNC", false)
+    }
+    set(value) {
+        appSettings.edit().putBoolean("KEY_CLOUD_SYNC", value).apply()
+    }
+
 
 
 

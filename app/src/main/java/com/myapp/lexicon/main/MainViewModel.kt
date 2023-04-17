@@ -24,6 +24,7 @@ class MainViewModel @Inject constructor(
     private val composite = CompositeDisposable()
 
     private var _currentDict = MutableLiveData<String>()
+
     @JvmField
     var currentDict: LiveData<String> = _currentDict
 
@@ -38,9 +39,6 @@ class MainViewModel @Inject constructor(
 
     fun refreshWordsList()
     {
-//        repository.getWordFromPref().apply {
-//            setWordsList(this.dictName)
-//        }
         app.getWordFromPref(
             onInit = {
                 viewModelScope.launch {

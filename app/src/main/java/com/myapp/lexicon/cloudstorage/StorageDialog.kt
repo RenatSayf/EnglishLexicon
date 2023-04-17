@@ -24,7 +24,10 @@ class StorageDialog : BottomSheetDialogFragment()
         fun newInstance(listener: Listener): StorageDialog {
 
             this.listener = listener
-            return if (instance == null) StorageDialog() else instance!!
+            return if (instance == null) {
+                instance = StorageDialog()
+                instance!!
+            } else instance!!
         }
     }
 

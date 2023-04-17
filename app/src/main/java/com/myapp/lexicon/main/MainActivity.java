@@ -18,6 +18,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.myapp.lexicon.BuildConfig;
@@ -25,7 +26,9 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
 import com.myapp.lexicon.ads.AdsExtensionsKt;
+import com.myapp.lexicon.cloudstorage.StorageDialog;
 import com.myapp.lexicon.cloudstorage.UploadDbWorker;
+import com.myapp.lexicon.databinding.DialogStorageBinding;
 import com.myapp.lexicon.dialogs.ConfirmDialog;
 import com.myapp.lexicon.dialogs.DictListDialog;
 import com.myapp.lexicon.dialogs.OrderPlayDialog;
@@ -33,6 +36,7 @@ import com.myapp.lexicon.dialogs.RemoveDictDialog;
 import com.myapp.lexicon.helpers.AppBus;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.JavaKotlinMediator;
+import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.Share;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.schedule.AlarmScheduler;
@@ -43,6 +47,7 @@ import com.myapp.lexicon.wordeditor.WordEditorActivity;
 import com.myapp.lexicon.wordstests.OneOfFiveFragm;
 import com.myapp.lexicon.wordstests.TestFragment;
 
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -520,6 +525,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onCreateOptionsMenu(Menu menu)
     {
         getMenuInflater().inflate(R.menu.a_up_menu_main, menu);
+
+        AdsExtensionsKt.checkCloudStorage(
+                this,
+                (path, bytes) ->  {
+                    SettingsExtKt.setRequireCloudSync(this, true);
+                    if (SettingsExtKt.getCheckFirstLaunch(this)) {
+                        showCloudDialog(path, bytes);
+                    }
+                    return null;
+                },
+                err -> {
+                    if (BuildConfig.DEBUG)
+                    {
+                        new Throwable(err).printStackTrace();
+                    }
+                    SettingsExtKt.setRequireCloudSync(this, false);
+                    return null;
+                },
+                () -> {
+                    SettingsExtKt.setRequireCloudSync(this, false);
+                    return null;
+                }
+        );
+        menu.findItem(R.id.cloud_storage).setVisible(SettingsExtKt.isRequireCloudSync(this));
         return true;
     }
 
@@ -553,6 +582,41 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (id == R.id.menu_item_share)
         {
             new Share().doShare(this);
+        }
+        if (id == R.id.cloud_storage) {
+            AdsExtensionsKt.checkCloudStorage(
+                    MainActivity.this,
+                    (path, bytes) -> {
+                        showCloudDialog(path, bytes);
+                        return null;
+                    },
+                    err -> {
+                        ExtensionsKt.showSnackBar(mainControlLayout, err, Snackbar.LENGTH_LONG);
+                        return null;
+                    },
+                    () -> {
+                        ExtensionsKt.showDialogAsSingleton(
+                                MainActivity.this,
+                                ConfirmDialog.Companion.newInstance((dialog, binding) -> {
+                                    binding.ivIcon.setImageResource(R.drawable.ic_check);
+                                    binding.tvMessage.setText("Все слова обновлены. Синхронизация не требуется");
+                                    binding.btnOk.setText(getString(R.string.text_ok));
+                                    binding.btnOk.setOnClickListener(new View.OnClickListener()
+                                    {
+                                        @Override
+                                        public void onClick(View v)
+                                        {
+                                            dialog.dismiss();
+                                        }
+                                    });
+                                    binding.btnCancel.setVisibility(View.INVISIBLE);
+                                    return null;
+                                })
+                                ,ConfirmDialog.Companion.getTAG()
+                        );
+                        return null;
+                    }
+            );
         }
         return super.onOptionsItemSelected(item);
     }
@@ -640,16 +704,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     },
                     () -> null);
 
-            AdsExtensionsKt.getAdvertisingID(this, adsId -> {
-                        UploadDbWorker.Companion.uploadDbToCloud(
-                                this,
-                                this.getString(R.string.data_base_name),
-                                adsId,
-                                null);
-                        return null;
-                    }, () -> null,
-                    error -> null,
-                    () -> null);
+            boolean storageEnabled = SettingsExtKt.getCloudStorageEnabled(this);
+            boolean requireCloudSync = SettingsExtKt.isRequireCloudSync(this);
+            if (storageEnabled && requireCloudSync) {
+                AdsExtensionsKt.getAdvertisingID(this, adsId -> {
+                            UploadDbWorker.Companion.uploadDbToCloud(
+                                    this,
+                                    this.getString(R.string.data_base_name),
+                                    adsId,
+                                    null);
+                            return null;
+                        }, () -> null,
+                        error -> null,
+                        () -> null);
+            }
 
             if (backgroundFragm != null && backgroundFragm.yandexAd != null)
             {
@@ -724,6 +792,49 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             });
             return null;
         }), ConfirmDialog.Companion.getTAG());
+    }
+
+    private void showCloudDialog(String file, byte[] bytes) {
+        BottomSheetDialogFragment dialog = (BottomSheetDialogFragment)getSupportFragmentManager().findFragmentByTag(StorageDialog.Companion.getTAG());
+        if (dialog == null) {
+            dialog = StorageDialog.Companion.newInstance(new StorageDialog.Listener()
+            {
+                @Override
+                public void onDestroy()
+                {
+                    new LockOrientation(MainActivity.this).unLock();
+                }
+
+                @Override
+                public void onLaunch(@NonNull DialogStorageBinding binding)
+                {
+                    new LockOrientation(MainActivity.this).lock();
+                    binding.tvProductName.setText(getString(R.string.text_cloud_storage));
+                    binding.tvPriceTitle.setText("В облачном хранилище найдена резервная копия Ваших словарей.\nВосстановить слова?");
+                    binding.btnCloudEnable.setText("Восстановить");
+                    binding.btnCancel.setText(getString(R.string.btn_text_cancel));
+                }
+
+                @Override
+                public void onPositiveClick()
+                {
+                    try
+                    {
+                        FileOutputStream outputStream = MainActivity.this.openFileOutput(file, Context.MODE_PRIVATE);
+                        outputStream.write(bytes);
+                        outputStream.close();
+                    } catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onCancelClick()
+                {}
+            });
+            dialog.show(getSupportFragmentManager(), StorageDialog.Companion.getTAG());
+        }
     }
 
 }
