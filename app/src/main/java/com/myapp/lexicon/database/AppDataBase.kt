@@ -13,21 +13,27 @@ import com.myapp.lexicon.models.Word
 private const val DB_VERSION = 1
 
 
-@Database(entities = [Word::class], version = DB_VERSION, exportSchema = false)
+@Database(entities = [Word::class], version = DB_VERSION, exportSchema = true)
 abstract class AppDataBase : RoomDatabase()
 {
     abstract fun appDao(): AppDao
 
+
     companion object
     {
+        var dataBase: AppDataBase? = null
         fun buildDataBase(context: Context): AppDataBase
         {
             val dbName = context.getString(R.string.data_base_name)
-            return Room.databaseBuilder(context, AppDataBase::class.java, dbName).apply {
+            dataBase = Room.databaseBuilder(context, AppDataBase::class.java, dbName).apply {
                 createFromAsset("databases/$dbName")
                 //allowMainThreadQueries()
-                addMigrations(getMigration())
-            }.build()
+                //addMigrations(getMigration())
+            }.build().apply {
+                val path = this.openHelper.writableDatabase.path
+                println("******************* DataBase path: $path ******************************")
+            }
+            return dataBase as AppDataBase
         }
 
         private fun getMigration(): Migration

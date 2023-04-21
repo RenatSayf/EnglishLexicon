@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+
+    <cloud-backup disableIfNoEncryptionCapabilities="false">
+        <include
+            domain="database"
+            path="string" />
+        <include
+            domain="sharedpref"
+            path="string" />
+
+    </cloud-backup>
+
+</data-extraction-rules>

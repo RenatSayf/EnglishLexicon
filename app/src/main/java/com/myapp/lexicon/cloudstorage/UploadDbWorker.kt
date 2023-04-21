@@ -9,6 +9,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
+import com.myapp.lexicon.database.AppDataBase
 import kotlinx.coroutines.delay
 
 
@@ -61,6 +62,8 @@ class UploadDbWorker(
 
         userId?.let { id ->
             try {
+                AppDataBase.dataBase?.close()
+
                 val databaseList = context.databaseList()
                 val dbName = databaseList.first {
                     it == dbName

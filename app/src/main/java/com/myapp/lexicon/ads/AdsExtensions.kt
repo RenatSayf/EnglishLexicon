@@ -222,6 +222,8 @@ fun Context.checkCloudStorage(
                 id,
                 listener = object : DownloadDbWorker.Listener {
                     override fun onSuccess(bytes: ByteArray) {
+
+                        val list = dataDir.list()
                         val dbPath = databaseList().first {
                             it == getString(R.string.data_base_name)
                         }

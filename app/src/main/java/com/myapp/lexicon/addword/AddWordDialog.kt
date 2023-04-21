@@ -83,7 +83,7 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult,
         requireActivity().let { a ->
 
             mainVM.dictionaryList.observe(viewLifecycleOwner) { list ->
-                list.add(0, getString(R.string.text_new_dict))
+                list.add(getString(R.string.text_new_dict))
                 if (!list.isNullOrEmpty()) {
                     mainVM.currentWord.observe(viewLifecycleOwner) { word ->
                         if (word.dictName.isNotEmpty()) {

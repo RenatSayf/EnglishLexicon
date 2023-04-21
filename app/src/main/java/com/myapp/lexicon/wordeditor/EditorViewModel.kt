@@ -32,6 +32,8 @@ class EditorViewModel @Inject constructor(
     {
         composite.add(
             repository.getEntriesFromDbByDictName(dict, 1, -1, Int.MAX_VALUE)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ list ->
                     _wordsList.value = list
                 }, { t ->
@@ -46,7 +48,7 @@ class EditorViewModel @Inject constructor(
     fun deleteWordFromDb(word: Word)
     {
         composite.add(repository.deleteEntry(word)
-                .subscribeOn(Schedulers.computation())
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ id ->
                     _deletedId.value = id

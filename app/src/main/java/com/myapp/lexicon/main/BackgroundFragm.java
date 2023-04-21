@@ -9,8 +9,6 @@ import android.widget.AdapterViewFlipper;
 
 import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.ads.AdsExtensionsKt;
-import com.myapp.lexicon.cloudstorage.UploadDbWorker;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.JavaKotlinMediator;
 import com.myapp.lexicon.service.PhoneUnlockedReceiver;
@@ -185,6 +183,9 @@ public class BackgroundFragm extends Fragment
             @Override
             public void handleOnBackPressed()
             {
+                MainActivity mainActivity = (MainActivity) requireActivity();
+                mainActivity.onAppFinish();
+
                 ExtensionsKt.alarmClockEnable(requireContext());
 
                 SettingsExtKt.checkUnLockedBroadcast(
@@ -197,22 +198,6 @@ public class BackgroundFragm extends Fragment
                             return null;
                         },
                         () -> null);
-
-                boolean storageEnabled = SettingsExtKt.getCloudStorageEnabled(requireContext());
-                boolean requireCloudSync = SettingsExtKt.isRequireCloudSync(requireContext());
-                if (storageEnabled && requireCloudSync) {
-                    AdsExtensionsKt.getAdvertisingID(requireContext(), id -> {
-                                UploadDbWorker.Companion.uploadDbToCloud(
-                                        requireContext(),
-                                        getString(R.string.data_base_name),
-                                        id,
-                                        null
-                                );
-                                return null;
-                            }, () -> null,
-                            error -> null,
-                            () -> null);
-                }
 
                 if (yandexAd != null)
                 {
