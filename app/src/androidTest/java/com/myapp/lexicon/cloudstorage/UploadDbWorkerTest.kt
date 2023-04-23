@@ -54,6 +54,11 @@ class UploadDbWorkerTest {
                 override fun onComplete() {
                     isRunning = false
                 }
+
+                override fun onCanceled(message: String) {
+                    Assert.assertTrue(message, false)
+                    isRunning = false
+                }
             })
         }
 

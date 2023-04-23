@@ -6,6 +6,7 @@ import com.google.android.gms.ads.identifier.AdvertisingIdClient
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.cloudstorage.DownloadDbWorker
+import com.myapp.lexicon.database.AppDataBase
 import com.yandex.mobile.ads.banner.AdSize
 import com.yandex.mobile.ads.banner.BannerAdEventListener
 import com.yandex.mobile.ads.banner.BannerAdView
@@ -209,7 +210,7 @@ fun Context.getAdvertisingID(
 }
 
 fun Context.checkCloudStorage(
-    onRequireSync: (String, ByteArray) -> Unit,
+    onRequireSync: (ByteArray) -> Unit,
     onFailure: (String) -> Unit,
     onNotRequireSync: () -> Unit
 ) {
@@ -223,15 +224,12 @@ fun Context.checkCloudStorage(
                 listener = object : DownloadDbWorker.Listener {
                     override fun onSuccess(bytes: ByteArray) {
 
-                        val list = dataDir.list()
-                        val dbPath = databaseList().first {
-                            it == getString(R.string.data_base_name)
-                        }
-                        val databaseFile = getDatabasePath(dbPath)
+                        AppDataBase.dataBase?.close()
+                        val databaseFile = getDatabasePath(dbName)
                         val localBytes = databaseFile.readBytes()
                         val result = localBytes.contentEquals(bytes)
                         if (!result) {
-                            onRequireSync.invoke(dbPath, bytes)
+                            onRequireSync.invoke(bytes)
                         }
                         else onNotRequireSync.invoke()
                     }

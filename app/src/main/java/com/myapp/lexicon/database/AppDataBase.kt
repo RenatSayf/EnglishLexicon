@@ -18,10 +18,10 @@ abstract class AppDataBase : RoomDatabase()
 {
     abstract fun appDao(): AppDao
 
-
     companion object
     {
         var dataBase: AppDataBase? = null
+
         fun buildDataBase(context: Context): AppDataBase
         {
             val dbName = context.getString(R.string.data_base_name)

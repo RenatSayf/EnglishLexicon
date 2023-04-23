@@ -3,9 +3,6 @@
 
     <cloud-backup disableIfNoEncryptionCapabilities="false">
         <include
-            domain="database"
-            path="string" />
-        <include
             domain="sharedpref"
             path="string" />
 

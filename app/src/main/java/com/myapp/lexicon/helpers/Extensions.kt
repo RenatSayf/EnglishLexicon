@@ -2,6 +2,7 @@ package com.myapp.lexicon.helpers
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.CountDownTimer
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
@@ -56,6 +57,24 @@ fun<T: DialogFragment> AppCompatActivity.showDialogAsSingleton(dialog: T, tag: S
     if (fragment == null) {
         dialog.show(this.supportFragmentManager, tag)
     }
+}
+
+fun startTimer(
+    time: Long,
+    interval: Long = time,
+    onTick: () -> Unit = {},
+    onFinish: () -> Unit
+): CountDownTimer {
+
+    return object : CountDownTimer(time, interval) {
+        override fun onTick(millisUntilFinished: Long) {
+            onTick.invoke()
+        }
+
+        override fun onFinish() {
+            onFinish.invoke()
+        }
+    }.start()
 }
 
 

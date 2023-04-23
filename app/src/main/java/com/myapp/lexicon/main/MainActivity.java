@@ -28,6 +28,7 @@ import com.myapp.lexicon.addword.TranslateFragment;
 import com.myapp.lexicon.ads.AdsExtensionsKt;
 import com.myapp.lexicon.cloudstorage.StorageDialog;
 import com.myapp.lexicon.cloudstorage.UploadDbWorker;
+import com.myapp.lexicon.database.AppDataBase;
 import com.myapp.lexicon.databinding.DialogStorageBinding;
 import com.myapp.lexicon.dialogs.ConfirmDialog;
 import com.myapp.lexicon.dialogs.DictListDialog;
@@ -47,6 +48,7 @@ import com.myapp.lexicon.wordeditor.WordEditorActivity;
 import com.myapp.lexicon.wordstests.OneOfFiveFragm;
 import com.myapp.lexicon.wordstests.TestFragment;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -84,6 +86,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Word currentWord;
     private int wordsInterval = Integer.MAX_VALUE;
     public BackgroundFragm backgroundFragm = null;
+    private byte[] cloudBytes = null;
 
     @Inject
     AlarmScheduler scheduler;
@@ -563,27 +566,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             new Share().doShare(this);
         }
         if (id == R.id.cloud_storage) {
-            AdsExtensionsKt.checkCloudStorage(
-                    MainActivity.this,
-                    (path, bytes) -> {
-                        showCloudDialog(path, bytes);
-                        return null;
-                    },
-                    err -> {
-                        item.setVisible(false);
-                        ExtensionsKt.showSnackBar(mainControlLayout, err, Snackbar.LENGTH_LONG);
-                        return null;
-                    },
-                    () -> {
-                        item.setVisible(false);
-                        ExtensionsKt.showSnackBar(
-                                mainControlLayout,
-                                "Все слова обновлены. Синхронизация не требуется",
-                                Snackbar.LENGTH_LONG
-                        );
-                        return null;
-                    }
-            );
+            showCloudDialog();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -747,7 +730,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }), ConfirmDialog.Companion.getTAG());
     }
 
-    private void showCloudDialog(String file, byte[] bytes) {
+    private void showCloudDialog() {
         BottomSheetDialogFragment dialog = (BottomSheetDialogFragment)getSupportFragmentManager().findFragmentByTag(StorageDialog.Companion.getTAG());
         if (dialog == null) {
             dialog = StorageDialog.Companion.newInstance(new StorageDialog.Listener()
@@ -773,18 +756,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 {
                     try
                     {
-                        FileOutputStream outputStream = MainActivity.this.openFileOutput(file, Context.MODE_PRIVATE);
-                        outputStream.write(bytes);
-                        outputStream.close();
+                        if (cloudBytes != null)
+                        {
+                            AppDataBase dataBase = AppDataBase.Companion.getDataBase();
+                            if (dataBase != null) {
+                                dataBase.close();
+                            }
+                            File file = getDatabasePath(getString(R.string.data_base_name));
+                            FileOutputStream fileOutputStream = new FileOutputStream(file);
+                            fileOutputStream.write(cloudBytes);
+                            fileOutputStream.close();
+                            ExtensionsKt.showSnackBar(mainControlLayout, "Словари успешно восстановлены.", Snackbar.LENGTH_LONG);
+                        }
+                        else {
+                            ExtensionsKt.showSnackBar(mainControlLayout, "Ошибка загрузки.", Snackbar.LENGTH_LONG);
+                        }
                     } catch (Exception e)
                     {
                         e.printStackTrace();
+                        ExtensionsKt.showSnackBar(mainControlLayout, "Ошибка. Не удалось восстановить базу данных", Snackbar.LENGTH_LONG);
                     }
                 }
 
                 @Override
                 public void onCancelClick()
-                {}
+                {
+                    MenuItem menuItem = toolBar.getMenu().findItem(R.id.cloud_storage);
+                    menuItem.setVisible(true);
+                }
             });
             dialog.show(getSupportFragmentManager(), StorageDialog.Companion.getTAG());
         }
@@ -793,38 +792,45 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void onAppStarting() {
 
         Menu menu = toolBar.getMenu();
-        AdsExtensionsKt.checkCloudStorage(
-                this,
-                (path, bytes) ->  {
-                    SettingsExtKt.setRequireCloudSync(this, true);
-                    if (SettingsExtKt.getCheckFirstLaunch(this)) {
-                        showCloudDialog(path, bytes);
+        MenuItem menuItem = menu.findItem(R.id.cloud_storage);
+        boolean isCloudEnabled = SettingsExtKt.getCloudStorageEnabled(this);
+        if (isCloudEnabled) {
+            AdsExtensionsKt.checkCloudStorage(
+                    MainActivity.this,
+                    bytes -> {
+                        cloudBytes = bytes;
+                        boolean isFirstLaunch = SettingsExtKt.getCheckFirstLaunch(this);
+                        if (isFirstLaunch) {
+                            showCloudDialog();
+                        }
+                        else {
+                            menu.findItem(R.id.cloud_storage).setVisible(true);
+                        }
+                        SettingsExtKt.setCheckFirstLaunch(this, false);
+                        return null;
+                    },
+                    err -> {
+                        SettingsExtKt.setCheckFirstLaunch(this, false);
+                        SettingsExtKt.setRequireCloudSync(this, err.equals("Object does not exist at location."));
+                        menuItem.setVisible(false);
+                        return null;
+                    },
+                    () -> {
+                        SettingsExtKt.setCheckFirstLaunch(this, false);
+                        menuItem.setVisible(false);
+                        return null;
                     }
-                    menu.findItem(R.id.cloud_storage).setVisible(SettingsExtKt.isRequireCloudSync(this));
-                    return null;
-                },
-                err -> {
-                    if (BuildConfig.DEBUG)
-                    {
-                        new Throwable(err).printStackTrace();
-                    }
-                    SettingsExtKt.setRequireCloudSync(this, err.equals("Object does not exist at location."));
-                    menu.findItem(R.id.cloud_storage).setVisible(false);
-                    return null;
-                },
-                () -> {
-                    SettingsExtKt.setRequireCloudSync(this, false);
-                    menu.findItem(R.id.cloud_storage).setVisible(false);
-                    return null;
-                }
-        );
+            );
+        }
+        else {
+            menuItem.setVisible(false);
+        }
     }
 
     void onAppFinish() {
 
         boolean storageEnabled = SettingsExtKt.getCloudStorageEnabled(this);
-        boolean requireCloudSync = SettingsExtKt.isRequireCloudSync(this);
-        if (storageEnabled && requireCloudSync) {
+        if (storageEnabled) {
             AdsExtensionsKt.getAdvertisingID(this, adsId -> {
                         UploadDbWorker.Companion.uploadDbToCloud(
                                 this,
