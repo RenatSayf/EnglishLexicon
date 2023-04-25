@@ -6,9 +6,14 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.StorageException
+import com.google.firebase.storage.ktx.storage
 import com.google.gson.Gson
+import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.models.Word
+import java.nio.file.Files
 
 val Context.appSettings: SharedPreferences
     get() {
@@ -69,26 +74,48 @@ interface PurchasesTokenListener {
     fun onAdsTokenEmpty()
     fun onCloudTokenExists()
     fun onCloudTokenEmpty()
+    fun onCheckComplete()
 }
 
 fun Context.checkPurchasesTokens(listener: PurchasesTokenListener) {
     val adsToken = appSettings.getString(KEY_ADS_TOKEN, null)
     val cloudToken = appSettings.getString(KEY_CLOUD_TOKEN, null)
-    if (adsToken == null || cloudToken == null) {
-        listener.onInit()
-        return
+    try {
+        if (adsToken == null || cloudToken == null) {
+            listener.onInit()
+        }
+        else if (adsToken.isEmpty()) {
+            listener.onAdsTokenEmpty()
+        }
+        else if (adsToken.isNotEmpty()) {
+            listener.onAdsTokenExists()
+        }
+        else if (cloudToken.isEmpty()) {
+            listener.onCloudTokenEmpty()
+        }
+        else if (cloudToken.isNotEmpty()) {
+            listener.onCloudTokenExists()
+        }
+    } finally {
+        listener.onCheckComplete()
     }
-    if (adsToken.isEmpty()) {
-        listener.onAdsTokenEmpty()
-    }
-    if (adsToken.isNotEmpty()) {
-        listener.onAdsTokenExists()
-    }
-    if (cloudToken.isEmpty()) {
-        listener.onCloudTokenEmpty()
-    }
-    if (cloudToken.isNotEmpty()) {
-        listener.onCloudTokenExists()
+}
+
+fun Context.checkCloudToken(
+    onInit: () -> Unit = {},
+    onExists: (String) -> Unit,
+    onEmpty: () -> Unit = {},
+    onComplete: () -> Unit = {}
+) {
+    val token = appSettings.getString(KEY_CLOUD_TOKEN, null)
+    try {
+        when {
+            token == null -> onInit.invoke()
+            token.isNotEmpty() -> onExists.invoke(token)
+            else -> onEmpty.invoke()
+        }
+    } finally {
+        onComplete.invoke()
     }
 }
 
@@ -164,6 +191,75 @@ var Context.isRequireCloudSync: Boolean
     set(value) {
         appSettings.edit().putBoolean("KEY_CLOUD_SYNC", value).apply()
     }
+
+val Context.initDbSize: Int
+    get() {
+
+        var dbSize = appSettings.getInt("KEY_INIT_DB_SIZE", -1)
+        if (dbSize < 0) {
+            val inputStream = this.assets.open("databases/${this.getString(R.string.data_base_name)}")
+
+            dbSize = inputStream.available()
+            inputStream.close()
+            appSettings.edit().putInt("KEY_INIT_DB_SIZE", dbSize).apply()
+        }
+        return dbSize
+    }
+
+fun Context.checkCloudStorage(
+    onRequireUpSync: (String) -> Unit,
+    onRequireDownSync: (String) -> Unit,
+    onFailure: (String) -> Unit,
+    onNotRequireSync: () -> Unit
+) {
+    this.checkCloudToken(
+        onExists = { token ->
+
+            val dbName = this.getString(R.string.data_base_name)
+            val mainDbFile = getDatabasePath(dbName)
+            val mainLastModifiedTime = Files.getLastModifiedTime(mainDbFile.toPath())
+            println("************** mainLastModifiedTime = $mainLastModifiedTime ****************")
+
+            val walDbName = this.getString(R.string.wal_db_name)
+            val walDbFile = getDatabasePath(walDbName)
+            val walLastModifiedTime = Files.getLastModifiedTime(walDbFile.toPath())
+            println("************** walLastModifiedTime = $walLastModifiedTime ****************")
+
+            val storageRef = Firebase.storage.reference.child("/users/$token/${dbName}")
+
+            storageRef.metadata.addOnSuccessListener { metadata ->
+
+                val remoteDbModifiedTime = metadata.getCustomMetadata("LAST_MODIFIED")?: walLastModifiedTime.toString()
+
+                if (mainLastModifiedTime == walLastModifiedTime) {
+                    onNotRequireSync.invoke()
+                }
+                else if (remoteDbModifiedTime != walLastModifiedTime.toString() && mainLastModifiedTime == walLastModifiedTime) {
+                    onRequireDownSync.invoke(token)
+                }
+                else if (mainLastModifiedTime != walLastModifiedTime && remoteDbModifiedTime != walLastModifiedTime.toString()) {
+                    onRequireUpSync.invoke(token)
+                }
+
+            }.addOnFailureListener { ex ->
+
+                if (ex is StorageException) {
+                    if (ex.errorCode == StorageException.ERROR_OBJECT_NOT_FOUND) {
+                        if (mainLastModifiedTime != walLastModifiedTime) {
+                            onRequireUpSync.invoke(token)
+                            return@addOnFailureListener
+                        }
+                    }
+                    else {
+                        if (BuildConfig.DEBUG) ex.printStackTrace()
+                    }
+                }
+                onNotRequireSync.invoke()
+            }
+        }
+    )
+
+}
 
 
 

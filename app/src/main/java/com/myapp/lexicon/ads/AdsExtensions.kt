@@ -4,9 +4,6 @@ import android.content.Context
 import androidx.fragment.app.Fragment
 import com.google.android.gms.ads.identifier.AdvertisingIdClient
 import com.myapp.lexicon.BuildConfig
-import com.myapp.lexicon.R
-import com.myapp.lexicon.cloudstorage.DownloadDbWorker
-import com.myapp.lexicon.database.AppDataBase
 import com.yandex.mobile.ads.banner.AdSize
 import com.yandex.mobile.ads.banner.BannerAdEventListener
 import com.yandex.mobile.ads.banner.BannerAdView
@@ -209,45 +206,7 @@ fun Context.getAdvertisingID(
     thread.start()
 }
 
-fun Context.checkCloudStorage(
-    onRequireSync: (ByteArray) -> Unit,
-    onFailure: (String) -> Unit,
-    onNotRequireSync: () -> Unit
-) {
-    this.getAdvertisingID(
-        onSuccess = { id ->
-            val dbName = this.getString(R.string.data_base_name)
-            DownloadDbWorker.downloadDbFromCloud(
-                this,
-                dbName,
-                id,
-                listener = object : DownloadDbWorker.Listener {
-                    override fun onSuccess(bytes: ByteArray) {
 
-                        AppDataBase.dataBase?.close()
-                        val databaseFile = getDatabasePath(dbName)
-                        val localBytes = databaseFile.readBytes()
-                        val result = localBytes.contentEquals(bytes)
-                        if (!result) {
-                            onRequireSync.invoke(bytes)
-                        }
-                        else onNotRequireSync.invoke()
-                    }
-
-                    override fun onFailure(error: String) {
-                        onFailure.invoke(error)
-                    }
-
-                    override fun onComplete() {}
-                })
-        },
-        onUnavailable = {},
-        onFailure = {
-            onFailure.invoke(it)
-        },
-        onComplete = {}
-    )
-}
 
 
 

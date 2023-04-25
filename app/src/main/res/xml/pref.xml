@@ -17,7 +17,7 @@
         <SwitchPreferenceCompat
             android:key="@string/KEY_IS_ADS_ENABLED"
             android:title="@string/text_show_ads"
-            android:defaultValue="false"
+            android:defaultValue="true"
 
             />
 

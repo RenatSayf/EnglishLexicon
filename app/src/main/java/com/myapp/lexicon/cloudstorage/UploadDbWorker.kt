@@ -6,13 +6,14 @@ import android.content.Context
 import android.net.Uri
 import androidx.work.*
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.StorageMetadata
 import com.google.firebase.storage.ktx.storage
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
-import com.myapp.lexicon.ads.checkCloudStorage
 import com.myapp.lexicon.database.AppDataBase
 import com.myapp.lexicon.settings.isRequireCloudSync
 import kotlinx.coroutines.delay
+import java.nio.file.Files
 
 
 @Suppress("UNUSED_ANONYMOUS_PARAMETER")
@@ -65,67 +66,58 @@ class UploadDbWorker(
         AppDataBase.dataBase?.close()
 
         userId?.let { id ->
+            try {
+//                        val databaseList = context.databaseList()
+//                        val dbName = databaseList.first {
+//                            it == dbName
+//                        }
+                val databaseFile = context.getDatabasePath(dbName)
+                val userFile = Uri.fromFile(databaseFile)
+                val lastModifiedTime = Files.getLastModifiedTime(databaseFile.toPath())
 
-            context.checkCloudStorage(
-                onFailure = { err ->
-                    context.isRequireCloudSync = false
-                    listener?.onFailure(err)
-                    result = Result.failure()
-                    isWorked = false
-                },
-                onNotRequireSync = {
-                    context.isRequireCloudSync = false
-                    listener?.onCanceled("******* Update is not require **************")
-                    listener?.onComplete()
-                    result = Result.success()
-                    isWorked = false
-                },
-                onRequireSync = { bytes ->
-                    try {
-                        val databaseList = context.databaseList()
-                        val dbName = databaseList.first {
-                            it == dbName
+                if (BuildConfig.DEBUG) {
+                    println("**************** databasePath: $userFile ******************")
+                }
+
+                val storageRef = Firebase.storage.reference
+                val customMetadata = StorageMetadata.Builder().apply {
+
+                    setCustomMetadata("LAST_MODIFIED", databaseFile.lastModified().toString())
+                }.build()
+                val uploadTask = storageRef.child("/users/$id/${userFile.lastPathSegment}").putFile(userFile, customMetadata)
+
+                uploadTask
+                    .addOnSuccessListener { task ->
+                        task.storage.downloadUrl.addOnSuccessListener { uri ->
+                            context.isRequireCloudSync = true
+                            listener?.onSuccess(uri)
+                            result = Result.success()
+                        }.addOnFailureListener { e ->
+                            context.isRequireCloudSync = false
+                            listener?.onFailure(e.message?: "****** Unknown error *******")
+                        }.addOnCompleteListener {
+                            isWorked = false
+                            listener?.onComplete()
                         }
-                        val databaseFile = context.getDatabasePath(dbName)
-                        val userFile = Uri.fromFile(databaseFile)
-
-                        if (BuildConfig.DEBUG) {
-                            println("**************** databasePath: $userFile ******************")
-                        }
-
-                        val storageRef = Firebase.storage.reference
-                        val uploadTask = storageRef.child("/users/$id/${userFile.lastPathSegment}").putFile(userFile)
-
-                        uploadTask
-                            .addOnSuccessListener { task ->
-                                task.storage.downloadUrl.addOnSuccessListener { uri ->
-                                    context.isRequireCloudSync = true
-                                    listener?.onSuccess(uri)
-                                    result = Result.success()
-                                }.addOnFailureListener { e ->
-                                    context.isRequireCloudSync = false
-                                    listener?.onFailure(e.message?: "****** Unknown error *******")
-                                }.addOnCompleteListener {
-                                    isWorked = false
-                                    listener?.onComplete()
-                                }
-                            }
-                            .addOnFailureListener { e ->
-                                context.isRequireCloudSync = false
-                                listener?.onFailure(e.message?: "****** Unknown error *******")
-                                result = Result.failure()
-                                isWorked = false
-                            }
-                    } catch (e: Exception) {
+                    }
+                    .addOnFailureListener { e ->
                         context.isRequireCloudSync = false
                         listener?.onFailure(e.message?: "****** Unknown error *******")
-                        result = Result.failure()
                     }
-                }
-            )
+                    .addOnCompleteListener {
+                        result = Result.failure()
+                        isWorked = false
+                    }
+            } catch (e: Exception) {
+                context.isRequireCloudSync = false
+                listener?.onFailure(e.message?: "****** Unknown error *******")
+                result = Result.failure()
+                isWorked = false
+            }
         }?: run {
             listener?.onFailure("***** userId is null ********")
             result = Result.failure()
+            isWorked = false
         }
 
         while (isWorked) {

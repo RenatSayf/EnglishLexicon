@@ -16,9 +16,9 @@ class UserPurchases @Inject constructor (
     ) : PurchasesUpdatedListener {
 
     interface Listener {
-        fun onExistsAdsToken()
+        fun onExistsAdsToken(token: String)
         fun onEmptyAdsToken()
-        fun onExistsCloudToken()
+        fun onExistsCloudToken(token: String)
         fun onEmptyCloudToken()
     }
 
@@ -54,7 +54,7 @@ class UserPurchases @Inject constructor (
                                 when(purchase.productId) {
                                     productIdNoAds -> {
                                         if (purchase.purchaseToken.isNotEmpty()) {
-                                            listener.onExistsAdsToken()
+                                            listener.onExistsAdsToken(purchase.purchaseToken)
                                         }
                                         else {
                                             listener.onEmptyAdsToken()
@@ -62,7 +62,7 @@ class UserPurchases @Inject constructor (
                                     }
                                     productIdCloudStorage -> {
                                         if (purchase.purchaseToken.isNotEmpty()) {
-                                            listener.onExistsCloudToken()
+                                            listener.onExistsCloudToken(purchase.purchaseToken)
                                         }
                                         else {
                                             listener.onEmptyCloudToken()

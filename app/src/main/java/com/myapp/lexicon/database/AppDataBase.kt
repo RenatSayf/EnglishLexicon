@@ -8,6 +8,7 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.myapp.lexicon.R
 import com.myapp.lexicon.models.Word
+import com.myapp.lexicon.settings.initDbSize
 
 
 private const val DB_VERSION = 1
@@ -33,6 +34,7 @@ abstract class AppDataBase : RoomDatabase()
                 val path = this.openHelper.writableDatabase.path
                 println("******************* DataBase path: $path ******************************")
             }
+            val initDbSize = context.initDbSize
             return dataBase as AppDataBase
         }
 

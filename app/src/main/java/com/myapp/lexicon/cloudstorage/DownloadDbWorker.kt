@@ -60,7 +60,6 @@ class DownloadDbWorker(
         userId?.let { id ->
 
             val storageRef = Firebase.storage.reference.child("/users/$id/$dbName")
-
             storageRef.getBytes(ONE_MEGABYTE).addOnSuccessListener { bytes ->
                 result = try {
                     listener?.onSuccess(bytes)

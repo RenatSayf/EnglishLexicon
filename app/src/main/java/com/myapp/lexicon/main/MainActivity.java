@@ -25,7 +25,7 @@ import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
-import com.myapp.lexicon.ads.AdsExtensionsKt;
+import com.myapp.lexicon.cloudstorage.DownloadDbWorker;
 import com.myapp.lexicon.cloudstorage.StorageDialog;
 import com.myapp.lexicon.cloudstorage.UploadDbWorker;
 import com.myapp.lexicon.database.AppDataBase;
@@ -86,7 +86,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Word currentWord;
     private int wordsInterval = Integer.MAX_VALUE;
     public BackgroundFragm backgroundFragm = null;
-    private byte[] cloudBytes = null;
 
     @Inject
     AlarmScheduler scheduler;
@@ -754,28 +753,56 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 @Override
                 public void onPositiveClick()
                 {
-                    try
-                    {
-                        if (cloudBytes != null)
-                        {
-                            AppDataBase dataBase = AppDataBase.Companion.getDataBase();
-                            if (dataBase != null) {
-                                dataBase.close();
-                            }
-                            File file = getDatabasePath(getString(R.string.data_base_name));
-                            FileOutputStream fileOutputStream = new FileOutputStream(file);
-                            fileOutputStream.write(cloudBytes);
-                            fileOutputStream.close();
-                            ExtensionsKt.showSnackBar(mainControlLayout, "Словари успешно восстановлены.", Snackbar.LENGTH_LONG);
-                        }
-                        else {
-                            ExtensionsKt.showSnackBar(mainControlLayout, "Ошибка загрузки.", Snackbar.LENGTH_LONG);
-                        }
-                    } catch (Exception e)
-                    {
-                        e.printStackTrace();
-                        ExtensionsKt.showSnackBar(mainControlLayout, "Ошибка. Не удалось восстановить базу данных", Snackbar.LENGTH_LONG);
-                    }
+                    SettingsExtKt.checkCloudToken(
+                            MainActivity.this,
+                            () -> null,
+                            token -> {
+                                DownloadDbWorker.Companion.downloadDbFromCloud(
+                                        MainActivity.this,
+                                        getString(R.string.data_base_name),
+                                        token,
+                                        new DownloadDbWorker.Listener()
+                                        {
+                                            @Override
+                                            public void onSuccess(@NonNull byte[] bytes)
+                                            {
+                                                try
+                                                {
+                                                    AppDataBase dataBase = AppDataBase.Companion.getDataBase();
+                                                    if (dataBase != null) {
+                                                        dataBase.close();
+                                                    }
+                                                    File file = getDatabasePath(getString(R.string.data_base_name));
+                                                    FileOutputStream fileOutputStream = new FileOutputStream(file);
+                                                    fileOutputStream.write(bytes);
+                                                    fileOutputStream.close();
+                                                    ExtensionsKt.showSnackBar(mainControlLayout, "Словари успешно восстановлены.", Snackbar.LENGTH_LONG);
+                                                }
+                                                catch (Exception e)
+                                                {
+                                                    e.printStackTrace();
+                                                    ExtensionsKt.showSnackBar(mainControlLayout, "Ошибка. Не удалось восстановить базу данных", Snackbar.LENGTH_LONG);
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onFailure(@NonNull String error)
+                                            {
+                                                ExtensionsKt.showSnackBar(mainControlLayout, error, Snackbar.LENGTH_LONG);
+                                            }
+
+                                            @Override
+                                            public void onComplete()
+                                            {}
+                                        }
+                                );
+                                return null;
+                            },
+                            () -> null,
+                            () -> null
+                    );
+
+
                 }
 
                 @Override
@@ -795,10 +822,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         MenuItem menuItem = menu.findItem(R.id.cloud_storage);
         boolean isCloudEnabled = SettingsExtKt.getCloudStorageEnabled(this);
         if (isCloudEnabled) {
-            AdsExtensionsKt.checkCloudStorage(
+            SettingsExtKt.checkCloudStorage(
                     MainActivity.this,
-                    bytes -> {
-                        cloudBytes = bytes;
+                    userId -> null,
+                    userId -> {
                         boolean isFirstLaunch = SettingsExtKt.getCheckFirstLaunch(this);
                         if (isFirstLaunch) {
                             showCloudDialog();
@@ -831,16 +858,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         boolean storageEnabled = SettingsExtKt.getCloudStorageEnabled(this);
         if (storageEnabled) {
-            AdsExtensionsKt.getAdvertisingID(this, adsId -> {
+
+            SettingsExtKt.checkCloudStorage(
+                    this,
+                    userId -> {
+                        AppDataBase dataBase = AppDataBase.Companion.getDataBase();
+                        if (dataBase != null) {
+                            dataBase.close();
+                        }
                         UploadDbWorker.Companion.uploadDbToCloud(
                                 this,
                                 this.getString(R.string.data_base_name),
-                                adsId,
+                                userId,
                                 null);
                         return null;
-                    }, () -> null,
-                    error -> null,
-                    () -> null);
+                    },
+                    userId -> null,
+                    error -> {
+                        ExtensionsKt.showSnackBar(mainControlLayout, error, Snackbar.LENGTH_LONG);
+                        return null;
+                    },
+                    () -> null
+            );
         }
     }
 

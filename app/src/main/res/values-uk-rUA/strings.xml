@@ -183,6 +183,7 @@
     <string name="text_off">Вимк</string>
     <string name="text_version_name">v. 1</string>
     <string name="data_base_name">lexicon_uk_DB.db</string>
+    <string name="wal_db_name">lexicon_DB.db-wal</string>
     <string name="lang_code_translate">uk_UA</string>
     <string name="lang_code_uk">uk_UA</string>
     <string name="translate_direct_ru_en">uk-en</string>
