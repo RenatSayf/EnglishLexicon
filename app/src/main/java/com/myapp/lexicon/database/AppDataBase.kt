@@ -6,9 +6,11 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
+import com.myapp.lexicon.helpers.getCRC32CheckSum
 import com.myapp.lexicon.models.Word
-import com.myapp.lexicon.settings.initDbSize
+import com.myapp.lexicon.settings.saveInitDbCheckSum
 
 
 private const val DB_VERSION = 1
@@ -28,13 +30,14 @@ abstract class AppDataBase : RoomDatabase()
             val dbName = context.getString(R.string.data_base_name)
             dataBase = Room.databaseBuilder(context, AppDataBase::class.java, dbName).apply {
                 createFromAsset("databases/$dbName")
-                //allowMainThreadQueries()
                 //addMigrations(getMigration())
             }.build().apply {
-                val path = this.openHelper.writableDatabase.path
-                println("******************* DataBase path: $path ******************************")
+                val checkSum = context.assets.open("databases/$dbName").readBytes().getCRC32CheckSum()
+                context.saveInitDbCheckSum(checkSum)
+                if (BuildConfig.DEBUG) {
+                    println("************** Database init check sum = $checkSum **********************")
+                }
             }
-            val initDbSize = context.initDbSize
             return dataBase as AppDataBase
         }
 

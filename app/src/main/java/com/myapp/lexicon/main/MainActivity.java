@@ -530,7 +530,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onCreateOptionsMenu(Menu menu)
     {
         getMenuInflater().inflate(R.menu.a_up_menu_main, menu);
-        return true;
+        return false;
     }
 
     @Override
@@ -809,7 +809,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 public void onCancelClick()
                 {
                     MenuItem menuItem = toolBar.getMenu().findItem(R.id.cloud_storage);
-                    menuItem.setVisible(true);
+                    if (!menuItem.isVisible()) {
+                        menuItem.setVisible(true);
+                    }
                 }
             });
             dialog.show(getSupportFragmentManager(), StorageDialog.Companion.getTAG());
@@ -830,16 +832,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         if (isFirstLaunch) {
                             showCloudDialog();
                         }
-                        else {
-                            menu.findItem(R.id.cloud_storage).setVisible(true);
-                        }
+                        menu.findItem(R.id.cloud_storage).setVisible(true);
                         SettingsExtKt.setCheckFirstLaunch(this, false);
-                        return null;
-                    },
-                    err -> {
-                        SettingsExtKt.setCheckFirstLaunch(this, false);
-                        SettingsExtKt.setRequireCloudSync(this, err.equals("Object does not exist at location."));
-                        menuItem.setVisible(false);
                         return null;
                     },
                     () -> {
@@ -859,27 +853,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         boolean storageEnabled = SettingsExtKt.getCloudStorageEnabled(this);
         if (storageEnabled) {
 
-            SettingsExtKt.checkCloudStorage(
+            UploadDbWorker.Companion.uploadDbToCloud(
                     this,
-                    userId -> {
-                        AppDataBase dataBase = AppDataBase.Companion.getDataBase();
-                        if (dataBase != null) {
-                            dataBase.close();
-                        }
-                        UploadDbWorker.Companion.uploadDbToCloud(
-                                this,
-                                this.getString(R.string.data_base_name),
-                                userId,
-                                null);
-                        return null;
-                    },
-                    userId -> null,
-                    error -> {
-                        ExtensionsKt.showSnackBar(mainControlLayout, error, Snackbar.LENGTH_LONG);
-                        return null;
-                    },
-                    () -> null
-            );
+                    this.getString(R.string.data_base_name),
+                    null);
         }
     }
 

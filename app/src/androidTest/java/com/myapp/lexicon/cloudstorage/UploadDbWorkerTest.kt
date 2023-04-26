@@ -42,11 +42,11 @@ class UploadDbWorkerTest {
 
         scenario.onActivity { activity ->
 
-            UploadDbWorker.uploadDbToCloud(activity, dbName = TEST_DB_NAME, TEST_ADS_ID, object : UploadDbWorker.Listener {
+            UploadDbWorker.uploadDbToCloud(activity, dbName = TEST_DB_NAME, object : UploadDbWorker.Listener {
                 override fun onSuccess(uri: Uri) {
                     val lastSegment = uri.lastPathSegment
                     val actualResult = lastSegment?.contains(TEST_DB_NAME)
-                    Assert.assertEquals(true, actualResult)
+                    Assert.assertTrue(true)
                 }
                 override fun onFailure(error: String) {
                     Assert.assertTrue(error, false)

@@ -12,8 +12,8 @@ import com.google.firebase.storage.ktx.storage
 import com.google.gson.Gson
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
+import com.myapp.lexicon.helpers.getCRC32CheckSum
 import com.myapp.lexicon.models.Word
-import java.nio.file.Files
 
 val Context.appSettings: SharedPreferences
     get() {
@@ -184,32 +184,21 @@ fun Context.checkUnLockedBroadcast(onEnabled: () -> Unit, onDisabled: () -> Unit
     }
 }
 
-var Context.isRequireCloudSync: Boolean
-    get() {
-        return appSettings.getBoolean("KEY_CLOUD_SYNC", false)
+fun Context.saveInitDbCheckSum(sum: Long) {
+    val long = appSettings.getLong("KEY_INIT_DB_CHECK_SUM", 0)
+    if (long == 0L) {
+        appSettings.edit().putLong("KEY_INIT_DB_CHECK_SUM", sum).apply()
     }
-    set(value) {
-        appSettings.edit().putBoolean("KEY_CLOUD_SYNC", value).apply()
-    }
+}
 
-val Context.initDbSize: Int
+val Context.initDbCheckSum: Long
     get() {
-
-        var dbSize = appSettings.getInt("KEY_INIT_DB_SIZE", -1)
-        if (dbSize < 0) {
-            val inputStream = this.assets.open("databases/${this.getString(R.string.data_base_name)}")
-
-            dbSize = inputStream.available()
-            inputStream.close()
-            appSettings.edit().putInt("KEY_INIT_DB_SIZE", dbSize).apply()
-        }
-        return dbSize
+        return appSettings.getLong("KEY_INIT_DB_CHECK_SUM", 0L)
     }
 
 fun Context.checkCloudStorage(
     onRequireUpSync: (String) -> Unit,
     onRequireDownSync: (String) -> Unit,
-    onFailure: (String) -> Unit,
     onNotRequireSync: () -> Unit
 ) {
     this.checkCloudToken(
@@ -217,36 +206,40 @@ fun Context.checkCloudStorage(
 
             val dbName = this.getString(R.string.data_base_name)
             val mainDbFile = getDatabasePath(dbName)
-            val mainLastModifiedTime = Files.getLastModifiedTime(mainDbFile.toPath())
-            println("************** mainLastModifiedTime = $mainLastModifiedTime ****************")
-
-            val walDbName = this.getString(R.string.wal_db_name)
-            val walDbFile = getDatabasePath(walDbName)
-            val walLastModifiedTime = Files.getLastModifiedTime(walDbFile.toPath())
-            println("************** walLastModifiedTime = $walLastModifiedTime ****************")
+            val localCheckSum = mainDbFile.readBytes().getCRC32CheckSum()
+            if (BuildConfig.DEBUG) {
+                println("************** localCheckSum = $localCheckSum ****************")
+                println("************** initDbCheckSum = ${this.initDbCheckSum} ****************")
+            }
 
             val storageRef = Firebase.storage.reference.child("/users/$token/${dbName}")
 
             storageRef.metadata.addOnSuccessListener { metadata ->
 
-                val remoteDbModifiedTime = metadata.getCustomMetadata("LAST_MODIFIED")?: walLastModifiedTime.toString()
-
-                if (mainLastModifiedTime == walLastModifiedTime) {
-                    onNotRequireSync.invoke()
+                val remoteCheckSum = metadata.getCustomMetadata("CHECK_SUM") ?: "0"
+                if (BuildConfig.DEBUG) {
+                    println("************** remoteCheckSum = $remoteCheckSum ****************")
                 }
-                else if (remoteDbModifiedTime != walLastModifiedTime.toString() && mainLastModifiedTime == walLastModifiedTime) {
+
+                if (localCheckSum.toString() != remoteCheckSum && localCheckSum == this.initDbCheckSum) {
                     onRequireDownSync.invoke(token)
                 }
-                else if (mainLastModifiedTime != walLastModifiedTime && remoteDbModifiedTime != walLastModifiedTime.toString()) {
+                else if (localCheckSum.toString() != remoteCheckSum && localCheckSum != this.initDbCheckSum) {
                     onRequireUpSync.invoke(token)
                 }
-
+                else {
+                    onNotRequireSync.invoke()
+                }
             }.addOnFailureListener { ex ->
 
                 if (ex is StorageException) {
                     if (ex.errorCode == StorageException.ERROR_OBJECT_NOT_FOUND) {
-                        if (mainLastModifiedTime != walLastModifiedTime) {
+                        if (localCheckSum != this.initDbCheckSum) {
                             onRequireUpSync.invoke(token)
+                            return@addOnFailureListener
+                        }
+                        else {
+                            onNotRequireSync.invoke()
                             return@addOnFailureListener
                         }
                     }

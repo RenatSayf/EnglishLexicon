@@ -9,6 +9,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.DialogStorageBinding
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Singleton
 
 
 @AndroidEntryPoint
@@ -21,13 +22,11 @@ class StorageDialog : BottomSheetDialogFragment()
 
         private var instance: StorageDialog? = null
 
+        @JvmStatic
         fun newInstance(listener: Listener): StorageDialog {
 
             this.listener = listener
-            return if (instance == null) {
-                instance = StorageDialog()
-                instance!!
-            } else instance!!
+            return StorageDialog()
         }
     }
 

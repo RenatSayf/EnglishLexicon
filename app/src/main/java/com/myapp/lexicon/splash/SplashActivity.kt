@@ -13,8 +13,8 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.billing.UserPurchases
 import com.myapp.lexicon.databinding.ALayoutSplashScreenBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
-import com.myapp.lexicon.helpers.startTimer
 import com.myapp.lexicon.helpers.showDialogAsSingleton
+import com.myapp.lexicon.helpers.startTimer
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.Speaker
 import com.myapp.lexicon.settings.*
