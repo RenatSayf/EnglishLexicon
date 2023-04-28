@@ -1,43 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="com.myapp.lexicon"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.myapp.lexicon">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/> <!--TODO Runtime permission Step 2-->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" /> <!-- TODO Runtime permission Step 2 -->
     <uses-permission android:name="com.android.vending.BILLING" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <application
         android:name=".di.App"
         android:allowBackup="true"
-        android:fullBackupContent="true"
+        android:fullBackupContent="@xml/backup_rules"
+        android:dataExtractionRules="@xml/backup_rules_12"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <activity
-            android:name=".addword.TranslateActivity"
-            android:label="@string/app_name"
-            android:exported="true">
-
-            <intent-filter>
-                <action android:name="android.intent.action.PROCESS_TEXT" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="text/plain" />
-            </intent-filter>
-
-        </activity>
-        <activity
-            android:name=".main.SplashScreenActivity"
-            android:label="@string/app_name"
-
-            android:exported="true">
+            android:name=".splash.SplashActivity"
+            android:exported="true"
+            android:screenOrientation="userPortrait"
+            android:configChanges="orientation|keyboardHidden"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -58,18 +52,36 @@
                     android:scheme="http" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".addword.TranslateActivity"
+            android:exported="true"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.PROCESS_TEXT" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".testing.TestActivity"
+            android:exported="false">
+        </activity>
+
         <activity
             android:name=".main.MainActivity"
+            android:exported="true"
             android:label="@string/app_name"
-
-            android:theme="@style/AppTheme.NoActionBar"
-            android:exported="true">
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter
                 android:autoVerify="true"
                 android:label="Английский изучай"
                 tools:targetApi="m">
                 <action android:name="android.intent.action.VIEW" />
-
+                <action android:name="com.myapp.lexicon.main.MainActivity" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
@@ -79,15 +91,15 @@
                     android:scheme="http" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".wordeditor.WordEditorActivity"
+            android:exported="true"
             android:label="@string/title_activity_word_editor"
-
             android:screenOrientation="unspecified"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden"
-            tools:targetApi="jelly_bean"
-            android:exported="true">
+            tools:targetApi="jelly_bean">
             <intent-filter
                 android:autoVerify="true"
                 android:label="Англо-русский переводчик"
@@ -112,8 +124,7 @@
         </activity>
         <activity
             android:name=".service.ServiceActivity"
-            android:theme="@style/popAppWindow">
-        </activity>
+            android:theme="@style/popAppWindow" />
         <!--
              ATTENTION: This was auto-generated to add Google Play services to your project for
              App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -144,24 +155,21 @@
             </intent-filter>
         </receiver>
         <receiver android:name=".schedule.TimerReceiver">
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.SCREEN_ON" />-->
-<!--            </intent-filter>-->
+
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.SCREEN_ON" /> -->
+            <!-- </intent-filter> -->
         </receiver>
-        <receiver android:name=".service.LexiconService$PhoneUnlockedReceiver"
+        <receiver
+            android:name=".service.PhoneUnlockedReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.SCREEN_ON" />
                 <action android:name="android.intent.action.SCREEN_OFF" />
+                <action android:name="android.intent.action.USER_PRESENT" />
+                <action android:name="android.intent.action.USER_UNLOCKED" />
             </intent-filter>
         </receiver>
-
-        <service
-            android:name=".service.LexiconService"
-            android:enabled="true"
-            android:exported="false"
-            android:permission="no">
-        </service>
 
     </application>
 

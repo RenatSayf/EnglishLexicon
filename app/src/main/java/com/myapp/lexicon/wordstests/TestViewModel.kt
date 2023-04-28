@@ -4,18 +4,24 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.helpers.UiState
 import com.myapp.lexicon.repository.DataRepositoryImpl
+import com.myapp.lexicon.settings.getWordFromPref
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
 @HiltViewModel
-class TestViewModel @Inject constructor(app: Application, private val repository: DataRepositoryImpl) : AndroidViewModel(app)
+class TestViewModel @Inject constructor(
+    app: Application,
+    private val repository: DataRepositoryImpl
+) : AndroidViewModel(app)
 {
     private val composite = CompositeDisposable()
 
@@ -27,7 +33,17 @@ class TestViewModel @Inject constructor(app: Application, private val repository
     }
 
     private var _currentWord = MutableLiveData<Word>().apply {
-        value = repository.getWordFromPref()
+        app.getWordFromPref(
+            onInit = {
+                viewModelScope.launch {
+                    value = repository.getFirstEntryAsync().await()
+                }
+            },
+            onSuccess = { word ->
+                value = word
+            },
+            onFailure = {}
+        )
     }
     var currentWord: LiveData<Word> = _currentWord
 

@@ -1,4 +1,6 @@
-@file:Suppress("ObjectLiteralToLambda", "UNUSED_ANONYMOUS_PARAMETER") @file:JvmName("BillingViewModelKt")
+@file:Suppress("ObjectLiteralToLambda", "UNUSED_ANONYMOUS_PARAMETER",
+    "MoveVariableDeclarationIntoWhen"
+) @file:JvmName("BillingViewModelKt")
 
 package com.myapp.lexicon.billing
 
@@ -7,28 +9,43 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.android.billingclient.api.*
 import com.google.gson.Gson
-import com.myapp.lexicon.BuildConfig
+import com.myapp.lexicon.R
 import com.myapp.lexicon.models.PurchaseToken
 import com.myapp.lexicon.models.UserPurchase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
-private const val PRODUCT_NO_ADS = "no_ads"
+
 
 @HiltViewModel
 class BillingViewModel @Inject constructor(app: Application) : AndroidViewModel(app), PurchasesUpdatedListener {
 
-    private val _noAdsToken : MutableLiveData<PurchaseToken> = MutableLiveData(null)
-    val noAdsToken: LiveData<PurchaseToken> = _noAdsToken
+    private var productIdNoAds: String
+    private var productIdCloudStorage: String
 
-    private var _wasCancelled = MutableLiveData(false)
-    var wasCancelled : LiveData<Boolean> = _wasCancelled
+    private var currentPurchase: ProductDetails? = null
 
-    private var _noAdsProduct = MutableLiveData<ProductDetails>()
-    val noAdsProduct: LiveData<ProductDetails> = _noAdsProduct
+    private var _wasCancelled = MutableLiveData<Result<ProductDetails>>()
+    var wasCancelled : LiveData<Result<ProductDetails>> = _wasCancelled
+
+    private var _noAdsProduct = MutableLiveData<Result<ProductDetails>>()
+    val noAdsProduct: LiveData<Result<ProductDetails>> = _noAdsProduct
+
+    private val _noAdsToken : MutableLiveData<Result<PurchaseToken>> = MutableLiveData()
+    val noAdsToken: LiveData<Result<PurchaseToken>> = _noAdsToken
+
+    private var _cloudStorageProduct = MutableLiveData<Result<ProductDetails>>()
+    val cloudStorageProduct: LiveData<Result<ProductDetails>> = _cloudStorageProduct
+
+    private var _cloudStorageToken = MutableLiveData<Result<PurchaseToken>>()
+    val cloudStorageToken: LiveData<Result<PurchaseToken>> = _cloudStorageToken
 
     val billingClient = BillingClient.newBuilder(app)
         .setListener(this)
@@ -37,63 +54,49 @@ class BillingViewModel @Inject constructor(app: Application) : AndroidViewModel(
 
     init {
 
-        val params = QueryPurchaseHistoryParams.newBuilder()
-            .setProductType(BillingClient.ProductType.INAPP).build()
+        productIdNoAds  = app.getString(R.string.id_no_ads)
+        productIdCloudStorage  = app.getString(R.string.id_cloud_storage)
 
         billingClient.startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(result: BillingResult) {
                 if (result.responseCode == BillingClient.BillingResponseCode.OK) {
 
                     queryProductDetails(billingClient)
-
-                    billingClient.queryPurchaseHistoryAsync(params, object : PurchaseHistoryResponseListener {
-                        override fun onPurchaseHistoryResponse(
-                            result: BillingResult,
-                            historyRecords: MutableList<PurchaseHistoryRecord>?
-                        ) {
-                            historyRecords?.forEach {
-                                val json = it.originalJson
-                                val purchase = Gson().fromJson(json, UserPurchase::class.java)
-
-                                when(purchase.productId) {
-                                    PRODUCT_NO_ADS -> {
-                                        if (purchase.purchaseToken.isNotEmpty()) {
-                                            if (BuildConfig.IS_ALWAYS_ADS) {
-                                                _noAdsToken.postValue(PurchaseToken.NO)
-                                            } else {
-                                                _noAdsToken.postValue(PurchaseToken.YES)
-                                            }
-                                        }
-                                        else {
-                                            _noAdsToken.postValue(PurchaseToken.NO)
-                                        }
-                                    }
-                                }
-                            }?: run {
-                                _noAdsToken.postValue(PurchaseToken.NO)
-                            }
-                        }
-                    })
                 }
             }
             override fun onBillingServiceDisconnected() {}
         })
     }
 
-    fun queryProductDetails(billingClient: BillingClient) {
+    private fun queryProductDetails(billingClient: BillingClient) {
 
         val productList = listOf(
-            buildProduct(PRODUCT_NO_ADS)
+            buildProduct(productIdNoAds),
+            buildProduct(productIdCloudStorage)
         )
         val params = QueryProductDetailsParams.newBuilder().setProductList(productList).build()
 
         billingClient.queryProductDetailsAsync(params) { billingResult, products ->
             if (products.isNotEmpty()) {
 
-                val noAdsProduct = products.first {
-                    it.productId == PRODUCT_NO_ADS
+                try {
+                    products.first {
+                        it.productId == productIdNoAds
+                    }.apply {
+                        _noAdsProduct.postValue(Result.success(this))
+                    }
+                } catch (e: NoSuchElementException) {
+                    _noAdsProduct.postValue(Result.failure(e))
                 }
-                _noAdsProduct.postValue(noAdsProduct)
+                try {
+                    products.first {
+                        it.productId == productIdCloudStorage
+                    }.apply {
+                        _cloudStorageProduct.postValue(Result.success(this))
+                    }
+                } catch (e: NoSuchElementException) {
+                    _cloudStorageProduct.postValue(Result.failure(e))
+                }
             }
         }
     }
@@ -105,21 +108,19 @@ class BillingViewModel @Inject constructor(app: Application) : AndroidViewModel(
         }.build()
     }
 
-    fun disableAds(activity: Activity)
-    {
-        noAdsProduct.value?.let {  details ->
-
-            val productDetailsParamsList = listOf(
-                BillingFlowParams.ProductDetailsParams.newBuilder()
-                    .setProductDetails(details)
-                    .build()
-            )
-            val flowParams = BillingFlowParams.newBuilder()
-                .setProductDetailsParamsList(productDetailsParamsList)
+    fun purchaseProduct(activity: Activity, productDetails: ProductDetails) {
+        currentPurchase = null
+        val productDetailsParamsList = listOf(
+            BillingFlowParams.ProductDetailsParams.newBuilder()
+                .setProductDetails(productDetails)
                 .build()
+        )
+        val flowParams = BillingFlowParams.newBuilder()
+            .setProductDetailsParamsList(productDetailsParamsList)
+            .build()
 
-            billingClient.launchBillingFlow(activity, flowParams)
-        }
+        billingClient.launchBillingFlow(activity, flowParams)
+        currentPurchase = productDetails
     }
 
     private fun handlePurchase(billingClient: BillingClient, purchase: Purchase)
@@ -128,44 +129,99 @@ class BillingViewModel @Inject constructor(app: Application) : AndroidViewModel(
             .setPurchaseToken(purchase.purchaseToken)
             .build()
 
+        val json = purchase.originalJson
+        val userPurchase = Gson().fromJson(json, UserPurchase::class.java)
+
         billingClient.consumeAsync(consumeParams) { billingResult, outToken ->
-            if (billingResult.responseCode == BillingClient.BillingResponseCode.OK)
-            {
-                if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED)
-                {
-                    val json = purchase.originalJson
-                    val userPurchase = Gson().fromJson(json, UserPurchase::class.java)
-                    when(userPurchase.productId) {
-                        PRODUCT_NO_ADS -> {
-                            if (outToken.isNotEmpty()) {
-                                _noAdsToken.postValue(PurchaseToken.YES)
+            when (billingResult.responseCode) {
+                BillingClient.BillingResponseCode.OK -> {
+                    if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED && !purchase.isAcknowledged) {
+                        confirmPurchase(billingClient, purchase, onSuccess = {
+                            when(userPurchase.productId) {
+                                productIdNoAds -> {
+                                    _noAdsToken.postValue(Result.success(PurchaseToken.YES))
+                                }
+                                productIdCloudStorage -> {
+                                    _cloudStorageToken.postValue(Result.success(PurchaseToken.YES))
+                                }
                             }
-                            else {
-                                _noAdsToken.postValue(PurchaseToken.NO)
+                        }, onCanceled = {
+                            when(userPurchase.productId) {
+                                productIdNoAds -> {
+                                    _noAdsToken.postValue(Result.failure(Throwable("Purchase has been canceled by user")))
+                                }
+                                productIdCloudStorage -> {
+                                    _cloudStorageToken.postValue(Result.failure(Throwable("Purchase has been canceled by user")))
+                                }
+                            }
+                        }, onError = {
+                            when(userPurchase.productId) {
+                                productIdNoAds -> {
+                                    _noAdsToken.postValue(Result.failure(Throwable("************ ${billingResult.debugMessage} *****************")))
+                                }
+                                productIdCloudStorage -> {
+                                    _cloudStorageToken.postValue(Result.failure(Throwable("************ ${billingResult.debugMessage} *****************")))
+                                }
+                            }
+                        })
+                    } else {
+                        when(userPurchase.productId) {
+                            productIdNoAds -> {
+                                _noAdsToken.postValue(Result.failure(Throwable("Purchase has been canceled by user")))
+                            }
+                            productIdCloudStorage -> {
+                                _cloudStorageToken.postValue(Result.failure(Throwable("Purchase has been canceled by user")))
                             }
                         }
                     }
+                    return@consumeAsync
                 }
-                else {
-                    _noAdsToken.postValue(PurchaseToken.NO)
-                    _wasCancelled.postValue(true)
-                }
-                return@consumeAsync
-            }
-            else {
-                _noAdsToken.postValue(PurchaseToken.NO)
-                _wasCancelled.postValue(true)
             }
         }
     }
 
     override fun onPurchasesUpdated(billingResult: BillingResult, purchases: MutableList<Purchase>?) {
-        if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && purchases != null) {
-            for (purchase in purchases) {
-                handlePurchase(billingClient, purchase)
+        if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+            purchases?.forEach {
+                handlePurchase(billingClient, it)
             }
         } else if (billingResult.responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
-            _wasCancelled.value = true
+            currentPurchase?.let {
+                _wasCancelled.value = Result.success(it)
+            }
         }
+    }
+
+    private fun confirmPurchase(
+        client: BillingClient,
+        purchase: Purchase,
+        onSuccess: (Purchase) -> Unit,
+        onCanceled: (Purchase) -> Unit,
+        onError: (String) -> Unit
+    ) {
+        val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
+            .setPurchaseToken(purchase.purchaseToken)
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val ackPurchaseResult = withContext(Dispatchers.Main) {
+                client.acknowledgePurchase(acknowledgePurchaseParams.build())
+            }
+            val code = ackPurchaseResult.responseCode
+            when (code) {
+                BillingClient.BillingResponseCode.OK -> {
+                    onSuccess.invoke(purchase)
+                }
+                BillingClient.BillingResponseCode.USER_CANCELED -> {
+                    onCanceled.invoke(purchase)
+                }
+                in (1..4) -> {
+                    onError.invoke(ackPurchaseResult.debugMessage)
+                }
+                else -> {
+                    onSuccess.invoke(purchase)
+                }
+            }
+        }
+
     }
 }

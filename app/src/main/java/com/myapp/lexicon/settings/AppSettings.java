@@ -1,16 +1,13 @@
 package com.myapp.lexicon.settings;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.database.DataBaseEntry;
-import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.helpers.ObjectSerializer;
+import com.myapp.lexicon.models.Word;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -32,26 +29,15 @@ public class AppSettings
     private final String KEY_PLAY_LIST = this.getClass().getCanonicalName() + ".KEY_PLAY_LIST";
     private final String KEY_PLAY_LIST_ITEMS = this.getClass().getCanonicalName() + ".KEY_PLAY_LIST_ITEMS";
     private final String KEY_ORDER_PLAY = this.getClass().getCanonicalName() + ".KEY_ORDER_PLAY";
-    private final String KEY_N_WORD = this.getClass().getCanonicalName() + ".KEY_N_WORD";
-    private final String KEY_ROW_ID = this.getClass().getCanonicalName() + ".KEY_ROW_ID";
     private final String KEY_CURRENT_DICT = this.getClass().getCanonicalName() + ".KEY_CURRENT_DICT";
-    private final String KEY_CURRENT_WORD = this.getClass().getCanonicalName() + ".KEY_CURRENT_WORD";
-    private final String KEY_EN_WORD = this.getClass().getCanonicalName() + ".KEY_EN_WORD";
-    private final String KEY_RU_WORD = this.getClass().getCanonicalName() + ".KEY_RU_WORD";
-    private final String KEY_IS_PAUSE = this.getClass().getCanonicalName() + ".KEY_IS_PAUSE";
-    private final String KEY_TRANSLATE_LANG = this.getClass().getCanonicalName() + ".KEY_TRANSLATE_LANG";
-    private final String KEY_COUNT_REPEAT = this.getClass().getCanonicalName() + ".KEY_COUNT_REPEAT";
     private final String KEY_WORD_IDS = this.getClass().getCanonicalName() + ".KEY_WORD_IDS";
-    private final String KEY_REQUIRE_MIGRATION = this.getClass().getCanonicalName() + ".KEY_REQUIRE_MIGRATION";
 
     private final Context context;
-    private final String transLang;
 
     @Inject
     public AppSettings(Context context)
     {
         this.context = context;
-        transLang = context.getString(R.string.lang_code_translate);
     }
 
     public boolean isSpeech()
@@ -131,85 +117,8 @@ public class AppSettings
         return context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getInt(KEY_ORDER_PLAY, 0);
     }
 
-    public void saveCurrentWord(DataBaseEntry entry)
-    {
-        SharedPreferences preferences = context.getSharedPreferences(KEY_CURRENT_WORD, MODE_PRIVATE);
-        preferences.edit().putInt(KEY_ROW_ID, entry.getRowId()).apply();
-        preferences.edit().putString(KEY_CURRENT_DICT, entry.getDictName()).apply();
-        preferences.edit().putString(KEY_EN_WORD, entry.getEnglish()).apply();
-        preferences.edit().putString(KEY_RU_WORD, entry.getTranslate()).apply();
-        preferences.edit().putString(KEY_COUNT_REPEAT, entry.getCountRepeat()).apply();
-    }
 
-    public DataBaseEntry getCurrentWord()
-    {
-        SharedPreferences preferences = context.getSharedPreferences(KEY_CURRENT_WORD, MODE_PRIVATE);
-        int rowId = preferences.getInt(KEY_ROW_ID, 0);
-        String defaultDict = "";
-        if (!getPlayList().isEmpty())
-        {
-            defaultDict = getPlayList().get(0);
-        }
-        String dictName = preferences.getString(KEY_CURRENT_DICT, defaultDict);
-        String english = preferences.getString(KEY_EN_WORD, "");
-        String translate = preferences.getString(KEY_RU_WORD, "");
-        String countRepeat = preferences.getString(KEY_COUNT_REPEAT, "");
-        return new DataBaseEntry(rowId, dictName, english, translate, countRepeat);
-    }
-
-    public void set_N_Word(int number)
-    {
-        context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putInt(KEY_N_WORD, number).apply();
-    }
-
-    public int getWordNumber()
-    {
-        int wordNumber = context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getInt(KEY_N_WORD, 1);
-        if (wordNumber <= 0)
-        {
-            wordNumber = 1;
-        }
-        return wordNumber;
-    }
-
-    public void setCurrentDict(String name)
-    {
-        context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putString(KEY_CURRENT_DICT, name).apply();
-    }
-
-    public String getCurrentDict()
-    {
-        return context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getString(KEY_CURRENT_DICT, null);
-    }
-
-    public void setPause(boolean param)
-    {
-        context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).edit().putBoolean(KEY_IS_PAUSE, param).apply();
-    }
-
-    public boolean isPause()
-    {
-        return context.getSharedPreferences(KEY_PLAY_LIST, MODE_PRIVATE).getBoolean(KEY_IS_PAUSE, false);
-    }
-
-
-    public void setTranslateLang(String langCode)
-    {
-        context.getSharedPreferences(KEY_TRANSLATE_LANG, MODE_PRIVATE).edit().putString(KEY_TRANSLATE_LANG, langCode).apply();
-    }
-
-    public String getTranslateLang()
-    {
-        String defaultLangCode = getTransLang();
-        return context.getSharedPreferences(KEY_TRANSLATE_LANG, MODE_PRIVATE).getString(KEY_TRANSLATE_LANG, defaultLangCode);
-    }
-
-    public String getTransLang()
-    {
-        return transLang;
-    }
-
-    public void goForward(List<Word> words)
+    public void goForward(List<Word> words) //????
     {
         if (words != null)
         {
@@ -244,7 +153,7 @@ public class AppSettings
     public Word getWordFromPref()
     {
         String defaultText = context.getString(R.string.nav_play_list);
-        String dict = Objects.requireNonNull(context.getSharedPreferences(WORD_ID, MODE_PRIVATE).getString(KEY_CURRENT_DICT, defaultText));
+        String dict = context.getSharedPreferences(WORD_ID, MODE_PRIVATE).getString(KEY_CURRENT_DICT, defaultText);
         int id = context.getSharedPreferences(WORD_ID, MODE_PRIVATE).getInt(WORD_ID, 1);
         return new Word(id, dict, "", "", 1);
     }
@@ -265,13 +174,4 @@ public class AppSettings
         return context.getSharedPreferences(WORD_ID, MODE_PRIVATE).getString(KEY_WORD_IDS, "");
     }
 
-    public boolean isRequireDbMigration()
-    {
-        return context.getSharedPreferences(KEY_REQUIRE_MIGRATION, MODE_PRIVATE).getBoolean(KEY_REQUIRE_MIGRATION, true);
-    }
-
-    public void setNotRequireDbMigration()
-    {
-        context.getSharedPreferences(KEY_REQUIRE_MIGRATION, MODE_PRIVATE).edit().putBoolean(KEY_REQUIRE_MIGRATION, false).apply();
-    }
 }

@@ -1,25 +1,30 @@
 package com.myapp.lexicon.main
 
+import android.app.Application
 import android.view.View
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.repository.DataRepositoryImpl
+import com.myapp.lexicon.settings.getWordFromPref
+import com.myapp.lexicon.settings.saveWordToPref
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
 @HiltViewModel
-class MainViewModel @Inject constructor(private val repository: DataRepositoryImpl) : ViewModel()
+class MainViewModel @Inject constructor(
+    private val repository: DataRepositoryImpl,
+    private val app: Application
+) : AndroidViewModel(app)
 {
     private val composite = CompositeDisposable()
 
     private var _currentDict = MutableLiveData<String>()
+
     @JvmField
     var currentDict: LiveData<String> = _currentDict
 
@@ -34,9 +39,18 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
 
     fun refreshWordsList()
     {
-        repository.getWordFromPref().apply {
-            setWordsList(this.dictName)
-        }
+        app.getWordFromPref(
+            onInit = {
+                viewModelScope.launch {
+                    val word = repository.getFirstEntryAsync().await()
+                    setWordsList(word.dictName)
+                }
+            },
+            onSuccess = { word ->
+                setWordsList(word.dictName)
+            },
+            onFailure = {}
+        )
     }
 
     fun resetWordsList()
@@ -92,28 +106,49 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
         return
     }
 
-    fun deleteDict(dictName: String) : Single<Int>
-    {
-        return repository.deleteEntriesByDictName(dictName)
+    fun deleteDicts(
+        dictList: List<String>,
+        onSuccess: (Int) -> Unit,
+        onNotFound: (String) -> Unit,
+        onFailure: (Throwable) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val quantity = repository.deleteEntriesByDictNameAsync(dictList).await()
+                if (quantity > 0) {
+                    onSuccess.invoke(quantity)
+                }
+                else {
+                    onNotFound.invoke("Not found")
+                }
+            } catch (e: Exception) {
+                onFailure.invoke(e)
+            }
+        }
     }
 
     private var _dictionaryList = MutableLiveData<MutableList<String>>().apply {
-        composite.add(
-            getDictList()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ list ->
-                    value = list
-                }, { t ->
-                    t.printStackTrace()
-                })
-        )
+
+        getDictList(onSuccess = { list ->
+            value = list.toMutableList()
+        }, onFailure = { t ->
+            t.printStackTrace()
+        })
     }
     val dictionaryList: LiveData<MutableList<String>> = _dictionaryList
 
-    fun getDictList() : Single<MutableList<String>>
-    {
-        return repository.getDictListFromDb()
+    fun getDictList(onSuccess: (List<String>) -> Unit, onFailure: (Throwable) -> Unit) {
+
+        composite.add(
+            repository.getDictListFromDb()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ list ->
+                    onSuccess.invoke(list)
+                }, { t ->
+                    onFailure.invoke(t)
+                })
+        )
     }
 
     fun setDictList(list: MutableList<String>)
@@ -122,26 +157,20 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
     }
 
     private var _currentWord = MutableLiveData<Word>().apply {
-        val wordFromPref = repository.getWordFromPref()
-        composite.add(
-            repository.getEntriesByIds(listOf(wordFromPref._id))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ list ->
-                    if (list.isNotEmpty())
-                    {
-                        value = list.first()
-                    }
-                    else
-                    {
-                        _dictionaryList.value?.let {
-                            value = Word(1, it.first(), "", "", 1)
-                            setWordsList(it.first())
-                        }
-                    }
-                }, { e ->
-                    e.printStackTrace()
-                })
+
+        app.getWordFromPref(
+            onInit = {
+                viewModelScope.launch {
+                    val word = repository.getFirstEntryAsync().await()
+                    postValue(word)
+                }
+            },
+            onSuccess = { word ->
+                postValue(word)
+            },
+            onFailure = {
+
+            }
         )
     }
     var currentWord: MutableLiveData<Word> = _currentWord
@@ -151,7 +180,7 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
     }
     fun saveCurrentWordToPref(word: Word)
     {
-        repository.saveWordThePref(word)
+        app.saveWordToPref(word)
     }
 
     fun goForward(words: List<Word>)
@@ -261,12 +290,20 @@ class MainViewModel @Inject constructor(private val repository: DataRepositoryIm
 
     init
     {
-        _currentDict.value = repository.getWordFromPref().dictName
-        val dictName = _currentDict.value
-        if (!dictName.isNullOrEmpty())
-        {
-            setWordsList(dictName)
-        }
+        app.getWordFromPref(
+            onInit = {
+                viewModelScope.launch {
+                    val word = repository.getFirstEntryAsync().await()
+                    _currentDict.value = word.dictName
+                    setWordsList(word.dictName)
+                }
+            },
+            onSuccess = { word ->
+                _currentDict.value = word.dictName
+                setWordsList(word.dictName)
+            },
+            onFailure = {}
+        )
     }
 
     override fun onCleared()

@@ -20,9 +20,9 @@ import com.myapp.lexicon.ads.showInterstitialAd
 import com.myapp.lexicon.databinding.OneOfFiveFragmNewBinding
 import com.myapp.lexicon.dialogs.TestCompleteDialog
 import com.myapp.lexicon.helpers.RandomNumberGenerator
-import com.myapp.lexicon.helpers.checkAdsToken
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.models.Word
+import com.myapp.lexicon.settings.adsIsEnabled
 import com.yandex.mobile.ads.interstitial.InterstitialAd
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
@@ -69,7 +69,7 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDia
     {
         val root = inflater.inflate(R.layout.one_of_five_fragm_new, container, false)
 
-        this.checkAdsToken(noToken = {
+        if (this.adsIsEnabled) {
             this.loadInterstitialAd(
                 index = 2,
                 success = { ad ->
@@ -79,8 +79,7 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDia
                     yandexAd2 = null
                 }
             )
-        })
-
+        }
         return root
     }
 

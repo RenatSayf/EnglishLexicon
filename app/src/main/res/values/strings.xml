@@ -38,7 +38,7 @@
     <string name="no_playlist">Не задан список обучения</string>
     <string name="message_about_pause">Пауза</string>
     <string name="message_about_start">Подождите немного сейчас начнем</string>
-    <string name="title_del_dict">Укажите удаляемый словарь</string>
+    <string name="title_del_dict">Выберите словари</string>
     <string name="button_text_delete">Удалить</string>
     <string name="button_text_cancel">Отмена</string>
     <string name="button_text_yes">Да</string>
@@ -163,6 +163,7 @@
     <string name="lang_russian" translatable="false">Russian</string>
     <string name="lang_ukraine" translatable="false">Ukraine</string>
     <string name="data_base_name">lexicon_DB.db</string>
+    <string name="wal_db_name">lexicon_DB.db-wal</string>
     <string name="lang_code_translate">ru_RU</string>
     <string name="lang_code_uk">uk_UA</string>
     <string name="translate_direct_ru_en">ru-en</string>
@@ -174,6 +175,7 @@
     <string name="title_service_group">Когда приложение закрыто</string>
     <string name="title_is_start_speech">Озвучивать при запуске</string>
     <string name="summary_is_start_speech">Озвучивать вступительную фразу при запуске приложения</string>
+    <string name="KEY_ON_START_SPEECH">KEY_ON_START_SPEECH</string>
     <string name="btn_text_new">Новый</string>
     <string name="text_create_dict_fails">Не удалось создать словарь</string>
     <string name="title_display_mode">Показывать слова в режиме:</string>
@@ -239,6 +241,22 @@
     <string name="text_enabled_permission_pop_up">Включите разрешения для всплывающих окон, и отображения на экране блокировки</string>
     <string name="text_dictionries">Словари</string>
     <string name="text_back">Назад</string>
+    <string name="text_enable_cloud">Подключить</string>
+    <string name="text_enabled">Подключено</string>
+    <string name="text_close">Закрыть</string>
+    <string name="text_cloud_storage">Облачное хранилище</string>
+    <string name="text_price">Цена:</string>
+    <string name="text_no_ads">Без рекламы</string>
+    <string name="text_cloud_description">При переустановке приложения, или смене устройства, ваши словари автоматически восстановятся</string>
+    <string name="text_save_my_dicts">Сохранять мои словари</string>
+    <string name="KEY_CLOUD_STORAGE">cloud_storage</string>
+    <string name="KEY_IS_ADS_ENABLED">is_ads_enabled</string>
+    <string name="text_something_went_wrong">Ой, что то пошло не так</string>
+    <string name="id_no_ads">no_ads</string>
+    <string name="id_cloud_storage">cloud_storage</string>
+    <string name="text_select_dict">Выберите словарь для изучения</string>
+    <string name="KEY_FIRST_LAUNCH">KEY_FIRST_LAUNCH</string>
+    <string name="text_dict_not_found">Некоторые словари не найдены</string>
     <string-array name="not_move">
         <item>Не перемещать</item>
     </string-array>

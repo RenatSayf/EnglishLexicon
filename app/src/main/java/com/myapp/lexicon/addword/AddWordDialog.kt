@@ -11,19 +11,19 @@ import android.widget.*
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
-import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.dialogs.NewDictDialog
 import com.myapp.lexicon.helpers.Keyboard
 import com.myapp.lexicon.main.MainViewModel
 import com.myapp.lexicon.main.Speaker
-import com.myapp.lexicon.settings.AppSettings
+import com.myapp.lexicon.models.Word
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.disposables.Disposable
 import java.util.*
 
 
 @AndroidEntryPoint
-class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult, Speaker.IOnSpeechListener
+class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult,
+    Speaker.Listener
 {
     companion object
     {
@@ -40,7 +40,7 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult, Spea
 
     private var dialogView: View? = null
     private var inputList: ArrayList<String> = arrayListOf()
-    private lateinit var adwvm: AddWordViewModel
+    private lateinit var addWordVM: AddWordViewModel
     private lateinit var mainVM: MainViewModel
     private var subscriber: Disposable? = null
     private lateinit var speaker: Speaker
@@ -49,7 +49,7 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult, Spea
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog
     {
         requireActivity().let { a ->
-            adwvm = ViewModelProvider(this)[AddWordViewModel::class.java]
+            addWordVM = ViewModelProvider(this)[AddWordViewModel::class.java]
             mainVM = ViewModelProvider(this)[MainViewModel::class.java]
             dialogView = a.layoutInflater.inflate(R.layout.add_word_dialog, LinearLayout(a), false)
 
@@ -82,42 +82,36 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult, Spea
 
         requireActivity().let { a ->
 
-            mainVM.dictionaryList.observe(viewLifecycleOwner, { list ->
+            mainVM.dictionaryList.observe(viewLifecycleOwner) { list ->
                 list.add(getString(R.string.text_new_dict))
-                if (!list.isNullOrEmpty())
-                {
-                    mainVM.currentWord.observe(viewLifecycleOwner, { word ->
-                        if (word.dictName.isNotEmpty())
-                        {
+                if (!list.isNullOrEmpty()) {
+                    mainVM.currentWord.observe(viewLifecycleOwner) { word ->
+                        if (word.dictName.isNotEmpty()) {
                             val index = list.indexOf(word.dictName)
-                            if (index >= 0)
-                            {
+                            if (index >= 0) {
                                 val adapter = ArrayAdapter(a, R.layout.app_spinner_item, list.distinct())
                                 dictListSpinner?.adapter = adapter
-                                when
-                                {
-                                    newDictName == null && index > -1 ->
-                                    {
+                                when {
+                                    newDictName == null && index > -1 -> {
                                         dictListSpinner?.setSelection(index)
                                     }
-                                    newDictName != null ->
-                                    {
+                                    newDictName != null -> {
                                         val i = list.indexOf(newDictName)
                                         dictListSpinner?.setSelection(i)
                                     }
                                 }
                             }
                         }
-                    })
+                    }
                 }
-            })
+            }
 
             dictListSpinner?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener
             {
                 override fun onItemSelected(adapterView: AdapterView<*>?, view: View?, index: Int, p3: Long)
                 {
                     view?.let {
-                        adwvm.setSelected(index)
+                        addWordVM.setSelected(index)
                         when ((view as TextView).text)
                         {
                             getString(R.string.text_new_dict) ->
@@ -178,15 +172,20 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult, Spea
                                     val enWord = inputWordTV.text.toString()
                                     val ruWord = translateTV.text.toString()
                                     val word = Word(0, dictName, enWord, ruWord, 1)
-                                    adwvm.insertedId.observe(viewLifecycleOwner, {
-                                        if (it > 0)
-                                        {
-                                            val toast = Toast.makeText(a, getString(R.string.in_dictionary) + dictName + getString(R.string.new_word_is_added), Toast.LENGTH_SHORT)
+                                    addWordVM.insertedId.observe(viewLifecycleOwner) {
+                                        if (it > 0) {
+                                            val toast = Toast.makeText(
+                                                a,
+                                                getString(R.string.in_dictionary) + dictName + getString(
+                                                    R.string.new_word_is_added
+                                                ),
+                                                Toast.LENGTH_SHORT
+                                            )
                                             toast.setGravity(Gravity.CENTER, 0, 0)
                                             toast.show()
                                         }
-                                    })
-                                    adwvm.insertEntryAsync(word)
+                                    }
+                                    addWordVM.insertEntryAsync(word)
                                     dismiss()
                                 }
                             }
@@ -230,9 +229,9 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult, Spea
             }
         }
 
-        adwvm.spinnerSelectedIndex().observe(viewLifecycleOwner, {
+        addWordVM.spinnerSelectedIndex().observe(viewLifecycleOwner) {
             dictListSpinner?.setSelection(it)
-        })
+        }
 
     }
 
@@ -242,7 +241,7 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult, Spea
         oldList?.let {
             it.add(0, dictName)
             mainVM.setDictList(it)
-            adwvm.setSelected(0)
+            addWordVM.setSelected(0)
         }
     }
 
@@ -251,6 +250,10 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult, Spea
         super.onDestroy()
         subscriber?.dispose()
         speaker.shutdown()
+    }
+
+    override fun onSuccessInit() {
+
     }
 
     override fun onSpeechStart(id: String?)
@@ -266,11 +269,6 @@ class AddWordDialog : DialogFragment(), NewDictDialog.INewDictDialogResult, Spea
     override fun onSpeechError(id: String?)
     {
 
-    }
-
-    override fun onContinued(arg: String?)
-    {
-        AppSettings(requireContext()).isEngSpeech = false
     }
 
     override fun onSpeechInitNotSuccess(status: Int)

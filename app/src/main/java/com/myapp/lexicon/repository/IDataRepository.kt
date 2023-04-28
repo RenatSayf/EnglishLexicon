@@ -1,14 +1,11 @@
 package com.myapp.lexicon.repository
 
-import com.myapp.lexicon.database.DataBaseEntry
 import com.myapp.lexicon.models.Word
-import io.reactivex.Observable
 import io.reactivex.Single
+import kotlinx.coroutines.Deferred
 
 interface IDataRepository
 {
-    fun getTableListFromDb() : Observable<MutableList<String>>
-
     fun getDictListFromDb() : Single<MutableList<String>>
 
     fun getEntriesFromDbByDictName(dictName: String, id: Int = 1, repeat: Int, limit: Int = 2) : Single<MutableList<Word>>
@@ -35,13 +32,9 @@ interface IDataRepository
 
     fun getCountersFromDb(dictName: String, id: Int) : Single<List<Int>>
 
-    fun getCurrentWordFromSettings() : DataBaseEntry
-
-    fun saveCurrentWordTheSettings(entry: DataBaseEntry)
-
-    fun getWordFromPref() : Word
-
-    fun saveWordThePref(word: Word)
+//    fun getWordFromPref() : Word
+//
+//    fun saveWordThePref(word: Word)
 
     fun goForward(words: List<Word>)
 
@@ -55,16 +48,6 @@ interface IDataRepository
 
     fun getWordsIdStringFromPref() : String
 
-    fun getAllFromTable(tableName: String) : Single<MutableList<DataBaseEntry>>
-
-    fun deleteTableFromDb(tableName: String) : Observable<Boolean>
-
-    fun dropTableFromDb(tableName: String) : Single<Boolean>
-
-    fun getRandomEntriesFromDb(tableName: String, rowId: Int) : Single<MutableList<DataBaseEntry>>
-
-    fun getEntriesAndCountersFromDb(tableName: String, rowId: Int, order: String, limit: Int) : Observable<Pair<MutableMap<String, Int>, MutableList<DataBaseEntry>>>
-
     fun isSpeechEnable() : Boolean
 
     fun enableSpeech(isEnable: Boolean)
@@ -76,4 +59,10 @@ interface IDataRepository
     fun isRusSpeech() : Boolean
 
     fun setRusSpeech(isSpeech: Boolean)
+
+    suspend fun getEntriesByDictNameAsync(dict: String, id: Long, repeat: Int = 1, limit: Int = 2): Deferred<List<Word>>
+
+    suspend fun getFirstEntryAsync(): Deferred<Word>
+
+    suspend fun deleteEntriesByDictNameAsync(dicts: List<String>): Deferred<Int>
 }

@@ -11,7 +11,8 @@ import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.JavaKotlinMediator;
-import com.myapp.lexicon.models.PurchaseToken;
+import com.myapp.lexicon.service.PhoneUnlockedReceiver;
+import com.myapp.lexicon.settings.SettingsExtKt;
 import com.yandex.mobile.ads.banner.BannerAdView;
 import com.yandex.mobile.ads.common.AdRequestError;
 import com.yandex.mobile.ads.interstitial.InterstitialAd;
@@ -72,19 +73,6 @@ public class BackgroundFragm extends Fragment
     {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-
-        MainActivity mainActivity = (MainActivity) requireActivity();
-        mainActivity.billingVM.getNoAdsToken().observe(this, token -> {
-            if (token == PurchaseToken.YES) {
-                ExtensionsKt.saveNoAdsToken(this, "XXXXXXXXXXXXXXXXXXX");
-                hideAdBanner();
-                yandexAd = null;
-            }
-            else if (token == PurchaseToken.NO) {
-                ExtensionsKt.saveNoAdsToken(this, "");
-                loadAds();
-            }
-        });
     }
 
     private void loadAds()
@@ -181,11 +169,36 @@ public class BackgroundFragm extends Fragment
     {
         super.onResume();
 
+        boolean adsIsEnabled = SettingsExtKt.getAdsIsEnabled(this);
+        if (adsIsEnabled) {
+            loadAds();
+        }
+        else {
+            hideAdBanner();
+            yandexAd = null;
+        }
+
         requireActivity().getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true)
         {
             @Override
             public void handleOnBackPressed()
             {
+                MainActivity mainActivity = (MainActivity) requireActivity();
+                mainActivity.onAppFinish();
+
+                ExtensionsKt.alarmClockEnable(requireContext());
+
+                SettingsExtKt.checkUnLockedBroadcast(
+                        requireContext(),
+                        () -> {
+                            PhoneUnlockedReceiver unlockedReceiver = PhoneUnlockedReceiver.Companion.getInstance();
+                            requireContext().registerReceiver(
+                                    unlockedReceiver,
+                                    unlockedReceiver.getFilter());
+                            return null;
+                        },
+                        () -> null);
+
                 if (yandexAd != null)
                 {
                     new JavaKotlinMediator().showInterstitialAd(yandexAd, () -> requireActivity().finish());

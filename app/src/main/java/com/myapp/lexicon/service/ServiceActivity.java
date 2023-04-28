@@ -6,12 +6,12 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.helpers.StringOperations;
 import com.myapp.lexicon.interfaces.IModalFragment;
 import com.myapp.lexicon.main.MainViewModel;
-import com.myapp.lexicon.main.SplashScreenActivity;
+import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.schedule.AlarmScheduler;
+import com.myapp.lexicon.splash.SplashActivity;
 
 import java.util.Arrays;
 
@@ -20,34 +20,24 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import dagger.hilt.android.AndroidEntryPoint;
 
-/**
- * Created by Renat
- */
+
 
 @AndroidEntryPoint
 public class ServiceActivity extends AppCompatActivity implements IModalFragment
 {
-    private boolean isServiceEnabled = false;
-    public static IStopServiceByUser iStopServiceByUser;
+    public static Listener listener;
     public static final String ARG_JSON = ServiceActivity.class.getCanonicalName() + ".ARG_JSON";
-    private boolean stoppedByUser;
 
     @Override
     public void openApp()
     {
-        stoppedByUser = true;
         finish();
-        startActivity(new Intent(this, SplashScreenActivity.class));
+        startActivity(new Intent(this, SplashActivity.class));
     }
 
-    public interface IStopServiceByUser
+    public interface Listener
     {
         void onStoppedByUser();
-    }
-
-    public static void setStoppedByUserListener(IStopServiceByUser listener)
-    {
-        iStopServiceByUser = listener;
     }
 
     @Override
@@ -56,25 +46,18 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         super.onCreate(savedInstanceState);
         setContentView(R.layout.service_dialog_activity);
 
-        Intent intent = new Intent(this, LexiconService.class);
-        stopService(intent);
-
         MainViewModel vm = new ViewModelProvider(this).get(MainViewModel.class);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ServiceActivity.this);
         String preferencesString = preferences.getString(getString(R.string.key_list_display_mode), "0");
         String displayVariantStr = preferences.getString(getString(R.string.key_display_variant), "0");
-        isServiceEnabled = preferences.getBoolean(getString(R.string.key_service), false);
         int displayMode = 0;
-        if (preferencesString != null && displayVariantStr != null)
+        try
         {
-            try
-            {
-                displayMode = Integer.parseInt(preferencesString);
-            } catch (NumberFormatException e)
-            {
-                e.printStackTrace();
-            }
+            displayMode = Integer.parseInt(preferencesString);
+        } catch (NumberFormatException e)
+        {
+            e.printStackTrace();
         }
 
         int finalDisplayMode = displayMode;
@@ -127,32 +110,14 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         super.onDetachedFromWindow();
     }
 
-    @Override
-    protected void onDestroy()
-    {
-        super.onDestroy();
-        if (isServiceEnabled)
-        {
-            Intent intent = new Intent(this, LexiconService.class);
-            if (!stoppedByUser)
-            {
-                startService(intent);
-            }
-            else
-            {
-                stopService(intent);
-                stoppedByUser = false;
-            }
-        }
-    }
 
     public void stopAppService()
     {
-        if (iStopServiceByUser != null)
+        if (listener != null)
         {
-            stoppedByUser = true;
-            iStopServiceByUser.onStoppedByUser();
-            new AlarmScheduler(this).cancel(AlarmScheduler.REQUEST_CODE, AlarmScheduler.REPEAT_SHOOT_ACTION);
+            listener.onStoppedByUser();
+            new AlarmScheduler(this).cancel(AlarmScheduler.ONE_SHOOT_ACTION);
+            finish();
         }
     }
 

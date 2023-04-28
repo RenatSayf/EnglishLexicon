@@ -1,24 +1,19 @@
 package com.myapp.lexicon.repository
 
-import com.myapp.lexicon.database.AppDB
 import com.myapp.lexicon.database.AppDao
-import com.myapp.lexicon.database.DataBaseEntry
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.AppSettings
-import io.reactivex.Observable
 import io.reactivex.Single
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import javax.inject.Inject
 
-class DataRepositoryImpl @Inject constructor(private val appDB: AppDB,
-                                             private val db: AppDao,
-                                             private var settings: AppSettings) : IDataRepository
+class DataRepositoryImpl @Inject constructor(
+    private val db: AppDao,
+    private var settings: AppSettings
+) : IDataRepository
 {
-
-    override fun getTableListFromDb(): Observable<MutableList<String>>
-    {
-        return appDB.getTableListAsync()
-    }
-
     override fun getDictListFromDb(): Single<MutableList<String>>
     {
         return db.getDictList()
@@ -69,8 +64,7 @@ class DataRepositoryImpl @Inject constructor(private val appDB: AppDB,
         return db.delete(word)
     }
 
-    override fun deleteEntriesByDictName(dictName: String): Single<Int>
-    {
+    override fun deleteEntriesByDictName(dictName: String): Single<Int> {
         return db.deleteEntriesByDictName(dictName)
     }
 
@@ -84,25 +78,15 @@ class DataRepositoryImpl @Inject constructor(private val appDB: AppDB,
         return db.getCounters(dictName, id)
     }
 
-    override fun getCurrentWordFromSettings(): DataBaseEntry
-    {
-        return settings.currentWord
-    }
-
-    override fun saveCurrentWordTheSettings(entry: DataBaseEntry)
-    {
-        settings.saveCurrentWord(entry)
-    }
-
-    override fun getWordFromPref(): Word
-    {
-        return settings.wordFromPref
-    }
-
-    override fun saveWordThePref(word: Word)
-    {
-        settings.saveWordThePref(word)
-    }
+//    override fun getWordFromPref(): Word
+//    {
+//        return settings.wordFromPref
+//    }
+//
+//    override fun saveWordThePref(word: Word)
+//    {
+//        settings.saveWordThePref(word)
+//    }
 
     override fun goForward(words: List<Word>)
     {
@@ -134,31 +118,6 @@ class DataRepositoryImpl @Inject constructor(private val appDB: AppDB,
         return settings.wordsIdsAsString
     }
 
-    override fun getAllFromTable(tableName: String): Single<MutableList<DataBaseEntry>>
-    {
-        return appDB.getAllFromTableAsync(tableName)
-    }
-
-    override fun deleteTableFromDb(tableName: String): Observable<Boolean>
-    {
-        return appDB.deleteTableFromDbAsync(tableName)
-    }
-
-    override fun dropTableFromDb(tableName: String): Single<Boolean>
-    {
-        return appDB.dropTableFromDb(tableName)
-    }
-
-    override fun getRandomEntriesFromDb(tableName: String, rowId: Int): Single<MutableList<DataBaseEntry>>
-    {
-        return appDB.getRandomEntriesFromDbAsync(tableName, rowId)
-    }
-
-    override fun getEntriesAndCountersFromDb(tableName: String, rowId: Int, order: String, limit: Int): Observable<Pair<MutableMap<String, Int>, MutableList<DataBaseEntry>>>
-    {
-        return appDB.getEntriesAndCountersAsync(tableName, rowId, order, limit)
-    }
-
     override fun isSpeechEnable(): Boolean
     {
         return settings.isSpeech
@@ -187,5 +146,34 @@ class DataRepositoryImpl @Inject constructor(private val appDB: AppDB,
     override fun setRusSpeech(isSpeech: Boolean)
     {
         settings.isRusSpeech = isSpeech
+    }
+
+    override suspend fun getEntriesByDictNameAsync(
+        dict: String,
+        id: Long,
+        repeat: Int,
+        limit: Int
+    ): Deferred<List<Word>> {
+        return coroutineScope {
+            async {
+                db.getEntriesByDictName(dict, id, repeat, limit)
+            }
+        }
+    }
+
+    override suspend fun getFirstEntryAsync(): Deferred<Word> {
+        return coroutineScope {
+            async {
+                db.getFirstEntry()
+            }
+        }
+    }
+
+    override suspend fun deleteEntriesByDictNameAsync(dicts: List<String>): Deferred<Int> {
+        return coroutineScope {
+            async {
+                db.deleteEntriesByDictName(dicts)
+            }
+        }
     }
 }

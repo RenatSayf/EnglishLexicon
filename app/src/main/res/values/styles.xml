@@ -65,4 +65,12 @@
         <item name="android:textColor">@color/colorBlack</item>
     </style>
 
+    <style name="AppBottomDialog" parent="Theme.MaterialComponents.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/BottomSheetStyleWrapper</item>
+    </style>
+
+    <style name="BottomSheetStyleWrapper" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
 </resources>

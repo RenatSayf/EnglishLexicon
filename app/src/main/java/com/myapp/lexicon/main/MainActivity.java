@@ -3,15 +3,12 @@ package com.myapp.lexicon.main;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
@@ -21,38 +18,44 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.ads.MobileAds;
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
+import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
-import com.myapp.lexicon.billing.BillingViewModel;
-import com.myapp.lexicon.cloudstorage.StorageFragment2;
-import com.myapp.lexicon.database.AppDB;
-import com.myapp.lexicon.database.AppDao;
+import com.myapp.lexicon.cloudstorage.DownloadDbWorker;
+import com.myapp.lexicon.cloudstorage.StorageDialog;
+import com.myapp.lexicon.cloudstorage.UploadDbWorker;
 import com.myapp.lexicon.database.AppDataBase;
-import com.myapp.lexicon.database.DatabaseHelper;
+import com.myapp.lexicon.databinding.DialogStorageBinding;
+import com.myapp.lexicon.dialogs.ConfirmDialog;
 import com.myapp.lexicon.dialogs.DictListDialog;
 import com.myapp.lexicon.dialogs.OrderPlayDialog;
 import com.myapp.lexicon.dialogs.RemoveDictDialog;
 import com.myapp.lexicon.helpers.AppBus;
+import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.JavaKotlinMediator;
+import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.Share;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.schedule.AlarmScheduler;
-import com.myapp.lexicon.service.LexiconService;
+import com.myapp.lexicon.service.PhoneUnlockedReceiver;
 import com.myapp.lexicon.settings.ContainerFragment;
+import com.myapp.lexicon.settings.SettingsExtKt;
 import com.myapp.lexicon.wordeditor.WordEditorActivity;
 import com.myapp.lexicon.wordstests.OneOfFiveFragm;
 import com.myapp.lexicon.wordstests.TestFragment;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import javax.inject.Inject;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -64,10 +67,6 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 import dagger.hilt.android.AndroidEntryPoint;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
 
 
 @AndroidEntryPoint
@@ -78,13 +77,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView tvWordsCounter;
     private ImageView orderPlayView;
     private ViewPager2 mainViewPager;
+    private Toolbar toolBar;
 
     private final String KEY_TV_WORDS_COUNTER = "tv_words_counter";
 
     public MainViewModel mainViewModel;
     private SpeechViewModel speechViewModel;
-    public BillingViewModel billingVM;
-    private final CompositeDisposable composite = new CompositeDisposable();
     private Word currentWord;
     private int wordsInterval = Integer.MAX_VALUE;
     public BackgroundFragm backgroundFragm = null;
@@ -100,21 +98,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         View root = LayoutInflater.from(this).inflate(R.layout.a_navig_main, new DrawerLayout(this));
         setContentView(root);
 
-        Toolbar toolBar = findViewById(R.id.tool_bar);
+        toolBar = findViewById(R.id.tool_bar);
         setSupportActionBar(toolBar);
 
-        MobileAds.initialize(this);
+        PhoneUnlockedReceiver.Companion.disableBroadcast();
 
         NotificationManager nmg = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (nmg != null)
         {
             nmg.cancelAll();
         }
-        scheduler.cancel(AlarmScheduler.REQUEST_CODE, AlarmScheduler.REPEAT_SHOOT_ACTION);
+        scheduler.cancel(AlarmScheduler.ONE_SHOOT_ACTION);
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
         speechViewModel = new ViewModelProvider(this).get(SpeechViewModel.class);
-        billingVM = new ViewModelProvider(this).get(BillingViewModel.class);
 
         btnViewDict = findViewById(R.id.btnViewDict);
         btnViewDictOnClick(btnViewDict);
@@ -446,16 +443,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onClick(View view)
             {
-                String buttonText = button.getText().toString();
-                composite.add(mainViewModel.getDictList().subscribeOn(Schedulers.computation())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe( list -> {
-                            int index = list.indexOf(buttonText);
-                            if (index >= 0)
-                            {
-                                String item = list.remove(index);
-                                list.add(0, item);
-                            }
+                mainViewModel.getDictList(list -> {
+
+                    String buttonText = button.getText().toString();
+                    int index = list.indexOf(buttonText);
+                    if (index >= 0)
+                    {
+                        String item = list.remove(index);
+                        list.add(0, item);
+                    }
+                    ExtensionsKt.showDialogAsSingleton(
+                            MainActivity.this,
                             DictListDialog.Companion.getInstance(list, new DictListDialog.ISelectItemListener()
                             {
                                 @Override
@@ -467,9 +465,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     mainViewModel.setCurrentWord(word);
                                     mainViewModel.setCurrentDict(dict);
                                 }
-                            }).show(getSupportFragmentManager(), DictListDialog.Companion.getTAG());
-
-                        }, Throwable::printStackTrace));
+                            }),
+                            DictListDialog.Companion.getTAG()
+                    );
+                    return null;
+                }, throwable -> {
+                    if (BuildConfig.DEBUG) throwable.printStackTrace();
+                    return null;
+                });
             }
         });
     }
@@ -501,57 +504,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             wordsInterval = mainViewModel.getTestInterval().getValue();
         }
-        this.stopService(new Intent(this, LexiconService.class));
         Boolean isRefresh = AppBus.INSTANCE.isRefresh().getValue();
         if (isRefresh != null && isRefresh)
         {
             mainViewModel.refreshWordsList();
         }
 
-        this.getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true)
-        {
-            @Override
-            public void handleOnBackPressed()
-            {
-                getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
-                DrawerLayout drawer = findViewById(R.id.drawer_layout);
-
-                if (drawer != null)
-                {
-                    if (drawer.isDrawerOpen(GravityCompat.START))
-                    {
-                        drawer.closeDrawer(GravityCompat.START);
-                    }
-                }
-                alarmClockEnable(scheduler);
-                finish();
-            }
-        });
+        onAppStarting();
     }
 
     @Override
     protected void onDestroy()
     {
-        mainViewModel.saveCurrentWordToPref(currentWord);
-        super.onDestroy();
-    }
-
-    private void alarmClockEnable(AlarmScheduler scheduler)
-    {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        String interval = preferences.getString(getString(R.string.key_show_intervals), "0");
-        int parseInt = Integer.parseInt(interval);
-        if (parseInt != 0)
+        try
         {
-            scheduler.scheduleOne((long) parseInt * 60 * 1000);
+            mainViewModel.saveCurrentWordToPref(currentWord);
+        } catch (Exception e)
+        {
+            if (BuildConfig.DEBUG) e.printStackTrace();
         }
+        super.onDestroy();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
         getMenuInflater().inflate(R.menu.a_up_menu_main, menu);
-        return true;
+        return false;
     }
 
     @Override
@@ -581,26 +560,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 e.printStackTrace();
             }
         }
-        if (id == R.id.cloud_storage)
-        {
-            StorageFragment2 storageFragment = StorageFragment2.Companion.newInstance();
-            getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, storageFragment).addToBackStack(null).commit();
-        }
         if (id == R.id.menu_item_share)
         {
             new Share().doShare(this);
         }
-        if (id == R.id.menu_run_migration_db)
-        {
-            DatabaseHelper helper = new DatabaseHelper(this);
-            AppDao roomDb = AppDataBase.Companion.buildDataBase(this).appDao();
-            AppDB appDB = new AppDB(helper, roomDb);
-            appDB.migrateToWordsTable();
+        if (id == R.id.cloud_storage) {
+            showCloudDialog();
         }
-
         return super.onOptionsItemSelected(item);
     }
 
+    @SuppressWarnings("Convert2Lambda")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item)
     {
@@ -614,28 +584,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         else if (id == R.id.nav_delete_dict)
         {
-            Disposable subscribe = mainViewModel.getDictList()
-                    .subscribeOn(Schedulers.newThread())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(list -> {
-                        if (list != null && !list.isEmpty())
-                        {
-                            //noinspection Convert2Lambda
-                            RemoveDictDialog.Companion.getInstance((ArrayList<String>) list, new RemoveDictDialog.IRemoveDictDialogCallback()
+            mainViewModel.getDictList(list -> {
+                if (!list.isEmpty()) {
+                    ExtensionsKt.showDialogAsSingleton(
+                            this,
+                            RemoveDictDialog.Companion.getInstance((ArrayList<String>) list, new RemoveDictDialog.Listener()
                             {
                                 @Override
-                                public void removeDictDialogButtonClickListener(@NonNull List<String> list)
+                                public void onRemoveButtonClick(@NonNull List<String> list)
                                 {
-                                    boolean contains = list.contains(mainViewModel.currentDict.getValue());
-                                    if (contains)
-                                    {
-                                        mainViewModel.resetWordsList();
-                                    }
+                                    showRemoveDictDialog(list);
                                 }
-                            }).show(getSupportFragmentManager(), RemoveDictDialog.TAG);
-                        }
-                    }, Throwable::printStackTrace);
-            composite.add(subscribe);
+                            }),
+                            RemoveDictDialog.TAG);
+                }
+                return null;
+            }, throwable -> {
+                if (BuildConfig.DEBUG)
+                {
+                    throwable.printStackTrace();
+                }
+                return null;
+            });
         }
         else if (id == R.id.nav_edit)
         {
@@ -670,12 +640,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         else if (id == R.id.nav_exit)
         {
-            if (SplashScreenActivity.speech != null)
-            {
-                SplashScreenActivity.speech.stop();
-                SplashScreenActivity.speech.shutdown();
-            }
-            alarmClockEnable(scheduler);
+            onAppFinish();
+            ExtensionsKt.alarmClockEnable(this);
+
+            SettingsExtKt.checkUnLockedBroadcast(
+                    this,
+                    () -> {
+                        PhoneUnlockedReceiver unlockedReceiver = PhoneUnlockedReceiver.Companion.getInstance();
+                        registerReceiver(
+                                unlockedReceiver,
+                                unlockedReceiver.getFilter());
+                        return null;
+                    },
+                    () -> null);
+
             if (backgroundFragm != null && backgroundFragm.yandexAd != null)
             {
                 new JavaKotlinMediator().showInterstitialAd(backgroundFragm.yandexAd, this::finish);
@@ -706,13 +684,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onDetachedFromWindow()
     {
         super.onDetachedFromWindow();
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean isUseService = preferences.getBoolean("service", true);
-        if (isUseService)
-        {
-            Intent serviceIntent = new Intent(this, LexiconService.class);
-            startService(serviceIntent);
-        }
         isActivityRunning = false;
     }
 
@@ -720,6 +691,171 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         wordsInterval = value;
     }
+
+    @SuppressWarnings("CodeBlock2Expr")
+    private void showRemoveDictDialog(List<String> list) {
+        ExtensionsKt.showDialogAsSingleton(
+                MainActivity.this,
+                ConfirmDialog.Companion.newInstance((dialog, binding) -> {
+            binding.tvMessage.setText(getString(R.string.dialog_are_you_sure));
+            binding.btnCancel.setOnClickListener(v -> {
+                dialog.dismiss();
+            });
+            binding.btnOk.setOnClickListener(v -> {
+                mainViewModel.deleteDicts(list, integer -> {
+                    if (integer > 0) {
+                        ExtensionsKt.showSnackBar(mainControlLayout, getString(R.string.msg_selected_dict_removed), Snackbar.LENGTH_LONG);
+                        boolean contains = list.contains(mainViewModel.currentDict.getValue());
+                        if (contains)
+                        {
+                            mainViewModel.resetWordsList();
+                        }
+                    }
+                    dialog.dismiss();
+                    return null;
+                }, dict -> {
+                    String message = getString(R.string.text_dict_not_found);
+                    ExtensionsKt.showSnackBar(mainControlLayout, message, Snackbar.LENGTH_LONG);
+                    return null;
+                }, t -> {
+                    if (t.getMessage() != null) {
+                        ExtensionsKt.showSnackBar(mainControlLayout, t.getMessage(), Snackbar.LENGTH_LONG);
+                    }
+                    dialog.dismiss();
+                    return null;
+                });
+            });
+            return null;
+        }), ConfirmDialog.Companion.getTAG());
+    }
+
+    private void showCloudDialog() {
+        BottomSheetDialogFragment dialog = (BottomSheetDialogFragment)getSupportFragmentManager().findFragmentByTag(StorageDialog.Companion.getTAG());
+        if (dialog == null) {
+            dialog = StorageDialog.Companion.newInstance(new StorageDialog.Listener()
+            {
+                @Override
+                public void onDestroy()
+                {
+                    new LockOrientation(MainActivity.this).unLock();
+                }
+
+                @Override
+                public void onLaunch(@NonNull DialogStorageBinding binding)
+                {
+                    new LockOrientation(MainActivity.this).lock();
+                    binding.tvProductName.setText(getString(R.string.text_cloud_storage));
+                    binding.tvPriceTitle.setText("В облачном хранилище найдена резервная копия Ваших словарей.\nВосстановить слова?");
+                    binding.btnCloudEnable.setText("Восстановить");
+                    binding.btnCancel.setText(getString(R.string.btn_text_cancel));
+                }
+
+                @Override
+                public void onPositiveClick()
+                {
+                    SettingsExtKt.checkCloudToken(
+                            MainActivity.this,
+                            () -> null,
+                            token -> {
+                                DownloadDbWorker.Companion.downloadDbFromCloud(
+                                        MainActivity.this,
+                                        getString(R.string.data_base_name),
+                                        token,
+                                        new DownloadDbWorker.Listener()
+                                        {
+                                            @Override
+                                            public void onSuccess(@NonNull byte[] bytes)
+                                            {
+                                                try
+                                                {
+                                                    AppDataBase dataBase = AppDataBase.Companion.getDataBase();
+                                                    if (dataBase != null) {
+                                                        dataBase.close();
+                                                    }
+                                                    File file = getDatabasePath(getString(R.string.data_base_name));
+                                                    FileOutputStream fileOutputStream = new FileOutputStream(file);
+                                                    fileOutputStream.write(bytes);
+                                                    fileOutputStream.close();
+                                                    ExtensionsKt.showSnackBar(mainControlLayout, "Словари успешно восстановлены.", Snackbar.LENGTH_LONG);
+                                                    toolBar.getMenu().findItem(R.id.cloud_storage).setVisible(false);
+                                                }
+                                                catch (Exception e)
+                                                {
+                                                    e.printStackTrace();
+                                                    ExtensionsKt.showSnackBar(mainControlLayout, "Ошибка. Не удалось восстановить базу данных", Snackbar.LENGTH_LONG);
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onFailure(@NonNull String error)
+                                            {
+                                                ExtensionsKt.showSnackBar(mainControlLayout, error, Snackbar.LENGTH_LONG);
+                                            }
+
+                                            @Override
+                                            public void onComplete()
+                                            {}
+                                        }
+                                );
+                                return null;
+                            },
+                            () -> null,
+                            () -> null
+                    );
+
+
+                }
+
+                @Override
+                public void onCancelClick()
+                {
+                    toolBar.getMenu().findItem(R.id.cloud_storage).setVisible(true);
+                }
+            });
+            dialog.show(getSupportFragmentManager(), StorageDialog.Companion.getTAG());
+        }
+    }
+
+    private void onAppStarting() {
+
+        boolean isCloudEnabled = SettingsExtKt.getCloudStorageEnabled(this);
+        if (isCloudEnabled) {
+            SettingsExtKt.checkCloudStorage(
+                    MainActivity.this,
+                    userId -> null,
+                    userId -> {
+                        boolean isFirstLaunch = SettingsExtKt.getCheckFirstLaunch(this);
+                        if (isFirstLaunch) {
+                            showCloudDialog();
+                        }
+                        toolBar.getMenu().findItem(R.id.cloud_storage).setVisible(true);
+                        SettingsExtKt.setCheckFirstLaunch(this, false);
+                        return null;
+                    },
+                    () -> {
+                        SettingsExtKt.setCheckFirstLaunch(this, false);
+                        toolBar.getMenu().findItem(R.id.cloud_storage).setVisible(false);
+                        return null;
+                    }
+            );
+        }
+        else {
+            toolBar.getMenu().findItem(R.id.cloud_storage).setVisible(false);
+        }
+    }
+
+    void onAppFinish() {
+
+        boolean storageEnabled = SettingsExtKt.getCloudStorageEnabled(this);
+        if (storageEnabled) {
+
+            UploadDbWorker.Companion.uploadDbToCloud(
+                    this,
+                    this.getString(R.string.data_base_name),
+                    null);
+        }
+    }
+
 
 }
 

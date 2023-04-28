@@ -5,7 +5,7 @@
     <PreferenceCategory android:title="@string/text_on_start">
         <CheckBoxPreference
             android:defaultValue="true"
-            android:key="is_start_speech"
+            android:key="@string/KEY_ON_START_SPEECH"
             android:summary="@string/summary_is_start_speech"
             />
     </PreferenceCategory>
@@ -15,9 +15,23 @@
         android:title="@string/text_ad">
 
         <SwitchPreferenceCompat
-            android:key="disableAds"
+            android:key="@string/KEY_IS_ADS_ENABLED"
             android:title="@string/text_show_ads"
-            android:defaultValue="true"/>
+            android:defaultValue="true"
+
+            />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="cloudStorageCategory"
+        android:title="Облачное хранилище">
+
+        <SwitchPreferenceCompat
+            android:key="@string/KEY_CLOUD_STORAGE"
+            android:title="@string/text_save_my_dicts"
+            android:summary="@string/text_cloud_description"
+            android:defaultValue="false"/>
 
     </PreferenceCategory>
 

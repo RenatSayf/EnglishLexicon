@@ -16,10 +16,15 @@ import javax.inject.Inject
 
 @Suppress("ObjectLiteralToLambda")
 @HiltViewModel
-class SpeechViewModel @Inject constructor(app: Application, private val repository: DataRepositoryImpl) : AndroidViewModel(app), Speaker.IOnSpeechListener
+class SpeechViewModel @Inject constructor(app: Application, private val repository: DataRepositoryImpl) : AndroidViewModel(app),
+    Speaker.Listener
 {
     private var speaker: Speaker = Speaker(app, this)
     private val composite = CompositeDisposable()
+
+    override fun onSuccessInit() {
+
+    }
 
     override fun onSpeechStart(id: String)
     {
@@ -34,11 +39,6 @@ class SpeechViewModel @Inject constructor(app: Application, private val reposito
     override fun onSpeechError(id: String)
     {
         _speechErrorId.postValue(id)
-    }
-
-    override fun onContinued(arg: String)
-    {
-        return
     }
 
     override fun onSpeechInitNotSuccess(status: Int)

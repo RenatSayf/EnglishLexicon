@@ -6,6 +6,8 @@ import android.content.Context
 import android.content.Intent
 import javax.inject.Inject
 
+
+
 class AlarmScheduler @Inject constructor(private val context: Context)
 {
     companion object
@@ -15,12 +17,21 @@ class AlarmScheduler @Inject constructor(private val context: Context)
         const val REPEAT_SHOOT_ACTION = "$REQUEST_CODE.repeat_shoot_action"
     }
 
+    private fun createPendingIntent(action: String): PendingIntent {
+        val intent = Intent(context, TimerReceiver::class.java).apply {
+            this.action = action
+        }
+        return PendingIntent.getBroadcast(
+            context,
+            REQUEST_CODE,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT
+        )
+    }
+
     fun scheduleOne(overTime: Long)
     {
-        val intent = Intent(context, TimerReceiver::class.java).apply {
-            this.action = ONE_SHOOT_ACTION
-        }
-        val pendingIntent = PendingIntent.getBroadcast(context, REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingIntent = createPendingIntent(ONE_SHOOT_ACTION)
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         alarmManager.apply {
             setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + overTime, pendingIntent)
@@ -39,19 +50,10 @@ class AlarmScheduler @Inject constructor(private val context: Context)
         }
     }
 
-    fun cancel(requestCode: Int, action: String)
+    fun cancel(action: String)
     {
-        val pendingIntent = PendingIntent.getBroadcast(
-                context,
-                requestCode,
-                Intent(context, TimerReceiver::class.java).apply {
-                    this.action = action
-                },
-                PendingIntent.FLAG_NO_CREATE
-        )
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        pendingIntent?.let {
-            alarmManager.cancel(it)
-        }
+        val pendingIntent = createPendingIntent(action)
+        alarmManager.cancel(pendingIntent)
     }
 }

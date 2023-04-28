@@ -37,13 +37,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    flavorDimensions "test_ads"
+    flavorDimensions "purchases_test"
     productFlavors {
-        ADS_ALWAYS_ {
-            buildConfigField 'Boolean', 'IS_ALWAYS_ADS', 'true'
+        PURCHASE_TEST_ {
+            buildConfigField 'Boolean', 'IS_PURCHASE_TEST', 'true'
         }
-        ADS_NORMAL_ {
-            buildConfigField 'Boolean', 'IS_ALWAYS_ADS', 'false'
+        PURCHASE_NORMAL_ {
+            buildConfigField 'Boolean', 'IS_PURCHASE_TEST', 'false'
         }
     }
     lintOptions {
@@ -71,15 +71,23 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.preference:preference-ktx:1.2.0'
 
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
+
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation 'androidx.test:rules:1.5.0'
     testImplementation "android.arch.core:core-testing:1.1.1"
     testImplementation 'androidx.test:core:1.5.0'
     testImplementation 'androidx.test.ext:truth:1.5.0'
     testImplementation 'com.google.truth:truth:1.1.3'
     testImplementation 'androidx.test:core-ktx:1.5.0'
     testImplementation 'androidx.test.ext:junit-ktx:1.1.5'
+
+    //Robolectric
+    testImplementation 'org.robolectric:robolectric:4.8.1'
+    testImplementation 'org.robolectric:annotations:4.8.1'
 
     implementation 'androidx.multidex:multidex:2.0.1'
 
@@ -90,13 +98,9 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:31.2.3')
     implementation 'com.google.firebase:firebase-storage-ktx'
 
-    implementation 'com.google.android.gms:play-services-ads:21.5.0'
-
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    implementation 'com.google.android.gms:play-services-ads:22.0.0'
 
     implementation 'androidx.browser:browser:1.5.0'
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
 
     //Hilt   TODO Hilt step 3
     implementation "com.google.dagger:hilt-android:2.44"
@@ -105,16 +109,17 @@ dependencies {
     kapt 'androidx.hilt:hilt-compiler:1.0.0'
 
     //region Room
-    implementation "androidx.room:room-runtime:2.5.0"
-    kapt "androidx.room:room-compiler:2.5.0"
+    implementation "androidx.room:room-runtime:2.5.1"
+    implementation "androidx.room:room-ktx:2.5.1"
+    kapt "androidx.room:room-compiler:2.5.1"
     // optional - Test helpers
-    testImplementation "androidx.room:room-testing:2.5.0"
+    testImplementation "androidx.room:room-testing:2.5.1"
     //endregion
 
     //reactivex
     implementation 'io.reactivex.rxjava2:rxjava:2.2.21'
     implementation 'com.jakewharton.rxbinding2:rxbinding:2.2.0'
-    implementation 'androidx.room:room-rxjava2:2.5.0'
+    implementation 'androidx.room:room-rxjava2:2.5.1'
 
     //jsoup
     implementation 'org.jsoup:jsoup:1.15.2'
@@ -126,15 +131,24 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.10.1'
 
     //region TODO Activity Result API. Runtime permission Step 1
-    implementation 'androidx.activity:activity-ktx:1.6.1'
-    implementation 'androidx.fragment:fragment-ktx:1.5.5'
+    implementation 'androidx.activity:activity-ktx:1.7.1'
+    implementation 'androidx.fragment:fragment-ktx:1.5.7'
     //endregion
 
     //Google Play Billing Library
-    implementation 'com.android.billingclient:billing-ktx:5.1.0'
+    implementation 'com.android.billingclient:billing-ktx:5.2.0'
 
     //Yandex ads
     implementation 'com.yandex.android:mobileads:5.6.0'
+
+    //WorkManager library
+    def work_version = "2.8.1"
+    // Kotlin + coroutines
+    implementation "androidx.work:work-runtime-ktx:$work_version"
+    // optional - GCMNetworManager support
+    implementation "androidx.work:work-gcm:$work_version"
+    // optional - Test helpers
+    testImplementation "androidx.work:work-testing:$work_version"
 
 }
 

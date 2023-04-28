@@ -15,6 +15,7 @@
     <color name="colorLightRed">#fa3f42</color>
     <color name="colorLightPurple">#a7a5f7</color>
     <color name="colorTransparent">#00000000</color>
+    <color name="color_transparent_5">#0D000000</color>
     <color name="colorGrey">#aaafd7</color>
     <color name="eng_text_color">#132ef7</color>
     <color name="trans_text_color">#0b9404</color>
@@ -26,4 +27,17 @@
     <color name="colorYellowDark">#FFC107</color>
     <color name="colorSemitransparent">#640b0b0b</color>
     <color name="color_status_bar">#192b45</color>
+    <color name="color_7E8E1A">#7E8E1A</color>
+    <color name="color_7E8E1A_09">#E67E8E1A</color>
+    <color name="color_CEF5FE">#CEF5FE</color>
+    <color name="color_92F2FF">#92F2FF</color>
+    <color name="color_1BCD38">#1BCD38</color>
+    <color name="color_A4BA21">#A4BA21</color>
+    <color name="color_CCC3C3">#CCC3C3</color>
+    <color name="color_0B0730">#0B0730</color>
+    <color name="color_DBFF05">#DBFF05</color>
+    <color name="color_2B4B78">#2B4B78</color>
+    <color name="color_3B5E91">#3B5E91</color>
+    <color name="color_F5F5F5">#F5F5F5</color>
+    <color name="color_D3CC26">#D3CC26</color>
 </resources>

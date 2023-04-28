@@ -60,7 +60,7 @@
     <string name="no_playlist">Не заданий список відтворення</string>
     <string name="message_about_pause">Пауза</string>
     <string name="message_about_start">Почекайте трохи зараз почнемо</string>
-    <string name="title_del_dict">Вкажіть видаляється словник</string>
+    <string name="title_del_dict">Виберіть словники</string>
     <string name="button_text_delete">Видалити</string>
     <string name="button_text_cancel">Скасування</string>
     <string name="button_text_yes">Так</string>
@@ -183,6 +183,7 @@
     <string name="text_off">Вимк</string>
     <string name="text_version_name">v. 1</string>
     <string name="data_base_name">lexicon_uk_DB.db</string>
+    <string name="wal_db_name">lexicon_DB.db-wal</string>
     <string name="lang_code_translate">uk_UA</string>
     <string name="lang_code_uk">uk_UA</string>
     <string name="translate_direct_ru_en">uk-en</string>
@@ -194,6 +195,7 @@
     <string name="title_service_group">Коли додаток закрито</string>
     <string name="title_is_start_speech">Озвучувати при запуску</string>
     <string name="summary_is_start_speech">Озвучувати вступну фразу при запуску програми</string>
+    <string name="KEY_ON_START_SPEECH">KEY_ON_START_SPEECH</string>
     <string name="btn_text_new">Новий</string>
     <string name="text_create_dict_fails">Не вдалося створити словник</string>
 
@@ -290,8 +292,24 @@
     <string name="text_ad">Реклама</string>
     <string name="text_show_ads">Показувати рекламу</string>
     <string name="text_enabled_permission_pop_up">Увімкніть дозволи для спливаючих вікон і відображення на екрані блокування</string>
-    <string name="text_dictionries">Словари</string>
+    <string name="text_dictionries">Словник</string>
     <string name="text_back">Назад</string>
+    <string name="text_enable_cloud">Підключивши</string>
+    <string name="text_enabled">Підключений</string>
+    <string name="text_close">Заплющити</string>
+    <string name="text_cloud_storage">Хмарне сховище</string>
+    <string name="text_price">Ціна:</string>
+    <string name="text_no_ads">Без реклами</string>
+    <string name="text_cloud_description">При перевстановлення програми, або зміні пристрою, ваші словники автоматично відновляться</string>
+    <string name="text_save_my_dicts">Зберігати мої словники</string>
+    <string name="KEY_CLOUD_STORAGE">cloud_storage</string>
+    <string name="KEY_IS_ADS_ENABLED">is_ads_enabled</string>
+    <string name="text_something_went_wrong">Ой, що щось пішло не так</string>
+    <string name="id_no_ads">no_ads</string>
+    <string name="id_cloud_storage">cloud_storage</string>
+    <string name="text_select_dict">Виберіть словник для вивчення</string>
+    <string name="KEY_FIRST_LAUNCH">KEY_FIRST_LAUNCH</string>
+    <string name="text_dict_not_found">Деякі словники не знайдені</string>
 
     <string-array name="words_interval">
         <item>після 5 слів</item>
