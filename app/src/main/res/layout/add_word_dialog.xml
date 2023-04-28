@@ -164,7 +164,7 @@
         android:background="@drawable/transparent_background_straight_angle"
         android:textColor="@color/colorWhite"
         android:drawableStart="@drawable/ic_close_red"
-        android:drawableLeft="@drawable/ic_close_red"
+        android:drawablePadding="8dp"
         android:gravity="center_vertical"
         tools:ignore="RtlCompat" />
 
@@ -184,7 +184,7 @@
         android:background="@drawable/transparent_background_straight_angle"
         android:textColor="@color/colorWhite"
         android:drawableEnd="@drawable/ic_add_light_green"
-        android:drawableRight="@drawable/icon_add_blue"
+        android:drawablePadding="8dp"
         android:gravity="center_vertical"
         tools:ignore="RtlCompat" />
 

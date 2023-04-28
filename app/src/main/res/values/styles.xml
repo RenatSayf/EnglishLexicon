@@ -50,14 +50,13 @@
         <item name="android:windowIsTranslucent">true</item>
     </style>
 
-    <style name="AppEditText" parent="Widget.AppCompat.EditText">
+    <style name="AppEditText" parent="ThemeOverlay.Material3.TextInputEditText">
         <item name="android:textCursorDrawable">@color/colorWhite</item>
-        <item name="android:textColorHighlight">@color/colorTransparent</item>
-        <item name="android:textColorLink">@color/colorTransparent</item>
-        <item name="android:textColorHint">@color/colorTransparent</item>
-        <item name="colorControlNormal">@color/colorTransparent</item>
-        <item name="colorControlActivated">@color/colorTransparent</item>
-        <item name="colorControlHighlight">@color/colorTransparent</item>
+        <item name="android:textColorHighlight">@color/color_CCC3C3</item>
+        <item name="android:textColorHint">@color/color_CCC3C3</item>
+<!--        <item name="colorControlNormal">@color/colorTransparent</item>-->
+<!--        <item name="colorControlActivated">@color/colorTransparent</item>-->
+<!--        <item name="colorControlHighlight">@color/colorTransparent</item>-->
         <item name="backgroundTint">@color/colorTransparent</item>
     </style>
 

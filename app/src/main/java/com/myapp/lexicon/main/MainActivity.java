@@ -749,7 +749,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     binding.btnCloudEnable.setText("Восстановить");
                     binding.btnCancel.setText(getString(R.string.btn_text_cancel));
                 }
-
                 @Override
                 public void onPositiveClick()
                 {
@@ -802,10 +801,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             () -> null,
                             () -> null
                     );
-
-
                 }
-
                 @Override
                 public void onCancelClick()
                 {

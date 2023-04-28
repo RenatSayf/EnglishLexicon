@@ -71,5 +71,21 @@ fun ByteArray.getCRC32CheckSum(): Long {
     return crC32.value
 }
 
+fun String.checkOnlyLetterAndFirstNotDigit(): Int {
+    if (this.isNotEmpty() && this[0].isDigit()) {
+        return 0
+    }
+    return try {
+        val first = this.first {
+            !it.isLetterOrDigit() && !it.isWhitespace()
+        }
+        val indexOf = this.indexOf(first)
+        //return this.replace(Regex("^[0-9]|\\W]*"), "")
+        indexOf
+    } catch (e: Exception) {
+        -1
+    }
+}
+
 
 
