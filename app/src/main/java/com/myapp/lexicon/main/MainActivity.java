@@ -777,6 +777,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                                     fileOutputStream.write(bytes);
                                                     fileOutputStream.close();
                                                     ExtensionsKt.showSnackBar(mainControlLayout, "Словари успешно восстановлены.", Snackbar.LENGTH_LONG);
+                                                    toolBar.getMenu().findItem(R.id.cloud_storage).setVisible(false);
                                                 }
                                                 catch (Exception e)
                                                 {
@@ -808,10 +809,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 @Override
                 public void onCancelClick()
                 {
-                    MenuItem menuItem = toolBar.getMenu().findItem(R.id.cloud_storage);
-                    if (!menuItem.isVisible()) {
-                        menuItem.setVisible(true);
-                    }
+                    toolBar.getMenu().findItem(R.id.cloud_storage).setVisible(true);
                 }
             });
             dialog.show(getSupportFragmentManager(), StorageDialog.Companion.getTAG());
@@ -820,8 +818,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void onAppStarting() {
 
-        Menu menu = toolBar.getMenu();
-        MenuItem menuItem = menu.findItem(R.id.cloud_storage);
         boolean isCloudEnabled = SettingsExtKt.getCloudStorageEnabled(this);
         if (isCloudEnabled) {
             SettingsExtKt.checkCloudStorage(
@@ -832,19 +828,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         if (isFirstLaunch) {
                             showCloudDialog();
                         }
-                        menu.findItem(R.id.cloud_storage).setVisible(true);
+                        toolBar.getMenu().findItem(R.id.cloud_storage).setVisible(true);
                         SettingsExtKt.setCheckFirstLaunch(this, false);
                         return null;
                     },
                     () -> {
                         SettingsExtKt.setCheckFirstLaunch(this, false);
-                        menuItem.setVisible(false);
+                        toolBar.getMenu().findItem(R.id.cloud_storage).setVisible(false);
                         return null;
                     }
             );
         }
         else {
-            menuItem.setVisible(false);
+            toolBar.getMenu().findItem(R.id.cloud_storage).setVisible(false);
         }
     }
 

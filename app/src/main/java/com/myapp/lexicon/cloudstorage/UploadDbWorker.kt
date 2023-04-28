@@ -70,7 +70,7 @@ class UploadDbWorker(
                     val checkSum = mainDbFile.readBytes().getCRC32CheckSum()
 
                     if (BuildConfig.DEBUG) {
-                        println("**************** Database check sum: $checkSum ******************")
+                        println("************* ${UploadDbWorker::class.simpleName}.doWork() Database check sum: $checkSum ******************")
                     }
                     val storageRef = Firebase.storage.reference
                     val customMetadata = StorageMetadata.Builder().apply {
