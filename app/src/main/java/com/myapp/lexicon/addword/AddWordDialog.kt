@@ -16,7 +16,7 @@ import com.myapp.lexicon.databinding.AddWordDialogBinding
 import com.myapp.lexicon.dialogs.NewDictDialog
 import com.myapp.lexicon.helpers.hideKeyboard
 import com.myapp.lexicon.helpers.showKeyboard
-import com.myapp.lexicon.helpers.showSnackBar
+import com.myapp.lexicon.helpers.showToast
 import com.myapp.lexicon.main.MainViewModel
 import com.myapp.lexicon.main.Speaker
 import com.myapp.lexicon.models.Word
@@ -174,7 +174,7 @@ class AddWordDialog : DialogFragment(),
                                             getString(R.string.in_dictionary) + dictName + getString(
                                                 R.string.new_word_is_added
                                             )
-                                        showSnackBar(message)
+                                        showToast(message)
                                     }
                                 }
                                 addWordVM.insertEntryAsync(word)

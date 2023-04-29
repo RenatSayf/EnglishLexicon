@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.CountDownTimer
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
@@ -35,6 +36,14 @@ fun View.showSnackBar(message: String, duration: Int = Snackbar.LENGTH_LONG): Sn
 
 fun Fragment.showSnackBar(message: String, duration: Int = Snackbar.LENGTH_LONG): Snackbar {
     return requireView().showSnackBar(message, duration)
+}
+
+fun Context.showToast(message: String, duration: Int = Toast.LENGTH_LONG) {
+    Toast.makeText(this, message, duration).show()
+}
+
+fun Fragment.showToast(message: String, duration: Int = Toast.LENGTH_LONG) {
+    requireContext().showToast(message, duration)
 }
 
 fun File.fileToBytes(): ByteArray {
