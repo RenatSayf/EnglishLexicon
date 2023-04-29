@@ -61,7 +61,7 @@
         android:paddingEnd="65dp"
         android:paddingStart="65dp"
         tools:text="АААААААААААААААААAAAAAAAAAAAAAA"
-        style="@style/AppEditText"
+
         tools:ignore="RtlCompat"
         android:enabled="false"
         />
@@ -131,13 +131,13 @@
             android:popupBackground="@color/colorPrimary"
             android:theme="@style/TextAppearance.AppCompat.Title.Inverse"
             android:spinnerMode="dropdown"
-            tools:targetApi="LOLLIPOP"
             />
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/colorWhite"/>
+            android:layout_marginTop="2dp"
+            android:foreground="@color/colorWhite"/>
 
     </LinearLayout>
 

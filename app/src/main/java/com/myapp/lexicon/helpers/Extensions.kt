@@ -3,6 +3,7 @@ package com.myapp.lexicon.helpers
 import android.content.Context
 import android.os.CountDownTimer
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
@@ -87,5 +88,15 @@ fun String.checkOnlyLetterAndFirstNotDigit(): Int {
     }
 }
 
+private val Context.inputManager: InputMethodManager
+    get() {
+        return this.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    }
 
+fun View.showKeyboard() {
+    this.context.inputManager.showSoftInput(this, 0)
+}
 
+fun View.hideKeyboard() {
+    this.context.inputManager.hideSoftInputFromWindow(this.windowToken, 0)
+}

@@ -1,6 +1,7 @@
 package com.myapp.lexicon.addword
 
 import android.app.Dialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,13 +14,13 @@ import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.AddWordDialogBinding
 import com.myapp.lexicon.dialogs.NewDictDialog
-import com.myapp.lexicon.helpers.Keyboard
+import com.myapp.lexicon.helpers.hideKeyboard
+import com.myapp.lexicon.helpers.showKeyboard
 import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.main.MainViewModel
 import com.myapp.lexicon.main.Speaker
 import com.myapp.lexicon.models.Word
 import dagger.hilt.android.AndroidEntryPoint
-import io.reactivex.disposables.Disposable
 import java.util.*
 
 
@@ -30,15 +31,24 @@ class AddWordDialog : DialogFragment(),
 {
     companion object
     {
-        val TAG = "${this::class.java.canonicalName}.TAG"
+        val TAG = "${this::class.java.simpleName}.TAG"
         private const val WORD_LIST_TAG = "en_word"
-        private val instance : AddWordDialog? by lazy { null }
+        private var listener: Listener? = null
 
-        fun getInstance(list: ArrayList<String>) : AddWordDialog = instance ?: AddWordDialog().apply {
+        fun newInstance(
+            list: ArrayList<String>,
+            listener: Listener? = null
+        ) : AddWordDialog = AddWordDialog().apply {
+            this@Companion.listener = listener
             arguments = Bundle().apply {
                 putStringArrayList(WORD_LIST_TAG, list)
             }
         }
+    }
+
+    interface Listener {
+        fun onCancelClick()
+        fun onDismiss()
     }
 
     private lateinit var binding: AddWordDialogBinding
@@ -46,7 +56,6 @@ class AddWordDialog : DialogFragment(),
     private var inputList: ArrayList<String> = arrayListOf()
     private lateinit var addWordVM: AddWordViewModel
     private lateinit var mainVM: MainViewModel
-    private var subscriber: Disposable? = null
     private lateinit var speaker: Speaker
     private var newDictName: String? = null
 
@@ -131,12 +140,13 @@ class AddWordDialog : DialogFragment(),
                         isEnabled = true
                         requestFocus()
                         this.setSelection(this.text.length)
+                        this.showKeyboard()
                     }
                     else
                     {
                         clearFocus()
                         isEnabled = false
-                        Keyboard.getInstance().forceHide(requireActivity(), this)
+                        this.hideKeyboard()
                     }
                 }
             }
@@ -177,6 +187,7 @@ class AddWordDialog : DialogFragment(),
 
             btnCancel.setOnClickListener {
                 dismiss()
+                listener?.onCancelClick()
             }
 
             enSpeechBtn.setOnClickListener {
@@ -226,10 +237,14 @@ class AddWordDialog : DialogFragment(),
         }
     }
 
+    override fun onDismiss(dialog: DialogInterface) {
+        listener?.onDismiss()
+        super.onDismiss(dialog)
+    }
+
     override fun onDestroy()
     {
         super.onDestroy()
-        subscriber?.dispose()
         speaker.shutdown()
     }
 
@@ -268,7 +283,7 @@ class AddWordDialog : DialogFragment(),
     }
 
     override fun onNegativeClick() {
-        dismiss()
+
     }
 
 

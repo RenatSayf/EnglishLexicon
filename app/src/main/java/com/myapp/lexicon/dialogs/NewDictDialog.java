@@ -47,7 +47,7 @@ public class NewDictDialog extends DialogFragment
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
         setStyle(STYLE_NO_TITLE, R.style.AppAlertDialog);
-
+        setCancelable(false);
         Dialog dialog = super.onCreateDialog(savedInstanceState);
         dialog.getWindow().setBackgroundDrawableResource(R.drawable.bg_popup_dialog);
         return dialog;
@@ -102,10 +102,15 @@ public class NewDictDialog extends DialogFragment
             listener.onNegativeClick();
         });
 
-        binding.btnOk.setOnClickListener(v -> {
-            Editable dictName = binding.etDictName.getText();
-            listener.onPositiveClick(dictName != null ? dictName.toString() : "");
+        binding.btnOk.setOnClickListener( v -> {
+            String dictName = binding.etDictName.getText() != null ? binding.etDictName.getText().toString() : "";
             dismiss();
+            if (dictName.isEmpty()) {
+                dismiss();
+                listener.onNegativeClick();
+                return;
+            }
+            listener.onPositiveClick(dictName);
         });
     }
 }

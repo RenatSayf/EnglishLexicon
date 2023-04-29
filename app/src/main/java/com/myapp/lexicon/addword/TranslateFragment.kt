@@ -117,7 +117,7 @@ class TranslateFragment : Fragment()
             if (!it.hasBeenHandled) {
                 val content = it.getContent()
                 if (!content.isNullOrEmpty()) {
-                    AddWordDialog.getInstance(content)
+                    AddWordDialog.newInstance(content)
                         .show(mActivity.supportFragmentManager, AddWordDialog.TAG)
                 }
             }
