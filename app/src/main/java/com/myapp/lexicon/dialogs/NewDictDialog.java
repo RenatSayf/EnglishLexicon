@@ -22,7 +22,7 @@ import androidx.fragment.app.DialogFragment;
 public class NewDictDialog extends DialogFragment
 {
     private ADialogAddDictBinding binding;
-    public static final String TAG = "new_dict_dialog";
+    public static final String TAG = NewDictDialog.class.getSimpleName() + ".TAG";
     private static NewDictDialog newDictDialog = null;
     private static Listener listener;
 
