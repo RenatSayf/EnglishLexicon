@@ -78,24 +78,9 @@ class DataRepositoryImpl @Inject constructor(
         return db.getCounters(dictName, id)
     }
 
-//    override fun getWordFromPref(): Word
-//    {
-//        return settings.wordFromPref
-//    }
-//
-//    override fun saveWordThePref(word: Word)
-//    {
-//        settings.saveWordThePref(word)
-//    }
-
     override fun goForward(words: List<Word>)
     {
         settings.goForward(words)
-    }
-
-    override fun getTestIntervalFromPref(): Int
-    {
-        return settings.wordsInterval
     }
 
     override fun getOrderPlay(): Int

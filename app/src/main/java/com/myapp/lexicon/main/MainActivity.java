@@ -56,6 +56,10 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -70,7 +74,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 
 @AndroidEntryPoint
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, MainFragment.Listener
 {
     public LinearLayout mainControlLayout;
     private Button btnViewDict;
@@ -84,11 +88,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public MainViewModel mainViewModel;
     private SpeechViewModel speechViewModel;
     private Word currentWord;
-    private int wordsInterval = Integer.MAX_VALUE;
+    private int wordsInterval = 10;
     public BackgroundFragm backgroundFragm = null;
 
     @Inject
     AlarmScheduler scheduler;
+
 
 
     @Override
@@ -394,6 +399,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         btnReplay.setOnClickListener( view -> mainViewPager.setCurrentItem(0, true));
 
+        MainFragment mainFragment = MainFragment.Companion.getInstance(this);
+        getSupportFragmentManager().beginTransaction().add(R.id.frame_to_page_fragm, mainFragment).commit();
+
     }
 
     public void testPassed()
@@ -500,16 +508,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onResume()
     {
         super.onResume();
-        if (mainViewModel.getTestInterval().getValue() != null)
-        {
-            wordsInterval = mainViewModel.getTestInterval().getValue();
-        }
-        Boolean isRefresh = AppBus.INSTANCE.isRefresh().getValue();
-        if (isRefresh != null && isRefresh)
-        {
-            mainViewModel.refreshWordsList();
-        }
-
         onAppStarting();
     }
 
@@ -570,6 +568,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return super.onOptionsItemSelected(item);
     }
 
+    ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<>()
+            {
+                @Override
+                public void onActivityResult(ActivityResult result)
+                {
+                    int resultCode = result.getResultCode();
+                    if (resultCode == WordEditorActivity.requestCode)
+                    {
+                        mainViewModel.refreshWordsList();
+                    }
+                }
+            });
+
     @SuppressWarnings("Convert2Lambda")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item)
@@ -613,7 +626,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Bundle bundle = new Bundle();
             bundle.putString(WordEditorActivity.KEY_EXTRA_DICT_NAME, btnViewDict.getText().toString());
             intent.replaceExtras(bundle);
-            startActivity(intent);
+            //startActivity(intent);
+            activityResultLauncher.launch(intent);
         }
         else if (id == R.id.nav_check_your_self)
         {
@@ -708,7 +722,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         boolean contains = list.contains(mainViewModel.currentDict.getValue());
                         if (contains)
                         {
-                            mainViewModel.resetWordsList();
+                            //mainViewModel.resetWordsList();
+                            mainViewModel.refreshWordsList();
                         }
                     }
                     dialog.dismiss();
@@ -853,6 +868,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
 
+    @Override
+    public void refreshMainScreen()
+    {
+        mainViewModel.refreshWordsList();
+    }
+
+    @Override
+    public void onVisibleMainScreen()
+    {
+        wordsInterval = SettingsExtKt.getTestIntervalFromPref(this);
+    }
 }
 
 

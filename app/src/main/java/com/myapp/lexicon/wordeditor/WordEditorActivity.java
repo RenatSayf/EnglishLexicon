@@ -3,6 +3,7 @@ package com.myapp.lexicon.wordeditor;
 import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -53,6 +54,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class WordEditorActivity extends AppCompatActivity implements ListViewAdapter.IListViewAdapter
 {
     public static final String KEY_EXTRA_DICT_NAME = "wordeditor_dict_name";
+    public static final int requestCode = 2654789;
 
     private Spinner dictListSpinner;
     private SearchView searchView;
@@ -334,7 +336,8 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             switcher.showPrevious();
         }
         else {
-            super.onBackPressed();
+            setResult(requestCode, new Intent());
+            finish();
         }
     }
 

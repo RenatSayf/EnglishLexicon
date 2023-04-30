@@ -257,6 +257,7 @@
     <string name="text_select_dict">Выберите словарь для изучения</string>
     <string name="KEY_FIRST_LAUNCH">KEY_FIRST_LAUNCH</string>
     <string name="text_dict_not_found">Некоторые словари не найдены</string>
+    <string name="KEY_NEED_REFRESH">need to refresh</string>
     <string-array name="not_move">
         <item>Не перемещать</item>
     </string-array>

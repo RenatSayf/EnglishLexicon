@@ -2,7 +2,6 @@ package com.myapp.lexicon.settings;
 
 import android.content.Context;
 
-import com.myapp.lexicon.R;
 import com.myapp.lexicon.helpers.ObjectSerializer;
 import com.myapp.lexicon.models.Word;
 
@@ -10,8 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
-
-import androidx.preference.PreferenceManager;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -139,24 +136,7 @@ public class AppSettings
         }
     }
 
-    public int getWordsInterval()
-    {
-        String wordsInterval = PreferenceManager.getDefaultSharedPreferences(context).getString(context.getString(R.string.key_test_interval), "10");
-        if (wordsInterval != null)
-        {
-            return Integer.parseInt(wordsInterval);
-        }
-        return Integer.MAX_VALUE;
-    }
-
     private final String WORD_ID = this.getClass().getCanonicalName() + ".WORD_ID";
-    public Word getWordFromPref()
-    {
-        String defaultText = context.getString(R.string.nav_play_list);
-        String dict = context.getSharedPreferences(WORD_ID, MODE_PRIVATE).getString(KEY_CURRENT_DICT, defaultText);
-        int id = context.getSharedPreferences(WORD_ID, MODE_PRIVATE).getInt(WORD_ID, 1);
-        return new Word(id, dict, "", "", 1);
-    }
 
     public void saveWordThePref(Word word)
     {

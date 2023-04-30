@@ -310,6 +310,7 @@
     <string name="text_select_dict">Виберіть словник для вивчення</string>
     <string name="KEY_FIRST_LAUNCH">KEY_FIRST_LAUNCH</string>
     <string name="text_dict_not_found">Деякі словники не знайдені</string>
+    <string name="KEY_NEED_REFRESH">need to refresh</string>
 
     <string-array name="words_interval">
         <item>після 5 слів</item>

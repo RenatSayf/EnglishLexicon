@@ -14,6 +14,7 @@ import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.helpers.getCRC32CheckSum
 import com.myapp.lexicon.models.Word
+import java.lang.NumberFormatException
 
 val Context.appSettings: SharedPreferences
     get() {
@@ -251,8 +252,16 @@ fun Context.checkCloudStorage(
             }
         }
     )
-
 }
+
+val Context.testIntervalFromPref: Int
+    get() {
+        return try {
+            appSettings.getString(getString(R.string.key_test_interval), "10")?.toInt()?: 10
+        } catch (e: NumberFormatException) {
+            10
+        }
+    }
 
 
 

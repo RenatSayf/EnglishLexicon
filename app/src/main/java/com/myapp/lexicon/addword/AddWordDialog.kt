@@ -10,6 +10,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.AddWordDialogBinding
@@ -175,6 +176,7 @@ class AddWordDialog : DialogFragment(),
                                                 R.string.new_word_is_added
                                             )
                                         showToast(message)
+                                        setFragmentResult(getString(R.string.KEY_NEED_REFRESH), Bundle.EMPTY)
                                     }
                                 }
                                 addWordVM.insertEntryAsync(word)
