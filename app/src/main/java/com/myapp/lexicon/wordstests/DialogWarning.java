@@ -10,9 +10,7 @@ import com.myapp.lexicon.R;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 
-/**
- * Created by Renat .
- */
+
 
 public class DialogWarning extends DialogFragment
 {
@@ -23,21 +21,22 @@ public class DialogWarning extends DialogFragment
     final String KEY_MESSAGE = "key_message";
     final String KEY_IS_NEUTRAL_BTN = "key_is_neutral_btn";
 
-    private IDialogResult listener;
+    private Listener listener;
 
     public DialogWarning()
     {
 
     }
 
-    public void setListener(IDialogResult listener)
+    public void setListener(Listener listener)
     {
         this.listener = listener;
     }
 
-    public interface IDialogResult
+    public interface Listener
     {
-        void dialogListener(boolean result);
+        void onPositiveClick();
+        void onNegativeClick();
     }
 
     @SuppressWarnings("Convert2Lambda")
@@ -70,7 +69,7 @@ public class DialogWarning extends DialogFragment
                     {
                         if (listener != null)
                         {
-                            listener.dialogListener(true);
+                            listener.onPositiveClick();
                         }
                         dismiss();
                     }
@@ -82,13 +81,13 @@ public class DialogWarning extends DialogFragment
                     {
                         if (listener != null)
                         {
-                            listener.dialogListener(false);
+                            listener.onNegativeClick();
                         }
                         dismiss();
                     }
                 });
 
-        if (builder != null && isNeutralBtn)
+        if (isNeutralBtn)
         {
             builder.setNeutralButton(getString(R.string.button_text_cancel), new DialogInterface.OnClickListener()
             {
@@ -100,13 +99,8 @@ public class DialogWarning extends DialogFragment
             });
         }
 
-        if (builder != null)
-        {
-            return builder.create();
-        }
-        else
-        {
-            return super.onCreateDialog(null);
-        }
+        AlertDialog dialog = builder.create();
+        dialog.getWindow().setBackgroundDrawableResource(R.drawable.bg_popup_dialog_white);
+        return dialog;
     }
 }

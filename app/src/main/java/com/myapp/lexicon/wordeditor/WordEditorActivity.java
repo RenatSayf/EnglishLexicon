@@ -115,13 +115,6 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
         checkMove_OnClick();
     }
 
-    @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState)
-    {
-        super.onSaveInstanceState(outState);
-
-    }
-
     @SuppressWarnings("CodeBlock2Expr")
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -147,10 +140,10 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             {
                 ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, dicts);
                 dictListSpinner.setAdapter(adapterSpinner);
-                Word currentWord = mainVM.getCurrentWord().getValue();
-                if (currentWord != null)
+                String currentDict = getIntent().getStringExtra(KEY_EXTRA_DICT_NAME);
+                if (currentDict != null)
                 {
-                    int index = dicts.indexOf(currentWord.getDictName());
+                    int index = dicts.indexOf(currentDict);
                     if (index >= 0)
                     {
                         dictListSpinner.setSelection(index);

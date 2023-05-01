@@ -258,6 +258,10 @@
     <string name="KEY_FIRST_LAUNCH">KEY_FIRST_LAUNCH</string>
     <string name="text_dict_not_found">Некоторые словари не найдены</string>
     <string name="KEY_NEED_REFRESH">need to refresh</string>
+    <string name="text_db_restore_error">Ошибка. Не удалось восстановить базу данных</string>
+    <string name="text_dicts_restore_success">Словари успешно восстановлены.</string>
+    <string name="text_restore">Восстановить</string>
+    <string name="text_dicts_have_been_found">В облачном хранилище найдена резервная копия Ваших словарей.\nВосстановить слова?</string>
     <string-array name="not_move">
         <item>Не перемещать</item>
     </string-array>

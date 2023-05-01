@@ -626,7 +626,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Bundle bundle = new Bundle();
             bundle.putString(WordEditorActivity.KEY_EXTRA_DICT_NAME, btnViewDict.getText().toString());
             intent.replaceExtras(bundle);
-            //startActivity(intent);
             activityResultLauncher.launch(intent);
         }
         else if (id == R.id.nav_check_your_self)
@@ -683,22 +682,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             drawer.closeDrawer(GravityCompat.START);
         }
         return true;
-    }
-
-    public static Boolean isActivityRunning = false;
-
-    @Override
-    public void onAttachedToWindow()
-    {
-        super.onAttachedToWindow();
-        isActivityRunning = true;
-    }
-
-    @Override
-    public void onDetachedFromWindow()
-    {
-        super.onDetachedFromWindow();
-        isActivityRunning = false;
     }
 
     public void testIntervalOnChange(int value)
@@ -760,8 +743,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 {
                     new LockOrientation(MainActivity.this).lock();
                     binding.tvProductName.setText(getString(R.string.text_cloud_storage));
-                    binding.tvPriceTitle.setText("В облачном хранилище найдена резервная копия Ваших словарей.\nВосстановить слова?");
-                    binding.btnCloudEnable.setText("Восстановить");
+                    binding.tvPriceTitle.setText(R.string.text_dicts_have_been_found);
+                    binding.btnCloudEnable.setText(R.string.text_restore);
                     binding.btnCancel.setText(getString(R.string.btn_text_cancel));
                 }
                 @Override
@@ -790,13 +773,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                                     FileOutputStream fileOutputStream = new FileOutputStream(file);
                                                     fileOutputStream.write(bytes);
                                                     fileOutputStream.close();
-                                                    ExtensionsKt.showSnackBar(mainControlLayout, "Словари успешно восстановлены.", Snackbar.LENGTH_LONG);
+                                                    ExtensionsKt.showSnackBar(mainControlLayout, getString(R.string.text_dicts_restore_success), Snackbar.LENGTH_LONG);
                                                     toolBar.getMenu().findItem(R.id.cloud_storage).setVisible(false);
+                                                    mainViewModel.refreshWordsList();
                                                 }
                                                 catch (Exception e)
                                                 {
                                                     e.printStackTrace();
-                                                    ExtensionsKt.showSnackBar(mainControlLayout, "Ошибка. Не удалось восстановить базу данных", Snackbar.LENGTH_LONG);
+                                                    ExtensionsKt.showSnackBar(mainControlLayout, getString(R.string.text_db_restore_error), Snackbar.LENGTH_LONG);
                                                 }
                                             }
 

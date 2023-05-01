@@ -14,13 +14,38 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:src="@drawable/ic_warning"
+        tools:visibility="invisible"
         />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_emoji"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@+id/iv_icon"
+        app:layout_constraintTop_toTopOf="@+id/tv_message"
+        tools:text="@string/slightly_smiling_face"
+        android:textSize="24sp"
+        android:textColor="@color/color_CCC3C3"/>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_emoji_2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@+id/tv_emoji"
+        app:layout_constraintTop_toTopOf="@+id/tv_emoji"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_emoji"
+        app:layout_constraintVertical_bias="1"
+        tools:text="@string/thumbs_up"
+        android:textSize="16sp"
+        android:textColor="@color/color_CCC3C3"
+        android:visibility="gone"
+        tools:visibility="visible"/>
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tv_message"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        app:layout_constraintStart_toEndOf="@+id/iv_icon"
+        app:layout_constraintStart_toEndOf="@+id/tv_emoji_2"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/btn_cancel"

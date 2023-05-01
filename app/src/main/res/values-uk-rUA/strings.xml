@@ -311,6 +311,10 @@
     <string name="KEY_FIRST_LAUNCH">KEY_FIRST_LAUNCH</string>
     <string name="text_dict_not_found">Деякі словники не знайдені</string>
     <string name="KEY_NEED_REFRESH">need to refresh</string>
+    <string name="text_db_restore_error">Помилка. Не вдалося відновити базу даних</string>
+    <string name="text_dicts_restore_success">Словники успішно відновлені.</string>
+    <string name="text_restore">Відновивши</string>
+    <string name="text_dicts_have_been_found">У хмарному сховищі знайдена резервна копія ваших словників.\nВідновити слова?</string>
 
     <string-array name="words_interval">
         <item>після 5 слів</item>

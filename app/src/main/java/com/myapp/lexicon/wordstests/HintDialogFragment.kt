@@ -68,7 +68,9 @@ class HintDialogFragment : DialogFragment()
                 }
 
             })
-        }.create()
+        }.create().apply {
+            window?.setBackgroundDrawableResource(R.drawable.bg_popup_dialog_white)
+        }
     }
 
 }

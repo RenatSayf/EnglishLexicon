@@ -43,8 +43,9 @@ import java.util.concurrent.TimeUnit
 
 
 @AndroidEntryPoint
-class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectItemListener, DialogWarning.IDialogResult,
-    DialogTestComplete.IDialogComplete_Result
+class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectItemListener,
+    DialogWarning.Listener,
+    DialogTestComplete.Listener
 {
     companion object
     {
@@ -473,14 +474,11 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                     val total = testVM.wordsCount.value?: 0
                     binding.checkBtn.setBackgroundResource(R.drawable.text_button_for_test)
                     val correctly = testVM.rightAnswerCounter
-                    val completeDialog = DialogTestComplete().apply {
-                        arguments = Bundle().apply {
-                            putInt(DialogTestComplete.TOTAL_NUM, total)
-                            putInt(DialogTestComplete.CORRECTLY_NUM, correctly)
-                        }
-                        setListener(this@TestFragment)
-                    }
-                    completeDialog.show(parentFragmentManager, DialogTestComplete.TAG)
+                    DialogTestComplete.getInstance(
+                        correctly.toDouble(),
+                        total.toDouble(),
+                        this@TestFragment
+                    ).show(parentFragmentManager, DialogTestComplete.TAG)
                 }
             }
 
@@ -540,64 +538,53 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
 
     }
 
-    override fun dialogListener(result: Boolean)
-    {
-        if (result)
-        {
-            val wordIds = testVM.getWordIdsFromPref()
-            testVM.getWordsByIds(wordIds)
+    override fun onTestCompleteClick() {
+        yandexAd2?.showInterstitialAd(
+            dismiss = {
+                parentFragmentManager.popBackStack()
+            }
+        )?: run {
+            parentFragmentManager.popBackStack()
         }
-        else
+    }
+
+    override fun onTestRepeatClick() {
+        val dict = binding.btnViewDict.text.toString()
+        if (dict.isNotEmpty())
         {
-            testVM.saveWordIdsToPref(arrayListOf())
-            val dict = testVM.currentWord.value?.dictName
-            dict?.let {
-                testVM.getWordsByDictName(it)
-            } ?: run {
-                val dictList = testVM.dictList.value
-                if (dictList != null)
-                {
-                    if (dictList.isNotEmpty())
-                    testVM.getWordsByDictName(dictList[0])
+            testVM.getWordsByDictName(dict)
+        }
+    }
+
+    override fun onNextTestClick() {
+        val dictList = testVM.dictList.value?.toMutableList()
+        dictList?.let {
+            val dictsDialog = DictListDialog.getInstance(it, this)
+            dictsDialog.show(parentFragmentManager, DictListDialog.TAG)
+            dictsDialog.selectedItem.observe(viewLifecycleOwner) { dict ->
+                if (dict.isNotEmpty()) {
+                    testVM.getWordsByDictName(dict)
                 }
             }
         }
     }
 
-    override fun dialogCompleteResult(res: Int)
-    {
-        when(res)
-        {
-            1 ->
+    override fun onPositiveClick() {
+        val wordIds = testVM.getWordIdsFromPref()
+        testVM.getWordsByIds(wordIds)
+    }
+
+    override fun onNegativeClick() {
+        testVM.saveWordIdsToPref(arrayListOf())
+        val dict = testVM.currentWord.value?.dictName
+        dict?.let {
+            testVM.getWordsByDictName(it)
+        } ?: run {
+            val dictList = testVM.dictList.value
+            if (dictList != null)
             {
-                val dictList = testVM.dictList.value?.toMutableList()
-                dictList?.let {
-                    val dictsDialog = DictListDialog.getInstance(it, this)
-                    dictsDialog.show(parentFragmentManager, DictListDialog.TAG)
-                    dictsDialog.selectedItem.observe(viewLifecycleOwner) { dict ->
-                        if (dict.isNotEmpty()) {
-                            testVM.getWordsByDictName(dict)
-                        }
-                    }
-                }
-            }
-            -1 ->
-            {
-                yandexAd2?.showInterstitialAd(
-                    dismiss = {
-                        parentFragmentManager.popBackStack()
-                    }
-                )?: run {
-                    parentFragmentManager.popBackStack()
-                }
-            }
-            else ->
-            {
-                val dict = binding.btnViewDict.text.toString()
-                if (dict.isNotEmpty())
-                {
-                    testVM.getWordsByDictName(dict)
-                }
+                if (dictList.isNotEmpty())
+                    testVM.getWordsByDictName(dictList[0])
             }
         }
     }

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <string name="slightly_smiling_face" translatable="false">🙂</string>
+    <string name="confused_face" translatable="false">😕</string>
+    <string name="thumbs_up" translatable="false">👍</string>
+    
+</resources>
