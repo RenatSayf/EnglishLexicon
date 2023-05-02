@@ -117,11 +117,12 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
                 if (appNotification == null) {
                     appNotification = AppNotification(context)
                 }
-                if (appNotification != null && !appNotification!!.isVisible()) {
-                    appNotification!!.create(json)
-                    appNotification!!.show()
+                appNotification?.let { n ->
+                    if (!n.isVisible()) {
+                        n.create(json)
+                        n.show()
+                    }
                 }
-
                 if (displayMode == "0")
                 {
                     when(words.size) {
@@ -129,7 +130,7 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
                             context.saveWordToPref(words[1])
                         }
                         1 -> {
-                            context.saveWordToPref(words[0])
+                            context.saveWordToPref(Word(_id = 1, dictName = words[0].dictName, english = "", translate = "", countRepeat = 1))
                         }
                     }
                 }
