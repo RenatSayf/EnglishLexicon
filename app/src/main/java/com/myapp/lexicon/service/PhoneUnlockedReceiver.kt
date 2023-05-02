@@ -45,6 +45,7 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
     }
 
     private lateinit var repository: DataRepositoryImpl
+    private var appNotification: AppNotification? = null
 
     @SuppressLint("CheckResult")
     @Suppress("RedundantSamConstructor")
@@ -112,9 +113,15 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
             if (displayVariant == "1")
             {
                 val json = Gson().toJson(words)
-                val appNotification = AppNotification(context)
-                appNotification.create(json)
-                appNotification.show()
+
+                if (appNotification == null) {
+                    appNotification = AppNotification(context)
+                }
+                if (appNotification != null && !appNotification!!.isVisible()) {
+                    appNotification!!.create(json)
+                    appNotification!!.show()
+                }
+
                 if (displayMode == "0")
                 {
                     when(words.size) {

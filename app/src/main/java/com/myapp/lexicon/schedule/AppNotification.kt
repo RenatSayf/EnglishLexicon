@@ -18,6 +18,8 @@ import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.service.ServiceActivity
 import com.myapp.lexicon.splash.SplashActivity
 
+
+
 class AppNotification constructor(private val context: Context) : Notification()
 {
     companion object
@@ -45,7 +47,7 @@ class AppNotification constructor(private val context: Context) : Notification()
             color = ContextCompat.getColor(context, R.color.colorGreen)
             setLargeIcon(BitmapFactory.decodeResource(context.resources, R.mipmap.ic_launcher))
             setAutoCancel(true)
-            priority = NotificationCompat.PRIORITY_MAX
+            priority = NotificationCompat.PRIORITY_HIGH
             setChannelId(CHANNEL_ID)
             setDefaults(DEFAULT_ALL)
 
@@ -65,7 +67,6 @@ class AppNotification constructor(private val context: Context) : Notification()
                 }
                 val pendingIntent = PendingIntent.getActivity(context, 0, actionIntent, PendingIntent.FLAG_UPDATE_CURRENT)
                 setContentIntent(pendingIntent)
-                //println("******************************* ${words[0].english}***********************")
             }
             else
             {
@@ -100,6 +101,17 @@ class AppNotification constructor(private val context: Context) : Notification()
         notificationManager.notify(NOTIFICATION_ID, notification)
     }
 
-
+    fun isVisible(): Boolean {
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val activeNotifications = notificationManager.activeNotifications
+        val notification = try {
+            activeNotifications.first {
+                it.id == NOTIFICATION_ID
+            }
+        } catch (e: Exception) {
+            null
+        }
+        return notification != null
+    }
 
 }
