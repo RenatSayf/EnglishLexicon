@@ -130,7 +130,8 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
                             context.saveWordToPref(words[1])
                         }
                         1 -> {
-                            context.saveWordToPref(Word(_id = 1, dictName = words[0].dictName, english = "", translate = "", countRepeat = 1))
+                            val list = repository.getEntriesByDictNameAsync(dict = words[0].dictName, id = 1, limit = 1).await()
+                            context.saveWordToPref(list[0])
                         }
                     }
                 }
