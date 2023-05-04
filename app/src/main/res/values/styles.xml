@@ -21,6 +21,7 @@
 
     <style name="AppToolbarStyle" parent="ThemeOverlay.AppCompat.Light">
         <item name="android:textColorSecondary">@color/colorWhite</item>
+        <item name="android:editTextColor">@color/colorWhite</item>
     </style>
 
     <style name="spinner_style">

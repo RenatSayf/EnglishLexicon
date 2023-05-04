@@ -262,6 +262,7 @@
     <string name="text_dicts_restore_success">Словари успешно восстановлены.</string>
     <string name="text_restore">Восстановить</string>
     <string name="text_dicts_have_been_found">В облачном хранилище найдена резервная копия Ваших словарей.\nВосстановить слова?</string>
+    <string name="text_dict_is_updated">Словарь обновлен…</string>
     <string-array name="not_move">
         <item>Не перемещать</item>
     </string-array>

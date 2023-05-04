@@ -34,7 +34,6 @@ import com.myapp.lexicon.dialogs.ConfirmDialog;
 import com.myapp.lexicon.dialogs.DictListDialog;
 import com.myapp.lexicon.dialogs.OrderPlayDialog;
 import com.myapp.lexicon.dialogs.RemoveDictDialog;
-import com.myapp.lexicon.helpers.AppBus;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.JavaKotlinMediator;
 import com.myapp.lexicon.helpers.LockOrientation;
@@ -538,12 +537,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (id == R.id.edit_word)
         {
             Word word = mainViewModel.getCurrentWord().getValue();
+            Intent intent = new Intent(this, WordEditorActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putString(WordEditorActivity.KEY_EXTRA_DICT_NAME, btnViewDict.getText().toString());
             if (word != null)
             {
-                AppBus.INSTANCE.passWord(word); // отправляем слово в WordEditorActivity
+                bundle.putString(WordEditorActivity.KEY_EXTRA_EN_WORD, word.getEnglish());
+                bundle.putString(WordEditorActivity.KEY_EXTRA_RU_WORD, word.getTranslate());
             }
-            Intent intent = new Intent(this, WordEditorActivity.class);
-            startActivity(intent);
+            intent.replaceExtras(bundle);
+            activityResultLauncher.launch(intent);
         }
         if (id == R.id.edit_speech_data)
         {

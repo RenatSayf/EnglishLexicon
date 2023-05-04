@@ -54,6 +54,8 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class WordEditorActivity extends AppCompatActivity implements ListViewAdapter.IListViewAdapter
 {
     public static final String KEY_EXTRA_DICT_NAME = "wordeditor_dict_name";
+    public static final String KEY_EXTRA_EN_WORD = "KEY_EXTRA_EN_WORD";
+    public static final String KEY_EXTRA_RU_WORD = "KEY_EXTRA_RU_WORD";
     public static final int requestCode = 2654789;
 
     private Spinner dictListSpinner;
@@ -122,6 +124,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
         super.onCreate(savedInstanceState);
         setContentView(R.layout.d_layout_word_editor);
         Toolbar toolbar = findViewById(R.id.toolbar_word_editor);
+        toolbar.setTitleTextColor(getColor(R.color.colorWhite));
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null)
         {
@@ -291,14 +294,14 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             {
                 editorVM.getAllWordsByDictName(dictListSpinner.getSelectedItem().toString());
                 AppBus.INSTANCE.updateWords(true);
-                Toast.makeText(getApplicationContext(), "Словарь обновлен...", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), R.string.text_dict_is_updated, Toast.LENGTH_LONG).show();
             }
         });
 
         addWordVM.getInsertedId().observe(this, id -> {
             if (id > 0)
             {
-                Toast.makeText(getApplicationContext(), "Словарь обновлен...", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), R.string.text_dict_is_updated, Toast.LENGTH_LONG).show();
             }
         });
 
@@ -310,11 +313,12 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             }
         });
 
-        Word wordFromMainActivity = AppBus.INSTANCE.getWord().getValue(); // получение слова из MainActivity
-        if (wordFromMainActivity != null)
+        String enWord = getIntent().getStringExtra(KEY_EXTRA_EN_WORD);
+        String ruWord = getIntent().getStringExtra(KEY_EXTRA_RU_WORD);
+        if (enWord != null && ruWord != null)
         {
-            editorVM.setEnWord(wordFromMainActivity.getEnglish());
-            editorVM.setRuWord(wordFromMainActivity.getTranslate());
+            editorVM.setEnWord(enWord);
+            editorVM.setRuWord(ruWord);
             switcher.showNext();
         }
 
@@ -425,6 +429,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
         getMenuInflater().inflate(R.menu.d_word_editor_menu, menu);
         MenuItem searchItem = menu.findItem(R.id.word_search);
         searchView = (SearchView) searchItem.getActionView();
+
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         EditorSearchViewModel viewModel = new ViewModelProvider(this).get(EditorSearchViewModel.class);
 
