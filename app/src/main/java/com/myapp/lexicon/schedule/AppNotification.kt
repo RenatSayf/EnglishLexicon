@@ -10,7 +10,6 @@ import android.content.SharedPreferences
 import android.graphics.BitmapFactory
 import android.os.Build
 import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
 import com.myapp.lexicon.R
 import com.myapp.lexicon.helpers.StringOperations
@@ -43,8 +42,8 @@ class AppNotification constructor(private val context: Context) : Notification()
 
         notification = NotificationCompat.Builder(context, CHANNEL_ID).apply {
             setOngoing(false)
-            setSmallIcon(R.drawable.ic_lexicon_notify)
-            color = ContextCompat.getColor(context, R.color.colorGreen)
+            setSmallIcon(R.mipmap.ic_launcher)
+            //color = ContextCompat.getColor(context, R.color.colorGreen)
             setLargeIcon(BitmapFactory.decodeResource(context.resources, R.mipmap.ic_launcher))
             setAutoCancel(true)
             priority = NotificationCompat.PRIORITY_HIGH

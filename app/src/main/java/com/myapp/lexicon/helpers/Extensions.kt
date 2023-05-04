@@ -1,5 +1,6 @@
 package com.myapp.lexicon.helpers
 
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.os.CountDownTimer
 import android.view.View
@@ -12,9 +13,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
+import androidx.work.impl.utils.ForceStopRunnable
 import com.google.android.material.snackbar.Snackbar
 import com.myapp.lexicon.R
 import com.myapp.lexicon.schedule.AlarmScheduler
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import java.io.File
 import java.util.zip.CRC32
 
@@ -113,7 +118,14 @@ fun View.hideKeyboard() {
     this.context.inputManager.hideSoftInputFromWindow(this.windowToken, 0)
 }
 
-val AppCompatActivity.result: ActivityResultCallback<Any>
-    get() {
-        return ActivityResultCallback {  }
+fun BroadcastReceiver.goAsync(
+    coroutineScope: CoroutineScope,
+    block: suspend (CoroutineScope) -> Unit
+) {
+    val pendingResult = goAsync()
+    coroutineScope.launch(coroutineScope.coroutineContext) {
+        block.invoke(this)
+        pendingResult.finish()
     }
+
+}
