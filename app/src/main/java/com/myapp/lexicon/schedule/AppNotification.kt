@@ -42,7 +42,7 @@ class AppNotification constructor(private val context: Context) : Notification()
 
         notification = NotificationCompat.Builder(context, CHANNEL_ID).apply {
             setOngoing(false)
-            setSmallIcon(R.mipmap.ic_launcher)
+            setSmallIcon(R.mipmap.ic_notification)
             //color = ContextCompat.getColor(context, R.color.colorGreen)
             setLargeIcon(BitmapFactory.decodeResource(context.resources, R.mipmap.ic_launcher))
             setAutoCancel(true)
