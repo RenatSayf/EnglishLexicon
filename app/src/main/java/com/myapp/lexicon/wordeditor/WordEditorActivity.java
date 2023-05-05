@@ -1,6 +1,5 @@
 package com.myapp.lexicon.wordeditor;
 
-import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -26,9 +25,10 @@ import android.widget.ViewSwitcher;
 import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.addword.AddWordViewModel;
+import com.myapp.lexicon.dialogs.ConfirmDialog;
 import com.myapp.lexicon.helpers.AppBus;
+import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.JavaKotlinMediator;
-import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SpeechViewModel;
 import com.myapp.lexicon.models.Word;
@@ -353,24 +353,33 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
     {
         buttonDelete.setOnClickListener( v ->
         {
-            LockOrientation orientation = new LockOrientation(WordEditorActivity.this);
-            orientation.lock();
             final String tableName = dictListSpinner.getSelectedItem().toString();
 
-            new AlertDialog.Builder(WordEditorActivity.this) // TODO: AlertDialog с макетом по умолчанию
-                    .setTitle(R.string.dialog_title_confirm_action)
-                    .setIcon(R.drawable.icon_warning)
-                    .setMessage(getString(R.string.dialog_msg_delete_word) + tableName + "?")
-                    .setPositiveButton(R.string.button_text_yes, (dialog, which) -> {
-                        orientation.unLock();
-                        if (editorVM.selectedWord != null)
-                        {
-                            editorVM.deleteWordFromDb(editorVM.selectedWord);
-                        }
-                        switcher.showPrevious();
-                    })
-                    .setNegativeButton(R.string.button_text_no, (dialog, which) -> orientation.unLock())
-                    .create().show();
+            ExtensionsKt.showDialogAsSingleton(
+                    this,
+                    ConfirmDialog.Companion.newInstance((dialog, binding) -> {
+
+                        binding.tvEmoji.setVisibility(View.GONE);
+                        binding.tvEmoji2.setVisibility(View.GONE);
+                        binding.ivIcon.setVisibility(View.VISIBLE);
+                        binding.ivIcon.setImageResource(R.drawable.ic_warning);
+                        String message = getString(R.string.dialog_msg_delete_word) + tableName + "?";
+                        binding.tvMessage.setText(message);
+                        binding.btnOk.setText(R.string.button_text_yes);
+                        binding.btnOk.setOnClickListener(view -> {
+                            if (editorVM.selectedWord != null)
+                            {
+                                editorVM.deleteWordFromDb(editorVM.selectedWord);
+                            }
+                            switcher.showPrevious();
+                            dialog.dismiss();
+                        });
+                        binding.btnCancel.setText(R.string.button_text_no);
+                        binding.btnCancel.setOnClickListener(view -> {
+                            dialog.dismiss();
+                        });
+                        return null;
+                    }), ConfirmDialog.Companion.getTAG());
         });
     }
 
