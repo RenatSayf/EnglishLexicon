@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.JavaKotlinMediator;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
 import com.myapp.lexicon.helpers.StringOperations;
@@ -191,7 +192,27 @@ public class TestModalFragment extends DialogFragment
         btnOpenApp.setOnClickListener(view1 -> iCallback.openApp());
 
         Button btnStopService = dialogView.findViewById(R.id.btn_stop_service);
-        btnStopService.setOnClickListener( view -> ((ServiceActivity)requireActivity()).stopAppService());
+        //noinspection CodeBlock2Expr
+        btnStopService.setOnClickListener( view -> {
+            SettingsExtKt.disablePassiveWordsRepeat(
+                    this,
+                    () -> {
+                        String message = getString(R.string.text_app_is_closed)
+                                .concat(" ")
+                                .concat(getString(R.string.app_name))
+                                .concat(" ")
+                                .concat(getString(R.string.text_app_is_closed_end));
+                        ExtensionsKt.showToast(this, message, Toast.LENGTH_LONG);
+                        requireActivity().finish();
+                        return null;
+                    },
+                    err -> {
+                        ExtensionsKt.showToast(this, err, Toast.LENGTH_LONG);
+                        requireActivity().finish();
+                        return null;
+                    }
+            );
+        });
 
         checkStudied_OnCheckedChange(dialogView.findViewById(R.id.check_box_studied));
 

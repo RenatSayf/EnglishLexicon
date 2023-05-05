@@ -5,6 +5,8 @@ package com.myapp.lexicon.settings
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageException
@@ -262,6 +264,27 @@ val Context.testIntervalFromPref: Int
             10
         }
     }
+
+fun Context.disablePassiveWordsRepeat(
+    onDisabled: () -> Unit,
+    onError: (String) -> Unit
+) {
+    try {
+        appSettings.edit().putString(getString(R.string.key_show_intervals), "0").apply()
+        appSettings.edit().putBoolean(getString(R.string.key_service), false).apply()
+        onDisabled.invoke()
+    } catch (e: Exception) {
+        onError.invoke(e.message?: "Unknown error")
+        e.printStackTrace()
+    }
+}
+
+fun Fragment.disablePassiveWordsRepeat(
+    onDisabled: () -> Unit,
+    onError: (String) -> Unit
+) {
+    requireContext().disablePassiveWordsRepeat(onDisabled, onError)
+}
 
 
 
