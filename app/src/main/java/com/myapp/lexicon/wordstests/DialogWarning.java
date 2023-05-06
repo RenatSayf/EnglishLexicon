@@ -44,8 +44,8 @@ public class DialogWarning extends DialogFragment
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
-        String textBtnOk = getString(R.string.button_text_yes);
-        String textBtnNo = getString(R.string.button_text_no);
+        String textBtnOk = getString(R.string.text_resume);
+        String textBtnNo = getString(R.string.text_at_first);
         String message = getString(R.string.you_have_uncompleted_test);
         boolean isNeutralBtn = false;
 

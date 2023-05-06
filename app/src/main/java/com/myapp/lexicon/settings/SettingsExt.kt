@@ -15,6 +15,7 @@ import com.google.gson.Gson
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.helpers.getCRC32CheckSum
+import com.myapp.lexicon.models.TestState
 import com.myapp.lexicon.models.Word
 import java.lang.NumberFormatException
 
@@ -284,6 +285,32 @@ fun Fragment.disablePassiveWordsRepeat(
     onError: (String) -> Unit
 ) {
     requireContext().disablePassiveWordsRepeat(onDisabled, onError)
+}
+
+fun Fragment.saveTestStateToPref(state: TestState) {
+    val json = Gson().toJson(state)
+    appSettings.edit().putString("KEY_TEST_STATE", json).apply()
+}
+
+fun Fragment.getTestStateFromPref(
+    onInit: () -> Unit = {},
+    onSuccess: (TestState) -> Unit,
+    onError: (String?) -> Unit = {}
+    ) {
+    val string = appSettings.getString("KEY_TEST_STATE", null)
+    if (string == null) {
+        onInit.invoke()
+        return
+    }
+    try {
+        val state = Gson().fromJson(string, TestState::class.java)
+        onSuccess.invoke(state)
+    } catch (e: Exception) {
+        onError.invoke(e.message)
+        if (BuildConfig.DEBUG) {
+            e.printStackTrace()
+        }
+    }
 }
 
 

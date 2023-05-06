@@ -316,6 +316,8 @@
     <string name="text_restore">Відновивши</string>
     <string name="text_dicts_have_been_found">У хмарному сховищі знайдена резервна копія ваших словників.\nВідновити слова?</string>
     <string name="text_dict_is_updated">Словник оновлено…</string>
+    <string name="text_resume">Продовживши</string>
+    <string name="text_at_first">Спочатку</string>
 
     <string-array name="words_interval">
         <item>після 5 слів</item>
