@@ -90,13 +90,12 @@ class TestViewModel @Inject constructor(
                             _wordIndex.value = testState.progress
                         }
                         else {
-                            testState.reset()
+                            testState.reset(filteredList.size)
                             _wordsCount.value = list.size
                             _wordIndex.value = 0
                         }
+
                     }
-
-
                     rightAnswerCounter = 0
                 }, { t ->
                     t.printStackTrace()

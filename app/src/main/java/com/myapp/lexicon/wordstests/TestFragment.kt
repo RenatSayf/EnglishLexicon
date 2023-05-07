@@ -67,14 +67,14 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
-        mActivity = activity as MainActivity
-        mActivity.onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true){
-            override fun handleOnBackPressed()
-            {
-                mActivity.supportFragmentManager.popBackStack()
-                this.remove()
-            }
-        })
+        mActivity = requireActivity() as MainActivity
+//        mActivity.onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true){
+//            override fun handleOnBackPressed()
+//            {
+//                mActivity.supportFragmentManager.popBackStack()
+//                this.remove()
+//            }
+//        })
     }
 
     override fun onCreateView(
@@ -155,7 +155,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                     }
                     else -> {
                         testVM.rightAnswerCounter--
-                        //testVM.testState.rightAnswers--
+                        testVM.testState.rightAnswers--
                         Toast.makeText(
                             requireContext(),
                             getString(R.string.text_wrong),
@@ -408,6 +408,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
             dict = binding.btnViewDict.text.toString()
             wordId = binding.enWordTV.tag.toString().toInt()
             progress = binding.progressBar.progress
+            progressMax = binding.progressBar.max
         }
         this.saveTestStateToPref(testState)
 
@@ -497,12 +498,10 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                         setGravity(Gravity.TOP, 0, 0)
                     }.show()
 
-                    val total = testVM.wordsCount.value?: 0
                     binding.checkBtn.setBackgroundResource(R.drawable.text_button_for_test)
-                    val correctly = testVM.rightAnswerCounter
                     DialogTestComplete.getInstance(
-                        testVM.testState.rightAnswers.toDouble(),
-                        testVM.testState.progressMax.toDouble(),
+                        testVM.testState.rightAnswers,
+                        testVM.testState.progressMax,
                         this@TestFragment
                     ).show(parentFragmentManager, DialogTestComplete.TAG)
                 }

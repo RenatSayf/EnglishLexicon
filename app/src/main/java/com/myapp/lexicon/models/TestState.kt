@@ -21,12 +21,12 @@ data class TestState(
     var studiedWordIds: MutableList<Int> = mutableListOf()
 ): Serializable {
 
-    fun reset(): TestState {
+    fun reset(progressMax: Int = Int.MAX_VALUE): TestState {
         return this.apply {
             dict = ""
             wordId = 0
             progress = 0
-            progressMax = Int.MAX_VALUE
+            this.progressMax = progressMax
             rightAnswers = 0
             studiedWordIds = mutableListOf()
         }

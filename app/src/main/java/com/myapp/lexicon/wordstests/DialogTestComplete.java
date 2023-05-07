@@ -22,14 +22,14 @@ public class DialogTestComplete extends DialogFragment
     private static Listener listener;
     private DialogTestCompleteBinding binding;
     private static DialogTestComplete instance = null;
-    private static double total;
-    private static double correctly;
+    private static int total;
+    private static int correctly;
 
 
     public DialogTestComplete()
     {}
 
-    public static DialogTestComplete getInstance(double correctly, double total, Listener listener) {
+    public static DialogTestComplete getInstance(int correctly, int total, Listener listener) {
 
         DialogTestComplete.correctly = correctly;
         DialogTestComplete.total = total;
@@ -75,7 +75,7 @@ public class DialogTestComplete extends DialogFragment
         double res = 0;
         if (total > 0)
         {
-            res = correctly / total * 100;
+            res = (double) correctly / (double) total * 100;
         }
 
         String result = "";
@@ -102,7 +102,7 @@ public class DialogTestComplete extends DialogFragment
 
         binding.tvResultStatus.setText(result);
 
-        String errors = (int)correctly + " из " + (int)total;
+        String errors = correctly + " из " + total;
         binding.tvResultValue.setText(errors);
 
         binding.btnNext.setOnClickListener( v ->

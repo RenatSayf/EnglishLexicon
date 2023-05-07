@@ -5,8 +5,6 @@ package com.myapp.lexicon.settings
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageException
@@ -17,7 +15,6 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.helpers.getCRC32CheckSum
 import com.myapp.lexicon.models.TestState
 import com.myapp.lexicon.models.Word
-import java.lang.NumberFormatException
 
 val Context.appSettings: SharedPreferences
     get() {
