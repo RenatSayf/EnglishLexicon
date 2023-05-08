@@ -26,10 +26,7 @@ import com.myapp.lexicon.ads.loadInterstitialAd
 import com.myapp.lexicon.ads.showInterstitialAd
 import com.myapp.lexicon.databinding.TestFragmentBinding
 import com.myapp.lexicon.dialogs.DictListDialog
-import com.myapp.lexicon.helpers.LockOrientation
-import com.myapp.lexicon.helpers.UiState
-import com.myapp.lexicon.helpers.hideKeyboard
-import com.myapp.lexicon.helpers.showSnackBar
+import com.myapp.lexicon.helpers.*
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.SpeechViewModel
 import com.myapp.lexicon.models.Word
@@ -281,27 +278,33 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         }
 
         binding.selectVariantBtn.setOnClickListener {
-            val shuffledList = testVM.wordsList.value?.shuffled()
-            var subList: List<Word> = arrayListOf()
-            if (shuffledList != null && shuffledList.size > 4)
-            {
-                subList = shuffledList.subList(0, 4)
-            }
-            else if (shuffledList != null)
-            {
-                subList = shuffledList
-            }
+
+            val id = binding.enWordTV.tag.toString().toInt()
             val enWord = binding.enWordTV.text.toString()
             val ruWord = binding.ruWordTV.text.toString()
             val dictName = binding.btnViewDict.text.toString()
-            val targetWord = Word(-1, dictName, enWord, ruWord, 1)
-            if (subList.isNotEmpty())
+            val targetWord = Word(id, dictName, enWord, ruWord, 1)
+
+            val shuffledList = testVM.wordsList.value?.shuffled()?.toMutableList()
+            if (!shuffledList.isNullOrEmpty() && shuffledList.size > 1) {
+                shuffledList.remove(targetWord)
+            }
+            val subList = try {
+                shuffledList?.subList(0, 3)
+            } catch (e: IndexOutOfBoundsException) {
+                shuffledList
+            }
+
+            if (!subList.isNullOrEmpty())
             {
-                val hintDialog = HintDialogFragment.newInstance(targetWord, subList.toMutableList())
+                val hintDialog = HintDialogFragment.newInstance(
+                    targetWord,
+                    subList.toMutableList(),
+                    onItemSelected = { item ->
+                        binding.editTextView.setText(item)
+                    }
+                )
                 hintDialog.show(parentFragmentManager, HintDialogFragment.TAG)
-                hintDialog.selectedItem.observe(viewLifecycleOwner) {
-                    binding.editTextView.setText(it)
-                }
             }
         }
 

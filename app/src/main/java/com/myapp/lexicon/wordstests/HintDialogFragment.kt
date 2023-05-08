@@ -8,8 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.myapp.lexicon.R
 import com.myapp.lexicon.models.Word
 import dagger.hilt.android.AndroidEntryPoint
@@ -23,17 +21,20 @@ class HintDialogFragment : DialogFragment()
         val TAG = "${this::class.java.canonicalName}.TAG"
         private lateinit var targetWord: Word
         private lateinit var randomList: MutableList<Word>
-        fun newInstance(targetWord: Word, randomList: MutableList<Word>) : HintDialogFragment
+        private var onItemSelected: (String) -> Unit = {}
+
+        fun newInstance(
+            targetWord: Word,
+            randomList: MutableList<Word>,
+            onItemSelected: (String) -> Unit
+        ) : HintDialogFragment
         {
             this.targetWord = targetWord
             this.randomList = randomList
+            this.onItemSelected = onItemSelected
             return HintDialogFragment()
         }
     }
-
-    @Suppress("ObjectLiteralToLambda")
-    private var _selectedItem = MutableLiveData<String>()
-    var selectedItem: LiveData<String> = _selectedItem
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -63,7 +64,7 @@ class HintDialogFragment : DialogFragment()
             {
                 override fun onClick(p0: DialogInterface?, p1: Int)
                 {
-                    _selectedItem.value = distinctArray[p1]
+                    onItemSelected.invoke(distinctArray[p1])
                     dismiss()
                 }
 
