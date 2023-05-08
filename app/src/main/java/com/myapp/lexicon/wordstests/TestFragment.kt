@@ -65,13 +65,6 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     {
         super.onCreate(savedInstanceState)
         mActivity = requireActivity() as MainActivity
-//        mActivity.onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true){
-//            override fun handleOnBackPressed()
-//            {
-//                mActivity.supportFragmentManager.popBackStack()
-//                this.remove()
-//            }
-//        })
     }
 
     override fun onCreateView(
@@ -106,6 +99,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
 
         testVM.currentWord.observe(viewLifecycleOwner) {
             binding.btnViewDict.text = it.dictName
+            testVM.getWordsByDictName(it.dictName)
         }
 
         testVM.wordsList.observe(viewLifecycleOwner) { list ->

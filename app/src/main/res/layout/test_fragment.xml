@@ -134,6 +134,7 @@
                         android:hint="@string/text_write_translation"
                         android:inputType="textMultiLine|textNoSuggestions"
                         android:background="@null"
+                        android:textSize="14sp"
                         />
 
                     <ImageButton
@@ -143,7 +144,7 @@
                         android:background="@drawable/transparent_background"
                         android:src="@drawable/selector_icon_microphone"
                         android:layout_margin="10dp"
-                        android:layout_gravity="start|center_horizontal"
+                        android:layout_gravity="start|center_vertical"
                         android:contentDescription="@string/app_link" />
 
                     <ImageButton
@@ -153,7 +154,7 @@
                         android:background="@drawable/transparent_background"
                         android:src="@drawable/selector_close_icon"
                         android:layout_margin="10dp"
-                        android:layout_gravity="end|center_horizontal"
+                        android:layout_gravity="end|center_vertical"
                         android:contentDescription="@string/app_link" />
 
                 </FrameLayout>
@@ -205,6 +206,8 @@
                         android:layout_height="match_parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/speakerBtnView"
+                        app:layout_constraintHorizontal_chainStyle="spread_inside"
                         android:layout_gravity="center_vertical"
                         android:padding="10dp"
                         android:textAppearance="?android:attr/textAppearanceSmall"
@@ -216,9 +219,13 @@
                         android:id="@+id/speakerBtnView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/btnViewDict"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBaseline_toBottomOf="parent"
+                        app:layout_constraintHorizontal_chainStyle="spread_inside"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="0dp"
                         style="?android:attr/buttonStyleSmall"
                         android:background="@drawable/selector_transp_to_white_back"
                         android:contentDescription="@string/content_describt"
