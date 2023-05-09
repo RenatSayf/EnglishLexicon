@@ -507,7 +507,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onResume()
     {
         super.onResume();
-        onAppStarting();
+        //onAppStarting();
     }
 
     @Override
@@ -527,7 +527,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onCreateOptionsMenu(Menu menu)
     {
         getMenuInflater().inflate(R.menu.a_up_menu_main, menu);
-        return false;
+        configureOptionsMenu(menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -814,7 +815,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private void onAppStarting() {
+    private void configureOptionsMenu(Menu menu) {
 
         boolean isCloudEnabled = SettingsExtKt.getCloudStorageEnabled(this);
         if (isCloudEnabled) {
@@ -826,19 +827,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         if (isFirstLaunch) {
                             showCloudDialog();
                         }
-                        toolBar.getMenu().findItem(R.id.cloud_storage).setVisible(true);
+                        menu.findItem(R.id.cloud_storage).setVisible(true);
                         SettingsExtKt.setCheckFirstLaunch(this, false);
                         return null;
                     },
                     () -> {
                         SettingsExtKt.setCheckFirstLaunch(this, false);
-                        toolBar.getMenu().findItem(R.id.cloud_storage).setVisible(false);
+                        menu.findItem(R.id.cloud_storage).setVisible(false);
                         return null;
                     }
             );
         }
         else {
-            toolBar.getMenu().findItem(R.id.cloud_storage).setVisible(false);
+            menu.findItem(R.id.cloud_storage).setVisible(false);
         }
     }
 

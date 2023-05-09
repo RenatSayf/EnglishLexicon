@@ -17,6 +17,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.zip.CRC32
+import kotlin.math.roundToInt
 
 
 fun Context.alarmClockEnable() {
@@ -125,7 +126,11 @@ fun BroadcastReceiver.goAsync(
     }
 }
 
+val Context.screenWidth: Int
+    get() = resources.displayMetrics.run { widthPixels / density }.roundToInt()
 
+val Context.screenHeight: Int
+    get() = resources.displayMetrics.run { heightPixels / density }.roundToInt()
 
 
 

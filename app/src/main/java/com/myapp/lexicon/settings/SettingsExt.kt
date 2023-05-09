@@ -84,17 +84,18 @@ fun Context.checkPurchasesTokens(listener: PurchasesTokenListener) {
     try {
         if (adsToken == null || cloudToken == null) {
             listener.onInit()
+            return
         }
-        else if (adsToken.isEmpty()) {
+        if (adsToken.isEmpty()) {
             listener.onAdsTokenEmpty()
         }
-        else if (adsToken.isNotEmpty()) {
+        else {
             listener.onAdsTokenExists()
         }
-        else if (cloudToken.isEmpty()) {
+        if (cloudToken.isEmpty()) {
             listener.onCloudTokenEmpty()
         }
-        else if (cloudToken.isNotEmpty()) {
+        else {
             listener.onCloudTokenExists()
         }
     } finally {

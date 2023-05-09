@@ -29,7 +29,6 @@ class SplashActivity : AppCompatActivity() {
     private lateinit var binding: ALayoutSplashScreenBinding
     private var speaker: Speaker? = null
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -48,7 +47,11 @@ class SplashActivity : AppCompatActivity() {
             override fun onInit() {
                 UserPurchases(this@SplashActivity, object : UserPurchases.Listener {
                     override fun onExistsAdsToken(token: String) {
-                        this@SplashActivity.setAdsSetting(token)
+                        if (BuildConfig.IS_PURCHASE_TEST) {
+                            this@SplashActivity.setAdsSetting("")
+                        } else {
+                            this@SplashActivity.setAdsSetting(token)
+                        }
                         adsChecked = true
                     }
 
@@ -58,7 +61,11 @@ class SplashActivity : AppCompatActivity() {
                     }
 
                     override fun onExistsCloudToken(token: String) {
-                        this@SplashActivity.setCloudSetting(token)
+                        if (BuildConfig.IS_PURCHASE_TEST) {
+                            this@SplashActivity.setCloudSetting("")
+                        } else {
+                            this@SplashActivity.setCloudSetting(token)
+                        }
                         cloudChecked = true
                     }
 
@@ -71,22 +78,18 @@ class SplashActivity : AppCompatActivity() {
 
             override fun onAdsTokenExists() {
                 this@SplashActivity.adsIsEnabled = BuildConfig.IS_PURCHASE_TEST
-                //adsChecked = true
             }
 
             override fun onAdsTokenEmpty() {
                 this@SplashActivity.adsIsEnabled = true
-                //adsChecked = true
             }
 
             override fun onCloudTokenExists() {
                 this@SplashActivity.cloudStorageEnabled = !BuildConfig.IS_PURCHASE_TEST
-                //cloudChecked = true
             }
 
             override fun onCloudTokenEmpty() {
                 this@SplashActivity.cloudStorageEnabled = false
-                //cloudChecked = true
             }
 
             override fun onCheckComplete() {
