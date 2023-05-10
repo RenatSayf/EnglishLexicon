@@ -122,20 +122,21 @@
         app:layout_constraintTop_toBottomOf="@id/layout_result_value"
         android:gravity="center"
         android:layout_marginTop="38dp"
-        android:layout_marginStart="28dp"
-        android:layout_marginEnd="28dp">
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/btn_next"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
+            android:padding="8dp"
+            android:gravity="center"
             android:text="@string/text_next"
             android:textColor="@color/colorWhite"
-            android:textSize="16sp"
-            android:includeFontPadding="false"/>
+            android:inputType="text"
+            android:includeFontPadding="false"
+            android:drawableTop="@drawable/ic_arrow_forward"/>
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/btn_repeat"
@@ -143,26 +144,26 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
+            android:padding="8dp"
             android:text="@string/text_repeat"
             android:textColor="@color/colorWhite"
-            android:textSize="16sp"
-            android:includeFontPadding="false"/>
+            android:includeFontPadding="false"
+            android:inputType="text"
+            android:drawableTop="@drawable/ic_replay"/>
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/btn_complete"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:gravity="end"
+            android:padding="8dp"
+            android:gravity="center"
             android:text="@string/text_complete"
             android:textColor="@color/color_D3CC26"
-            android:textSize="16sp"
+            android:inputType="text"
             android:textStyle="bold"
-            android:includeFontPadding="false"/>
+            android:includeFontPadding="false"
+            android:drawableTop="@drawable/ic_close_red"/>
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 
