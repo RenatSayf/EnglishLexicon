@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED_ANONYMOUS_PARAMETER")
+
 package com.myapp.lexicon.splash
 
 import android.annotation.SuppressLint
@@ -8,7 +10,6 @@ import android.speech.tts.TextToSpeech
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.lifecycle.lifecycleScope
-import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.billing.UserPurchases
 import com.myapp.lexicon.databinding.ALayoutSplashScreenBinding
@@ -43,15 +44,26 @@ class SplashActivity : AppCompatActivity() {
         var cloudChecked = false
         var speechChecked = false
 
+        this.checkBuildConfig(
+            onInit = {
+                this.setAdsSetting(null)
+                this.setCloudSetting(null)
+            },
+            onChangeToTest = { mode ->
+                this.setAdsSetting("")
+                this.setCloudSetting("")
+            },
+            onChangeToNormal = { mode ->
+                this.setAdsSetting(null)
+                this.setCloudSetting(null)
+            }
+        )
+
         this.checkPurchasesTokens(listener = object : PurchasesTokenListener {
             override fun onInit() {
                 UserPurchases(this@SplashActivity, object : UserPurchases.Listener {
                     override fun onExistsAdsToken(token: String) {
-                        if (BuildConfig.IS_PURCHASE_TEST) {
-                            this@SplashActivity.setAdsSetting("")
-                        } else {
-                            this@SplashActivity.setAdsSetting(token)
-                        }
+                        this@SplashActivity.setAdsSetting(token)
                         adsChecked = true
                     }
 
@@ -61,11 +73,7 @@ class SplashActivity : AppCompatActivity() {
                     }
 
                     override fun onExistsCloudToken(token: String) {
-                        if (BuildConfig.IS_PURCHASE_TEST) {
-                            this@SplashActivity.setCloudSetting("")
-                        } else {
-                            this@SplashActivity.setCloudSetting(token)
-                        }
+                        this@SplashActivity.setCloudSetting(token)
                         cloudChecked = true
                     }
 
@@ -77,7 +85,7 @@ class SplashActivity : AppCompatActivity() {
             }
 
             override fun onAdsTokenExists() {
-                this@SplashActivity.adsIsEnabled = BuildConfig.IS_PURCHASE_TEST
+                this@SplashActivity.adsIsEnabled = false
             }
 
             override fun onAdsTokenEmpty() {
@@ -85,7 +93,7 @@ class SplashActivity : AppCompatActivity() {
             }
 
             override fun onCloudTokenExists() {
-                this@SplashActivity.cloudStorageEnabled = !BuildConfig.IS_PURCHASE_TEST
+                this@SplashActivity.cloudStorageEnabled = true
             }
 
             override fun onCloudTokenEmpty() {

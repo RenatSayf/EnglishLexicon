@@ -13,6 +13,7 @@ import com.google.gson.Gson
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.helpers.getCRC32CheckSum
+import com.myapp.lexicon.models.LaunchMode
 import com.myapp.lexicon.models.TestState
 import com.myapp.lexicon.models.Word
 
@@ -121,8 +122,8 @@ fun Context.checkCloudToken(
     }
 }
 
-fun Context.setAdsSetting(token: String) {
-    if (token.isNotEmpty()) {
+fun Context.setAdsSetting(token: String?) {
+    if (token != null && token.isNotEmpty()) {
         appSettings.edit().apply {
             putBoolean(getString(R.string.KEY_IS_ADS_ENABLED), false)
             putString(KEY_ADS_TOKEN, token)
@@ -131,13 +132,13 @@ fun Context.setAdsSetting(token: String) {
     else {
         appSettings.edit().apply {
             putBoolean(getString(R.string.KEY_IS_ADS_ENABLED), true)
-            putString(KEY_ADS_TOKEN, "")
+            putString(KEY_ADS_TOKEN, token)
         }.apply()
     }
 }
 
-fun Context.setCloudSetting(token: String) {
-    if (token.isNotEmpty()) {
+fun Context.setCloudSetting(token: String?) {
+    if (token != null && token.isNotEmpty()) {
         appSettings.edit().apply {
             putBoolean(getString(R.string.KEY_CLOUD_STORAGE), true)
             putString(KEY_CLOUD_TOKEN, token)
@@ -146,7 +147,7 @@ fun Context.setCloudSetting(token: String) {
     else {
         appSettings.edit().apply {
             putBoolean(getString(R.string.KEY_CLOUD_STORAGE), false)
-            putString(KEY_CLOUD_TOKEN, "")
+            putString(KEY_CLOUD_TOKEN, token)
         }.apply()
     }
 }
@@ -311,6 +312,30 @@ fun Fragment.getTestStateFromPref(
     }
 }
 
+fun Context.checkBuildConfig(
+    onInit: () -> Unit,
+    onChangeToTest: (String) -> Unit,
+    onChangeToNormal: (String) -> Unit
+) {
+    val key = "KEY_LAUNCH_MODE"
+    val savedMode = appSettings.getString(key, null)
+    val currentMode = BuildConfig.PURCHASE_MODE
+    if (savedMode == null) {
+        onInit.invoke()
+        appSettings.edit().putString(key, currentMode).apply()
+    }
+    if (savedMode != currentMode) {
+        when(currentMode) {
+            LaunchMode.TEST.name -> {
+                onChangeToTest.invoke(currentMode)
+            }
+            LaunchMode.NORMAL.name -> {
+                onChangeToNormal.invoke(currentMode)
+            }
+        }
+        appSettings.edit().putString(key, currentMode).apply()
+    }
+}
 
 
 
