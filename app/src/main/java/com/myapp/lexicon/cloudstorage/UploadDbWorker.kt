@@ -63,6 +63,7 @@ class UploadDbWorker(
         AppDataBase.dataBase?.close()
 
         context.checkCloudStorage(
+            dbName = dbName ?: "",
             onRequireUpSync = { token ->
                 try {
                     val mainDbFile = context.getDatabasePath(dbName)
@@ -96,22 +97,26 @@ class UploadDbWorker(
                         .addOnCompleteListener {
                             result = Result.failure()
                             isWorked = false
+                            listener?.onComplete()
                         }
                 } catch (e: Exception) {
                     listener?.onFailure(e.message?: "****** Unknown error *******")
                     result = Result.failure()
                 }
                 finally {
+                    listener?.onComplete()
                     isWorked = false
                 }
             },
             onRequireDownSync = {
                 listener?.onSuccess(Uri.EMPTY)
+                listener?.onComplete()
                 result = Result.success()
                 isWorked = false
             },
             onNotRequireSync = {
                 listener?.onSuccess(Uri.EMPTY)
+                listener?.onComplete()
                 result = Result.success()
                 isWorked = false
             }

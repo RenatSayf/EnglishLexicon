@@ -39,8 +39,8 @@ class DialogTestCompleteTest {
         scenario.onActivity { activity ->
 
             DialogTestComplete.getInstance(
-                4.0,
-                10.0,
+                4,
+                10,
                 object : DialogTestComplete.Listener {
                     override fun onTestCompleteClick() {
                         isRunning = false

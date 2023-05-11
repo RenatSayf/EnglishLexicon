@@ -821,6 +821,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (isCloudEnabled) {
             SettingsExtKt.checkCloudStorage(
                     MainActivity.this,
+                    getString(R.string.data_base_name),
                     userId -> null,
                     userId -> {
                         boolean isFirstLaunch = SettingsExtKt.getCheckFirstLaunch(this);

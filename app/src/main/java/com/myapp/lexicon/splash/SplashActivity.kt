@@ -84,22 +84,6 @@ class SplashActivity : AppCompatActivity() {
                 })
             }
 
-            override fun onAdsTokenExists() {
-                this@SplashActivity.adsIsEnabled = false
-            }
-
-            override fun onAdsTokenEmpty() {
-                this@SplashActivity.adsIsEnabled = true
-            }
-
-            override fun onCloudTokenExists() {
-                this@SplashActivity.cloudStorageEnabled = true
-            }
-
-            override fun onCloudTokenEmpty() {
-                this@SplashActivity.cloudStorageEnabled = false
-            }
-
             override fun onCheckComplete() {
                 adsChecked = true
                 cloudChecked = true

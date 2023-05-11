@@ -13,15 +13,12 @@ import androidx.lifecycle.viewModelScope
 import com.android.billingclient.api.*
 import com.google.gson.Gson
 import com.myapp.lexicon.R
-import com.myapp.lexicon.models.PurchaseToken
 import com.myapp.lexicon.models.UserPurchase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-
-
 
 
 @HiltViewModel
@@ -38,14 +35,14 @@ class BillingViewModel @Inject constructor(app: Application) : AndroidViewModel(
     private var _noAdsProduct = MutableLiveData<Result<ProductDetails>>()
     val noAdsProduct: LiveData<Result<ProductDetails>> = _noAdsProduct
 
-    private val _noAdsToken : MutableLiveData<Result<PurchaseToken>> = MutableLiveData()
-    val noAdsToken: LiveData<Result<PurchaseToken>> = _noAdsToken
+    private val _noAdsToken : MutableLiveData<Result<String>> = MutableLiveData()
+    val noAdsToken: LiveData<Result<String>> = _noAdsToken
 
     private var _cloudStorageProduct = MutableLiveData<Result<ProductDetails>>()
     val cloudStorageProduct: LiveData<Result<ProductDetails>> = _cloudStorageProduct
 
-    private var _cloudStorageToken = MutableLiveData<Result<PurchaseToken>>()
-    val cloudStorageToken: LiveData<Result<PurchaseToken>> = _cloudStorageToken
+    private var _cloudStorageToken = MutableLiveData<Result<String>>()
+    val cloudStorageToken: LiveData<Result<String>> = _cloudStorageToken
 
     val billingClient = BillingClient.newBuilder(app)
         .setListener(this)
@@ -139,10 +136,10 @@ class BillingViewModel @Inject constructor(app: Application) : AndroidViewModel(
                         confirmPurchase(billingClient, purchase, onSuccess = {
                             when(userPurchase.productId) {
                                 productIdNoAds -> {
-                                    _noAdsToken.postValue(Result.success(PurchaseToken.YES))
+                                    _noAdsToken.postValue(Result.success(userPurchase.purchaseToken))
                                 }
                                 productIdCloudStorage -> {
-                                    _cloudStorageToken.postValue(Result.success(PurchaseToken.YES))
+                                    _cloudStorageToken.postValue(Result.success(userPurchase.purchaseToken))
                                 }
                             }
                         }, onCanceled = {

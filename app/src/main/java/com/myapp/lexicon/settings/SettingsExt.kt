@@ -31,32 +31,26 @@ var Context.adsIsEnabled: Boolean
     get() {
         return appSettings.getBoolean(getString(R.string.KEY_IS_ADS_ENABLED), true)
     }
-    set(value) {
+    private set(value) {
         appSettings.edit().putBoolean(getString(R.string.KEY_IS_ADS_ENABLED), value).apply()
     }
 
-var Fragment.adsIsEnabled: Boolean
+val Fragment.adsIsEnabled: Boolean
     get() {
         return requireContext().adsIsEnabled
-    }
-    set(value) {
-        requireContext().adsIsEnabled = value
     }
 
 var Context.cloudStorageEnabled: Boolean
     get() {
         return appSettings.getBoolean(getString(R.string.KEY_CLOUD_STORAGE), false)
     }
-    set(value) {
+    private set(value) {
         appSettings.edit().putBoolean(getString(R.string.KEY_CLOUD_STORAGE), value).apply()
     }
 
-var Fragment.cloudStorageEnabled: Boolean
+val Fragment.cloudStorageEnabled: Boolean
     get() {
         return requireContext().cloudStorageEnabled
-    }
-    set(value) {
-        requireContext().cloudStorageEnabled = value
     }
 
 var Context.checkFirstLaunch: Boolean
@@ -72,10 +66,6 @@ private const val KEY_CLOUD_TOKEN = "KEY_CLOUD_TOKEN_777"
 
 interface PurchasesTokenListener {
     fun onInit()
-    fun onAdsTokenExists()
-    fun onAdsTokenEmpty()
-    fun onCloudTokenExists()
-    fun onCloudTokenEmpty()
     fun onCheckComplete()
 }
 
@@ -87,18 +77,8 @@ fun Context.checkPurchasesTokens(listener: PurchasesTokenListener) {
             listener.onInit()
             return
         }
-        if (adsToken.isEmpty()) {
-            listener.onAdsTokenEmpty()
-        }
-        else {
-            listener.onAdsTokenExists()
-        }
-        if (cloudToken.isEmpty()) {
-            listener.onCloudTokenEmpty()
-        }
-        else {
-            listener.onCloudTokenExists()
-        }
+        this.adsIsEnabled = adsToken.isEmpty()
+        this.cloudStorageEnabled = cloudToken.isNotEmpty()
     } finally {
         listener.onCheckComplete()
     }
@@ -123,32 +103,55 @@ fun Context.checkCloudToken(
 }
 
 fun Context.setAdsSetting(token: String?) {
-    if (token != null && token.isNotEmpty()) {
-        appSettings.edit().apply {
-            putBoolean(getString(R.string.KEY_IS_ADS_ENABLED), false)
-            putString(KEY_ADS_TOKEN, token)
-        }.apply()
-    }
-    else {
-        appSettings.edit().apply {
-            putBoolean(getString(R.string.KEY_IS_ADS_ENABLED), true)
-            putString(KEY_ADS_TOKEN, token)
-        }.apply()
+
+    when {
+        token == null -> {
+            appSettings.edit().apply {
+                putBoolean(getString(R.string.KEY_IS_ADS_ENABLED), true)
+                putString(KEY_ADS_TOKEN, null)
+            }.apply()
+            this.adsIsEnabled = true
+        }
+        token.isEmpty() -> {
+            appSettings.edit().apply {
+                putBoolean(getString(R.string.KEY_IS_ADS_ENABLED), true)
+                putString(KEY_ADS_TOKEN, "")
+            }.apply()
+            this.adsIsEnabled = true
+        }
+        else -> {
+            appSettings.edit().apply {
+                putBoolean(getString(R.string.KEY_IS_ADS_ENABLED), false)
+                putString(KEY_ADS_TOKEN, token.getCRC32CheckSum().toString())
+            }.apply()
+            this.adsIsEnabled = false
+        }
     }
 }
 
 fun Context.setCloudSetting(token: String?) {
-    if (token != null && token.isNotEmpty()) {
-        appSettings.edit().apply {
-            putBoolean(getString(R.string.KEY_CLOUD_STORAGE), true)
-            putString(KEY_CLOUD_TOKEN, token)
-        }.apply()
-    }
-    else {
-        appSettings.edit().apply {
-            putBoolean(getString(R.string.KEY_CLOUD_STORAGE), false)
-            putString(KEY_CLOUD_TOKEN, token)
-        }.apply()
+    when {
+        token == null -> {
+            appSettings.edit().apply {
+                putBoolean(getString(R.string.KEY_CLOUD_STORAGE), false)
+                putString(KEY_CLOUD_TOKEN, null)
+            }.apply()
+            this.cloudStorageEnabled = false
+        }
+        token.isEmpty() -> {
+            appSettings.edit().apply {
+                putBoolean(getString(R.string.KEY_CLOUD_STORAGE), false)
+                putString(KEY_CLOUD_TOKEN, "")
+            }.apply()
+            this.cloudStorageEnabled = false
+        }
+        else -> {
+            appSettings.edit().apply {
+                putBoolean(getString(R.string.KEY_CLOUD_STORAGE), true)
+                putString(KEY_CLOUD_TOKEN, token.getCRC32CheckSum().toString())
+            }.apply()
+            this.cloudStorageEnabled = true
+        }
     }
 }
 
@@ -200,6 +203,7 @@ val Context.initDbCheckSum: Long
     }
 
 fun Context.checkCloudStorage(
+    dbName: String = getString(R.string.data_base_name),
     onRequireUpSync: (String) -> Unit,
     onRequireDownSync: (String) -> Unit,
     onNotRequireSync: () -> Unit
@@ -207,7 +211,7 @@ fun Context.checkCloudStorage(
     this.checkCloudToken(
         onExists = { token ->
 
-            val dbName = this.getString(R.string.data_base_name)
+            //val dbName = this.getString(R.string.data_base_name)
             val mainDbFile = getDatabasePath(dbName)
             val localCheckSum = mainDbFile.readBytes().getCRC32CheckSum()
             if (BuildConfig.DEBUG) {

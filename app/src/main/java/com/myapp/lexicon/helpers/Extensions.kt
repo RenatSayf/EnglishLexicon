@@ -86,6 +86,12 @@ fun ByteArray.getCRC32CheckSum(): Long {
     return crC32.value
 }
 
+fun String.getCRC32CheckSum(): Long {
+    val crC32 = CRC32()
+    crC32.update(this.toByteArray())
+    return crC32.value
+}
+
 fun String.checkOnlyLetterAndFirstNotDigit(): Int {
     if (this.isNotEmpty() && this[0].isDigit()) {
         return 0

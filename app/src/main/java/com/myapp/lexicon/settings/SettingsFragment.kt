@@ -19,7 +19,6 @@ import com.myapp.lexicon.dialogs.DisableAdsDialog
 import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.main.MainActivity
-import com.myapp.lexicon.models.PurchaseToken
 import com.myapp.lexicon.schedule.AlarmScheduler
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
@@ -170,9 +169,9 @@ class SettingsFragment : PreferenceFragmentCompat()
         view.setBackgroundColor(resources.getColor(R.color.colorWhite))
 
         val noAdsSwitch = findPreference<SwitchPreferenceCompat>(getString(R.string.KEY_IS_ADS_ENABLED))
-        findPreference<PreferenceCategory>("disableAdsCategory")?.isEnabled = this.adsIsEnabled
-        noAdsSwitch?.isChecked = this.adsIsEnabled
-        noAdsSwitch?.isEnabled = this.adsIsEnabled
+        findPreference<PreferenceCategory>("disableAdsCategory")?.isEnabled = requireContext().adsIsEnabled
+        noAdsSwitch?.isChecked = requireContext().adsIsEnabled
+        noAdsSwitch?.isEnabled = requireContext().adsIsEnabled
         noAdsSwitch?.apply {
             onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener
             {
@@ -202,18 +201,20 @@ class SettingsFragment : PreferenceFragmentCompat()
 
         billingVM.noAdsToken.observe(viewLifecycleOwner) { result ->
             result.onSuccess { token ->
-                when(token) {
-                    PurchaseToken.YES -> {
+                when {
+                    token.isNotEmpty() -> {
                         noAdsSwitch?.let { sw ->
                             sw.isChecked = false
                             sw.isEnabled = false
                         }
+                        requireContext().setAdsSetting(token)
                     }
                     else -> {
                         noAdsSwitch?.let { sw ->
                             sw.isChecked = true
                             sw.isEnabled = true
                         }
+                        requireContext().setAdsSetting("")
                     }
                 }
             }
@@ -222,13 +223,13 @@ class SettingsFragment : PreferenceFragmentCompat()
                     sw.isChecked = true
                     sw.isEnabled = true
                 }
+                requireContext().setAdsSetting("")
             }
-
         }
 
         val cloudStorageSwitch = findPreference<SwitchPreferenceCompat>(getString(R.string.KEY_CLOUD_STORAGE))
-        findPreference<PreferenceCategory>("cloudStorageCategory")?.isEnabled = !this.cloudStorageEnabled
-        cloudStorageSwitch?.isChecked = this.cloudStorageEnabled
+        findPreference<PreferenceCategory>("cloudStorageCategory")?.isEnabled = !requireContext().cloudStorageEnabled
+        cloudStorageSwitch?.isChecked = requireContext().cloudStorageEnabled
         if (cloudStorageSwitch?.isChecked == true) {
             cloudStorageSwitch.isEnabled = false
             val title = cloudStorageSwitch.title
@@ -277,8 +278,8 @@ class SettingsFragment : PreferenceFragmentCompat()
 
         billingVM.cloudStorageToken.observe(viewLifecycleOwner) { result ->
             result.onSuccess { token ->
-                when(token) {
-                    PurchaseToken.YES -> {
+                when {
+                    token.isNotEmpty() -> {
                         cloudStorageSwitch?.let { switch ->
                             switch.isChecked = true
                             switch.isEnabled = false
@@ -286,12 +287,14 @@ class SettingsFragment : PreferenceFragmentCompat()
                             val newTitle = "$title (${getString(R.string.text_enabled)})"
                             switch.title = newTitle
                         }
+                        requireContext().setCloudSetting(token)
                     }
-                    PurchaseToken.NO -> {
+                    else -> {
                         cloudStorageSwitch?.let { sw ->
                             sw.isChecked = false
                             sw.title = getString(R.string.text_save_my_dicts)
                         }
+                        requireContext().setCloudSetting("")
                     }
                 }
             }
@@ -300,6 +303,7 @@ class SettingsFragment : PreferenceFragmentCompat()
                     sw.isChecked = false
                     sw.title = getString(R.string.text_save_my_dicts)
                 }
+                requireContext().setCloudSetting("")
             }
         }
 
