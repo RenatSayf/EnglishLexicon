@@ -204,61 +204,56 @@ val Context.initDbCheckSum: Long
     }
 
 fun Context.checkCloudStorage(
-    dbName: String = getString(R.string.data_base_name),
+    userId: String,
+    fileName: String = getString(R.string.data_base_name),
     onRequireUpSync: (String) -> Unit,
     onRequireDownSync: (String) -> Unit,
     onNotRequireSync: () -> Unit
 ) {
-    this.checkCloudToken(
-        onExists = { token ->
+    val dbFile = getDatabasePath(fileName)
+    val localCheckSum = dbFile.readBytes().getCRC32CheckSum()
+    if (BuildConfig.DEBUG) {
+        println("************** localCheckSum = $localCheckSum ****************")
+        println("************** initDbCheckSum = ${this.initDbCheckSum} ****************")
+    }
 
-            //val dbName = this.getString(R.string.data_base_name)
-            val mainDbFile = getDatabasePath(dbName)
-            val localCheckSum = mainDbFile.readBytes().getCRC32CheckSum()
-            if (BuildConfig.DEBUG) {
-                println("************** localCheckSum = $localCheckSum ****************")
-                println("************** initDbCheckSum = ${this.initDbCheckSum} ****************")
-            }
+    val storageRef: StorageReference = Firebase.storage.reference.child("/users/$userId/${fileName}")
 
-            val storageRef: StorageReference = Firebase.storage.reference.child("/users/$token/${dbName}")
+    storageRef.metadata.addOnSuccessListener { metadata ->
 
-            storageRef.metadata.addOnSuccessListener { metadata ->
+        val remoteCheckSum = metadata.getCustomMetadata("CHECK_SUM") ?: "0"
+        if (BuildConfig.DEBUG) {
+            println("************** remoteCheckSum = $remoteCheckSum ****************")
+        }
 
-                val remoteCheckSum = metadata.getCustomMetadata("CHECK_SUM") ?: "0"
-                if (BuildConfig.DEBUG) {
-                    println("************** remoteCheckSum = $remoteCheckSum ****************")
-                }
+        if (localCheckSum.toString() != remoteCheckSum && localCheckSum == this.initDbCheckSum) {
+            onRequireDownSync.invoke(userId)
+        }
+        else if (localCheckSum.toString() != remoteCheckSum && localCheckSum != this.initDbCheckSum) {
+            onRequireUpSync.invoke(userId)
+        }
+        else {
+            onNotRequireSync.invoke()
+        }
+    }.addOnFailureListener { ex ->
 
-                if (localCheckSum.toString() != remoteCheckSum && localCheckSum == this.initDbCheckSum) {
-                    onRequireDownSync.invoke(token)
-                }
-                else if (localCheckSum.toString() != remoteCheckSum && localCheckSum != this.initDbCheckSum) {
-                    onRequireUpSync.invoke(token)
+        if (ex is StorageException) {
+            if (ex.errorCode == StorageException.ERROR_OBJECT_NOT_FOUND) {
+                if (localCheckSum != this.initDbCheckSum) {
+                    onRequireUpSync.invoke(userId)
+                    return@addOnFailureListener
                 }
                 else {
                     onNotRequireSync.invoke()
+                    return@addOnFailureListener
                 }
-            }.addOnFailureListener { ex ->
-
-                if (ex is StorageException) {
-                    if (ex.errorCode == StorageException.ERROR_OBJECT_NOT_FOUND) {
-                        if (localCheckSum != this.initDbCheckSum) {
-                            onRequireUpSync.invoke(token)
-                            return@addOnFailureListener
-                        }
-                        else {
-                            onNotRequireSync.invoke()
-                            return@addOnFailureListener
-                        }
-                    }
-                    else {
-                        if (BuildConfig.DEBUG) ex.printStackTrace()
-                    }
-                }
-                onNotRequireSync.invoke()
+            }
+            else {
+                if (BuildConfig.DEBUG) ex.printStackTrace()
             }
         }
-    )
+        onNotRequireSync.invoke()
+    }
 }
 
 val Context.testIntervalFromPref: Int

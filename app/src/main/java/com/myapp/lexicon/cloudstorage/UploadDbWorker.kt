@@ -12,7 +12,6 @@ import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.database.AppDataBase
 import com.myapp.lexicon.helpers.getCRC32CheckSum
-import com.myapp.lexicon.settings.checkCloudStorage
 import kotlinx.coroutines.delay
 
 

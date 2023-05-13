@@ -17,6 +17,7 @@ class CloudCheckWorker(
     companion object {
         val TAG = "${CloudCheckWorker::class.java.simpleName}.tag11111"
 
+        private var userId: String = "/"
         private var dbName: String? = null
 
         private var listener:Listener? = null
@@ -35,12 +36,14 @@ class CloudCheckWorker(
 
         fun check(
             context: Context,
+            userId: String,
             dbName: String = context.getString(R.string.data_base_name),
             listener: Listener? = null
         ) {
 
             this.listener = listener
             val workManager = WorkManager.getInstance(context)
+            this.userId = userId
             this.dbName = dbName
             val workRequest = createWorkRequest()
             workManager.enqueueUniqueWork(TAG, ExistingWorkPolicy.REPLACE, workRequest)
@@ -54,7 +57,8 @@ class CloudCheckWorker(
                 var isWorked = true
                 val context = this@CloudCheckWorker.applicationContext
                 context.checkCloudStorage(
-                    dbName = dbName?: "",
+                    userId,
+                    fileName = dbName?: "",
                     onRequireDownSync = { token ->
                         listener?.onRequireDownSync(token)
                         isWorked = false

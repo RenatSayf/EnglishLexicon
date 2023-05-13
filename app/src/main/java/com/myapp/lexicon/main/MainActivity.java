@@ -818,24 +818,43 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         boolean isCloudEnabled = SettingsExtKt.getCloudStorageEnabled(this);
         if (isCloudEnabled) {
-            SettingsExtKt.checkCloudStorage(
-                    MainActivity.this,
-                    getString(R.string.data_base_name),
-                    userId -> null,
-                    userId -> {
-                        boolean isFirstLaunch = SettingsExtKt.getCheckFirstLaunch(this);
-                        if (isFirstLaunch) {
-                            showCloudDialog();
-                        }
-                        menu.findItem(R.id.cloud_storage).setVisible(true);
-                        SettingsExtKt.setCheckFirstLaunch(this, false);
+            SettingsExtKt.checkCloudToken(
+                    this,
+                    () -> null,
+                    token -> {
+                        CloudCheckWorker.Companion.check(
+                                this,
+                                token,
+                                getString(R.string.data_base_name),
+                                new CloudCheckWorker.Listener()
+                                {
+                                    @Override
+                                    public void onRequireUpSync(@NonNull String token)
+                                    {}
+
+                                    @Override
+                                    public void onRequireDownSync(@NonNull String token)
+                                    {
+                                        boolean isFirstLaunch = SettingsExtKt.getCheckFirstLaunch(MainActivity.this);
+                                        if (isFirstLaunch) {
+                                            showCloudDialog();
+                                        }
+                                        menu.findItem(R.id.cloud_storage).setVisible(true);
+                                        SettingsExtKt.setCheckFirstLaunch(MainActivity.this, false);
+                                    }
+
+                                    @Override
+                                    public void onNotRequireSync()
+                                    {
+                                        SettingsExtKt.setCheckFirstLaunch(MainActivity.this, false);
+                                        menu.findItem(R.id.cloud_storage).setVisible(false);
+                                    }
+                                }
+                        );
                         return null;
                     },
-                    () -> {
-                        SettingsExtKt.setCheckFirstLaunch(this, false);
-                        menu.findItem(R.id.cloud_storage).setVisible(false);
-                        return null;
-                    }
+                    () -> null,
+                    () -> null
             );
         }
         else {
@@ -848,14 +867,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         boolean storageEnabled = SettingsExtKt.getCloudStorageEnabled(this);
         if (storageEnabled) {
 
-            CloudCheckWorker.Companion.check(
+            SettingsExtKt.checkCloudToken(
                     this,
-                    getString(R.string.data_base_name),
-                    null
+                    () -> null,
+                    token -> {
+                        CloudCheckWorker.Companion.check(
+                                this,
+                                token,
+                                getString(R.string.data_base_name),
+                                null
+                        );
+                        return null;
+                    },
+                    () -> null,
+                    () -> null
             );
         }
     }
-
 
     @Override
     public void refreshMainScreen()
