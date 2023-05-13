@@ -1,22 +1,25 @@
 package com.myapp.lexicon.cloudstorage
 
-import android.net.Uri
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner
 import com.myapp.lexicon.BuildConfig
+import com.myapp.lexicon.R
 import com.myapp.lexicon.createTestDB
 import com.myapp.lexicon.models.LaunchMode
 import com.myapp.lexicon.settings.setCloudSetting
 import com.myapp.lexicon.testing.TestActivity
-import org.junit.*
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
+
+import org.junit.Assert.*
+import org.junit.Rule
 import org.junit.runner.RunWith
-import com.myapp.lexicon.R
-import com.myapp.lexicon.helpers.getCRC32CheckSum
 
 
 @RunWith(AndroidJUnit4ClassRunner::class)
-class UploadDbWorkerTest {
+class CloudCheckWorkerTest {
 
     @get:Rule
     var rule = ActivityScenarioRule(TestActivity::class.java)
@@ -57,22 +60,18 @@ class UploadDbWorkerTest {
 
             val testDbName = activity.getString(R.string.test_db_name_1)
             val testToken = activity.getString(R.string.test_cloud_token)
-            UploadDbWorker.uploadDbToCloud(activity, dbName = testDbName, userId = testToken, object : UploadDbWorker.Listener {
-                override fun onSuccess(uri: Uri) {
-                    val lastSegment = uri.lastPathSegment
-                    val actualResult = lastSegment?.contains(testDbName)?: false
-                    Assert.assertTrue(true)
-                }
-                override fun onFailure(error: String) {
-                    Assert.assertTrue(error, false)
-                }
-                override fun onComplete() {
-                    isRunning = false
+
+            CloudCheckWorker.check(activity, testDbName, listener = object : CloudCheckWorker.Listener {
+                override fun onRequireUpSync(token: String) {
+
                 }
 
-                override fun onCanceled(message: String) {
-                    Assert.assertTrue(message, false)
-                    isRunning = false
+                override fun onRequireDownSync(token: String) {
+
+                }
+
+                override fun onNotRequireSync() {
+
                 }
             })
         }
@@ -80,6 +79,5 @@ class UploadDbWorkerTest {
         while (isRunning) {
             Thread.sleep(100)
         }
-
     }
 }

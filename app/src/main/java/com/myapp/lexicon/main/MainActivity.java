@@ -25,9 +25,9 @@ import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
+import com.myapp.lexicon.cloudstorage.CloudCheckWorker;
 import com.myapp.lexicon.cloudstorage.DownloadDbWorker;
 import com.myapp.lexicon.cloudstorage.StorageDialog;
-import com.myapp.lexicon.cloudstorage.UploadDbWorker;
 import com.myapp.lexicon.database.AppDataBase;
 import com.myapp.lexicon.databinding.DialogStorageBinding;
 import com.myapp.lexicon.dialogs.ConfirmDialog;
@@ -709,7 +709,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         boolean contains = list.contains(mainViewModel.currentDict.getValue());
                         if (contains)
                         {
-                            //mainViewModel.resetWordsList();
                             mainViewModel.refreshWordsList();
                         }
                     }
@@ -849,10 +848,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         boolean storageEnabled = SettingsExtKt.getCloudStorageEnabled(this);
         if (storageEnabled) {
 
-            UploadDbWorker.Companion.uploadDbToCloud(
+            CloudCheckWorker.Companion.check(
                     this,
-                    this.getString(R.string.data_base_name),
-                    null);
+                    getString(R.string.data_base_name),
+                    null
+            );
         }
     }
 

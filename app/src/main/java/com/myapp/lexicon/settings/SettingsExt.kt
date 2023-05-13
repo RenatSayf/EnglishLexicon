@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageException
+import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import com.google.gson.Gson
 import com.myapp.lexicon.BuildConfig
@@ -219,7 +220,7 @@ fun Context.checkCloudStorage(
                 println("************** initDbCheckSum = ${this.initDbCheckSum} ****************")
             }
 
-            val storageRef = Firebase.storage.reference.child("/users/$token/${dbName}")
+            val storageRef: StorageReference = Firebase.storage.reference.child("/users/$token/${dbName}")
 
             storageRef.metadata.addOnSuccessListener { metadata ->
 

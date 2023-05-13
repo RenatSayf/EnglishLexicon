@@ -4,21 +4,20 @@ import android.content.Context
 import java.io.File
 import java.io.FileOutputStream
 
-const val TEST_DB_NAME = "test_data_base.db"
 
-fun Context.createTestDB() {
+
+fun Context.createTestDB(dbName: String = getString(R.string.test_db_name_1)): File {
+
     try {
-        this.databaseList().first {
-            it == TEST_DB_NAME
+        val existsTestBbName = this.databaseList().first {
+            it == dbName
         }
+        return File(existsTestBbName)
     } catch (e: NoSuchElementException) {
-        val inputStream = this.assets.open("databases/$TEST_DB_NAME")
+        val inputStream = this.assets.open("databases/$dbName")
         val bytes = inputStream.readBytes()
-        val dbPath = this.databaseList().first {
-            it == "lexicon_DB.db"
-        }
-        val dbFolder = this.getDatabasePath(dbPath).parent
-        val file = File(dbFolder, TEST_DB_NAME)
+        val dbFolder = this.getDatabasePath(getString(R.string.data_base_name)).parent
+        val file = File(dbFolder, dbName)
         if (!file.exists()) {
             file.createNewFile()
             FileOutputStream(file).apply {
@@ -26,5 +25,6 @@ fun Context.createTestDB() {
                 this.close()
             }
         }
+        return file
     }
 }
