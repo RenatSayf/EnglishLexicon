@@ -141,6 +141,7 @@ class SettingsFragment : PreferenceFragmentCompat()
                     serviceCheckBoxPref.isChecked = false
                     listOnUnBlockingScreen.isEnabled = true
                     listDisplayModePref.isEnabled = true
+                    view?.let { redirectIfXiaomiDevice() }
                 }
                 else
                 {
