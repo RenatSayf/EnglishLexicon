@@ -12,8 +12,8 @@ android {
         applicationId "com.myapp.lexicon"
         minSdkVersion 26
         targetSdkVersion 33
-        versionName 'beta'
-        versionCode 43
+        versionName '3.3.0'
+        versionCode 44
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
 
@@ -33,7 +33,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
