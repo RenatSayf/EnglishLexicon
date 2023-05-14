@@ -50,6 +50,7 @@ import androidx.lifecycle.ViewModelProvider;
 import dagger.hilt.android.AndroidEntryPoint;
 
 
+@SuppressWarnings("CodeBlock2Expr")
 @AndroidEntryPoint
 public class WordEditorActivity extends AppCompatActivity implements ListViewAdapter.IListViewAdapter
 {
@@ -191,7 +192,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
 
         editorVM.wordsList.observe(this, words -> {
             listViewAdapter = new ListViewAdapter((ArrayList<Word>) words, this);
-            listView.setAdapter(listViewAdapter); // TODO: ListView setAdapter
+            listView.setAdapter(listViewAdapter); // Hint: ListView setAdapter
             progressBar.setVisibility(View.GONE);
             String text = getString(R.string.text_words) + "  " + words.size();
             tvAmountWords.setText(text);
@@ -489,7 +490,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             {
                 try
                 {
-                    //// TODO: Фильтрация ListView, вызов
+                    // Hint: Фильтрация ListView, вызов
                     listViewAdapter = (ListViewAdapter) listView.getAdapter();
                     if (listViewAdapter != null)
                     {
@@ -544,6 +545,6 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             editorVM.disableWord(true);
             Toast.makeText(WordEditorActivity.this, getString(R.string.text_word_is_enabled), Toast.LENGTH_LONG).show();
         }
-        editorVM.updateWordInDb(Collections.singletonList(word)); //TODO надо проверить обновление слова
+        editorVM.updateWordInDb(Collections.singletonList(word));
     }
 }
