@@ -58,6 +58,7 @@ android {
         targetCompatibility = 1.11
     }
     flavorDimensions 'test_ads'
+    namespace 'com.myapp.lexicon'
 
 }
 
