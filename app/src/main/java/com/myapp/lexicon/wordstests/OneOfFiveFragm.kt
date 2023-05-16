@@ -18,7 +18,7 @@ import com.myapp.lexicon.adapters.OneFiveTestAdapter
 import com.myapp.lexicon.ads.loadInterstitialAd
 import com.myapp.lexicon.ads.showInterstitialAd
 import com.myapp.lexicon.databinding.OneOfFiveFragmNewBinding
-import com.myapp.lexicon.dialogs.TestCompleteDialog
+import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.RandomNumberGenerator
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.models.Word
@@ -31,7 +31,7 @@ const val ROWS: Int = 5
 
 
 @AndroidEntryPoint
-class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDialog.ITestCompleteDialogListener, OneFiveTestAdapter.ITestAdapterListener
+class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdapter.ITestAdapterListener
 {
     private lateinit var binding: OneOfFiveFragmNewBinding
     private lateinit var vm: OneOfFiveViewModel
@@ -112,9 +112,49 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDia
             binding.progressValueView.text = progressValue
             if (it == binding.progressView1of5.max) {
                 val errors = vm.wrongAnswerCount.value
-                val dialog = errors?.let { err -> TestCompleteDialog.getInstance(err, this) }
-                dialog?.show(mActivity.supportFragmentManager, TestCompleteDialog.TAG)
-                mActivity.supportFragmentManager.popBackStack()
+                errors?.let { err ->
+                    when(err) {
+                        0 -> {
+                            ConfirmDialog.newInstance( onLaunch = { dialog, binding ->
+                                with(binding) {
+                                    ivIcon.visibility = View.INVISIBLE
+                                    tvEmoji.text = getString(R.string.slightly_smiling_face)
+                                    tvEmoji2.apply {
+                                        text = getString(R.string.thumbs_up)
+                                        visibility = View.VISIBLE
+                                    }
+                                    tvMessage.text = getString(R.string.text_test_passed)
+                                    btnCancel.visibility = View.INVISIBLE
+                                    btnOk.text = getString(R.string.text_ok)
+                                    btnOk.setOnClickListener {
+                                        dialog.dismiss()
+                                        onTestPassed()
+                                    }
+                                }
+                            }).show(parentFragmentManager, ConfirmDialog.TAG)
+                        }
+                        else -> {
+                            ConfirmDialog.newInstance( onLaunch = { dialog, binding ->
+                                with(binding) {
+                                    ivIcon.visibility = View.INVISIBLE
+                                    tvEmoji.text = getString(R.string.confused_face)
+                                    tvEmoji2.apply {
+                                        text = getString(R.string.thumbs_up)
+                                        visibility = View.GONE
+                                    }
+                                    tvMessage.text = getString(R.string.text_test_not_passed)
+                                    btnCancel.visibility = View.INVISIBLE
+                                    btnOk.text = getString(R.string.text_repeat)
+                                    btnOk.setOnClickListener {
+                                        dialog.dismiss()
+                                        onTestFailed(err)
+                                    }
+                                }
+                            }).show(parentFragmentManager, ConfirmDialog.TAG)
+                        }
+                    }
+                }
+                parentFragmentManager.popBackStack()
             }
         }
     }
@@ -212,7 +252,7 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDia
         }
     }
 
-    override fun onTestPassed()
+    private fun onTestPassed()
     {
         yandexAd2?.showInterstitialAd(
             dismiss = {
@@ -225,7 +265,7 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), TestCompleteDia
         }
     }
 
-    override fun onTestFailed(errors: Int)
+    private fun onTestFailed(errors: Int)
     {
         yandexAd2?.showInterstitialAd(
             dismiss = {

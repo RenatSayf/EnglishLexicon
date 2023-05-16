@@ -25,16 +25,15 @@ import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
+import com.myapp.lexicon.cloudstorage.CloudCheckWorker;
 import com.myapp.lexicon.cloudstorage.DownloadDbWorker;
 import com.myapp.lexicon.cloudstorage.StorageDialog;
-import com.myapp.lexicon.cloudstorage.UploadDbWorker;
 import com.myapp.lexicon.database.AppDataBase;
 import com.myapp.lexicon.databinding.DialogStorageBinding;
 import com.myapp.lexicon.dialogs.ConfirmDialog;
 import com.myapp.lexicon.dialogs.DictListDialog;
 import com.myapp.lexicon.dialogs.OrderPlayDialog;
 import com.myapp.lexicon.dialogs.RemoveDictDialog;
-import com.myapp.lexicon.helpers.AppBus;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.JavaKotlinMediator;
 import com.myapp.lexicon.helpers.LockOrientation;
@@ -56,6 +55,10 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -70,7 +73,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 
 @AndroidEntryPoint
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, MainFragment.Listener
 {
     public LinearLayout mainControlLayout;
     private Button btnViewDict;
@@ -84,11 +87,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public MainViewModel mainViewModel;
     private SpeechViewModel speechViewModel;
     private Word currentWord;
-    private int wordsInterval = Integer.MAX_VALUE;
+    private int wordsInterval = 10;
     public BackgroundFragm backgroundFragm = null;
 
     @Inject
     AlarmScheduler scheduler;
+
 
 
     @Override
@@ -394,6 +398,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         btnReplay.setOnClickListener( view -> mainViewPager.setCurrentItem(0, true));
 
+        MainFragment mainFragment = MainFragment.Companion.getInstance(this);
+        getSupportFragmentManager().beginTransaction().add(R.id.frame_to_page_fragm, mainFragment).commit();
+
     }
 
     public void testPassed()
@@ -500,17 +507,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onResume()
     {
         super.onResume();
-        if (mainViewModel.getTestInterval().getValue() != null)
-        {
-            wordsInterval = mainViewModel.getTestInterval().getValue();
-        }
-        Boolean isRefresh = AppBus.INSTANCE.isRefresh().getValue();
-        if (isRefresh != null && isRefresh)
-        {
-            mainViewModel.refreshWordsList();
-        }
-
-        onAppStarting();
+        //onAppStarting();
     }
 
     @Override
@@ -530,7 +527,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onCreateOptionsMenu(Menu menu)
     {
         getMenuInflater().inflate(R.menu.a_up_menu_main, menu);
-        return false;
+        configureOptionsMenu(menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -540,12 +538,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (id == R.id.edit_word)
         {
             Word word = mainViewModel.getCurrentWord().getValue();
+            Intent intent = new Intent(this, WordEditorActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putString(WordEditorActivity.KEY_EXTRA_DICT_NAME, btnViewDict.getText().toString());
             if (word != null)
             {
-                AppBus.INSTANCE.passWord(word); // отправляем слово в WordEditorActivity
+                bundle.putString(WordEditorActivity.KEY_EXTRA_EN_WORD, word.getEnglish());
+                bundle.putString(WordEditorActivity.KEY_EXTRA_RU_WORD, word.getTranslate());
             }
-            Intent intent = new Intent(this, WordEditorActivity.class);
-            startActivity(intent);
+            intent.replaceExtras(bundle);
+            activityResultLauncher.launch(intent);
         }
         if (id == R.id.edit_speech_data)
         {
@@ -569,6 +571,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         return super.onOptionsItemSelected(item);
     }
+
+    ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<>()
+            {
+                @Override
+                public void onActivityResult(ActivityResult result)
+                {
+                    int resultCode = result.getResultCode();
+                    if (resultCode == WordEditorActivity.requestCode)
+                    {
+                        mainViewModel.refreshWordsList();
+                    }
+                }
+            });
 
     @SuppressWarnings("Convert2Lambda")
     @Override
@@ -613,7 +630,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Bundle bundle = new Bundle();
             bundle.putString(WordEditorActivity.KEY_EXTRA_DICT_NAME, btnViewDict.getText().toString());
             intent.replaceExtras(bundle);
-            startActivity(intent);
+            activityResultLauncher.launch(intent);
         }
         else if (id == R.id.nav_check_your_self)
         {
@@ -671,22 +688,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    public static Boolean isActivityRunning = false;
-
-    @Override
-    public void onAttachedToWindow()
-    {
-        super.onAttachedToWindow();
-        isActivityRunning = true;
-    }
-
-    @Override
-    public void onDetachedFromWindow()
-    {
-        super.onDetachedFromWindow();
-        isActivityRunning = false;
-    }
-
     public void testIntervalOnChange(int value)
     {
         wordsInterval = value;
@@ -708,7 +709,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         boolean contains = list.contains(mainViewModel.currentDict.getValue());
                         if (contains)
                         {
-                            mainViewModel.resetWordsList();
+                            mainViewModel.refreshWordsList();
                         }
                     }
                     dialog.dismiss();
@@ -745,11 +746,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 {
                     new LockOrientation(MainActivity.this).lock();
                     binding.tvProductName.setText(getString(R.string.text_cloud_storage));
-                    binding.tvPriceTitle.setText("В облачном хранилище найдена резервная копия Ваших словарей.\nВосстановить слова?");
-                    binding.btnCloudEnable.setText("Восстановить");
+                    binding.tvPriceTitle.setText(R.string.text_dicts_have_been_found);
+                    binding.btnCloudEnable.setText(R.string.text_restore);
                     binding.btnCancel.setText(getString(R.string.btn_text_cancel));
                 }
-
                 @Override
                 public void onPositiveClick()
                 {
@@ -776,13 +776,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                                     FileOutputStream fileOutputStream = new FileOutputStream(file);
                                                     fileOutputStream.write(bytes);
                                                     fileOutputStream.close();
-                                                    ExtensionsKt.showSnackBar(mainControlLayout, "Словари успешно восстановлены.", Snackbar.LENGTH_LONG);
+                                                    ExtensionsKt.showSnackBar(mainControlLayout, getString(R.string.text_dicts_restore_success), Snackbar.LENGTH_LONG);
                                                     toolBar.getMenu().findItem(R.id.cloud_storage).setVisible(false);
+                                                    mainViewModel.refreshWordsList();
                                                 }
                                                 catch (Exception e)
                                                 {
                                                     e.printStackTrace();
-                                                    ExtensionsKt.showSnackBar(mainControlLayout, "Ошибка. Не удалось восстановить базу данных", Snackbar.LENGTH_LONG);
+                                                    ExtensionsKt.showSnackBar(mainControlLayout, getString(R.string.text_db_restore_error), Snackbar.LENGTH_LONG);
                                                 }
                                             }
 
@@ -802,10 +803,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             () -> null,
                             () -> null
                     );
-
-
                 }
-
                 @Override
                 public void onCancelClick()
                 {
@@ -816,31 +814,51 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private void onAppStarting() {
+    private void configureOptionsMenu(Menu menu) {
 
         boolean isCloudEnabled = SettingsExtKt.getCloudStorageEnabled(this);
         if (isCloudEnabled) {
-            SettingsExtKt.checkCloudStorage(
-                    MainActivity.this,
-                    userId -> null,
-                    userId -> {
-                        boolean isFirstLaunch = SettingsExtKt.getCheckFirstLaunch(this);
-                        if (isFirstLaunch) {
-                            showCloudDialog();
-                        }
-                        toolBar.getMenu().findItem(R.id.cloud_storage).setVisible(true);
-                        SettingsExtKt.setCheckFirstLaunch(this, false);
+            SettingsExtKt.checkCloudToken(
+                    this,
+                    () -> null,
+                    token -> {
+                        CloudCheckWorker.Companion.check(
+                                this,
+                                token,
+                                getString(R.string.data_base_name),
+                                new CloudCheckWorker.Listener()
+                                {
+                                    @Override
+                                    public void onRequireUpSync(@NonNull String token)
+                                    {}
+
+                                    @Override
+                                    public void onRequireDownSync(@NonNull String token)
+                                    {
+                                        boolean isFirstLaunch = SettingsExtKt.getCheckFirstLaunch(MainActivity.this);
+                                        if (isFirstLaunch) {
+                                            showCloudDialog();
+                                        }
+                                        menu.findItem(R.id.cloud_storage).setVisible(true);
+                                        SettingsExtKt.setCheckFirstLaunch(MainActivity.this, false);
+                                    }
+
+                                    @Override
+                                    public void onNotRequireSync()
+                                    {
+                                        SettingsExtKt.setCheckFirstLaunch(MainActivity.this, false);
+                                        menu.findItem(R.id.cloud_storage).setVisible(false);
+                                    }
+                                }
+                        );
                         return null;
                     },
-                    () -> {
-                        SettingsExtKt.setCheckFirstLaunch(this, false);
-                        toolBar.getMenu().findItem(R.id.cloud_storage).setVisible(false);
-                        return null;
-                    }
+                    () -> null,
+                    () -> null
             );
         }
         else {
-            toolBar.getMenu().findItem(R.id.cloud_storage).setVisible(false);
+            menu.findItem(R.id.cloud_storage).setVisible(false);
         }
     }
 
@@ -849,14 +867,35 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         boolean storageEnabled = SettingsExtKt.getCloudStorageEnabled(this);
         if (storageEnabled) {
 
-            UploadDbWorker.Companion.uploadDbToCloud(
+            SettingsExtKt.checkCloudToken(
                     this,
-                    this.getString(R.string.data_base_name),
-                    null);
+                    () -> null,
+                    token -> {
+                        CloudCheckWorker.Companion.check(
+                                this,
+                                token,
+                                getString(R.string.data_base_name),
+                                null
+                        );
+                        return null;
+                    },
+                    () -> null,
+                    () -> null
+            );
         }
     }
 
+    @Override
+    public void refreshMainScreen()
+    {
+        mainViewModel.refreshWordsList();
+    }
 
+    @Override
+    public void onVisibleMainScreen()
+    {
+        wordsInterval = SettingsExtKt.getTestIntervalFromPref(this);
+    }
 }
 
 

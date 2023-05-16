@@ -5,7 +5,7 @@ import androidx.room.Room
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner
-import com.myapp.lexicon.TEST_DB_NAME
+import com.myapp.lexicon.R
 import com.myapp.lexicon.database.AppDataBase
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.AppSettings
@@ -35,8 +35,9 @@ class DataRepositoryImplTest {
         scenario = rule.scenario
         scenario.onActivity {
 
-            val dataBase = Room.databaseBuilder(it, AppDataBase::class.java, TEST_DB_NAME)
-                .createFromAsset("databases/$TEST_DB_NAME")
+            val testDbName = it.getString(R.string.test_db_name_1)
+            val dataBase = Room.databaseBuilder(it, AppDataBase::class.java, testDbName)
+                .createFromAsset("databases/$testDbName")
                 .allowMainThreadQueries()
                 .build().appDao()
 

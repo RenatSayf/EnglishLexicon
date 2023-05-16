@@ -5,8 +5,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.helpers.UiState
+import com.myapp.lexicon.models.TestState
+import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.repository.DataRepositoryImpl
 import com.myapp.lexicon.settings.getWordFromPref
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -31,6 +32,8 @@ class TestViewModel @Inject constructor(
     {
         _liveState.value = state
     }
+
+    var testState = TestState()
 
     private var _currentWord = MutableLiveData<Word>().apply {
         app.getWordFromPref(
@@ -63,22 +66,43 @@ class TestViewModel @Inject constructor(
 
     private var _wordsList = MutableLiveData<MutableList<Word>>(arrayListOf(Word(-1, "", "", "", 0)))
     var wordsList: LiveData<MutableList<Word>> = _wordsList
-    fun getWordsByDictName(dict: String)
+
+    fun getWordsByDictName(dict: String): LiveData<Result<List<Word>>>
     {
+        val result = MutableLiveData<Result<List<Word>>>(Result.failure(Throwable()))
         composite.add(
             repository.getEntriesFromDbByDictName(dict, 1, 1, Int.MAX_VALUE)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ list ->
-                    list.shuffle()
-                    _wordsList.value = list
-                    _wordsCount.value = list.size
-                    _wordIndex.value = 0
+                    val filteredList = list.filter {
+                        !testState.studiedWordIds.contains(it._id)
+                    }.toMutableList()
+                    filteredList.shuffle()
+                    _wordsList.value = filteredList
+                    result.value = Result.success(filteredList)
+
+                    if (filteredList.isNotEmpty()) {
+                        if (filteredList.first().dictName == testState.dict) {
+                            testState.dict = filteredList.first().dictName
+                            testState.progressMax = list.size
+                            _wordsCount.value = list.size
+                            _wordIndex.value = testState.progress
+                        }
+                        else {
+                            testState.reset(filteredList.size)
+                            _wordsCount.value = list.size
+                            _wordIndex.value = 0
+                        }
+
+                    }
                     rightAnswerCounter = 0
                 }, { t ->
                     t.printStackTrace()
+                    result.value = Result.failure(t)
                 })
         )
+        return result
     }
 
     fun getWordsByIds(ids: List<Int>)

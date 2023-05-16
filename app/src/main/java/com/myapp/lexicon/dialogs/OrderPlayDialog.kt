@@ -46,6 +46,8 @@ class OrderPlayDialog : DialogFragment()
             })
             setTitle(requireContext().getString(R.string.spinner_order_play_header))
         }
-        return builder.create()
+        return builder.create().apply {
+            window?.setBackgroundDrawableResource(R.drawable.bg_popup_dialog_white)
+        }
     }
 }

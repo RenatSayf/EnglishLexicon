@@ -26,13 +26,13 @@ import com.myapp.lexicon.ads.loadInterstitialAd
 import com.myapp.lexicon.ads.showInterstitialAd
 import com.myapp.lexicon.databinding.TestFragmentBinding
 import com.myapp.lexicon.dialogs.DictListDialog
-import com.myapp.lexicon.helpers.Keyboard
-import com.myapp.lexicon.helpers.LockOrientation
-import com.myapp.lexicon.helpers.UiState
+import com.myapp.lexicon.helpers.*
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.SpeechViewModel
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.adsIsEnabled
+import com.myapp.lexicon.settings.getTestStateFromPref
+import com.myapp.lexicon.settings.saveTestStateToPref
 import com.myapp.lexicon.viewmodels.AnimViewModel
 import com.myapp.lexicon.viewmodels.PageBackViewModel
 import com.yandex.mobile.ads.interstitial.InterstitialAd
@@ -43,8 +43,9 @@ import java.util.concurrent.TimeUnit
 
 
 @AndroidEntryPoint
-class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectItemListener, DialogWarning.IDialogResult,
-    DialogTestComplete.IDialogComplete_Result
+class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectItemListener,
+    DialogWarning.Listener,
+    DialogTestComplete.Listener
 {
     companion object
     {
@@ -63,14 +64,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
-        mActivity = activity as MainActivity
-        mActivity.onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true){
-            override fun handleOnBackPressed()
-            {
-                mActivity.supportFragmentManager.popBackStack()
-                this.remove()
-            }
-        })
+        mActivity = requireActivity() as MainActivity
     }
 
     override fun onCreateView(
@@ -105,17 +99,24 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
 
         testVM.currentWord.observe(viewLifecycleOwner) {
             binding.btnViewDict.text = it.dictName
+            testVM.getWordsByDictName(it.dictName)
         }
 
-        testVM.wordsList.observe(viewLifecycleOwner) {
-            if (it.isNotEmpty()) {
-                binding.btnViewDict.text = testVM.wordsList.value!![0].dictName
-                binding.enWordTV.text = testVM.wordsList.value!![0].english
+        testVM.wordsList.observe(viewLifecycleOwner) { list ->
+            if (list.isNotEmpty()) {
+                binding.btnViewDict.text = list[0].dictName
+                binding.enWordTV.text = list[0].english
                 binding.enWordTV.apply {
+                    tag = list[0]._id
                     scaleX = 1f
                     scaleY = 1f
                 }
-                binding.ruWordTV.text = testVM.wordsList.value!![0].translate
+                binding.ruWordTV.text = list[0].translate
+                binding.progressBar.apply {
+                    max = list.size
+                    progress = testVM.testState.progress
+                }
+
             }
         }
 
@@ -126,7 +127,8 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                     true -> {
                         LockOrientation(requireActivity()).lock()
                         testVM.rightAnswerCounter++
-                        Keyboard.getInstance().forceHide(requireContext(), binding.editTextView)
+                        testVM.testState.rightAnswers++
+                        binding.editTextView.hideKeyboard()
                         binding.checkBtn.setBackgroundResource(R.drawable.text_btn_for_test_green)
                         binding.ruWordTV.animate().scaleX(1f).scaleY(1f).apply {
                             duration = 500
@@ -144,6 +146,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                     }
                     else -> {
                         testVM.rightAnswerCounter--
+                        testVM.testState.rightAnswers--
                         Toast.makeText(
                             requireContext(),
                             getString(R.string.text_wrong),
@@ -207,6 +210,8 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 val enText = binding.enWordTV.text.toString()
                 val searchedWord = Word(-1, "", enText, translateText, 1)
                 testVM.searchWord(searchedWord)
+                val wordId = binding.enWordTV.tag.toString().toInt()
+                testVM.testState.studiedWordIds.add(wordId)
             }
         }
 
@@ -267,27 +272,33 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         }
 
         binding.selectVariantBtn.setOnClickListener {
-            val shuffledList = testVM.wordsList.value?.shuffled()
-            var subList: List<Word> = arrayListOf()
-            if (shuffledList != null && shuffledList.size > 4)
-            {
-                subList = shuffledList.subList(0, 4)
-            }
-            else if (shuffledList != null)
-            {
-                subList = shuffledList
-            }
+
+            val id = binding.enWordTV.tag.toString().toInt()
             val enWord = binding.enWordTV.text.toString()
             val ruWord = binding.ruWordTV.text.toString()
             val dictName = binding.btnViewDict.text.toString()
-            val targetWord = Word(-1, dictName, enWord, ruWord, 1)
-            if (subList.isNotEmpty())
+            val targetWord = Word(id, dictName, enWord, ruWord, 1)
+
+            val shuffledList = testVM.wordsList.value?.shuffled()?.toMutableList()
+            if (!shuffledList.isNullOrEmpty() && shuffledList.size > 1) {
+                shuffledList.remove(targetWord)
+            }
+            val subList = try {
+                shuffledList?.subList(0, 3)
+            } catch (e: IndexOutOfBoundsException) {
+                shuffledList
+            }
+
+            if (!subList.isNullOrEmpty())
             {
-                val hintDialog = HintDialogFragment.newInstance(targetWord, subList.toMutableList())
+                val hintDialog = HintDialogFragment.newInstance(
+                    targetWord,
+                    subList.toMutableList(),
+                    onItemSelected = { item ->
+                        binding.editTextView.setText(item)
+                    }
+                )
                 hintDialog.show(parentFragmentManager, HintDialogFragment.TAG)
-                hintDialog.selectedItem.observe(viewLifecycleOwner) {
-                    binding.editTextView.setText(it)
-                }
             }
         }
 
@@ -313,7 +324,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         {
             override fun onItemClick(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long)
             {
-                Keyboard.getInstance().forceHide(requireContext(), binding.editTextView)
+                binding.editTextView.hideKeyboard()
             }
         }
 
@@ -332,7 +343,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                         DialogWarning().apply {
                             setListener(this@TestFragment)
                         }.show(
-                            requireActivity().supportFragmentManager.beginTransaction(),
+                            parentFragmentManager.beginTransaction(),
                             DialogWarning.DIALOG_TAG
                         )
                     } else {
@@ -356,7 +367,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
             {
                 val count = testVM.wordsCount.value
                 count?.let {
-                    if (it.minus(list.size) > 5)  testVM.saveWordIdsToPref(list)
+                    if (it.minus(list.size) > 3)  testVM.saveWordIdsToPref(list)
                 }
             }
         }
@@ -386,6 +397,19 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 parentFragmentManager.popBackStack()
             }
         }
+    }
+
+    override fun onPause() {
+
+        val testState = testVM.testState.apply {
+            dict = binding.btnViewDict.text.toString()
+            wordId = binding.enWordTV.tag.toString().toInt()
+            progress = binding.progressBar.progress
+            progressMax = binding.progressBar.max
+        }
+        this.saveTestStateToPref(testState)
+
+        super.onPause()
     }
 
     // TODO ViewPropertyAnimation.Scale Step 6 слушатель анимации
@@ -440,6 +464,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 val nextWord = testVM.getNextWords()
                 nextWord?.let {
                     binding.enWordTV.text = nextWord.english
+                    binding.enWordTV.tag = nextWord._id
                     binding.ruWordTV.text = nextWord.translate
                     binding.enWordTV.animate().scaleX(1f).scaleY(1f).apply {
                         duration = 300
@@ -470,17 +495,12 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                         setGravity(Gravity.TOP, 0, 0)
                     }.show()
 
-                    val total = testVM.wordsCount.value?: 0
                     binding.checkBtn.setBackgroundResource(R.drawable.text_button_for_test)
-                    val correctly = testVM.rightAnswerCounter
-                    val completeDialog = DialogTestComplete().apply {
-                        arguments = Bundle().apply {
-                            putInt(DialogTestComplete.TOTAL_NUM, total)
-                            putInt(DialogTestComplete.CORRECTLY_NUM, correctly)
-                        }
-                        setListener(this@TestFragment)
-                    }
-                    completeDialog.show(parentFragmentManager, DialogTestComplete.TAG)
+                    DialogTestComplete.getInstance(
+                        testVM.testState.rightAnswers,
+                        testVM.testState.progressMax,
+                        this@TestFragment
+                    ).show(parentFragmentManager, DialogTestComplete.TAG)
                 }
             }
 
@@ -540,66 +560,69 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
 
     }
 
-    override fun dialogListener(result: Boolean)
-    {
-        if (result)
-        {
-            val wordIds = testVM.getWordIdsFromPref()
-            testVM.getWordsByIds(wordIds)
+    override fun onTestCompleteClick() {
+        testVM.testState.reset()
+        yandexAd2?.showInterstitialAd(
+            dismiss = {
+                parentFragmentManager.popBackStack()
+            }
+        )?: run {
+            parentFragmentManager.popBackStack()
         }
-        else
+    }
+
+    override fun onTestRepeatClick() {
+        testVM.testState.reset()
+        val dict = binding.btnViewDict.text.toString()
+        if (dict.isNotEmpty())
         {
-            testVM.saveWordIdsToPref(arrayListOf())
-            val dict = testVM.currentWord.value?.dictName
-            dict?.let {
-                testVM.getWordsByDictName(it)
-            } ?: run {
-                val dictList = testVM.dictList.value
-                if (dictList != null)
-                {
-                    if (dictList.isNotEmpty())
-                    testVM.getWordsByDictName(dictList[0])
+            testVM.getWordsByDictName(dict)
+        }
+    }
+
+    override fun onNextTestClick() {
+        testVM.testState.reset()
+        val dictList = testVM.dictList.value?.toMutableList()
+        dictList?.let {
+            val dictsDialog = DictListDialog.getInstance(it, this)
+            dictsDialog.show(parentFragmentManager, DictListDialog.TAG)
+            dictsDialog.selectedItem.observe(viewLifecycleOwner) { dict ->
+                if (dict.isNotEmpty()) {
+                    testVM.getWordsByDictName(dict)
                 }
             }
         }
     }
 
-    override fun dialogCompleteResult(res: Int)
-    {
-        when(res)
-        {
-            1 ->
-            {
-                val dictList = testVM.dictList.value?.toMutableList()
-                dictList?.let {
-                    val dictsDialog = DictListDialog.getInstance(it, this)
-                    dictsDialog.show(parentFragmentManager, DictListDialog.TAG)
-                    dictsDialog.selectedItem.observe(viewLifecycleOwner) { dict ->
-                        if (dict.isNotEmpty()) {
-                            testVM.getWordsByDictName(dict)
-                        }
-                    }
-                }
+    override fun onPositiveClick() {
+//        val wordIds = testVM.getWordIdsFromPref()
+//        testVM.getWordsByIds(wordIds)
+        this.getTestStateFromPref(
+            onSuccess = { state ->
+                testVM.testState = state
+                testVM.getWordsByDictName(state.dict)
+            },
+            onError = { err ->
+                showSnackBar(err?: "Unknown error")
             }
-            -1 ->
+        )
+    }
+
+    override fun onNegativeClick() {
+        testVM.saveWordIdsToPref(arrayListOf())
+        val dict = testVM.currentWord.value?.dictName
+        dict?.let {
+            testVM.getWordsByDictName(it)
+        } ?: run {
+            val dictList = testVM.dictList.value
+            if (dictList != null)
             {
-                yandexAd2?.showInterstitialAd(
-                    dismiss = {
-                        parentFragmentManager.popBackStack()
-                    }
-                )?: run {
-                    parentFragmentManager.popBackStack()
-                }
-            }
-            else ->
-            {
-                val dict = binding.btnViewDict.text.toString()
-                if (dict.isNotEmpty())
-                {
-                    testVM.getWordsByDictName(dict)
-                }
+                if (dictList.isNotEmpty())
+                    testVM.getWordsByDictName(dictList[0])
             }
         }
+        val startTestState = testVM.testState.reset()
+        this.saveTestStateToPref(startTestState)
     }
 
 }

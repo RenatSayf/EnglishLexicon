@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.google.gson.JsonSyntaxException;
 import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.JavaKotlinMediator;
 import com.myapp.lexicon.helpers.StringOperations;
 import com.myapp.lexicon.interfaces.IModalFragment;
@@ -157,7 +158,27 @@ public class ModalFragment extends DialogFragment
             }
 
             Button btnStop = dialogView.findViewById(R.id.btn_stop_service);
-            btnStop.setOnClickListener( view -> ((ServiceActivity)requireActivity()).stopAppService());
+            //noinspection CodeBlock2Expr
+            btnStop.setOnClickListener( view -> {
+                SettingsExtKt.disablePassiveWordsRepeat(
+                        this,
+                        () -> {
+                            String message = getString(R.string.text_app_is_closed)
+                                    .concat(" ")
+                                    .concat(getString(R.string.app_name))
+                                    .concat(" ")
+                                    .concat(getString(R.string.text_app_is_closed_end));
+                            ExtensionsKt.showToast(this, message, Toast.LENGTH_LONG);
+                            requireActivity().finish();
+                            return null;
+                        },
+                        err -> {
+                            ExtensionsKt.showToast(this, err, Toast.LENGTH_LONG);
+                            requireActivity().finish();
+                            return null;
+                        }
+                );
+            });
 
             ImageButton btnClose = dialogView.findViewById(R.id.btn_close);
             btnClose.setOnClickListener(view -> requireActivity().finish());

@@ -3,7 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.google.gms.google-services'
 
-apply plugin: 'dagger.hilt.android.plugin' // TODO Hilt step 2
+apply plugin: 'dagger.hilt.android.plugin' // Hint Hilt step 2
 
 android {
     compileSdkVersion 33
@@ -12,8 +12,8 @@ android {
         applicationId "com.myapp.lexicon"
         minSdkVersion 26
         targetSdkVersion 33
-        versionName 'beta'
-        versionCode 43
+        versionName '3.3.1'
+        versionCode 46
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
 
@@ -33,17 +33,17 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
     flavorDimensions "purchases_test"
     productFlavors {
         PURCHASE_TEST_ {
-            buildConfigField 'Boolean', 'IS_PURCHASE_TEST', 'true'
+            buildConfigField 'String', 'PURCHASE_MODE', '\"TEST\"'
         }
         PURCHASE_NORMAL_ {
-            buildConfigField 'Boolean', 'IS_PURCHASE_TEST', 'false'
+            buildConfigField 'String', 'PURCHASE_MODE', '\"NORMAL\"'
         }
     }
     lintOptions {
@@ -58,13 +58,14 @@ android {
         targetCompatibility = 1.11
     }
     flavorDimensions 'test_ads'
+    namespace 'com.myapp.lexicon'
 
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.8.0'
+    implementation 'com.google.android.material:material:1.9.0'
     implementation 'com.sothree.slidinguppanel:library:3.4.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.cardview:cardview:1.0.0'
@@ -102,7 +103,7 @@ dependencies {
 
     implementation 'androidx.browser:browser:1.5.0'
 
-    //Hilt   TODO Hilt step 3
+    //Hint Hilt step 3
     implementation "com.google.dagger:hilt-android:2.44"
     kapt "com.google.dagger:hilt-compiler:2.44"
     // When using Kotlin.
@@ -124,13 +125,10 @@ dependencies {
     //jsoup
     implementation 'org.jsoup:jsoup:1.15.2'
 
-    //eventbus
-    implementation 'org.greenrobot:eventbus:3.1.1'
-
     //GSON
     implementation 'com.google.code.gson:gson:2.10.1'
 
-    //region TODO Activity Result API. Runtime permission Step 1
+    //region Hint Activity Result API. Runtime permission Step 1
     implementation 'androidx.activity:activity-ktx:1.7.1'
     implementation 'androidx.fragment:fragment-ktx:1.5.7'
     //endregion
@@ -139,7 +137,7 @@ dependencies {
     implementation 'com.android.billingclient:billing-ktx:5.2.0'
 
     //Yandex ads
-    implementation 'com.yandex.android:mobileads:5.6.0'
+    implementation 'com.yandex.android:mobileads:5.7.0'
 
     //WorkManager library
     def work_version = "2.8.1"

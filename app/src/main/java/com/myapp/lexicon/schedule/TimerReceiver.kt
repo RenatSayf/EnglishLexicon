@@ -6,6 +6,7 @@ import android.content.Intent
 import androidx.preference.PreferenceManager
 import com.google.gson.Gson
 import com.myapp.lexicon.R
+import com.myapp.lexicon.helpers.goAsync
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.repository.DataRepositoryImpl
 import com.myapp.lexicon.service.ServiceActivity
@@ -44,29 +45,31 @@ class TimerReceiver : BroadcastReceiver()
                 val settings = AppSettings(context)
                 val orderPlay = settings.orderPlay
 
-                context.getWordFromPref(
-                    onInit = {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            val word = repository.getFirstEntryAsync().await()
-                            handleAlarm(context, orderPlay, displayVariant, word)
+                this.goAsync(CoroutineScope(Dispatchers.IO), block = { scope ->
+                    context.getWordFromPref(
+                        onInit = {
+                            scope.launch {
+                                val word = repository.getFirstEntryAsync().await()
+                                handleAlarm(context, scope, orderPlay, displayVariant, word)
+                            }
+                        },
+                        onSuccess = { word ->
+                            handleAlarm(context, scope, orderPlay, displayVariant, word)
+                        },
+                        onFailure = {
+                            it.printStackTrace()
                         }
-                    },
-                    onSuccess = { word ->
-                        handleAlarm(context, orderPlay, displayVariant, word)
-                    },
-                    onFailure = {
-                        it.printStackTrace()
-                    }
-                )
+                    )
+                })
             }
         }
     }
 
-    private fun handleAlarm(context: Context, order: Int, displayVariant: String, word: Word) {
+    private fun handleAlarm(context: Context, scope: CoroutineScope, order: Int, displayVariant: String, word: Word) {
 
         when (order) {
             0 ->  {
-                CoroutineScope(Dispatchers.IO).launch {
+                scope.launch {
                     val words = repository.getEntriesByDictNameAsync(word.dictName, id = word._id.toLong(), limit = 2).await()
                     if (words.isNotEmpty()) {
                         when (words.size) {

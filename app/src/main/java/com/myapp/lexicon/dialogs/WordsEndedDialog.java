@@ -17,23 +17,23 @@ public class WordsEndedDialog extends DialogFragment
 {
     public static final String TAG = "words_ended_dialog";
     private static final String DICT_NAME = "dict_name_words_ended_dialog";
-    private static WordsEndedDialog ourInstance = new WordsEndedDialog();
-    private static IWordEndedDialogResult idialogResult;
+    private static WordsEndedDialog instance = null;
+    private static Listener listener;
 
-    public static WordsEndedDialog getInstance(String dictName, IWordEndedDialogResult dialogResult)
+    public static WordsEndedDialog getInstance(String dictName, Listener listener)
     {
-        idialogResult = dialogResult;
-        if (ourInstance == null)
+        WordsEndedDialog.listener = listener;
+        if (instance == null)
         {
-            ourInstance = new WordsEndedDialog();
+            instance = new WordsEndedDialog();
         }
         Bundle bundle = new Bundle();
         bundle.putString(DICT_NAME, dictName);
-        ourInstance.setArguments(bundle);
-        return ourInstance;
+        instance.setArguments(bundle);
+        return instance;
     }
 
-    public interface IWordEndedDialogResult
+    public interface Listener
     {
         void wordEndedDialogResult(int res);
     }
@@ -65,40 +65,32 @@ public class WordsEndedDialog extends DialogFragment
 
         if (builder != null)
         {
-            return builder.create();
+            AlertDialog dialog = builder.create();
+            dialog.getWindow().setBackgroundDrawableResource(R.drawable.bg_popup_dialog_white);
+            return dialog;
         }
         return super.onCreateDialog(null);
     }
 
     private void btnOk_OnClick(Button button)
     {
-        button.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
+        button.setOnClickListener( view -> {
+            if (listener != null)
             {
-                if (idialogResult != null)
-                {
-                    idialogResult.wordEndedDialogResult(0);
-                }
-                dismiss();
+                listener.wordEndedDialogResult(0);
             }
+            dismiss();
         });
     }
 
     private void btnCancel_OnClick(Button button)
     {
-        button.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
+        button.setOnClickListener( view -> {
+            if (listener != null)
             {
-                if (idialogResult != null)
-                {
-                    idialogResult.wordEndedDialogResult(1);
-                }
-                dismiss();
+                listener.wordEndedDialogResult(1);
             }
+            dismiss();
         });
     }
 

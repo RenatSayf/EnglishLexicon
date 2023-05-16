@@ -236,8 +236,6 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    var testInterval: LiveData<Int> = MutableLiveData(repository.getTestIntervalFromPref())
-
     private var _orderPlay = MutableLiveData<Int>().apply {
         value = repository.getOrderPlay()
     }

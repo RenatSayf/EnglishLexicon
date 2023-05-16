@@ -32,13 +32,7 @@ interface IDataRepository
 
     fun getCountersFromDb(dictName: String, id: Int) : Single<List<Int>>
 
-//    fun getWordFromPref() : Word
-//
-//    fun saveWordThePref(word: Word)
-
     fun goForward(words: List<Word>)
-
-    fun getTestIntervalFromPref() : Int
 
     fun getOrderPlay() : Int
 

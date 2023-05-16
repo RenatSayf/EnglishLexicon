@@ -8,11 +8,14 @@ import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageException
+import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import com.google.gson.Gson
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.helpers.getCRC32CheckSum
+import com.myapp.lexicon.models.LaunchMode
+import com.myapp.lexicon.models.TestState
 import com.myapp.lexicon.models.Word
 
 val Context.appSettings: SharedPreferences
@@ -29,32 +32,26 @@ var Context.adsIsEnabled: Boolean
     get() {
         return appSettings.getBoolean(getString(R.string.KEY_IS_ADS_ENABLED), true)
     }
-    set(value) {
+    private set(value) {
         appSettings.edit().putBoolean(getString(R.string.KEY_IS_ADS_ENABLED), value).apply()
     }
 
-var Fragment.adsIsEnabled: Boolean
+val Fragment.adsIsEnabled: Boolean
     get() {
         return requireContext().adsIsEnabled
-    }
-    set(value) {
-        requireContext().adsIsEnabled = value
     }
 
 var Context.cloudStorageEnabled: Boolean
     get() {
         return appSettings.getBoolean(getString(R.string.KEY_CLOUD_STORAGE), false)
     }
-    set(value) {
+    private set(value) {
         appSettings.edit().putBoolean(getString(R.string.KEY_CLOUD_STORAGE), value).apply()
     }
 
-var Fragment.cloudStorageEnabled: Boolean
+val Fragment.cloudStorageEnabled: Boolean
     get() {
         return requireContext().cloudStorageEnabled
-    }
-    set(value) {
-        requireContext().cloudStorageEnabled = value
     }
 
 var Context.checkFirstLaunch: Boolean
@@ -70,10 +67,6 @@ private const val KEY_CLOUD_TOKEN = "KEY_CLOUD_TOKEN_777"
 
 interface PurchasesTokenListener {
     fun onInit()
-    fun onAdsTokenExists()
-    fun onAdsTokenEmpty()
-    fun onCloudTokenExists()
-    fun onCloudTokenEmpty()
     fun onCheckComplete()
 }
 
@@ -83,19 +76,10 @@ fun Context.checkPurchasesTokens(listener: PurchasesTokenListener) {
     try {
         if (adsToken == null || cloudToken == null) {
             listener.onInit()
+            return
         }
-        else if (adsToken.isEmpty()) {
-            listener.onAdsTokenEmpty()
-        }
-        else if (adsToken.isNotEmpty()) {
-            listener.onAdsTokenExists()
-        }
-        else if (cloudToken.isEmpty()) {
-            listener.onCloudTokenEmpty()
-        }
-        else if (cloudToken.isNotEmpty()) {
-            listener.onCloudTokenExists()
-        }
+        this.adsIsEnabled = adsToken.isEmpty()
+        this.cloudStorageEnabled = cloudToken.isNotEmpty()
     } finally {
         listener.onCheckComplete()
     }
@@ -119,33 +103,56 @@ fun Context.checkCloudToken(
     }
 }
 
-fun Context.setAdsSetting(token: String) {
-    if (token.isNotEmpty()) {
-        appSettings.edit().apply {
-            putBoolean(getString(R.string.KEY_IS_ADS_ENABLED), false)
-            putString(KEY_ADS_TOKEN, token)
-        }.apply()
-    }
-    else {
-        appSettings.edit().apply {
-            putBoolean(getString(R.string.KEY_IS_ADS_ENABLED), true)
-            putString(KEY_ADS_TOKEN, "")
-        }.apply()
+fun Context.setAdsSetting(token: String?) {
+
+    when {
+        token == null -> {
+            appSettings.edit().apply {
+                putBoolean(getString(R.string.KEY_IS_ADS_ENABLED), true)
+                putString(KEY_ADS_TOKEN, null)
+            }.apply()
+            this.adsIsEnabled = true
+        }
+        token.isEmpty() -> {
+            appSettings.edit().apply {
+                putBoolean(getString(R.string.KEY_IS_ADS_ENABLED), true)
+                putString(KEY_ADS_TOKEN, "")
+            }.apply()
+            this.adsIsEnabled = true
+        }
+        else -> {
+            appSettings.edit().apply {
+                putBoolean(getString(R.string.KEY_IS_ADS_ENABLED), false)
+                putString(KEY_ADS_TOKEN, token.getCRC32CheckSum().toString())
+            }.apply()
+            this.adsIsEnabled = false
+        }
     }
 }
 
-fun Context.setCloudSetting(token: String) {
-    if (token.isNotEmpty()) {
-        appSettings.edit().apply {
-            putBoolean(getString(R.string.KEY_CLOUD_STORAGE), true)
-            putString(KEY_CLOUD_TOKEN, token)
-        }.apply()
-    }
-    else {
-        appSettings.edit().apply {
-            putBoolean(getString(R.string.KEY_CLOUD_STORAGE), false)
-            putString(KEY_CLOUD_TOKEN, "")
-        }.apply()
+fun Context.setCloudSetting(token: String?) {
+    when {
+        token == null -> {
+            appSettings.edit().apply {
+                putBoolean(getString(R.string.KEY_CLOUD_STORAGE), false)
+                putString(KEY_CLOUD_TOKEN, null)
+            }.apply()
+            this.cloudStorageEnabled = false
+        }
+        token.isEmpty() -> {
+            appSettings.edit().apply {
+                putBoolean(getString(R.string.KEY_CLOUD_STORAGE), false)
+                putString(KEY_CLOUD_TOKEN, "")
+            }.apply()
+            this.cloudStorageEnabled = false
+        }
+        else -> {
+            appSettings.edit().apply {
+                putBoolean(getString(R.string.KEY_CLOUD_STORAGE), true)
+                putString(KEY_CLOUD_TOKEN, token.getCRC32CheckSum().toString())
+            }.apply()
+            this.cloudStorageEnabled = true
+        }
     }
 }
 
@@ -197,63 +204,138 @@ val Context.initDbCheckSum: Long
     }
 
 fun Context.checkCloudStorage(
+    userId: String,
+    fileName: String = getString(R.string.data_base_name),
     onRequireUpSync: (String) -> Unit,
     onRequireDownSync: (String) -> Unit,
     onNotRequireSync: () -> Unit
 ) {
-    this.checkCloudToken(
-        onExists = { token ->
+    val dbFile = getDatabasePath(fileName)
+    val localCheckSum = dbFile.readBytes().getCRC32CheckSum()
+    if (BuildConfig.DEBUG) {
+        println("************** localCheckSum = $localCheckSum ****************")
+        println("************** initDbCheckSum = ${this.initDbCheckSum} ****************")
+    }
 
-            val dbName = this.getString(R.string.data_base_name)
-            val mainDbFile = getDatabasePath(dbName)
-            val localCheckSum = mainDbFile.readBytes().getCRC32CheckSum()
-            if (BuildConfig.DEBUG) {
-                println("************** localCheckSum = $localCheckSum ****************")
-                println("************** initDbCheckSum = ${this.initDbCheckSum} ****************")
-            }
+    val storageRef: StorageReference = Firebase.storage.reference.child("/users/$userId/${fileName}")
 
-            val storageRef = Firebase.storage.reference.child("/users/$token/${dbName}")
+    storageRef.metadata.addOnSuccessListener { metadata ->
 
-            storageRef.metadata.addOnSuccessListener { metadata ->
+        val remoteCheckSum = metadata.getCustomMetadata("CHECK_SUM") ?: "0"
+        if (BuildConfig.DEBUG) {
+            println("************** remoteCheckSum = $remoteCheckSum ****************")
+        }
 
-                val remoteCheckSum = metadata.getCustomMetadata("CHECK_SUM") ?: "0"
-                if (BuildConfig.DEBUG) {
-                    println("************** remoteCheckSum = $remoteCheckSum ****************")
-                }
+        if (localCheckSum.toString() != remoteCheckSum && localCheckSum == this.initDbCheckSum) {
+            onRequireDownSync.invoke(userId)
+        }
+        else if (localCheckSum.toString() != remoteCheckSum && localCheckSum != this.initDbCheckSum) {
+            onRequireUpSync.invoke(userId)
+        }
+        else {
+            onNotRequireSync.invoke()
+        }
+    }.addOnFailureListener { ex ->
 
-                if (localCheckSum.toString() != remoteCheckSum && localCheckSum == this.initDbCheckSum) {
-                    onRequireDownSync.invoke(token)
-                }
-                else if (localCheckSum.toString() != remoteCheckSum && localCheckSum != this.initDbCheckSum) {
-                    onRequireUpSync.invoke(token)
+        if (ex is StorageException) {
+            if (ex.errorCode == StorageException.ERROR_OBJECT_NOT_FOUND) {
+                if (localCheckSum != this.initDbCheckSum) {
+                    onRequireUpSync.invoke(userId)
+                    return@addOnFailureListener
                 }
                 else {
                     onNotRequireSync.invoke()
+                    return@addOnFailureListener
                 }
-            }.addOnFailureListener { ex ->
-
-                if (ex is StorageException) {
-                    if (ex.errorCode == StorageException.ERROR_OBJECT_NOT_FOUND) {
-                        if (localCheckSum != this.initDbCheckSum) {
-                            onRequireUpSync.invoke(token)
-                            return@addOnFailureListener
-                        }
-                        else {
-                            onNotRequireSync.invoke()
-                            return@addOnFailureListener
-                        }
-                    }
-                    else {
-                        if (BuildConfig.DEBUG) ex.printStackTrace()
-                    }
-                }
-                onNotRequireSync.invoke()
+            }
+            else {
+                if (BuildConfig.DEBUG) ex.printStackTrace()
             }
         }
-    )
-
+        onNotRequireSync.invoke()
+    }
 }
 
+val Context.testIntervalFromPref: Int
+    get() {
+        return try {
+            appSettings.getString(getString(R.string.key_test_interval), "10")?.toInt()?: 10
+        } catch (e: NumberFormatException) {
+            10
+        }
+    }
+
+fun Context.disablePassiveWordsRepeat(
+    onDisabled: () -> Unit,
+    onError: (String) -> Unit
+) {
+    try {
+        appSettings.edit().putString(getString(R.string.key_show_intervals), "0").apply()
+        appSettings.edit().putBoolean(getString(R.string.key_service), false).apply()
+        onDisabled.invoke()
+    } catch (e: Exception) {
+        onError.invoke(e.message?: "Unknown error")
+        e.printStackTrace()
+    }
+}
+
+fun Fragment.disablePassiveWordsRepeat(
+    onDisabled: () -> Unit,
+    onError: (String) -> Unit
+) {
+    requireContext().disablePassiveWordsRepeat(onDisabled, onError)
+}
+
+fun Fragment.saveTestStateToPref(state: TestState) {
+    val json = Gson().toJson(state)
+    appSettings.edit().putString("KEY_TEST_STATE", json).apply()
+}
+
+fun Fragment.getTestStateFromPref(
+    onInit: () -> Unit = {},
+    onSuccess: (TestState) -> Unit,
+    onError: (String?) -> Unit = {}
+    ) {
+    val string = appSettings.getString("KEY_TEST_STATE", null)
+    if (string == null) {
+        onInit.invoke()
+        return
+    }
+    try {
+        val state = Gson().fromJson(string, TestState::class.java)
+        onSuccess.invoke(state)
+    } catch (e: Exception) {
+        onError.invoke(e.message)
+        if (BuildConfig.DEBUG) {
+            e.printStackTrace()
+        }
+    }
+}
+
+fun Context.checkBuildConfig(
+    onInit: () -> Unit,
+    onChangeToTest: (String) -> Unit,
+    onChangeToNormal: (String) -> Unit
+) {
+    val key = "KEY_LAUNCH_MODE"
+    val savedMode = appSettings.getString(key, null)
+    val currentMode = BuildConfig.PURCHASE_MODE
+    if (savedMode == null) {
+        onInit.invoke()
+        appSettings.edit().putString(key, currentMode).apply()
+    }
+    if (savedMode != currentMode) {
+        when(currentMode) {
+            LaunchMode.TEST.name -> {
+                onChangeToTest.invoke(currentMode)
+            }
+            LaunchMode.NORMAL.name -> {
+                onChangeToNormal.invoke(currentMode)
+            }
+        }
+        appSettings.edit().putString(key, currentMode).apply()
+    }
+}
 
 
 

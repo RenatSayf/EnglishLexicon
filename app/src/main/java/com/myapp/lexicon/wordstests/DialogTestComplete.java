@@ -1,125 +1,135 @@
 package com.myapp.lexicon.wordstests;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+import android.view.ViewGroup;
 
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.databinding.DialogTestCompleteBinding;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.res.ResourcesCompat;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 
-/**
- * Created by Ренат.
- */
+
 
 public class DialogTestComplete extends DialogFragment
 {
-    String KEY_RESULT = "result";
-    String KEY_ERRORS = "errors";
     public static final String TAG = "DialogTestComplete.TAG";
-    public static final String TOTAL_NUM = "TOTAL_NUM";
-    public static final String CORRECTLY_NUM = "CORRECTLY_NUM";
-    private static IDialogComplete_Result iDialogCompleteResult;
+    private static Listener listener;
+    private DialogTestCompleteBinding binding;
+    private static DialogTestComplete instance = null;
+    private static int total;
+    private static int correctly;
+
 
     public DialogTestComplete()
-    {
+    {}
 
+    public static DialogTestComplete getInstance(int correctly, int total, Listener listener) {
+
+        DialogTestComplete.correctly = correctly;
+        DialogTestComplete.total = total;
+        DialogTestComplete.listener = listener;
+        if (DialogTestComplete.instance == null) {
+            DialogTestComplete.instance = new DialogTestComplete();
+        }
+        return instance;
     }
 
-    public interface IDialogComplete_Result
+    public interface Listener
     {
-        void dialogCompleteResult(int res);
-    }
-
-    void setListener(IDialogComplete_Result result)
-    {
-        iDialogCompleteResult = result;
+        void onTestCompleteClick();
+        void onTestRepeatClick();
+        void onNextTestClick();
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
-        if (getActivity() != null && getArguments() != null)
-        {
-            final View dialogView = getActivity().getLayoutInflater().inflate(R.layout.t_dialog_complete_test, new LinearLayout(getContext()), false);
-            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
-                    .setTitle(getResources().getString(R.string.text_test_is_finish))
-                    .setCancelable(false)
-                    .setView(dialogView);
+        setStyle(STYLE_NO_TITLE, R.style.AppAlertDialog);
+        setCancelable(false);
 
-            double total = (double) getArguments().getInt(TOTAL_NUM, 0);
-            double correctly = (double) getArguments().getInt(CORRECTLY_NUM, 0);
-            double res = correctly / total * 100;
-
-            String result = "";
-
-            if (res >= 100)
-            {
-                result = getString(R.string.text_excellent);
-                builder.setIcon(ResourcesCompat.getDrawable(requireContext().getResources(), R.drawable.icon_smiling_face, null));
-            }
-            if (res >= 90 && res < 100)
-            {
-                result = getString(R.string.text_good);
-                builder.setIcon(ResourcesCompat.getDrawable(requireContext().getResources(), R.drawable.icon_calm_face, null));
-            }
-            if (res < 90)
-            {
-                result = getString(R.string.text_bad);
-                builder.setIcon(ResourcesCompat.getDrawable(requireContext().getResources(), R.drawable.icon_sad_face, null));
-            }
-
-            TextView textViewResult = dialogView.findViewById(R.id.txt_view_result);
-            textViewResult.setText(result);
-
-            String errors = (int)correctly + " из " + (int)total;
-            TextView textViewErrors = dialogView.findViewById(R.id.txt_view_errors);
-            textViewErrors.setText(errors);
-
-            Button buttonNext = dialogView.findViewById(R.id.btn_next);
-            buttonNext.setOnClickListener( v ->
-            {
-                if (iDialogCompleteResult != null)
-                {
-                    iDialogCompleteResult.dialogCompleteResult(1);
-                }
-                dismiss();
-            });
-
-            Button buttonRepeat = dialogView.findViewById(R.id.btn_repeat);
-            buttonRepeat.setOnClickListener( v ->
-            {
-                if (iDialogCompleteResult != null)
-                {
-                    iDialogCompleteResult.dialogCompleteResult(0);
-                }
-                dismiss();
-            });
-
-            Button buttonComplete = dialogView.findViewById(R.id.btn_complete);
-            buttonComplete.setOnClickListener( v ->
-            {
-                if (iDialogCompleteResult != null)
-                {
-                    iDialogCompleteResult.dialogCompleteResult(-1);
-                }
-                dismiss();
-            });
-
-            return builder.create();
-        } else
-        {
-            return super.onCreateDialog(null);
-        }
+        Dialog dialog = super.onCreateDialog(savedInstanceState);
+        dialog.getWindow().setBackgroundDrawableResource(R.drawable.bg_popup_dialog);
+        return dialog;
     }
 
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
+    {
+        binding = DialogTestCompleteBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+    }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
+    {
+        super.onViewCreated(view, savedInstanceState);
+
+        double res = 0;
+        if (total > 0)
+        {
+            res = (double) correctly / (double) total * 100;
+        }
+
+        String result = "";
+
+        if (res >= 100)
+        {
+            result = getString(R.string.text_excellent);
+            binding.tvEmojiIcon.setText(R.string.slightly_smiling_face);
+            binding.tvEmojiIcon2.setText(R.string.thumbs_up);
+            binding.tvEmojiIcon2.setVisibility(View.VISIBLE);
+        }
+        if (res >= 90 && res < 100)
+        {
+            result = getString(R.string.text_good);
+            binding.tvEmojiIcon.setText(R.string.slightly_smiling_face);
+            binding.tvEmojiIcon2.setVisibility(View.GONE);
+        }
+        if (res < 90)
+        {
+            result = getString(R.string.text_bad);
+            binding.tvEmojiIcon.setText(R.string.confused_face);
+            binding.tvEmojiIcon2.setVisibility(View.GONE);
+        }
+
+        binding.tvResultStatus.setText(result);
+
+        String errors = correctly + " из " + total;
+        binding.tvResultValue.setText(errors);
+
+        binding.btnNext.setOnClickListener( v ->
+        {
+            if (listener != null)
+            {
+                listener.onNextTestClick();
+            }
+            dismiss();
+        });
+
+        binding.btnRepeat.setOnClickListener( v ->
+        {
+            if (listener != null)
+            {
+                listener.onTestRepeatClick();
+            }
+            dismiss();
+        });
+
+        binding.btnComplete.setOnClickListener( v ->
+        {
+            if (listener != null)
+            {
+                listener.onTestCompleteClick();
+            }
+            dismiss();
+        });
+    }
 }

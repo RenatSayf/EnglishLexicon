@@ -182,7 +182,7 @@
     <string name="text_en">En</string>
     <string name="text_off">Вимк</string>
     <string name="text_version_name">v. 1</string>
-    <string name="data_base_name">lexicon_uk_DB.db</string>
+    <string name="data_base_name">lexicon_DB.db</string>
     <string name="wal_db_name">lexicon_DB.db-wal</string>
     <string name="lang_code_translate">uk_UA</string>
     <string name="lang_code_uk">uk_UA</string>
@@ -310,6 +310,16 @@
     <string name="text_select_dict">Виберіть словник для вивчення</string>
     <string name="KEY_FIRST_LAUNCH">KEY_FIRST_LAUNCH</string>
     <string name="text_dict_not_found">Деякі словники не знайдені</string>
+    <string name="KEY_NEED_REFRESH">need to refresh</string>
+    <string name="text_db_restore_error">Помилка. Не вдалося відновити базу даних</string>
+    <string name="text_dicts_restore_success">Словники успішно відновлені.</string>
+    <string name="text_restore">Відновивши</string>
+    <string name="text_dicts_have_been_found">У хмарному сховищі знайдена резервна копія ваших словників.\nВідновити слова?</string>
+    <string name="text_dict_is_updated">Словник оновлено…</string>
+    <string name="text_resume">Продовживши</string>
+    <string name="text_at_first">Спочатку</string>
+    <string name="test_db_name_1">test_db_1.db</string>
+    <string name="test_db_name_2">test_db_2.db</string>
 
     <string-array name="words_interval">
         <item>після 5 слів</item>

@@ -20,22 +20,18 @@ public class InclusionDialog extends DialogFragment
 {
     public static final String TAG = "inclusion_dialog";
     private static final String KEY_DICT_NAMES = "key_dict_names_inclusion_dialog";
-    private static InclusionDialog instance = new InclusionDialog();
-    private static IInclusionDialog iInclusionDialog;
+    private static InclusionDialog instance = null;
+    private static Listener listener;
     private LockOrientation lockOrientation;
 
-    public interface IInclusionDialog
+    public interface Listener
     {
         void inclusionDialogResult(ArrayList<String> dictNames, int result);
     }
 
-    public void setResultListener(IInclusionDialog listener)
+    public static InclusionDialog getInstance(ArrayList<String> dictNames, Listener listener)
     {
-        iInclusionDialog = listener;
-    }
-
-    public static InclusionDialog getInstance(ArrayList<String> dictNames)
-    {
+        InclusionDialog.listener = listener;
         if (instance == null)
         {
             instance = new InclusionDialog();
@@ -96,35 +92,25 @@ public class InclusionDialog extends DialogFragment
 
     private void btnCancel_OnClick(Button button)
     {
-        button.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
+        button.setOnClickListener( view -> {
+            if (listener != null && getArguments() != null)
             {
-                if (iInclusionDialog != null && getArguments() != null)
-                {
-                    ArrayList<String> dictNames = getArguments().getStringArrayList(KEY_DICT_NAMES);
-                    iInclusionDialog.inclusionDialogResult(dictNames,-1);
-                }
-                dismiss();
+                ArrayList<String> dictNames = getArguments().getStringArrayList(KEY_DICT_NAMES);
+                listener.inclusionDialogResult(dictNames,-1);
             }
+            dismiss();
         });
     }
 
     private void btnOk_OnClick(Button button)
     {
-        button.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
+        button.setOnClickListener( view -> {
+            if (listener != null && getArguments() != null)
             {
-                if (iInclusionDialog != null && getArguments() != null)
-                {
-                    ArrayList<String> dictNames = getArguments().getStringArrayList(KEY_DICT_NAMES);
-                    iInclusionDialog.inclusionDialogResult(dictNames,1);
-                }
-                dismiss();
+                ArrayList<String> dictNames = getArguments().getStringArrayList(KEY_DICT_NAMES);
+                listener.inclusionDialogResult(dictNames,1);
             }
+            dismiss();
         });
     }
 }

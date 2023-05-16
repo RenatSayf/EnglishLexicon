@@ -1,28 +1,34 @@
 package com.myapp.lexicon.dialogs;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.InputType;
 import android.text.TextWatcher;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.LinearLayout;
+import android.view.ViewGroup;
 
+import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.databinding.ADialogAddDictBinding;
+import com.myapp.lexicon.helpers.ExtensionsKt;
+
+import java.util.Objects;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 public class NewDictDialog extends DialogFragment
 {
-    public static final String TAG = "new_dict_dialog";
+    private ADialogAddDictBinding binding;
+    public static final String TAG = NewDictDialog.class.getSimpleName() + ".TAG";
     private static NewDictDialog newDictDialog = null;
-    private static INewDictDialogResult iNewDictDialogResult;
-    public static NewDictDialog newInstance()
+    private static Listener listener;
+
+    public static NewDictDialog newInstance(Listener listener)
     {
+        NewDictDialog.listener = listener;
         if (newDictDialog == null)
         {
             newDictDialog = new NewDictDialog();
@@ -30,87 +36,81 @@ public class NewDictDialog extends DialogFragment
         return newDictDialog;
     }
 
-    public interface INewDictDialogResult
+    public interface Listener
     {
-        void newDictDialogResult(@NonNull String dictName);
-    }
-
-    public void setNewDictDialogListener(INewDictDialogResult listener)
-    {
-        iNewDictDialogResult = listener;
+        void onPositiveClick(@NonNull String dictName);
+        void onNegativeClick();
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
-        if (getActivity() != null)
+        setStyle(STYLE_NO_TITLE, R.style.AppAlertDialog);
+        setCancelable(false);
+        Dialog dialog = super.onCreateDialog(savedInstanceState);
+        dialog.getWindow().setBackgroundDrawableResource(R.drawable.bg_popup_dialog);
+        return dialog;
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
+    {
+        binding = ADialogAddDictBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
+    {
+        super.onViewCreated(view, savedInstanceState);
+
+        binding.etDictName.addTextChangedListener(new TextWatcher()
         {
-            final View view = getActivity().getLayoutInflater().inflate(R.layout.a_dialog_add_dict, new LinearLayout(getContext()), false);
-            final EditText editText = view.findViewById(R.id.dialog_add_dict);
-            editText.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after){}
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity()).setTitle(R.string.title_new_dictionary).setIcon(R.drawable.icon_book)
-                    .setPositiveButton(R.string.btn_text_add, new DialogInterface.OnClickListener()
-                    {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which)
-                        {
-
-                            String dictName = editText.getText().toString();
-                            if (!dictName.equals(""))
-                            {
-                                try
-                                {
-                                    if (iNewDictDialogResult != null)
-                                    {
-                                        iNewDictDialogResult.newDictDialogResult(dictName);
-                                    }
-                                } catch (Exception e)
-                                {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }
-                    })
-                    .setNegativeButton(R.string.btn_text_cancel, null)
-                    .setView(view);
-
-            editText.addTextChangedListener(new TextWatcher()
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count)
             {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after){}
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count)
-                {
-                    String str = s.toString();
-                    for (int i = 0; i < str.length(); i++)
+                String str = s.toString();
+                int wrongIndex = ExtensionsKt.checkOnlyLetterAndFirstNotDigit(str);
+                if (wrongIndex >= 0) {
+                    try
                     {
-                        int char_first = str.codePointAt(0);
-                        if ((char_first >= 33 && char_first <= 64) || (char_first >= 91 && char_first <= 96) ||
-                                (char_first >= 123 && char_first <= 126))
-                        {
-                            String str_wrong = str.substring(i);
-                            editText.setText(str.replace(str_wrong,""));
-                        }
-                        if ((str.codePointAt(i) >= 33 && str.codePointAt(i) <= 47) || (str.codePointAt(i) >= 58 && str.codePointAt(i) <= 64) ||
-                                (str.codePointAt(i) >= 91 && str.codePointAt(i) <= 96) || (str.codePointAt(i) >= 123 && str.codePointAt(i) <= 126))
-                        {
-                            String str_wrong = str.substring(i);
-                            editText.setText(str.replace(str_wrong,""));
+                        String text = Objects.requireNonNull(binding.etDictName.getText()).toString();
+                        String wrongStr = text.substring(wrongIndex);
+                        String fixedStr = str.replace(wrongStr, "");
+                        binding.etDictName.setText(fixedStr);
+                        binding.etDictName.setSelection(fixedStr.length());
+                    } catch (NullPointerException e)
+                    {
+                        if (BuildConfig.DEBUG) {
+                            e.printStackTrace();
                         }
                     }
                 }
+            }
 
-                @Override
-                public void afterTextChanged(Editable s){}
-            });
+            @Override
+            public void afterTextChanged(Editable s){}
+        });
 
-            return builder.create();
-        } else
-        {
-            return super.onCreateDialog(null);
-        }
+        binding.btnCancel.setOnClickListener(v -> {
+            dismiss();
+            listener.onNegativeClick();
+        });
+
+        binding.btnOk.setOnClickListener( v -> {
+            String dictName = binding.etDictName.getText() != null ? binding.etDictName.getText().toString() : "";
+            dismiss();
+            if (dictName.isEmpty()) {
+                dismiss();
+                listener.onNegativeClick();
+                return;
+            }
+            listener.onPositiveClick(dictName);
+        });
     }
 }

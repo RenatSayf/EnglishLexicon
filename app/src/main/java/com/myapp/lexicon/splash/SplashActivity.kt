@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED_ANONYMOUS_PARAMETER")
+
 package com.myapp.lexicon.splash
 
 import android.annotation.SuppressLint
@@ -8,7 +10,6 @@ import android.speech.tts.TextToSpeech
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.lifecycle.lifecycleScope
-import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.billing.UserPurchases
 import com.myapp.lexicon.databinding.ALayoutSplashScreenBinding
@@ -29,7 +30,6 @@ class SplashActivity : AppCompatActivity() {
     private lateinit var binding: ALayoutSplashScreenBinding
     private var speaker: Speaker? = null
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -43,6 +43,21 @@ class SplashActivity : AppCompatActivity() {
         var adsChecked = false
         var cloudChecked = false
         var speechChecked = false
+
+        this.checkBuildConfig(
+            onInit = {
+                this.setAdsSetting(null)
+                this.setCloudSetting(null)
+            },
+            onChangeToTest = { mode ->
+                this.setAdsSetting("")
+                this.setCloudSetting("")
+            },
+            onChangeToNormal = { mode ->
+                this.setAdsSetting(null)
+                this.setCloudSetting(null)
+            }
+        )
 
         this.checkPurchasesTokens(listener = object : PurchasesTokenListener {
             override fun onInit() {
@@ -67,26 +82,6 @@ class SplashActivity : AppCompatActivity() {
                         cloudChecked = true
                     }
                 })
-            }
-
-            override fun onAdsTokenExists() {
-                this@SplashActivity.adsIsEnabled = BuildConfig.IS_PURCHASE_TEST
-                //adsChecked = true
-            }
-
-            override fun onAdsTokenEmpty() {
-                this@SplashActivity.adsIsEnabled = true
-                //adsChecked = true
-            }
-
-            override fun onCloudTokenExists() {
-                this@SplashActivity.cloudStorageEnabled = !BuildConfig.IS_PURCHASE_TEST
-                //cloudChecked = true
-            }
-
-            override fun onCloudTokenEmpty() {
-                this@SplashActivity.cloudStorageEnabled = false
-                //cloudChecked = true
             }
 
             override fun onCheckComplete() {

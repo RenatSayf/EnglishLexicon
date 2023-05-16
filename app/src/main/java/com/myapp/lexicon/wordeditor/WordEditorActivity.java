@@ -1,8 +1,8 @@
 package com.myapp.lexicon.wordeditor;
 
-import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,9 +25,10 @@ import android.widget.ViewSwitcher;
 import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.addword.AddWordViewModel;
+import com.myapp.lexicon.dialogs.ConfirmDialog;
 import com.myapp.lexicon.helpers.AppBus;
+import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.JavaKotlinMediator;
-import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SpeechViewModel;
 import com.myapp.lexicon.models.Word;
@@ -49,10 +50,14 @@ import androidx.lifecycle.ViewModelProvider;
 import dagger.hilt.android.AndroidEntryPoint;
 
 
+@SuppressWarnings("CodeBlock2Expr")
 @AndroidEntryPoint
 public class WordEditorActivity extends AppCompatActivity implements ListViewAdapter.IListViewAdapter
 {
     public static final String KEY_EXTRA_DICT_NAME = "wordeditor_dict_name";
+    public static final String KEY_EXTRA_EN_WORD = "KEY_EXTRA_EN_WORD";
+    public static final String KEY_EXTRA_RU_WORD = "KEY_EXTRA_RU_WORD";
+    public static final int requestCode = 2654789;
 
     private Spinner dictListSpinner;
     private SearchView searchView;
@@ -113,13 +118,6 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
         checkMove_OnClick();
     }
 
-    @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState)
-    {
-        super.onSaveInstanceState(outState);
-
-    }
-
     @SuppressWarnings("CodeBlock2Expr")
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -127,6 +125,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
         super.onCreate(savedInstanceState);
         setContentView(R.layout.d_layout_word_editor);
         Toolbar toolbar = findViewById(R.id.toolbar_word_editor);
+        toolbar.setTitleTextColor(getColor(R.color.colorWhite));
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null)
         {
@@ -145,10 +144,10 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             {
                 ArrayAdapter<String> adapterSpinner= new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, dicts);
                 dictListSpinner.setAdapter(adapterSpinner);
-                Word currentWord = mainVM.getCurrentWord().getValue();
-                if (currentWord != null)
+                String currentDict = getIntent().getStringExtra(KEY_EXTRA_DICT_NAME);
+                if (currentDict != null)
                 {
-                    int index = dicts.indexOf(currentWord.getDictName());
+                    int index = dicts.indexOf(currentDict);
                     if (index >= 0)
                     {
                         dictListSpinner.setSelection(index);
@@ -193,7 +192,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
 
         editorVM.wordsList.observe(this, words -> {
             listViewAdapter = new ListViewAdapter((ArrayList<Word>) words, this);
-            listView.setAdapter(listViewAdapter); // TODO: ListView setAdapter
+            listView.setAdapter(listViewAdapter); // Hint: ListView setAdapter
             progressBar.setVisibility(View.GONE);
             String text = getString(R.string.text_words) + "  " + words.size();
             tvAmountWords.setText(text);
@@ -296,14 +295,14 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             {
                 editorVM.getAllWordsByDictName(dictListSpinner.getSelectedItem().toString());
                 AppBus.INSTANCE.updateWords(true);
-                Toast.makeText(getApplicationContext(), "Словарь обновлен...", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), R.string.text_dict_is_updated, Toast.LENGTH_LONG).show();
             }
         });
 
         addWordVM.getInsertedId().observe(this, id -> {
             if (id > 0)
             {
-                Toast.makeText(getApplicationContext(), "Словарь обновлен...", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), R.string.text_dict_is_updated, Toast.LENGTH_LONG).show();
             }
         });
 
@@ -315,11 +314,12 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             }
         });
 
-        Word wordFromMainActivity = AppBus.INSTANCE.getWord().getValue(); // получение слова из MainActivity
-        if (wordFromMainActivity != null)
+        String enWord = getIntent().getStringExtra(KEY_EXTRA_EN_WORD);
+        String ruWord = getIntent().getStringExtra(KEY_EXTRA_RU_WORD);
+        if (enWord != null && ruWord != null)
         {
-            editorVM.setEnWord(wordFromMainActivity.getEnglish());
-            editorVM.setRuWord(wordFromMainActivity.getTranslate());
+            editorVM.setEnWord(enWord);
+            editorVM.setRuWord(ruWord);
             switcher.showNext();
         }
 
@@ -334,7 +334,8 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             switcher.showPrevious();
         }
         else {
-            super.onBackPressed();
+            setResult(requestCode, new Intent());
+            finish();
         }
     }
 
@@ -353,24 +354,33 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
     {
         buttonDelete.setOnClickListener( v ->
         {
-            LockOrientation orientation = new LockOrientation(WordEditorActivity.this);
-            orientation.lock();
             final String tableName = dictListSpinner.getSelectedItem().toString();
 
-            new AlertDialog.Builder(WordEditorActivity.this) // TODO: AlertDialog с макетом по умолчанию
-                    .setTitle(R.string.dialog_title_confirm_action)
-                    .setIcon(R.drawable.icon_warning)
-                    .setMessage(getString(R.string.dialog_msg_delete_word) + tableName + "?")
-                    .setPositiveButton(R.string.button_text_yes, (dialog, which) -> {
-                        orientation.unLock();
-                        if (editorVM.selectedWord != null)
-                        {
-                            editorVM.deleteWordFromDb(editorVM.selectedWord);
-                        }
-                        switcher.showPrevious();
-                    })
-                    .setNegativeButton(R.string.button_text_no, (dialog, which) -> orientation.unLock())
-                    .create().show();
+            ExtensionsKt.showDialogAsSingleton(
+                    this,
+                    ConfirmDialog.Companion.newInstance((dialog, binding) -> {
+
+                        binding.tvEmoji.setVisibility(View.GONE);
+                        binding.tvEmoji2.setVisibility(View.GONE);
+                        binding.ivIcon.setVisibility(View.VISIBLE);
+                        binding.ivIcon.setImageResource(R.drawable.ic_warning);
+                        String message = getString(R.string.dialog_msg_delete_word) + tableName + "?";
+                        binding.tvMessage.setText(message);
+                        binding.btnOk.setText(R.string.button_text_yes);
+                        binding.btnOk.setOnClickListener(view -> {
+                            if (editorVM.selectedWord != null)
+                            {
+                                editorVM.deleteWordFromDb(editorVM.selectedWord);
+                            }
+                            switcher.showPrevious();
+                            dialog.dismiss();
+                        });
+                        binding.btnCancel.setText(R.string.button_text_no);
+                        binding.btnCancel.setOnClickListener(view -> {
+                            dialog.dismiss();
+                        });
+                        return null;
+                    }), ConfirmDialog.Companion.getTAG());
         });
     }
 
@@ -429,6 +439,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
         getMenuInflater().inflate(R.menu.d_word_editor_menu, menu);
         MenuItem searchItem = menu.findItem(R.id.word_search);
         searchView = (SearchView) searchItem.getActionView();
+
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         EditorSearchViewModel viewModel = new ViewModelProvider(this).get(EditorSearchViewModel.class);
 
@@ -479,7 +490,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             {
                 try
                 {
-                    //// TODO: Фильтрация ListView, вызов
+                    // Hint: Фильтрация ListView, вызов
                     listViewAdapter = (ListViewAdapter) listView.getAdapter();
                     if (listViewAdapter != null)
                     {
@@ -534,6 +545,6 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             editorVM.disableWord(true);
             Toast.makeText(WordEditorActivity.this, getString(R.string.text_word_is_enabled), Toast.LENGTH_LONG).show();
         }
-        editorVM.updateWordInDb(Collections.singletonList(word)); //TODO надо проверить обновление слова
+        editorVM.updateWordInDb(Collections.singletonList(word));
     }
 }

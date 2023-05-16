@@ -5,13 +5,12 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner
-import com.myapp.lexicon.models.PurchaseToken
-import com.myapp.lexicon.testing.TestActivity
-import org.junit.*
-import org.junit.runner.RunWith
 import com.myapp.lexicon.R
+import com.myapp.lexicon.testing.TestActivity
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.junit.*
+import org.junit.runner.RunWith
 
 
 @RunWith(AndroidJUnit4ClassRunner::class)
@@ -112,13 +111,13 @@ class BillingViewModelTest {
 
             billingVM.cloudStorageToken.observe(activity) { result ->
                 result.onSuccess {
-                    isRunning = when(it) {
-                        PurchaseToken.YES -> {
-                            Assert.assertTrue(it.name, true)
+                    isRunning = when {
+                        it.isNotEmpty() -> {
+                            Assert.assertTrue(true)
                             false
                         }
-                        PurchaseToken.NO -> {
-                            Assert.assertTrue(it.name, false)
+                        else -> {
+                            Assert.assertTrue(false)
                             false
                         }
                     }
@@ -177,16 +176,15 @@ class BillingViewModelTest {
             billingVM.noAdsToken.observe(activity) { result ->
 
                 result.onSuccess { token ->
-                    when(token) {
-                        PurchaseToken.YES -> {
-                            Assert.assertTrue(token.name, true)
-                            isRunning = false
+                    isRunning = when {
+                        token.isNotEmpty() -> {
+                            Assert.assertTrue(true)
+                            false
                         }
-                        PurchaseToken.NO -> {
-                            Assert.assertTrue(token.name, false)
-                            isRunning = false
+                        else -> {
+                            Assert.assertTrue(false)
+                            false
                         }
-                        else -> {}
                     }
                 }
                 result.onFailure {

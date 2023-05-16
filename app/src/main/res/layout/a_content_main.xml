@@ -39,7 +39,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="top"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
@@ -60,13 +60,15 @@
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:textColor="@drawable/selector_white_to_black"
                     android:background="@drawable/semitransparent_background"
-                    tools:text="@string/text_dictionaries" />
+                    tools:text="XXXXXXXXXXXXXXXXXXXXXXXXXXX" />
             </FrameLayout>
 
             <FrameLayout android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.5"
-                android:layout_gravity="center_vertical">
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp">
 
                 <ImageView
                     android:id="@+id/order_play_icon_iv"

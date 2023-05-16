@@ -1,8 +1,11 @@
 package com.myapp.lexicon.helpers
 
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.os.CountDownTimer
 import android.view.View
+import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
@@ -10,8 +13,12 @@ import androidx.preference.PreferenceManager
 import com.google.android.material.snackbar.Snackbar
 import com.myapp.lexicon.R
 import com.myapp.lexicon.schedule.AlarmScheduler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import java.io.File
 import java.util.zip.CRC32
+import kotlin.math.roundToInt
+
 
 fun Context.alarmClockEnable() {
     val preferences = PreferenceManager.getDefaultSharedPreferences(this)
@@ -34,6 +41,14 @@ fun View.showSnackBar(message: String, duration: Int = Snackbar.LENGTH_LONG): Sn
 
 fun Fragment.showSnackBar(message: String, duration: Int = Snackbar.LENGTH_LONG): Snackbar {
     return requireView().showSnackBar(message, duration)
+}
+
+fun Context.showToast(message: String, duration: Int = Toast.LENGTH_LONG) {
+    Toast.makeText(this, message, duration).show()
+}
+
+fun Fragment.showToast(message: String, duration: Int = Toast.LENGTH_LONG) {
+    requireContext().showToast(message, duration)
 }
 
 fun File.fileToBytes(): ByteArray {
@@ -70,6 +85,78 @@ fun ByteArray.getCRC32CheckSum(): Long {
     crC32.update(this)
     return crC32.value
 }
+
+fun String.getCRC32CheckSum(): Long {
+    val crC32 = CRC32()
+    crC32.update(this.toByteArray())
+    return crC32.value
+}
+
+fun String.checkOnlyLetterAndFirstNotDigit(): Int {
+    if (this.isNotEmpty() && this[0].isDigit()) {
+        return 0
+    }
+    return try {
+        val first = this.first {
+            !it.isLetterOrDigit() && !it.isWhitespace()
+        }
+        val indexOf = this.indexOf(first)
+        //return this.replace(Regex("^[0-9]|\\W]*"), "")
+        indexOf
+    } catch (e: Exception) {
+        -1
+    }
+}
+
+private val Context.inputManager: InputMethodManager
+    get() {
+        return this.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    }
+
+fun View.showKeyboard() {
+    this.context.inputManager.showSoftInput(this, 0)
+}
+
+fun View.hideKeyboard() {
+    this.context.inputManager.hideSoftInputFromWindow(this.windowToken, 0)
+}
+
+fun BroadcastReceiver.goAsync(
+    coroutineScope: CoroutineScope,
+    block: suspend (CoroutineScope) -> Unit
+) {
+    val pendingResult = goAsync()
+    coroutineScope.launch(coroutineScope.coroutineContext) {
+        block.invoke(this)
+        pendingResult.finish()
+    }
+}
+
+val Context.screenWidth: Int
+    get() = resources.displayMetrics.run { widthPixels / density }.roundToInt()
+
+val Context.screenHeight: Int
+    get() = resources.displayMetrics.run { heightPixels / density }.roundToInt()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
