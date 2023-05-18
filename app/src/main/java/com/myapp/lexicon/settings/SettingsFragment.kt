@@ -21,6 +21,7 @@ import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.schedule.AlarmScheduler
 import dagger.hilt.android.AndroidEntryPoint
+import java.lang.NumberFormatException
 import java.util.*
 
 
@@ -136,7 +137,13 @@ class SettingsFragment : PreferenceFragmentCompat()
             {
                 showIntervalsPref.value = newValue as String
                 showIntervalsPref.summary = showIntervalsPref.entry
-                if (newValue.toInt() != 0)
+                val interval = try {
+                    newValue.toInt()
+                }
+                catch (e: NumberFormatException) {
+                    0
+                }
+                if (interval != 0)
                 {
                     serviceCheckBoxPref.isChecked = false
                     listOnUnBlockingScreen.isEnabled = true

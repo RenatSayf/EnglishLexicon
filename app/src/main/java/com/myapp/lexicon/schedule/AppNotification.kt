@@ -8,7 +8,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.BitmapFactory
-import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
@@ -17,7 +16,6 @@ import com.myapp.lexicon.helpers.StringOperations
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.service.ServiceActivity
 import com.myapp.lexicon.splash.SplashActivity
-
 
 
 class AppNotification constructor(private val context: Context) : Notification()
@@ -65,7 +63,12 @@ class AppNotification constructor(private val context: Context) : Notification()
                     putExtra(ServiceActivity.ARG_JSON, json)
                     flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
                 }
-                val pendingIntent = PendingIntent.getActivity(context, 0, actionIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+                val pendingIntent = PendingIntent.getActivity(
+                    context,
+                    0,
+                    actionIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
                 setContentIntent(pendingIntent)
             }
             else
@@ -73,24 +76,24 @@ class AppNotification constructor(private val context: Context) : Notification()
                 setContentTitle(context.getString(R.string.text_all_words_learned))
                 setContentText(context.getString(R.string.text_select_other_dict))
                 val intent = Intent(context, SplashActivity::class.java)
-                val activity = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+                val activity = PendingIntent.getActivity(
+                    context,
+                    0,
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
                 setContentIntent(activity)
             }
         }.build()
 
-
-
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-        {
-            val name = context.getString(R.string.app_name)
-            val descriptionText = ""
-            val importance = NotificationManager.IMPORTANCE_HIGH
-            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
-                description = descriptionText
-            }
-            notificationManager.createNotificationChannel(channel)
+        val name = context.getString(R.string.app_name)
+        val descriptionText = ""
+        val importance = NotificationManager.IMPORTANCE_HIGH
+        val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
+            description = descriptionText
         }
+        notificationManager.createNotificationChannel(channel)
 
         return notification
     }
