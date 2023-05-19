@@ -41,9 +41,9 @@ class AppNotification constructor(private val context: Context) : Notification()
 
         notification = NotificationCompat.Builder(context, CHANNEL_ID).apply {
             setOngoing(false)
-            setSmallIcon(R.drawable.icon_notification)
+            setSmallIcon(R.drawable.ic_translate_blue_24dp)
             color = ContextCompat.getColor(context, R.color.colorAccent)
-            setLargeIcon(BitmapFactory.decodeResource(context.resources, R.mipmap.ic_launcher))
+            setLargeIcon(BitmapFactory.decodeResource(context.resources, R.drawable.icon_logo))
             setAutoCancel(true)
             priority = NotificationCompat.PRIORITY_HIGH
             setChannelId(CHANNEL_ID)
