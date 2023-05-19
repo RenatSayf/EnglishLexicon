@@ -16,16 +16,18 @@ import com.myapp.lexicon.schedule.AlarmScheduler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
+import java.util.concurrent.TimeUnit
 import java.util.zip.CRC32
 import kotlin.math.roundToInt
 
 
 fun Context.alarmClockEnable() {
     val preferences = PreferenceManager.getDefaultSharedPreferences(this)
-    val interval = preferences.getString(getString(R.string.key_show_intervals), "0")
-    val parseInt = interval!!.toInt()
-    if (parseInt > 0) {
-        AlarmScheduler(this).scheduleOne(parseInt.toLong() * 60 * 1000)
+    val minutesStr = preferences.getString(getString(R.string.key_show_intervals), "0")
+    val minutesLong = minutesStr!!.toLong()
+    if (minutesLong > 0) {
+        val millis = TimeUnit.MINUTES.toMillis(minutesLong)
+        AlarmScheduler(this).scheduleOne(millis)
     }
 }
 
