@@ -33,10 +33,11 @@
             android:exported="true"
             android:screenOrientation="userPortrait"
             android:configChanges="orientation|keyboardHidden"
+            android:launchMode="singleTop"
+            android:theme="@style/AppTheme.Launcher"
             tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter
