@@ -82,7 +82,7 @@
                     >
 
                     <TextView
-                        android:id="@+id/enWordTV"
+                        android:id="@+id/tv_target_word"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         app:layout_constraintTop_toTopOf="parent"
@@ -96,10 +96,10 @@
                         />
 
                     <TextView
-                        android:id="@+id/ruWordTV"
+                        android:id="@+id/tv_translate_word"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:layout_constraintTop_toBottomOf="@+id/enWordTV"
+                        app:layout_constraintTop_toBottomOf="@+id/tv_target_word"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         android:paddingTop="26dp"
@@ -128,34 +128,37 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_gravity="center"
+                        android:background="@null"
+                        android:hint="@string/text_write_translation"
+                        android:inputType="textMultiLine|textNoSuggestions"
                         android:padding="12dp"
                         android:paddingStart="50dp"
                         android:paddingEnd="50dp"
-                        android:hint="@string/text_write_translation"
-                        android:inputType="textMultiLine|textNoSuggestions"
-                        android:background="@null"
                         android:textSize="14sp"
-                        />
+                        tools:ignore="TouchTargetSizeCheck" />
 
                     <ImageButton
                         android:id="@+id/microphoneBtnView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/transparent_background"
-                        android:src="@drawable/selector_icon_microphone"
-                        android:layout_margin="10dp"
                         android:layout_gravity="start|center_vertical"
-                        android:contentDescription="@string/app_link" />
+                        android:layout_margin="10dp"
+                        android:background="@drawable/transparent_background"
+                        android:contentDescription="@string/app_link"
+                        android:minWidth="48dp"
+                        android:minHeight="48dp"
+                        android:src="@drawable/selector_icon_microphone" />
 
                     <ImageButton
                         android:id="@+id/clearBtnView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/transparent_background"
-                        android:src="@drawable/selector_close_icon"
-                        android:layout_margin="10dp"
                         android:layout_gravity="end|center_vertical"
-                        android:contentDescription="@string/app_link" />
+                        android:layout_margin="10dp"
+                        android:background="@drawable/transparent_background"
+                        android:contentDescription="@string/app_link"
+                        android:src="@drawable/selector_close_icon"
+                        tools:ignore="TouchTargetSizeCheck" />
 
                 </FrameLayout>
 

@@ -51,15 +51,15 @@ class HintDialogFragment : DialogFragment()
             add(targetWord)
             shuffle()
         }
-        var ruArray: Array<String> = emptyArray()
+        var hintsArray: Array<String> = emptyArray()
         randomList.forEachIndexed { _, word ->
-            ruArray += word.translate
+            hintsArray += word.english
         }
 
-        val distinctArray = ruArray.distinct()
+        val distinctArray = hintsArray.distinct()
 
         return AlertDialog.Builder(requireContext()).apply {
-            setTitle(targetWord.english)
+            setTitle(targetWord.translate)
             setSingleChoiceItems(distinctArray.toTypedArray(), -1, object : DialogInterface.OnClickListener
             {
                 override fun onClick(p0: DialogInterface?, p1: Int)
@@ -67,7 +67,6 @@ class HintDialogFragment : DialogFragment()
                     onItemSelected.invoke(distinctArray[p1])
                     dismiss()
                 }
-
             })
         }.create().apply {
             window?.setBackgroundDrawableResource(R.drawable.bg_popup_dialog_white)
