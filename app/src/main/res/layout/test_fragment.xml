@@ -113,54 +113,56 @@
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <FrameLayout
+                <androidx.appcompat.widget.LinearLayoutCompat
                     android:id="@+id/editFrameLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:maxWidth="200dp"
+                    android:minHeight="60dp"
+                    android:orientation="horizontal"
                     app:layout_constraintTop_toBottomOf="@id/wordsLayout"
                     app:layout_constraintBottom_toTopOf="@+id/checkBtn"
                     android:layout_marginTop="20dp"
                     android:background="@drawable/semitransparent_back_white"
                     >
 
-                    <androidx.appcompat.widget.AppCompatAutoCompleteTextView
-                        android:id="@+id/editTextView"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_gravity="center"
-                        android:background="@null"
-                        android:hint="@string/text_write_translation"
-                        android:inputType="textMultiLine|textNoSuggestions"
-                        android:padding="12dp"
-                        android:paddingStart="50dp"
-                        android:paddingEnd="50dp"
-                        android:textSize="14sp"
-                        tools:ignore="TouchTargetSizeCheck" />
-
                     <ImageButton
                         android:id="@+id/microphoneBtnView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="start|center_vertical"
-                        android:layout_margin="10dp"
+                        android:layout_margin="0dp"
+                        android:layout_weight="1"
                         android:background="@drawable/transparent_background"
                         android:contentDescription="@string/app_link"
-                        android:minWidth="48dp"
-                        android:minHeight="48dp"
-                        android:src="@drawable/selector_icon_microphone" />
+                        android:src="@drawable/selector_icon_microphone"
+                        tools:ignore="TouchTargetSizeCheck" />
+
+                    <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+                        android:id="@+id/editTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_gravity="center"
+                        android:background="@null"
+                        android:hint="@string/text_write_translation"
+                        android:inputType="textMultiLine|textNoSuggestions"
+                        android:textSize="16sp"
+                        tools:ignore="TouchTargetSizeCheck" />
 
                     <ImageButton
                         android:id="@+id/clearBtnView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_weight="1"
                         android:layout_gravity="end|center_vertical"
-                        android:layout_margin="10dp"
+                        android:layout_margin="0dp"
                         android:background="@drawable/transparent_background"
                         android:contentDescription="@string/app_link"
                         android:src="@drawable/selector_close_icon"
                         tools:ignore="TouchTargetSizeCheck" />
 
-                </FrameLayout>
+                </androidx.appcompat.widget.LinearLayoutCompat>
 
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/checkBtn"
