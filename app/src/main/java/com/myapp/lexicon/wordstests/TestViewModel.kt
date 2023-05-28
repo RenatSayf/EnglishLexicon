@@ -88,7 +88,6 @@ class TestViewModel @Inject constructor(
                         }
 
                     }
-                    rightAnswerCounter = 0
                 }, { t ->
                     t.printStackTrace()
                     result.value = Result.failure(t)
@@ -107,7 +106,6 @@ class TestViewModel @Inject constructor(
                     _wordsList.value = list
                     _wordsCount.value = list.size
                     _wordIndex.value = 0
-                    rightAnswerCounter = 0
                 }, { t ->
                     t.printStackTrace()
                 })
@@ -143,13 +141,17 @@ class TestViewModel @Inject constructor(
         val filteredWords = _wordsList.value!!.filter {
             it.english == word.english && it.translate == word.translate
         }
-        _isRight.value = _wordsList.value!!.removeAll(filteredWords)
+        _isRight.value = _wordsList.value?.removeAll(filteredWords)
         _isRight.value?.let {
-            if (it && _wordsList.value!!.isNotEmpty())
+            if (it && _wordsList.value?.isNotEmpty() == true)
             {
-                _wordIndex.value = _wordsCount.value!! - _wordsList.value!!.size
+                val count = _wordsCount.value?: -1
+                val size = _wordsList.value?.size ?: 0
+                if (count > 0 && size > 0) {
+                    _wordIndex.value = count - size
+                }
             }
-            else if (it && _wordsList.value!!.isEmpty())
+            else if (it && _wordsList.value?.isEmpty() == true)
             {
                 _wordIndex.value = _wordsCount.value
             }
@@ -158,7 +160,7 @@ class TestViewModel @Inject constructor(
 
     fun getNextWords() : Word?
     {
-        return if (_wordsList.value!!.isNotEmpty())
+        return if (!_wordsList.value.isNullOrEmpty())
         {
             _wordsList.value!![0]
         }
@@ -175,8 +177,6 @@ class TestViewModel @Inject constructor(
 
     private var _wordIndex = MutableLiveData(0)
     var wordIndex: LiveData<Int> = _wordIndex
-
-    var rightAnswerCounter = 0
 
     override fun onCleared()
     {

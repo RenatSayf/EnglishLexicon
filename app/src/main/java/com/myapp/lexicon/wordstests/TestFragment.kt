@@ -19,6 +19,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.myapp.lexicon.BuildConfig
@@ -53,12 +54,15 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     }
 
     private lateinit var binding: TestFragmentBinding
-    private val testVM: TestViewModel by viewModels()
+    private val testVM: TestViewModel by lazy {
+        ViewModelProvider(this)[TestViewModel::class.java]
+    }
     private val animVM: AnimViewModel by viewModels()
     private val speechVM: SpeechViewModel by viewModels()
     private val pageBackVM: PageBackViewModel by viewModels()
     private var yandexAd2: InterstitialAd? = null
     private val composite = CompositeDisposable()
+    private var dialogWarning: DialogWarning? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -118,7 +122,6 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 when (it) {
                     true -> {
                         LockOrientation(requireActivity()).lock()
-                        testVM.rightAnswerCounter++
                         testVM.testState.rightAnswers++
                         binding.editTextView.hideKeyboard()
                         binding.checkBtn.setBackgroundResource(R.drawable.text_btn_for_test_green)
@@ -128,6 +131,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                             startDelay = 0
                             animIncreaseScaleListener(this)
                         }.start()
+
                         Toast.makeText(
                             requireContext(),
                             getString(R.string.text_is_right),
@@ -137,7 +141,6 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                         }.show()
                     }
                     else -> {
-                        testVM.rightAnswerCounter--
                         testVM.testState.rightAnswers--
                         Toast.makeText(
                             requireContext(),
@@ -146,8 +149,8 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                         ).apply {
                             setGravity(Gravity.TOP, 0, 0)
                         }.show()
-                        val animNotRight =
-                            AnimationUtils.loadAnimation(requireContext(), R.anim.anim_not_right)
+
+                        val animNotRight = AnimationUtils.loadAnimation(requireContext(), R.anim.anim_not_right)
                         animNotRight.setAnimationListener(object : Animation.AnimationListener {
                             override fun onAnimationStart(p0: Animation?) {
                                 binding.checkBtn.setBackgroundResource(R.drawable.text_btn_for_test_red)
@@ -337,12 +340,15 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 }
             },
             onSuccess = {
-                DialogWarning().apply {
-                    setListener(this@TestFragment)
-                }.show(
-                    parentFragmentManager.beginTransaction(),
-                    DialogWarning.DIALOG_TAG
-                )
+                if (dialogWarning == null) {
+                    dialogWarning = DialogWarning().apply {
+                        setListener(this@TestFragment)
+                    }
+                    dialogWarning?.show(
+                        parentFragmentManager.beginTransaction(),
+                        DialogWarning.DIALOG_TAG
+                    )
+                }
             },
             onError = { err ->
                 Throwable(err).printStackTrace()
