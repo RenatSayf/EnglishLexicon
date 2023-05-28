@@ -19,15 +19,16 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding2.widget.RxTextView
+import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.loadInterstitialAd
 import com.myapp.lexicon.ads.showInterstitialAd
 import com.myapp.lexicon.databinding.TestFragmentBinding
 import com.myapp.lexicon.dialogs.DictListDialog
 import com.myapp.lexicon.helpers.*
-import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.SpeechViewModel
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.adsIsEnabled
@@ -53,19 +54,15 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     }
 
     private lateinit var binding: TestFragmentBinding
-    private lateinit var mActivity: MainActivity
-    private val testVM: TestViewModel by viewModels()
+    private val testVM: TestViewModel by lazy {
+        ViewModelProvider(this)[TestViewModel::class.java]
+    }
     private val animVM: AnimViewModel by viewModels()
     private val speechVM: SpeechViewModel by viewModels()
     private val pageBackVM: PageBackViewModel by viewModels()
     private var yandexAd2: InterstitialAd? = null
     private val composite = CompositeDisposable()
-
-    override fun onCreate(savedInstanceState: Bundle?)
-    {
-        super.onCreate(savedInstanceState)
-        mActivity = requireActivity() as MainActivity
-    }
+    private var dialogWarning: DialogWarning? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -105,18 +102,17 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         testVM.wordsList.observe(viewLifecycleOwner) { list ->
             if (list.isNotEmpty()) {
                 binding.btnViewDict.text = list[0].dictName
-                binding.enWordTV.text = list[0].english
-                binding.enWordTV.apply {
+                binding.tvTargetWord.text = list[0].translate
+                binding.tvTargetWord.apply {
                     tag = list[0]._id
                     scaleX = 1f
                     scaleY = 1f
                 }
-                binding.ruWordTV.text = list[0].translate
+                binding.tvTranslateWord.text = list[0].english
                 binding.progressBar.apply {
                     max = list.size
                     progress = testVM.testState.progress
                 }
-
             }
         }
 
@@ -126,16 +122,16 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 when (it) {
                     true -> {
                         LockOrientation(requireActivity()).lock()
-                        testVM.rightAnswerCounter++
                         testVM.testState.rightAnswers++
                         binding.editTextView.hideKeyboard()
                         binding.checkBtn.setBackgroundResource(R.drawable.text_btn_for_test_green)
-                        binding.ruWordTV.animate().scaleX(1f).scaleY(1f).apply {
+                        binding.tvTranslateWord.animate().scaleX(1f).scaleY(1f).apply {
                             duration = 500
                             interpolator = AnticipateOvershootInterpolator()
                             startDelay = 0
                             animIncreaseScaleListener(this)
                         }.start()
+
                         Toast.makeText(
                             requireContext(),
                             getString(R.string.text_is_right),
@@ -145,7 +141,6 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                         }.show()
                     }
                     else -> {
-                        testVM.rightAnswerCounter--
                         testVM.testState.rightAnswers--
                         Toast.makeText(
                             requireContext(),
@@ -154,8 +149,8 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                         ).apply {
                             setGravity(Gravity.TOP, 0, 0)
                         }.show()
-                        val animNotRight =
-                            AnimationUtils.loadAnimation(requireContext(), R.anim.anim_not_right)
+
+                        val animNotRight = AnimationUtils.loadAnimation(requireContext(), R.anim.anim_not_right)
                         animNotRight.setAnimationListener(object : Animation.AnimationListener {
                             override fun onAnimationStart(p0: Animation?) {
                                 binding.checkBtn.setBackgroundResource(R.drawable.text_btn_for_test_red)
@@ -190,7 +185,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
             if (words.isNotEmpty()) {
                 val translates = arrayListOf<String>()
                 words.forEach {
-                    translates.add(it.translate)
+                    translates.add(it.english)
                 }
                 val adapter = ArrayAdapter(
                     requireContext(),
@@ -207,10 +202,10 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
             val translateText = binding.editTextView.text.toString()
             if (translateText.isNotEmpty())
             {
-                val enText = binding.enWordTV.text.toString()
-                val searchedWord = Word(-1, "", enText, translateText, 1)
+                val enText = binding.tvTargetWord.text.toString()
+                val searchedWord = Word(-1, "", translateText, enText, 1)
                 testVM.searchWord(searchedWord)
-                val wordId = binding.enWordTV.tag.toString().toInt()
+                val wordId = binding.tvTargetWord.tag.toString().toInt()
                 testVM.testState.studiedWordIds.add(wordId)
             }
         }
@@ -222,12 +217,12 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         animVM.apply {
             uiState.observe(viewLifecycleOwner) { state ->
                 if (state is UiState.TextViewCreated) {
-                    binding.ruWordTV.apply {
+                    binding.tvTranslateWord.apply {
                         scaleX = state.scaleX
                         scaleY = state.scaleY
                     }
                 } else if (state is UiState.TextViewAfterAnim) {
-                    binding.ruWordTV.apply {
+                    binding.tvTranslateWord.apply {
                         scaleX = state.scaleX
                         scaleY = state.scaleY
                     }
@@ -268,16 +263,16 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 recordAudioPermission.launch(Manifest.permission.RECORD_AUDIO)
                 return@setOnClickListener
             }
-            runSpeechRecognizer()
+            speechRecognize(Locale.US)
         }
 
         binding.selectVariantBtn.setOnClickListener {
 
-            val id = binding.enWordTV.tag.toString().toInt()
-            val enWord = binding.enWordTV.text.toString()
-            val ruWord = binding.ruWordTV.text.toString()
+            val id = binding.tvTargetWord.tag.toString().toInt()
+            val enWord = binding.tvTargetWord.text.toString()
+            val ruWord = binding.tvTranslateWord.text.toString()
             val dictName = binding.btnViewDict.text.toString()
-            val targetWord = Word(id, dictName, enWord, ruWord, 1)
+            val targetWord = Word(id, dictName, ruWord, enWord, 1)
 
             val shuffledList = testVM.wordsList.value?.shuffled()?.toMutableList()
             if (!shuffledList.isNullOrEmpty() && shuffledList.size > 1) {
@@ -316,8 +311,10 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         }
 
         binding.speakerBtnView.setOnClickListener {
-            val text = binding.enWordTV.text.toString()
-            speechVM.doSpeech(text, Locale.US)
+            val text = binding.editTextView.text.toString()
+            if (text.isNotEmpty()) {
+                speechVM.doSpeech(text, Locale.US)
+            }
         }
 
         binding.editTextView.onItemClickListener = object : AdapterView.OnItemClickListener
@@ -334,44 +331,29 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     override fun onStart()
     {
         super.onStart()
-        testVM.liveState.observe(viewLifecycleOwner) {
-            when (it) {
-                is UiState.Initial -> {
-                    testVM.setLiveState(UiState.Active())
-                    val wordIds = testVM.getWordIdsFromPref()
-                    if (wordIds.isNotEmpty()) {
-                        DialogWarning().apply {
-                            setListener(this@TestFragment)
-                        }.show(
-                            parentFragmentManager.beginTransaction(),
-                            DialogWarning.DIALOG_TAG
-                        )
-                    } else {
-                        val dictName = testVM.currentWord.value?.dictName
-                        dictName?.let { dict ->
-                            testVM.getWordsByDictName(dict)
-                        }
+
+        this.getTestStateFromPref(
+            onInit = {
+                val dictName = testVM.currentWord.value?.dictName
+                dictName?.let { dict ->
+                    testVM.getWordsByDictName(dict)
+                }
+            },
+            onSuccess = {
+                if (dialogWarning == null) {
+                    dialogWarning = DialogWarning().apply {
+                        setListener(this@TestFragment)
                     }
+                    dialogWarning?.show(
+                        parentFragmentManager.beginTransaction(),
+                        DialogWarning.DIALOG_TAG
+                    )
                 }
-                is UiState.Active -> {}
-                else -> {}
+            },
+            onError = { err ->
+                Throwable(err).printStackTrace()
             }
-        }
-
-    }
-
-    override fun onDestroyView()
-    {
-        testVM.wordsList.value?.let { list ->
-            if (list.isNotEmpty())
-            {
-                val count = testVM.wordsCount.value
-                count?.let {
-                    if (it.minus(list.size) > 3)  testVM.saveWordIdsToPref(list)
-                }
-            }
-        }
-        super.onDestroyView()
+        )
     }
 
     override fun onResume() {
@@ -403,11 +385,24 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
 
         val testState = testVM.testState.apply {
             dict = binding.btnViewDict.text.toString()
-            wordId = binding.enWordTV.tag.toString().toInt()
+            wordId = binding.tvTargetWord.tag.toString().toInt()
             progress = binding.progressBar.progress
             progressMax = binding.progressBar.max
         }
-        this.saveTestStateToPref(testState)
+        if (BuildConfig.DEBUG) {
+            when {
+                testState.studiedWordIds.size > 1 -> {
+                    this.saveTestStateToPref(testState)
+                }
+            }
+        }
+        else {
+            when {
+                testState.studiedWordIds.size > 5 -> {
+                    this.saveTestStateToPref(testState)
+                }
+            }
+        }
 
         super.onPause()
     }
@@ -424,13 +419,13 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
 
             override fun onAnimationEnd(p0: Animator)
             {
-                binding.enWordTV.animate().scaleX(0f).scaleY(0f).apply {
+                binding.tvTargetWord.animate().scaleX(0f).scaleY(0f).apply {
                     duration = 500
                     interpolator = AnticipateOvershootInterpolator()
                     startDelay = 1000
                 }.start()
 
-                binding.ruWordTV.animate().scaleX(0f).scaleY(0f).apply {
+                binding.tvTranslateWord.animate().scaleX(0f).scaleY(0f).apply {
                     duration = 500
                     interpolator = AnticipateOvershootInterpolator()
                     animDecreaseScaleListener(this)
@@ -463,10 +458,10 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 }
                 val nextWord = testVM.getNextWords()
                 nextWord?.let {
-                    binding.enWordTV.text = nextWord.english
-                    binding.enWordTV.tag = nextWord._id
-                    binding.ruWordTV.text = nextWord.translate
-                    binding.enWordTV.animate().scaleX(1f).scaleY(1f).apply {
+                    binding.tvTargetWord.text = nextWord.translate
+                    binding.tvTargetWord.tag = nextWord._id
+                    binding.tvTranslateWord.text = nextWord.english
+                    binding.tvTargetWord.animate().scaleX(1f).scaleY(1f).apply {
                         duration = 300
                         interpolator = AccelerateInterpolator()
                         setListener(object : Animator.AnimatorListener
@@ -517,11 +512,12 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     }
 
     //TODO Speech Recognizer Step 3 Готовим intent
-    private fun runSpeechRecognizer()
+    @Suppress("SameParameterValue")
+    private fun speechRecognize(locale: Locale)
     {
         val intent = Intent(Intent.ACTION_VIEW).apply {
             action = RecognizerIntent.ACTION_RECOGNIZE_SPEECH
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, locale)
             putExtra(
                 RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH
@@ -595,8 +591,6 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     }
 
     override fun onPositiveClick() {
-//        val wordIds = testVM.getWordIdsFromPref()
-//        testVM.getWordsByIds(wordIds)
         this.getTestStateFromPref(
             onSuccess = { state ->
                 testVM.testState = state
@@ -604,25 +598,14 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
             },
             onError = { err ->
                 showSnackBar(err?: "Unknown error")
+                Throwable(err).printStackTrace()
             }
         )
     }
 
     override fun onNegativeClick() {
-        testVM.saveWordIdsToPref(arrayListOf())
-        val dict = testVM.currentWord.value?.dictName
-        dict?.let {
-            testVM.getWordsByDictName(it)
-        } ?: run {
-            val dictList = testVM.dictList.value
-            if (dictList != null)
-            {
-                if (dictList.isNotEmpty())
-                    testVM.getWordsByDictName(dictList[0])
-            }
-        }
-        val startTestState = testVM.testState.reset()
-        this.saveTestStateToPref(startTestState)
+        testVM.testState.reset()
+        this.saveTestStateToPref(null)
     }
 
 }

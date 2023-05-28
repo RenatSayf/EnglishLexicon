@@ -19,7 +19,7 @@ interface AppDao
     @Query("SELECT * FROM Words WHERE dict_name == :dict AND _id <> :id ORDER BY random() LIMIT 1")
     fun getRandomEntries(dict: String, id: Int) : Single<Word>
 
-    @Query("SELECT * FROM Words WHERE dict_name == :dict AND translate like :like")
+    @Query("SELECT * FROM Words WHERE dict_name == :dict AND english like :like")
     fun getAllSimilarEntries(dict: String, like: String) : Single<MutableList<Word>>
 
     @Query("SELECT DISTINCT dict_name FROM Words")

@@ -184,7 +184,7 @@ fun Context.getWordFromPref(onInit: () -> Unit, onSuccess: (Word) -> Unit, onFai
 }
 
 fun Context.checkUnLockedBroadcast(onEnabled: () -> Unit, onDisabled: () -> Unit) {
-    val isEnabled = appSettings.getBoolean(getString(R.string.key_service), true)
+    val isEnabled = appSettings.getBoolean(getString(R.string.key_service), false)
     when(isEnabled) {
         true -> onEnabled.invoke()
         false -> onDisabled.invoke()
@@ -286,9 +286,13 @@ fun Fragment.disablePassiveWordsRepeat(
     requireContext().disablePassiveWordsRepeat(onDisabled, onError)
 }
 
-fun Fragment.saveTestStateToPref(state: TestState) {
-    val json = Gson().toJson(state)
-    appSettings.edit().putString("KEY_TEST_STATE", json).apply()
+fun Fragment.saveTestStateToPref(state: TestState?) {
+    if (state != null) {
+        val json = Gson().toJson(state)
+        appSettings.edit().putString("KEY_TEST_STATE", json).apply()
+    } else {
+        appSettings.edit().putString("KEY_TEST_STATE", null).apply()
+    }
 }
 
 fun Fragment.getTestStateFromPref(

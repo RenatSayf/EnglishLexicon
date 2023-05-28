@@ -5,7 +5,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.myapp.lexicon.helpers.UiState
 import com.myapp.lexicon.models.TestState
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.repository.DataRepositoryImpl
@@ -25,13 +24,6 @@ class TestViewModel @Inject constructor(
 ) : AndroidViewModel(app)
 {
     private val composite = CompositeDisposable()
-
-    private var _liveState = MutableLiveData<UiState>(UiState.NotActive(0))
-    var liveState: LiveData<UiState> = _liveState
-    fun setLiveState(state: UiState)
-    {
-        _liveState.value = state
-    }
 
     var testState = TestState()
 
@@ -96,7 +88,6 @@ class TestViewModel @Inject constructor(
                         }
 
                     }
-                    rightAnswerCounter = 0
                 }, { t ->
                     t.printStackTrace()
                     result.value = Result.failure(t)
@@ -115,7 +106,6 @@ class TestViewModel @Inject constructor(
                     _wordsList.value = list
                     _wordsCount.value = list.size
                     _wordIndex.value = 0
-                    rightAnswerCounter = 0
                 }, { t ->
                     t.printStackTrace()
                 })
@@ -151,13 +141,17 @@ class TestViewModel @Inject constructor(
         val filteredWords = _wordsList.value!!.filter {
             it.english == word.english && it.translate == word.translate
         }
-        _isRight.value = _wordsList.value!!.removeAll(filteredWords)
+        _isRight.value = _wordsList.value?.removeAll(filteredWords)
         _isRight.value?.let {
-            if (it && _wordsList.value!!.isNotEmpty())
+            if (it && _wordsList.value?.isNotEmpty() == true)
             {
-                _wordIndex.value = _wordsCount.value!! - _wordsList.value!!.size
+                val count = _wordsCount.value?: -1
+                val size = _wordsList.value?.size ?: 0
+                if (count > 0 && size > 0) {
+                    _wordIndex.value = count - size
+                }
             }
-            else if (it && _wordsList.value!!.isEmpty())
+            else if (it && _wordsList.value?.isEmpty() == true)
             {
                 _wordIndex.value = _wordsCount.value
             }
@@ -166,7 +160,7 @@ class TestViewModel @Inject constructor(
 
     fun getNextWords() : Word?
     {
-        return if (_wordsList.value!!.isNotEmpty())
+        return if (!_wordsList.value.isNullOrEmpty())
         {
             _wordsList.value!![0]
         }
@@ -184,45 +178,15 @@ class TestViewModel @Inject constructor(
     private var _wordIndex = MutableLiveData(0)
     var wordIndex: LiveData<Int> = _wordIndex
 
-    fun saveWordIdsToPref(words: MutableList<Word>)
-    {
-        val idList = arrayListOf<Int>()
-        words.forEach {
-            idList.add(it._id)
-        }
-        //println("************************ ${idList.joinToString()} ******************************")
-        repository.saveWordsIdStringToPref(idList.joinToString())
-    }
-
-    fun getWordIdsFromPref() : List<Int>
-    {
-        val wordsIdString = repository.getWordsIdStringFromPref()
-        val intList = arrayListOf<Int>()
-        if (wordsIdString.isNotEmpty())
-        {
-            val strList = wordsIdString.split(",")
-
-            strList.forEach {
-                intList.add(it.trim().toInt())
-            }
-        }
-        return intList
-    }
-
-    var rightAnswerCounter = 0
-
     override fun onCleared()
     {
         composite.run {
             dispose()
             clear()
         }
-        _liveState.value = UiState.NotActive()
+
         super.onCleared()
     }
 
-    init
-    {
-        _liveState.value = UiState.Initial()
-    }
+
 }
