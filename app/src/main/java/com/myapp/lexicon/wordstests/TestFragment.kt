@@ -21,13 +21,13 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding2.widget.RxTextView
+import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.loadInterstitialAd
 import com.myapp.lexicon.ads.showInterstitialAd
 import com.myapp.lexicon.databinding.TestFragmentBinding
 import com.myapp.lexicon.dialogs.DictListDialog
 import com.myapp.lexicon.helpers.*
-import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.SpeechViewModel
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.adsIsEnabled
@@ -53,19 +53,12 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     }
 
     private lateinit var binding: TestFragmentBinding
-    private lateinit var mActivity: MainActivity
     private val testVM: TestViewModel by viewModels()
     private val animVM: AnimViewModel by viewModels()
     private val speechVM: SpeechViewModel by viewModels()
     private val pageBackVM: PageBackViewModel by viewModels()
     private var yandexAd2: InterstitialAd? = null
     private val composite = CompositeDisposable()
-
-    override fun onCreate(savedInstanceState: Bundle?)
-    {
-        super.onCreate(savedInstanceState)
-        mActivity = requireActivity() as MainActivity
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -335,43 +328,26 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     override fun onStart()
     {
         super.onStart()
-        testVM.liveState.observe(viewLifecycleOwner) {
-            when (it) {
-                is UiState.Initial -> {
-                    testVM.setLiveState(UiState.Active())
-                    val wordIds = testVM.getWordIdsFromPref()
-                    if (wordIds.isNotEmpty()) {
-                        DialogWarning().apply {
-                            setListener(this@TestFragment)
-                        }.show(
-                            parentFragmentManager.beginTransaction(),
-                            DialogWarning.DIALOG_TAG
-                        )
-                    } else {
-                        val dictName = testVM.currentWord.value?.dictName
-                        dictName?.let { dict ->
-                            testVM.getWordsByDictName(dict)
-                        }
-                    }
-                }
-                is UiState.Active -> {}
-                else -> {}
-            }
-        }
-    }
 
-    override fun onDestroyView()
-    {
-        testVM.wordsList.value?.let { list ->
-            if (list.isNotEmpty())
-            {
-                val count = testVM.wordsCount.value
-                count?.let {
-                    if (it.minus(list.size) > 3)  testVM.saveWordIdsToPref(list)
+        this.getTestStateFromPref(
+            onInit = {
+                val dictName = testVM.currentWord.value?.dictName
+                dictName?.let { dict ->
+                    testVM.getWordsByDictName(dict)
                 }
+            },
+            onSuccess = {
+                DialogWarning().apply {
+                    setListener(this@TestFragment)
+                }.show(
+                    parentFragmentManager.beginTransaction(),
+                    DialogWarning.DIALOG_TAG
+                )
+            },
+            onError = { err ->
+                Throwable(err).printStackTrace()
             }
-        }
-        super.onDestroyView()
+        )
     }
 
     override fun onResume() {
@@ -407,7 +383,20 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
             progress = binding.progressBar.progress
             progressMax = binding.progressBar.max
         }
-        this.saveTestStateToPref(testState)
+        if (BuildConfig.DEBUG) {
+            when {
+                testState.studiedWordIds.size > 1 -> {
+                    this.saveTestStateToPref(testState)
+                }
+            }
+        }
+        else {
+            when {
+                testState.studiedWordIds.size > 5 -> {
+                    this.saveTestStateToPref(testState)
+                }
+            }
+        }
 
         super.onPause()
     }
@@ -603,25 +592,14 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
             },
             onError = { err ->
                 showSnackBar(err?: "Unknown error")
+                Throwable(err).printStackTrace()
             }
         )
     }
 
     override fun onNegativeClick() {
-        testVM.saveWordIdsToPref(arrayListOf())
-        val dict = testVM.currentWord.value?.dictName
-        dict?.let {
-            testVM.getWordsByDictName(it)
-        } ?: run {
-            val dictList = testVM.dictList.value
-            if (dictList != null)
-            {
-                if (dictList.isNotEmpty())
-                    testVM.getWordsByDictName(dictList[0])
-            }
-        }
-        val startTestState = testVM.testState.reset()
-        this.saveTestStateToPref(startTestState)
+        testVM.testState.reset()
+        this.saveTestStateToPref(null)
     }
 
 }

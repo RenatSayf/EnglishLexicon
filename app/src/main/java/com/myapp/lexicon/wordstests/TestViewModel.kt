@@ -5,7 +5,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.myapp.lexicon.helpers.UiState
 import com.myapp.lexicon.models.TestState
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.repository.DataRepositoryImpl
@@ -25,13 +24,6 @@ class TestViewModel @Inject constructor(
 ) : AndroidViewModel(app)
 {
     private val composite = CompositeDisposable()
-
-    private var _liveState = MutableLiveData<UiState>(UiState.NotActive(0))
-    var liveState: LiveData<UiState> = _liveState
-    fun setLiveState(state: UiState)
-    {
-        _liveState.value = state
-    }
 
     var testState = TestState()
 
@@ -184,31 +176,6 @@ class TestViewModel @Inject constructor(
     private var _wordIndex = MutableLiveData(0)
     var wordIndex: LiveData<Int> = _wordIndex
 
-    fun saveWordIdsToPref(words: MutableList<Word>)
-    {
-        val idList = arrayListOf<Int>()
-        words.forEach {
-            idList.add(it._id)
-        }
-        //println("************************ ${idList.joinToString()} ******************************")
-        repository.saveWordsIdStringToPref(idList.joinToString())
-    }
-
-    fun getWordIdsFromPref() : List<Int>
-    {
-        val wordsIdString = repository.getWordsIdStringFromPref()
-        val intList = arrayListOf<Int>()
-        if (wordsIdString.isNotEmpty())
-        {
-            val strList = wordsIdString.split(",")
-
-            strList.forEach {
-                intList.add(it.trim().toInt())
-            }
-        }
-        return intList
-    }
-
     var rightAnswerCounter = 0
 
     override fun onCleared()
@@ -217,12 +184,9 @@ class TestViewModel @Inject constructor(
             dispose()
             clear()
         }
-        _liveState.value = UiState.NotActive()
+
         super.onCleared()
     }
 
-    init
-    {
-        _liveState.value = UiState.Initial()
-    }
+
 }
