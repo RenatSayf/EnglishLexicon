@@ -256,12 +256,14 @@ fun Context.checkCloudStorage(
     }
 }
 
+private const val LEARNING_MODE_VALUE = 5
+
 val Context.testIntervalFromPref: Int
     get() {
         return try {
-            appSettings.getString(getString(R.string.key_test_interval), "10")?.toInt()?: 10
+            appSettings.getString(getString(R.string.key_test_interval), LEARNING_MODE_VALUE.toString())?.toInt()?: LEARNING_MODE_VALUE
         } catch (e: NumberFormatException) {
-            10
+            LEARNING_MODE_VALUE
         }
     }
 

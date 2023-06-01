@@ -14,6 +14,8 @@
     <string name="main_interstitial_ad">ca-app-pub-1615119435047194/4664150389</string>
     <string name="test_interstitial_ad">ca-app-pub-3940256099942544/1033173712</string>
 
+    <string name="ya_metrica_api_key" translatable="false">cfb5a5d6-f277-4f65-96d8-c1dfcf1c57f2</string>
+
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 

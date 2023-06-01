@@ -47,7 +47,6 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
     private var appNotification: AppNotification? = null
 
     @SuppressLint("CheckResult")
-    @Suppress("RedundantSamConstructor")
     override fun onReceive(context: Context, intent: Intent)
     {
         var isRegister = true
