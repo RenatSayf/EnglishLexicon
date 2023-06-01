@@ -14,11 +14,16 @@ import io.reactivex.schedulers.Schedulers
 import java.util.*
 import javax.inject.Inject
 
-@Suppress("ObjectLiteralToLambda")
 @HiltViewModel
 class SpeechViewModel @Inject constructor(app: Application, private val repository: DataRepositoryImpl) : AndroidViewModel(app),
     Speaker.Listener
 {
+    private var _enCheckboxEnable = MutableLiveData(true)
+    var enCheckboxEnable: LiveData<Boolean> = _enCheckboxEnable
+
+    private var _ruCheckboxEnable = MutableLiveData(true)
+    var ruCheckboxEnable: LiveData<Boolean> = _ruCheckboxEnable
+
     private var speaker: Speaker = Speaker(app, this)
     private val composite = CompositeDisposable()
 
@@ -41,26 +46,29 @@ class SpeechViewModel @Inject constructor(app: Application, private val reposito
         _speechErrorId.postValue(id)
     }
 
+    @Suppress("UNNECESSARY_SAFE_CALL")
     override fun onSpeechInitNotSuccess(status: Int)
     {
         if (status < 0)
         {
             repository.enableSpeech(false)
-            _enCheckboxEnable.value = false
-            _ruCheckboxEnable.value = false
+            _enCheckboxEnable?.value = false
+            _ruCheckboxEnable?.value = false
         }
     }
 
+    @Suppress("UNNECESSARY_SAFE_CALL")
     override fun onEngLangNotSupported(status: Int)
     {
         setEnSpeech(false)
-        _enCheckboxEnable.value = false
+        _enCheckboxEnable?.value = false
     }
 
+    @Suppress("UNNECESSARY_SAFE_CALL")
     override fun onRusLangNotSupported(status: Int)
     {
         setRuSpeech(false)
-        _ruCheckboxEnable.value = false
+        _ruCheckboxEnable?.value = false
     }
 
     private var _speechStartId = MutableLiveData<String>().apply {
@@ -134,12 +142,6 @@ class SpeechViewModel @Inject constructor(app: Application, private val reposito
     {
         _speechProgressVisibility.value = visibility
     }
-
-    private var _enCheckboxEnable = MutableLiveData(true)
-    var enCheckboxEnable: LiveData<Boolean> = _enCheckboxEnable
-
-    private var _ruCheckboxEnable = MutableLiveData(true)
-    var ruCheckboxEnable: LiveData<Boolean> = _ruCheckboxEnable
 
     override fun onCleared()
     {

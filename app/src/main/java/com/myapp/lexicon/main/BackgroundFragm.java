@@ -201,7 +201,14 @@ public class BackgroundFragm extends Fragment
 
                 if (yandexAd != null)
                 {
-                    new JavaKotlinMediator().showInterstitialAd(yandexAd, () -> requireActivity().finish());
+                    try
+                    {
+                        new JavaKotlinMediator().showInterstitialAd(yandexAd, () -> requireActivity().finish());
+                    } catch (Exception e)
+                    {
+                        e.printStackTrace();
+                        requireActivity().finish();
+                    }
                 } else
                 {
                     requireActivity().finish();
