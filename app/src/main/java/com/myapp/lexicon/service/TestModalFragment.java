@@ -15,10 +15,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.helpers.ExtensionsKt;
-import com.myapp.lexicon.helpers.JavaKotlinMediator;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
 import com.myapp.lexicon.helpers.StringOperations;
 import com.myapp.lexicon.interfaces.IModalFragment;
@@ -26,8 +24,6 @@ import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SpeechViewModel;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.settings.SettingsExtKt;
-import com.yandex.mobile.ads.banner.BannerAdView;
-import com.yandex.mobile.ads.common.AdRequestError;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -97,31 +93,7 @@ public class TestModalFragment extends DialogFragment
 
         boolean adsIsEnabled = SettingsExtKt.getAdsIsEnabled(this);
         if (adsIsEnabled) {
-            BannerAdView adBanner = dialogView.findViewById(R.id.banner_test_dialog);
-            if (adBanner != null)
-            {
-                JavaKotlinMediator mediator = new JavaKotlinMediator();
-                mediator.loadBannerAd(requireContext(), 4, adBanner, new JavaKotlinMediator.BannerAdListener()
-                {
-                    @Override
-                    public void onSuccess()
-                    {
-                        if (BuildConfig.DEBUG)
-                        {
-                            System.out.println("************* Banner is loaded ******************");
-                        }
-                    }
-
-                    @Override
-                    public void onError(@NonNull AdRequestError error)
-                    {
-                        if (BuildConfig.DEBUG)
-                        {
-                            System.out.println("**************** Banner Error" + error.getDescription() + " *******************");
-                        }
-                    }
-                });
-            }
+            //TODO("Not implemented")
         }
         enTextView = dialogView.findViewById(R.id.en_text_view);
         ruBtn1 = dialogView.findViewById(R.id.ru_btn_1);

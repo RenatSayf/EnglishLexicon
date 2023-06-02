@@ -70,11 +70,7 @@
         android:layout_gravity="bottom"
         android:orientation="vertical">
 
-        <com.yandex.mobile.ads.banner.BannerAdView
-            android:id="@+id/banner_translator"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            />
+<!--        TODO Banner-->
 
     </LinearLayout>
 

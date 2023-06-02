@@ -664,9 +664,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     },
                     () -> null);
 
-            if (backgroundFragm != null && backgroundFragm.yandexAd != null)
+            if (backgroundFragm != null && true)
             {
-                new JavaKotlinMediator().showInterstitialAd(backgroundFragm.yandexAd, this::finish);
+                new JavaKotlinMediator().showInterstitialAd(this::finish);
             } else
             {
                 finish();

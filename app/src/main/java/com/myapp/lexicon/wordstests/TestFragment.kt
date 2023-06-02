@@ -24,8 +24,6 @@ import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
-import com.myapp.lexicon.ads.loadInterstitialAd
-import com.myapp.lexicon.ads.showInterstitialAd
 import com.myapp.lexicon.databinding.TestFragmentBinding
 import com.myapp.lexicon.dialogs.DictListDialog
 import com.myapp.lexicon.helpers.*
@@ -36,7 +34,6 @@ import com.myapp.lexicon.settings.getTestStateFromPref
 import com.myapp.lexicon.settings.saveTestStateToPref
 import com.myapp.lexicon.viewmodels.AnimViewModel
 import com.myapp.lexicon.viewmodels.PageBackViewModel
-import com.yandex.mobile.ads.interstitial.InterstitialAd
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.disposables.CompositeDisposable
 import java.util.*
@@ -60,7 +57,6 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     private val animVM: AnimViewModel by viewModels()
     private val speechVM: SpeechViewModel by viewModels()
     private val pageBackVM: PageBackViewModel by viewModels()
-    private var yandexAd2: InterstitialAd? = null
     private val composite = CompositeDisposable()
     private var dialogWarning: DialogWarning? = null
 
@@ -79,15 +75,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         binding = TestFragmentBinding.bind(view)
 
         if (this.adsIsEnabled) {
-            this.loadInterstitialAd(
-                index = 2,
-                success = { ad ->
-                    yandexAd2 = ad
-                },
-                error = {
-                    yandexAd2 = null
-                }
-            )
+            TODO("Not implemented")
         }
 
         pageBackVM.imageBack.observe(viewLifecycleOwner) { img ->
@@ -361,23 +349,11 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                yandexAd2?.showInterstitialAd(
-                    dismiss = {
-                        parentFragmentManager.popBackStack()
-                    }
-                )?: run {
-                    parentFragmentManager.popBackStack()
-                }
+                TODO("Not implemented")
             }
         })
         binding.toolBar.setNavigationOnClickListener {
-            yandexAd2?.showInterstitialAd(
-                dismiss = {
-                    parentFragmentManager.popBackStack()
-                }
-            )?: run {
-                parentFragmentManager.popBackStack()
-            }
+            TODO("Not implemented")
         }
     }
 
@@ -558,13 +534,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
 
     override fun onTestCompleteClick() {
         testVM.testState.reset()
-        yandexAd2?.showInterstitialAd(
-            dismiss = {
-                parentFragmentManager.popBackStack()
-            }
-        )?: run {
-            parentFragmentManager.popBackStack()
-        }
+        TODO("Not implemented")
     }
 
     override fun onTestRepeatClick() {

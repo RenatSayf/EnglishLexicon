@@ -1,59 +1,29 @@
 package com.myapp.lexicon.helpers
 
 import android.content.Context
-import com.myapp.lexicon.ads.loadBanner
-import com.myapp.lexicon.ads.loadInterstitialAd
-import com.myapp.lexicon.ads.showInterstitialAd
-import com.yandex.mobile.ads.banner.BannerAdView
-import com.yandex.mobile.ads.common.AdRequestError
-import com.yandex.mobile.ads.interstitial.InterstitialAd
 
 class JavaKotlinMediator {
 
     fun loadInterstitialAd(context: Context, index: Int, listener: InterstitialAdListener?) {
-
-        context.loadInterstitialAd(
-            index,
-            success = {
-                listener?.onSuccess(it)
-            },
-            error = {
-                listener?.onError(it)
-            }
-        )
+        TODO("Not implemented")
     }
 
-    fun showInterstitialAd(ad: InterstitialAd?, listener: AdDismissListener?) {
-        ad?.let {
-            it.showInterstitialAd(
-                dismiss = {
-                    listener?.onDismiss()
-                }
-            )
-        }
+    fun showInterstitialAd(listener: AdDismissListener?) {
+        TODO("Not implemented")
     }
 
-    fun loadBannerAd(context: Context, index: Int, adView: BannerAdView, listener: BannerAdListener?) {
-        context.loadBanner(
-            index = index,
-            adView = adView,
-            success = {
-                listener?.onSuccess()
-            },
-            error = {
-                listener?.onError(it)
-            }
-        )
+    fun loadBannerAd(context: Context, listener: BannerAdListener?) {
+        TODO("Not implemented")
     }
 
     interface InterstitialAdListener {
-        fun onSuccess(ad: InterstitialAd)
-        fun onError(error: AdRequestError)
+        fun onSuccess()
+        fun onError()
     }
 
     interface BannerAdListener {
         fun onSuccess()
-        fun onError(error: AdRequestError)
+        fun onError()
     }
 
     interface AdDismissListener {

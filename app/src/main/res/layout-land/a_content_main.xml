@@ -210,6 +210,8 @@
                 android:layout_gravity="bottom|center_horizontal"
                 android:orientation="horizontal">
 
+<!--                TODO Banner-->
+
             </LinearLayout>
 
             <CheckBox

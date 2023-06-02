@@ -7,15 +7,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterViewFlipper;
 
-import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.JavaKotlinMediator;
 import com.myapp.lexicon.service.PhoneUnlockedReceiver;
 import com.myapp.lexicon.settings.SettingsExtKt;
-import com.yandex.mobile.ads.banner.BannerAdView;
-import com.yandex.mobile.ads.common.AdRequestError;
-import com.yandex.mobile.ads.interstitial.InterstitialAd;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -27,7 +23,6 @@ import androidx.fragment.app.FragmentActivity;
 public class BackgroundFragm extends Fragment
 {
     private View fragmentView = null;
-    public InterstitialAd yandexAd = null;
 
     // картинки для фона
     private final int[] imagesId = new int[]
@@ -75,62 +70,17 @@ public class BackgroundFragm extends Fragment
         setRetainInstance(true);
     }
 
-    private void loadAds()
+    private void loadAds() throws Throwable
     {
         JavaKotlinMediator mediator = new JavaKotlinMediator();
-        mediator.loadInterstitialAd(requireContext(), 3, new JavaKotlinMediator.InterstitialAdListener()
-        {
-            @Override
-            public void onSuccess(@NonNull InterstitialAd ad)
-            {
-                if (BuildConfig.DEBUG)
-                {
-                    System.out.println("************* InterstitialAd is loaded ******************");
-                }
-                yandexAd = ad;
-            }
 
-            @Override
-            public void onError(@NonNull AdRequestError error)
-            {
-                if (BuildConfig.DEBUG) {
-                    System.out.println("**************** InterstitialAd Error: " + error.getDescription() + " *******************");
-                }
-            }
-        });
-
-        BannerAdView adBanner = requireActivity().findViewById(R.id.banner_main);
-        if (adBanner != null)
-        {
-            mediator = new JavaKotlinMediator();
-            mediator.loadBannerAd(requireContext(), 0, adBanner, new JavaKotlinMediator.BannerAdListener()
-            {
-                @Override
-                public void onSuccess()
-                {
-                    if (BuildConfig.DEBUG)
-                    {
-                        System.out.println("************* Banner is loaded ******************");
-                    }
-                }
-
-                @Override
-                public void onError(@NonNull AdRequestError error)
-                {
-                    if (BuildConfig.DEBUG)
-                    {
-                        System.out.println("**************** Banner Error: " + error.getDescription() + " *******************");
-                    }
-                }
-            });
-        }
+        throw new Throwable("Not implemented");
     }
 
-    private void hideAdBanner() {
-        BannerAdView adBanner = requireActivity().findViewById(R.id.banner_main);
-        if (adBanner != null) {
-            adBanner.setVisibility(View.GONE);
-        }
+    private void hideAdBanner() throws Throwable
+    {
+
+        throw new Throwable("Not implemented");
     }
 
     @Override
@@ -171,11 +121,22 @@ public class BackgroundFragm extends Fragment
 
         boolean adsIsEnabled = SettingsExtKt.getAdsIsEnabled(this);
         if (adsIsEnabled) {
-            loadAds();
+            try
+            {
+                loadAds();
+            } catch (Throwable e)
+            {
+                throw new RuntimeException(e);
+            }
         }
         else {
-            hideAdBanner();
-            yandexAd = null;
+            try
+            {
+                hideAdBanner();
+            } catch (Throwable e)
+            {
+                throw new RuntimeException(e);
+            }
         }
 
         requireActivity().getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true)
@@ -199,11 +160,11 @@ public class BackgroundFragm extends Fragment
                         },
                         () -> null);
 
-                if (yandexAd != null)
+                if (true)
                 {
                     try
                     {
-                        new JavaKotlinMediator().showInterstitialAd(yandexAd, () -> requireActivity().finish());
+                        new JavaKotlinMediator().showInterstitialAd(() -> requireActivity().finish());
                     } catch (Exception e)
                     {
                         e.printStackTrace();

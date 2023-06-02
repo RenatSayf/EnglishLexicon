@@ -22,27 +22,22 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
-import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.addword.AddWordViewModel;
 import com.myapp.lexicon.dialogs.ConfirmDialog;
 import com.myapp.lexicon.helpers.AppBus;
 import com.myapp.lexicon.helpers.ExtensionsKt;
-import com.myapp.lexicon.helpers.JavaKotlinMediator;
 import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SpeechViewModel;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.settings.SettingsExtKt;
 import com.myapp.lexicon.viewmodels.EditorSearchViewModel;
-import com.yandex.mobile.ads.banner.BannerAdView;
-import com.yandex.mobile.ads.common.AdRequestError;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
@@ -200,31 +195,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
 
         boolean adsIsEnabled = SettingsExtKt.getAdsIsEnabled(this);
         if (adsIsEnabled) {
-            BannerAdView adBanner = findViewById(R.id.banner_editor);
-            if (adBanner != null)
-            {
-                JavaKotlinMediator mediator = new JavaKotlinMediator();
-                mediator.loadBannerAd(this, 1, adBanner, new JavaKotlinMediator.BannerAdListener()
-                {
-                    @Override
-                    public void onSuccess()
-                    {
-                        if (BuildConfig.DEBUG)
-                        {
-                            System.out.println("************* Banner is loaded ******************");
-                        }
-                    }
-
-                    @Override
-                    public void onError(@NonNull AdRequestError error)
-                    {
-                        if (BuildConfig.DEBUG)
-                        {
-                            System.out.println("**************** Banner Error" + error.getDescription() + " *******************");
-                        }
-                    }
-                });
-            }
+            //TODO("Not implemented")
         }
 
         buttonDelete = findViewById(R.id.btn_delete);

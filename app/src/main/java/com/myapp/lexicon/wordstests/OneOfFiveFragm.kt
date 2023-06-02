@@ -15,15 +15,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.myapp.lexicon.R
 import com.myapp.lexicon.adapters.OneFiveTestAdapter
-import com.myapp.lexicon.ads.loadInterstitialAd
-import com.myapp.lexicon.ads.showInterstitialAd
 import com.myapp.lexicon.databinding.OneOfFiveFragmNewBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.RandomNumberGenerator
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.adsIsEnabled
-import com.yandex.mobile.ads.interstitial.InterstitialAd
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
@@ -36,8 +33,6 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
     private lateinit var binding: OneOfFiveFragmNewBinding
     private lateinit var vm: OneOfFiveViewModel
     private lateinit var mActivity: MainActivity
-
-    private var yandexAd2: InterstitialAd? = null
 
 
     companion object
@@ -70,15 +65,7 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
         val root = inflater.inflate(R.layout.one_of_five_fragm_new, container, false)
 
         if (this.adsIsEnabled) {
-            this.loadInterstitialAd(
-                index = 2,
-                success = { ad ->
-                    yandexAd2 = ad
-                },
-                error = {
-                    yandexAd2 = null
-                }
-            )
+            TODO("Not implemented")
         }
         return root
     }
@@ -254,28 +241,12 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
 
     private fun onTestPassed()
     {
-        yandexAd2?.showInterstitialAd(
-            dismiss = {
-                mActivity.supportFragmentManager.popBackStack()
-                mActivity.testPassed()
-            }
-        )?: run {
-            mActivity.supportFragmentManager.popBackStack()
-            mActivity.testPassed()
-        }
+        TODO("Not implemented")
     }
 
     private fun onTestFailed(errors: Int)
     {
-        yandexAd2?.showInterstitialAd(
-            dismiss = {
-                mActivity.supportFragmentManager.popBackStack()
-                mActivity.testFailed(errors)
-            }
-        )?: run {
-            mActivity.supportFragmentManager.popBackStack()
-            mActivity.testFailed(errors)
-        }
+        TODO("Not implemented")
     }
 
 }
