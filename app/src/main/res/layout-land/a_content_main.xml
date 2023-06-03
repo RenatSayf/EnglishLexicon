@@ -210,7 +210,11 @@
                 android:layout_gravity="bottom|center_horizontal"
                 android:orientation="horizontal">
 
-<!--                TODO Banner-->
+                <com.appodeal.ads.BannerView
+                    android:id="@+id/appodealBannerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    />
 
             </LinearLayout>
 
