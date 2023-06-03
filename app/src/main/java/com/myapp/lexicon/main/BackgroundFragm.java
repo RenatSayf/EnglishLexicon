@@ -120,24 +120,24 @@ public class BackgroundFragm extends Fragment
         super.onResume();
 
         boolean adsIsEnabled = SettingsExtKt.getAdsIsEnabled(this);
-        if (adsIsEnabled) {
-            try
-            {
-                loadAds();
-            } catch (Throwable e)
-            {
-                throw new RuntimeException(e);
-            }
-        }
-        else {
-            try
-            {
-                hideAdBanner();
-            } catch (Throwable e)
-            {
-                throw new RuntimeException(e);
-            }
-        }
+//        if (adsIsEnabled) {
+//            try
+//            {
+//                loadAds();
+//            } catch (Throwable e)
+//            {
+//                throw new RuntimeException(e);
+//            }
+//        }
+//        else {
+//            try
+//            {
+//                hideAdBanner();
+//            } catch (Throwable e)
+//            {
+//                throw new RuntimeException(e);
+//            }
+//        }
 
         requireActivity().getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true)
         {

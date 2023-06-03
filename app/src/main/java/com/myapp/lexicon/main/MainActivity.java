@@ -18,6 +18,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.appodeal.ads.Appodeal;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
@@ -25,6 +26,7 @@ import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
+import com.myapp.lexicon.ads.AdsExtensionsKt;
 import com.myapp.lexicon.cloudstorage.CloudCheckWorker;
 import com.myapp.lexicon.cloudstorage.DownloadDbWorker;
 import com.myapp.lexicon.cloudstorage.StorageDialog;
@@ -93,8 +95,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Inject
     AlarmScheduler scheduler;
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -104,6 +104,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         toolBar = findViewById(R.id.tool_bar);
         setSupportActionBar(toolBar);
+
+        Appodeal.setBannerViewId(R.id.appodealBannerView);
+        AdsExtensionsKt.adsInitialize(
+                this,
+                () -> {
+                    boolean initialized = Appodeal.isInitialized(Appodeal.BANNER);
+                    if (initialized) {
+                        Appodeal.show(this, Appodeal.BANNER_VIEW);
+                    }
+                    return null;
+                },
+                apdInitializationErrors -> null
+        );
 
         PhoneUnlockedReceiver.Companion.disableBroadcast();
 
@@ -567,7 +580,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
-            new ActivityResultCallback<>()
+            new ActivityResultCallback<ActivityResult>()
             {
                 @Override
                 public void onActivityResult(ActivityResult result)

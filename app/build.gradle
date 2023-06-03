@@ -54,8 +54,8 @@ android {
         viewBinding true
     }
     compileOptions {
-        sourceCompatibility = 1.11
-        targetCompatibility = 1.11
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
     flavorDimensions 'test_ads'
     namespace 'com.myapp.lexicon'
@@ -144,6 +144,13 @@ dependencies {
     implementation "androidx.work:work-gcm:$work_version"
     // optional - Test helpers
     testImplementation "androidx.work:work-testing:$work_version"
+
+    implementation ('com.appodeal.ads:sdk:3.0.2.+') {
+        exclude group: 'com.appodeal.ads.sdk.services', module: 'adjust'
+        exclude group: 'com.appodeal.ads.sdk.services', module: 'appsflyer'
+        exclude group: 'com.appodeal.ads.sdk.services', module: 'firebase'
+        exclude group: 'com.appodeal.ads.sdk.services', module: 'facebook_analytics'
+    }
 
 }
 
