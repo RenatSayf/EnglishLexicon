@@ -2,7 +2,9 @@ package com.myapp.lexicon.ads
 
 import android.app.Activity
 import android.content.Context
+import androidx.fragment.app.Fragment
 import com.appodeal.ads.Appodeal
+import com.appodeal.ads.InterstitialCallbacks
 import com.appodeal.ads.initializing.ApdInitializationCallback
 import com.appodeal.ads.initializing.ApdInitializationError
 import com.appodeal.ads.utils.Log
@@ -77,6 +79,51 @@ fun Activity.adsInitialize(
     )
 }
 
+fun Activity.showAdIfLoaded(adType: Int) {
+    if(Appodeal.isLoaded(adType)) {
+        Appodeal.show(this, adType)
+    }
+}
+
+fun Fragment.showAdIfLoaded(adType: Int) {
+    requireActivity().showAdIfLoaded(adType)
+}
+
+
+fun Activity.showInterstitial(
+    onShown: () -> Unit = {},
+    onClosed: () -> Unit = {}
+) {
+    Appodeal.setInterstitialCallbacks(object : InterstitialCallbacks {
+        override fun onInterstitialClicked() {}
+
+        override fun onInterstitialClosed() {
+            onClosed.invoke()
+        }
+
+        override fun onInterstitialExpired() {}
+
+        override fun onInterstitialFailedToLoad() {}
+
+        override fun onInterstitialLoaded(isPrecache: Boolean) {}
+
+        override fun onInterstitialShowFailed() {}
+
+        override fun onInterstitialShown() {
+            onShown.invoke()
+        }
+    })
+    if (Appodeal.isLoaded(Appodeal.INTERSTITIAL)) {
+        Appodeal.show(this, Appodeal.INTERSTITIAL)
+    }
+}
+
+fun Fragment.showInterstitial(
+    onShown: () -> Unit = {},
+    onClosed: () -> Unit = {}
+) {
+    requireActivity().showInterstitial(onShown, onClosed)
+}
 
 
 

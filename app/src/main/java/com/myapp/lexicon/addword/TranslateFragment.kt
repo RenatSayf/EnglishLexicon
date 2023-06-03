@@ -8,6 +8,9 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import com.appodeal.ads.Appodeal
+import com.myapp.lexicon.ads.showAdIfLoaded
+import com.myapp.lexicon.ads.showInterstitial
 import com.myapp.lexicon.databinding.TranslateFragmentBinding
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.settings.adsIsEnabled
@@ -62,7 +65,12 @@ class TranslateFragment : Fragment()
         binding = TranslateFragmentBinding.inflate(inflater, container, false)
 
         if (this.adsIsEnabled) {
-            TODO("Not implemented")
+            val initialized = Appodeal.isInitialized(Appodeal.BANNER)
+            if (initialized) {
+                val bannerView = Appodeal.getBannerView(requireContext())
+                binding.adLayout.addView(bannerView)
+                Appodeal.show(requireActivity(), Appodeal.BANNER_VIEW)
+            }
         }
         return binding.root
     }
@@ -112,15 +120,25 @@ class TranslateFragment : Fragment()
         {
             override fun handleOnBackPressed()
             {
-                TODO("Not implemented")
+                if (this@TranslateFragment.adsIsEnabled) {
+                    showInterstitial(
+                        onShown = {
+                            parentFragmentManager.popBackStack()
+                        }
+                    )
+                }
             }
         })
 
         binding.btnBack.setOnClickListener {
-
-            TODO("Not implemented")
+            if (this@TranslateFragment.adsIsEnabled) {
+                showInterstitial(
+                    onShown = {
+                        parentFragmentManager.popBackStack()
+                    }
+                )
+            }
         }
-
     }
 
 }
