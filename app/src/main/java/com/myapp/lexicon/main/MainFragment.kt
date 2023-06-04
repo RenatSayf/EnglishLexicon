@@ -28,7 +28,7 @@ class MainFragment : Fragment() {
     }
 
     interface Listener {
-        fun refreshMainScreen()
+        fun refreshMainScreen(isAdShow: Boolean)
         fun onVisibleMainScreen()
     }
 
@@ -37,7 +37,7 @@ class MainFragment : Fragment() {
 
         setFragmentResultListener(getString(R.string.KEY_NEED_REFRESH), listener = { requestKey, bundle ->
             if (requestKey == getString(R.string.KEY_NEED_REFRESH)) {
-                listener?.refreshMainScreen()
+                listener?.refreshMainScreen(false)
             }
         })
     }

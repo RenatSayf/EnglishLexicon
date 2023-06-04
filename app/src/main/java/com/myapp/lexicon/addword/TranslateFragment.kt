@@ -9,7 +9,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.appodeal.ads.Appodeal
-import com.myapp.lexicon.ads.showAdIfLoaded
 import com.myapp.lexicon.ads.showInterstitial
 import com.myapp.lexicon.databinding.TranslateFragmentBinding
 import com.myapp.lexicon.main.MainActivity
@@ -120,23 +119,36 @@ class TranslateFragment : Fragment()
         {
             override fun handleOnBackPressed()
             {
+                when(mActivity)
+                {
+                    is MainActivity -> {
+                        parentFragmentManager.popBackStack()
+                       (mActivity as MainActivity).refreshMainScreen(true)
+                    }
+                    is TranslateActivity -> {
+                        requireActivity().finish()
+                    }
+                }
                 if (this@TranslateFragment.adsIsEnabled) {
-                    showInterstitial(
-                        onShown = {
-                            parentFragmentManager.popBackStack()
-                        }
-                    )
+                    showInterstitial()
                 }
             }
         })
 
         binding.btnBack.setOnClickListener {
+
+            when(mActivity)
+            {
+                is MainActivity -> {
+                    parentFragmentManager.popBackStack()
+                    (mActivity as MainActivity).refreshMainScreen(true)
+                }
+                is TranslateActivity -> {
+                    requireActivity().finish()
+                }
+            }
             if (this@TranslateFragment.adsIsEnabled) {
-                showInterstitial(
-                    onShown = {
-                        parentFragmentManager.popBackStack()
-                    }
-                )
+                showInterstitial()
             }
         }
     }

@@ -19,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.appodeal.ads.Appodeal;
+import com.appodeal.ads.BannerView;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
@@ -105,10 +106,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toolBar = findViewById(R.id.tool_bar);
         setSupportActionBar(toolBar);
 
-        Appodeal.setBannerViewId(R.id.appodealBannerView);
         AdsExtensionsKt.adsInitialize(
                 this,
                 () -> {
+                    BannerView bannerView = Appodeal.getBannerView(this);
+                    LinearLayout adLayout = findViewById(R.id.adLayout);
+                    adLayout.addView(bannerView);
                     boolean initialized = Appodeal.isInitialized(Appodeal.BANNER);
                     if (initialized) {
                         Appodeal.show(this, Appodeal.BANNER_VIEW);
@@ -603,7 +606,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             TranslateFragment translateFragm = TranslateFragment.Companion.getInstance("");
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.setCustomAnimations(R.anim.from_right_to_left_anim, R.anim.from_left_to_right_anim);
-            transaction.replace(R.id.frame_to_page_fragm, translateFragm).addToBackStack(null).commit();
+            transaction.replace(R.id.frame_to_page_fragm, translateFragm).addToBackStack(null).commitAllowingStateLoss();
         }
         else if (id == R.id.nav_delete_dict)
         {
@@ -892,9 +895,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public void refreshMainScreen()
+    public void refreshMainScreen(boolean isAdShow)
     {
         mainViewModel.refreshWordsList();
+        if (isAdShow)
+        {
+            BannerView bannerView = Appodeal.getBannerView(this);
+            LinearLayout adLayout = findViewById(R.id.adLayout);
+            adLayout.addView(bannerView);
+            boolean initialized = Appodeal.isInitialized(Appodeal.BANNER);
+            if (initialized) {
+                Appodeal.show(this, Appodeal.BANNER_VIEW);
+            }
+        }
     }
 
     @Override

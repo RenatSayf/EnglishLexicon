@@ -206,15 +206,12 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/adLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <com.appodeal.ads.BannerView
-                android:id="@+id/appodealBannerView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                />
-
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="center"
+            android:gravity="center">
         </LinearLayout>
 
     </LinearLayout>

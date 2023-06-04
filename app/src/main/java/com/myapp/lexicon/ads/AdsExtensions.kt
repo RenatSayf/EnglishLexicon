@@ -92,7 +92,8 @@ fun Fragment.showAdIfLoaded(adType: Int) {
 
 fun Activity.showInterstitial(
     onShown: () -> Unit = {},
-    onClosed: () -> Unit = {}
+    onClosed: () -> Unit = {},
+    onFailed: () -> Unit = {}
 ) {
     Appodeal.setInterstitialCallbacks(object : InterstitialCallbacks {
         override fun onInterstitialClicked() {}
@@ -103,11 +104,15 @@ fun Activity.showInterstitial(
 
         override fun onInterstitialExpired() {}
 
-        override fun onInterstitialFailedToLoad() {}
+        override fun onInterstitialFailedToLoad() {
+            onFailed.invoke()
+        }
 
         override fun onInterstitialLoaded(isPrecache: Boolean) {}
 
-        override fun onInterstitialShowFailed() {}
+        override fun onInterstitialShowFailed() {
+            onFailed.invoke()
+        }
 
         override fun onInterstitialShown() {
             onShown.invoke()
@@ -120,9 +125,10 @@ fun Activity.showInterstitial(
 
 fun Fragment.showInterstitial(
     onShown: () -> Unit = {},
-    onClosed: () -> Unit = {}
+    onClosed: () -> Unit = {},
+    onFailed: () -> Unit = {}
 ) {
-    requireActivity().showInterstitial(onShown, onClosed)
+    requireActivity().showInterstitial(onShown, onClosed, onFailed)
 }
 
 

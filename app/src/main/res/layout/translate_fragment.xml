@@ -69,13 +69,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_gravity="bottom"
         android:orientation="vertical">
-
-<!--        <com.appodeal.ads.BannerView-->
-<!--            android:id="@+id/appodealBannerView"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            />-->
-
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

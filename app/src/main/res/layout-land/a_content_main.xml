@@ -209,13 +209,6 @@
                 android:gravity="center_horizontal"
                 android:layout_gravity="bottom|center_horizontal"
                 android:orientation="horizontal">
-
-                <com.appodeal.ads.BannerView
-                    android:id="@+id/appodealBannerView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    />
-
             </LinearLayout>
 
             <CheckBox
