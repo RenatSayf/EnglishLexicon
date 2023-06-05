@@ -2,8 +2,10 @@ package com.myapp.lexicon.ads
 
 import android.app.Activity
 import android.content.Context
+import android.widget.FrameLayout
 import androidx.fragment.app.Fragment
 import com.appodeal.ads.Appodeal
+import com.appodeal.ads.BannerCallbacks
 import com.appodeal.ads.InterstitialCallbacks
 import com.appodeal.ads.initializing.ApdInitializationCallback
 import com.appodeal.ads.initializing.ApdInitializationError
@@ -129,6 +131,40 @@ fun Fragment.showInterstitial(
     onFailed: () -> Unit = {}
 ) {
     requireActivity().showInterstitial(onShown, onClosed, onFailed)
+}
+
+fun FrameLayout.showBanner(activity: Activity) {
+    val bannerView = Appodeal.getBannerView(this.context)
+    this.addView(bannerView)
+    val initialized = Appodeal.isInitialized(Appodeal.BANNER)
+    if (!initialized) {
+        if (BuildConfig.DEBUG) {
+            Throwable("******** Ad not yet initialized ***********").printStackTrace()
+        }
+        return
+    }
+    Appodeal.setBannerCallbacks(object : BannerCallbacks {
+        override fun onBannerClicked() {}
+
+        override fun onBannerExpired() {}
+
+        override fun onBannerFailedToLoad() {
+            if (BuildConfig.DEBUG) {
+                Throwable("********* Banner failed to load *********").printStackTrace()
+            }
+        }
+
+        override fun onBannerLoaded(height: Int, isPrecache: Boolean) {}
+
+        override fun onBannerShowFailed() {
+            if (BuildConfig.DEBUG) {
+                Throwable("********* Banner failed to show *********").printStackTrace()
+            }
+        }
+
+        override fun onBannerShown() {}
+    })
+    Appodeal.show(activity, Appodeal.BANNER_VIEW)
 }
 
 

@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -18,8 +19,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.appodeal.ads.Appodeal;
-import com.appodeal.ads.BannerView;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
@@ -106,20 +105,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toolBar = findViewById(R.id.tool_bar);
         setSupportActionBar(toolBar);
 
-        AdsExtensionsKt.adsInitialize(
-                this,
-                () -> {
-                    BannerView bannerView = Appodeal.getBannerView(this);
-                    LinearLayout adLayout = findViewById(R.id.adLayout);
-                    adLayout.addView(bannerView);
-                    boolean initialized = Appodeal.isInitialized(Appodeal.BANNER);
-                    if (initialized) {
-                        Appodeal.show(this, Appodeal.BANNER_VIEW);
-                    }
-                    return null;
-                },
-                apdInitializationErrors -> null
-        );
+        boolean isEnabled = SettingsExtKt.getAdsIsEnabled(this);
+        if (isEnabled) {
+            AdsExtensionsKt.adsInitialize(
+                    this,
+                    () -> {
+                        FrameLayout adLayout = findViewById(R.id.adLayout);
+                        AdsExtensionsKt.showBanner(adLayout, this);
+                        return null;
+                    },
+                    apdInitializationErrors -> null
+            );
+        }
 
         PhoneUnlockedReceiver.Companion.disableBroadcast();
 
@@ -900,13 +897,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mainViewModel.refreshWordsList();
         if (isAdShow)
         {
-            BannerView bannerView = Appodeal.getBannerView(this);
-            LinearLayout adLayout = findViewById(R.id.adLayout);
-            adLayout.addView(bannerView);
-            boolean initialized = Appodeal.isInitialized(Appodeal.BANNER);
-            if (initialized) {
-                Appodeal.show(this, Appodeal.BANNER_VIEW);
-            }
+            FrameLayout adLayout = findViewById(R.id.adLayout);
+            AdsExtensionsKt.showBanner(adLayout, this);
+//            BannerView bannerView = Appodeal.getBannerView(this);
+//
+//            adLayout.addView(bannerView);
+//            boolean initialized = Appodeal.isInitialized(Appodeal.BANNER);
+//            if (initialized) {
+//                Appodeal.show(this, Appodeal.BANNER_VIEW);
+//            }
         }
     }
 

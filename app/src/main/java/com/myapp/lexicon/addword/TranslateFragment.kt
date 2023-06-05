@@ -9,6 +9,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.appodeal.ads.Appodeal
+import com.myapp.lexicon.ads.showBanner
 import com.myapp.lexicon.ads.showInterstitial
 import com.myapp.lexicon.databinding.TranslateFragmentBinding
 import com.myapp.lexicon.main.MainActivity
@@ -64,12 +65,7 @@ class TranslateFragment : Fragment()
         binding = TranslateFragmentBinding.inflate(inflater, container, false)
 
         if (this.adsIsEnabled) {
-            val initialized = Appodeal.isInitialized(Appodeal.BANNER)
-            if (initialized) {
-                val bannerView = Appodeal.getBannerView(requireContext())
-                binding.adLayout.addView(bannerView)
-                Appodeal.show(requireActivity(), Appodeal.BANNER_VIEW)
-            }
+            binding.adLayout.showBanner(requireActivity())
         }
         return binding.root
     }

@@ -91,17 +91,14 @@
 
     </ViewSwitcher>
 
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/adLayout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_gravity="bottom"
-        android:orientation="vertical">
-
-<!--        TODO Banner-->
-
-    </LinearLayout>
+        >
+    </FrameLayout>
 
     <ProgressBar
         android:id="@+id/speechProgress"

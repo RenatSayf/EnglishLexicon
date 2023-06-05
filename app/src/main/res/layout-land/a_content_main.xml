@@ -199,7 +199,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0.0"/>
 
-            <LinearLayout
+            <FrameLayout
                 android:id="@+id/adLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -208,8 +208,8 @@
                 android:layout_marginEnd="20dp"
                 android:gravity="center_horizontal"
                 android:layout_gravity="bottom|center_horizontal"
-                android:orientation="horizontal">
-            </LinearLayout>
+                >
+            </FrameLayout>
 
             <CheckBox
                 android:id="@+id/check_box_ru_speak"

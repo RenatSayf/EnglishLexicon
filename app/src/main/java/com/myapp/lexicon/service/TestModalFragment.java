@@ -10,12 +10,14 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.ads.AdsExtensionsKt;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.RandomNumberGenerator;
 import com.myapp.lexicon.helpers.StringOperations;
@@ -93,7 +95,8 @@ public class TestModalFragment extends DialogFragment
 
         boolean adsIsEnabled = SettingsExtKt.getAdsIsEnabled(this);
         if (adsIsEnabled) {
-            //TODO("Not implemented")
+            FrameLayout adLayout = dialogView.findViewById(R.id.adLayout);
+            AdsExtensionsKt.showBanner(adLayout, requireActivity());
         }
         enTextView = dialogView.findViewById(R.id.en_text_view);
         ruBtn1 = dialogView.findViewById(R.id.ru_btn_1);
