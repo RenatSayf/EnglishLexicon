@@ -37,7 +37,6 @@ import com.myapp.lexicon.dialogs.DictListDialog;
 import com.myapp.lexicon.dialogs.OrderPlayDialog;
 import com.myapp.lexicon.dialogs.RemoveDictDialog;
 import com.myapp.lexicon.helpers.ExtensionsKt;
-import com.myapp.lexicon.helpers.JavaKotlinMediator;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.Share;
 import com.myapp.lexicon.models.Word;
@@ -677,9 +676,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     },
                     () -> null);
 
-            if (backgroundFragm != null && true)
+            boolean adsIsEnabled = SettingsExtKt.getAdsIsEnabled(this);
+            if (backgroundFragm != null && adsIsEnabled)
             {
-                new JavaKotlinMediator().showInterstitialAd(this::finish);
+                try
+                {
+                    AdsExtensionsKt.showInterstitial(
+                            this,
+                            () -> null,
+                            () -> {
+                                finish();
+                                return null;
+                            },
+                            () -> null
+                    );
+                } catch (Exception e)
+                {
+                    e.printStackTrace();
+                    finish();
+                }
             } else
             {
                 finish();
@@ -899,13 +914,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             FrameLayout adLayout = findViewById(R.id.adLayout);
             AdsExtensionsKt.showBanner(adLayout, this);
-//            BannerView bannerView = Appodeal.getBannerView(this);
-//
-//            adLayout.addView(bannerView);
-//            boolean initialized = Appodeal.isInitialized(Appodeal.BANNER);
-//            if (initialized) {
-//                Appodeal.show(this, Appodeal.BANNER_VIEW);
-//            }
         }
     }
 

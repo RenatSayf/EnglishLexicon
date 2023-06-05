@@ -6,10 +6,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterViewFlipper;
+import android.widget.FrameLayout;
 
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.ads.AdsExtensionsKt;
 import com.myapp.lexicon.helpers.ExtensionsKt;
-import com.myapp.lexicon.helpers.JavaKotlinMediator;
 import com.myapp.lexicon.service.PhoneUnlockedReceiver;
 import com.myapp.lexicon.settings.SettingsExtKt;
 
@@ -70,17 +71,12 @@ public class BackgroundFragm extends Fragment
         setRetainInstance(true);
     }
 
-    private void loadAds() throws Throwable
+    private void hideAdBanner()
     {
-        JavaKotlinMediator mediator = new JavaKotlinMediator();
-
-        throw new Throwable("Not implemented");
-    }
-
-    private void hideAdBanner() throws Throwable
-    {
-
-        throw new Throwable("Not implemented");
+        FrameLayout adLayout = requireActivity().findViewById(R.id.adLayout);
+        if (adLayout != null) {
+            adLayout.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -120,24 +116,9 @@ public class BackgroundFragm extends Fragment
         super.onResume();
 
         boolean adsIsEnabled = SettingsExtKt.getAdsIsEnabled(this);
-//        if (adsIsEnabled) {
-//            try
-//            {
-//                loadAds();
-//            } catch (Throwable e)
-//            {
-//                throw new RuntimeException(e);
-//            }
-//        }
-//        else {
-//            try
-//            {
-//                hideAdBanner();
-//            } catch (Throwable e)
-//            {
-//                throw new RuntimeException(e);
-//            }
-//        }
+        if (!adsIsEnabled) {
+            hideAdBanner();
+        }
 
         requireActivity().getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true)
         {
@@ -160,11 +141,20 @@ public class BackgroundFragm extends Fragment
                         },
                         () -> null);
 
-                if (true)
+                boolean adsIsEnabled = SettingsExtKt.getAdsIsEnabled(requireContext());
+                if (adsIsEnabled)
                 {
                     try
                     {
-                        new JavaKotlinMediator().showInterstitialAd(() -> requireActivity().finish());
+                        AdsExtensionsKt.showInterstitial(
+                                requireActivity(),
+                                () -> null,
+                                () -> {
+                                    requireActivity().finish();
+                                    return null;
+                                },
+                                () -> null
+                        );
                     } catch (Exception e)
                     {
                         e.printStackTrace();

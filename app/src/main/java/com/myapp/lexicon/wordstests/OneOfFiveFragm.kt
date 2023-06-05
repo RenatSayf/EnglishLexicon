@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.myapp.lexicon.R
 import com.myapp.lexicon.adapters.OneFiveTestAdapter
+import com.myapp.lexicon.ads.showInterstitial
 import com.myapp.lexicon.databinding.OneOfFiveFragmNewBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.RandomNumberGenerator
@@ -60,14 +61,12 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
         if (!wordList.isNullOrEmpty()) vm.initTest(wordList as MutableList<Word>)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View
-    {
-        val root = inflater.inflate(R.layout.one_of_five_fragm_new, container, false)
-
-        if (this.adsIsEnabled) {
-            TODO("Not implemented")
-        }
-        return root
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        return inflater.inflate(R.layout.one_of_five_fragm_new, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?)
@@ -141,7 +140,6 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
                         }
                     }
                 }
-                parentFragmentManager.popBackStack()
             }
         }
     }
@@ -239,14 +237,24 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
         }
     }
 
+    override fun onDetach() {
+
+        if (this.adsIsEnabled) {
+            mActivity.showInterstitial()
+        }
+        super.onDetach()
+    }
+
     private fun onTestPassed()
     {
-        TODO("Not implemented")
+        mActivity.testPassed()
+        parentFragmentManager.popBackStack()
     }
 
     private fun onTestFailed(errors: Int)
     {
-        TODO("Not implemented")
+        mActivity.testFailed(errors)
+        parentFragmentManager.popBackStack()
     }
 
 }
