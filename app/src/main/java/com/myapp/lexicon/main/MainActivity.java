@@ -19,6 +19,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.appodeal.ads.Appodeal;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
@@ -413,6 +414,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         MainFragment mainFragment = MainFragment.Companion.getInstance(this);
         getSupportFragmentManager().beginTransaction().add(R.id.frame_to_page_fragm, mainFragment).commit();
 
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+
+        boolean adsIsEnabled = SettingsExtKt.getAdsIsEnabled(this);
+        boolean canShow = Appodeal.canShow(Appodeal.BANNER);
+        if (adsIsEnabled && canShow) {
+            FrameLayout adLayout = findViewById(R.id.adLayout);
+            AdsExtensionsKt.showBanner(adLayout, this);
+        }
     }
 
     public void testPassed()

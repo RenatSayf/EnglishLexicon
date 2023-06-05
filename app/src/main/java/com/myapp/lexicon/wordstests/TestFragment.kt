@@ -24,6 +24,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
+import com.myapp.lexicon.ads.showInterstitial
 import com.myapp.lexicon.databinding.TestFragmentBinding
 import com.myapp.lexicon.dialogs.DictListDialog
 import com.myapp.lexicon.helpers.*
@@ -73,10 +74,6 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     {
         super.onViewCreated(view, savedInstanceState)
         binding = TestFragmentBinding.bind(view)
-
-        if (this.adsIsEnabled) {
-            TODO("Not implemented")
-        }
 
         pageBackVM.imageBack.observe(viewLifecycleOwner) { img ->
             binding.imgBack.setImageResource(img)
@@ -349,11 +346,11 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                TODO("Not implemented")
+                parentFragmentManager.popBackStack()
             }
         })
         binding.toolBar.setNavigationOnClickListener {
-            TODO("Not implemented")
+            parentFragmentManager.popBackStack()
         }
     }
 
@@ -527,6 +524,14 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         super.onDestroy()
     }
 
+    override fun onDetach() {
+
+        if (this.adsIsEnabled) {
+            this.showInterstitial()
+        }
+        super.onDetach()
+    }
+
     override fun dictListItemOnSelected(dict: String)
     {
 
@@ -534,7 +539,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
 
     override fun onTestCompleteClick() {
         testVM.testState.reset()
-        TODO("Not implemented")
+        parentFragmentManager.popBackStack()
     }
 
     override fun onTestRepeatClick() {

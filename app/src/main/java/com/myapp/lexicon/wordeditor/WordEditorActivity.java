@@ -13,6 +13,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -24,6 +25,7 @@ import android.widget.ViewSwitcher;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.addword.AddWordViewModel;
+import com.myapp.lexicon.ads.AdsExtensionsKt;
 import com.myapp.lexicon.dialogs.ConfirmDialog;
 import com.myapp.lexicon.helpers.AppBus;
 import com.myapp.lexicon.helpers.ExtensionsKt;
@@ -195,7 +197,8 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
 
         boolean adsIsEnabled = SettingsExtKt.getAdsIsEnabled(this);
         if (adsIsEnabled) {
-            //TODO("Not implemented")
+            FrameLayout adLayout = findViewById(R.id.adLayout);
+            AdsExtensionsKt.showBanner(adLayout, this);
         }
 
         buttonDelete = findViewById(R.id.btn_delete);

@@ -49,7 +49,7 @@ fun Context.getAdvertisingID(
 }
 
 fun Activity.adsInitialize(
-    onSuccess: () -> Unit,
+    onSuccess: () -> Unit = {},
     onFailed: (List<ApdInitializationError>) -> Unit = {}
 ) {
     Appodeal.initialize(
@@ -80,17 +80,6 @@ fun Activity.adsInitialize(
         }
     )
 }
-
-fun Activity.showAdIfLoaded(adType: Int) {
-    if(Appodeal.isLoaded(adType)) {
-        Appodeal.show(this, adType)
-    }
-}
-
-fun Fragment.showAdIfLoaded(adType: Int) {
-    requireActivity().showAdIfLoaded(adType)
-}
-
 
 fun Activity.showInterstitial(
     onShown: () -> Unit = {},
