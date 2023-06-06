@@ -121,11 +121,21 @@ fun Context.setAdsSetting(token: String?) {
             this.adsIsEnabled = true
         }
         else -> {
-            appSettings.edit().apply {
-                putBoolean(getString(R.string.KEY_IS_ADS_ENABLED), false)
-                putString(KEY_ADS_TOKEN, token.getCRC32CheckSum().toString())
-            }.apply()
-            this.adsIsEnabled = false
+            val tokenCheckSum = token.getCRC32CheckSum()
+            if (tokenCheckSum == 1014543750L) {
+                appSettings.edit().apply {
+                    putBoolean(getString(R.string.KEY_IS_ADS_ENABLED), true)
+                    putString(KEY_ADS_TOKEN, "")
+                }.apply()
+                this.adsIsEnabled = true
+            }
+            else {
+                appSettings.edit().apply {
+                    putBoolean(getString(R.string.KEY_IS_ADS_ENABLED), false)
+                    putString(KEY_ADS_TOKEN, tokenCheckSum.toString())
+                }.apply()
+                this.adsIsEnabled = false
+            }
         }
     }
 }
@@ -342,6 +352,17 @@ fun Context.checkBuildConfig(
         appSettings.edit().putString(key, currentMode).apply()
     }
 }
+
+fun Context.saveRewardValue(value: Double) {
+    val newValue = rewardValue + value
+    appSettings.edit().putFloat("KEY_REWARD_VALUE", newValue.toFloat()).apply()
+}
+
+val Context.rewardValue: Double
+    get() {
+        val value = appSettings.getFloat("KEY_REWARD_VALUE", 0.0f).toDouble()
+        return value
+    }
 
 
 

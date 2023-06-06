@@ -117,8 +117,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     apdInitializationErrors -> null
             );
             AdsExtensionsKt.adRevenueInfo(this, revenueInfo -> {
-                String adTypeString = revenueInfo.getAdTypeString();
+
                 double revenue = revenueInfo.getRevenue();
+                SettingsExtKt.saveRewardValue(this, revenue);
+                double rewardValue = SettingsExtKt.getRewardValue(this);
+                TextView tvReward = findViewById(R.id.tvReward);
+                String text = "Ваша награда: " + rewardValue;
+                tvReward.setText(text);
+                tvReward.setVisibility(View.VISIBLE);
                 return null;
             });
         }
