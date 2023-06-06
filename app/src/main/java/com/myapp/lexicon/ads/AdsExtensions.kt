@@ -9,6 +9,8 @@ import com.appodeal.ads.BannerCallbacks
 import com.appodeal.ads.InterstitialCallbacks
 import com.appodeal.ads.initializing.ApdInitializationCallback
 import com.appodeal.ads.initializing.ApdInitializationError
+import com.appodeal.ads.revenue.AdRevenueCallbacks
+import com.appodeal.ads.revenue.RevenueInfo
 import com.appodeal.ads.utils.Log
 import com.google.android.gms.ads.identifier.AdvertisingIdClient
 import com.myapp.lexicon.BuildConfig
@@ -154,6 +156,16 @@ fun FrameLayout.showBanner(activity: Activity) {
         override fun onBannerShown() {}
     })
     Appodeal.show(activity, Appodeal.BANNER_VIEW)
+}
+
+fun Activity.adRevenueInfo(
+    onInfo: (RevenueInfo) -> Unit
+) {
+    Appodeal.setAdRevenueCallbacks(object : AdRevenueCallbacks {
+        override fun onAdRevenueReceive(revenueInfo: RevenueInfo) {
+            onInfo.invoke(revenueInfo)
+        }
+    })
 }
 
 

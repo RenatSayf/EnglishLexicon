@@ -116,6 +116,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     },
                     apdInitializationErrors -> null
             );
+            AdsExtensionsKt.adRevenueInfo(this, revenueInfo -> {
+                String adTypeString = revenueInfo.getAdTypeString();
+                double revenue = revenueInfo.getRevenue();
+                return null;
+            });
         }
 
         PhoneUnlockedReceiver.Companion.disableBroadcast();
