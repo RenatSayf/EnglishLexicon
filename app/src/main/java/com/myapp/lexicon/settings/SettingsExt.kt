@@ -122,20 +122,11 @@ fun Context.setAdsSetting(token: String?) {
         }
         else -> {
             val tokenCheckSum = token.getCRC32CheckSum()
-            if (tokenCheckSum == 1014543750L) {
-                appSettings.edit().apply {
-                    putBoolean(getString(R.string.KEY_IS_ADS_ENABLED), true)
-                    putString(KEY_ADS_TOKEN, "")
-                }.apply()
-                this.adsIsEnabled = true
-            }
-            else {
-                appSettings.edit().apply {
-                    putBoolean(getString(R.string.KEY_IS_ADS_ENABLED), false)
-                    putString(KEY_ADS_TOKEN, tokenCheckSum.toString())
-                }.apply()
-                this.adsIsEnabled = false
-            }
+            appSettings.edit().apply {
+                putBoolean(getString(R.string.KEY_IS_ADS_ENABLED), false)
+                putString(KEY_ADS_TOKEN, tokenCheckSum.toString())
+            }.apply()
+            this.adsIsEnabled = false
         }
     }
 }
