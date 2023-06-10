@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
+import com.appodeal.ads.Appodeal
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageException
 import com.google.firebase.storage.StorageReference
@@ -364,6 +365,20 @@ val Context.rewardToDisplay: String
         val currency = appSettings.getString("KEY_REWARD_CURRENCY", "")
         return "$rewardValue $currency"
     }
+
+fun Context.generateUserId(
+    onSuccess: (String) -> Unit
+) {
+    val userId = appSettings.getString("KEY_USER_ID", null)
+    if (userId == null) {
+        val id = "user_${System.currentTimeMillis()}"
+        appSettings.edit().putString("KEY_USER_ID", id).apply()
+        onSuccess.invoke(id)
+    }
+    else {
+        onSuccess.invoke(userId)
+    }
+}
 
 
 

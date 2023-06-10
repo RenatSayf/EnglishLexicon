@@ -107,6 +107,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         boolean isEnabled = SettingsExtKt.getAdsIsEnabled(this);
         if (isEnabled) {
+            SettingsExtKt.generateUserId(this, id -> {
+                Appodeal.setUserId(id);
+                return null;
+            });
             AdsExtensionsKt.adsInitialize(
                     this,
                     Appodeal.BANNER,
@@ -127,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             SettingsExtKt.saveRewardValue(this, revenue, currency);
                             String rewardValue = SettingsExtKt.getRewardToDisplay(this);
                             TextView tvReward = findViewById(R.id.tvReward);
-                            String text = "Ваша награда: " + rewardValue;
+                            String text = getString(R.string.text_your_reward) + rewardValue;
                             tvReward.setText(text);
                             return null;
                         });
