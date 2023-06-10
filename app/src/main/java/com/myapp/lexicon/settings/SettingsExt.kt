@@ -17,6 +17,8 @@ import com.myapp.lexicon.helpers.getCRC32CheckSum
 import com.myapp.lexicon.models.LaunchMode
 import com.myapp.lexicon.models.TestState
 import com.myapp.lexicon.models.Word
+import java.math.BigDecimal
+import java.math.RoundingMode
 
 val Context.appSettings: SharedPreferences
     get() {
@@ -344,15 +346,23 @@ fun Context.checkBuildConfig(
     }
 }
 
-fun Context.saveRewardValue(value: Double) {
+fun Context.saveRewardValue(value: Double, currency: String) {
     val newValue = rewardValue + value
     appSettings.edit().putFloat("KEY_REWARD_VALUE", newValue.toFloat()).apply()
+    appSettings.edit().putString("KEY_REWARD_CURRENCY", currency).apply()
 }
 
 val Context.rewardValue: Double
     get() {
-        val value = appSettings.getFloat("KEY_REWARD_VALUE", 0.0f).toDouble()
-        return value
+        val rewardFloat = appSettings.getFloat("KEY_REWARD_VALUE", 0.0f)
+        val decimal = BigDecimal(rewardFloat.toDouble()).setScale(3, RoundingMode.DOWN)
+        return decimal.toDouble()
+    }
+
+val Context.rewardToDisplay: String
+    get() {
+        val currency = appSettings.getString("KEY_REWARD_CURRENCY", "")
+        return "$rewardValue $currency"
     }
 
 

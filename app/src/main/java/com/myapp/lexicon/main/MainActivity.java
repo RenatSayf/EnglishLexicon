@@ -109,6 +109,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (isEnabled) {
             AdsExtensionsKt.adsInitialize(
                     this,
+                    Appodeal.BANNER,
                     () -> {
                         FrameLayout adLayout = findViewById(R.id.adLayout);
                         AdsExtensionsKt.showBanner(adLayout, this);
@@ -116,17 +117,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     },
                     apdInitializationErrors -> null
             );
-            AdsExtensionsKt.adRevenueInfo(this, revenueInfo -> {
-
-                double revenue = revenueInfo.getRevenue();
-                SettingsExtKt.saveRewardValue(this, revenue);
-                double rewardValue = SettingsExtKt.getRewardValue(this);
-                TextView tvReward = findViewById(R.id.tvReward);
-                String text = "Ваша награда: " + rewardValue;
-                tvReward.setText(text);
-                tvReward.setVisibility(View.VISIBLE);
-                return null;
-            });
+            AdsExtensionsKt.adsInitialize(
+                    this,
+                    Appodeal.INTERSTITIAL | Appodeal.REWARDED_VIDEO,
+                    () -> {
+                        AdsExtensionsKt.adRevenueInfo(this, revenueInfo -> {
+                            double revenue = revenueInfo.getRevenue();
+                            String currency = revenueInfo.getCurrency();
+                            SettingsExtKt.saveRewardValue(this, revenue, currency);
+                            String rewardValue = SettingsExtKt.getRewardToDisplay(this);
+                            TextView tvReward = findViewById(R.id.tvReward);
+                            String text = "Ваша награда: " + rewardValue;
+                            tvReward.setText(text);
+                            return null;
+                        });
+                        return null;
+                    },
+                    apdInitializationErrors -> null
+            );
         }
 
         PhoneUnlockedReceiver.Companion.disableBroadcast();
@@ -437,6 +445,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (adsIsEnabled && canShow) {
             FrameLayout adLayout = findViewById(R.id.adLayout);
             AdsExtensionsKt.showBanner(adLayout, this);
+        }
+
+        double rewardValue = SettingsExtKt.getRewardValue(this);
+        String rewardString = SettingsExtKt.getRewardToDisplay(this);
+        if (rewardValue > 0)
+        {
+            TextView tvReward = findViewById(R.id.tvReward);
+            if (tvReward != null)
+            {
+                String text = getString(R.string.text_your_reward) + rewardString;
+                tvReward.setText(text);
+                tvReward.setVisibility(View.VISIBLE);
+            }
         }
     }
 

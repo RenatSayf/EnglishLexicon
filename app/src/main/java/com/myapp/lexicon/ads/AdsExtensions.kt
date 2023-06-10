@@ -51,19 +51,20 @@ fun Context.getAdvertisingID(
 }
 
 fun Activity.adsInitialize(
+    adType: Int,
     onSuccess: () -> Unit = {},
     onFailed: (List<ApdInitializationError>) -> Unit = {}
 ) {
     Appodeal.initialize(
         activity = this,
         appKey = this.getString(R.string.appodeal_app_key),
-        adTypes = Appodeal.BANNER or Appodeal.INTERSTITIAL or Appodeal.REWARDED_VIDEO,
+        adTypes = adType,
         callback = object : ApdInitializationCallback {
             override fun onInitializationFinished(errors: List<ApdInitializationError>?) {
                 errors?.let {
                     onFailed.invoke(it)
                 }?: run {
-                    if (BuildConfig.DEBUG) {
+                    if (!BuildConfig.DEBUG) {
                         Appodeal.setTesting(true)
                         Appodeal.setLogLevel(Log.LogLevel.verbose)
                     }
