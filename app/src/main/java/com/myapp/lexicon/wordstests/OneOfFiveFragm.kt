@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.appodeal.ads.Appodeal
 import com.myapp.lexicon.R
 import com.myapp.lexicon.adapters.OneFiveTestAdapter
 import com.myapp.lexicon.ads.showInterstitial
@@ -240,7 +241,7 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
     override fun onDetach() {
 
         if (this.adsIsEnabled) {
-            mActivity.showInterstitial()
+            mActivity.showInterstitial(adType = Appodeal.REWARDED_VIDEO)
         }
         super.onDetach()
     }

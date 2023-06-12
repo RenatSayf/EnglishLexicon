@@ -77,6 +77,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, MainFragment.Listener
 {
+    private View root;
     public LinearLayout mainControlLayout;
     private Button btnViewDict;
     private TextView tvWordsCounter;
@@ -99,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        View root = LayoutInflater.from(this).inflate(R.layout.a_navig_main, new DrawerLayout(this));
+        root = LayoutInflater.from(this).inflate(R.layout.a_navig_main, new DrawerLayout(this));
         setContentView(root);
 
         toolBar = findViewById(R.id.tool_bar);
@@ -111,26 +112,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Appodeal.setUserId(id);
                 return null;
             });
+
             AdsExtensionsKt.adsInitialize(
                     this,
-                    Appodeal.BANNER,
+                    Appodeal.REWARDED_VIDEO | Appodeal.INTERSTITIAL | Appodeal.BANNER,
                     () -> {
+
                         FrameLayout adLayout = findViewById(R.id.adLayout);
                         AdsExtensionsKt.showBanner(adLayout, this);
-                        return null;
-                    },
-                    apdInitializationErrors -> null
-            );
-            AdsExtensionsKt.adsInitialize(
-                    this,
-                    Appodeal.INTERSTITIAL | Appodeal.REWARDED_VIDEO,
-                    () -> {
+
                         AdsExtensionsKt.adRevenueInfo(this, revenueInfo -> {
                             double revenue = revenueInfo.getRevenue();
                             String currency = revenueInfo.getCurrency();
                             SettingsExtKt.saveRewardValue(this, revenue, currency);
                             String rewardValue = SettingsExtKt.getRewardToDisplay(this);
-                            TextView tvReward = findViewById(R.id.tvReward);
+                            TextView tvReward = root.findViewById(R.id.tvReward);
                             String text = getString(R.string.text_your_reward) + rewardValue;
                             tvReward.setText(text);
                             return null;
@@ -439,32 +435,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    @Override
-    protected void onResume()
-    {
-        super.onResume();
-
-        boolean adsIsEnabled = SettingsExtKt.getAdsIsEnabled(this);
-        boolean canShow = Appodeal.canShow(Appodeal.BANNER);
-        if (adsIsEnabled && canShow) {
-            FrameLayout adLayout = findViewById(R.id.adLayout);
-            AdsExtensionsKt.showBanner(adLayout, this);
-        }
-
-        double rewardValue = SettingsExtKt.getRewardValue(this);
-        String rewardString = SettingsExtKt.getRewardToDisplay(this);
-        if (rewardValue > 0)
-        {
-            TextView tvReward = findViewById(R.id.tvReward);
-            if (tvReward != null)
-            {
-                String text = getString(R.string.text_your_reward) + rewardString;
-                tvReward.setText(text);
-                tvReward.setVisibility(View.VISIBLE);
-            }
-        }
-    }
-
     public void testPassed()
     {
         if (currentWord != null)
@@ -583,6 +553,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         getMenuInflater().inflate(R.menu.a_up_menu_main, menu);
         configureOptionsMenu(menu);
+
+        double rewardValue = SettingsExtKt.getRewardValue(this);
+        if (rewardValue > 0)
+        {
+            String rewardString = SettingsExtKt.getRewardToDisplay(this);
+            TextView tvReward = root.findViewById(R.id.tvReward);
+            if (tvReward != null)
+            {
+                String text = getString(R.string.text_your_reward) + rewardString;
+                tvReward.setText(text);
+                tvReward.setVisibility(View.VISIBLE);
+            }
+        }
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -733,6 +716,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 {
                     AdsExtensionsKt.showInterstitial(
                             this,
+                            Appodeal.INTERSTITIAL,
                             () -> null,
                             () -> {
                                 finish();

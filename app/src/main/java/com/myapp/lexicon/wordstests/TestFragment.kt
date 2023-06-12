@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import com.appodeal.ads.Appodeal
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.myapp.lexicon.BuildConfig
@@ -527,7 +528,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     override fun onDetach() {
 
         if (this.adsIsEnabled) {
-            this.showInterstitial()
+            this.showInterstitial(Appodeal.REWARDED_VIDEO)
         }
         super.onDetach()
     }

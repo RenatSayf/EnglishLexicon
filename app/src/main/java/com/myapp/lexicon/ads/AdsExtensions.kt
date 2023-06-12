@@ -85,6 +85,7 @@ fun Activity.adsInitialize(
 }
 
 fun Activity.showInterstitial(
+    adType: Int = Appodeal.INTERSTITIAL,
     onShown: () -> Unit = {},
     onClosed: () -> Unit = {},
     onFailed: () -> Unit = {}
@@ -112,17 +113,18 @@ fun Activity.showInterstitial(
             onShown.invoke()
         }
     })
-    if (Appodeal.isLoaded(Appodeal.INTERSTITIAL)) {
-        Appodeal.show(this, Appodeal.INTERSTITIAL)
+    if (Appodeal.isLoaded(adType)) {
+        Appodeal.show(this, adType)
     }
 }
 
 fun Fragment.showInterstitial(
+    adType: Int = Appodeal.INTERSTITIAL,
     onShown: () -> Unit = {},
     onClosed: () -> Unit = {},
     onFailed: () -> Unit = {}
 ) {
-    requireActivity().showInterstitial(onShown, onClosed, onFailed)
+    requireActivity().showInterstitial(adType, onShown, onClosed, onFailed)
 }
 
 fun FrameLayout.showBanner(activity: Activity) {

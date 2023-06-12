@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterViewFlipper;
 import android.widget.FrameLayout;
 
+import com.appodeal.ads.Appodeal;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.ads.AdsExtensionsKt;
 import com.myapp.lexicon.helpers.ExtensionsKt;
@@ -148,6 +149,7 @@ public class BackgroundFragm extends Fragment
                     {
                         AdsExtensionsKt.showInterstitial(
                                 requireActivity(),
+                                Appodeal.INTERSTITIAL,
                                 () -> null,
                                 () -> {
                                     requireActivity().finish();

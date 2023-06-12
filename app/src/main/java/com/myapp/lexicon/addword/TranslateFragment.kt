@@ -124,9 +124,6 @@ class TranslateFragment : Fragment()
                         requireActivity().finish()
                     }
                 }
-                if (this@TranslateFragment.adsIsEnabled) {
-                    showInterstitial()
-                }
             }
         })
 
@@ -142,10 +139,15 @@ class TranslateFragment : Fragment()
                     requireActivity().finish()
                 }
             }
-            if (this@TranslateFragment.adsIsEnabled) {
-                showInterstitial()
-            }
         }
+    }
+
+    override fun onDetach() {
+
+        if (this@TranslateFragment.adsIsEnabled) {
+            showInterstitial()
+        }
+        super.onDetach()
     }
 
 }
