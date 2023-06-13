@@ -40,21 +40,17 @@ class SplashActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        var adsChecked = false
         var cloudChecked = false
         var speechChecked = false
 
         this.checkBuildConfig(
             onInit = {
-                this.setAdsSetting(null)
                 this.setCloudSetting(null)
             },
             onChangeToTest = { mode ->
-                this.setAdsSetting("")
                 this.setCloudSetting("")
             },
             onChangeToNormal = { mode ->
-                this.setAdsSetting(null)
                 this.setCloudSetting(null)
             }
         )
@@ -62,15 +58,9 @@ class SplashActivity : AppCompatActivity() {
         this.checkPurchasesTokens(listener = object : PurchasesTokenListener {
             override fun onInit() {
                 UserPurchases(this@SplashActivity, object : UserPurchases.Listener {
-                    override fun onExistsAdsToken(token: String) {
-                        this@SplashActivity.setAdsSetting(token)
-                        adsChecked = true
-                    }
+                    override fun onExistsAdsToken(token: String) {}
 
-                    override fun onEmptyAdsToken() {
-                        this@SplashActivity.setAdsSetting("")
-                        adsChecked = true
-                    }
+                    override fun onEmptyAdsToken() {}
 
                     override fun onExistsCloudToken(token: String) {
                         this@SplashActivity.setCloudSetting(token)
@@ -85,7 +75,6 @@ class SplashActivity : AppCompatActivity() {
             }
 
             override fun onCheckComplete() {
-                adsChecked = true
                 cloudChecked = true
             }
         })
@@ -197,14 +186,13 @@ class SplashActivity : AppCompatActivity() {
         })
 
         startTimer(30000, onFinish = {
-            adsChecked = true
             cloudChecked = true
         })
 
         lifecycleScope.launch {
-            while (!adsChecked || !cloudChecked || !speechChecked) {
+            while (!cloudChecked || !speechChecked) {
                 delay(500)
-                if (adsChecked && cloudChecked && speechChecked) {
+                if (cloudChecked && speechChecked) {
                     val intent = Intent(this@SplashActivity, MainActivity::class.java)
                     startActivity(intent)
                     this@SplashActivity.finish()

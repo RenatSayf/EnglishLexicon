@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?><!--suppress DeprecatedClassUsageInspection -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:title="@string/text_settings">
 
     <PreferenceCategory android:title="@string/text_on_start">
@@ -12,13 +13,13 @@
 
     <PreferenceCategory
         android:key="disableAdsCategory"
-        android:title="@string/text_ad">
+        android:title="@string/text_ad"
+        app:isPreferenceVisible="false">
 
         <SwitchPreferenceCompat
             android:key="@string/KEY_IS_ADS_ENABLED"
             android:title="@string/text_show_ads"
             android:defaultValue="true"
-
             />
 
     </PreferenceCategory>

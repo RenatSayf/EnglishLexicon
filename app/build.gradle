@@ -12,8 +12,8 @@ android {
         applicationId "com.myapp.lexicon"
         minSdkVersion 26
         targetSdkVersion 33
-        versionName '3.3.3'
-        versionCode 58
+        versionName '3.4.0'
+        versionCode 59
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
 
@@ -98,6 +98,7 @@ dependencies {
     //firebase
     implementation platform('com.google.firebase:firebase-bom:31.2.3')
     implementation 'com.google.firebase:firebase-storage-ktx'
+    implementation 'com.google.firebase:firebase-firestore-ktx'
 
     implementation 'com.google.android.gms:play-services-ads:22.1.0'
 
@@ -130,7 +131,7 @@ dependencies {
 
     //region Hint Activity Result API. Runtime permission Step 1
     implementation 'androidx.activity:activity-ktx:1.7.2'
-    implementation 'androidx.fragment:fragment-ktx:1.5.7'
+    implementation 'androidx.fragment:fragment-ktx:1.6.0'
     //endregion
 
     //Google Play Billing Library

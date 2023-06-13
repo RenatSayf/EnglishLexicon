@@ -35,7 +35,7 @@ var Context.adsIsEnabled: Boolean
     get() {
         return appSettings.getBoolean(getString(R.string.KEY_IS_ADS_ENABLED), true)
     }
-    private set(value) {
+    set(value) {
         appSettings.edit().putBoolean(getString(R.string.KEY_IS_ADS_ENABLED), value).apply()
     }
 

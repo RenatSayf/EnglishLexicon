@@ -40,6 +40,7 @@ import com.myapp.lexicon.dialogs.RemoveDictDialog;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.Share;
+import com.myapp.lexicon.main.viewmodels.UserViewModel;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.service.PhoneUnlockedReceiver;
@@ -106,37 +107,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toolBar = findViewById(R.id.tool_bar);
         setSupportActionBar(toolBar);
 
-        boolean isEnabled = SettingsExtKt.getAdsIsEnabled(this);
-        if (isEnabled) {
-            SettingsExtKt.generateUserId(this, id -> {
-                Appodeal.setUserId(id);
-                return null;
-            });
-
-            AdsExtensionsKt.adsInitialize(
-                    this,
-                    Appodeal.REWARDED_VIDEO | Appodeal.INTERSTITIAL | Appodeal.BANNER,
-                    () -> {
-
-                        FrameLayout adLayout = findViewById(R.id.adLayout);
-                        AdsExtensionsKt.showBanner(adLayout, this);
-
-                        AdsExtensionsKt.adRevenueInfo(this, revenueInfo -> {
-                            double revenue = revenueInfo.getRevenue();
-                            String currency = revenueInfo.getCurrency();
-                            SettingsExtKt.saveRewardValue(this, revenue, currency);
-                            String rewardValue = SettingsExtKt.getRewardToDisplay(this);
-                            TextView tvReward = root.findViewById(R.id.tvReward);
-                            String text = getString(R.string.text_your_reward) + rewardValue;
-                            tvReward.setText(text);
-                            return null;
-                        });
-                        return null;
-                    },
-                    apdInitializationErrors -> null
-            );
-        }
-
         PhoneUnlockedReceiver.Companion.disableBroadcast();
 
         NotificationManager nmg = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -148,6 +118,41 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
         speechViewModel = new ViewModelProvider(this).get(SpeechViewModel.class);
+        UserViewModel userVM = new ViewModelProvider(this).get(UserViewModel.class);
+
+        userVM.getUser().observe(this, user -> {
+            if (user != null) {
+                SettingsExtKt.setAdsIsEnabled(this, true);
+                AdsExtensionsKt.adsInitialize(
+                        this,
+                        Appodeal.REWARDED_VIDEO | Appodeal.INTERSTITIAL | Appodeal.BANNER,
+                        () -> {
+
+                            FrameLayout adLayout = findViewById(R.id.adLayout);
+                            AdsExtensionsKt.showBanner(adLayout, this);
+
+                            AdsExtensionsKt.adRevenueInfo(this, revenueInfo -> {
+                                double revenue = revenueInfo.getRevenue();
+                                String currency = revenueInfo.getCurrency();
+                                double newReward = revenue + user.getReward();
+                                user.setReward(newReward);
+                                user.setCurrency(currency);
+                                userVM.insertOrUpdateUser(user);
+                                TextView tvReward = root.findViewById(R.id.tvReward);
+                                String text = getString(R.string.text_your_reward) + user.getReward();
+                                tvReward.setText(text);
+                                tvReward.setVisibility(View.VISIBLE);
+                                return null;
+                            });
+                            return null;
+                        },
+                        apdInitializationErrors -> null
+                );
+            }
+            else {
+                SettingsExtKt.setAdsIsEnabled(this, false);
+            }
+        });
 
         btnViewDict = findViewById(R.id.btnViewDict);
         btnViewDictOnClick(btnViewDict);
@@ -554,18 +559,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getMenuInflater().inflate(R.menu.a_up_menu_main, menu);
         configureOptionsMenu(menu);
 
-        double rewardValue = SettingsExtKt.getRewardValue(this);
-        if (rewardValue > 0)
-        {
-            String rewardString = SettingsExtKt.getRewardToDisplay(this);
-            TextView tvReward = root.findViewById(R.id.tvReward);
-            if (tvReward != null)
-            {
-                String text = getString(R.string.text_your_reward) + rewardString;
-                tvReward.setText(text);
-                tvReward.setVisibility(View.VISIBLE);
-            }
-        }
         return super.onCreateOptionsMenu(menu);
     }
 
