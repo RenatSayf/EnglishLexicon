@@ -122,32 +122,40 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         userVM.getUser().observe(this, user -> {
             if (user != null) {
+
+                TextView tvReward = root.findViewById(R.id.tvReward);
+                String text = getString(R.string.text_your_reward) +
+                        user.getReward() + " " + user.getCurrency();
+                tvReward.setText(text);
+                if (user.getReward() > 0.0)
+                {
+                    tvReward.setVisibility(View.VISIBLE);
+                }
+
                 SettingsExtKt.setAdsIsEnabled(this, true);
-                AdsExtensionsKt.adsInitialize(
-                        this,
-                        Appodeal.REWARDED_VIDEO | Appodeal.INTERSTITIAL | Appodeal.BANNER,
-                        () -> {
+                boolean isInitialized = Appodeal.isInitialized(Appodeal.BANNER | Appodeal.REWARDED_VIDEO | Appodeal.INTERSTITIAL);
+                if (!isInitialized)
+                {
+                    AdsExtensionsKt.adsInitialize(
+                            this,
+                            Appodeal.REWARDED_VIDEO | Appodeal.INTERSTITIAL | Appodeal.BANNER,
+                            () -> {
+                                FrameLayout adLayout = findViewById(R.id.adLayout);
+                                AdsExtensionsKt.showBanner(adLayout, this);
 
-                            FrameLayout adLayout = findViewById(R.id.adLayout);
-                            AdsExtensionsKt.showBanner(adLayout, this);
-
-                            AdsExtensionsKt.adRevenueInfo(this, revenueInfo -> {
-                                double revenue = revenueInfo.getRevenue();
-                                String currency = revenueInfo.getCurrency();
-                                double newReward = revenue + user.getReward();
-                                user.setReward(newReward);
-                                user.setCurrency(currency);
-                                userVM.insertOrUpdateUser(user);
-                                TextView tvReward = root.findViewById(R.id.tvReward);
-                                String text = getString(R.string.text_your_reward) + user.getReward();
-                                tvReward.setText(text);
-                                tvReward.setVisibility(View.VISIBLE);
+                                AdsExtensionsKt.adRevenueInfo(this, revenueInfo -> {
+                                    double revenue = revenueInfo.getRevenue();
+                                    String currency = revenueInfo.getCurrency();
+                                    user.setReward(revenue);
+                                    user.setCurrency(currency);
+                                    userVM.updateUser(user);
+                                    return null;
+                                });
                                 return null;
-                            });
-                            return null;
-                        },
-                        apdInitializationErrors -> null
-                );
+                            },
+                            apdInitializationErrors -> null
+                    );
+                }
             }
             else {
                 SettingsExtKt.setAdsIsEnabled(this, false);

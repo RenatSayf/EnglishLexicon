@@ -11,11 +11,13 @@ import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.ads.getAdvertisingID
 import com.myapp.lexicon.helpers.getCRC32CheckSum
 import com.myapp.lexicon.models.User
-import com.myapp.lexicon.settings.adsIsEnabled
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.math.BigDecimal
+import java.math.RoundingMode
 import javax.inject.Inject
 
 private const val COLLECTION_PATH = "users"
+private const val PERCENTAGE: Double = 0.7
 
 
 @HiltViewModel
@@ -48,7 +50,7 @@ class UserViewModel @Inject constructor(
         )
     }
 
-    fun insertOrUpdateUser(user: User) {
+    private fun addUser(user: User) {
         val map = user.toHashMap()
         db.collection(COLLECTION_PATH)
             .document(user.id)
@@ -70,8 +72,8 @@ class UserViewModel @Inject constructor(
                 val data = document.data
                 if (data != null) {
                     _user.value = User(document.id).apply {
-                        this.currency = data["currency"].toString()
-                        val reward = data["reward"].toString().ifEmpty {
+                        this.currency = data[User.KEY_CURRENCY].toString()
+                        val reward = data[User.KEY_REWARD].toString().ifEmpty {
                             0.0
                         }.toString().toDouble()
                         this.reward = reward
@@ -79,13 +81,54 @@ class UserViewModel @Inject constructor(
                 }
                 else {
                     val user = User(userId)
-                    insertOrUpdateUser(user)
+                    addUser(user)
                 }
             }
             .addOnFailureListener {
                 it.printStackTrace()
                 _user.value = null
             }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun updateUser(user: User) {
+
+        db.collection(COLLECTION_PATH)
+            .document(user.id)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val remoteUserData = snapshot.data as Map<String, String>
+                user.reward = calculateReward(user, remoteUserData)
+
+                db.collection(COLLECTION_PATH)
+                    .document(user.id)
+                    .set(user.toHashMap())
+                    .addOnSuccessListener {
+                        _user.value = user
+                    }
+                    .addOnFailureListener { t ->
+                        if (BuildConfig.DEBUG) {
+                            t.printStackTrace()
+                        }
+                    }
+            }
+            .addOnFailureListener { t ->
+                if (BuildConfig.DEBUG) {
+                    t.printStackTrace()
+                }
+            }
+    }
+
+    fun calculateReward(localUser: User, remoteUserData: Map<String, String?>): Double {
+        val currentReward = try {
+            remoteUserData[User.KEY_REWARD]?.ifEmpty {
+                0.0
+            }.toString().toDouble()
+        } catch (e: Exception) {
+            0.0
+        }
+        val newReward = currentReward + (localUser.reward * PERCENTAGE)
+        return BigDecimal(newReward).setScale(3, RoundingMode.DOWN).toDouble()
     }
 
 
