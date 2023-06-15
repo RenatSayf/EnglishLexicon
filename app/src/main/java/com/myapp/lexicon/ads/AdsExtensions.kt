@@ -64,7 +64,7 @@ fun Activity.adsInitialize(
                 errors?.let {
                     onFailed.invoke(it)
                 }?: run {
-                    if (BuildConfig.DEBUG) {
+                    if (!BuildConfig.DEBUG) { //TODO !!!!!!!!!!!!!!!!!!
                         Appodeal.setTesting(true)
                         Appodeal.setLogLevel(Log.LogLevel.verbose)
                     }

@@ -113,4 +113,34 @@ class UserViewModelTest {
             Thread.sleep(100)
         }
     }
+
+    @Test
+    fun calculateTotalRevenue_min_value() {
+
+        var isRunning = true
+
+        val localUser = User("123456789").apply {
+            totalRevenue = 0.002
+            reward = 0.002
+            currency = "USD"
+        }
+
+        val remoteUserData = mapOf(
+            User.KEY_TOTAL_REVENUE to "0.004",
+            User.KEY_REWARD to "0.002",
+            User.KEY_CURRENCY to "USD"
+        )
+
+        scenario.onActivity { activity ->
+
+            val userViewModel = ViewModelProvider(activity)[UserViewModel::class.java]
+            val actualRevenue = userViewModel.calculateTotalRevenue(localUser, remoteUserData)
+            Assert.assertEquals(0.006, actualRevenue, 0.0)
+            isRunning = false
+        }
+
+        while (isRunning) {
+            Thread.sleep(100)
+        }
+    }
 }

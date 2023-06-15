@@ -124,10 +124,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (user != null) {
 
                 TextView tvReward = root.findViewById(R.id.tvReward);
-                String text = getString(R.string.text_your_reward) +
-                        user.getReward() + " " + user.getCurrency();
+                String text = getString(R.string.text_your_reward) + user.getRewardToDisplay();
                 tvReward.setText(text);
-                if (user.getReward() > 0.0)
+                if (user.getReward() > 0.0009)
                 {
                     tvReward.setVisibility(View.VISIBLE);
                 }
@@ -146,6 +145,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 AdsExtensionsKt.adRevenueInfo(this, revenueInfo -> {
                                     double revenue = revenueInfo.getRevenue();
                                     String currency = revenueInfo.getCurrency();
+                                    user.setTotalRevenue(revenue);
                                     user.setReward(revenue);
                                     user.setCurrency(currency);
                                     userVM.updateUser(user);

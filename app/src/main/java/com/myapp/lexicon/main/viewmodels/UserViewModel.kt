@@ -1,3 +1,5 @@
+@file:Suppress("UnnecessaryVariable")
+
 package com.myapp.lexicon.main.viewmodels
 
 import android.app.Application
@@ -12,8 +14,6 @@ import com.myapp.lexicon.ads.getAdvertisingID
 import com.myapp.lexicon.helpers.getCRC32CheckSum
 import com.myapp.lexicon.models.User
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.math.BigDecimal
-import java.math.RoundingMode
 import javax.inject.Inject
 
 private const val COLLECTION_PATH = "users"
@@ -98,6 +98,7 @@ class UserViewModel @Inject constructor(
             .get()
             .addOnSuccessListener { snapshot ->
                 val remoteUserData = snapshot.data as Map<String, String>
+                user.totalRevenue = calculateTotalRevenue(user, remoteUserData)
                 user.reward = calculateReward(user, remoteUserData)
 
                 db.collection(COLLECTION_PATH)
@@ -128,7 +129,19 @@ class UserViewModel @Inject constructor(
             0.0
         }
         val newReward = currentReward + (localUser.reward * PERCENTAGE)
-        return BigDecimal(newReward).setScale(3, RoundingMode.DOWN).toDouble()
+        return newReward
+    }
+
+    fun calculateTotalRevenue(localUser: User, remoteUserData: Map<String, String?>): Double {
+        val currentRevenue = try {
+            remoteUserData[User.KEY_TOTAL_REVENUE]?.ifEmpty {
+                0.0
+            }.toString().toDouble()
+        } catch (e: Exception) {
+            0.0
+        }
+        val newRevenue = currentRevenue + localUser.totalRevenue
+        return newRevenue
     }
 
 
