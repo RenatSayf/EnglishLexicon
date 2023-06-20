@@ -37,21 +37,25 @@ class UserViewModelTest {
     fun calculateReward_correct_remote_data() {
         var isRunning = true
 
-        val localUser = User("123456789").apply {
-            reward = 0.005
-            currency = "USD"
-        }
+        val revenuePerAd = 10.0
+        val startTotalRevenue = 10.0
+        val startUserReward = 7.0
 
         val remoteUserData = mapOf(
-            User.KEY_REWARD to "0.002",
+            User.KEY_REALLY_REVENUE to startTotalRevenue.toString(),
+            User.KEY_USER_REWARD to startUserReward.toString(),
             User.KEY_CURRENCY to "USD"
         )
 
         scenario.onActivity { activity ->
 
             val userViewModel = ViewModelProvider(activity)[UserViewModel::class.java]
-            val actualReward = userViewModel.calculateReward(localUser, remoteUserData)
-            Assert.assertEquals(0.005, actualReward, 0.0)
+
+            val actualReward = userViewModel.calculateUserReward(revenuePerAd, remoteUserData)
+            val expectedReward = startUserReward + (revenuePerAd * UserViewModel.REVENUE_RATIO) * UserViewModel.USER_PERCENTAGE
+
+            Assert.assertEquals(expectedReward, actualReward, 0.0)
+
             isRunning = false
         }
 
@@ -64,21 +68,21 @@ class UserViewModelTest {
     fun calculateReward_incorrect_remote_data() {
         var isRunning = true
 
-        val localUser = User("123456789").apply {
-            reward = 0.002
-            currency = "USD"
-        }
+        val revenuePerAd = 10.0
 
         val remoteUserData = mapOf(
-            User.KEY_REWARD to "0.0XX",
+            User.KEY_REALLY_REVENUE to "10.0",
+            User.KEY_USER_REWARD to "7.0XX",
             User.KEY_CURRENCY to "USD"
         )
 
         scenario.onActivity { activity ->
 
             val userViewModel = ViewModelProvider(activity)[UserViewModel::class.java]
-            val actualReward = userViewModel.calculateReward(localUser, remoteUserData)
-            Assert.assertEquals(0.001, actualReward, 0.0)
+
+            val actualReward = userViewModel.calculateUserReward(revenuePerAd, remoteUserData)
+            Assert.assertTrue(actualReward < 0)
+
             isRunning = false
         }
 
@@ -91,21 +95,19 @@ class UserViewModelTest {
     fun calculateReward_empty_remote_data() {
         var isRunning = true
 
-        val localUser = User("123456789").apply {
-            reward = 0.002
-            currency = "USD"
-        }
+        val revenuePerAd = 10.0
 
         val remoteUserData = mapOf(
-            User.KEY_REWARD to null,
+            User.KEY_USER_REWARD to null,
             User.KEY_CURRENCY to "USD"
         )
 
         scenario.onActivity { activity ->
 
             val userViewModel = ViewModelProvider(activity)[UserViewModel::class.java]
-            val actualReward = userViewModel.calculateReward(localUser, remoteUserData)
-            Assert.assertEquals(0.001, actualReward, 0.0)
+            val actualReward = userViewModel.calculateUserReward(revenuePerAd, remoteUserData)
+            Assert.assertTrue(actualReward < 0)
+
             isRunning = false
         }
 
@@ -115,27 +117,41 @@ class UserViewModelTest {
     }
 
     @Test
-    fun calculateTotalRevenue_min_value() {
+    fun calculateTotalRevenue_and_UserReward() {
 
         var isRunning = true
 
+        val startRevenue = 10.0
+        val startUserReward = 7.0
+        val revenuePerAd = 10.0
+
         val localUser = User("123456789").apply {
-            totalRevenue = 0.002
-            reward = 0.002
+            reallyRevenue = startRevenue
+            userReward = startUserReward
             currency = "USD"
         }
 
         val remoteUserData = mapOf(
-            User.KEY_TOTAL_REVENUE to "0.004",
-            User.KEY_REWARD to "0.002",
+            User.KEY_REALLY_REVENUE to "10.0",
+            User.KEY_USER_REWARD to "7.0",
             User.KEY_CURRENCY to "USD"
         )
 
         scenario.onActivity { activity ->
 
             val userViewModel = ViewModelProvider(activity)[UserViewModel::class.java]
-            val actualRevenue = userViewModel.calculateTotalRevenue(localUser, remoteUserData)
-            Assert.assertEquals(0.006, actualRevenue, 0.0)
+
+            localUser.revenuePerAd = 10.0
+
+            val actualRevenue = userViewModel.calculateTotalRevenue(revenuePerAd, remoteUserData)
+            val actualReward = userViewModel.calculateUserReward(revenuePerAd, remoteUserData)
+
+            val expectedRevenue = startRevenue + (localUser.revenuePerAd * UserViewModel.REVENUE_RATIO)
+            Assert.assertEquals(expectedRevenue, actualRevenue, 0.0)
+
+            val actualPercentage = actualReward / actualRevenue
+            Assert.assertEquals(UserViewModel.USER_PERCENTAGE, actualPercentage, 0.01)
+
             isRunning = false
         }
 

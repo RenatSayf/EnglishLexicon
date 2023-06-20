@@ -2,7 +2,7 @@ package com.myapp.lexicon.models
 
 
 @Suppress("UNCHECKED_CAST")
-sealed class AppResult {
+sealed class AppResult() {
 
     object Init: AppResult()
     class Success<T>(val data: T): AppResult()
@@ -17,6 +17,12 @@ sealed class AppResult {
     fun onError(onError: (Throwable) -> Unit) {
         if (this is Error) {
             onError.invoke(this.error)
+        }
+    }
+
+    fun onInit(onInit: () -> Unit) {
+        if (this is Init) {
+            onInit.invoke()
         }
     }
 }

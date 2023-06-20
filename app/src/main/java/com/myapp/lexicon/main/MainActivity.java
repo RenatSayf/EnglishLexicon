@@ -28,6 +28,7 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
 import com.myapp.lexicon.ads.AdsExtensionsKt;
+import com.myapp.lexicon.auth.AuthViewModel;
 import com.myapp.lexicon.cloudstorage.CloudCheckWorker;
 import com.myapp.lexicon.cloudstorage.DownloadDbWorker;
 import com.myapp.lexicon.cloudstorage.StorageDialog;
@@ -79,6 +80,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, MainFragment.Listener
 {
     private View root;
+    private NavigationView navView;
     public LinearLayout mainControlLayout;
     private Button btnViewDict;
     private TextView tvWordsCounter;
@@ -90,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public MainViewModel mainViewModel;
     private SpeechViewModel speechViewModel;
+    private AuthViewModel authVM;
     private Word currentWord;
     private int wordsInterval = 10;
     public BackgroundFragm backgroundFragm = null;
@@ -107,6 +110,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toolBar = findViewById(R.id.tool_bar);
         setSupportActionBar(toolBar);
 
+        navView = root.findViewById(R.id.nav_view);
+
         PhoneUnlockedReceiver.Companion.disableBroadcast();
 
         NotificationManager nmg = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -119,6 +124,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
         speechViewModel = new ViewModelProvider(this).get(SpeechViewModel.class);
         UserViewModel userVM = new ViewModelProvider(this).get(UserViewModel.class);
+        authVM = new ViewModelProvider(this).get(AuthViewModel.class);
+
+        authVM.getState().observe(this, result -> {
+            result.onInit(() -> {
+                navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_get_reward);
+                return null;
+            });
+            result.onSuccess(o -> {
+
+                return null;
+            });
+        });
 
         userVM.getUser().observe(this, user -> {
             if (user != null) {
@@ -126,7 +143,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 TextView tvReward = root.findViewById(R.id.tvReward);
                 String text = getString(R.string.text_your_reward) + user.getRewardToDisplay();
                 tvReward.setText(text);
-                if (user.getReward() > 0.0009)
+                if (user.getUserReward() > 0.0009)
                 {
                     tvReward.setVisibility(View.VISIBLE);
                 }
@@ -146,9 +163,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     double revenue = revenueInfo.getRevenue();
                                     String currency = revenueInfo.getCurrency();
                                     user.setTotalRevenue(revenue);
-                                    user.setReward(revenue);
                                     user.setCurrency(currency);
-                                    userVM.updateUser(user);
+                                    userVM.updateUser(revenue, user);
                                     return null;
                                 });
                                 return null;
@@ -626,11 +642,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
             });
 
+
+
     @SuppressWarnings("Convert2Lambda")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item)
     {
         int id = item.getItemId();
+        if (id == R.id.nav_user_reward) {
+
+        }
         if (id == R.id.nav_add_word)
         {
             TranslateFragment translateFragm = TranslateFragment.Companion.getInstance("");

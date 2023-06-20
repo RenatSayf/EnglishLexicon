@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
+import com.google.firebase.auth.PhoneAuthProvider
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageException
 import com.google.firebase.storage.StorageReference
@@ -27,6 +28,32 @@ val Fragment.appSettings: SharedPreferences
     get() {
         return requireContext().appSettings
     }
+
+fun Context.savePhoneNumberToPref(phone: String) {
+    appSettings.edit().putString("KEY_PHONE", phone).apply()
+}
+
+fun Context.getPhoneFromPref(
+    onInit: () -> Unit,
+    onSuccess: (String) -> Unit,
+    onFailure: (Exception) -> Unit = {}
+) {
+    val phone = appSettings.getString("KEY_PHONE", null)
+    try {
+        if (phone == null) {
+            onInit.invoke()
+        }
+        else {
+            onSuccess.invoke(phone)
+        }
+    } catch (e: Exception) {
+        onFailure.invoke(e)
+    }
+}
+
+fun Context.saveResendingToken(token: PhoneAuthProvider.ForceResendingToken?) {
+
+}
 
 var Context.adsIsEnabled: Boolean
     get() {

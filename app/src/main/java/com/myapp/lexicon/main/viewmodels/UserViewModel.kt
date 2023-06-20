@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.ads.getAdvertisingID
 import com.myapp.lexicon.helpers.getCRC32CheckSum
@@ -16,14 +17,18 @@ import com.myapp.lexicon.models.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
-private const val COLLECTION_PATH = "users"
-private const val PERCENTAGE: Double = 0.7
 
 
 @HiltViewModel
 class UserViewModel @Inject constructor(
     app: Application
 ) : AndroidViewModel(app) {
+    companion object {
+
+        private const val COLLECTION_PATH = "users"
+        val USER_PERCENTAGE: Double = Firebase.remoteConfig.getDouble("USER_PERCENTAGE")
+        val REVENUE_RATIO: Double = Firebase.remoteConfig.getDouble("REVENUE_RATIO")
+    }
 
     private val db: FirebaseFirestore = Firebase.firestore
 
@@ -73,10 +78,10 @@ class UserViewModel @Inject constructor(
                 if (data != null) {
                     _user.value = User(document.id).apply {
                         this.currency = data[User.KEY_CURRENCY].toString()
-                        val reward = data[User.KEY_REWARD].toString().ifEmpty {
+                        val reward = data[User.KEY_USER_REWARD].toString().ifEmpty {
                             0.0
                         }.toString().toDouble()
-                        this.reward = reward
+                        this.userReward = reward
                     }
                 }
                 else {
@@ -91,27 +96,35 @@ class UserViewModel @Inject constructor(
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun updateUser(user: User) {
+    fun updateUser(revenuePerAd: Double, user: User) {
 
         db.collection(COLLECTION_PATH)
             .document(user.id)
             .get()
             .addOnSuccessListener { snapshot ->
                 val remoteUserData = snapshot.data as Map<String, String>
-                user.totalRevenue = calculateTotalRevenue(user, remoteUserData)
-                user.reward = calculateReward(user, remoteUserData)
+                user.reallyRevenue = calculateTotalRevenue(revenuePerAd, remoteUserData)
+                user.userReward = calculateUserReward(revenuePerAd, remoteUserData)
 
-                db.collection(COLLECTION_PATH)
-                    .document(user.id)
-                    .set(user.toHashMap())
-                    .addOnSuccessListener {
-                        _user.value = user
-                    }
-                    .addOnFailureListener { t ->
-                        if (BuildConfig.DEBUG) {
-                            t.printStackTrace()
+                if (user.reallyRevenue > 0 && user.userReward > 0) {
+                    db.collection(COLLECTION_PATH)
+                        .document(user.id)
+                        .set(user.toHashMap())
+                        .addOnSuccessListener {
+                            _user.value = user
                         }
+                        .addOnFailureListener { t ->
+                            if (BuildConfig.DEBUG) {
+                                t.printStackTrace()
+                            }
+                        }
+                } else {
+                    if (BuildConfig.DEBUG) {
+                        val message =
+                            "******************** A negative revenue value cannot be sent: ${user.reallyRevenue}, ${user.userReward} ************"
+                        Throwable(message).printStackTrace()
                     }
+                }
             }
             .addOnFailureListener { t ->
                 if (BuildConfig.DEBUG) {
@@ -119,30 +132,38 @@ class UserViewModel @Inject constructor(
                 }
             }
     }
-
-    fun calculateReward(localUser: User, remoteUserData: Map<String, String?>): Double {
-        val currentReward = try {
-            remoteUserData[User.KEY_REWARD]?.ifEmpty {
-                0.0
-            }.toString().toDouble()
-        } catch (e: Exception) {
-            0.0
-        }
-        val newReward = currentReward + (localUser.reward * PERCENTAGE)
-        return newReward
-    }
-
-    fun calculateTotalRevenue(localUser: User, remoteUserData: Map<String, String?>): Double {
+    fun calculateTotalRevenue(revenuePerAd: Double, remoteUserData: Map<String, String?>): Double {
         val currentRevenue = try {
-            remoteUserData[User.KEY_TOTAL_REVENUE]?.ifEmpty {
-                0.0
+            remoteUserData[User.KEY_REALLY_REVENUE]?.ifEmpty {
+                -1.0
             }.toString().toDouble()
         } catch (e: Exception) {
-            0.0
+            -1.0
         }
-        val newRevenue = currentRevenue + localUser.totalRevenue
-        return newRevenue
+        return if (currentRevenue < 0) {
+            currentRevenue
+        } else {
+            val newRevenue = currentRevenue + (revenuePerAd * REVENUE_RATIO)
+            newRevenue
+        }
     }
+
+    fun calculateUserReward(revenuePerAd: Double, remoteUserData: Map<String, String?>): Double {
+        val currentReward = try {
+            remoteUserData[User.KEY_USER_REWARD]?.ifEmpty {
+                -1.0
+            }.toString().toDouble()
+        } catch (e: Exception) {
+            -1.0
+        }
+        return if (currentReward < 0) {
+            currentReward
+        } else {
+            val newReward = currentReward + ((revenuePerAd * REVENUE_RATIO) * USER_PERCENTAGE)
+            newReward
+        }
+    }
+
 
 
 }
