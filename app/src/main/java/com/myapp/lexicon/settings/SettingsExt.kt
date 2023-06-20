@@ -29,22 +29,24 @@ val Fragment.appSettings: SharedPreferences
         return requireContext().appSettings
     }
 
-fun Context.savePhoneNumberToPref(phone: String) {
-    appSettings.edit().putString("KEY_PHONE", phone).apply()
+fun Context.saveEmailPasswordToPref(email: String, password: String) {
+    appSettings.edit().putString("KEY_EMAIL", email).apply()
+    appSettings.edit().putString("KEY_PASSWORD", password).apply()
 }
 
-fun Context.getPhoneFromPref(
-    onInit: () -> Unit,
-    onSuccess: (String) -> Unit,
+fun Context.getEmailPasswordFromPref(
+    onNotRegistered: () -> Unit,
+    onSuccess: (email: String, password: String) -> Unit,
     onFailure: (Exception) -> Unit = {}
 ) {
-    val phone = appSettings.getString("KEY_PHONE", null)
+    val email = appSettings.getString("KEY_EMAIL", null)
+    val password = appSettings.getString("KEY_PASSWORD", null)
     try {
-        if (phone == null) {
-            onInit.invoke()
+        if (email == null || password == null) {
+            onNotRegistered.invoke()
         }
-        else {
-            onSuccess.invoke(phone)
+        else if (email.isNotBlank() && password.isNotEmpty()) {
+            onSuccess.invoke(email, password)
         }
     } catch (e: Exception) {
         onFailure.invoke(e)

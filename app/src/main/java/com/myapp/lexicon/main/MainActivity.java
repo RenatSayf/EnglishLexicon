@@ -131,7 +131,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_get_reward);
                 return null;
             });
-            result.onSuccess(o -> {
+            result.onNotRegistered(() -> {
+
+                return null;
+            });
+            result.onSignUp(user -> {
+
+                return null;
+            });
+            result.onSignIn(user -> {
 
                 return null;
             });

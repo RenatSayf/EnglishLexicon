@@ -11,6 +11,8 @@ import com.myapp.lexicon.databinding.FragmentAuthBinding
 class AuthFragment : Fragment() {
 
     companion object {
+
+        val TAG = "${AuthFragment::class.java.simpleName}.TAG"
         fun newInstance() = AuthFragment()
     }
 
