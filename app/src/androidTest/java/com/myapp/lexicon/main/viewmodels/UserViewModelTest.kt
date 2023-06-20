@@ -117,7 +117,7 @@ class UserViewModelTest {
     }
 
     @Test
-    fun calculateTotalRevenue_and_UserReward() {
+    fun calculateReallyRevenue_and_UserReward() {
 
         var isRunning = true
 
@@ -143,7 +143,7 @@ class UserViewModelTest {
 
             localUser.revenuePerAd = 10.0
 
-            val actualRevenue = userViewModel.calculateTotalRevenue(revenuePerAd, remoteUserData)
+            val actualRevenue = userViewModel.calculateReallyRevenue(revenuePerAd, remoteUserData)
             val actualReward = userViewModel.calculateUserReward(revenuePerAd, remoteUserData)
 
             val expectedRevenue = startRevenue + (localUser.revenuePerAd * UserViewModel.REVENUE_RATIO)

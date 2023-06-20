@@ -103,8 +103,9 @@ class UserViewModel @Inject constructor(
             .get()
             .addOnSuccessListener { snapshot ->
                 val remoteUserData = snapshot.data as Map<String, String>
-                user.reallyRevenue = calculateTotalRevenue(revenuePerAd, remoteUserData)
+                user.reallyRevenue = calculateReallyRevenue(revenuePerAd, remoteUserData)
                 user.userReward = calculateUserReward(revenuePerAd, remoteUserData)
+                user.totalRevenue = calculateTotalRevenue(revenuePerAd, remoteUserData)
 
                 if (user.reallyRevenue > 0 && user.userReward > 0) {
                     db.collection(COLLECTION_PATH)
@@ -132,7 +133,7 @@ class UserViewModel @Inject constructor(
                 }
             }
     }
-    fun calculateTotalRevenue(revenuePerAd: Double, remoteUserData: Map<String, String?>): Double {
+    fun calculateReallyRevenue(revenuePerAd: Double, remoteUserData: Map<String, String?>): Double {
         val currentRevenue = try {
             remoteUserData[User.KEY_REALLY_REVENUE]?.ifEmpty {
                 -1.0
@@ -161,6 +162,22 @@ class UserViewModel @Inject constructor(
         } else {
             val newReward = currentReward + ((revenuePerAd * REVENUE_RATIO) * USER_PERCENTAGE)
             newReward
+        }
+    }
+
+    fun calculateTotalRevenue(revenuePerAd: Double, remoteUserData: Map<String, String?>): Double {
+        val currentRevenue = try {
+            remoteUserData[User.KEY_TOTAL_REVENUE]?.ifEmpty {
+                -1.0
+            }.toString().toDouble()
+        } catch (e: Exception) {
+            -1.0
+        }
+        return if (currentRevenue < 0) {
+            currentRevenue
+        } else {
+            val newRevenue = currentRevenue + revenuePerAd
+            newRevenue
         }
     }
 

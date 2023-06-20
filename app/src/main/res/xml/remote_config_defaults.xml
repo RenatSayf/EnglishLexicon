@@ -2,10 +2,10 @@
 <defaults>
   <entry>
     <key>REVENUE_RATIO</key>
-    <value>0.74</value>
+    <value>0.7</value>
   </entry>
   <entry>
     <key>USER_PERCENTAGE</key>
-    <value>0.7</value>
+    <value>0.75</value>
   </entry>
 </defaults>
