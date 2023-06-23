@@ -28,6 +28,7 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
 import com.myapp.lexicon.ads.AdsExtensionsKt;
+import com.myapp.lexicon.auth.AuthFragment;
 import com.myapp.lexicon.auth.AuthViewModel;
 import com.myapp.lexicon.cloudstorage.CloudCheckWorker;
 import com.myapp.lexicon.cloudstorage.DownloadDbWorker;
@@ -128,41 +129,43 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         authVM.getState().observe(this, result -> {
             result.onInit(() -> {
-                navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_get_reward);
+
                 return null;
             });
             result.onNotRegistered(() -> {
-
+                navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_get_reward);
                 return null;
             });
             result.onSignUp(user -> {
-
+                navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_account);
+                userVM.setUser(user);
                 return null;
             });
             result.onSignIn(user -> {
-
+                navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_account);
+                userVM.setUser(user);
                 return null;
             });
         });
 
         userVM.getUser().observe(this, user -> {
+            SettingsExtKt.setAdsIsEnabled(this, true);
             if (user != null) {
 
-                TextView tvReward = root.findViewById(R.id.tvReward);
-                String text = getString(R.string.text_your_reward) + user.getRewardToDisplay();
-                tvReward.setText(text);
                 if (user.getUserReward() > 0.0009)
                 {
+                    TextView tvReward = root.findViewById(R.id.tvReward);
+                    String text = getString(R.string.text_your_reward) + user.getRewardToDisplay();
+                    tvReward.setText(text);
                     tvReward.setVisibility(View.VISIBLE);
                 }
 
-                SettingsExtKt.setAdsIsEnabled(this, true);
-                boolean isInitialized = Appodeal.isInitialized(Appodeal.BANNER | Appodeal.REWARDED_VIDEO | Appodeal.INTERSTITIAL);
+                boolean isInitialized = Appodeal.isInitialized(Appodeal.BANNER | Appodeal.REWARDED_VIDEO);
                 if (!isInitialized)
                 {
                     AdsExtensionsKt.adsInitialize(
                             this,
-                            Appodeal.REWARDED_VIDEO | Appodeal.INTERSTITIAL | Appodeal.BANNER,
+                            Appodeal.REWARDED_VIDEO | Appodeal.BANNER,
                             () -> {
                                 FrameLayout adLayout = findViewById(R.id.adLayout);
                                 AdsExtensionsKt.showBanner(adLayout, this);
@@ -182,7 +185,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
             }
             else {
-                SettingsExtKt.setAdsIsEnabled(this, false);
+                boolean isInitialized = Appodeal.isInitialized(Appodeal.BANNER | Appodeal.INTERSTITIAL);
+                if (isInitialized)
+                {
+                    AdsExtensionsKt.adsInitialize(
+                            this,
+                            Appodeal.INTERSTITIAL | Appodeal.BANNER,
+                            () -> {
+                                FrameLayout adLayout = findViewById(R.id.adLayout);
+                                AdsExtensionsKt.showBanner(adLayout, this);
+                                return null;
+                            },
+                            apdInitializationErrors -> null
+                    );
+                }
             }
         });
 
@@ -656,15 +672,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item)
     {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.setCustomAnimations(R.anim.from_right_to_left_anim, R.anim.from_left_to_right_anim);
         int id = item.getItemId();
         if (id == R.id.nav_user_reward) {
+            SettingsExtKt.getEmailPasswordFromPref(
+                    this,
+                    () -> {
+                        AuthFragment authFragment = AuthFragment.Companion.newInstance();
+                        transaction.replace(R.id.frame_to_page_fragm, authFragment).addToBackStack(null).commit();
+                        return null;
+                    },
+                    (email, password) -> {
 
+                        return null;
+                    },
+                    error -> {
+                        String message = error.getMessage();
+                        if (message != null)
+                        {
+                            ExtensionsKt.showSnackBar(root, message, Snackbar.LENGTH_LONG);
+                        }
+                        return null;
+                    });
         }
         if (id == R.id.nav_add_word)
         {
             TranslateFragment translateFragm = TranslateFragment.Companion.getInstance("");
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.setCustomAnimations(R.anim.from_right_to_left_anim, R.anim.from_left_to_right_anim);
             transaction.replace(R.id.frame_to_page_fragm, translateFragm).addToBackStack(null).commitAllowingStateLoss();
         }
         else if (id == R.id.nav_delete_dict)

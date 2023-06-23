@@ -35,24 +35,28 @@ class UserViewModel @Inject constructor(
     private var _user = MutableLiveData<User?>(null)
     val user: LiveData<User?> = _user
 
+    fun setUser(user: User) {
+        _user.value = user
+    }
+
     init {
 
-        app.getAdvertisingID(
-            onSuccess = {adId ->
-                val userId = adId.getCRC32CheckSum().toString()
-                checkUser(userId)
-            },
-            onUnavailable = {
-                if (BuildConfig.DEBUG) {
-                    Throwable("********** AdvertisingID is unavailable ***************").printStackTrace()
-                }
-            },
-            onFailure = { err ->
-                if (BuildConfig.DEBUG) {
-                    Throwable("********** $err ***************").printStackTrace()
-                }
-            }
-        )
+//        app.getAdvertisingID(
+//            onSuccess = {adId ->
+//                val userId = adId.getCRC32CheckSum().toString()
+//                addUserIfNotExists(userId)
+//            },
+//            onUnavailable = {
+//                if (BuildConfig.DEBUG) {
+//                    Throwable("********** AdvertisingID is unavailable ***************").printStackTrace()
+//                }
+//            },
+//            onFailure = { err ->
+//                if (BuildConfig.DEBUG) {
+//                    Throwable("********** $err ***************").printStackTrace()
+//                }
+//            }
+//        )
     }
 
     private fun addUser(user: User) {
@@ -69,7 +73,7 @@ class UserViewModel @Inject constructor(
             }
     }
 
-    private fun checkUser(userId: String) {
+    fun addUserIfNotExists(userId: String) {
         db.collection(COLLECTION_PATH)
             .document(userId)
             .get()

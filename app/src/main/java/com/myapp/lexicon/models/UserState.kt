@@ -4,6 +4,8 @@ sealed class UserState {
     object Init: UserState()
     object NotRegistered: UserState()
     object EmailNotValid: UserState()
+    object AlreadyExists: UserState()
+    object PasswordReset: UserState()
     data class SignUp(val user: User): UserState()
     data class SignIn(val user: User): UserState()
     data class Failure(val error: Exception): UserState()
@@ -41,6 +43,18 @@ sealed class UserState {
     fun onFailure(onFailure: (Exception) -> Unit) {
         if (this is Failure) {
             onFailure.invoke(this.error)
+        }
+    }
+
+    fun onExists(onExists: () -> Unit) {
+        if (this is AlreadyExists) {
+            onExists.invoke()
+        }
+    }
+
+    fun onPasswordReset(onReset: () -> Unit) {
+        if (this is PasswordReset) {
+            onReset.invoke()
         }
     }
 }

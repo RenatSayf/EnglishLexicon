@@ -15,6 +15,8 @@ data class User(
         const val KEY_CURRENCY = "currency"
     }
 
+    var email: String = ""
+    var password: String = ""
     var totalRevenue: Double = 0.0
     var reallyRevenue: Double = 0.0
     var userReward: Double = 0.0

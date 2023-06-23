@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.PhoneAuthCredential
@@ -36,27 +37,23 @@ class AuthViewModel @Inject constructor(
     val state: LiveData<UserState> = _state
 
     fun registerWithEmailAndPassword(email: String, password: String) {
-        isEmailExists(
-            email,
-            onYes = {
-                auth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            val user = auth.currentUser
-                            _state.value = UserState.SignUp(User(user?.email.toString()))
-                        } else {
-                            val exception = task.exception
-                            _state.value = UserState.Failure(exception as Exception)
-                        }
-                    }
-            },
-            onNo = {
-                _state.value = UserState.EmailNotValid
-            },
-            onFailure = {exception ->
-                _state.value = UserState.Failure(exception)
+
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnSuccessListener { result ->
+                val user = result.user
+                _state.value = UserState.SignUp(User(user?.email.toString()))
             }
-        )
+            .addOnFailureListener { ex ->
+                val authException = ex as FirebaseAuthException
+                when (authException.errorCode) {
+                    "ERROR_EMAIL_ALREADY_IN_USE" -> {
+                        _state.value = UserState.AlreadyExists
+                    }
+                    else -> {
+                        _state.value = UserState.Failure(ex)
+                    }
+                }
+            }
     }
 
     private fun isEmailExists(
@@ -92,8 +89,11 @@ class AuthViewModel @Inject constructor(
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val user: FirebaseUser? = auth.currentUser
-                    user?.email?.let { m ->
-                        _state.value = UserState.SignIn(User(m))
+                    user?.uid?.let { id ->
+                        _state.value = UserState.SignIn(User(id).apply {
+                            this.email = email
+                            this.password = password
+                        })
                     }
                 } else {
                     val exception = task.exception as Exception
@@ -106,9 +106,10 @@ class AuthViewModel @Inject constructor(
         auth.sendPasswordResetEmail(email)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    // Письмо для сброса пароля отправлено
+                    _state.value = UserState.PasswordReset
                 } else {
-                    // Ошибка отправки письма для сброса пароля
+                    val exception = task.exception as FirebaseAuthException
+                    _state.value = UserState.Failure(exception)
                 }
             }
     }
