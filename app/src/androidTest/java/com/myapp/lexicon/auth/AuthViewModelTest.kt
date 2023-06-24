@@ -4,8 +4,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner
-import com.google.firebase.auth.FirebaseAuthEmailException
-import com.google.firebase.auth.FirebaseAuthException
 import com.myapp.lexicon.models.UserState
 import com.myapp.lexicon.testing.TestActivity
 import org.junit.After
@@ -62,7 +60,11 @@ class AuthViewModelTest {
                     Assert.assertTrue(ex.message, false)
                     isRunning = false
                 }
-                state.onNotValid {
+                state.onEmailValid {
+                    Assert.assertTrue(false)
+                    isRunning = false
+                }
+                state.onPasswordValid {
                     Assert.assertTrue(false)
                     isRunning = false
                 }

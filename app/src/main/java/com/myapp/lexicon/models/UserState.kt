@@ -3,7 +3,8 @@ package com.myapp.lexicon.models
 sealed class UserState {
     object Init: UserState()
     object NotRegistered: UserState()
-    object EmailNotValid: UserState()
+    data class EmailValid(val flag: Boolean): UserState()
+    data class PasswordValid(val flag: Boolean): UserState()
     object AlreadyExists: UserState()
     object PasswordReset: UserState()
     data class SignUp(val user: User): UserState()
@@ -22,9 +23,15 @@ sealed class UserState {
         }
     }
 
-    fun onNotValid(onNotValid: () -> Unit) {
-        if (this is EmailNotValid) {
-            onNotValid.invoke()
+    fun onEmailValid(onValid: (Boolean) -> Unit) {
+        if (this is EmailValid) {
+            onValid.invoke(this.flag)
+        }
+    }
+
+    fun onPasswordValid(onValid: (Boolean) -> Unit) {
+        if (this is PasswordValid) {
+            onValid.invoke(this.flag)
         }
     }
 

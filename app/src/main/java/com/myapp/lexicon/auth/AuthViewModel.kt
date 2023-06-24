@@ -26,18 +26,30 @@ import javax.inject.Inject
 class AuthViewModel @Inject constructor(
     app: Application
 ) : AndroidViewModel(app) {
+    sealed class LoadingState {
+        object Start: LoadingState()
+        object Complete: LoadingState()
+    }
 
     private val auth: FirebaseAuth by lazy {
         FirebaseAuth.getInstance()
     }
+
+    private var _loadingState = MutableLiveData<LoadingState>()
+    val loadingState: LiveData<LoadingState> = _loadingState
 
     private var _state = MutableLiveData<UserState>().apply {
         value = UserState.Init
     }
     val state: LiveData<UserState> = _state
 
+    fun setState(state: UserState) {
+        _state.value = state
+    }
+
     fun registerWithEmailAndPassword(email: String, password: String) {
 
+        _loadingState.value = LoadingState.Start
         auth.createUserWithEmailAndPassword(email, password)
             .addOnSuccessListener { result ->
                 val user = result.user
@@ -54,6 +66,9 @@ class AuthViewModel @Inject constructor(
                     }
                 }
             }
+            .addOnCompleteListener {
+                _loadingState.value = LoadingState.Complete
+            }
     }
 
     private fun isEmailExists(
@@ -63,28 +78,32 @@ class AuthViewModel @Inject constructor(
         onFailure: (Exception) -> Unit = {}
     ) {
         try {
+            _loadingState.value = LoadingState.Start
             auth.fetchSignInMethodsForEmail(email)
                 .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val methods = task.result.signInMethods
-                    if (methods.isNullOrEmpty()) {
-                        onNo.invoke()
+                    if (task.isSuccessful) {
+                        val methods = task.result.signInMethods
+                        if (methods.isNullOrEmpty()) {
+                            onNo.invoke()
+                        } else {
+                            onYes.invoke()
+                        }
                     }
-                    else {
-                        onYes.invoke()
-                    }
+                    _loadingState.value = LoadingState.Complete
                 }
-            }
         } catch (e: FirebaseAuthInvalidCredentialsException) {
             onFailure.invoke(e)
+            _loadingState.value = LoadingState.Complete
         }
     }
 
-    private fun isValidEmail(email: String): Boolean {
+    fun isValidEmail(email: String): Boolean {
         return !TextUtils.isEmpty(email) && Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 
     fun signInWithEmailAndPassword(email: String, password: String) {
+
+        _loadingState.value = LoadingState.Start
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
@@ -99,10 +118,13 @@ class AuthViewModel @Inject constructor(
                     val exception = task.exception as Exception
                     _state.value = UserState.Failure(exception)
                 }
+                _loadingState.value = LoadingState.Complete
             }
     }
 
     fun resetPassword(email: String) {
+
+        _loadingState.value = LoadingState.Start
         auth.sendPasswordResetEmail(email)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
@@ -111,6 +133,7 @@ class AuthViewModel @Inject constructor(
                     val exception = task.exception as FirebaseAuthException
                     _state.value = UserState.Failure(exception)
                 }
+                _loadingState.value = LoadingState.Complete
             }
     }
 
