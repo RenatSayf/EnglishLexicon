@@ -3,6 +3,8 @@ package com.myapp.lexicon.helpers
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.os.CountDownTimer
+import android.text.TextUtils
+import android.util.Patterns
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
@@ -139,6 +141,11 @@ val Context.screenWidth: Int
 
 val Context.screenHeight: Int
     get() = resources.displayMetrics.run { heightPixels / density }.roundToInt()
+
+val String.isItEmail: Boolean
+    get() {
+        return !TextUtils.isEmpty(this) && Patterns.EMAIL_ADDRESS.matcher(this).matches()
+    }
 
 
 

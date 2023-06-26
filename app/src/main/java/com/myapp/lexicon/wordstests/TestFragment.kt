@@ -33,6 +33,7 @@ import com.myapp.lexicon.main.SpeechViewModel
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.adsIsEnabled
 import com.myapp.lexicon.settings.getTestStateFromPref
+import com.myapp.lexicon.settings.isUserRegistered
 import com.myapp.lexicon.settings.saveTestStateToPref
 import com.myapp.lexicon.viewmodels.AnimViewModel
 import com.myapp.lexicon.viewmodels.PageBackViewModel
@@ -528,7 +529,14 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     override fun onDetach() {
 
         if (this.adsIsEnabled) {
-            this.showInterstitial(Appodeal.REWARDED_VIDEO)
+            requireContext().isUserRegistered(
+                onYes = {
+                    this.showInterstitial(Appodeal.REWARDED_VIDEO)
+                },
+                onNotRegistered = {
+                    this.showInterstitial(Appodeal.INTERSTITIAL)
+                }
+            )
         }
         super.onDetach()
     }

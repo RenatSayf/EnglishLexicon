@@ -23,6 +23,7 @@ import com.myapp.lexicon.helpers.RandomNumberGenerator
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.adsIsEnabled
+import com.myapp.lexicon.settings.isUserRegistered
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
@@ -241,7 +242,14 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
     override fun onDetach() {
 
         if (this.adsIsEnabled) {
-            mActivity.showInterstitial(adType = Appodeal.REWARDED_VIDEO)
+            requireContext().isUserRegistered(
+                onYes = {
+                    mActivity.showInterstitial(adType = Appodeal.REWARDED_VIDEO)
+                },
+                onNotRegistered = {
+                    mActivity.showInterstitial(adType = Appodeal.INTERSTITIAL)
+                }
+            )
         }
         super.onDetach()
     }

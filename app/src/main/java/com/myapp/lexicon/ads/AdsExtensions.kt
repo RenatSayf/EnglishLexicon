@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import com.appodeal.ads.Appodeal
 import com.appodeal.ads.BannerCallbacks
 import com.appodeal.ads.InterstitialCallbacks
+import com.appodeal.ads.RewardedVideoCallbacks
 import com.appodeal.ads.initializing.ApdInitializationCallback
 import com.appodeal.ads.initializing.ApdInitializationError
 import com.appodeal.ads.revenue.AdRevenueCallbacks
@@ -85,7 +86,7 @@ fun Activity.adsInitialize(
 }
 
 fun Activity.showInterstitial(
-    adType: Int = Appodeal.INTERSTITIAL,
+    adType: Int,
     onShown: () -> Unit = {},
     onClosed: () -> Unit = {},
     onFailed: () -> Unit = {}
@@ -113,13 +114,46 @@ fun Activity.showInterstitial(
             onShown.invoke()
         }
     })
-    if (Appodeal.isLoaded(adType)) {
-        Appodeal.show(this, adType)
+
+    Appodeal.setRewardedVideoCallbacks(object : RewardedVideoCallbacks {
+        override fun onRewardedVideoClicked() {}
+
+        override fun onRewardedVideoClosed(finished: Boolean) {
+            onClosed.invoke()
+        }
+
+        override fun onRewardedVideoExpired() {}
+
+        override fun onRewardedVideoFailedToLoad() {
+            onFailed.invoke()
+        }
+
+        override fun onRewardedVideoFinished(amount: Double, currency: String?) {}
+
+        override fun onRewardedVideoLoaded(isPrecache: Boolean) {}
+
+        override fun onRewardedVideoShowFailed() {
+            onFailed.invoke()
+        }
+
+        override fun onRewardedVideoShown() {
+            onShown.invoke()
+        }
+    })
+
+    if (adType == Appodeal.REWARDED_VIDEO && Appodeal.isLoaded(Appodeal.REWARDED_VIDEO)) {
+        Appodeal.show(this, Appodeal.REWARDED_VIDEO)
+    }
+    else if (Appodeal.isLoaded(Appodeal.INTERSTITIAL)){
+        Appodeal.show(this, Appodeal.INTERSTITIAL)
+    }
+    else {
+        onFailed.invoke()
     }
 }
 
 fun Fragment.showInterstitial(
-    adType: Int = Appodeal.INTERSTITIAL,
+    adType: Int,
     onShown: () -> Unit = {},
     onClosed: () -> Unit = {},
     onFailed: () -> Unit = {}

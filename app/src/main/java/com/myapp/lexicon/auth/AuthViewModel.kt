@@ -52,8 +52,12 @@ class AuthViewModel @Inject constructor(
         _loadingState.value = LoadingState.Start
         auth.createUserWithEmailAndPassword(email, password)
             .addOnSuccessListener { result ->
-                val user = result.user
-                _state.value = UserState.SignUp(User(user?.email.toString()))
+                val firebaseUser = result.user
+                val user = User(firebaseUser?.email.toString()).apply {
+                    this.email = email
+                    this.password = password
+                }
+                _state.value = UserState.SignUp(user)
             }
             .addOnFailureListener { ex ->
                 val authException = ex as FirebaseAuthException

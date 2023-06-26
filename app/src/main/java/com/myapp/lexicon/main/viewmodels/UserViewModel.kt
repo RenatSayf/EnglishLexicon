@@ -11,12 +11,9 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
-import com.myapp.lexicon.ads.getAdvertisingID
-import com.myapp.lexicon.helpers.getCRC32CheckSum
 import com.myapp.lexicon.models.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-
 
 
 @HiltViewModel
@@ -37,26 +34,6 @@ class UserViewModel @Inject constructor(
 
     fun setUser(user: User) {
         _user.value = user
-    }
-
-    init {
-
-//        app.getAdvertisingID(
-//            onSuccess = {adId ->
-//                val userId = adId.getCRC32CheckSum().toString()
-//                addUserIfNotExists(userId)
-//            },
-//            onUnavailable = {
-//                if (BuildConfig.DEBUG) {
-//                    Throwable("********** AdvertisingID is unavailable ***************").printStackTrace()
-//                }
-//            },
-//            onFailure = { err ->
-//                if (BuildConfig.DEBUG) {
-//                    Throwable("********** $err ***************").printStackTrace()
-//                }
-//            }
-//        )
     }
 
     private fun addUser(user: User) {
@@ -106,28 +83,30 @@ class UserViewModel @Inject constructor(
             .document(user.id)
             .get()
             .addOnSuccessListener { snapshot ->
-                val remoteUserData = snapshot.data as Map<String, String>
-                user.reallyRevenue = calculateReallyRevenue(revenuePerAd, remoteUserData)
-                user.userReward = calculateUserReward(revenuePerAd, remoteUserData)
-                user.totalRevenue = calculateTotalRevenue(revenuePerAd, remoteUserData)
+                if (snapshot.data != null) {
+                    val remoteUserData = snapshot.data as Map<String, String>
+                    user.reallyRevenue = calculateReallyRevenue(revenuePerAd, remoteUserData)
+                    user.userReward = calculateUserReward(revenuePerAd, remoteUserData)
+                    user.totalRevenue = calculateTotalRevenue(revenuePerAd, remoteUserData)
 
-                if (user.reallyRevenue > 0 && user.userReward > 0) {
-                    db.collection(COLLECTION_PATH)
-                        .document(user.id)
-                        .set(user.toHashMap())
-                        .addOnSuccessListener {
-                            _user.value = user
-                        }
-                        .addOnFailureListener { t ->
-                            if (BuildConfig.DEBUG) {
-                                t.printStackTrace()
+                    if (user.reallyRevenue > 0 && user.userReward > 0) {
+                        db.collection(COLLECTION_PATH)
+                            .document(user.id)
+                            .set(user.toHashMap())
+                            .addOnSuccessListener {
+                                _user.value = user
                             }
+                            .addOnFailureListener { t ->
+                                if (BuildConfig.DEBUG) {
+                                    t.printStackTrace()
+                                }
+                            }
+                    } else {
+                        if (BuildConfig.DEBUG) {
+                            val message =
+                                "******************** A negative revenue value cannot be sent: ${user.reallyRevenue}, ${user.userReward} ************"
+                            Throwable(message).printStackTrace()
                         }
-                } else {
-                    if (BuildConfig.DEBUG) {
-                        val message =
-                            "******************** A negative revenue value cannot be sent: ${user.reallyRevenue}, ${user.userReward} ************"
-                        Throwable(message).printStackTrace()
                     }
                 }
             }

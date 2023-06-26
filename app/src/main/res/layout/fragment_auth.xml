@@ -46,7 +46,7 @@
                 app:layout_constraintTop_toBottomOf="@id/ivLogo"
                 android:layout_marginTop="24dp"
                 android:gravity="center"
-                android:text="Для того что бы получать доход
+                android:text="Для того что бы получать доход,
 необходимо зарегистрироваться в приложении."
                 android:textColor="@color/colorWhite"
                 android:textSize="16sp"/>
@@ -112,7 +112,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/tvPasswordHint"
                 app:layout_constraintBottom_toTopOf="@+id/tvSignIn"
                 app:layout_constraintVertical_bias="0.8"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="24dp"
                 android:text="Зарегистрироваться"
                 android:textAllCaps="false"
                 android:textColor="@color/colorWhite"
@@ -126,15 +126,31 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/btnRegistration"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/tvResetPassword"
                 android:layout_marginTop="24dp"
-                android:layout_marginBottom="40dp"
                 android:padding="12dp"
                 android:gravity="center"
                 android:text="Войти"
                 android:textColor="@color/colorWhite"
                 android:textSize="16sp"
                 android:background="@drawable/bg_ripple_transparent"/>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvResetPassword"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvSignIn"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="24dp"
+                android:padding="12dp"
+                android:gravity="center"
+                android:text="Забыли пароль?"
+                android:textColor="@color/colorWhite"
+                android:textSize="12sp"
+                />
 
             <ProgressBar
                 android:id="@+id/progressBar"

@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import com.myapp.lexicon.R
+import com.myapp.lexicon.interfaces.FragmentListener
 
 class MainFragment : Fragment() {
 

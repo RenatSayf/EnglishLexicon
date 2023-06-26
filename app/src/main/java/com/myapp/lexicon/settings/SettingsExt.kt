@@ -32,6 +32,13 @@ val Fragment.appSettings: SharedPreferences
 fun Context.saveEmailPasswordToPref(email: String, password: String) {
     appSettings.edit().putString("KEY_EMAIL", email).apply()
     appSettings.edit().putString("KEY_PASSWORD", password).apply()
+    appSettings.edit().putBoolean("KEY_IS_REGISTERED", true).apply()
+}
+
+fun Context.clearEmailPasswordInPref() {
+    appSettings.edit().putString("KEY_EMAIL", null).apply()
+    appSettings.edit().putString("KEY_PASSWORD", null).apply()
+    appSettings.edit().putBoolean("KEY_IS_REGISTERED", false).apply()
 }
 
 fun Context.getEmailPasswordFromPref(
@@ -45,13 +52,30 @@ fun Context.getEmailPasswordFromPref(
         if (email == null || password == null) {
             onNotRegistered.invoke()
         }
-        else if (email.isNotBlank() && password.isNotEmpty()) {
+        else if (email.isNotEmpty() && password.isNotEmpty()) {
             onSuccess.invoke(email, password)
+        }
+        else {
+            onNotRegistered.invoke()
         }
     } catch (e: Exception) {
         onFailure.invoke(e)
     }
 }
+
+fun Context.isUserRegistered(
+    onYes: () -> Unit,
+    onNotRegistered: () -> Unit = {}
+) {
+    val result = appSettings.getBoolean("KEY_IS_REGISTERED", false)
+    if (result) {
+        onYes.invoke()
+    }
+    else {
+        onNotRegistered.invoke()
+    }
+}
+
 
 fun Context.saveResendingToken(token: PhoneAuthProvider.ForceResendingToken?) {
 

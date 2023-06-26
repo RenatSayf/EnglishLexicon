@@ -43,6 +43,8 @@ import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.Share;
 import com.myapp.lexicon.main.viewmodels.UserViewModel;
+import com.myapp.lexicon.models.User;
+import com.myapp.lexicon.models.UserState;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.service.PhoneUnlockedReceiver;
@@ -78,7 +80,8 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 
 @AndroidEntryPoint
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, MainFragment.Listener
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
+        MainFragment.Listener, AuthFragment.AuthListener
 {
     private View root;
     private NavigationView navView;
@@ -128,10 +131,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         authVM = new ViewModelProvider(this).get(AuthViewModel.class);
 
         authVM.getState().observe(this, result -> {
-            result.onInit(() -> {
-
-                return null;
-            });
+            result.onInit(() -> null);
             result.onNotRegistered(() -> {
                 navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_get_reward);
                 return null;
@@ -160,16 +160,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     tvReward.setVisibility(View.VISIBLE);
                 }
 
-                boolean isInitialized = Appodeal.isInitialized(Appodeal.BANNER | Appodeal.REWARDED_VIDEO);
+                boolean isInitialized = Appodeal.isInitialized(Appodeal.REWARDED_VIDEO | Appodeal.INTERSTITIAL);
                 if (!isInitialized)
                 {
                     AdsExtensionsKt.adsInitialize(
                             this,
-                            Appodeal.REWARDED_VIDEO | Appodeal.BANNER,
+                            Appodeal.REWARDED_VIDEO,
                             () -> {
-                                FrameLayout adLayout = findViewById(R.id.adLayout);
-                                AdsExtensionsKt.showBanner(adLayout, this);
-
                                 AdsExtensionsKt.adRevenueInfo(this, revenueInfo -> {
                                     double revenue = revenueInfo.getRevenue();
                                     String currency = revenueInfo.getCurrency();
@@ -180,23 +177,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 });
                                 return null;
                             },
-                            apdInitializationErrors -> null
+                            apdInitializationErrors -> {
+                                if (BuildConfig.DEBUG) {
+                                    apdInitializationErrors.forEach(Throwable::printStackTrace);
+                                }
+                                return null;
+                            }
                     );
                 }
             }
             else {
-                boolean isInitialized = Appodeal.isInitialized(Appodeal.BANNER | Appodeal.INTERSTITIAL);
-                if (isInitialized)
+                boolean isInitialized = Appodeal.isInitialized(Appodeal.INTERSTITIAL);
+                if (!isInitialized)
                 {
                     AdsExtensionsKt.adsInitialize(
                             this,
-                            Appodeal.INTERSTITIAL | Appodeal.BANNER,
-                            () -> {
-                                FrameLayout adLayout = findViewById(R.id.adLayout);
-                                AdsExtensionsKt.showBanner(adLayout, this);
+                            Appodeal.INTERSTITIAL,
+                            () -> null,
+                            apdInitializationErrors -> {
+                                if (BuildConfig.DEBUG) {
+                                    apdInitializationErrors.forEach(Throwable::printStackTrace);
+                                }
                                 return null;
-                            },
-                            apdInitializationErrors -> null
+                            }
                     );
                 }
             }
@@ -679,7 +682,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             SettingsExtKt.getEmailPasswordFromPref(
                     this,
                     () -> {
-                        AuthFragment authFragment = AuthFragment.Companion.newInstance();
+                        AuthFragment authFragment = AuthFragment.Companion.newInstance(this);
                         transaction.replace(R.id.frame_to_page_fragm, authFragment).addToBackStack(null).commit();
                         return null;
                     },
@@ -1019,6 +1022,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onVisibleMainScreen()
     {
         wordsInterval = SettingsExtKt.getTestIntervalFromPref(this);
+    }
+
+    @Override
+    public void refreshAuthState(@NonNull User user)
+    {
+        authVM.setState(new UserState.SignIn(user));
     }
 }
 

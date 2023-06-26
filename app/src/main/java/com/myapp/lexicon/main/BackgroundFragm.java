@@ -9,11 +9,14 @@ import android.widget.AdapterViewFlipper;
 import android.widget.FrameLayout;
 
 import com.appodeal.ads.Appodeal;
+import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.ads.AdsExtensionsKt;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.service.PhoneUnlockedReceiver;
 import com.myapp.lexicon.settings.SettingsExtKt;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -147,15 +150,42 @@ public class BackgroundFragm extends Fragment
                 {
                     try
                     {
-                        AdsExtensionsKt.showInterstitial(
-                                requireActivity(),
-                                Appodeal.INTERSTITIAL,
-                                () -> null,
+                        AtomicInteger adType = new AtomicInteger(Appodeal.INTERSTITIAL);
+                        SettingsExtKt.isUserRegistered(
+                                requireContext(),
                                 () -> {
-                                    requireActivity().finish();
+                                    adType.set(Appodeal.REWARDED_VIDEO);
                                     return null;
                                 },
-                                () -> null
+                                () -> {
+                                    adType.set(Appodeal.INTERSTITIAL);
+                                    return null;
+                                }
+                        );
+                        AdsExtensionsKt.showInterstitial(
+                                requireActivity(),
+                                adType.get(),
+                                () -> null,
+                                () -> {
+                                    try
+                                    {
+                                        requireActivity().finish();
+                                    } catch (Exception e)
+                                    {
+                                        if (BuildConfig.DEBUG) e.printStackTrace();
+                                    }
+                                    return null;
+                                },
+                                () -> {
+                                    try
+                                    {
+                                        requireActivity().finish();
+                                    } catch (Exception e)
+                                    {
+                                        if (BuildConfig.DEBUG) e.printStackTrace();
+                                    }
+                                    return null;
+                                }
                         );
                     } catch (Exception e)
                     {

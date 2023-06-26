@@ -11,19 +11,32 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.FragmentAuthBinding
+import com.myapp.lexicon.dialogs.ConfirmDialog
+import com.myapp.lexicon.helpers.isItEmail
 import com.myapp.lexicon.helpers.showSnackBar
+import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserState
+import com.myapp.lexicon.settings.saveEmailPasswordToPref
 
 class AuthFragment : Fragment() {
 
     companion object {
 
         val TAG = "${AuthFragment::class.java.simpleName}.TAG"
-        fun newInstance() = AuthFragment()
+        private var listener: AuthListener? = null
+        fun newInstance(listener: AuthListener): AuthFragment {
+            this.listener = listener
+            return AuthFragment()
+        }
     }
 
     private lateinit var binding: FragmentAuthBinding
     private val authVM: AuthViewModel by viewModels()
+
+    interface AuthListener {
+        fun refreshAuthState(user: User)
+    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -59,10 +72,14 @@ class AuthFragment : Fragment() {
                 if (result) {
                     authVM.setState(UserState.EmailValid(true))
                 }
+                else authVM.setState(UserState.EmailValid(false))
             }
-            etPassword.doOnTextChanged { _, _, _, count ->
-                if (count >= 6) {
+            etPassword.doOnTextChanged { text, _, _, _ ->
+                if (text.toString().length >= 6) {
                     authVM.setState(UserState.PasswordValid(true))
+                }
+                else {
+                    authVM.setState(UserState.PasswordValid(false))
                 }
             }
 
@@ -80,6 +97,28 @@ class AuthFragment : Fragment() {
                         authVM.setState(UserState.PasswordValid(false))
                     }
                 )
+            }
+
+            tvResetPassword.setOnClickListener {
+                ConfirmDialog.newInstance(
+                    onLaunch = { dialog, binding ->
+                        with(binding) {
+                            tvEmoji.visibility = View.GONE
+                            tvEmoji2.visibility = View.GONE
+                            tvMessage.text = "На указанный e-mail будет отправлена ссылка для сброса пароля. "
+                            btnCancel.setOnClickListener {
+                                dialog.dismiss()
+                            }
+                            btnOk.setOnClickListener {
+                                val text = etEmail.text.toString()
+                                if (text.isItEmail) {
+                                    authVM.resetPassword(text)
+                                }
+                                dialog.dismiss()
+                            }
+                        }
+                    }
+                ).show(parentFragmentManager, ConfirmDialog.TAG)
             }
 
             authVM.loadingState.observe(viewLifecycleOwner) { state ->
@@ -100,9 +139,12 @@ class AuthFragment : Fragment() {
                 }
                 state.onSignUp { user ->
                     showSnackBar("Пользователь зарегистрирован")
+                    requireContext().saveEmailPasswordToPref(user.email, user.password)
+                    listener?.refreshAuthState(user)
                 }
                 state.onSignIn { user ->
                     showSnackBar("Вход выполнен")
+                    listener?.refreshAuthState(user)
                 }
                 state.onEmailValid { flag ->
                     if (flag) {
@@ -122,9 +164,12 @@ class AuthFragment : Fragment() {
                 }
                 state.onPasswordReset {
                     etPassword.text?.clear()
-                    showSnackBar("Введите новый пароль")
+                    btnRegistration.visibility = View.GONE
+                    showSnackBar("Проверьте вашу почту")
                 }
-                state.onNotRegistered {  }
+                state.onNotRegistered {
+
+                }
                 state.onFailure { exception ->
                     exception.printStackTrace()
                     showSnackBar(exception.message?: "Что то пошло не так...")
