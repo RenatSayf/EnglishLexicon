@@ -13,6 +13,7 @@ data class User(
         const val KEY_REALLY_REVENUE = "really_revenue"
         const val KEY_USER_REWARD = "reward"
         const val KEY_CURRENCY = "currency"
+        const val KEY_EMAIL = "email"
     }
 
     var email: String = ""
@@ -34,7 +35,8 @@ data class User(
             KEY_TOTAL_REVENUE to totalRevenue.toString(),
             KEY_REALLY_REVENUE to reallyRevenue.toString(),
             KEY_USER_REWARD to userReward.toString(),
-            KEY_CURRENCY to currency
+            KEY_CURRENCY to currency,
+            KEY_EMAIL to email
         )
     }
 }

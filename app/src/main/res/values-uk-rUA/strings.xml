@@ -323,6 +323,23 @@
     <string name="text_your_reward">"Ваша нагорода: "</string>
     <string name="text_account">Рахунок</string>
     <string name="text_get_reward">Получать вознаграждение</string>
+    <string name="explaining_about_revenue_getting">Для того, що б отримувати дохід, необхідно зареєструватися в додатку</string>
+    <string name="text_hint_email">your-email@domain.com</string>
+    <string name="text_enter_email">Введіть свою адресу електронної пошти</string>
+    <string name="text_hint_password">your password</string>
+    <string name="text_enter_password">Придумайте пароль (не менше 6 цифр)</string>
+    <string name="text_registration">Зареєструватися</string>
+    <string name="text_sign_in">Увійти</string>
+    <string name="text_forgot_password">Забули пароль?</string>
+    <string name="text_email_will_be_sent_to">На вказаний e-mail буде відправлено посилання для скидання пароля.</string>
+    <string name="text_such_user_already_exists">Пользователь з таким e-mail вже існує</string>
+    <string name="text_user_is_registered">Пользователь зареєстрований</string>
+    <string name="text_login_completed">Вхід виконаний</string>
+    <string name="text_check_email">Перевірте вашу пошту</string>
+    <string name="text_unknown_error_message">Що пішло не так…</string>
+    <string name="text_incorrect_email">Неправильний e-mail</string>
+    <string name="text_empty_password_message">Пароль не повинен бути порожнім</string>
+    <string name="text_wrong_password_length">Довжина пароля повинна бути не менше 6 символів</string>
 
     <string-array name="words_interval">
         <item>після 5 слів</item>

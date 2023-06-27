@@ -105,7 +105,7 @@ class AuthFragment : Fragment() {
                         with(binding) {
                             tvEmoji.visibility = View.GONE
                             tvEmoji2.visibility = View.GONE
-                            tvMessage.text = "На указанный e-mail будет отправлена ссылка для сброса пароля. "
+                            tvMessage.text = getString(R.string.text_email_will_be_sent_to)
                             btnCancel.setOnClickListener {
                                 dialog.dismiss()
                             }
@@ -135,16 +135,18 @@ class AuthFragment : Fragment() {
             authVM.state.observe(viewLifecycleOwner) { state ->
                 state.onExists {
                     etPassword.text?.clear()
-                    showSnackBar("Пользователь с таким e-mail уже существует")
+                    showSnackBar(getString(R.string.text_such_user_already_exists))
                 }
                 state.onSignUp { user ->
-                    showSnackBar("Пользователь зарегистрирован")
+                    showSnackBar(getString(R.string.text_user_is_registered))
                     requireContext().saveEmailPasswordToPref(user.email, user.password)
                     listener?.refreshAuthState(user)
+                    parentFragmentManager.popBackStack()
                 }
                 state.onSignIn { user ->
-                    showSnackBar("Вход выполнен")
+                    showSnackBar(getString(R.string.text_login_completed))
                     listener?.refreshAuthState(user)
+                    parentFragmentManager.popBackStack()
                 }
                 state.onEmailValid { flag ->
                     if (flag) {
@@ -165,14 +167,14 @@ class AuthFragment : Fragment() {
                 state.onPasswordReset {
                     etPassword.text?.clear()
                     btnRegistration.visibility = View.GONE
-                    showSnackBar("Проверьте вашу почту")
+                    showSnackBar(getString(R.string.text_check_email))
                 }
                 state.onNotRegistered {
-
+                    btnRegistration.visibility = View.VISIBLE
                 }
                 state.onFailure { exception ->
                     exception.printStackTrace()
-                    showSnackBar(exception.message?: "Что то пошло не так...")
+                    showSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
                 }
             }
         }
@@ -187,17 +189,17 @@ class AuthFragment : Fragment() {
             val email = etEmail.text.toString()
             val result = authVM.isValidEmail(email)
             if (!result) {
-                onEmailNotValid.invoke("Неправильный e-mail")
+                onEmailNotValid.invoke(getString(R.string.text_incorrect_email))
                 return
             }
             val password = etPassword.text.toString()
             when {
                 password.isEmpty() -> {
-                    onPasswordNotValid.invoke("Пароль не должен быть пустым")
+                    onPasswordNotValid.invoke(getString(R.string.text_empty_password_message))
                     return
                 }
                 password.length < 6 -> {
-                    onPasswordNotValid.invoke("Длина пароля должна быть не менее 6 символов")
+                    onPasswordNotValid.invoke(getString(R.string.text_wrong_password_length))
                     return
                 }
                 else -> {

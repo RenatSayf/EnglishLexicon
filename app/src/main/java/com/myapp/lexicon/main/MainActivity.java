@@ -11,7 +11,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -97,6 +96,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public MainViewModel mainViewModel;
     private SpeechViewModel speechViewModel;
     private AuthViewModel authVM;
+    private UserViewModel userVM;
     private Word currentWord;
     private int wordsInterval = 10;
     public BackgroundFragm backgroundFragm = null;
@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
         speechViewModel = new ViewModelProvider(this).get(SpeechViewModel.class);
-        UserViewModel userVM = new ViewModelProvider(this).get(UserViewModel.class);
+        userVM = new ViewModelProvider(this).get(UserViewModel.class);
         authVM = new ViewModelProvider(this).get(AuthViewModel.class);
 
         authVM.getState().observe(this, result -> {
@@ -138,12 +138,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             });
             result.onSignUp(user -> {
                 navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_account);
-                userVM.setUser(user);
+                userVM.addUserIfNotExists(user);
                 return null;
             });
             result.onSignIn(user -> {
                 navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_account);
-                userVM.setUser(user);
+                userVM.addUserIfNotExists(user);
                 return null;
             });
         });
@@ -1011,11 +1011,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void refreshMainScreen(boolean isAdShow)
     {
         mainViewModel.refreshWordsList();
-        if (isAdShow)
-        {
-            FrameLayout adLayout = findViewById(R.id.adLayout);
-            AdsExtensionsKt.showBanner(adLayout, this);
-        }
     }
 
     @Override

@@ -177,7 +177,9 @@ class AuthViewModel @Inject constructor(
                     signInWithEmailAndPassword(email, password)
                 }
                 else {
-                    _state.value = UserState.SignIn(User(currentUser.email.toString()))
+                    _state.value = UserState.SignIn(User(currentUser.email.toString()).apply {
+                        this.email = email
+                    })
                 }
             },
             onFailure = {exception ->

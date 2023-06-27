@@ -273,6 +273,23 @@
     <string name="text_your_reward">"Ваша награда: "</string>
     <string name="text_account">Аккаунт</string>
     <string name="text_get_reward">Получать вознаграждение</string>
+    <string name="explaining_about_revenue_getting">Для того, что бы получать доход, необходимо зарегистрироваться в приложении.</string>
+    <string name="text_hint_email">your-email@domain.com</string>
+    <string name="text_enter_email">Введите свой адрес электронной почты</string>
+    <string name="text_hint_password">your password</string>
+    <string name="text_enter_password">Придумайте пароль (не менее 6 цифр)</string>
+    <string name="text_registration">Зарегистрироваться</string>
+    <string name="text_sign_in">Войти</string>
+    <string name="text_forgot_password">Забыли пароль?</string>
+    <string name="text_email_will_be_sent_to">На указанный e-mail будет отправлена ссылка для сброса пароля</string>
+    <string name="text_such_user_already_exists">Пользователь с таким e-mail уже существует</string>
+    <string name="text_user_is_registered">Пользователь зарегистрирован</string>
+    <string name="text_login_completed">Вход выполнен</string>
+    <string name="text_check_email">Проверьте вашу почту</string>
+    <string name="text_unknown_error_message">Что то пошло не так...</string>
+    <string name="text_incorrect_email">Неправильный e-mail</string>
+    <string name="text_empty_password_message">Пароль не должен быть пустым</string>
+    <string name="text_wrong_password_length">Длина пароля должна быть не менее 6 символов</string>
 
     <string-array name="not_move">
         <item>Не перемещать</item>

@@ -50,9 +50,9 @@ class UserViewModel @Inject constructor(
             }
     }
 
-    fun addUserIfNotExists(userId: String) {
+    fun addUserIfNotExists(user: User) {
         db.collection(COLLECTION_PATH)
-            .document(userId)
+            .document(user.id)
             .get()
             .addOnSuccessListener { document ->
                 val data = document.data
@@ -66,8 +66,8 @@ class UserViewModel @Inject constructor(
                     }
                 }
                 else {
-                    val user = User(userId)
-                    addUser(user)
+                    val newUser = User(user.id)
+                    addUser(newUser)
                 }
             }
             .addOnFailureListener {
