@@ -17,11 +17,12 @@
         app:title="@string/text_account"
         app:titleTextColor="@color/colorWhite"
         app:navigationIcon="@drawable/ic_arrow_back_white"
+        app:menu="@menu/account_menu"
         />
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:fillViewport="true">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -63,8 +64,10 @@
                     android:id="@+id/tvRewardValue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="0dp"
                     android:gravity="center"
-                    android:text="0.0 Р"
+                    tools:text="0.0 Р"
                     android:textColor="@color/colorYellowDark"
                     android:textStyle="bold"
                     android:textSize="20sp"
@@ -91,22 +94,22 @@
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tvEmailTitle"
-                    android:layout_width="wrap_content"
+                    android:layout_width="100dp"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="E-mail:  "
+                    android:gravity="start"
+                    android:text="@string/title_e_mail"
                     android:textColor="@color/colorWhite"
-                    android:textSize="20sp"
+                    android:textSize="18sp"
                     />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tvEmailValue"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="some-email@domain.com"
+                    android:gravity="start"
+                    tools:text="some-email@domain.com"
                     android:textColor="@color/colorWhite"
-                    android:textSize="20sp"
+                    android:textSize="18sp"
                     />
 
             </androidx.appcompat.widget.LinearLayoutCompat>
@@ -122,25 +125,157 @@
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tvPhoneTitle"
-                    android:layout_width="wrap_content"
+                    android:layout_width="100dp"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="Телефон:  "
+                    android:gravity="start"
+                    android:text="@string/title_phone"
                     android:textColor="@color/colorWhite"
-                    android:textSize="20sp"
+                    android:textSize="18sp"
                     />
 
-                <androidx.appcompat.widget.AppCompatTextView
+                <androidx.appcompat.widget.AppCompatEditText
                     android:id="@+id/tvPhoneValue"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    tools:text="+7 999 888 77 55"
+                    android:background="@null"
+                    android:gravity="start"
+                    android:inputType="none|phone"
                     android:textColor="@color/colorWhite"
-                    android:textSize="20sp"
-                    />
+                    android:textCursorDrawable="@null"
+                    android:textSize="18sp"
+                    tools:ignore="TouchTargetSizeCheck"
+                    tools:text="+7 999 888 77 55" />
 
             </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/layoutFirstName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="start"
+                app:layout_constraintTop_toBottomOf="@+id/layoutPhone"
+                android:layout_marginTop="24dp">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvFirstNameTitle"
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="start"
+                    android:text="@string/title_first_name"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="18sp"
+                    />
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/tvFirstNameValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:gravity="start"
+                    android:inputType="none"
+                    android:textColor="@color/colorWhite"
+                    android:textCursorDrawable="@null"
+                    android:textSize="18sp"
+                    tools:ignore="TouchTargetSizeCheck"
+                    tools:text="Ваше имя" />
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/layoutLastName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="start"
+                app:layout_constraintTop_toBottomOf="@+id/layoutFirstName"
+                android:layout_marginTop="24dp">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvLastNameTitle"
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="start"
+                    android:text="@string/title_last_name"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="18sp"
+                    />
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/tvLastNameValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:gravity="start"
+                    android:inputType="none"
+                    android:textColor="@color/colorWhite"
+                    android:textCursorDrawable="@null"
+                    android:textSize="18sp"
+                    tools:ignore="TouchTargetSizeCheck"
+                    tools:text="Ваша фамилия" />
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnSave"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/layoutLastName"
+                android:layout_marginTop="24dp"
+                android:padding="12dp"
+                android:background="@drawable/bg_ripple_transparent"
+                android:textColor="@color/colorWhite"
+                android:text="@string/text_save"
+                android:textAllCaps="false"
+                android:drawableStart="@drawable/ic_save"
+                android:drawablePadding="8dp"
+                android:visibility="gone"
+                tools:visibility="visible"/>
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnGetReward"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/btnSave"
+                app:layout_constraintBottom_toTopOf="@+id/tvRewardCondition"
+                android:layout_marginTop="8dp"
+                android:text="@string/text_get_reward_now"
+                android:textAllCaps="false"
+                android:textColor="@color/colorWhite"
+                android:background="@drawable/bg_ripple_horizintal_oval_green"
+                android:enabled="false"
+                tools:enabled="true"
+                />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvRewardCondition"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@+id/btnGetReward"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintVertical_bias="1"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:text="@string/text_reward_conditions"
+                android:textColor="@color/colorWhite"
+                android:textSize="11sp"
+                />
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:indeterminateTint="@color/colorYellowDark"
+                android:visibility="gone"
+                tools:visibility="visible" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

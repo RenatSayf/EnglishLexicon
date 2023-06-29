@@ -73,10 +73,8 @@ class AddWordDialog : DialogFragment(),
         }
     }
 
-    @Suppress("ObjectLiteralToLambda")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View
     {
-
         binding = AddWordDialogBinding.inflate(inflater, container, false)
         return binding.root
     }

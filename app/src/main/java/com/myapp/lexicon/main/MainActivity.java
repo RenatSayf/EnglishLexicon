@@ -29,6 +29,7 @@ import com.myapp.lexicon.addword.TranslateFragment;
 import com.myapp.lexicon.ads.AdsExtensionsKt;
 import com.myapp.lexicon.auth.AuthFragment;
 import com.myapp.lexicon.auth.AuthViewModel;
+import com.myapp.lexicon.auth.account.AccountFragment;
 import com.myapp.lexicon.cloudstorage.CloudCheckWorker;
 import com.myapp.lexicon.cloudstorage.DownloadDbWorker;
 import com.myapp.lexicon.cloudstorage.StorageDialog;
@@ -143,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             });
             result.onSignIn(user -> {
                 navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_account);
-                userVM.addUserIfNotExists(user);
+                userVM.getUserFromCloud(user.getId());
                 return null;
             });
         });
@@ -687,7 +688,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         return null;
                     },
                     (email, password) -> {
-
+                        AccountFragment accountFragment = AccountFragment.Companion.newInstance(email);
+                        transaction.replace(R.id.frame_to_page_fragm, accountFragment).addToBackStack(null).commit();
                         return null;
                     },
                     error -> {

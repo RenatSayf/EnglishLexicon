@@ -83,7 +83,7 @@ class AuthFragment : Fragment() {
                 }
             }
 
-            tvSignIn.setOnClickListener {
+            btnSignIn.setOnClickListener {
                 validateEmailAndPassword(
                     onSuccess = { email, password ->
                         authVM.signInWithEmailAndPassword(email, password)
@@ -145,6 +145,7 @@ class AuthFragment : Fragment() {
                 }
                 state.onSignIn { user ->
                     showSnackBar(getString(R.string.text_login_completed))
+                    requireContext().saveEmailPasswordToPref(user.email, user.password)
                     listener?.refreshAuthState(user)
                     parentFragmentManager.popBackStack()
                 }

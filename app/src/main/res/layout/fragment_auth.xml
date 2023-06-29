@@ -111,33 +111,35 @@
                     android:textSize="12sp" />
 
                 <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/btnRegistration"
-                    android:layout_width="match_parent"
+                    android:id="@+id/btnSignIn"
+                    android:layout_width="144dp"
                     android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/tvPasswordHint"
-                    app:layout_constraintBottom_toTopOf="@+id/tvSignIn"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toTopOf="@+id/btnRegistration"
                     app:layout_constraintVertical_bias="0.8"
                     android:layout_marginTop="24dp"
-                    android:text="@string/text_registration"
+                    android:text="@string/text_sign_in"
                     android:textAllCaps="false"
                     android:textColor="@color/colorWhite"
                     android:background="@drawable/bg_ripple_horizintal_oval_green"
                     />
 
                 <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/tvSignIn"
+                    android:id="@+id/btnRegistration"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/btnRegistration"
+                    app:layout_constraintTop_toBottomOf="@+id/btnSignIn"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintBottom_toTopOf="@+id/tvResetPassword"
                     android:layout_marginTop="24dp"
                     android:padding="12dp"
                     android:gravity="center"
-                    android:text="@string/text_sign_in"
+                    android:text="@string/text_registration"
                     android:textColor="@color/colorWhite"
-                    android:textSize="16sp"
+                    android:textSize="12sp"
                     android:background="@drawable/bg_ripple_transparent" />
 
                 <androidx.appcompat.widget.AppCompatTextView
@@ -145,7 +147,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tvSignIn"
+                    app:layout_constraintTop_toBottomOf="@+id/btnRegistration"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     android:layout_marginTop="24dp"

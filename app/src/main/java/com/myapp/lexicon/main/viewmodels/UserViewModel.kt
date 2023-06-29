@@ -27,6 +27,14 @@ class UserViewModel @Inject constructor(
         val REVENUE_RATIO: Double = Firebase.remoteConfig.getDouble("REVENUE_RATIO")
     }
 
+    sealed class LoadingState {
+        object Start: LoadingState()
+        object Complete: LoadingState()
+    }
+
+    private var _loadingState = MutableLiveData<LoadingState>()
+    val loadingState: LiveData<LoadingState> = _loadingState
+
     private val db: FirebaseFirestore = Firebase.firestore
 
     private var _user = MutableLiveData<User?>(null)
@@ -37,6 +45,7 @@ class UserViewModel @Inject constructor(
     }
 
     private fun addUser(user: User) {
+        _loadingState.value = LoadingState.Start
         val map = user.toHashMap()
         db.collection(COLLECTION_PATH)
             .document(user.id)
@@ -48,9 +57,13 @@ class UserViewModel @Inject constructor(
                 it.printStackTrace()
                 _user.value = null
             }
+            .addOnCompleteListener {
+                _loadingState.value = LoadingState.Complete
+            }
     }
 
     fun addUserIfNotExists(user: User) {
+        _loadingState.value = LoadingState.Start
         db.collection(COLLECTION_PATH)
             .document(user.id)
             .get()
@@ -73,6 +86,31 @@ class UserViewModel @Inject constructor(
             .addOnFailureListener {
                 it.printStackTrace()
                 _user.value = null
+            }
+            .addOnCompleteListener {
+                _loadingState.value = LoadingState.Complete
+            }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun getUserFromCloud(userId: String) {
+        _loadingState.value = LoadingState.Start
+        db.collection(COLLECTION_PATH)
+            .document(userId)
+            .get()
+            .addOnSuccessListener { document ->
+                val data = document.data as? Map<String, String?>
+                if (data != null) {
+                    val user = User(document.id).mapToUser(data)
+                    _user.value = user
+                }
+            }
+            .addOnFailureListener { ex ->
+                ex.printStackTrace()
+                _user.value = null
+            }
+            .addOnCompleteListener {
+                _loadingState.value = LoadingState.Complete
             }
     }
 
