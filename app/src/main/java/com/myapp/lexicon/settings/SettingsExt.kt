@@ -18,6 +18,7 @@ import com.myapp.lexicon.helpers.getCRC32CheckSum
 import com.myapp.lexicon.models.LaunchMode
 import com.myapp.lexicon.models.TestState
 import com.myapp.lexicon.models.Word
+import com.myapp.lexicon.models.currency.Currency
 
 val Context.appSettings: SharedPreferences
     get() {
@@ -397,6 +398,31 @@ fun Context.checkBuildConfig(
     }
 }
 
+fun Context.saveExchangeRateToPref(currency: Currency) {
+    appSettings.edit().putString("KEY_EXCHANGE_DATE", currency.date).apply()
+    appSettings.edit().putFloat("KEY_EXCHANGE_RATE", currency.rate.toFloat()).apply()
+}
+
+fun Context.getExchangeRateFromPref(
+    onInit: () -> Unit,
+    onSuccess: (date: String, rate: Double) -> Unit,
+    onFailure: (Exception) -> Unit = {}
+) {
+    try {
+        val date = appSettings.getString("KEY_EXCHANGE_DATE", null)
+        val rate = appSettings.getFloat("KEY_EXCHANGE_RATE", -1.0F).toDouble()
+        if (date == null || rate < 0) {
+            onInit.invoke()
+            return
+        }
+        else if (rate > 0) {
+            onSuccess.invoke(date, rate)
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        onFailure.invoke(e)
+    }
+}
 
 
 

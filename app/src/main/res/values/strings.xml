@@ -15,6 +15,7 @@
     <string name="test_interstitial_ad">ca-app-pub-3940256099942544/1033173712</string>
 
     <string name="appodeal_app_key" translatable="false">10021219a5e916ec6f9e534d8614339dc30d2e44a5bf0018</string>
+    <string name="currency_converter_api_key" translatable="false">pZHtOb0uFiDxwuW4bnLIOITh9bCtqqQkHBq4NzQp</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -286,7 +287,7 @@
     <string name="text_user_is_registered">Пользователь зарегистрирован</string>
     <string name="text_login_completed">Вход выполнен</string>
     <string name="text_check_email">Проверьте вашу почту</string>
-    <string name="text_unknown_error_message">Что то пошло не так...</string>
+    <string name="text_unknown_error_message">Что то пошло не так…</string>
     <string name="text_incorrect_email">Неправильный e-mail</string>
     <string name="text_empty_password_message">Пароль не должен быть пустым</string>
     <string name="text_wrong_password_length">Длина пароля должна быть не менее 6 символов</string>

@@ -7,18 +7,24 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.lifecycle.lifecycleScope
+import com.google.firebase.auth.FirebaseAuth
 import com.myapp.lexicon.R
 import com.myapp.lexicon.billing.UserPurchases
 import com.myapp.lexicon.databinding.ALayoutSplashScreenBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.showDialogAsSingleton
 import com.myapp.lexicon.helpers.startTimer
+import com.myapp.lexicon.helpers.toLongDate
+import com.myapp.lexicon.helpers.toStringDate
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.Speaker
+import com.myapp.lexicon.models.currency.Currency
 import com.myapp.lexicon.settings.*
+import com.myapp.lexicon.viewmodels.CurrencyViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.*
@@ -30,6 +36,11 @@ class SplashActivity : AppCompatActivity() {
     private lateinit var binding: ALayoutSplashScreenBinding
     private var speaker: Speaker? = null
 
+    private val auth: FirebaseAuth by lazy {
+        FirebaseAuth.getInstance()
+    }
+    private val currencyVM: CurrencyViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -40,8 +51,37 @@ class SplashActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
+        var authChecked = false
         var cloudChecked = false
         var speechChecked = false
+
+        val user = auth.currentUser
+        if (user != null) {
+            currencyVM.fetchExchangeRateFromCloud()
+        }
+        else {
+            authChecked = true
+        }
+
+        currencyVM.currency.observe(this) { result ->
+            result.onSuccess<Currency> { currency ->
+                val cloudTime = currency.date.toLongDate()
+                val currentTime = System.currentTimeMillis().toStringDate().toLongDate()
+                if (currentTime > cloudTime) {
+                    currencyVM.getExchangeRateFromApi(
+                        onSuccess = { rate ->
+
+                        },
+                        onFailure = {
+                            authChecked = true
+                        }
+                    )
+                }
+            }
+            result.onError {
+                authChecked = true
+            }
+        }
 
         this.checkBuildConfig(
             onInit = {
@@ -187,10 +227,11 @@ class SplashActivity : AppCompatActivity() {
 
         startTimer(30000, onFinish = {
             cloudChecked = true
+            authChecked = true
         })
 
         lifecycleScope.launch {
-            while (!cloudChecked || !speechChecked) {
+            while (!cloudChecked || !speechChecked || !authChecked) {
                 delay(500)
                 if (cloudChecked && speechChecked) {
                     val intent = Intent(this@SplashActivity, MainActivity::class.java)

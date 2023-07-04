@@ -18,6 +18,12 @@ import com.myapp.lexicon.schedule.AlarmScheduler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.temporal.TemporalAccessor
+import java.util.Date
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import java.util.zip.CRC32
 import kotlin.math.roundToInt
@@ -146,6 +152,23 @@ val String.isItEmail: Boolean
     get() {
         return !TextUtils.isEmpty(this) && Patterns.EMAIL_ADDRESS.matcher(this).matches()
     }
+
+@Suppress("UnnecessaryVariable")
+fun Long.toStringDate(locale: Locale = Locale.getDefault()): String {
+    val formatter = SimpleDateFormat("yyyy-MM-dd", locale)
+    val strDate = formatter.format(this)
+    return strDate
+}
+
+fun String.toLongDate(locale: Locale = Locale.getDefault()): Long {
+    val formatter = SimpleDateFormat("yyyy-MM-dd", locale)
+    val date = try {
+        formatter.parse(this)
+    } catch (e: ParseException) {
+        Date(-1)
+    }
+    return date.time
+}
 
 
 

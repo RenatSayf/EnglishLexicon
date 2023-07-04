@@ -14,6 +14,7 @@ import com.myapp.lexicon.databinding.FragmentAuthBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.isItEmail
 import com.myapp.lexicon.helpers.showSnackBar
+import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserState
 import com.myapp.lexicon.settings.saveEmailPasswordToPref
@@ -32,6 +33,7 @@ class AuthFragment : Fragment() {
 
     private lateinit var binding: FragmentAuthBinding
     private val authVM: AuthViewModel by viewModels()
+    private val userVM: UserViewModel by viewModels()
 
     interface AuthListener {
         fun refreshAuthState(user: User)
@@ -139,6 +141,7 @@ class AuthFragment : Fragment() {
                 }
                 state.onSignUp { user ->
                     showSnackBar(getString(R.string.text_user_is_registered))
+                    userVM.addUserIfNotExists(user)
                     requireContext().saveEmailPasswordToPref(user.email, user.password)
                     listener?.refreshAuthState(user)
                     parentFragmentManager.popBackStack()

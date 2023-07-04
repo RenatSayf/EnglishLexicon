@@ -3,6 +3,7 @@ package com.myapp.lexicon.auth
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner
+import com.myapp.lexicon.models.User
 import com.myapp.lexicon.testing.TestActivity
 import org.junit.After
 import org.junit.Assert
@@ -37,7 +38,9 @@ class AuthFragmentTest {
 
         scenario.onActivity { activity ->
 
-            val fragment = AuthFragment.newInstance()
+            val fragment = AuthFragment.newInstance(object : AuthFragment.AuthListener {
+                override fun refreshAuthState(user: User) {}
+            })
             activity.supportFragmentManager.beginTransaction().add(
                 fragment,
                 AuthFragment.TAG
