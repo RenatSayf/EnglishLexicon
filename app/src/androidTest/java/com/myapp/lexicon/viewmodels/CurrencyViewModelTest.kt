@@ -6,7 +6,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner
 import com.myapp.lexicon.helpers.toStringDate
 import com.myapp.lexicon.models.AppResult
-import com.myapp.lexicon.models.currency.RubUsd
+import com.myapp.lexicon.models.currency.Currency
 import com.myapp.lexicon.testing.TestActivity
 import org.junit.After
 import org.junit.Assert
@@ -40,7 +40,7 @@ class CurrencyViewModelTest {
     }
 
     @Test
-    fun getExchangeRate() {
+    fun getExchangeRate_RUB_USD() {
         var isRunning = true
 
         scenario.onActivity {
@@ -48,8 +48,33 @@ class CurrencyViewModelTest {
             val locale = Locale("ru", "RU")
             currencyVM.getExchangeRateFromApi(
                 locale = locale,
-                onSuccess = {
-                    Assert.assertTrue(true)
+                onSuccess = { rate ->
+                    Assert.assertTrue(rate > 1.0)
+                    isRunning = false
+                },
+                onFailure = {
+                    Assert.assertTrue(false)
+                    isRunning = false
+                }
+            )
+        }
+
+        while (isRunning) {
+            Thread.sleep(100)
+        }
+    }
+
+    @Test
+    fun getExchangeRate_USD_USD() {
+        var isRunning = true
+
+        scenario.onActivity {
+
+            val locale = Locale("en", "US")
+            currencyVM.getExchangeRateFromApi(
+                locale = locale,
+                onSuccess = { rate ->
+                    Assert.assertTrue(rate == 1.0)
                     isRunning = false
                 },
                 onFailure = {
@@ -72,7 +97,7 @@ class CurrencyViewModelTest {
 
             val jsonStr = """{"data": {"RUB": 87.9501}}"""
             val actualResult = currencyVM.parsingCurrencyApiResult(jsonStr, "RUB")
-            val expectedResult = RubUsd(System.currentTimeMillis().toStringDate(), "RUB", 87.9501)
+            val expectedResult = Currency(System.currentTimeMillis().toStringDate(), "RUB", 87.9501)
             Assert.assertEquals(expectedResult, actualResult)
             isRunning = false
         }
@@ -92,10 +117,47 @@ class CurrencyViewModelTest {
             currencyVM.fetchExchangeRateFromCloud(locale)
 
             currencyVM.currency.observe(activity) { result ->
-
-                result
+                result.onSuccess<Currency> { currency ->
+                    Assert.assertEquals("RUB", currency.name)
+                }
+                result.onError {
+                    Assert.assertTrue(false)
+                }
                 if (result !is AppResult.Init) {
                     isRunning = false
+                }
+            }
+        }
+
+        while (isRunning) {
+            Thread.sleep(100)
+        }
+    }
+
+    @Test
+    fun saveExchangeRateToCloud() {
+        var isRunning = true
+
+        scenario.onActivity { activity ->
+
+            val currency = Currency(
+                date = System.currentTimeMillis().toStringDate(),
+                name = "RUB",
+                rate = 88.8888
+            )
+            currencyVM.saveExchangeRateToCloud(currency)
+
+            currencyVM.state.observe(activity) { state ->
+                when(state) {
+                    is CurrencyViewModel.State.Error -> {
+                        Assert.assertTrue(false)
+                        isRunning = false
+                    }
+                    CurrencyViewModel.State.Init -> {}
+                    is CurrencyViewModel.State.Updated -> {
+                        Assert.assertTrue(true)
+                        isRunning = false
+                    }
                 }
             }
         }

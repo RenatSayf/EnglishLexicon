@@ -7,10 +7,12 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.FragmentAccountBinding
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.User
+import com.myapp.lexicon.settings.getExchangeRateFromPref
 
 class AccountFragment : Fragment() {
 
@@ -103,8 +105,16 @@ class AccountFragment : Fragment() {
 
         with(binding) {
 
-            val reward = user.rewardToDisplay
-            tvRewardValue.text = reward
+            requireContext().getExchangeRateFromPref(
+                onInit = {},
+                onSuccess = { date, symbol, rate ->
+                    val reward = "${user.userReward * rate} $symbol"
+                    tvRewardValue.text = reward
+                },
+                onFailure = {
+                    if (BuildConfig.DEBUG) it.printStackTrace()
+                }
+            )
 
             tvEmailValue.text = user.email
             tvPhoneValue.setText(user.phone)

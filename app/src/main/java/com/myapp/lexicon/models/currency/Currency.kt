@@ -1,10 +1,15 @@
 package com.myapp.lexicon.models.currency
 
-abstract class Currency(
-    open val date: String,
-    open val name: String,
-    open val rate: Double
+data class Currency(
+    val date: String,
+    val name: String,
+    val rate: Double
 ) {
-
-    abstract fun toMap(): Map<String, String>
+    fun toMap(): Map<String, String> {
+        return mapOf(
+            "date" to date,
+            "currency" to name,
+            "rate" to rate.toString()
+        )
+    }
 }

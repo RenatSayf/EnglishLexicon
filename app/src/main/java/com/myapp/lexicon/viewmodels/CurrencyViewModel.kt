@@ -13,8 +13,8 @@ import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.helpers.toStringDate
 import com.myapp.lexicon.models.AppResult
+import com.myapp.lexicon.models.currency.Currencies
 import com.myapp.lexicon.models.currency.Currency
-import com.myapp.lexicon.models.currency.RubUsd
 import dagger.hilt.android.lifecycle.HiltViewModel
 import org.json.JSONException
 import org.json.JSONObject
@@ -32,6 +32,12 @@ class CurrencyViewModel @Inject constructor(
     private val app: Application
 ): AndroidViewModel(app) {
 
+    sealed class State {
+        object Init: State()
+        data class Updated(val currency: Currency): State()
+        data class Error(val exception: Exception): State()
+    }
+
     private var thread: Thread? = null
     private val db: FirebaseFirestore by lazy {
         Firebase.firestore
@@ -40,15 +46,22 @@ class CurrencyViewModel @Inject constructor(
     private var _currency = MutableLiveData<AppResult>(AppResult.Init)
     val currency: LiveData<AppResult> = _currency
 
+    private var _state = MutableLiveData<State>(State.Init)
+    val state: LiveData<State> = _state
+
     fun getExchangeRateFromApi(
         locale: Locale = Locale.getDefault(),
         onSuccess: (Double) -> Unit,
         onFailure: (Exception) -> Unit
     ) {
-        when(locale.toLanguageTag().lowercase()) {
-            "ru-ru" -> {
+        val currency = android.icu.util.Currency.getInstance(locale)
+        when(currency.currencyCode) {
+            "USD" -> {
+                onSuccess.invoke(1.0)
+            }
+            else -> {
                 fetchActualRate(
-                    RubUsd.name,
+                    currency.currencyCode,
                     onSuccess = { rate ->
                         onSuccess.invoke(rate)
                     },
@@ -56,9 +69,6 @@ class CurrencyViewModel @Inject constructor(
                         onFailure.invoke(exception)
                     }
                 )
-            }
-            else -> {
-                onSuccess.invoke(1.0)
             }
         }
     }
@@ -81,9 +91,8 @@ class CurrencyViewModel @Inject constructor(
                 val code = urlConnection.responseCode
                 when(code) {
                     200 -> {
-
                         val result = parsingCurrencyApiResult(responseText, currency)
-                        if (result is RubUsd) {
+                        if (result is Currency) {
                             onSuccess.invoke(result.rate)
                         }
                         else {
@@ -109,8 +118,8 @@ class CurrencyViewModel @Inject constructor(
             val jsonData = JSONObject(json).getJSONObject("data")
             val value = jsonData.getDouble(currency)
             when(currency) {
-                RubUsd.name -> {
-                    RubUsd(System.currentTimeMillis().toStringDate(), currency, value)
+                Currencies.RUB.name -> {
+                    Currency(System.currentTimeMillis().toStringDate(), currency, value)
                 }
                 else -> {
                     null
@@ -124,32 +133,40 @@ class CurrencyViewModel @Inject constructor(
     }
 
     fun fetchExchangeRateFromCloud(locale: Locale = Locale.getDefault()) {
-        val currencyName = if (locale.toLanguageTag().lowercase() == "ru-ru") {
-            "RUB"
-        } else null
+        val currency = android.icu.util.Currency.getInstance(locale)
+        val currencyCode = currency.currencyCode
 
-        currencyName?.let { currency ->
-            db.collection(COLLECTION_PATH)
-                .document(currency)
-                .get()
-                .addOnSuccessListener { snapshot ->
-                    val data = snapshot.data
-                    data?.let {
-                        val date = it["date"].toString()
-                        val name = it["currency"].toString()
-                        val rate = it["rate"].toString().toDouble()
-                        _currency.value = AppResult.Success(RubUsd(date, name, rate))
-                    }?: run {
-                        _currency.value = AppResult.Error(Exception("No data"))
-                    }
-                }
-                .addOnFailureListener { ex ->
-                    ex.printStackTrace()
-                    _currency.value = AppResult.Error(ex)
-                }
-        }?: run {
-            _currency.value = AppResult.Error(Exception("No data"))
+        if (currencyCode == Currencies.USD.name) {
+            _currency.value = AppResult.Success(Currency(
+                0L.toStringDate(),
+                name = Currencies.USD.name,
+                rate = 1.0
+            ))
+            return
         }
+
+        db.collection(COLLECTION_PATH)
+            .document(currencyCode)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val data = snapshot.data
+                data?.let {
+                    val date = it["date"].toString()
+                    val name = it["currency"].toString()
+                    val rate = it["rate"].toString().toDouble()
+                    _currency.value = AppResult.Success(Currency(date, name, rate))
+                }?: run {
+                    _currency.value = AppResult.Success(Currency(
+                        0L.toStringDate(),
+                        name = Currencies.USD.name,
+                        rate = 1.0
+                    ))
+                }
+            }
+            .addOnFailureListener { ex ->
+                ex.printStackTrace()
+                _currency.value = AppResult.Error(ex)
+            }
     }
 
     fun saveExchangeRateToCloud(currency: Currency) {
@@ -157,10 +174,11 @@ class CurrencyViewModel @Inject constructor(
             .document(currency.name)
             .set(currency.toMap())
             .addOnSuccessListener {
-
+                _state.value = State.Updated(currency)
             }
             .addOnFailureListener { ex ->
                 ex.printStackTrace()
+                _state.value = State.Error(ex)
             }
     }
 

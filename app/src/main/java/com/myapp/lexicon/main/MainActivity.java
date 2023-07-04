@@ -152,13 +152,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         userVM.getUser().observe(this, user -> {
             SettingsExtKt.setAdsIsEnabled(this, true);
             if (user != null) {
-
                 if (user.getUserReward() > 0.0009)
                 {
-                    TextView tvReward = root.findViewById(R.id.tvReward);
-                    String text = getString(R.string.text_your_reward) + user.getRewardToDisplay();
-                    tvReward.setText(text);
-                    tvReward.setVisibility(View.VISIBLE);
+                    SettingsExtKt.getExchangeRateFromPref(
+                            this,
+                            () -> null,
+                            (date, symbol, rate) -> {
+
+                                double sum = (Double) user.getUserReward() * rate;
+                                TextView tvReward = root.findViewById(R.id.tvReward);
+                                String text = getString(R.string.text_your_reward).concat(" ").concat(Double.toString(sum)).concat(symbol);
+                                tvReward.setText(text);
+                                tvReward.setVisibility(View.VISIBLE);
+                                return null;
+                            },
+                            e -> null
+                    );
                 }
 
                 boolean isInitialized = Appodeal.isInitialized(Appodeal.REWARDED_VIDEO | Appodeal.INTERSTITIAL);

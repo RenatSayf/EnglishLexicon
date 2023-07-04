@@ -41,6 +41,10 @@ class SplashActivity : AppCompatActivity() {
     }
     private val currencyVM: CurrencyViewModel by viewModels()
 
+    private var authChecked = false
+    private var cloudChecked = false
+    private var speechChecked = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -50,10 +54,6 @@ class SplashActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-
-        var authChecked = false
-        var cloudChecked = false
-        var speechChecked = false
 
         val user = auth.currentUser
         if (user != null) {
@@ -70,7 +70,10 @@ class SplashActivity : AppCompatActivity() {
                 if (currentTime > cloudTime) {
                     currencyVM.getExchangeRateFromApi(
                         onSuccess = { rate ->
-
+                            val date = System.currentTimeMillis().toStringDate()
+                            currencyVM.saveExchangeRateToCloud(
+                                currency = Currency(date, currency.name, rate)
+                            )
                         },
                         onFailure = {
                             authChecked = true
@@ -80,6 +83,19 @@ class SplashActivity : AppCompatActivity() {
             }
             result.onError {
                 authChecked = true
+            }
+        }
+
+        currencyVM.state.observe(this) { state ->
+            when(state) {
+                is CurrencyViewModel.State.Error -> {
+                    authChecked = true
+                }
+                CurrencyViewModel.State.Init -> {}
+                is CurrencyViewModel.State.Updated -> {
+                    applicationContext.saveExchangeRateToPref(state.currency)
+                    authChecked = true
+                }
             }
         }
 
@@ -227,13 +243,13 @@ class SplashActivity : AppCompatActivity() {
 
         startTimer(30000, onFinish = {
             cloudChecked = true
-            authChecked = true
+            //authChecked = true
         })
 
         lifecycleScope.launch {
             while (!cloudChecked || !speechChecked || !authChecked) {
                 delay(500)
-                if (cloudChecked && speechChecked) {
+                if (authChecked && cloudChecked && speechChecked) {
                     val intent = Intent(this@SplashActivity, MainActivity::class.java)
                     startActivity(intent)
                     this@SplashActivity.finish()
@@ -241,5 +257,11 @@ class SplashActivity : AppCompatActivity() {
             }
         }
 
+    }
+
+    override fun onDestroy() {
+
+        authChecked
+        super.onDestroy()
     }
 }
