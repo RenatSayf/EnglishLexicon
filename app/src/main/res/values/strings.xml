@@ -298,6 +298,10 @@
     <string name="title_last_name">Фамилия:</string>
     <string name="text_get_reward_now">Получить награду</string>
     <string name="text_reward_conditions">Получить награду можно, когда сумма составит больше</string>
+    <string name="text_card_number_to_phone">Номер банковской карты привязанной к номеру телефона</string>
+    <string name="text_enter_card_number">Введите номер банковской карты</string>
+    <string name="text_card_number_hint">0000 0000 0000 0000</string>
+    <string name="text_card_number_not_valid">Неправильный номер карты.</string>
 
     <string-array name="not_move">
         <item>Не перемещать</item>

@@ -18,6 +18,7 @@ data class User(
         const val KEY_LAST_NAME = "last_name"
         const val KEY_PHONE = "phone"
         const val KEY_BANK_CARD = "bank_card"
+        const val KEY_PAYMENT_REQUIRED = "payment_required"
     }
 
     var email: String = ""
@@ -31,6 +32,7 @@ data class User(
     var userReward: Double = 0.0
     var revenuePerAd: Double = 0.0
     var currency: String? = "USD"
+    var paymentRequired: Boolean = false
 
     val rewardToDisplay: String
         get() {
@@ -48,7 +50,8 @@ data class User(
             KEY_FIRST_NAME to firstName,
             KEY_LAST_NAME to lastName,
             KEY_PHONE to phone,
-            KEY_BANK_CARD to bankCard
+            KEY_BANK_CARD to bankCard,
+            KEY_PAYMENT_REQUIRED to paymentRequired.toString()
         )
     }
 

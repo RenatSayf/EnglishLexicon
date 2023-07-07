@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED_ANONYMOUS_PARAMETER")
+
 package com.myapp.lexicon.auth.account
 
 import android.os.Bundle
@@ -10,9 +12,14 @@ import androidx.fragment.app.viewModels
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.FragmentAccountBinding
+import com.myapp.lexicon.dialogs.ConfirmDialog
+import com.myapp.lexicon.helpers.LuhnAlgorithm
+import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.settings.getExchangeRateFromPref
+import java.math.BigDecimal
+import java.math.RoundingMode
 
 class AccountFragment : Fragment() {
 
@@ -43,6 +50,9 @@ class AccountFragment : Fragment() {
 
         with(binding) {
 
+            if (BuildConfig.DEBUG) {
+                btnGetReward.isEnabled = true
+            }
             if (savedInstanceState == null && !userId.isNullOrEmpty()) {
                 userVM.getUserFromCloud(userId!!)
             }
@@ -54,6 +64,9 @@ class AccountFragment : Fragment() {
                     }
                     UserViewModel.LoadingState.Start -> {
                         progressBar.visibility = View.VISIBLE
+                    }
+                    is UserViewModel.LoadingState.UserUpdated -> {
+                        showConfirmDialog()
                     }
                 }
             }
@@ -98,6 +111,37 @@ class AccountFragment : Fragment() {
                     accountVM.setState(AccountViewModel.State.OnSave(user))
                 }
             }
+
+            btnGetReward.setOnClickListener {
+                val user = userVM.user.value
+                if (user != null && user.bankCard.isEmpty()) {
+                    BankCardDialog.newInstance(onLaunch = { dialog, binding ->
+                        with(binding) {
+                            val explainText = "${getString(R.string.text_card_number_to_phone)} ${user.phone}"
+                            tvBankHint.text = explainText
+                            etBankCard.setText(user.bankCard)
+                            btnCancel.setOnClickListener {
+                                dialog.dismiss()
+                            }
+                            btnOk.setOnClickListener {
+                                val number = etBankCard.text.toString()
+                                val isValid = LuhnAlgorithm.isLuhnChecksumValid(number)
+                                if (isValid) {
+                                    userVM.updateUser(0.0, user.apply {
+                                        paymentRequired = true
+                                        bankCard = number
+                                    })
+                                    showConfirmDialog()
+                                    dialog.dismiss()
+                                }
+                                else {
+                                    showSnackBar(getString(R.string.text_card_number_not_valid))
+                                }
+                            }
+                        }
+                    }).show(parentFragmentManager, BankCardDialog.TAG)
+                }
+            }
         }
     }
 
@@ -108,8 +152,18 @@ class AccountFragment : Fragment() {
             requireContext().getExchangeRateFromPref(
                 onInit = {},
                 onSuccess = { date, symbol, rate ->
-                    val reward = "${user.userReward * rate} $symbol"
-                    tvRewardValue.text = reward
+                    val reward = user.userReward * rate
+                    val rewardToDisplay = "${BigDecimal(reward).setScale(2, RoundingMode.DOWN)} $symbol"
+                    tvRewardValue.text = rewardToDisplay
+
+                    val rewardThreshold = (2 * rate).toInt()
+                    val textCondition = "${getString(R.string.text_reward_conditions)} $rewardThreshold $symbol"
+                    tvRewardCondition.text = textCondition
+                    btnGetReward.isEnabled = user.userReward > rewardThreshold
+                    if (user.userReward > rewardThreshold) {
+                        tvRewardCondition.visibility = View.GONE
+                    }
+                    else tvRewardCondition.visibility = View.VISIBLE
                 },
                 onFailure = {
                     if (BuildConfig.DEBUG) it.printStackTrace()
@@ -121,12 +175,23 @@ class AccountFragment : Fragment() {
             tvFirstNameValue.setText(user.firstName)
             tvLastNameValue.setText(user.lastName)
 
-            btnGetReward.isEnabled = user.userReward > 1000.0
-            if (user.userReward > 1000.0) {
-                tvRewardCondition.visibility = View.GONE
-            }
-            else tvRewardCondition.visibility = View.VISIBLE
+
         }
+    }
+
+    private fun showConfirmDialog() {
+        ConfirmDialog.newInstance(onLaunch = {dialog, binding ->
+            with(binding) {
+                dialog.isCancelable = false
+                val days = 3
+                val message = "Заявка принята. Ожидайте поступления средств на карту в течении $days дней"
+                tvMessage.text = message
+                btnCancel.visibility = View.GONE
+                btnOk.setOnClickListener {
+                    dialog.dismiss()
+                }
+            }
+        }).show(parentFragmentManager, ConfirmDialog.TAG)
     }
 
     override fun onResume() {

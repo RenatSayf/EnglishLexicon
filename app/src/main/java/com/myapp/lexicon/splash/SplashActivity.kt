@@ -243,7 +243,7 @@ class SplashActivity : AppCompatActivity() {
 
         startTimer(30000, onFinish = {
             cloudChecked = true
-            //authChecked = true
+            authChecked = true
         })
 
         lifecycleScope.launch {

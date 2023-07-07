@@ -30,6 +30,7 @@ class UserViewModel @Inject constructor(
     sealed class LoadingState {
         object Start: LoadingState()
         object Complete: LoadingState()
+        data class UserUpdated(val user: User): LoadingState()
     }
 
     private var _loadingState = MutableLiveData<LoadingState>()
@@ -117,6 +118,7 @@ class UserViewModel @Inject constructor(
     @Suppress("UNCHECKED_CAST")
     fun updateUser(revenuePerAd: Double, user: User) {
 
+        _loadingState.value = LoadingState.Start
         db.collection(COLLECTION_PATH)
             .document(user.id)
             .get()
@@ -133,11 +135,15 @@ class UserViewModel @Inject constructor(
                             .set(user.toHashMap())
                             .addOnSuccessListener {
                                 _user.value = user
+                                _loadingState.value = LoadingState.UserUpdated(user)
                             }
                             .addOnFailureListener { t ->
                                 if (BuildConfig.DEBUG) {
                                     t.printStackTrace()
                                 }
+                            }
+                            .addOnCompleteListener {
+                                _loadingState.value = LoadingState.Complete
                             }
                     } else {
                         if (BuildConfig.DEBUG) {
@@ -152,6 +158,9 @@ class UserViewModel @Inject constructor(
                 if (BuildConfig.DEBUG) {
                     t.printStackTrace()
                 }
+            }
+            .addOnCompleteListener {
+                _loadingState.value = LoadingState.Complete
             }
     }
     fun calculateReallyRevenue(revenuePerAd: Double, remoteUserData: Map<String, String?>): Double {

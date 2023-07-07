@@ -347,6 +347,10 @@
     <string name="title_last_name">Прізвище:</string>
     <string name="text_get_reward_now">Отримати нагороду</string>
     <string name="text_reward_conditions">Отримати нагороду можна, коли сума складе більше</string>
+    <string name="text_card_number_to_phone">Номер банківської карти прив\'язаної до номера телефону</string>
+    <string name="text_enter_card_number">Введіть номер банківської картки</string>
+    <string name="text_card_number_hint">0000 0000 0000 0000</string>
+    <string name="text_card_number_not_valid">Неправильний номер картки.</string>
 
     <string-array name="words_interval">
         <item>після 5 слів</item>
