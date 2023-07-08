@@ -17,7 +17,7 @@ import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserState
-import com.myapp.lexicon.settings.saveEmailPasswordToPref
+import com.myapp.lexicon.settings.saveUserToPref
 
 class AuthFragment : Fragment() {
 
@@ -142,13 +142,13 @@ class AuthFragment : Fragment() {
                 state.onSignUp { user ->
                     showSnackBar(getString(R.string.text_user_is_registered))
                     userVM.addUserIfNotExists(user)
-                    requireContext().saveEmailPasswordToPref(user.email, user.password)
+                    requireContext().saveUserToPref(user)
                     listener?.refreshAuthState(user)
                     parentFragmentManager.popBackStack()
                 }
                 state.onSignIn { user ->
                     showSnackBar(getString(R.string.text_login_completed))
-                    requireContext().saveEmailPasswordToPref(user.email, user.password)
+                    requireContext().saveUserToPref(user)
                     listener?.refreshAuthState(user)
                     parentFragmentManager.popBackStack()
                 }

@@ -84,10 +84,7 @@ class UserViewModel @Inject constructor(
                     }
                 }
                 else {
-                    val newUser = User(user.id).apply {
-                        email = user.id
-                    }
-                    addUser(newUser)
+                    addUser(user)
                 }
             }
             .addOnFailureListener {
@@ -112,8 +109,7 @@ class UserViewModel @Inject constructor(
                     _user.value = user
                 }
                 else {
-                    val newUser = User(document.id)
-                    addUser(newUser)
+                    _user.value = null
                 }
             }
             .addOnFailureListener { ex ->

@@ -16,7 +16,7 @@ import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserState
-import com.myapp.lexicon.settings.getEmailPasswordFromPref
+import com.myapp.lexicon.settings.getAuthDataFromPref
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -167,11 +167,11 @@ class AuthViewModel @Inject constructor(
 
     init {
 
-        app.getEmailPasswordFromPref(
+        app.getAuthDataFromPref(
             onNotRegistered = {
                 _state.value = UserState.NotRegistered
             },
-            onSuccess = { email, password ->
+            onSuccess = { id, email, password ->
                 val currentUser = auth.currentUser
                 if (currentUser == null) {
                     signInWithEmailAndPassword(email, password)

@@ -11,8 +11,8 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.lifecycle.lifecycleScope
-import com.google.firebase.auth.FirebaseAuth
 import com.myapp.lexicon.R
+import com.myapp.lexicon.auth.AuthViewModel
 import com.myapp.lexicon.billing.UserPurchases
 import com.myapp.lexicon.databinding.ALayoutSplashScreenBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
@@ -36,10 +36,8 @@ class SplashActivity : AppCompatActivity() {
     private lateinit var binding: ALayoutSplashScreenBinding
     private var speaker: Speaker? = null
 
-    private val auth: FirebaseAuth by lazy {
-        FirebaseAuth.getInstance()
-    }
     private val currencyVM: CurrencyViewModel by viewModels()
+    private val authVM: AuthViewModel by viewModels()
 
     private var authChecked = false
     private var cloudChecked = false
@@ -50,18 +48,25 @@ class SplashActivity : AppCompatActivity() {
 
         binding = ALayoutSplashScreenBinding.inflate(layoutInflater, CoordinatorLayout(this), false)
         setContentView(binding.root)
+
+        applicationContext.getAuthDataFromPref(
+            onNotRegistered = {
+                authChecked = true
+            },
+            onSuccess = { id, email, password ->
+                authVM.signInWithEmailAndPassword(email, password)
+            }
+        )
+
+        authVM.state.observe(this) { state ->
+            state.onSignIn { user ->
+                currencyVM.fetchExchangeRateFromCloud()
+            }
+        }
     }
 
     override fun onResume() {
         super.onResume()
-
-        val user = auth.currentUser
-        if (user != null) {
-            currencyVM.fetchExchangeRateFromCloud()
-        }
-        else {
-            authChecked = true
-        }
 
         currencyVM.currency.observe(this) { result ->
             result.onSuccess<Currency> { currency ->

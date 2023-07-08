@@ -17,6 +17,7 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.helpers.getCRC32CheckSum
 import com.myapp.lexicon.models.LaunchMode
 import com.myapp.lexicon.models.TestState
+import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.currency.Currency
 import java.util.Locale
@@ -31,31 +32,36 @@ val Fragment.appSettings: SharedPreferences
         return requireContext().appSettings
     }
 
-fun Context.saveEmailPasswordToPref(email: String, password: String) {
-    appSettings.edit().putString("KEY_EMAIL", email).apply()
-    appSettings.edit().putString("KEY_PASSWORD", password).apply()
-    appSettings.edit().putBoolean("KEY_IS_REGISTERED", true).apply()
+fun Context.saveUserToPref(user: User) {
+    appSettings.edit().apply {
+        putString("KEY_USER_ID", user.id)
+        putString("KEY_EMAIL", user.email)
+        putString("KEY_PASSWORD", user.password)
+        putBoolean("KEY_IS_REGISTERED", true)
+    }.apply()
 }
 
 fun Context.clearEmailPasswordInPref() {
+    appSettings.edit().putString("KEY_USER_ID", null).apply()
     appSettings.edit().putString("KEY_EMAIL", null).apply()
     appSettings.edit().putString("KEY_PASSWORD", null).apply()
     appSettings.edit().putBoolean("KEY_IS_REGISTERED", false).apply()
 }
 
-fun Context.getEmailPasswordFromPref(
+fun Context.getAuthDataFromPref(
     onNotRegistered: () -> Unit,
-    onSuccess: (email: String, password: String) -> Unit,
+    onSuccess: (id: String, email: String, password: String) -> Unit,
     onFailure: (Exception) -> Unit = {}
 ) {
+    val id = appSettings.getString("KEY_USER_ID", null)
     val email = appSettings.getString("KEY_EMAIL", null)
     val password = appSettings.getString("KEY_PASSWORD", null)
     try {
-        if (email == null || password == null) {
+        if (id == null || email == null || password == null) {
             onNotRegistered.invoke()
         }
-        else if (email.isNotEmpty() && password.isNotEmpty()) {
-            onSuccess.invoke(email, password)
+        else if (id.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
+            onSuccess.invoke(id, email, password)
         }
         else {
             onNotRegistered.invoke()

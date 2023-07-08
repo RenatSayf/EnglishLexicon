@@ -46,10 +46,12 @@ import com.myapp.lexicon.main.viewmodels.UserViewModel;
 import com.myapp.lexicon.models.User;
 import com.myapp.lexicon.models.UserState;
 import com.myapp.lexicon.models.Word;
+import com.myapp.lexicon.models.currency.Currency;
 import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.service.PhoneUnlockedReceiver;
 import com.myapp.lexicon.settings.ContainerFragment;
 import com.myapp.lexicon.settings.SettingsExtKt;
+import com.myapp.lexicon.viewmodels.CurrencyViewModel;
 import com.myapp.lexicon.wordeditor.WordEditorActivity;
 import com.myapp.lexicon.wordstests.OneOfFiveFragm;
 import com.myapp.lexicon.wordstests.TestFragment;
@@ -146,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             });
             result.onSignIn(user -> {
                 navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_account);
-                userVM.getUserFromCloud(user.getEmail());
+                userVM.getUserFromCloud(user.getId());
                 return null;
             });
         });
@@ -692,17 +694,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.setCustomAnimations(R.anim.from_right_to_left_anim, R.anim.from_left_to_right_anim);
-        int id = item.getItemId();
-        if (id == R.id.nav_user_reward) {
-            SettingsExtKt.getEmailPasswordFromPref(
+        int itemId = item.getItemId();
+        if (itemId == R.id.nav_user_reward) {
+            SettingsExtKt.getAuthDataFromPref(
                     this,
                     () -> {
                         AuthFragment authFragment = AuthFragment.Companion.newInstance(this);
                         transaction.replace(R.id.frame_to_page_fragm, authFragment).addToBackStack(null).commit();
                         return null;
                     },
-                    (email, password) -> {
-                        AccountFragment accountFragment = AccountFragment.Companion.newInstance(email);
+                    (id, email, password) -> {
+                        AccountFragment accountFragment = AccountFragment.Companion.newInstance(id);
                         transaction.replace(R.id.frame_to_page_fragm, accountFragment).addToBackStack(null).commit();
                         return null;
                     },
@@ -715,12 +717,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         return null;
                     });
         }
-        if (id == R.id.nav_add_word)
+        if (itemId == R.id.nav_add_word)
         {
             TranslateFragment translateFragm = TranslateFragment.Companion.getInstance("");
             transaction.replace(R.id.frame_to_page_fragm, translateFragm).addToBackStack(null).commitAllowingStateLoss();
         }
-        else if (id == R.id.nav_delete_dict)
+        else if (itemId == R.id.nav_delete_dict)
         {
             mainViewModel.getDictList(list -> {
                 if (!list.isEmpty()) {
@@ -745,7 +747,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return null;
             });
         }
-        else if (id == R.id.nav_edit)
+        else if (itemId == R.id.nav_edit)
         {
             Intent intent = new Intent(this, WordEditorActivity.class);
             Bundle bundle = new Bundle();
@@ -753,30 +755,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             intent.replaceExtras(bundle);
             activityResultLauncher.launch(intent);
         }
-        else if (id == R.id.nav_check_your_self)
+        else if (itemId == R.id.nav_check_your_self)
         {
             getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, TestFragment.Companion.newInstance()).addToBackStack(null).commit();
         }
-        else if (id == R.id.nav_settings)
+        else if (itemId == R.id.nav_settings)
         {
             getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, new ContainerFragment()).addToBackStack(null).commit();
         }
-        else if (id == R.id.nav_evaluate_app)
+        else if (itemId == R.id.nav_evaluate_app)
         {
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setData(Uri.parse(getString(R.string.app_link)));
             startActivity(intent);
         }
-        else if (id == R.id.nav_share)
+        else if (itemId == R.id.nav_share)
         {
             new Share().doShare(this);
         }
-        else if (id == R.id.nav_about_app)
+        else if (itemId == R.id.nav_about_app)
         {
             AboutAppFragment aboutAppFragment = new AboutAppFragment();
             getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, aboutAppFragment).addToBackStack(null).commit();
         }
-        else if (id == R.id.nav_exit)
+        else if (itemId == R.id.nav_exit)
         {
             onAppFinish();
             ExtensionsKt.alarmClockEnable(this);
@@ -1035,10 +1037,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         wordsInterval = SettingsExtKt.getTestIntervalFromPref(this);
     }
 
+    @SuppressWarnings("CodeBlock2Expr")
     @Override
     public void refreshAuthState(@NonNull User user)
     {
-        authVM.setState(new UserState.SignIn(user));
+        CurrencyViewModel currencyVM = new ViewModelProvider(this).get(CurrencyViewModel.class);
+        currencyVM.fetchExchangeRateFromCloud(Locale.getDefault());
+        currencyVM.getCurrency().observe(this, result -> {
+            result.onSuccess(obj -> {
+                Currency currency = (Currency) obj;
+                SettingsExtKt.saveExchangeRateToPref(this, currency);
+                user.setCurrency(currency.getName());
+                authVM.setState(new UserState.SignUp(user));
+                return null;
+            });
+        });
     }
 }
 
