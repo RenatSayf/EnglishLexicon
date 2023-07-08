@@ -146,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             });
             result.onSignIn(user -> {
                 navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_account);
-                userVM.getUserFromCloud(user.getId());
+                userVM.getUserFromCloud(user.getEmail());
                 return null;
             });
         });

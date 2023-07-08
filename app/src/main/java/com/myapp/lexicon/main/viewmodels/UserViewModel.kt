@@ -45,6 +45,10 @@ class UserViewModel @Inject constructor(
         _user.value = user
     }
 
+    fun setLoadingState(state: LoadingState) {
+        _loadingState.postValue(state)
+    }
+
     private fun addUser(user: User) {
         _loadingState.value = LoadingState.Start
         val map = user.toHashMap()
@@ -80,7 +84,9 @@ class UserViewModel @Inject constructor(
                     }
                 }
                 else {
-                    val newUser = User(user.id)
+                    val newUser = User(user.id).apply {
+                        email = user.id
+                    }
                     addUser(newUser)
                 }
             }
@@ -104,6 +110,10 @@ class UserViewModel @Inject constructor(
                 if (data != null) {
                     val user = User(document.id).mapToUser(data)
                     _user.value = user
+                }
+                else {
+                    val newUser = User(document.id)
+                    addUser(newUser)
                 }
             }
             .addOnFailureListener { ex ->
