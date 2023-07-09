@@ -78,6 +78,7 @@ data class User(
             lastName = map[KEY_LAST_NAME]?: ""
             phone = map[KEY_PHONE]?: ""
             bankCard = map[KEY_BANK_CARD]?: ""
+            paymentRequired = map[KEY_PAYMENT_REQUIRED].toBoolean()
         }
     }
 
