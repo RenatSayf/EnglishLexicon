@@ -133,18 +133,20 @@
                     android:textSize="18sp"
                     />
 
-                <androidx.appcompat.widget.AppCompatEditText
+                <me.dkzwm.widget.fet.FormattedEditText
                     android:id="@+id/tvPhoneValue"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@null"
                     android:gravity="start"
-                    android:inputType="none|phone"
+                    android:inputType="phone"
                     android:textColor="@color/colorWhite"
                     android:textCursorDrawable="@null"
                     android:textSize="18sp"
                     tools:ignore="TouchTargetSizeCheck"
-                    tools:text="+7 999 888 77 55" />
+                    tools:text="+79998887755"
+                    app:fet_formatStyle="+0 (000)000-00-00"
+                    app:fet_mode="mode_mask"/>
 
             </androidx.appcompat.widget.LinearLayoutCompat>
 
