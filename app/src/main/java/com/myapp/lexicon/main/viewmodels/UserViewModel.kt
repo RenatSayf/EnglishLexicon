@@ -140,9 +140,15 @@ class UserViewModel @Inject constructor(
                     user.totalRevenue = calculateTotalRevenue(revenuePerAd, remoteUserData)
 
                     if (user.reallyRevenue > 0 && user.userReward > 0) {
+
+                        val revenueMap = mapOf(
+                            User.KEY_REALLY_REVENUE to user.reallyRevenue,
+                            User.KEY_USER_REWARD to user.userReward,
+                            User.KEY_TOTAL_REVENUE to user.totalRevenue
+                        )
                         db.collection(COLLECTION_PATH)
                             .document(user.id)
-                            .set(user.toHashMap())
+                            .update(revenueMap)
                             .addOnSuccessListener {
                                 _user.value = user
                                 _state.value = State.RevenueUpdated(revenuePerAd, user)
