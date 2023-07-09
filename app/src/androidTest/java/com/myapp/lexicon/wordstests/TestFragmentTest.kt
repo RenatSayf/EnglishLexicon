@@ -1,13 +1,14 @@
 package com.myapp.lexicon.wordstests
 
+import android.widget.FrameLayout
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner
+import com.myapp.lexicon.R
 import com.myapp.lexicon.testing.TestActivity
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
-
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,5 +51,25 @@ class TestFragmentTest {
         while (isRunning) {
             Thread.sleep(100)
         }
+    }
+
+    @Test
+    fun onCreateView() {
+        var isRunning = true
+
+        scenario.onActivity { act ->
+
+            act.supportFragmentManager.beginTransaction().add(
+                act.binding.frameLayout.id,
+                TestFragment.newInstance()
+            ).commit()
+        }
+
+
+
+        while (isRunning) {
+            Thread.sleep(100)
+        }
+
     }
 }

@@ -50,6 +50,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
 {
     companion object
     {
+        val TAG = "${TestFragment::class.java.simpleName}.TAG"
         fun newInstance() = TestFragment()
     }
 
