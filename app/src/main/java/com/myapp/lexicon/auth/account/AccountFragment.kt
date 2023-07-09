@@ -57,16 +57,24 @@ class AccountFragment : Fragment() {
                 userVM.getUserFromCloud(userId!!)
             }
 
-            userVM.loadingState.observe(viewLifecycleOwner) { state ->
+            userVM.state.observe(viewLifecycleOwner) { state ->
                 when(state) {
-                    UserViewModel.LoadingState.Complete -> {
+                    UserViewModel.State.Complete -> {
                         progressBar.visibility = View.GONE
                     }
-                    UserViewModel.LoadingState.Start -> {
+                    UserViewModel.State.Start -> {
                         progressBar.visibility = View.VISIBLE
                     }
-                    is UserViewModel.LoadingState.UserUpdated -> {
+                    is UserViewModel.State.UserUpdated -> {
+                        showSnackBar("Данные сохранены")
+                    }
+
+                    is UserViewModel.State.PaymentRequestSent -> {
                         showConfirmDialog()
+                    }
+
+                    is UserViewModel.State.Error -> {
+                        showSnackBar(state.message)
                     }
                 }
             }
@@ -99,7 +107,7 @@ class AccountFragment : Fragment() {
                             firstName = tvFirstNameValue.text.toString()
                             lastName = tvLastNameValue.text.toString()
                         }
-                        userVM.updateUser(0.0, user)
+                        userVM.updatePersonalData(user)
                         accountVM.setState(AccountViewModel.State.ReadOnly)
                     }
                 }
@@ -127,7 +135,7 @@ class AccountFragment : Fragment() {
                                 val number = etBankCard.text.toString()
                                 val isValid = LuhnAlgorithm.isLuhnChecksumValid(number)
                                 if (isValid) {
-                                    userVM.updateUser(0.0, user.apply {
+                                    userVM.updatePersonalData(user.apply {
                                         paymentRequired = true
                                         bankCard = number
                                     })

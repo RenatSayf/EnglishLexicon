@@ -27,14 +27,16 @@ class UserViewModel @Inject constructor(
         val REVENUE_RATIO: Double = Firebase.remoteConfig.getDouble("REVENUE_RATIO")
     }
 
-    sealed class LoadingState {
-        object Start: LoadingState()
-        object Complete: LoadingState()
-        data class UserUpdated(val user: User): LoadingState()
+    sealed class State {
+        object Start: State()
+        object Complete: State()
+        data class UserUpdated(val user: User): State()
+        data class PaymentRequestSent(val user: User): State()
+        data class Error(val message: String): State()
     }
 
-    private var _loadingState = MutableLiveData<LoadingState>()
-    val loadingState: LiveData<LoadingState> = _loadingState
+    private var _state = MutableLiveData<State>()
+    val state: LiveData<State> = _state
 
     private val db: FirebaseFirestore = Firebase.firestore
 
@@ -45,12 +47,8 @@ class UserViewModel @Inject constructor(
         _user.value = user
     }
 
-    fun setLoadingState(state: LoadingState) {
-        _loadingState.postValue(state)
-    }
-
     private fun addUser(user: User) {
-        _loadingState.value = LoadingState.Start
+        _state.value = State.Start
         val map = user.toHashMap()
         db.collection(COLLECTION_PATH)
             .document(user.id)
@@ -63,12 +61,12 @@ class UserViewModel @Inject constructor(
                 _user.value = null
             }
             .addOnCompleteListener {
-                _loadingState.value = LoadingState.Complete
+                _state.value = State.Complete
             }
     }
 
     fun addUserIfNotExists(user: User) {
-        _loadingState.value = LoadingState.Start
+        _state.value = State.Start
         db.collection(COLLECTION_PATH)
             .document(user.id)
             .get()
@@ -92,13 +90,13 @@ class UserViewModel @Inject constructor(
                 _user.value = null
             }
             .addOnCompleteListener {
-                _loadingState.value = LoadingState.Complete
+                _state.value = State.Complete
             }
     }
 
     @Suppress("UNCHECKED_CAST")
     fun getUserFromCloud(userId: String) {
-        _loadingState.value = LoadingState.Start
+        _state.value = State.Start
         db.collection(COLLECTION_PATH)
             .document(userId)
             .get()
@@ -115,16 +113,17 @@ class UserViewModel @Inject constructor(
             .addOnFailureListener { ex ->
                 ex.printStackTrace()
                 _user.value = null
+                _state.value = State.Error(ex.message?: "Unknown error")
             }
             .addOnCompleteListener {
-                _loadingState.value = LoadingState.Complete
+                _state.value = State.Complete
             }
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun updateUser(revenuePerAd: Double, user: User) {
+    fun updateUserRevenue(revenuePerAd: Double, user: User) {
 
-        _loadingState.value = LoadingState.Start
+        _state.value = State.Start
         db.collection(COLLECTION_PATH)
             .document(user.id)
             .get()
@@ -141,15 +140,16 @@ class UserViewModel @Inject constructor(
                             .set(user.toHashMap())
                             .addOnSuccessListener {
                                 _user.value = user
-                                _loadingState.value = LoadingState.UserUpdated(user)
+                                _state.value = State.UserUpdated(user)
                             }
-                            .addOnFailureListener { t ->
+                            .addOnFailureListener { ex ->
                                 if (BuildConfig.DEBUG) {
-                                    t.printStackTrace()
+                                    ex.printStackTrace()
                                 }
+                                _state.value = State.Error(ex.message?: "Unknown error")
                             }
                             .addOnCompleteListener {
-                                _loadingState.value = LoadingState.Complete
+                                _state.value = State.Complete
                             }
                     } else {
                         if (BuildConfig.DEBUG) {
@@ -160,13 +160,41 @@ class UserViewModel @Inject constructor(
                     }
                 }
             }
-            .addOnFailureListener { t ->
+            .addOnFailureListener { ex ->
                 if (BuildConfig.DEBUG) {
-                    t.printStackTrace()
+                    ex.printStackTrace()
                 }
+                _state.value = State.Error(ex.message?: "Unknown error")
             }
             .addOnCompleteListener {
-                _loadingState.value = LoadingState.Complete
+                _state.value = State.Complete
+            }
+    }
+
+    fun updatePersonalData(user: User) {
+        _state.value = State.Start
+        val userMap = mapOf(
+            User.KEY_PHONE to user.phone,
+            User.KEY_FIRST_NAME to user.firstName,
+            User.KEY_LAST_NAME to user.lastName,
+            User.KEY_BANK_CARD to user.bankCard,
+            User.KEY_PAYMENT_REQUIRED to user.paymentRequired
+        )
+        db.collection(COLLECTION_PATH)
+            .document(user.id)
+            .update(userMap)
+            .addOnSuccessListener {
+                _user.value = user
+                _state.value = State.UserUpdated(user)
+            }
+            .addOnFailureListener { ex ->
+                if (BuildConfig.DEBUG) {
+                    ex.printStackTrace()
+                }
+                _state.value = State.Error(ex.message?: "Unknown error")
+            }
+            .addOnCompleteListener {
+                _state.value = State.Complete
             }
     }
     fun calculateReallyRevenue(revenuePerAd: Double, remoteUserData: Map<String, String?>): Double {

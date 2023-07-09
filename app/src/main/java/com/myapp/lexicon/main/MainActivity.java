@@ -189,7 +189,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     String currency = revenueInfo.getCurrency();
                                     user.setTotalRevenue(revenue);
                                     user.setCurrency(currency);
-                                    userVM.updateUser(revenue, user);
+                                    userVM.updateUserRevenue(revenue, user);
                                     return null;
                                 });
                                 return null;
@@ -1041,7 +1041,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void refreshAuthState(@NonNull User user)
     {
-        CurrencyViewModel currencyVM = new ViewModelProvider(this).get(CurrencyViewModel.class);
+        CurrencyViewModel currencyVM = new ViewModelProvider(MainActivity.this).get(CurrencyViewModel.class);
         currencyVM.fetchExchangeRateFromCloud(Locale.getDefault());
         currencyVM.getCurrency().observe(this, result -> {
             result.onSuccess(obj -> {
