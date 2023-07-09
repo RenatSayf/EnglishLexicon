@@ -192,7 +192,7 @@ class UserViewModel @Inject constructor(
             User.KEY_LAST_NAME to user.lastName,
             User.KEY_BANK_CARD to user.bankCard,
             User.KEY_CURRENCY to Currency.getInstance(Locale.getDefault()).currencyCode,
-            User.KEY_PAYMENT_REQUIRED to user.paymentRequired
+            User.KEY_PAYMENT_REQUIRED to user.paymentRequired.toString()
         )
         db.collection(COLLECTION_PATH)
             .document(user.id)
