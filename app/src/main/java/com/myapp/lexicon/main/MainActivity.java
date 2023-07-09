@@ -156,26 +156,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         userVM.getUser().observe(this, user -> {
             SettingsExtKt.setAdsIsEnabled(this, true);
             if (user != null) {
-                if (user.getUserReward() > 0.009)
-                {
-                    SettingsExtKt.getExchangeRateFromPref(
-                            this,
-                            () -> null,
-                            (date, symbol, rate) -> {
-                                double sum = (Double) user.getUserReward() * rate;
-                                String rewardToDisplay = BigDecimal.valueOf(sum).setScale(2, RoundingMode.DOWN).toString();
-                                TextView tvReward = root.findViewById(R.id.tvReward);
-                                String text = getString(R.string.text_your_reward).concat(" ").concat(rewardToDisplay).concat(" ").concat(symbol);
-                                tvReward.setText(text);
-                                tvReward.setVisibility(View.VISIBLE);
-                                return null;
-                            },
-                            e -> {
-                                if (BuildConfig.DEBUG) e.printStackTrace();
-                                return null;
-                            }
-                    );
-                }
+                SettingsExtKt.getExchangeRateFromPref(
+                        this,
+                        () -> null,
+                        (date, symbol, rate) -> {
+                            double sum = (Double) user.getUserReward() * rate;
+                            String rewardToDisplay = BigDecimal.valueOf(sum).setScale(2, RoundingMode.DOWN).toString();
+                            TextView tvReward = root.findViewById(R.id.tvReward);
+                            String text = getString(R.string.text_your_reward).concat(" ").concat(rewardToDisplay).concat(" ").concat(symbol);
+                            tvReward.setText(text);
+                            tvReward.setVisibility(View.VISIBLE);
+                            return null;
+                        },
+                        e -> {
+                            if (BuildConfig.DEBUG) e.printStackTrace();
+                            return null;
+                        }
+                );
 
                 boolean isInitialized = Appodeal.isInitialized(Appodeal.REWARDED_VIDEO | Appodeal.INTERSTITIAL);
                 if (!isInitialized)
