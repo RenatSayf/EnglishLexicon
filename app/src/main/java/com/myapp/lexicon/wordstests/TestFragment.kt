@@ -492,7 +492,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     {
         val intent = Intent(Intent.ACTION_VIEW).apply {
             action = RecognizerIntent.ACTION_RECOGNIZE_SPEECH
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, locale)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, locale.toLanguageTag())
             putExtra(
                 RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH
