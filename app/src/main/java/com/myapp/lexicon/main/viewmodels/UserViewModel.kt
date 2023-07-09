@@ -3,6 +3,7 @@
 package com.myapp.lexicon.main.viewmodels
 
 import android.app.Application
+import android.icu.util.Currency
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -14,6 +15,7 @@ import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.models.User
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.util.Locale
 import javax.inject.Inject
 
 
@@ -189,6 +191,7 @@ class UserViewModel @Inject constructor(
             User.KEY_FIRST_NAME to user.firstName,
             User.KEY_LAST_NAME to user.lastName,
             User.KEY_BANK_CARD to user.bankCard,
+            User.KEY_CURRENCY to Currency.getInstance(Locale.getDefault()).currencyCode,
             User.KEY_PAYMENT_REQUIRED to user.paymentRequired
         )
         db.collection(COLLECTION_PATH)
