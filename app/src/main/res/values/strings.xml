@@ -302,6 +302,10 @@
     <string name="text_enter_card_number">Введите номер банковской карты</string>
     <string name="text_card_number_hint">0000 0000 0000 0000</string>
     <string name="text_card_number_not_valid">Неправильный номер карты.</string>
+    <string name="text_user_not_found">Пользователь не найден</string>
+    <string name="data_is_saved">Данные сохранены</string>
+    <string name="text_payment_request_sent_1">Заявка принята. Ожидайте поступления средств на карту в течении</string>
+    <string name="text_payment_request_sent_2">дней</string>
 
     <string-array name="not_move">
         <item>Не перемещать</item>

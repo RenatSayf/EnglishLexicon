@@ -11,6 +11,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
+import com.myapp.lexicon.R
 import com.myapp.lexicon.models.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -18,7 +19,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class UserViewModel @Inject constructor(
-    app: Application
+    private val app: Application
 ) : AndroidViewModel(app) {
     companion object {
 
@@ -30,7 +31,10 @@ class UserViewModel @Inject constructor(
     sealed class State {
         object Start: State()
         object Complete: State()
-        data class UserUpdated(val user: User): State()
+        data class UserAdded(val user: User): State()
+        data class ReceivedUserData(val user: User): State()
+        data class PersonalDataUpdated(val user: User): State()
+        data class RevenueUpdated(val bonus: Double, val user: User): State()
         data class PaymentRequestSent(val user: User): State()
         data class Error(val message: String): State()
     }
@@ -55,10 +59,11 @@ class UserViewModel @Inject constructor(
             .set(map)
             .addOnSuccessListener {
                 _user.value = user
+                _state.value = State.UserAdded(user)
             }
-            .addOnFailureListener {
-                it.printStackTrace()
-                _user.value = null
+            .addOnFailureListener { ex ->
+                ex.printStackTrace()
+                _state.value = State.Error(ex.message?: "Unknown error")
             }
             .addOnCompleteListener {
                 _state.value = State.Complete
@@ -105,14 +110,14 @@ class UserViewModel @Inject constructor(
                 if (data != null) {
                     val user = User(document.id).mapToUser(data)
                     _user.value = user
+                    _state.value = State.ReceivedUserData(user)
                 }
                 else {
-                    _user.value = null
+                    _state.value = State.Error(app.getString(R.string.text_user_not_found))
                 }
             }
             .addOnFailureListener { ex ->
                 ex.printStackTrace()
-                _user.value = null
                 _state.value = State.Error(ex.message?: "Unknown error")
             }
             .addOnCompleteListener {
@@ -140,7 +145,7 @@ class UserViewModel @Inject constructor(
                             .set(user.toHashMap())
                             .addOnSuccessListener {
                                 _user.value = user
-                                _state.value = State.UserUpdated(user)
+                                _state.value = State.RevenueUpdated(revenuePerAd, user)
                             }
                             .addOnFailureListener { ex ->
                                 if (BuildConfig.DEBUG) {
@@ -185,7 +190,7 @@ class UserViewModel @Inject constructor(
             .update(userMap)
             .addOnSuccessListener {
                 _user.value = user
-                _state.value = State.UserUpdated(user)
+                _state.value = State.PersonalDataUpdated(user)
             }
             .addOnFailureListener { ex ->
                 if (BuildConfig.DEBUG) {
@@ -229,7 +234,7 @@ class UserViewModel @Inject constructor(
         }
     }
 
-    fun calculateTotalRevenue(revenuePerAd: Double, remoteUserData: Map<String, String?>): Double {
+    private fun calculateTotalRevenue(revenuePerAd: Double, remoteUserData: Map<String, String?>): Double {
         val currentRevenue = try {
             remoteUserData[User.KEY_TOTAL_REVENUE]?.ifEmpty {
                 -1.0

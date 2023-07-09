@@ -50,9 +50,6 @@ class AccountFragment : Fragment() {
 
         with(binding) {
 
-            if (BuildConfig.DEBUG) {
-                btnGetReward.isEnabled = true
-            }
             if (savedInstanceState == null && !userId.isNullOrEmpty()) {
                 userVM.getUserFromCloud(userId!!)
             }
@@ -65,23 +62,22 @@ class AccountFragment : Fragment() {
                     UserViewModel.State.Start -> {
                         progressBar.visibility = View.VISIBLE
                     }
-                    is UserViewModel.State.UserUpdated -> {
-                        showSnackBar("Данные сохранены")
+                    is UserViewModel.State.PersonalDataUpdated -> {
+                        showSnackBar(getString(R.string.data_is_saved))
                     }
-
                     is UserViewModel.State.PaymentRequestSent -> {
                         showConfirmDialog()
                     }
-
                     is UserViewModel.State.Error -> {
                         showSnackBar(state.message)
                     }
-                }
-            }
+                    is UserViewModel.State.ReceivedUserData -> {
+                        handleUserData(state.user)
+                    }
+                    is UserViewModel.State.UserAdded -> {
 
-            userVM.user.observe(viewLifecycleOwner) { user ->
-                if (user != null) {
-                    handleUserData(user)
+                    }
+                    is UserViewModel.State.RevenueUpdated -> {}
                 }
             }
 
@@ -192,7 +188,7 @@ class AccountFragment : Fragment() {
             with(binding) {
                 dialog.isCancelable = false
                 val days = 3
-                val message = "Заявка принята. Ожидайте поступления средств на карту в течении $days дней"
+                val message = "${getString(R.string.text_payment_request_sent_1)} $days ${getString(R.string.text_payment_request_sent_2)}"
                 tvMessage.text = message
                 btnCancel.visibility = View.GONE
                 btnOk.setOnClickListener {

@@ -351,6 +351,10 @@
     <string name="text_enter_card_number">Введіть номер банківської картки</string>
     <string name="text_card_number_hint">0000 0000 0000 0000</string>
     <string name="text_card_number_not_valid">Неправильний номер картки.</string>
+    <string name="text_user_not_found">Користувача не знайдено</string>
+    <string name="data_is_saved">Дані збережені</string>
+    <string name="text_payment_request_sent_1">Заявка прийнята. Чекайте надходження коштів на карту протягом</string>
+    <string name="text_payment_request_sent_2">днів</string>
 
     <string-array name="words_interval">
         <item>після 5 слів</item>
