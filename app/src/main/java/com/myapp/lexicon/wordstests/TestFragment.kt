@@ -78,6 +78,29 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         super.onViewCreated(view, savedInstanceState)
         binding = TestFragmentBinding.bind(view)
 
+        this.getTestStateFromPref(
+            onInit = {
+                val dictName = testVM.currentWord.value?.dictName
+                dictName?.let { dict ->
+                    testVM.getWordsByDictName(dict)
+                }
+            },
+            onSuccess = {
+                if (dialogWarning == null) {
+                    dialogWarning = DialogWarning().apply {
+                        setListener(this@TestFragment)
+                    }
+                    dialogWarning?.show(
+                        parentFragmentManager.beginTransaction(),
+                        DialogWarning.DIALOG_TAG
+                    )
+                }
+            },
+            onError = { err ->
+                Throwable(err).printStackTrace()
+            }
+        )
+
         pageBackVM.imageBack.observe(viewLifecycleOwner) { img ->
             binding.imgBack.setImageResource(img)
         }
@@ -230,6 +253,24 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
             binding.progressValueTV.text = progressValue
         }
 
+        testVM.state.observe(viewLifecycleOwner) { state ->
+            when(state) {
+                TestViewModel.State.Init -> {}
+                TestViewModel.State.NotShowAd -> {}
+                TestViewModel.State.ShowAd -> {
+                    requireContext().isUserRegistered(
+                        onYes = {
+                            showInterstitial(adType = Appodeal.REWARDED_VIDEO)
+                        },
+                        onNotRegistered = {
+                            showInterstitial(adType = Appodeal.INTERSTITIAL)
+                        }
+                    )
+                    testVM.setState(TestViewModel.State.NotShowAd)
+                }
+            }
+        }
+
         animVM.animState.observe(viewLifecycleOwner) {
             when (it) {
                 is UiState.AnimStarted -> LockOrientation(requireActivity()).lock()
@@ -316,34 +357,6 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
 
     }
 
-    override fun onStart()
-    {
-        super.onStart()
-
-        this.getTestStateFromPref(
-            onInit = {
-                val dictName = testVM.currentWord.value?.dictName
-                dictName?.let { dict ->
-                    testVM.getWordsByDictName(dict)
-                }
-            },
-            onSuccess = {
-                if (dialogWarning == null) {
-                    dialogWarning = DialogWarning().apply {
-                        setListener(this@TestFragment)
-                    }
-                    dialogWarning?.show(
-                        parentFragmentManager.beginTransaction(),
-                        DialogWarning.DIALOG_TAG
-                    )
-                }
-            },
-            onError = { err ->
-                Throwable(err).printStackTrace()
-            }
-        )
-    }
-
     override fun onResume() {
         super.onResume()
 
@@ -355,32 +368,6 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         binding.toolBar.setNavigationOnClickListener {
             parentFragmentManager.popBackStack()
         }
-    }
-
-    override fun onPause() {
-
-        val testState = testVM.testState.apply {
-            dict = binding.btnViewDict.text.toString()
-            wordId = binding.tvTargetWord.tag.toString().toInt()
-            progress = binding.progressBar.progress
-            progressMax = binding.progressBar.max
-        }
-        if (BuildConfig.DEBUG) {
-            when {
-                testState.studiedWordIds.size > 1 -> {
-                    this.saveTestStateToPref(testState)
-                }
-            }
-        }
-        else {
-            when {
-                testState.studiedWordIds.size > 5 -> {
-                    this.saveTestStateToPref(testState)
-                }
-            }
-        }
-
-        super.onPause()
     }
 
     // TODO ViewPropertyAnimation.Scale Step 6 слушатель анимации
@@ -528,6 +515,27 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     }
 
     override fun onDetach() {
+
+        val testState = testVM.testState.apply {
+            dict = binding.btnViewDict.text.toString()
+            wordId = binding.tvTargetWord.tag.toString().toInt()
+            progress = binding.progressBar.progress
+            progressMax = binding.progressBar.max
+        }
+        if (BuildConfig.DEBUG) {
+            when {
+                testState.studiedWordIds.size > 1 -> {
+                    this.saveTestStateToPref(testState)
+                }
+            }
+        }
+        else {
+            when {
+                testState.studiedWordIds.size > 5 -> {
+                    this.saveTestStateToPref(testState)
+                }
+            }
+        }
 
         if (this.adsIsEnabled) {
             requireContext().isUserRegistered(
