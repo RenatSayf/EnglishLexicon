@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED_ANONYMOUS_PARAMETER")
+
 package com.myapp.lexicon.auth
 
 import android.app.Application
@@ -53,7 +55,7 @@ class AuthViewModel @Inject constructor(
         auth.createUserWithEmailAndPassword(email, password)
             .addOnSuccessListener { result ->
                 val firebaseUser = result.user
-                val user = User(firebaseUser?.email.toString()).apply {
+                val user = User(firebaseUser?.uid.toString()).apply {
                     this.email = email
                     this.password = password
                 }
