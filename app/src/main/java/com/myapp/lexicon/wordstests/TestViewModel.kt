@@ -41,11 +41,9 @@ class TestViewModel @Inject constructor(
 
     var testState = TestState()
 
-    val testInterval: Int by lazy {
+    private val testInterval: Int by lazy {
         app.testIntervalFromPref
     }
-
-
 
     private var _currentWord = MutableLiveData<Word>().apply {
         app.getWordFromPref(

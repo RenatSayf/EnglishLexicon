@@ -352,10 +352,26 @@ fun Fragment.disablePassiveWordsRepeat(
 
 fun Fragment.saveTestStateToPref(state: TestState?) {
     if (state != null) {
-        val json = Gson().toJson(state)
-        appSettings.edit().putString("KEY_TEST_STATE", json).apply()
+        appSettings.edit().apply {
+            putString(TestState.KEY_DICTIONARY, state.dict)
+            putInt(TestState.KEY_WORD_ID, state.wordId)
+            putInt(TestState.KEY_PROGRESS, state.progress)
+            putInt(TestState.KEY_PROGRESS_MAX, state.progressMax)
+            putInt(TestState.KEY_RIGHT_ANSWERS, state.rightAnswers)
+            val stringIds = state.studiedWordIds.map { item ->
+                item.toString()
+            }.toSet()
+            putStringSet(TestState.KEY_STUDIED_WORD_IDS, stringIds)
+        }.apply()
     } else {
-        appSettings.edit().putString("KEY_TEST_STATE", null).apply()
+        appSettings.edit().apply {
+            putString(TestState.KEY_DICTIONARY, null)
+            putInt(TestState.KEY_WORD_ID, 0)
+            putInt(TestState.KEY_PROGRESS, 0)
+            putInt(TestState.KEY_PROGRESS_MAX, Int.MAX_VALUE)
+            putInt(TestState.KEY_RIGHT_ANSWERS, 0)
+            putStringSet(TestState.KEY_STUDIED_WORD_IDS, null)
+        }.apply()
     }
 }
 
@@ -364,18 +380,33 @@ fun Fragment.getTestStateFromPref(
     onSuccess: (TestState) -> Unit,
     onError: (String?) -> Unit = {}
     ) {
-    val string = appSettings.getString("KEY_TEST_STATE", null)
-    if (string == null) {
+
+    val dict = appSettings.getString(TestState.KEY_DICTIONARY, null)
+    val stringSet = appSettings.getStringSet(TestState.KEY_STUDIED_WORD_IDS, null)
+
+    if (dict == null || stringSet == null) {
         onInit.invoke()
         return
     }
-    try {
-        val state = Gson().fromJson(string, TestState::class.java)
-        onSuccess.invoke(state)
-    } catch (e: Exception) {
-        onError.invoke(e.message)
-        if (BuildConfig.DEBUG) {
-            e.printStackTrace()
+    else {
+        try {
+            val studiedIds = stringSet.map {
+                it.toInt()
+            }
+            val testState = TestState(
+                dict = dict,
+                wordId = appSettings.getInt(TestState.KEY_WORD_ID, 0),
+                progress = appSettings.getInt(TestState.KEY_PROGRESS, 0),
+                progressMax = appSettings.getInt(TestState.KEY_PROGRESS_MAX, Int.MAX_VALUE),
+                rightAnswers = appSettings.getInt(TestState.KEY_RIGHT_ANSWERS, 0),
+                studiedWordIds = studiedIds.toMutableList()
+            )
+            onSuccess.invoke(testState)
+        } catch (e: Exception) {
+            onError.invoke(e.message)
+            if (BuildConfig.DEBUG) {
+                e.printStackTrace()
+            }
         }
     }
 }
