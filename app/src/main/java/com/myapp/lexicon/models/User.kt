@@ -12,6 +12,7 @@ data class User(
         const val KEY_TOTAL_REVENUE = "total_revenue"
         const val KEY_REALLY_REVENUE = "really_revenue"
         const val KEY_USER_REWARD = "reward"
+        const val KEY_DEFAULT_CURRENCY_REWARD = "default_currency_reward"
         const val KEY_CURRENCY = "currency"
         const val KEY_EMAIL = "email"
         const val KEY_FIRST_NAME = "first_name"
@@ -30,22 +31,18 @@ data class User(
     var totalRevenue: Double = 0.0
     var reallyRevenue: Double = 0.0
     var userReward: Double = 0.0
+    var defaultCurrencyReward: Double = 0.0
     var revenuePerAd: Double = 0.0
     var currency: String? = "USD"
     var paymentRequired: Boolean = false
 
-    val rewardToDisplay: String
-        get() {
-            val decimal = BigDecimal(userReward).setScale(3, RoundingMode.DOWN)
-            return "$decimal $currency"
-        }
-
-    fun toHashMap(): HashMap<String, String?> {
-        return hashMapOf(
+    fun toHashMap(): Map<String, String?> {
+        return mapOf(
             KEY_TOTAL_REVENUE to totalRevenue.toString(),
             KEY_REALLY_REVENUE to reallyRevenue.toString(),
             KEY_USER_REWARD to userReward.toString(),
             KEY_CURRENCY to currency,
+            KEY_DEFAULT_CURRENCY_REWARD to defaultCurrencyReward.toString(),
             KEY_EMAIL to email,
             KEY_FIRST_NAME to firstName,
             KEY_LAST_NAME to lastName,
@@ -70,6 +67,11 @@ data class User(
             }
             userReward = try {
                 map[KEY_USER_REWARD]?.toDouble()?: 0.0
+            } catch (e: NumberFormatException) {
+                0.0
+            }
+            defaultCurrencyReward = try {
+                map[KEY_DEFAULT_CURRENCY_REWARD]?.toDouble()?: 0.0
             } catch (e: NumberFormatException) {
                 0.0
             }

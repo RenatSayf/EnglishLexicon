@@ -1,4 +1,4 @@
-@file:Suppress("UnnecessaryVariable")
+@file:Suppress("UnnecessaryVariable", "UNUSED_ANONYMOUS_PARAMETER")
 
 package com.myapp.lexicon.main.viewmodels
 
@@ -14,7 +14,10 @@ import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.models.User
+import com.myapp.lexicon.settings.getExchangeRateFromPref
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.util.Locale
 import javax.inject.Inject
 
@@ -140,13 +143,20 @@ class UserViewModel @Inject constructor(
                     user.reallyRevenue = calculateReallyRevenue(revenuePerAd, remoteUserData)
                     user.userReward = calculateUserReward(revenuePerAd, remoteUserData)
                     user.totalRevenue = calculateTotalRevenue(revenuePerAd, remoteUserData)
-
+                    app.getExchangeRateFromPref(
+                        onInit = {},
+                        onSuccess = { date, symbol, rate ->
+                            val defaultReward = BigDecimal(user.userReward * rate).setScale(2, RoundingMode.DOWN).toDouble()
+                            user.defaultCurrencyReward = defaultReward
+                        }
+                    )
                     if (user.reallyRevenue > 0 && user.userReward > 0) {
 
                         val revenueMap = mapOf(
                             User.KEY_REALLY_REVENUE to user.reallyRevenue.toString(),
                             User.KEY_USER_REWARD to user.userReward.toString(),
-                            User.KEY_TOTAL_REVENUE to user.totalRevenue.toString()
+                            User.KEY_TOTAL_REVENUE to user.totalRevenue.toString(),
+                            User.KEY_DEFAULT_CURRENCY_REWARD to user.defaultCurrencyReward.toString()
                         )
                         db.collection(COLLECTION_PATH)
                             .document(user.id)
