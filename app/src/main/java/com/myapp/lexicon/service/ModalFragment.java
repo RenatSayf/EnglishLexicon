@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -16,7 +15,6 @@ import android.widget.Toast;
 
 import com.google.gson.JsonSyntaxException;
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.ads.AdsExtensionsKt;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.StringOperations;
 import com.myapp.lexicon.interfaces.IModalFragment;
@@ -86,12 +84,6 @@ public class ModalFragment extends DialogFragment
         View dialogView = getLayoutInflater().inflate(R.layout.s_repeat_modal_fragment, new LinearLayout(requireContext()), false);
 
         AlertDialog dialog = new AlertDialog.Builder(requireContext()).setView(dialogView).create();
-
-        boolean adsIsEnabled = SettingsExtKt.getAdsIsEnabled(this);
-        if (adsIsEnabled) {
-            FrameLayout adLayout = dialogView.findViewById(R.id.adLayout);
-            AdsExtensionsKt.showBanner(adLayout, requireActivity());
-        }
 
         enTextView = dialogView.findViewById(R.id.en_text_view);
         ruTextView = dialogView.findViewById(R.id.ru_text_view);
