@@ -5,15 +5,23 @@ import android.content.Context
 import android.os.CountDownTimer
 import android.text.TextUtils
 import android.util.Patterns
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import com.google.android.material.snackbar.Snackbar
 import com.myapp.lexicon.R
+import com.myapp.lexicon.databinding.SnackBarTestBinding
 import com.myapp.lexicon.schedule.AlarmScheduler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -168,6 +176,28 @@ fun String.toLongDate(locale: Locale = Locale.getDefault()): Long {
         Date(-1)
     }
     return date.time
+}
+
+fun View.showCustomSnackBar(
+    message: String,
+    onLaunch: (SnackBarTestBinding) -> Unit = {}
+) {
+    val snackBar = Snackbar.make(this, "", Snackbar.LENGTH_LONG)
+    val binding = SnackBarTestBinding.inflate(LayoutInflater.from(this.context), null, false)
+
+    snackBar.setBackgroundTint(ResourcesCompat.getColor(this.resources, R.color.colorTransparent, null))
+    val layoutParams = snackBar.view.layoutParams as CoordinatorLayout.LayoutParams
+    layoutParams.setMargins(16, 0, 16, 16)
+    layoutParams.height = LayoutParams.WRAP_CONTENT
+    snackBar.view.layoutParams = layoutParams
+    binding.tvMessage.text = message
+
+    (snackBar.view as ViewGroup).apply {
+        removeAllViews()
+        addView(binding.root)
+    }
+    onLaunch.invoke(binding)
+    snackBar.show()
 }
 
 

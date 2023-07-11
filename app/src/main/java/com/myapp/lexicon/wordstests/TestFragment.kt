@@ -142,24 +142,19 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                             startDelay = 0
                             animIncreaseScaleListener(this)
                         }.start()
-
-                        Toast.makeText(
-                            requireContext(),
-                            getString(R.string.text_is_right),
-                            Toast.LENGTH_LONG
-                        ).apply {
-                            setGravity(Gravity.TOP, 0, 0)
-                        }.show()
+                        binding.root.showCustomSnackBar(
+                            getString(R.string.text_is_right)
+                        )
                     }
                     else -> {
                         testVM.testState.rightAnswers--
-                        Toast.makeText(
-                            requireContext(),
-                            getString(R.string.text_wrong),
-                            Toast.LENGTH_LONG
-                        ).apply {
-                            setGravity(Gravity.TOP, 0, 0)
-                        }.show()
+                        binding.root.showCustomSnackBar(
+                            message = getString(R.string.text_wrong),
+                            onLaunch = { binding ->
+                                binding.tvThumbsUp.visibility = View.GONE
+                                binding.tvSmileyFace.text = getString(R.string.confused_face)
+                            }
+                        )
 
                         val animNotRight = AnimationUtils.loadAnimation(requireContext(), R.anim.anim_not_right)
                         animNotRight.setAnimationListener(object : Animation.AnimationListener {
