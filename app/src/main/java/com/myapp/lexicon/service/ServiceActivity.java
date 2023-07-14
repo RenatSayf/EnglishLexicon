@@ -3,13 +3,19 @@ package com.myapp.lexicon.service;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.appodeal.ads.Appodeal;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.ads.AdsExtensionsKt;
+import com.myapp.lexicon.auth.AuthViewModel;
+import com.myapp.lexicon.databinding.ServiceDialogActivityBinding;
+import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.StringOperations;
 import com.myapp.lexicon.interfaces.IModalFragment;
 import com.myapp.lexicon.main.MainViewModel;
@@ -33,7 +39,9 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class ServiceActivity extends AppCompatActivity implements IModalFragment
 {
     public static final String ARG_JSON = ServiceActivity.class.getCanonicalName() + ".ARG_JSON";
+    private ServiceDialogActivityBinding binding;
     private UserViewModel userVM;
+    private AuthViewModel authVM;
 
     @Override
     public void openApp()
@@ -46,59 +54,48 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
     protected void onCreate(@Nullable Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.service_dialog_activity);
+        binding = ServiceDialogActivityBinding.inflate(getLayoutInflater(), new LinearLayout(this), false);
+        setContentView(binding.getRoot());
 
         FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseUser firebaseUser = auth.getCurrentUser();
 
         if (firebaseUser != null) {
-            userVM = new ViewModelProvider(this).get(UserViewModel.class);
-            userVM.getUserFromCloud(firebaseUser.getUid());
-
-            userVM.getState().observe(this, state -> {
-                if (state instanceof UserViewModel.State.ReceivedUserData) {
-                    User user = ((UserViewModel.State.ReceivedUserData) state).getUser();
-                    boolean isInitialized = Appodeal.isInitialized(Appodeal.INTERSTITIAL | Appodeal.REWARDED_VIDEO);
-                    if (!isInitialized)
-                    {
-                        AdsExtensionsKt.adsInitialize(
-                                this,
-                                Appodeal.REWARDED_VIDEO,
-                                () -> {
-                                    AdsExtensionsKt.adRevenueInfo(this, revenueInfo -> {
-                                        double revenue = revenueInfo.getRevenue();
-                                        String currency = revenueInfo.getCurrency();
-                                        user.setTotalRevenue(revenue);
-                                        user.setCurrency(currency);
-                                        userVM.updateUserRevenue(revenue, user);
+            handleAdvertisingPayload(firebaseUser.getUid());
+        }
+        else {
+            authVM = new ViewModelProvider(this).get(AuthViewModel.class);
+            SettingsExtKt.getAuthDataFromPref(
+                    this,
+                    () -> null,
+                    (id, email, password) -> {
+                        authVM.signInWithEmailAndPassword(email, password);
+                        authVM.getState().observe(this, userState -> {
+                            userState.onSignIn(
+                                    user -> {
+                                        handleAdvertisingPayload(user.getId());
                                         return null;
-                                    });
-
-                                    boolean adsIsEnabled = SettingsExtKt.getAdsIsEnabled(this);
-                                    if (adsIsEnabled) {
-                                        AdsExtensionsKt.showInterstitial(
-                                                this,
-                                                Appodeal.INTERSTITIAL | Appodeal.REWARDED_VIDEO,
-                                                () -> null,
-                                                () -> null,
-                                                () -> null
-                                        );
                                     }
-                                    return null;
-                                },
-                                apdInitializationErrors -> {
-                                    if (BuildConfig.DEBUG) {
-                                        apdInitializationErrors.forEach(Throwable::printStackTrace);
+                            );
+                            userState.onFailure(
+                                    e -> {
+                                        String message = (e.getMessage() == null) ? ServiceActivity.class.getSimpleName().concat(" - Unknown error") : e.getMessage();
+                                        ExtensionsKt.showSnackBar(binding.getRoot(), message, Snackbar.LENGTH_LONG);
+                                        return null;
                                     }
-                                    return null;
-                                }
-                        );
+                            );
+                        });
+                        return null;
+                    },
+                    e -> {
+                        String message = (e.getMessage() == null) ? ServiceActivity.class.getSimpleName().concat(" - Unknown error") : e.getMessage();
+                        ExtensionsKt.showSnackBar(binding.getRoot(), message, Snackbar.LENGTH_LONG);
+                        return null;
                     }
-                }
-            });
+            );
         }
 
-        MainViewModel vm = new ViewModelProvider(this).get(MainViewModel.class);
+        MainViewModel mainVM = new ViewModelProvider(this).get(MainViewModel.class);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         String preferencesString = preferences.getString(getString(R.string.key_list_display_mode), "0");
@@ -121,9 +118,9 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
             {
                 String dictName = words[0].getDictName();
                 int id = words[0].get_id();
-                vm.getCountersById(dictName, id);
+                mainVM.getCountersById(dictName, id);
             }
-            vm.getWordCounters().observe(this, counters -> {
+            mainVM.getWordCounters().observe(this, counters -> {
                 if (counters != null && counters.size() > 1)
                 {
 
@@ -131,7 +128,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                     {
                         ModalFragment modalFragment = ModalFragment.newInstance(json, counters, this);
                         modalFragment.show(getSupportFragmentManager().beginTransaction(), ModalFragment.TAG);
-                        vm.goForward(Arrays.asList(words));
+                        mainVM.goForward(Arrays.asList(words));
                     }
                     else if (finalDisplayMode == 1)
                     {
@@ -141,8 +138,69 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                 }
             });
         }
-        else finish();
+        else
+        {
+            String message = ServiceActivity.class.getSimpleName().concat(" - json is null");
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+            finish();
+        }
     }
 
+    private void handleAdvertisingPayload(String userId) {
+        userVM = new ViewModelProvider(this).get(UserViewModel.class);
+        userVM.getUserFromCloud(userId);
 
+        userVM.getState().observe(this, state -> {
+            if (state instanceof UserViewModel.State.ReceivedUserData) {
+                User user = ((UserViewModel.State.ReceivedUserData) state).getUser();
+                boolean isInitialized = Appodeal.isInitialized(Appodeal.INTERSTITIAL | Appodeal.REWARDED_VIDEO);
+                if (!isInitialized)
+                {
+                    AdsExtensionsKt.adsInitialize(
+                            this,
+                            Appodeal.INTERSTITIAL | Appodeal.REWARDED_VIDEO,
+                            () -> {
+                                AdsExtensionsKt.adRevenueInfo(this, revenueInfo -> {
+                                    double revenue = revenueInfo.getRevenue();
+                                    String currency = revenueInfo.getCurrency();
+                                    user.setTotalRevenue(revenue);
+                                    user.setCurrency(currency);
+                                    userVM.updateUserRevenue(revenue, user);
+                                    return null;
+                                });
+
+                                boolean adsIsEnabled = SettingsExtKt.getAdsIsEnabled(this);
+                                if (adsIsEnabled) {
+                                    AdsExtensionsKt.showInterstitial(
+                                            this,
+                                            Appodeal.INTERSTITIAL | Appodeal.REWARDED_VIDEO,
+                                            () -> null,
+                                            () -> null,
+                                            () -> null
+                                    );
+                                }
+                                return null;
+                            },
+                            apdInitializationErrors -> {
+                                if (BuildConfig.DEBUG) {
+                                    apdInitializationErrors.forEach(Throwable::printStackTrace);
+                                    apdInitializationErrors.forEach(error -> {
+                                        String message = (error.getMessage() == null) ? ServiceActivity.class.getSimpleName().concat(" - Unknown error") : error.getMessage();
+                                        ExtensionsKt.showSnackBar(binding.getRoot(), message, Snackbar.LENGTH_LONG);
+                                    });
+                                }
+                                return null;
+                            }
+                    );
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+        finish();
+        super.onBackPressed();
+    }
 }
