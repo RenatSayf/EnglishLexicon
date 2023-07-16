@@ -25,8 +25,6 @@ import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.settings.SettingsExtKt;
 import com.myapp.lexicon.splash.SplashActivity;
 
-import java.util.Arrays;
-
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -128,12 +126,11 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                     {
                         RepeatDialog modalFragment = RepeatDialog.Companion.newInstance(json, counters, this);
                         modalFragment.show(getSupportFragmentManager().beginTransaction(), RepeatDialog.Companion.getTAG());
-                        mainVM.goForward(Arrays.asList(words));
                     }
                     else if (finalDisplayMode == 1)
                     {
-                        TestModalFragment testModalFragment = TestModalFragment.newInstance(json, counters, this);
-                        testModalFragment.show(getSupportFragmentManager().beginTransaction(), TestModalFragment.TAG);
+                        TestModeDialog testModalFragment = TestModeDialog.Companion.newInstance(json, counters, this);
+                        testModalFragment.show(getSupportFragmentManager().beginTransaction(), TestModeDialog.Companion.getTAG());
                     }
                 }
             });
@@ -152,23 +149,24 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
 
         userVM.getState().observe(this, state -> {
 
-            boolean isInitialized = Appodeal.isInitialized(Appodeal.REWARDED_VIDEO | Appodeal.INTERSTITIAL);
-            if (!isInitialized) {
-                AdsExtensionsKt.adsInitialize(
-                        this,
-                        Appodeal.REWARDED_VIDEO | Appodeal.INTERSTITIAL,
-                        () -> null,
-                        errors -> {
-                            errors.forEach(error -> {
-                                String message = error.getMessage() == null ? ServiceActivity.class.getSimpleName().concat(": ad initialize error") : error.getMessage();
-                                ExtensionsKt.showToastIfDebug(ServiceActivity.this, message);
-                            });
-                            return null;
-                        }
-                );
-            }
-
             if (state instanceof UserViewModel.State.ReceivedUserData) {
+
+                boolean isInitialized = Appodeal.isInitialized(Appodeal.REWARDED_VIDEO | Appodeal.INTERSTITIAL);
+                if (!isInitialized) {
+                    AdsExtensionsKt.adsInitialize(
+                            this,
+                            Appodeal.REWARDED_VIDEO | Appodeal.INTERSTITIAL,
+                            () -> null,
+                            errors -> {
+                                errors.forEach(error -> {
+                                    String message = error.getMessage() == null ? ServiceActivity.class.getSimpleName().concat(": ad initialize error") : error.getMessage();
+                                    ExtensionsKt.showToastIfDebug(ServiceActivity.this, message);
+                                });
+                                return null;
+                            }
+                    );
+                }
+
                 User user = ((UserViewModel.State.ReceivedUserData) state).getUser();
                 AdsExtensionsKt.adRevenueInfo(this, revenueInfo -> {
                     double revenue = revenueInfo.getRevenue();

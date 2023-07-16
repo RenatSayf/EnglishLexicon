@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
-import com.google.firebase.auth.PhoneAuthProvider
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageException
 import com.google.firebase.storage.StorageReference
@@ -82,11 +81,6 @@ fun Context.isUserRegistered(
     else {
         onNotRegistered.invoke()
     }
-}
-
-
-fun Context.saveResendingToken(token: PhoneAuthProvider.ForceResendingToken?) {
-
 }
 
 var Context.adsIsEnabled: Boolean

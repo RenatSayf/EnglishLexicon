@@ -16,8 +16,6 @@ import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.service.PhoneUnlockedReceiver;
 import com.myapp.lexicon.settings.SettingsExtKt;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -150,21 +148,9 @@ public class BackgroundFragm extends Fragment
                 {
                     try
                     {
-                        AtomicInteger adType = new AtomicInteger(Appodeal.INTERSTITIAL);
-                        SettingsExtKt.isUserRegistered(
-                                requireContext(),
-                                () -> {
-                                    adType.set(Appodeal.REWARDED_VIDEO);
-                                    return null;
-                                },
-                                () -> {
-                                    adType.set(Appodeal.INTERSTITIAL);
-                                    return null;
-                                }
-                        );
                         AdsExtensionsKt.showInterstitial(
                                 requireActivity(),
-                                adType.get(),
+                                Appodeal.INTERSTITIAL,
                                 () -> null,
                                 () -> {
                                     try

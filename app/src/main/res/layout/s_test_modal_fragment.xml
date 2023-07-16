@@ -12,7 +12,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="?attr/actionBarSize"
         android:layout_margin="0dp"
         android:gravity="center"
         android:orientation="horizontal"
@@ -109,14 +109,12 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
         android:layout_marginEnd="10dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
         android:layout_marginStart="10dp"
         android:layout_marginTop="20dp"
         android:layout_weight="6"
         android:gravity="center"
         android:scrollbars="vertical"
-        android:text="@string/text_en"
+        tools:text="@string/text_en"
         android:textColor="@color/colorWhite"
         android:textSize="26sp"
         android:textStyle="normal|bold"
@@ -140,7 +138,7 @@
         android:background="@drawable/btn_for_test_modal_transp"
         android:gravity="center"
         android:scrollbars="vertical"
-        android:text="@string/text_ru"
+        tools:text="@string/text_ru"
         android:textColor="@color/colorLightGreen"
         android:textSize="26sp"
         android:textStyle="normal|bold"/>
@@ -163,7 +161,7 @@
         android:background="@drawable/btn_for_test_modal_transp"
         android:gravity="center"
         android:scrollbars="vertical"
-        android:text="@string/text_ru"
+        tools:text="@string/text_ru"
         android:textColor="@color/colorLightGreen"
         android:textSize="26sp"
         android:textStyle="normal|bold"/>
@@ -181,6 +179,7 @@
             style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:padding="12dp"
             android:background="@drawable/transparent_background_straight_angle"
             android:contentDescription="@string/btn_sound_discribtion"
             android:src="@drawable/selector_sound_icon"
@@ -218,6 +217,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="0"
+            android:padding="12dp"
             android:background="@drawable/transparent_background_straight_angle"
             android:contentDescription="@string/btn_close_discribtion"
             android:src="@drawable/selector_close_icon"
@@ -232,7 +232,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:layout_marginTop="20dp">
+        android:layout_marginTop="0dp">
     </FrameLayout>
 
 </LinearLayout>
