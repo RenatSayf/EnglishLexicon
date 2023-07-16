@@ -804,7 +804,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 finish();
                                 return null;
                             },
-                            () -> null
+                            err -> {
+                                ExtensionsKt.showToastIfDebug(this, err);
+                                finish();
+                                return null;
+                            }
                     );
                 } catch (Exception e)
                 {

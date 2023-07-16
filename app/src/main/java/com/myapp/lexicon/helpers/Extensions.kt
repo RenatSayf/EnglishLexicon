@@ -12,14 +12,13 @@ import android.view.ViewGroup.LayoutParams
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.content.res.AppCompatResources
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import com.google.android.material.snackbar.Snackbar
+import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.SnackBarTestBinding
 import com.myapp.lexicon.schedule.AlarmScheduler
@@ -28,8 +27,6 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.time.LocalDate
-import java.time.temporal.TemporalAccessor
 import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
@@ -67,6 +64,17 @@ fun Context.showToast(message: String, duration: Int = Toast.LENGTH_LONG) {
 
 fun Fragment.showToast(message: String, duration: Int = Toast.LENGTH_LONG) {
     requireContext().showToast(message, duration)
+}
+
+fun Context.showToastIfDebug(message: String?) {
+    if (BuildConfig.DEBUG) {
+        val text = message ?: "*********** Unknown error ***************"
+        Toast.makeText(this, text, Toast.LENGTH_LONG).show()
+    }
+}
+
+fun Fragment.showToastIfDebug(message: String?) {
+    requireContext().showToastIfDebug(message)
 }
 
 fun File.fileToBytes(): ByteArray {
@@ -199,6 +207,7 @@ fun View.showCustomSnackBar(
     onLaunch.invoke(binding)
     snackBar.show()
 }
+
 
 
 

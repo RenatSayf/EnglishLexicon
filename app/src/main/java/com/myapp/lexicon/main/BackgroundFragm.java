@@ -86,7 +86,7 @@ public class BackgroundFragm extends Fragment
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        if (fragmentView == null)   // TODO: Fragment 4. Обязательная проверка, что бы не раздувать новый макет при повороте экрана
+        if (fragmentView == null)
         {
             fragmentView = inflater.inflate(R.layout.a_fragment_background, container, false);
         }
@@ -176,7 +176,8 @@ public class BackgroundFragm extends Fragment
                                     }
                                     return null;
                                 },
-                                () -> {
+                                err -> {
+                                    ExtensionsKt.showToastIfDebug(BackgroundFragm.this, err);
                                     try
                                     {
                                         requireActivity().finish();

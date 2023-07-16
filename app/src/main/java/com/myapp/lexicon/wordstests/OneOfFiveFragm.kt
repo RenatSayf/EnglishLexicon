@@ -244,7 +244,7 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
         if (this.adsIsEnabled) {
             requireContext().isUserRegistered(
                 onYes = {
-                    mActivity.showInterstitial(adType = Appodeal.REWARDED_VIDEO)
+                    mActivity.showInterstitial(adType = Appodeal.REWARDED_VIDEO or Appodeal.INTERSTITIAL)
                 },
                 onNotRegistered = {
                     mActivity.showInterstitial(adType = Appodeal.INTERSTITIAL)

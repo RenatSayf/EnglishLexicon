@@ -16,6 +16,7 @@ import com.appodeal.ads.utils.Log
 import com.google.android.gms.ads.identifier.AdvertisingIdClient
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
+import com.myapp.lexicon.models.LaunchMode
 
 
 fun Context.getAdvertisingID(
@@ -57,28 +58,28 @@ fun Activity.adsInitialize(
     onFailed: (List<ApdInitializationError>) -> Unit = {}
 ) {
     Appodeal.initialize(
-        activity = this,
+        context = this,
         appKey = this.getString(R.string.appodeal_app_key),
         adTypes = adType,
         callback = object : ApdInitializationCallback {
             override fun onInitializationFinished(errors: List<ApdInitializationError>?) {
-                errors?.let {
-                    onFailed.invoke(it)
+                errors?.let { err ->
+                    onFailed.invoke(err)
+                    err.forEach {
+                        if (BuildConfig.DEBUG) {
+                            it.printStackTrace()
+                        }
+                    }
                 }?: run {
-                    if (BuildConfig.DEBUG) {
+                    if (BuildConfig.PURCHASE_MODE == LaunchMode.TEST.name) {
                         Appodeal.setTesting(true)
-                        Appodeal.setLogLevel(Log.LogLevel.verbose)
+                        Appodeal.setLogLevel(Log.LogLevel.debug)
                     }
                     else {
                         Appodeal.setTesting(false)
                         Appodeal.setLogLevel(Log.LogLevel.none)
                     }
                     onSuccess.invoke()
-                }
-                errors?.forEach {
-                    if (BuildConfig.DEBUG) {
-                        it.printStackTrace()
-                    }
                 }
             }
         }
@@ -89,7 +90,7 @@ fun Activity.showInterstitial(
     adType: Int,
     onShown: () -> Unit = {},
     onClosed: () -> Unit = {},
-    onFailed: () -> Unit = {}
+    onFailed: (String) -> Unit = {}
 ) {
     Appodeal.setInterstitialCallbacks(object : InterstitialCallbacks {
         override fun onInterstitialClicked() {}
@@ -101,13 +102,13 @@ fun Activity.showInterstitial(
         override fun onInterstitialExpired() {}
 
         override fun onInterstitialFailedToLoad() {
-            onFailed.invoke()
+            onFailed.invoke("*** Interstitial ad failed to load ****")
         }
 
         override fun onInterstitialLoaded(isPrecache: Boolean) {}
 
         override fun onInterstitialShowFailed() {
-            onFailed.invoke()
+            onFailed.invoke("**** Interstitial ad show failed ****")
         }
 
         override fun onInterstitialShown() {
@@ -125,7 +126,7 @@ fun Activity.showInterstitial(
         override fun onRewardedVideoExpired() {}
 
         override fun onRewardedVideoFailedToLoad() {
-            onFailed.invoke()
+            onFailed.invoke("*** Rewarded video failed to load ****")
         }
 
         override fun onRewardedVideoFinished(amount: Double, currency: String?) {}
@@ -133,7 +134,7 @@ fun Activity.showInterstitial(
         override fun onRewardedVideoLoaded(isPrecache: Boolean) {}
 
         override fun onRewardedVideoShowFailed() {
-            onFailed.invoke()
+            onFailed.invoke("***** Rewarded video show failed *****")
         }
 
         override fun onRewardedVideoShown() {
@@ -141,22 +142,14 @@ fun Activity.showInterstitial(
         }
     })
 
-    if (adType == Appodeal.REWARDED_VIDEO && Appodeal.isLoaded(Appodeal.REWARDED_VIDEO)) {
-        Appodeal.show(this, Appodeal.REWARDED_VIDEO)
-    }
-    else if (Appodeal.isLoaded(Appodeal.INTERSTITIAL)){
-        Appodeal.show(this, Appodeal.INTERSTITIAL)
-    }
-    else {
-        onFailed.invoke()
-    }
+    Appodeal.show(this, adType)
 }
 
 fun Fragment.showInterstitial(
     adType: Int,
     onShown: () -> Unit = {},
     onClosed: () -> Unit = {},
-    onFailed: () -> Unit = {}
+    onFailed: (String) -> Unit = {}
 ) {
     requireActivity().showInterstitial(adType, onShown, onClosed, onFailed)
 }

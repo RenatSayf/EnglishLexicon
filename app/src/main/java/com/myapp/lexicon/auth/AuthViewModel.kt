@@ -3,6 +3,7 @@
 package com.myapp.lexicon.auth
 
 import android.app.Application
+import android.icu.util.Currency
 import android.text.TextUtils
 import android.util.Patterns
 import androidx.lifecycle.AndroidViewModel
@@ -20,6 +21,7 @@ import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserState
 import com.myapp.lexicon.settings.getAuthDataFromPref
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -58,6 +60,9 @@ class AuthViewModel @Inject constructor(
                 val user = User(firebaseUser?.uid.toString()).apply {
                     this.email = email
                     this.password = password
+                    val currency = Currency.getInstance(Locale.getDefault())
+                    this.currency = currency.currencyCode
+                    this.currencySymbol = currency.symbol
                 }
                 _state.value = UserState.SignUp(user)
             }

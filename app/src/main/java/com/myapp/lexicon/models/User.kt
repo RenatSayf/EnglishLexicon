@@ -1,9 +1,5 @@
 package com.myapp.lexicon.models
 
-import java.lang.NumberFormatException
-import java.math.BigDecimal
-import java.math.RoundingMode
-
 
 data class User(
     val id: String
@@ -14,6 +10,7 @@ data class User(
         const val KEY_USER_REWARD = "reward"
         const val KEY_DEFAULT_CURRENCY_REWARD = "default_currency_reward"
         const val KEY_CURRENCY = "currency"
+        const val KEY_CURRENCY_SYMBOL = "currency_symbol"
         const val KEY_EMAIL = "email"
         const val KEY_FIRST_NAME = "first_name"
         const val KEY_LAST_NAME = "last_name"
@@ -34,6 +31,7 @@ data class User(
     var defaultCurrencyReward: Double = 0.0
     var revenuePerAd: Double = 0.0
     var currency: String? = "USD"
+    var currencySymbol: String = ""
     var paymentRequired: Boolean = false
 
     fun toHashMap(): Map<String, String?> {
@@ -42,6 +40,7 @@ data class User(
             KEY_REALLY_REVENUE to reallyRevenue.toString(),
             KEY_USER_REWARD to userReward.toString(),
             KEY_CURRENCY to currency,
+            KEY_CURRENCY_SYMBOL to currencySymbol,
             KEY_DEFAULT_CURRENCY_REWARD to defaultCurrencyReward.toString(),
             KEY_EMAIL to email,
             KEY_FIRST_NAME to firstName,
@@ -76,6 +75,7 @@ data class User(
                 0.0
             }
             currency = map[KEY_CURRENCY]
+            currencySymbol = map[KEY_CURRENCY_SYMBOL]?: ""
             firstName = map[KEY_FIRST_NAME]?: ""
             lastName = map[KEY_LAST_NAME]?: ""
             phone = map[KEY_PHONE]?: ""

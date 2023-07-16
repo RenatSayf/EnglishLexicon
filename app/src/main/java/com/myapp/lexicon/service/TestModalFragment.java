@@ -22,9 +22,13 @@ import com.myapp.lexicon.helpers.StringOperations;
 import com.myapp.lexicon.interfaces.IModalFragment;
 import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SpeechViewModel;
+import com.myapp.lexicon.main.viewmodels.UserViewModel;
+import com.myapp.lexicon.models.User;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.settings.SettingsExtKt;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -46,7 +50,9 @@ public class TestModalFragment extends DialogFragment
     public static IModalFragment iCallback;
 
     private TextView enTextView;
+    private TextView tvReward;
     private Button ruBtn1, ruBtn2;
+    private Button btnStopService;
     private List<Word> compareList;
     private boolean wordIsStudied = false;
     private static List<Integer> _counters = new ArrayList<>();
@@ -54,12 +60,11 @@ public class TestModalFragment extends DialogFragment
 
     private MainViewModel viewModel;
     private SpeechViewModel speechVM;
+    private UserViewModel userVM;
     private final CompositeDisposable composite = new CompositeDisposable();
 
     public TestModalFragment()
-    {
-        // Required empty public constructor
-    }
+    {}
 
     static TestModalFragment newInstance(@Nullable String json, List<Integer> counters, IModalFragment callback)
     {
@@ -81,6 +86,7 @@ public class TestModalFragment extends DialogFragment
         super.onCreate(savedInstanceState);
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
         speechVM = new  ViewModelProvider(this).get(SpeechViewModel.class);
+        userVM = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
     }
 
     @NonNull
@@ -159,7 +165,7 @@ public class TestModalFragment extends DialogFragment
         Button btnOpenApp = dialogView.findViewById(R.id.btn_open_app);
         btnOpenApp.setOnClickListener(view1 -> iCallback.openApp());
 
-        Button btnStopService = dialogView.findViewById(R.id.btn_stop_service);
+        btnStopService = dialogView.findViewById(R.id.btn_stop_service);
         //noinspection CodeBlock2Expr
         btnStopService.setOnClickListener( view -> {
             SettingsExtKt.disablePassiveWordsRepeat(
@@ -190,6 +196,57 @@ public class TestModalFragment extends DialogFragment
 
         if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawableResource(R.drawable.rounded_corners_background);
         return dialog;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
+    {
+        super.onViewCreated(view, savedInstanceState);
+
+        tvReward = requireActivity().findViewById(R.id.tvReward);
+
+        SettingsExtKt.isUserRegistered(
+                requireContext(),
+                () -> {
+                    btnStopService.setVisibility(View.GONE);
+                    tvReward.setVisibility(View.VISIBLE);
+                    return null;
+                },
+                () -> {
+                    btnStopService.setVisibility(View.VISIBLE);
+                    tvReward.setVisibility(View.GONE);
+                    return null;
+                }
+        );
+
+        userVM.getState().observe(getViewLifecycleOwner(), state -> {
+            if (state instanceof UserViewModel.State.RevenueUpdated) {
+                User user = ((UserViewModel.State.RevenueUpdated) state).getUser();
+                buildRewardText(user);
+            }
+            if (state instanceof UserViewModel.State.ReceivedUserData) {
+                User user = ((UserViewModel.State.ReceivedUserData) state).getUser();
+                buildRewardText(user);
+            }
+        });
+    }
+
+    private void buildRewardText(User user) {
+        BigDecimal userReward = BigDecimal.valueOf(user.getUserReward()).setScale(2, RoundingMode.DOWN);
+        SettingsExtKt.getExchangeRateFromPref(
+                requireContext(),
+                () -> null,
+                (date, symbol, rate) -> {
+                    String text = getString(R.string.coins_bag).concat(" ").concat(userReward.toString()).concat(" ").concat(symbol);
+                    tvReward.setText(text);
+                    return null;
+                },
+                e -> {
+                    String message = e.getMessage() == null ? this.getClass().getSimpleName().concat(": Unknown error") : e.getMessage();
+                    Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
+                    return null;
+                }
+        );
     }
 
     private void ruBtn1_OnClick(View view)

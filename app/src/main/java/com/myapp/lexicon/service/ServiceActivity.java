@@ -126,8 +126,8 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
 
                     if (finalDisplayMode == 0)
                     {
-                        ModalFragment modalFragment = ModalFragment.newInstance(json, counters, this);
-                        modalFragment.show(getSupportFragmentManager().beginTransaction(), ModalFragment.TAG);
+                        RepeatDialog modalFragment = RepeatDialog.Companion.newInstance(json, counters, this);
+                        modalFragment.show(getSupportFragmentManager().beginTransaction(), RepeatDialog.Companion.getTAG());
                         mainVM.goForward(Arrays.asList(words));
                     }
                     else if (finalDisplayMode == 1)
@@ -141,58 +141,55 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         else
         {
             String message = ServiceActivity.class.getSimpleName().concat(" - json is null");
-            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+            ExtensionsKt.showToastIfDebug(this, message);
             finish();
         }
     }
 
     private void handleAdvertisingPayload(String userId) {
-        userVM = new ViewModelProvider(this).get(UserViewModel.class);
+        userVM = new ViewModelProvider(ServiceActivity.this).get(UserViewModel.class);
         userVM.getUserFromCloud(userId);
 
         userVM.getState().observe(this, state -> {
+
+            boolean isInitialized = Appodeal.isInitialized(Appodeal.REWARDED_VIDEO | Appodeal.INTERSTITIAL);
+            if (!isInitialized) {
+                AdsExtensionsKt.adsInitialize(
+                        this,
+                        Appodeal.REWARDED_VIDEO | Appodeal.INTERSTITIAL,
+                        () -> null,
+                        errors -> {
+                            errors.forEach(error -> {
+                                String message = error.getMessage() == null ? ServiceActivity.class.getSimpleName().concat(": ad initialize error") : error.getMessage();
+                                ExtensionsKt.showToastIfDebug(ServiceActivity.this, message);
+                            });
+                            return null;
+                        }
+                );
+            }
+
             if (state instanceof UserViewModel.State.ReceivedUserData) {
                 User user = ((UserViewModel.State.ReceivedUserData) state).getUser();
-                boolean isInitialized = Appodeal.isInitialized(Appodeal.INTERSTITIAL | Appodeal.REWARDED_VIDEO);
-                if (!isInitialized)
-                {
-                    AdsExtensionsKt.adsInitialize(
-                            this,
-                            Appodeal.INTERSTITIAL | Appodeal.REWARDED_VIDEO,
-                            () -> {
-                                AdsExtensionsKt.adRevenueInfo(this, revenueInfo -> {
-                                    double revenue = revenueInfo.getRevenue();
-                                    String currency = revenueInfo.getCurrency();
-                                    user.setTotalRevenue(revenue);
-                                    user.setCurrency(currency);
-                                    userVM.updateUserRevenue(revenue, user);
-                                    return null;
-                                });
-
-                                boolean adsIsEnabled = SettingsExtKt.getAdsIsEnabled(this);
-                                if (adsIsEnabled) {
-                                    AdsExtensionsKt.showInterstitial(
-                                            this,
-                                            Appodeal.INTERSTITIAL | Appodeal.REWARDED_VIDEO,
-                                            () -> null,
-                                            () -> null,
-                                            () -> null
-                                    );
-                                }
-                                return null;
-                            },
-                            apdInitializationErrors -> {
-                                if (BuildConfig.DEBUG) {
-                                    apdInitializationErrors.forEach(Throwable::printStackTrace);
-                                    apdInitializationErrors.forEach(error -> {
-                                        String message = (error.getMessage() == null) ? ServiceActivity.class.getSimpleName().concat(" - Unknown error") : error.getMessage();
-                                        ExtensionsKt.showSnackBar(binding.getRoot(), message, Snackbar.LENGTH_LONG);
-                                    });
-                                }
-                                return null;
+                AdsExtensionsKt.adRevenueInfo(this, revenueInfo -> {
+                    double revenue = revenueInfo.getRevenue();
+                    String currency = revenueInfo.getCurrency();
+                    user.setTotalRevenue(revenue);
+                    user.setCurrency(currency);
+                    userVM.updateUserRevenue(revenue, user);
+                    return null;
+                });
+                AdsExtensionsKt.showInterstitial(
+                        this,
+                        Appodeal.INTERSTITIAL | Appodeal.REWARDED_VIDEO,
+                        () -> null,
+                        () -> null,
+                        err -> {
+                            if (BuildConfig.DEBUG) {
+                                ExtensionsKt.showToast(this, err, Toast.LENGTH_LONG);
                             }
-                    );
-                }
+                            return null;
+                        }
+                );
             }
         });
     }

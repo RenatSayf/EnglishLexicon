@@ -9,6 +9,8 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.FragmentAccountBinding
@@ -36,6 +38,9 @@ class AccountFragment : Fragment() {
     private lateinit var binding: FragmentAccountBinding
     private val accountVM: AccountViewModel by viewModels()
     private val userVM: UserViewModel by viewModels()
+
+    private val paymentThreshold: Double = Firebase.remoteConfig.getDouble("payment_threshold")
+    private val paymentDays: Int = Firebase.remoteConfig.getDouble("payment_days").toInt()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -160,7 +165,7 @@ class AccountFragment : Fragment() {
                     val rewardToDisplay = "${BigDecimal(reward).setScale(2, RoundingMode.DOWN)} $symbol"
                     tvRewardValue.text = rewardToDisplay
 
-                    val rewardThreshold = (2 * rate).toInt()
+                    val rewardThreshold = (paymentThreshold * rate).toInt()
                     val textCondition = "${getString(R.string.text_reward_conditions)} $rewardThreshold $symbol"
                     tvRewardCondition.text = textCondition
                     btnGetReward.isEnabled = user.userReward > rewardThreshold
@@ -187,8 +192,7 @@ class AccountFragment : Fragment() {
         ConfirmDialog.newInstance(onLaunch = {dialog, binding ->
             with(binding) {
                 dialog.isCancelable = false
-                val days = 3
-                val message = "${getString(R.string.text_payment_request_sent_1)} $days ${getString(R.string.text_payment_request_sent_2)}"
+                val message = "${getString(R.string.text_payment_request_sent_1)} $paymentDays ${getString(R.string.text_payment_request_sent_2)}"
                 tvMessage.text = message
                 btnCancel.visibility = View.GONE
                 btnOk.setOnClickListener {
