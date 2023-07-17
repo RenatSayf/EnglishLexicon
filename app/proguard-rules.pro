@@ -15,3 +15,11 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+-keepattributes Signature
+# For using GSON @Expose annotation
+-keepattributes *Annotation*
+# Gson specific classes
+#noinspection ShrinkerUnresolvedReference
+-keep class sun.misc.Unsafe { *; }
+-keep class com.google.gson.stream.** { *; }

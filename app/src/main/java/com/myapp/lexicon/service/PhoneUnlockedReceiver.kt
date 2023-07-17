@@ -107,6 +107,7 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
         scope.launch {
             try {
                 val words = repository.getEntriesByDictNameAsync(word.dictName, id = word._id.toLong(), limit = 2).await()
+                saveCurrentStep(context, this,  words)
                 if (displayVariant == "0")
                 {
                     val intentAct = Intent(context, ServiceActivity::class.java).apply {
@@ -116,10 +117,10 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
                         putExtra(ServiceActivity.ARG_JSON, json)
                     }
                     context.startActivity(intentAct)
-                    if (displayMode == "0")
-                    {
-                        saveCurrentStep(context, this,  words)
-                    }
+//                    if (displayMode == "0")
+//                    {
+//                        saveCurrentStep(context, this,  words)
+//                    }
                 }
                 if (displayVariant == "1")
                 {
@@ -134,10 +135,10 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
                             n.show()
                         }
                     }
-                    if (displayMode == "0")
-                    {
-                        saveCurrentStep(context, this, words)
-                    }
+//                    if (displayMode == "0")
+//                    {
+//                        saveCurrentStep(context, this, words)
+//                    }
                 }
             } catch (e: Exception) {
                 showDebugNotification(context, e.message)
