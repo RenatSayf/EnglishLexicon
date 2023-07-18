@@ -6,12 +6,12 @@ apply plugin: 'com.google.gms.google-services'
 apply plugin: 'dagger.hilt.android.plugin' // Hint Hilt step 2
 
 android {
-    compileSdkVersion 33
+    compileSdkVersion 34
     buildToolsVersion '30.0.3'
     defaultConfig {
         applicationId "com.myapp.lexicon"
         minSdkVersion 26
-        targetSdkVersion 33
+        targetSdkVersion 34
         versionName '4.0'
         versionCode 59
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
