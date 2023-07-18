@@ -117,10 +117,6 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
                         putExtra(ServiceActivity.ARG_JSON, json)
                     }
                     context.startActivity(intentAct)
-//                    if (displayMode == "0")
-//                    {
-//                        saveCurrentStep(context, this,  words)
-//                    }
                 }
                 if (displayVariant == "1")
                 {
@@ -135,17 +131,12 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
                             n.show()
                         }
                     }
-//                    if (displayMode == "0")
-//                    {
-//                        saveCurrentStep(context, this, words)
-//                    }
                 }
             } catch (e: Exception) {
                 showDebugNotification(context, e.message)
                 e.printStackTrace()
             }
         }
-
     }
 
     private fun saveCurrentStep(context: Context, scope: CoroutineScope, words: List<Word>) {

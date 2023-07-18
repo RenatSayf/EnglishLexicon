@@ -8,10 +8,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterViewFlipper;
 import android.widget.FrameLayout;
 
-import com.appodeal.ads.Appodeal;
-import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.ads.AdsExtensionsKt;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.service.PhoneUnlockedReceiver;
 import com.myapp.lexicon.settings.SettingsExtKt;
@@ -143,46 +140,7 @@ public class BackgroundFragm extends Fragment
                         },
                         () -> null);
 
-                boolean adsIsEnabled = SettingsExtKt.getAdsIsEnabled(requireContext());
-                if (adsIsEnabled)
-                {
-                    try
-                    {
-                        AdsExtensionsKt.showInterstitial(
-                                requireActivity(),
-                                Appodeal.INTERSTITIAL,
-                                () -> null,
-                                () -> {
-                                    try
-                                    {
-                                        requireActivity().finish();
-                                    } catch (Exception e)
-                                    {
-                                        if (BuildConfig.DEBUG) e.printStackTrace();
-                                    }
-                                    return null;
-                                },
-                                err -> {
-                                    ExtensionsKt.showToastIfDebug(BackgroundFragm.this, err);
-                                    try
-                                    {
-                                        requireActivity().finish();
-                                    } catch (Exception e)
-                                    {
-                                        if (BuildConfig.DEBUG) e.printStackTrace();
-                                    }
-                                    return null;
-                                }
-                        );
-                    } catch (Exception e)
-                    {
-                        e.printStackTrace();
-                        requireActivity().finish();
-                    }
-                } else
-                {
-                    requireActivity().finish();
-                }
+                requireActivity().finish();
             }
         });
     }
