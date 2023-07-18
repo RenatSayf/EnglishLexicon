@@ -65,6 +65,8 @@ class TestModeDialog : DialogFragment() {
     private var words: List<Word> = listOf()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+
+        isCancelable = false
         return super.onCreateDialog(savedInstanceState).apply {
             window?.setBackgroundDrawableResource(R.drawable.rounded_corners_background)
         }

@@ -4,6 +4,10 @@ package com.myapp.lexicon.settings
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import com.google.firebase.ktx.Firebase
@@ -458,6 +462,44 @@ fun Context.getExchangeRateFromPref(
         e.printStackTrace()
         onFailure.invoke(e)
     }
+}
+
+fun AppCompatActivity.askForPermission(
+    permission: String,
+    onInit: () -> Unit,
+    onGranted: (Boolean) -> Unit,
+    onRejected: () -> Unit
+) {
+    if (ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED) {
+        onGranted.invoke(true)
+    }
+    else if (this.shouldShowRequestPermissionRationale(permission)) {
+        onInit.invoke()
+    }
+    else {
+        this.registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+            if (isGranted) {
+                onGranted.invoke(true)
+            }
+            else {
+                onRejected.invoke()
+            }
+        }.launch(permission)
+    }
+}
+
+fun Fragment.askForPermission(
+    permission: String,
+    onInit: () -> Unit,
+    onGranted: (Boolean) -> Unit,
+    onRejected: () -> Unit
+) {
+    (requireActivity() as AppCompatActivity).askForPermission(
+        permission,
+        onInit,
+        onGranted,
+        onRejected
+    )
 }
 
 

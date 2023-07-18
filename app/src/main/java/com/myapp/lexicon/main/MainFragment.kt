@@ -2,10 +2,13 @@
 
 package com.myapp.lexicon.main
 
+import android.Manifest
+import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import com.myapp.lexicon.R
+import com.myapp.lexicon.settings.askForPermission
 
 class MainFragment : Fragment() {
 
@@ -40,6 +43,21 @@ class MainFragment : Fragment() {
                 listener?.refreshMainScreen(false)
             }
         })
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            askForPermission(
+                Manifest.permission.POST_NOTIFICATIONS,
+                onInit = {
+                    return@askForPermission
+                },
+                onGranted = { res ->
+                    return@askForPermission
+                },
+                onRejected = {
+                    return@askForPermission
+                }
+            )
+        }
     }
 
     override fun onResume() {
