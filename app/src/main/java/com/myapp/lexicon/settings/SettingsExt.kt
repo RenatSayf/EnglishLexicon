@@ -468,12 +468,13 @@ fun AppCompatActivity.askForPermission(
     permission: String,
     onInit: () -> Unit,
     onGranted: (Boolean) -> Unit,
-    onRejected: () -> Unit
+    onRejected: () -> Unit,
+    isRationale: Boolean = true
 ) {
     if (ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED) {
         onGranted.invoke(true)
     }
-    else if (this.shouldShowRequestPermissionRationale(permission)) {
+    else if (this.shouldShowRequestPermissionRationale(permission) || isRationale) {
         onInit.invoke()
     }
     else {
@@ -490,9 +491,10 @@ fun AppCompatActivity.askForPermission(
 
 fun Fragment.askForPermission(
     permission: String,
-    onInit: () -> Unit,
-    onGranted: (Boolean) -> Unit,
-    onRejected: () -> Unit
+    onInit: () -> Unit = {},
+    onGranted: (Boolean) -> Unit = {},
+    onRejected: () -> Unit = {},
+    isRationale: Boolean = true
 ) {
     (requireActivity() as AppCompatActivity).askForPermission(
         permission,
