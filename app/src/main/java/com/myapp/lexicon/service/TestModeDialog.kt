@@ -31,6 +31,7 @@ import com.myapp.lexicon.settings.AppSettings
 import com.myapp.lexicon.settings.disablePassiveWordsRepeat
 import com.myapp.lexicon.settings.getExchangeRateFromPref
 import com.myapp.lexicon.settings.isUserRegistered
+import com.myapp.lexicon.settings.saveWordToPref
 import dagger.hilt.android.AndroidEntryPoint
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -290,23 +291,19 @@ class TestModeDialog : DialogFragment() {
         val animNotRight = AnimationUtils.loadAnimation(activity, R.anim.anim_not_right)
         animNotRight.setAnimationListener(object : Animation.AnimationListener {
             override fun onAnimationStart(animation: Animation) {
-                if (activity != null) {
-                    button.setBackgroundResource(R.drawable.btn_for_test_modal_red)
-                    button.setTextColor(activity!!.resources.getColor(R.color.colorWhite, null))
-                    wordIsStudied = false
-                }
+                button.setBackgroundResource(R.drawable.btn_for_test_modal_red)
+                button.setTextColor(requireContext().resources.getColor(R.color.colorWhite, null))
+                wordIsStudied = false
             }
 
             override fun onAnimationEnd(animation: Animation) {
-                if (activity != null) {
-                    button.setBackgroundResource(R.drawable.btn_for_test_modal_transp)
-                    button.setTextColor(
-                        activity!!.resources.getColor(
-                            R.color.colorLightGreen,
-                            null
-                        )
+                button.setBackgroundResource(R.drawable.btn_for_test_modal_transp)
+                button.setTextColor(
+                    requireContext().resources.getColor(
+                        R.color.colorLightGreen,
+                        null
                     )
-                }
+                )
             }
 
             override fun onAnimationRepeat(animation: Animation) {}
@@ -314,5 +311,24 @@ class TestModeDialog : DialogFragment() {
         button.startAnimation(animNotRight)
     }
 
+    override fun onDetach() {
 
+        when (words.size) {
+            2 -> {
+                requireContext().saveWordToPref(words[1])
+            }
+            1 -> {
+                requireContext().saveWordToPref(
+                    Word(
+                        _id = 0,
+                        dictName = words[0].dictName,
+                        english = words[0].english,
+                        translate = words[0].translate,
+                        countRepeat = 1
+                    )
+                )
+            }
+        }
+        super.onDetach()
+    }
 }

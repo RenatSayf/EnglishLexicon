@@ -1,5 +1,7 @@
 package com.myapp.lexicon.helpers
 
+import android.app.ActivityManager
+import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.os.CountDownTimer
@@ -208,6 +210,21 @@ fun View.showCustomSnackBar(
     snackBar.show()
 }
 
+fun<T> Context.checkIsActivityShown(
+    clazz: Class<T>,
+    onVisible: () -> Unit = {},
+    onInvisible: () -> Unit = {}
+) {
+    val activityManager = (this.getSystemService(Service.ACTIVITY_SERVICE)) as ActivityManager?
+    val tasks = activityManager?.appTasks
+    tasks?.forEach { t ->
+        if (clazz.canonicalName.equals(t.taskInfo.baseActivity?.className, true)) {
+            onVisible.invoke()
+            return
+        }
+    }
+    onInvisible.invoke()
+}
 
 
 
