@@ -160,7 +160,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                             errors -> {
                                 errors.forEach(error -> {
                                     String message = error.getMessage() == null ? ServiceActivity.class.getSimpleName().concat(": ad initialize error") : error.getMessage();
-                                    ExtensionsKt.showToastIfDebug(ServiceActivity.this, message);
+                                    ExtensionsKt.showToast(ServiceActivity.this, message, Toast.LENGTH_LONG);
                                 });
                                 return null;
                             }

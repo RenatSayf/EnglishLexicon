@@ -9,7 +9,7 @@ dependencyResolutionManagement {
             url 'https://maven.google.com'
         }
         maven {
-            url "https://artifactory.appodeal.com/appodeal-beta-public"
+            url "https://artifactory.appodeal.com/appodeal"
         }
     }
 }

@@ -467,12 +467,12 @@ fun Context.getExchangeRateFromPref(
 fun AppCompatActivity.askForPermission(
     permission: String,
     onInit: () -> Unit,
-    onGranted: (Boolean) -> Unit,
+    onGranted: () -> Unit,
     onRejected: () -> Unit,
     isRationale: Boolean = true
 ) {
     if (ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED) {
-        onGranted.invoke(true)
+        onGranted.invoke()
     }
     else if (this.shouldShowRequestPermissionRationale(permission) || isRationale) {
         onInit.invoke()
@@ -480,7 +480,7 @@ fun AppCompatActivity.askForPermission(
     else {
         this.registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
             if (isGranted) {
-                onGranted.invoke(true)
+                onGranted.invoke()
             }
             else {
                 onRejected.invoke()
@@ -492,7 +492,7 @@ fun AppCompatActivity.askForPermission(
 fun Fragment.askForPermission(
     permission: String,
     onInit: () -> Unit = {},
-    onGranted: (Boolean) -> Unit = {},
+    onGranted: () -> Unit = {},
     onRejected: () -> Unit = {},
     isRationale: Boolean = true
 ) {
@@ -500,7 +500,8 @@ fun Fragment.askForPermission(
         permission,
         onInit,
         onGranted,
-        onRejected
+        onRejected,
+        isRationale
     )
 }
 

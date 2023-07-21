@@ -8,6 +8,7 @@ import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import com.myapp.lexicon.R
+import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.settings.askForPermission
 
 class MainFragment : Fragment() {
@@ -48,13 +49,21 @@ class MainFragment : Fragment() {
             askForPermission(
                 Manifest.permission.POST_NOTIFICATIONS,
                 onInit = {
-                    return@askForPermission
-                },
-                onGranted = { res ->
-                    return@askForPermission
-                },
-                onRejected = {
-                    return@askForPermission
+                    ConfirmDialog.newInstance(
+                        onLaunch = {dialog, binding ->
+                            with(binding) {
+
+                                btnOk.setOnClickListener {
+                                    askForPermission(Manifest.permission.POST_NOTIFICATIONS, isRationale = false)
+                                    dialog.dismiss()
+                                }
+                                btnCancel.setOnClickListener {
+                                    dialog.dismiss()
+                                }
+                            }
+                        }
+                    )
+
                 }
             )
         }
