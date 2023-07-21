@@ -67,7 +67,7 @@ class SettingsFragment : PreferenceFragmentCompat()
             }
         }
 
-        listDisplayModePref = findPreference(requireActivity().getString(R.string.key_list_display_mode))!!
+        listDisplayModePref = findPreference(requireContext().getString(R.string.key_list_display_mode))!!
         // при новом создании экрана заполняем summary значением настройки
         listDisplayModePref.summary = listDisplayModePref.entry
         listDisplayModePref.onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener{

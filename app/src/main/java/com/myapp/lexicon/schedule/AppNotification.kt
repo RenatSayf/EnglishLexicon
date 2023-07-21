@@ -6,7 +6,6 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.graphics.BitmapFactory
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
@@ -26,14 +25,7 @@ class AppNotification constructor(private val context: Context) : Notification()
         const val CHANNEL_ID : String = "${NOTIFICATION_ID}.service_notification"
     }
 
-    private var preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
     private lateinit var notification: Notification
-    private var displayMode: String = "0"
-
-    init
-    {
-        displayMode = preferences.getString(context.getString(R.string.key_list_display_mode), "0").toString()
-    }
 
     fun create(json: String) : Notification
     {
@@ -49,6 +41,8 @@ class AppNotification constructor(private val context: Context) : Notification()
             setChannelId(CHANNEL_ID)
             setDefaults(DEFAULT_ALL)
 
+            val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+            val displayMode = preferences.getString(context.getString(R.string.key_list_display_mode), "0").toString()
             if (words.isNotEmpty())
             {
                 setContentTitle(words[0].english)
