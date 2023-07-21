@@ -1,6 +1,7 @@
 package com.myapp.lexicon.repository
 
 import com.myapp.lexicon.database.AppDao
+import com.myapp.lexicon.database.AppDataBase
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.AppSettings
 import io.reactivex.Single
@@ -160,5 +161,9 @@ class DataRepositoryImpl @Inject constructor(
                 db.deleteEntriesByDictName(dicts)
             }
         }
+    }
+
+    fun dbClose() {
+        AppDataBase.dataBase?.close()
     }
 }
