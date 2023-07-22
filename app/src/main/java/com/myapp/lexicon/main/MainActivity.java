@@ -778,18 +778,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         else if (itemId == R.id.nav_exit)
         {
             onAppFinish();
-            ExtensionsKt.alarmClockEnable(this);
-
-            SettingsExtKt.checkUnLockedBroadcast(
-                    this,
-                    () -> {
-                        PhoneUnlockedReceiver unlockedReceiver = PhoneUnlockedReceiver.Companion.getInstance();
-                        registerReceiver(
-                                unlockedReceiver,
-                                unlockedReceiver.getFilter());
-                        return null;
-                    },
-                    () -> null);
 
             boolean adsIsEnabled = SettingsExtKt.getAdsIsEnabled(this);
             if (backgroundFragm != null && adsIsEnabled)
@@ -1005,6 +993,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     void onAppFinish() {
 
+        ExtensionsKt.alarmClockEnable(this);
+
+        SettingsExtKt.checkUnLockedBroadcast(
+                this,
+                () -> {
+                    PhoneUnlockedReceiver unlockedReceiver = PhoneUnlockedReceiver.Companion.getInstance();
+                    registerReceiver(
+                            unlockedReceiver,
+                            unlockedReceiver.getFilter());
+                    return null;
+                },
+                () -> null
+        );
+
         boolean storageEnabled = SettingsExtKt.getCloudStorageEnabled(this);
         if (storageEnabled) {
 
@@ -1053,6 +1055,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return null;
             });
         });
+    }
+
+    @Override
+    protected void onPause()
+    {
+        ExtensionsKt.checkIsActivityShown(
+                MainActivity.this,
+                MainActivity.class,
+                () -> {
+                    onAppFinish();
+                    return null;
+                },
+                () -> null
+        );
+        super.onPause();
     }
 }
 
