@@ -5,7 +5,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner
-import com.google.gson.Gson
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.testing.TestActivity
 import org.junit.After
@@ -43,7 +42,7 @@ class ServiceActivityTest {
             val words = listOf(
                 Word(1, "Test", "english", "английский", 1)
             )
-            val json = Gson().toJson(words)
+            val json = words.toString()
             val intent = Intent(act, ServiceActivity::class.java).apply {
                 action = Intent.ACTION_MAIN
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

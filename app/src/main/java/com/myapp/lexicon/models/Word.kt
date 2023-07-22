@@ -5,6 +5,7 @@ import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import org.json.JSONObject
 
 @Entity(tableName = "Words")
 data class Word(
@@ -67,8 +68,9 @@ data class Word(
 }
 
 fun String.toWord(): Word {
+
     val list = this.split("|")
-    val word = Word(-1, "", "", "", 0)
+    var word = Word(-1, "", "", "", 0)
     list.forEach { item ->
         val subList = item.split("=")
         when {
@@ -88,6 +90,15 @@ fun String.toWord(): Word {
                 word.countRepeat = subList[1].toInt()
             }
         }
+    }
+    if (word._id < 0) {
+        val jsonObject = JSONObject(this)
+        val id = jsonObject.getInt("_id")
+        val dict = jsonObject.getString("dictName")
+        val english = jsonObject.getString("english")
+        val translate = jsonObject.getString("translate")
+        val countRepeat = jsonObject.getInt("countRepeat")
+        word = Word(id, dict, english, translate, countRepeat)
     }
     return word
 }
