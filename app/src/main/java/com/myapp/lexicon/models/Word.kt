@@ -59,5 +59,51 @@ data class Word(
             return arrayOfNulls(size)
         }
     }
+
+    override fun toString(): String {
+        return "id=${this._id}|dict=${this.dictName}|en=${this.english}|tr=${this.translate}|count=${this.countRepeat}"
+    }
+
 }
 
+fun String.toWord(): Word {
+    val list = this.split("|")
+    val word = Word(-1, "", "", "", 0)
+    list.forEach { item ->
+        val subList = item.split("=")
+        when {
+            subList.contains("id") -> {
+                word._id = subList[1].toInt()
+            }
+            subList.contains("dict") -> {
+                word.dictName = subList[1]
+            }
+            subList.contains("en") -> {
+                word.english = subList[1]
+            }
+            subList.contains("tr") -> {
+                word.translate = subList[1]
+            }
+            subList.contains("count") -> {
+                word.countRepeat = subList[1].toInt()
+            }
+        }
+    }
+    return word
+}
+
+fun List<Word>.toWordsString(): String {
+    var string = ""
+    this.forEach { word ->
+        string += "$word+"
+    }
+    return string.trim { it.toString() == "+" }
+}
+
+fun String.toWordList(): List<Word> {
+    val stringList = this.split("+")
+    val wordList = stringList.map {
+        it.toWord()
+    }
+    return wordList
+}
