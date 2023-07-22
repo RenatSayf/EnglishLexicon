@@ -16,14 +16,16 @@ import com.myapp.lexicon.ads.AdsExtensionsKt;
 import com.myapp.lexicon.auth.AuthViewModel;
 import com.myapp.lexicon.databinding.ServiceDialogActivityBinding;
 import com.myapp.lexicon.helpers.ExtensionsKt;
-import com.myapp.lexicon.helpers.StringOperations;
 import com.myapp.lexicon.interfaces.IModalFragment;
 import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.viewmodels.UserViewModel;
 import com.myapp.lexicon.models.User;
 import com.myapp.lexicon.models.Word;
+import com.myapp.lexicon.models.WordKt;
 import com.myapp.lexicon.settings.SettingsExtKt;
 import com.myapp.lexicon.splash.SplashActivity;
+
+import java.util.List;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -111,11 +113,11 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         String json = getIntent().getStringExtra(ServiceActivity.ARG_JSON);
         if (json != null)
         {
-            Word[] words = StringOperations.getInstance().jsonToWord(json);
-            if (words.length > 0)
+            List<Word> words = WordKt.toWordList(json);
+            if (words.size() > 0)
             {
-                String dictName = words[0].getDictName();
-                int id = words[0].get_id();
+                String dictName = words.get(0).getDictName();
+                int id = words.get(0).get_id();
                 mainVM.getCountersById(dictName, id);
             }
             mainVM.getWordCounters().observe(this, counters -> {

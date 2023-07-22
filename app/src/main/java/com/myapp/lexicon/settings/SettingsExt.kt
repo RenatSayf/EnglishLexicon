@@ -14,7 +14,6 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageException
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
-import com.google.gson.Gson
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.helpers.getCRC32CheckSum
@@ -23,6 +22,7 @@ import com.myapp.lexicon.models.TestState
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.currency.Currency
+import com.myapp.lexicon.models.toWord
 import java.util.Locale
 
 val Context.appSettings: SharedPreferences
@@ -225,15 +225,14 @@ fun Context.checkOnStartSpeech(onEnabled: () -> Unit, onDisabled: () -> Unit) {
 }
 
 fun Context.saveWordToPref(word: Word) {
-    val json = Gson().toJson(word)
-    appSettings.edit().putString("KEY_CURRENT_WORD", json).apply()
+    appSettings.edit().putString("KEY_CURRENT_WORD", word.toString()).apply()
 }
 
 fun Context.getWordFromPref(onInit: () -> Unit, onSuccess: (Word) -> Unit, onFailure: (Exception) -> Unit) {
     val string = appSettings.getString("KEY_CURRENT_WORD", null)
     string?.let {
         try {
-            val word = Gson().fromJson(it, Word::class.java)
+            val word = it.toWord()
             onSuccess.invoke(word)
         } catch (e: Exception) {
             onFailure.invoke(e)

@@ -11,8 +11,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
 import com.myapp.lexicon.R
-import com.myapp.lexicon.helpers.StringOperations
-import com.myapp.lexicon.models.Word
+import com.myapp.lexicon.models.toWordList
 import com.myapp.lexicon.service.ServiceActivity
 import com.myapp.lexicon.splash.SplashActivity
 
@@ -27,9 +26,9 @@ class AppNotification constructor(private val context: Context) : Notification()
 
     private lateinit var notification: Notification
 
-    fun create(json: String) : Notification
+    fun create(text: String) : Notification
     {
-        val words: Array<Word> = StringOperations.instance.jsonToWord(json)
+        val words = text.toWordList()
 
         notification = NotificationCompat.Builder(context, CHANNEL_ID).apply {
             setOngoing(false)
@@ -54,7 +53,7 @@ class AppNotification constructor(private val context: Context) : Notification()
 
                 val actionIntent = Intent(Intent.ACTION_MAIN)
                 actionIntent.setClass(context, ServiceActivity::class.java).apply {
-                    putExtra(ServiceActivity.ARG_JSON, json)
+                    putExtra(ServiceActivity.ARG_JSON, text)
                     flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
                 }
                 val pendingIntent = PendingIntent.getActivity(

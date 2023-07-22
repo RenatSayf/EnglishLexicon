@@ -7,11 +7,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
-import com.google.gson.Gson
 import com.myapp.lexicon.R
 import com.myapp.lexicon.helpers.checkIsActivityShown
 import com.myapp.lexicon.helpers.goAsync
 import com.myapp.lexicon.models.Word
+import com.myapp.lexicon.models.toWordsString
 import com.myapp.lexicon.repository.DataRepositoryImpl
 import com.myapp.lexicon.service.ServiceActivity
 import com.myapp.lexicon.settings.AppSettings
@@ -77,7 +77,7 @@ class TimerReceiver : BroadcastReceiver()
                     val words = repository.getEntriesByDictNameAsync(word.dictName, id = word._id.toLong(), limit = 2).await()
 
                     if (words.isNotEmpty()) {
-                        val json = Gson().toJson(words)
+                        val text = words.toWordsString()
                         when (displayVariant) {
                             "0" -> {
                                 context.checkIsActivityShown(
@@ -89,7 +89,7 @@ class TimerReceiver : BroadcastReceiver()
                                             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                                             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                             addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                                            putExtra(ServiceActivity.ARG_JSON, json)
+                                            putExtra(ServiceActivity.ARG_JSON, text)
                                         }
                                         context.startActivity(intentAct)
                                     }
@@ -111,7 +111,7 @@ class TimerReceiver : BroadcastReceiver()
                                     }
                                 }
                                 AppNotification(context).apply {
-                                    create(json)
+                                    create(text)
                                     show()
                                 }
                             }

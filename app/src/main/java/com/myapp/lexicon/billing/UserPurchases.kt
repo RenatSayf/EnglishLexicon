@@ -4,9 +4,9 @@ package com.myapp.lexicon.billing
 
 import android.content.Context
 import com.android.billingclient.api.*
-import com.google.gson.Gson
 import com.myapp.lexicon.R
 import com.myapp.lexicon.models.UserPurchase
+import org.json.JSONObject
 import javax.inject.Inject
 
 
@@ -48,8 +48,10 @@ class UserPurchases @Inject constructor (
                             historyRecords: MutableList<PurchaseHistoryRecord>?
                         ) {
                             historyRecords?.forEach {
+                                val jsonObject = JSONObject(it.originalJson)
+                                jsonObject.getString("")
                                 val json = it.originalJson
-                                val purchase = Gson().fromJson(json, UserPurchase::class.java)
+                                val purchase = UserPurchase.fromJson(json)
 
                                 when(purchase.productId) {
                                     productIdNoAds -> {

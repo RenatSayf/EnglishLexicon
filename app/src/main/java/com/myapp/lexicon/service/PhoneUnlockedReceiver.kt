@@ -6,11 +6,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import androidx.preference.PreferenceManager
-import com.google.gson.Gson
 import com.myapp.lexicon.R
 import com.myapp.lexicon.database.AppDataBase
 import com.myapp.lexicon.helpers.goAsync
 import com.myapp.lexicon.models.Word
+import com.myapp.lexicon.models.toWordsString
 import com.myapp.lexicon.repository.DataRepositoryImpl
 import com.myapp.lexicon.schedule.AppNotification
 import com.myapp.lexicon.settings.AppSettings
@@ -113,21 +113,21 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
                     val intentAct = Intent(context, ServiceActivity::class.java).apply {
                         action = Intent.ACTION_MAIN
                         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                        val json = Gson().toJson(words)
-                        putExtra(ServiceActivity.ARG_JSON, json)
+                        val text = words.toWordsString()
+                        putExtra(ServiceActivity.ARG_JSON, text)
                     }
                     context.startActivity(intentAct)
                 }
                 if (displayVariant == "1")
                 {
-                    val json = Gson().toJson(words)
+                    val text = words.toWordsString()
 
                     if (appNotification == null) {
                         appNotification = AppNotification(context)
                     }
                     appNotification?.let { n ->
                         if (!n.isVisible()) {
-                            n.create(json)
+                            n.create(text)
                             n.show()
                         }
                     }

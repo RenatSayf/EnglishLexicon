@@ -17,7 +17,6 @@ import androidx.fragment.app.viewModels
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.STestModalFragmentBinding
 import com.myapp.lexicon.helpers.RandomNumberGenerator
-import com.myapp.lexicon.helpers.StringOperations
 import com.myapp.lexicon.helpers.showToast
 import com.myapp.lexicon.interfaces.IModalFragment
 import com.myapp.lexicon.main.MainViewModel
@@ -27,6 +26,7 @@ import com.myapp.lexicon.main.viewmodels.UserViewModel.State.ReceivedUserData
 import com.myapp.lexicon.main.viewmodels.UserViewModel.State.RevenueUpdated
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.Word
+import com.myapp.lexicon.models.toWordList
 import com.myapp.lexicon.settings.AppSettings
 import com.myapp.lexicon.settings.disablePassiveWordsRepeat
 import com.myapp.lexicon.settings.getExchangeRateFromPref
@@ -37,7 +37,6 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.Date
 import java.util.Locale
-
 
 
 @AndroidEntryPoint
@@ -87,7 +86,7 @@ class TestModeDialog : DialogFragment() {
 
         with(binding) {
 
-            words = StringOperations.instance.jsonToWord(json).toList()
+            words = json.toWordList()
             if (words.isNotEmpty()) {
                 enTextView.text = words[0].english
                 nameDictTvTestModal.text = words[0].dictName
