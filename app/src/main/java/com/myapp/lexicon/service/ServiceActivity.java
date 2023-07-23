@@ -194,10 +194,4 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         });
     }
 
-    @Override
-    public void onBackPressed()
-    {
-        finish();
-        super.onBackPressed();
-    }
 }
