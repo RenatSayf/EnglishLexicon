@@ -146,18 +146,6 @@ class RepeatDialog: DialogFragment() {
                 }
             }
 
-            userVM.state.observe(viewLifecycleOwner) { state ->
-                when(state) {
-                    is UserViewModel.State.ReceivedUserData -> {
-                        buildRewardText(state.user)
-                    }
-                    is UserViewModel.State.RevenueUpdated -> {
-                        buildRewardText(state.user)
-                    }
-                    else -> {}
-                }
-            }
-
         }
     }
 
@@ -190,6 +178,18 @@ class RepeatDialog: DialogFragment() {
                     tvReward.visibility = View.GONE
                 }
             )
+
+            userVM.state.observe(viewLifecycleOwner) { state ->
+                when(state) {
+                    is UserViewModel.State.ReceivedUserData -> {
+                        buildRewardText(state.user)
+                    }
+                    is UserViewModel.State.RevenueUpdated -> {
+                        buildRewardText(state.user)
+                    }
+                    else -> {}
+                }
+            }
         }
     }
 }

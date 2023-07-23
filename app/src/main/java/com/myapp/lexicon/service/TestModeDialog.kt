@@ -144,20 +144,6 @@ class TestModeDialog : DialogFragment() {
                 }
             }
 
-            userVM.state.observe(viewLifecycleOwner) { state ->
-                when (state) {
-                    is RevenueUpdated -> {
-                        val user = state.user
-                        buildRewardText(user)
-                    }
-                    is ReceivedUserData -> {
-                        val user = state.user
-                        buildRewardText(user)
-                    }
-                    else -> {}
-                }
-            }
-
             val appSettings = AppSettings(requireContext())
             when (appSettings.orderPlay) {
                 0 -> {
@@ -187,6 +173,20 @@ class TestModeDialog : DialogFragment() {
                     tvReward.visibility = View.GONE
                 }
             )
+
+            userVM.state.observe(viewLifecycleOwner) { state ->
+                when (state) {
+                    is RevenueUpdated -> {
+                        val user = state.user
+                        buildRewardText(user)
+                    }
+                    is ReceivedUserData -> {
+                        val user = state.user
+                        buildRewardText(user)
+                    }
+                    else -> {}
+                }
+            }
         }
     }
 
