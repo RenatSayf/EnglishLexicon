@@ -105,7 +105,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Word currentWord;
     private int wordsInterval = 10;
     public BackgroundFragm backgroundFragm = null;
-
     @Inject
     AlarmScheduler scheduler;
 
@@ -778,35 +777,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         else if (itemId == R.id.nav_exit)
         {
             onAppFinish();
-
-            boolean adsIsEnabled = SettingsExtKt.getAdsIsEnabled(this);
-            if (backgroundFragm != null && adsIsEnabled)
-            {
-                try
-                {
-                    AdsExtensionsKt.showInterstitial(
-                            this,
-                            Appodeal.INTERSTITIAL,
-                            () -> null,
-                            () -> {
-                                finish();
-                                return null;
-                            },
-                            err -> {
-                                ExtensionsKt.showToastIfDebug(this, err);
-                                finish();
-                                return null;
-                            }
-                    );
-                } catch (Exception e)
-                {
-                    e.printStackTrace();
-                    finish();
-                }
-            } else
-            {
-                finish();
-            }
+            finish();
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -1057,20 +1028,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
-    @Override
-    protected void onPause()
-    {
-        ExtensionsKt.checkIsActivityShown(
-                MainActivity.this,
-                MainActivity.class,
-                () -> {
-                    onAppFinish();
-                    return null;
-                },
-                () -> null
-        );
-        super.onPause();
-    }
+
 }
 
 

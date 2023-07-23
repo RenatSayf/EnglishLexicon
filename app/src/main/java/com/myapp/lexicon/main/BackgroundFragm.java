@@ -6,12 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterViewFlipper;
-import android.widget.FrameLayout;
 
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.helpers.ExtensionsKt;
-import com.myapp.lexicon.service.PhoneUnlockedReceiver;
-import com.myapp.lexicon.settings.SettingsExtKt;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -70,14 +66,6 @@ public class BackgroundFragm extends Fragment
         setRetainInstance(true);
     }
 
-    private void hideAdBanner()
-    {
-        FrameLayout adLayout = requireActivity().findViewById(R.id.adLayout);
-        if (adLayout != null) {
-            adLayout.setVisibility(View.GONE);
-        }
-    }
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
@@ -113,12 +101,6 @@ public class BackgroundFragm extends Fragment
     public void onResume()
     {
         super.onResume();
-
-        boolean adsIsEnabled = SettingsExtKt.getAdsIsEnabled(this);
-        if (!adsIsEnabled) {
-            hideAdBanner();
-        }
-
         requireActivity().getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true)
         {
             @Override
@@ -126,20 +108,6 @@ public class BackgroundFragm extends Fragment
             {
                 MainActivity mainActivity = (MainActivity) requireActivity();
                 mainActivity.onAppFinish();
-
-                ExtensionsKt.alarmClockEnable(requireContext());
-
-                SettingsExtKt.checkUnLockedBroadcast(
-                        requireContext(),
-                        () -> {
-                            PhoneUnlockedReceiver unlockedReceiver = PhoneUnlockedReceiver.Companion.getInstance();
-                            requireContext().registerReceiver(
-                                    unlockedReceiver,
-                                    unlockedReceiver.getFilter());
-                            return null;
-                        },
-                        () -> null);
-
                 requireActivity().finish();
             }
         });
