@@ -99,13 +99,17 @@ fun Activity.showInterstitial(
             onClosed.invoke()
         }
 
-        override fun onInterstitialExpired() {}
+        override fun onInterstitialExpired() {
+            return
+        }
 
         override fun onInterstitialFailedToLoad() {
             onFailed.invoke("*** Interstitial ad failed to load ****")
         }
 
-        override fun onInterstitialLoaded(isPrecache: Boolean) {}
+        override fun onInterstitialLoaded(isPrecache: Boolean) {
+            isPrecache
+        }
 
         override fun onInterstitialShowFailed() {
             onFailed.invoke("**** Interstitial ad show failed ****")
@@ -117,21 +121,30 @@ fun Activity.showInterstitial(
     })
 
     Appodeal.setRewardedVideoCallbacks(object : RewardedVideoCallbacks {
-        override fun onRewardedVideoClicked() {}
+        override fun onRewardedVideoClicked() {
+            return
+        }
 
         override fun onRewardedVideoClosed(finished: Boolean) {
             onClosed.invoke()
         }
 
-        override fun onRewardedVideoExpired() {}
+        override fun onRewardedVideoExpired() {
+            return
+        }
 
         override fun onRewardedVideoFailedToLoad() {
             onFailed.invoke("*** Rewarded video failed to load ****")
         }
 
-        override fun onRewardedVideoFinished(amount: Double, currency: String?) {}
+        override fun onRewardedVideoFinished(amount: Double, currency: String?) {
+            amount
+            currency
+        }
 
-        override fun onRewardedVideoLoaded(isPrecache: Boolean) {}
+        override fun onRewardedVideoLoaded(isPrecache: Boolean) {
+            isPrecache
+        }
 
         override fun onRewardedVideoShowFailed() {
             onFailed.invoke("***** Rewarded video show failed *****")

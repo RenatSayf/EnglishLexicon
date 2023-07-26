@@ -9,7 +9,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.appodeal.ads.Appodeal
-import com.myapp.lexicon.ads.showBanner
 import com.myapp.lexicon.ads.showInterstitial
 import com.myapp.lexicon.databinding.TranslateFragmentBinding
 import com.myapp.lexicon.main.MainActivity
@@ -64,10 +63,6 @@ class TranslateFragment : Fragment()
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View
     {
         binding = TranslateFragmentBinding.inflate(inflater, container, false)
-
-        if (this.adsIsEnabled) {
-            binding.adLayout.showBanner(requireActivity())
-        }
         return binding.root
     }
 

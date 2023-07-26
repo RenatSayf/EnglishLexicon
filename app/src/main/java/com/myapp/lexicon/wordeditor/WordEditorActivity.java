@@ -195,12 +195,6 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             tvAmountWords.setText(text);
         });
 
-        boolean adsIsEnabled = SettingsExtKt.getAdsIsEnabled(this);
-        if (adsIsEnabled) {
-            FrameLayout adLayout = findViewById(R.id.adLayout);
-            AdsExtensionsKt.showBanner(adLayout, this);
-        }
-
         buttonDelete = findViewById(R.id.btn_delete);
         buttonDelete_OnClick();
         editorVM.getDeletedId().observe(this, id -> {

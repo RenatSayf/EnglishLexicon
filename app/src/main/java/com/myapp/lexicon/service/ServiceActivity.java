@@ -158,7 +158,23 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                     AdsExtensionsKt.adsInitialize(
                             this,
                             Appodeal.REWARDED_VIDEO | Appodeal.INTERSTITIAL,
-                            () -> null,
+                            () -> {
+                                User user = ((UserViewModel.State.ReceivedUserData) state).getUser();
+                                setAdRevenueListener(user);
+                                AdsExtensionsKt.showInterstitial(
+                                        this,
+                                        Appodeal.REWARDED_VIDEO | Appodeal.INTERSTITIAL,
+                                        () -> null,
+                                        () -> null,
+                                        err -> {
+                                            if (BuildConfig.DEBUG) {
+                                                ExtensionsKt.showToast(this, err, Toast.LENGTH_LONG);
+                                            }
+                                            return null;
+                                        }
+                                );
+                                return null;
+                            },
                             errors -> {
                                 errors.forEach(error -> {
                                     String message = error.getMessage() == null ? ServiceActivity.class.getSimpleName().concat(": ad initialize error") : error.getMessage();
@@ -168,29 +184,36 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                             }
                     );
                 }
-
-                User user = ((UserViewModel.State.ReceivedUserData) state).getUser();
-                AdsExtensionsKt.adRevenueInfo(this, revenueInfo -> {
-                    double revenue = revenueInfo.getRevenue();
-                    String currency = revenueInfo.getCurrency();
-                    user.setTotalRevenue(revenue);
-                    user.setCurrency(currency);
-                    userVM.updateUserRevenue(revenue, user);
-                    return null;
-                });
-                AdsExtensionsKt.showInterstitial(
-                        this,
-                        Appodeal.INTERSTITIAL | Appodeal.REWARDED_VIDEO,
-                        () -> null,
-                        () -> null,
-                        err -> {
-                            if (BuildConfig.DEBUG) {
-                                ExtensionsKt.showToast(this, err, Toast.LENGTH_LONG);
+                else {
+                    User user = ((UserViewModel.State.ReceivedUserData) state).getUser();
+                    setAdRevenueListener(user);
+                    AdsExtensionsKt.showInterstitial(
+                            this,
+                            Appodeal.REWARDED_VIDEO | Appodeal.INTERSTITIAL,
+                            () -> null,
+                            () -> null,
+                            err -> {
+                                if (BuildConfig.DEBUG) {
+                                    ExtensionsKt.showToast(this, err, Toast.LENGTH_LONG);
+                                }
+                                return null;
                             }
-                            return null;
-                        }
-                );
+                    );
+                }
+
             }
+        });
+    }
+
+    private void setAdRevenueListener(User user) {
+
+        AdsExtensionsKt.adRevenueInfo(this, revenueInfo -> {
+            double revenue = revenueInfo.getRevenue();
+            String currency = revenueInfo.getCurrency();
+            user.setTotalRevenue(revenue);
+            user.setCurrency(currency);
+            userVM.updateUserRevenue(revenue, user);
+            return null;
         });
     }
 
