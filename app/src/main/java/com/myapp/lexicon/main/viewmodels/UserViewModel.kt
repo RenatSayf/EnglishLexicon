@@ -7,17 +7,23 @@ import android.icu.util.Currency
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
+import com.myapp.lexicon.interfaces.FlowCallback
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.settings.getExchangeRateFromPref
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.Locale
@@ -59,6 +65,18 @@ class UserViewModel @Inject constructor(
 
     fun setUser(user: User) {
         _user.value = user
+    }
+
+    fun collect(callBack: FlowCallback) {
+        viewModelScope.launch {
+            _stateFlow.onStart {
+                callBack.onStart()
+            }.onCompletion {
+                callBack.onCompletion(it)
+            }.collect {
+                callBack.onResult(_state.value)
+            }
+        }
     }
 
     private fun addUser(user: User) {
@@ -156,7 +174,7 @@ class UserViewModel @Inject constructor(
                             user.defaultCurrencyReward = defaultReward
                         }
                     )
-                    if (user.reallyRevenue > 0 && user.userReward > 0) {
+                    if (user.reallyRevenue > -1 && user.userReward > -1) {
 
                         val revenueMap = mapOf(
                             User.KEY_REALLY_REVENUE to user.reallyRevenue.toString(),

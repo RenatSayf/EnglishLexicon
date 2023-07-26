@@ -18,13 +18,9 @@ import com.myapp.lexicon.databinding.ALayoutSplashScreenBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.showDialogAsSingleton
 import com.myapp.lexicon.helpers.startTimer
-import com.myapp.lexicon.helpers.toLongDate
-import com.myapp.lexicon.helpers.toStringDate
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.Speaker
-import com.myapp.lexicon.models.currency.Currency
 import com.myapp.lexicon.settings.*
-import com.myapp.lexicon.viewmodels.CurrencyViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.*
@@ -36,7 +32,6 @@ class SplashActivity : AppCompatActivity() {
     private lateinit var binding: ALayoutSplashScreenBinding
     private var speaker: Speaker? = null
 
-    private val currencyVM: CurrencyViewModel by viewModels()
     private val authVM: AuthViewModel by viewModels()
 
     private var authChecked = false
@@ -62,49 +57,16 @@ class SplashActivity : AppCompatActivity() {
 
         authVM.state.observe(this) { state ->
             state.onSignIn { user ->
-                currencyVM.fetchExchangeRateFromCloud()
+                authChecked = true
+            }
+            state.onFailure {
+                authChecked = true
             }
         }
     }
 
     override fun onResume() {
         super.onResume()
-
-        currencyVM.currency.observe(this) { result ->
-            result.onSuccess<Currency> { currency ->
-                val cloudTime = currency.date.toLongDate()
-                val currentTime = System.currentTimeMillis().toStringDate().toLongDate()
-                if (currentTime > cloudTime) {
-                    currencyVM.getExchangeRateFromApi(
-                        onSuccess = { rate ->
-                            val date = System.currentTimeMillis().toStringDate()
-                            currencyVM.saveExchangeRateToCloud(
-                                currency = Currency(date, currency.name, rate)
-                            )
-                        },
-                        onFailure = {
-                            authChecked = true
-                        }
-                    )
-                }
-            }
-            result.onError {
-                authChecked = true
-            }
-        }
-
-        currencyVM.state.observe(this) { state ->
-            when(state) {
-                is CurrencyViewModel.State.Error -> {
-                    authChecked = true
-                }
-                CurrencyViewModel.State.Init -> {}
-                is CurrencyViewModel.State.Updated -> {
-                    applicationContext.saveExchangeRateToPref(state.currency)
-                    authChecked = true
-                }
-            }
-        }
 
         this.checkBuildConfig(
             onInit = {

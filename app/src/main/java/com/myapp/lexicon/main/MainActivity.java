@@ -42,6 +42,7 @@ import com.myapp.lexicon.dialogs.RemoveDictDialog;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.Share;
+import com.myapp.lexicon.interfaces.FlowCallback;
 import com.myapp.lexicon.main.viewmodels.UserViewModel;
 import com.myapp.lexicon.models.User;
 import com.myapp.lexicon.models.UserState;
@@ -71,6 +72,7 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageButton;
@@ -153,23 +155,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
 
         userVM.getState().observe(this, state -> {
-            if (state instanceof UserViewModel.State.ReceivedUserData) {
-                User user = ((UserViewModel.State.ReceivedUserData) state).getUser();
-                buildRewardText(user);
-
-                boolean isInitialized = Appodeal.isInitialized(Appodeal.REWARDED_VIDEO | Appodeal.INTERSTITIAL);
+            if (state instanceof UserViewModel.State.Start) {
+                boolean isInitialized = Appodeal.isInitialized(Appodeal.INTERSTITIAL | Appodeal.REWARDED_VIDEO);
                 if (!isInitialized)
                 {
                     AdsExtensionsKt.adsInitialize(
                             this,
-                            Appodeal.REWARDED_VIDEO,
+                            Appodeal.INTERSTITIAL | Appodeal.REWARDED_VIDEO,
                             () -> {
                                 AdsExtensionsKt.adRevenueInfo(this, revenueInfo -> {
                                     double revenue = revenueInfo.getRevenue();
                                     String currency = revenueInfo.getCurrency();
-                                    user.setTotalRevenue(revenue);
-                                    user.setCurrency(currency);
-                                    userVM.updateUserRevenue(revenue, user);
+                                    User user = userVM.getUser().getValue();
+                                    if (user != null)
+                                    {
+                                        user.setTotalRevenue(revenue);
+                                        user.setCurrency(currency);
+                                        userVM.updateUserRevenue(revenue, user);
+                                    }
                                     return null;
                                 });
                                 return null;
@@ -184,10 +187,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     );
                 }
             }
-            if (state instanceof UserViewModel.State.RevenueUpdated) {
-                User user = ((UserViewModel.State.RevenueUpdated) state).getUser();
+            if (state instanceof UserViewModel.State.ReceivedUserData) {
+                User user = ((UserViewModel.State.ReceivedUserData) state).getUser();
                 buildRewardText(user);
             }
+
+        });
+
+        userVM.collect(new FlowCallback()
+        {
+            @Override
+            public void onResult(@Nullable UserViewModel.State result)
+            {
+                if (result instanceof UserViewModel.State.RevenueUpdated)
+                {
+                    User user = ((UserViewModel.State.RevenueUpdated) result).getUser();
+                    buildRewardText(user);
+                }
+            }
+
+            @Override
+            public void onCompletion(@Nullable Throwable thr)
+            {}
+
+            @Override
+            public void onStart()
+            {}
         });
 
         btnViewDict = findViewById(R.id.btnViewDict);

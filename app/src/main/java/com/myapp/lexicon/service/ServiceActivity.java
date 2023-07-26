@@ -153,17 +153,17 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
 
             if (state instanceof UserViewModel.State.ReceivedUserData) {
 
-                boolean isInitialized = Appodeal.isInitialized(Appodeal.REWARDED_VIDEO | Appodeal.INTERSTITIAL);
+                boolean isInitialized = Appodeal.isInitialized(Appodeal.INTERSTITIAL | Appodeal.REWARDED_VIDEO);
                 if (!isInitialized) {
                     AdsExtensionsKt.adsInitialize(
                             this,
-                            Appodeal.REWARDED_VIDEO | Appodeal.INTERSTITIAL,
+                            Appodeal.INTERSTITIAL | Appodeal.REWARDED_VIDEO,
                             () -> {
                                 User user = ((UserViewModel.State.ReceivedUserData) state).getUser();
                                 setAdRevenueListener(user);
                                 AdsExtensionsKt.showInterstitial(
                                         this,
-                                        Appodeal.REWARDED_VIDEO | Appodeal.INTERSTITIAL,
+                                        Appodeal.INTERSTITIAL | Appodeal.REWARDED_VIDEO,
                                         () -> null,
                                         () -> null,
                                         err -> {
@@ -189,7 +189,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                     setAdRevenueListener(user);
                     AdsExtensionsKt.showInterstitial(
                             this,
-                            Appodeal.REWARDED_VIDEO | Appodeal.INTERSTITIAL,
+                            Appodeal.INTERSTITIAL | Appodeal.REWARDED_VIDEO,
                             () -> null,
                             () -> null,
                             err -> {

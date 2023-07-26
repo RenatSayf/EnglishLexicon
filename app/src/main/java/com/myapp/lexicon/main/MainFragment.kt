@@ -8,9 +8,15 @@ import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
+import androidx.fragment.app.viewModels
 import com.myapp.lexicon.R
 import com.myapp.lexicon.dialogs.ConfirmDialog
+import com.myapp.lexicon.helpers.toLongDate
+import com.myapp.lexicon.helpers.toStringDate
+import com.myapp.lexicon.models.currency.Currency
 import com.myapp.lexicon.settings.askForPermission
+import com.myapp.lexicon.settings.saveExchangeRateToPref
+import com.myapp.lexicon.viewmodels.CurrencyViewModel
 
 class MainFragment : Fragment() {
 
@@ -31,6 +37,8 @@ class MainFragment : Fragment() {
             }
         }
     }
+
+    private val currencyVM: CurrencyViewModel by viewModels()
 
     interface Listener {
         fun refreshMainScreen(isAdShow: Boolean)
@@ -70,6 +78,38 @@ class MainFragment : Fragment() {
                 }
             )
         }
+
+        currencyVM.fetchExchangeRateFromCloud()
+
+        currencyVM.currency.observe(this) { result ->
+            result.onSuccess<Currency> { currency ->
+                val cloudTime = currency.date.toLongDate()
+                val currentTime = System.currentTimeMillis().toStringDate().toLongDate()
+                if (currentTime > cloudTime) {
+                    currencyVM.getExchangeRateFromApi(
+                        onSuccess = { rate ->
+                            val date = System.currentTimeMillis().toStringDate()
+                            currencyVM.saveExchangeRateToCloud(
+                                currency = Currency(date, currency.name, rate)
+                            )
+                        },
+                        onFailure = {}
+                    )
+                }
+            }
+            result.onError {}
+        }
+
+        currencyVM.state.observe(this) { state ->
+            when(state) {
+                is CurrencyViewModel.State.Updated -> {
+                    requireContext().saveExchangeRateToPref(state.currency)
+                }
+                else -> {}
+            }
+        }
+
+
     }
 
     override fun onResume() {
