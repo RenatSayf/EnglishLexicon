@@ -16,6 +16,8 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.settings.getExchangeRateFromPref
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.Locale
@@ -46,6 +48,9 @@ class UserViewModel @Inject constructor(
 
     private var _state = MutableLiveData<State>()
     val state: LiveData<State> = _state
+
+    private var _stateFlow = MutableStateFlow<State>(State.Start)
+    val stateFlow: StateFlow<State> = _stateFlow
 
     private val db: FirebaseFirestore = Firebase.firestore
 
@@ -116,6 +121,7 @@ class UserViewModel @Inject constructor(
                     val user = User(document.id).mapToUser(data)
                     _user.value = user
                     _state.value = State.ReceivedUserData(user)
+                    _stateFlow.value = State.ReceivedUserData(user)
                 }
                 else {
                     _state.value = State.Error(app.getString(R.string.text_user_not_found))
@@ -164,6 +170,7 @@ class UserViewModel @Inject constructor(
                             .addOnSuccessListener {
                                 _user.value = user
                                 _state.value = State.RevenueUpdated(revenuePerAd, user)
+                                _stateFlow.value = State.RevenueUpdated(revenuePerAd, user)
                             }
                             .addOnFailureListener { ex ->
                                 if (BuildConfig.DEBUG) {

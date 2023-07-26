@@ -77,7 +77,10 @@ fun Activity.adsInitialize(
                     }
                     else {
                         Appodeal.setTesting(false)
-                        Appodeal.setLogLevel(Log.LogLevel.none)
+                        if (BuildConfig.DEBUG) {
+                            Appodeal.setLogLevel(Log.LogLevel.debug)
+                        }
+                        else Appodeal.setLogLevel(Log.LogLevel.none)
                     }
                     onSuccess.invoke()
                 }
@@ -95,21 +98,15 @@ fun Activity.showInterstitial(
     Appodeal.setInterstitialCallbacks(object : InterstitialCallbacks {
         override fun onInterstitialClicked() {}
 
-        override fun onInterstitialClosed() {
-            onClosed.invoke()
-        }
+        override fun onInterstitialClosed() {}
 
-        override fun onInterstitialExpired() {
-            return
-        }
+        override fun onInterstitialExpired() {}
 
         override fun onInterstitialFailedToLoad() {
             onFailed.invoke("*** Interstitial ad failed to load ****")
         }
 
-        override fun onInterstitialLoaded(isPrecache: Boolean) {
-            isPrecache
-        }
+        override fun onInterstitialLoaded(isPrecache: Boolean) {}
 
         override fun onInterstitialShowFailed() {
             onFailed.invoke("**** Interstitial ad show failed ****")
@@ -129,22 +126,15 @@ fun Activity.showInterstitial(
             onClosed.invoke()
         }
 
-        override fun onRewardedVideoExpired() {
-            return
-        }
+        override fun onRewardedVideoExpired() {}
 
         override fun onRewardedVideoFailedToLoad() {
             onFailed.invoke("*** Rewarded video failed to load ****")
         }
 
-        override fun onRewardedVideoFinished(amount: Double, currency: String?) {
-            amount
-            currency
-        }
+        override fun onRewardedVideoFinished(amount: Double, currency: String?) {}
 
-        override fun onRewardedVideoLoaded(isPrecache: Boolean) {
-            isPrecache
-        }
+        override fun onRewardedVideoLoaded(isPrecache: Boolean) {}
 
         override fun onRewardedVideoShowFailed() {
             onFailed.invoke("***** Rewarded video show failed *****")

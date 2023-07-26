@@ -15,6 +15,9 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.STestModalFragmentBinding
 import com.myapp.lexicon.helpers.RandomNumberGenerator
@@ -34,6 +37,7 @@ import com.myapp.lexicon.settings.getExchangeRateFromPref
 import com.myapp.lexicon.settings.isUserRegistered
 import com.myapp.lexicon.settings.saveWordToPref
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.Date
@@ -158,6 +162,24 @@ class TestModeDialog : DialogFragment() {
             ruBtn1OnClick(ruBtn1)
             ruBtn2OnClick(ruBtn2)
 
+            lifecycleScope.launch {
+                viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                    userVM.stateFlow.collect { state ->
+                        when(state) {
+                            is ReceivedUserData -> {
+                                val user = state.user
+                                buildRewardText(user)
+                            }
+                            is RevenueUpdated -> {
+                                val user = state.user
+                                buildRewardText(user)
+                            }
+                            else -> {}
+                        }
+                    }
+                }
+            }
+
         }
     }
 
@@ -174,20 +196,6 @@ class TestModeDialog : DialogFragment() {
                     tvReward.visibility = View.GONE
                 }
             )
-
-            userVM.state.observe(viewLifecycleOwner) { state ->
-                when (state) {
-                    is RevenueUpdated -> {
-                        val user = state.user
-                        buildRewardText(user)
-                    }
-                    is ReceivedUserData -> {
-                        val user = state.user
-                        buildRewardText(user)
-                    }
-                    else -> {}
-                }
-            }
         }
 
         requireActivity().onBackPressedDispatcher.addCallback(
