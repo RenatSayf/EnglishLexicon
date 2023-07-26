@@ -152,26 +152,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             });
         });
 
-        userVM.getUser().observe(this, user -> {
-            SettingsExtKt.setAdsIsEnabled(this, true);
-            if (user != null) {
-                SettingsExtKt.getExchangeRateFromPref(
-                        this,
-                        () -> null,
-                        (date, symbol, rate) -> {
-                            double sum = (Double) user.getUserReward() * rate;
-                            String rewardToDisplay = BigDecimal.valueOf(sum).setScale(2, RoundingMode.DOWN).toString();
-                            TextView tvReward = root.findViewById(R.id.tvReward);
-                            String text = getString(R.string.text_your_reward).concat(" ").concat(rewardToDisplay).concat(" ").concat(symbol);
-                            tvReward.setText(text);
-                            tvReward.setVisibility(View.VISIBLE);
-                            return null;
-                        },
-                        e -> {
-                            if (BuildConfig.DEBUG) e.printStackTrace();
-                            return null;
-                        }
-                );
+        userVM.getState().observe(this, state -> {
+            if (state instanceof UserViewModel.State.ReceivedUserData) {
+                User user = ((UserViewModel.State.ReceivedUserData) state).getUser();
+                buildRewardText(user);
 
                 boolean isInitialized = Appodeal.isInitialized(Appodeal.REWARDED_VIDEO | Appodeal.INTERSTITIAL);
                 if (!isInitialized)
@@ -191,7 +175,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 return null;
                             },
                             apdInitializationErrors -> {
-                                if (BuildConfig.DEBUG) {
+                                if (BuildConfig.DEBUG)
+                                {
                                     apdInitializationErrors.forEach(Throwable::printStackTrace);
                                 }
                                 return null;
@@ -199,22 +184,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     );
                 }
             }
-            else {
-                boolean isInitialized = Appodeal.isInitialized(Appodeal.INTERSTITIAL);
-                if (!isInitialized)
-                {
-                    AdsExtensionsKt.adsInitialize(
-                            this,
-                            Appodeal.INTERSTITIAL,
-                            () -> null,
-                            apdInitializationErrors -> {
-                                if (BuildConfig.DEBUG) {
-                                    apdInitializationErrors.forEach(Throwable::printStackTrace);
-                                }
-                                return null;
-                            }
-                    );
-                }
+            if (state instanceof UserViewModel.State.RevenueUpdated) {
+                User user = ((UserViewModel.State.RevenueUpdated) state).getUser();
+                buildRewardText(user);
             }
         });
 
@@ -502,6 +474,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         MainFragment mainFragment = MainFragment.Companion.getInstance(this);
         getSupportFragmentManager().beginTransaction().add(R.id.frame_to_page_fragm, mainFragment).commit();
 
+    }
+
+    private void buildRewardText(User user) {
+        SettingsExtKt.getExchangeRateFromPref(
+                this,
+                () -> null,
+                (date, symbol, rate) -> {
+                    double sum = (Double) user.getUserReward() * rate;
+                    String rewardToDisplay = BigDecimal.valueOf(sum).setScale(2, RoundingMode.DOWN).toString();
+                    TextView tvReward = root.findViewById(R.id.tvReward);
+                    String text = getString(R.string.text_your_reward).concat(" ").concat(rewardToDisplay).concat(" ").concat(symbol);
+                    tvReward.setText(text);
+                    tvReward.setVisibility(View.VISIBLE);
+                    return null;
+                },
+                e -> {
+                    if (BuildConfig.DEBUG) e.printStackTrace();
+                    return null;
+                }
+        );
     }
 
     public void testPassed()

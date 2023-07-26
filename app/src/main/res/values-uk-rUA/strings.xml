@@ -355,6 +355,7 @@
     <string name="data_is_saved">Дані збережені</string>
     <string name="text_payment_request_sent_1">Заявка прийнята. Чекайте надходження коштів на карту протягом</string>
     <string name="text_payment_request_sent_2">днів</string>
+    <string name="text_notification_permission">Для того щоб була можливість пасивного вивчення слів, додатком потрібно показувати повідомлення. Зараз повідомлення відключені. Перейдіть до налаштувань і ввімкніть сповіщення</string>
 
     <string-array name="words_interval">
         <item>після 5 слів</item>

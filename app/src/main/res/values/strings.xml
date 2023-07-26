@@ -306,6 +306,7 @@
     <string name="data_is_saved">Данные сохранены</string>
     <string name="text_payment_request_sent_1">Заявка принята. Ожидайте поступления средств на карту в течении</string>
     <string name="text_payment_request_sent_2">дней</string>
+    <string name="text_notification_permission">Для того чтобы была возможность пассивного изучения слов, приложению требуется показывать уведомления. Сейчас уведомления отключены. Перейдите в настройки и включите уведомления</string>
 
     <string-array name="not_move">
         <item>Не перемещать</item>

@@ -5,6 +5,7 @@ package com.myapp.lexicon.settings
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -466,25 +467,13 @@ fun Context.getExchangeRateFromPref(
 fun AppCompatActivity.askForPermission(
     permission: String,
     onInit: () -> Unit,
-    onGranted: () -> Unit,
-    onRejected: () -> Unit,
-    isRationale: Boolean = true
+    onGranted: () -> Unit
 ) {
     if (ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED) {
         onGranted.invoke()
     }
-    else if (this.shouldShowRequestPermissionRationale(permission) || isRationale) {
+    else if (this.shouldShowRequestPermissionRationale(permission)) {
         onInit.invoke()
-    }
-    else {
-        this.registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
-            if (isGranted) {
-                onGranted.invoke()
-            }
-            else {
-                onRejected.invoke()
-            }
-        }.launch(permission)
     }
 }
 
@@ -498,9 +487,7 @@ fun Fragment.askForPermission(
     (requireActivity() as AppCompatActivity).askForPermission(
         permission,
         onInit,
-        onGranted,
-        onRejected,
-        isRationale
+        onGranted
     )
 }
 

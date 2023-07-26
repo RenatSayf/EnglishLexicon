@@ -49,6 +49,8 @@ class SplashActivity : AppCompatActivity() {
         binding = ALayoutSplashScreenBinding.inflate(layoutInflater, CoordinatorLayout(this), false)
         setContentView(binding.root)
 
+        applicationContext.adsIsEnabled = true
+
         applicationContext.getAuthDataFromPref(
             onNotRegistered = {
                 authChecked = true

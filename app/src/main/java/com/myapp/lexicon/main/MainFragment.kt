@@ -5,6 +5,7 @@ package com.myapp.lexicon.main
 import android.Manifest
 import android.os.Build
 import android.os.Bundle
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import com.myapp.lexicon.R
@@ -45,6 +46,8 @@ class MainFragment : Fragment() {
             }
         })
 
+        val launcher = this.registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             askForPermission(
                 Manifest.permission.POST_NOTIFICATIONS,
@@ -52,9 +55,10 @@ class MainFragment : Fragment() {
                     ConfirmDialog.newInstance(
                         onLaunch = {dialog, binding ->
                             with(binding) {
-
+                                val message = getString(R.string.text_notification_permission)
+                                tvMessage.text = message
                                 btnOk.setOnClickListener {
-                                    askForPermission(Manifest.permission.POST_NOTIFICATIONS, isRationale = false)
+                                    launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
                                     dialog.dismiss()
                                 }
                                 btnCancel.setOnClickListener {
@@ -62,8 +66,7 @@ class MainFragment : Fragment() {
                                 }
                             }
                         }
-                    )
-
+                    ).show(parentFragmentManager, ConfirmDialog.TAG)
                 }
             )
         }
