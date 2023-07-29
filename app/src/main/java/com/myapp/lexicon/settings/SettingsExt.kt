@@ -5,8 +5,6 @@ package com.myapp.lexicon.settings
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -18,7 +16,6 @@ import com.google.firebase.storage.ktx.storage
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.helpers.getCRC32CheckSum
-import com.myapp.lexicon.models.LaunchMode
 import com.myapp.lexicon.models.TestState
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.Word
@@ -105,13 +102,8 @@ var Context.cloudStorageEnabled: Boolean
     get() {
         return appSettings.getBoolean(getString(R.string.KEY_CLOUD_STORAGE), false)
     }
-    private set(value) {
+    set(value) {
         appSettings.edit().putBoolean(getString(R.string.KEY_CLOUD_STORAGE), value).apply()
-    }
-
-val Fragment.cloudStorageEnabled: Boolean
-    get() {
-        return requireContext().cloudStorageEnabled
     }
 
 var Context.checkFirstLaunch: Boolean
@@ -122,8 +114,12 @@ var Context.checkFirstLaunch: Boolean
         appSettings.edit().putBoolean(getString(R.string.KEY_FIRST_LAUNCH), value).apply()
     }
 
-private const val KEY_ADS_TOKEN = "KEY_ADS_TOKEN_555"
 private const val KEY_CLOUD_TOKEN = "KEY_CLOUD_TOKEN_777"
+
+fun Context.saveCloudToken(token: String) {
+    val tokenCheckSum = token.getCRC32CheckSum().toString()
+    appSettings.edit().putString(KEY_CLOUD_TOKEN, tokenCheckSum).apply()
+}
 
 interface PurchasesTokenListener {
     fun onInit()
@@ -131,16 +127,12 @@ interface PurchasesTokenListener {
 }
 
 fun Context.checkPurchasesTokens(listener: PurchasesTokenListener) {
-    val adsToken = appSettings.getString(KEY_ADS_TOKEN, null)
     val cloudToken = appSettings.getString(KEY_CLOUD_TOKEN, null)
-    try {
-        if (adsToken == null || cloudToken == null) {
-            listener.onInit()
-            return
-        }
-        this.adsIsEnabled = adsToken.isEmpty()
+    if (cloudToken == null) {
+        listener.onInit()
+    }
+    else {
         this.cloudStorageEnabled = cloudToken.isNotEmpty()
-    } finally {
         listener.onCheckComplete()
     }
 }
@@ -149,72 +141,28 @@ fun Context.checkCloudToken(
     onInit: () -> Unit = {},
     onExists: (String) -> Unit,
     onEmpty: () -> Unit = {},
-    onComplete: () -> Unit = {}
+    onFailure: () -> Unit = {}
 ) {
-    val token = appSettings.getString(KEY_CLOUD_TOKEN, null)
-    try {
-        when {
-            token == null -> onInit.invoke()
-            token.isNotEmpty() -> onExists.invoke(token)
-            else -> onEmpty.invoke()
+    getAuthDataFromPref(
+        onNotRegistered = {
+            onEmpty.invoke()
+        },
+        onSuccess = { id, _, _ ->
+            val token = appSettings.getString(KEY_CLOUD_TOKEN, null)
+            try {
+                when (token) {
+                    null -> onInit.invoke()
+                    else -> onExists.invoke(id)
+                }
+            } catch (e: Exception) {
+                onFailure.invoke()
+            }
+        },
+        onFailure = {
+            onFailure.invoke()
         }
-    } finally {
-        onComplete.invoke()
-    }
-}
+    )
 
-fun Context.setAdsSetting(token: String?) {
-
-    when {
-        token == null -> {
-            appSettings.edit().apply {
-                putBoolean(getString(R.string.KEY_IS_ADS_ENABLED), true)
-                putString(KEY_ADS_TOKEN, null)
-            }.apply()
-            this.adsIsEnabled = true
-        }
-        token.isEmpty() -> {
-            appSettings.edit().apply {
-                putBoolean(getString(R.string.KEY_IS_ADS_ENABLED), true)
-                putString(KEY_ADS_TOKEN, "")
-            }.apply()
-            this.adsIsEnabled = true
-        }
-        else -> {
-            val tokenCheckSum = token.getCRC32CheckSum()
-            appSettings.edit().apply {
-                putBoolean(getString(R.string.KEY_IS_ADS_ENABLED), false)
-                putString(KEY_ADS_TOKEN, tokenCheckSum.toString())
-            }.apply()
-            this.adsIsEnabled = false
-        }
-    }
-}
-
-fun Context.setCloudSetting(token: String?) {
-    when {
-        token == null -> {
-            appSettings.edit().apply {
-                putBoolean(getString(R.string.KEY_CLOUD_STORAGE), false)
-                putString(KEY_CLOUD_TOKEN, null)
-            }.apply()
-            this.cloudStorageEnabled = false
-        }
-        token.isEmpty() -> {
-            appSettings.edit().apply {
-                putBoolean(getString(R.string.KEY_CLOUD_STORAGE), false)
-                putString(KEY_CLOUD_TOKEN, "")
-            }.apply()
-            this.cloudStorageEnabled = false
-        }
-        else -> {
-            appSettings.edit().apply {
-                putBoolean(getString(R.string.KEY_CLOUD_STORAGE), true)
-                putString(KEY_CLOUD_TOKEN, token.getCRC32CheckSum().toString())
-            }.apply()
-            this.cloudStorageEnabled = true
-        }
-    }
 }
 
 fun Context.checkOnStartSpeech(onEnabled: () -> Unit, onDisabled: () -> Unit) {
@@ -406,31 +354,6 @@ fun Fragment.getTestStateFromPref(
                 e.printStackTrace()
             }
         }
-    }
-}
-
-fun Context.checkBuildConfig(
-    onInit: () -> Unit,
-    onChangeToTest: (String) -> Unit,
-    onChangeToNormal: (String) -> Unit
-) {
-    val key = "KEY_LAUNCH_MODE"
-    val savedMode = appSettings.getString(key, null)
-    val currentMode = BuildConfig.PURCHASE_MODE
-    if (savedMode == null) {
-        onInit.invoke()
-        appSettings.edit().putString(key, currentMode).apply()
-    }
-    if (savedMode != currentMode) {
-        when(currentMode) {
-            LaunchMode.TEST.name -> {
-                onChangeToTest.invoke(currentMode)
-            }
-            LaunchMode.NORMAL.name -> {
-                onChangeToNormal.invoke(currentMode)
-            }
-        }
-        appSettings.edit().putString(key, currentMode).apply()
     }
 }
 

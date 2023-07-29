@@ -71,16 +71,13 @@ fun Activity.adsInitialize(
                         }
                     }
                 }?: run {
-                    if (BuildConfig.PURCHASE_MODE == LaunchMode.TEST.name) {
+                    if (BuildConfig.DEBUG) {
                         Appodeal.setTesting(true)
                         Appodeal.setLogLevel(Log.LogLevel.debug)
                     }
                     else {
                         Appodeal.setTesting(false)
-                        if (BuildConfig.DEBUG) {
-                            Appodeal.setLogLevel(Log.LogLevel.debug)
-                        }
-                        else Appodeal.setLogLevel(Log.LogLevel.none)
+                        Appodeal.setLogLevel(Log.LogLevel.none)
                     }
                     onSuccess.invoke()
                 }

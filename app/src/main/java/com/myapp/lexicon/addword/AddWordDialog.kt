@@ -94,11 +94,11 @@ class AddWordDialog : DialogFragment(),
                             if (index >= 0) {
                                 val adapter = ArrayAdapter(requireContext(), R.layout.app_spinner_item, list.distinct())
                                 dictListSpinner.adapter = adapter
-                                when {
-                                    newDictName == null && index > -1 -> {
+                                when (newDictName) {
+                                    null -> {
                                         dictListSpinner.setSelection(index)
                                     }
-                                    newDictName != null -> {
+                                    else -> {
                                         val i = list.indexOf(newDictName)
                                         dictListSpinner.setSelection(i)
                                     }

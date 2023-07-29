@@ -15,13 +15,10 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.billing.BillingViewModel
 import com.myapp.lexicon.cloudstorage.StorageDialog
 import com.myapp.lexicon.databinding.DialogStorageBinding
-import com.myapp.lexicon.dialogs.DisableAdsDialog
 import com.myapp.lexicon.helpers.LockOrientation
-import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.schedule.AlarmScheduler
 import dagger.hilt.android.AndroidEntryPoint
-import java.lang.NumberFormatException
 import java.util.*
 
 
@@ -31,6 +28,7 @@ class SettingsFragment : PreferenceFragmentCompat()
     private lateinit var listDisplayModePref: ListPreference
     private lateinit var serviceCheckBoxPref: CheckBoxPreference
     private lateinit var showIntervalsPref: ListPreference
+
     private val billingVM: BillingViewModel by lazy {
         ViewModelProvider(this)[BillingViewModel::class.java]
     }
@@ -94,7 +92,6 @@ class SettingsFragment : PreferenceFragmentCompat()
                         view?.let { redirectIfXiaomiDevice() }
                     }
                 }
-
                 return true
             }
         }
@@ -176,66 +173,29 @@ class SettingsFragment : PreferenceFragmentCompat()
         super.onViewCreated(view, savedInstanceState)
         view.setBackgroundColor(resources.getColor(R.color.colorWhite))
 
-        val noAdsSwitch = findPreference<SwitchPreferenceCompat>(getString(R.string.KEY_IS_ADS_ENABLED))
-        findPreference<PreferenceCategory>("disableAdsCategory")?.isEnabled = requireContext().adsIsEnabled
-        noAdsSwitch?.isChecked = requireContext().adsIsEnabled
-        noAdsSwitch?.isEnabled = requireContext().adsIsEnabled
-        noAdsSwitch?.apply {
-            onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener
-            {
-                override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean
-                {
-                    if (newValue == false)
-                    {
-                        val result = billingVM.noAdsProduct.value
-                        result?.onSuccess { details ->
-                            val productName = details.name
-                            val price = details.oneTimePurchaseOfferDetails?.formattedPrice
-                            DisableAdsDialog.newInstance(productName, price, onPurchase = {
-                                billingVM.purchaseProduct(requireActivity(), details)
-                            }, onCancel = {
-                                noAdsSwitch.isChecked = true
-                            }).show(parentFragmentManager, DisableAdsDialog.TAG)
-                        }
-                        result?.onFailure {
-                            showSnackBar(it.message?: getString(R.string.text_something_went_wrong))
-                            noAdsSwitch.isChecked = false
-                        }
-                    }
-                    return true
-                }
-            }
-        }
-
-        billingVM.noAdsToken.observe(viewLifecycleOwner) { result ->
-            result.onSuccess { token ->
-                when {
-                    token.isNotEmpty() -> {
-                        noAdsSwitch?.let { sw ->
-                            sw.isChecked = false
-                            sw.isEnabled = false
-                        }
-                        requireContext().setAdsSetting(token)
-                    }
-                    else -> {
-                        noAdsSwitch?.let { sw ->
-                            sw.isChecked = true
-                            sw.isEnabled = true
-                        }
-                        requireContext().setAdsSetting("")
-                    }
-                }
-            }
-            result.onFailure {
-                noAdsSwitch?.let { sw ->
-                    sw.isChecked = true
-                    sw.isEnabled = true
-                }
-                requireContext().setAdsSetting("")
-            }
-        }
-
         val cloudStorageSwitch = findPreference<SwitchPreferenceCompat>(getString(R.string.KEY_CLOUD_STORAGE))
+
+        requireContext().checkCloudToken(
+            onInit = {
+                cloudStorageSwitch?.apply {
+                    isEnabled = false
+                    isChecked = false
+                }
+            },
+            onExists = {
+                cloudStorageSwitch?.apply {
+                    isEnabled = false
+                    isChecked = true
+                }
+            },
+            onEmpty = {
+                cloudStorageSwitch?.apply {
+                    isEnabled = false
+                    isChecked = false
+                }
+            }
+        )
+
         findPreference<PreferenceCategory>("cloudStorageCategory")?.isEnabled = !requireContext().cloudStorageEnabled
         cloudStorageSwitch?.isChecked = requireContext().cloudStorageEnabled
         if (cloudStorageSwitch?.isChecked == true) {
@@ -295,33 +255,22 @@ class SettingsFragment : PreferenceFragmentCompat()
                             val newTitle = "$title (${getString(R.string.text_enabled)})"
                             switch.title = newTitle
                         }
-                        requireContext().setCloudSetting(token)
+                        requireContext().saveCloudToken(token)
                     }
                     else -> {
-                        cloudStorageSwitch?.let { sw ->
-                            sw.isChecked = false
-                            sw.title = getString(R.string.text_save_my_dicts)
+                        cloudStorageSwitch?.let { switch ->
+                            switch.isChecked = false
+                            switch.isEnabled = true
+                            switch.title = getString(R.string.text_save_my_dicts)
                         }
-                        requireContext().setCloudSetting("")
                     }
                 }
-            }
-            result.onFailure {
-                cloudStorageSwitch?.let { sw ->
-                    sw.isChecked = false
-                    sw.title = getString(R.string.text_save_my_dicts)
-                }
-                requireContext().setCloudSetting("")
             }
         }
 
         billingVM.wasCancelled.observe(viewLifecycleOwner) { result ->
             result.onSuccess { details ->
                 when(details.productId) {
-                    getString(R.string.id_no_ads) -> {
-                        noAdsSwitch?.isChecked = true
-                        noAdsSwitch?.isEnabled = true
-                    }
                     getString(R.string.id_cloud_storage) -> {
                         cloudStorageSwitch?.isChecked = false
                         cloudStorageSwitch?.isEnabled = true

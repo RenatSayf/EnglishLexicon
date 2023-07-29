@@ -37,15 +37,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    flavorDimensions "purchases_test"
-    productFlavors {
-        PURCHASE_TEST_ {
-            buildConfigField 'String', 'PURCHASE_MODE', '\"TEST\"'
-        }
-        PURCHASE_NORMAL_ {
-            buildConfigField 'String', 'PURCHASE_MODE', '\"NORMAL\"'
-        }
-    }
     lintOptions {
         checkReleaseBuilds false
         abortOnError false
@@ -57,7 +48,6 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    flavorDimensions 'test_ads'
     namespace 'com.myapp.lexicon'
 
 }

@@ -873,11 +873,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     SettingsExtKt.checkCloudToken(
                             MainActivity.this,
                             () -> null,
-                            token -> {
+                            userId -> {
                                 DownloadDbWorker.Companion.downloadDbFromCloud(
                                         MainActivity.this,
                                         getString(R.string.data_base_name),
-                                        token,
+                                        userId,
                                         new DownloadDbWorker.Listener()
                                         {
                                             @Override
@@ -938,10 +938,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             SettingsExtKt.checkCloudToken(
                     this,
                     () -> null,
-                    token -> {
+                    userId -> {
                         CloudCheckWorker.Companion.check(
                                 this,
-                                token,
+                                userId,
                                 getString(R.string.data_base_name),
                                 new CloudCheckWorker.Listener()
                                 {
@@ -1001,10 +1001,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             SettingsExtKt.checkCloudToken(
                     this,
                     () -> null,
-                    token -> {
+                    userId -> {
                         CloudCheckWorker.Companion.check(
                                 this,
-                                token,
+                                userId,
                                 getString(R.string.data_base_name),
                                 null
                         );
@@ -1043,6 +1043,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return null;
             });
         });
+
+        SettingsExtKt.checkCloudToken(
+                this,
+                () -> null,
+                userId -> {
+                    SettingsExtKt.setCloudStorageEnabled(MainActivity.this, true);
+                    Menu menu = toolBar.getMenu();
+                    configureOptionsMenu(menu);
+                    return null;
+                },
+                () -> null,
+                () -> null
+        );
+
     }
 
 

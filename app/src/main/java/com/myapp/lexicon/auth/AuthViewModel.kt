@@ -21,6 +21,8 @@ import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserState
 import com.myapp.lexicon.settings.getAuthDataFromPref
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -47,8 +49,12 @@ class AuthViewModel @Inject constructor(
     }
     val state: LiveData<UserState> = _state
 
+    private val _stateFlow = MutableStateFlow<UserState>(UserState.Init)
+    val stateFlow: StateFlow<UserState> = _stateFlow
+
     fun setState(state: UserState) {
         _state.value = state
+        _stateFlow.value = state
     }
 
     fun registerWithEmailAndPassword(email: String, password: String) {
@@ -65,15 +71,18 @@ class AuthViewModel @Inject constructor(
                     this.currencySymbol = currency.symbol
                 }
                 _state.value = UserState.SignUp(user)
+                _stateFlow.value = UserState.SignUp(user)
             }
             .addOnFailureListener { ex ->
                 val authException = ex as FirebaseAuthException
                 when (authException.errorCode) {
                     "ERROR_EMAIL_ALREADY_IN_USE" -> {
                         _state.value = UserState.AlreadyExists
+                        _stateFlow.value = UserState.AlreadyExists
                     }
                     else -> {
                         _state.value = UserState.Failure(ex)
+                        _stateFlow.value = UserState.Failure(ex)
                     }
                 }
             }
@@ -120,14 +129,17 @@ class AuthViewModel @Inject constructor(
                 if (task.isSuccessful) {
                     val user: FirebaseUser? = auth.currentUser
                     user?.uid?.let { id ->
-                        _state.value = UserState.SignIn(User(id).apply {
+                        val newState = UserState.SignIn(User(id).apply {
                             this.email = email
                             this.password = password
                         })
+                        _state.value = newState
+                        _stateFlow.value = newState
                     }
                 } else {
                     val exception = task.exception as Exception
                     _state.value = UserState.Failure(exception)
+                    _stateFlow.value = UserState.Failure(exception)
                 }
                 _loadingState.value = LoadingState.Complete
             }
@@ -140,9 +152,11 @@ class AuthViewModel @Inject constructor(
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     _state.value = UserState.PasswordReset
+                    _stateFlow.value = UserState.PasswordReset
                 } else {
                     val exception = task.exception as FirebaseAuthException
                     _state.value = UserState.Failure(exception)
+                    _stateFlow.value = UserState.Failure(exception)
                 }
                 _loadingState.value = LoadingState.Complete
             }
@@ -177,6 +191,7 @@ class AuthViewModel @Inject constructor(
         app.getAuthDataFromPref(
             onNotRegistered = {
                 _state.value = UserState.NotRegistered
+                _stateFlow.value = UserState.NotRegistered
             },
             onSuccess = { id, email, password ->
                 val currentUser = auth.currentUser
@@ -184,14 +199,17 @@ class AuthViewModel @Inject constructor(
                     signInWithEmailAndPassword(email, password)
                 }
                 else {
-                    _state.value = UserState.SignIn(User(currentUser.uid).apply {
+                    val newState = UserState.SignIn(User(currentUser.uid).apply {
                         this.email = email
                         this.password = password
                     })
+                    _state.value = newState
+                    _stateFlow.value = newState
                 }
             },
             onFailure = {exception ->
                 _state.value = UserState.Failure(exception)
+                _stateFlow.value = UserState.Failure(exception)
             }
         )
 

@@ -32,7 +32,8 @@
             android:key="@string/KEY_CLOUD_STORAGE"
             android:title="@string/text_save_my_dicts"
             android:summary="@string/text_cloud_description"
-            android:defaultValue="false"/>
+            android:defaultValue="false"
+            android:enabled="false"/>
 
     </PreferenceCategory>
 

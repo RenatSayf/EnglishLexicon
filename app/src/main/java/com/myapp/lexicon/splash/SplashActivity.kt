@@ -68,18 +68,6 @@ class SplashActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        this.checkBuildConfig(
-            onInit = {
-                this.setCloudSetting(null)
-            },
-            onChangeToTest = { mode ->
-                this.setCloudSetting("")
-            },
-            onChangeToNormal = { mode ->
-                this.setCloudSetting(null)
-            }
-        )
-
         this.checkPurchasesTokens(listener = object : PurchasesTokenListener {
             override fun onInit() {
                 UserPurchases(this@SplashActivity, object : UserPurchases.Listener {
@@ -88,12 +76,11 @@ class SplashActivity : AppCompatActivity() {
                     override fun onEmptyAdsToken() {}
 
                     override fun onExistsCloudToken(token: String) {
-                        this@SplashActivity.setCloudSetting(token)
+                        this@SplashActivity.saveCloudToken(token)
                         cloudChecked = true
                     }
 
                     override fun onEmptyCloudToken() {
-                        this@SplashActivity.setCloudSetting("")
                         cloudChecked = true
                     }
                 })

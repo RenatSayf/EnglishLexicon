@@ -306,7 +306,6 @@ class MainViewModel @Inject constructor(
 
     override fun onCleared()
     {
-        repository.dbClose()
         composite.dispose()
         composite.clear()
         super.onCleared()
