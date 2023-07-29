@@ -1,19 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <defaults>
-  <entry>
-    <key>REVENUE_RATIO</key>
-    <value>1.0</value>
-  </entry>
-  <entry>
-    <key>USER_PERCENTAGE</key>
-    <value>0.7</value>
-  </entry>
-  <entry>
-    <key>payment_threshold</key>
-    <value>2.0</value>
-  </entry>
-  <entry>
-    <key>payment_days</key>
-    <value>3</value>
-  </entry>
+<!--  <entry>-->
+<!--    <key>REVENUE_RATIO</key>-->
+<!--    <value>1.0</value>-->
+<!--  </entry>-->
+<!--  <entry>-->
+<!--    <key>USER_PERCENTAGE</key>-->
+<!--    <value>0.7</value>-->
+<!--  </entry>-->
+<!--  <entry>-->
+<!--    <key>payment_days</key>-->
+<!--    <value>3</value>-->
+<!--  </entry>-->
 </defaults>

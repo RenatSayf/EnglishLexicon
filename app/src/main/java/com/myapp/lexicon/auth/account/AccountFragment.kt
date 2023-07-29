@@ -168,7 +168,7 @@ class AccountFragment : Fragment() {
                     val rewardThreshold = (paymentThreshold * rate).toInt()
                     val textCondition = "${getString(R.string.text_reward_conditions)} $rewardThreshold $symbol"
                     tvRewardCondition.text = textCondition
-                    btnGetReward.isEnabled = user.userReward > rewardThreshold
+                    btnGetReward.isEnabled = user.defaultCurrencyReward > rewardThreshold
                     if (user.userReward > rewardThreshold) {
                         tvRewardCondition.visibility = View.GONE
                     }
