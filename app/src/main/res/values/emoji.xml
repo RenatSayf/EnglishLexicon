@@ -6,5 +6,6 @@
     <string name="thumbs_up" translatable="false">👍</string>
     <string name="coins_bag" translatable="false">💰</string>
     <string name="green_book" translatable="false">📗</string>
+    <string name="star" translatable="false">⭐</string>
     
 </resources>

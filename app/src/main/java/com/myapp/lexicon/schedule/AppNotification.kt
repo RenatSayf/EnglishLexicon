@@ -47,7 +47,11 @@ class AppNotification constructor(private val context: Context) : Notification()
                 setContentTitle(words[0].english)
                 if (displayMode == "1")
                 {
-                    setContentText("?????????????")
+                    var contentText = ""
+                    repeat(5) {
+                        contentText += "${context.getString(R.string.star)} "
+                    }
+                    setContentText(contentText.trim())
                 }
                 else setContentText(words[0].translate)
 
