@@ -1,4 +1,4 @@
-@file:Suppress("ObjectLiteralToLambda")
+@file:Suppress("ObjectLiteralToLambda", "VARIABLE_WITH_REDUNDANT_INITIALIZER")
 
 package com.myapp.lexicon.cloudstorage
 
@@ -15,7 +15,6 @@ import com.myapp.lexicon.helpers.getCRC32CheckSum
 import kotlinx.coroutines.delay
 
 
-@Suppress("UNUSED_ANONYMOUS_PARAMETER")
 class UploadDbWorker(
     private val context: Context,
     params: WorkerParameters

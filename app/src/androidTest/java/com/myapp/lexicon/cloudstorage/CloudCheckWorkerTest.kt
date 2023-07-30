@@ -43,7 +43,11 @@ class CloudCheckWorkerTest {
             val testDbName = activity.getString(R.string.test_db_name_1)
             val testToken = activity.getString(R.string.test_cloud_token)
 
-            CloudCheckWorker.check(activity, testToken, testDbName, listener = object : CloudCheckWorker.Listener {
+            CloudCheckWorker.check(
+                activity,
+                testToken,
+                testDbName,
+                listener = object : CloudCheckWorker.Listener() {
                 override fun onRequireUpSync(token: String) {
                     Assert.assertTrue(false)
                     isRunning = false
@@ -80,7 +84,11 @@ class CloudCheckWorkerTest {
 
             file = activity.createTestDB(testDbName)
 
-            CloudCheckWorker.check(activity, testToken, testDbName, listener = object : CloudCheckWorker.Listener {
+            CloudCheckWorker.check(
+                activity,
+                testToken,
+                testDbName,
+                listener = object : CloudCheckWorker.Listener() {
                 override fun onRequireUpSync(token: String) {
                     Assert.assertTrue(true)
                     isRunning = false

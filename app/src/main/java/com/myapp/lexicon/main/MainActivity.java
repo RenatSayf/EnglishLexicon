@@ -946,10 +946,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 new CloudCheckWorker.Listener()
                                 {
                                     @Override
-                                    public void onRequireUpSync(@NonNull String token)
-                                    {}
-
-                                    @Override
                                     public void onRequireDownSync(@NonNull String token)
                                     {
                                         boolean isFirstLaunch = SettingsExtKt.getCheckFirstLaunch(MainActivity.this);
@@ -1006,7 +1002,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 this,
                                 userId,
                                 getString(R.string.data_base_name),
-                                null
+                                new CloudCheckWorker.Listener()
+                                {
+                                    @Override
+                                    public void onBeforeChecking(@NonNull String dbName)
+                                    {
+                                        AppDataBase.Companion.dbClose();
+                                    }
+                                }
                         );
                         return null;
                     },

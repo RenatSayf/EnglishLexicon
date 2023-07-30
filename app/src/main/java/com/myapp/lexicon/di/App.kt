@@ -20,10 +20,7 @@ import com.myapp.lexicon.wordeditor.WordEditorActivity
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
-class App : Application(), Configuration.Provider, ActivityLifecycleCallbacks {
-
-    private var mainActivity: MainActivity? = null
-    private var wordEditorActivity: WordEditorActivity? = null
+class App : Application(), Configuration.Provider {
 
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
@@ -32,8 +29,6 @@ class App : Application(), Configuration.Provider, ActivityLifecycleCallbacks {
 
     override fun onCreate() {
         super.onCreate()
-
-        registerActivityLifecycleCallbacks(this)
 
         FirebaseApp.initializeApp(this)
         val remoteConfig: FirebaseRemoteConfig = Firebase.remoteConfig
@@ -50,35 +45,5 @@ class App : Application(), Configuration.Provider, ActivityLifecycleCallbacks {
     override fun getWorkManagerConfiguration(): Configuration {
         return Configuration.Builder().setMinimumLoggingLevel(Log.DEBUG).build()
     }
-
-    override fun onActivityCreated(p0: Activity, p1: Bundle?) {}
-
-    override fun onActivityStarted(p0: Activity) {
-        when(p0) {
-            is MainActivity -> mainActivity = p0
-            is WordEditorActivity -> wordEditorActivity = p0
-        }
-    }
-
-    override fun onActivityResumed(p0: Activity) {
-
-    }
-
-    override fun onActivityPaused(p0: Activity) {}
-
-    override fun onActivityStopped(p0: Activity) {
-        when(p0) {
-            is MainActivity -> mainActivity = null
-            is WordEditorActivity -> wordEditorActivity = null
-        }
-        if (mainActivity == null && wordEditorActivity == null) {
-            AppDataBase.dbClose()
-            unregisterActivityLifecycleCallbacks(this)
-        }
-    }
-
-    override fun onActivitySaveInstanceState(p0: Activity, p1: Bundle) {}
-
-    override fun onActivityDestroyed(p0: Activity) {}
 
 }
