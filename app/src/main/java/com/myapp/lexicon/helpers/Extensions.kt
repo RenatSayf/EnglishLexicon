@@ -24,6 +24,7 @@ import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.SnackBarTestBinding
 import com.myapp.lexicon.schedule.AlarmScheduler
+import com.myapp.lexicon.schedule.AppNotification
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
@@ -224,6 +225,12 @@ fun<T> Context.checkIsActivityShown(
         }
     }
     onInvisible.invoke()
+}
+
+fun Context.showDebugNotification(message: String?) {
+    val notification = AppNotification(this)
+    notification.create(message?: "Unknown error")
+    notification.show()
 }
 
 

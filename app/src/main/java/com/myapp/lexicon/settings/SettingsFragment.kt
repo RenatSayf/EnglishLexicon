@@ -77,31 +77,12 @@ class SettingsFragment : PreferenceFragmentCompat()
             }
         }
 
-        val listOnUnBlockingScreen = findPreference<ListPreference>(requireContext().getString(R.string.key_display_variant))!!
-        listOnUnBlockingScreen.summary = listOnUnBlockingScreen.entry
-        listOnUnBlockingScreen.onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener{
-            override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean
-            {
-                listOnUnBlockingScreen.value = newValue.toString()
-                listOnUnBlockingScreen.summary = listOnUnBlockingScreen.entry
-                
-                if (newValue.toString().toInt() == 0)
-                {
-                    if (ContextCompat.checkSelfPermission(requireContext(), "") != PackageManager.PERMISSION_GRANTED)
-                    {
-                        view?.let { redirectIfXiaomiDevice() }
-                    }
-                }
-                return true
-            }
-        }
-
         serviceCheckBoxPref = findPreference(requireContext().getString(R.string.key_service))!!
         serviceCheckBoxPref.onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener{
             override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean
             {
                 listDisplayModePref.isEnabled = (newValue as? Boolean)?: false
-                listOnUnBlockingScreen.isEnabled = (newValue as? Boolean)?: false
+                //listOnUnBlockingScreen.isEnabled = (newValue as? Boolean)?: false
 
                 if (newValue == true)
                 {
@@ -119,7 +100,7 @@ class SettingsFragment : PreferenceFragmentCompat()
                     if (showIntervalsPref.value == requireContext().resources.getStringArray(R.array.show_intervals)[0])
                     {
                         listDisplayModePref.isEnabled = false
-                        listOnUnBlockingScreen.isEnabled = false
+                        //listOnUnBlockingScreen.isEnabled = false
                     }
                 }
                 return true
@@ -143,7 +124,7 @@ class SettingsFragment : PreferenceFragmentCompat()
                 if (interval != 0)
                 {
                     serviceCheckBoxPref.isChecked = false
-                    listOnUnBlockingScreen.isEnabled = true
+                    //listOnUnBlockingScreen.isEnabled = true
                     listDisplayModePref.isEnabled = true
                     view?.let { redirectIfXiaomiDevice() }
                 }
@@ -153,7 +134,7 @@ class SettingsFragment : PreferenceFragmentCompat()
                     if (!serviceCheckBoxPref.isChecked)
                     {
                         listDisplayModePref.isEnabled = false
-                        listOnUnBlockingScreen.isEnabled = false
+                        //listOnUnBlockingScreen.isEnabled = false
                     }
                 }
                 return true
@@ -162,7 +143,7 @@ class SettingsFragment : PreferenceFragmentCompat()
 
         if (!serviceCheckBoxPref.isChecked && showIntervalsPref.value == requireContext().resources.getStringArray(R.array.show_intervals)[0])
         {
-            listOnUnBlockingScreen.isEnabled = false
+            //listOnUnBlockingScreen.isEnabled = false
             listDisplayModePref.isEnabled = false
         }
     }

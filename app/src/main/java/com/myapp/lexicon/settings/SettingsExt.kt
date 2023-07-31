@@ -414,6 +414,17 @@ fun Fragment.askForPermission(
     )
 }
 
+fun Context.getNotificationMode(
+    onRepeatMode: () -> Unit = {},
+    onTestMode: () -> Unit = {}
+) {
+    val mode = appSettings.getString(getString(R.string.key_list_display_mode), "0")
+    when(mode) {
+        "0" -> onRepeatMode.invoke()
+        "1" -> onTestMode.invoke()
+    }
+}
+
 
 
 
