@@ -10,6 +10,7 @@ import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.myapp.lexicon.R
+import com.myapp.lexicon.auth.agreement.UserAgreementDialog
 import com.myapp.lexicon.databinding.FragmentAuthBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.isItEmail
@@ -56,7 +57,12 @@ class AuthFragment : Fragment() {
             btnRegistration.setOnClickListener {
                 validateEmailAndPassword(
                     onSuccess = { email, password ->
-                        authVM.registerWithEmailAndPassword(email, password)
+                        UserAgreementDialog.newInstance(
+                            onPositiveClick = {
+                                authVM.registerWithEmailAndPassword(email, password)
+                            }
+                        ).show(parentFragmentManager, UserAgreementDialog.TAG)
+
                     },
                     onEmailNotValid = { message ->
                         showSnackBar(message)

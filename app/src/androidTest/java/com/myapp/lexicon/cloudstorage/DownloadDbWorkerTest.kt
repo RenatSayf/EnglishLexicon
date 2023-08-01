@@ -3,9 +3,7 @@ package com.myapp.lexicon.cloudstorage
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner
-import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
-import com.myapp.lexicon.models.LaunchMode
 import com.myapp.lexicon.testing.TestActivity
 import org.junit.*
 import org.junit.runner.RunWith
@@ -18,13 +16,6 @@ class DownloadDbWorkerTest {
     var rule = ActivityScenarioRule(TestActivity::class.java)
 
     private lateinit var scenario: ActivityScenario<TestActivity>
-
-    init {
-        if (BuildConfig.PURCHASE_MODE != LaunchMode.TEST.name) {
-            val message = "******* BuildConfig.PURCHASE_MODE must be TEST *************"
-            throw Exception(message)
-        }
-    }
 
     @Before
     fun setUp() {
