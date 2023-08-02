@@ -308,6 +308,8 @@
     <string name="text_payment_request_sent_2">дней</string>
     <string name="text_notification_permission">Для того чтобы была возможность пассивного изучения слов, приложению требуется показывать уведомления. Сейчас уведомления отключены. Перейдите в настройки и включите уведомления</string>
     <string name="text_to_accept">Принять</string>
+    <string name="text_when_awarding">При полученни награды</string>
+    <string name="text_bank_card">Банковская карта</string>
 
     <string-array name="not_move">
         <item>Не перемещать</item>
