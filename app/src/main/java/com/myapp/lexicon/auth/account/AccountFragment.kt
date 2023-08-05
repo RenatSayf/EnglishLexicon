@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.firebase.ktx.Firebase
@@ -16,10 +17,12 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.FragmentAccountBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.LuhnAlgorithm
+import com.myapp.lexicon.helpers.setBackground
 import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.settings.getExchangeRateFromPref
+import me.dkzwm.widget.fet.FormattedEditText
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -111,7 +114,26 @@ class AccountFragment : Fragment() {
                         userVM.updatePersonalData(user)
                         accountVM.setState(AccountViewModel.State.ReadOnly)
                     }
+                    is AccountViewModel.State.OnNotValid -> {
+                        val user = state.user
+                        var isValid = true
+                        when {
+                            user.phone.length < 11 -> {
+                                tvPhoneValue.setBackground(R.drawable.bg_horizontal_oval_error)
+                                isValid = false
+                            }
+                        }
+                        if (!isValid) {
+                            showSnackBar("Заполните все поля")
+                        } else {
+                        }
+                    }
                 }
+            }
+
+            tvPhoneValue.doOnTextChanged { text, start, before, count ->
+                val formatStyle = tvPhoneValue.formatStyle
+                formatStyle
             }
 
             btnSave.setOnClickListener {

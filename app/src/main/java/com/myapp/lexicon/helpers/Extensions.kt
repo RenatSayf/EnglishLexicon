@@ -233,6 +233,10 @@ fun Context.showDebugNotification(message: String?) {
     notification.show()
 }
 
+fun View.setBackground(resId: Int) {
+    this.background = ResourcesCompat.getDrawable(resources, resId, null)
+}
+
 
 
 

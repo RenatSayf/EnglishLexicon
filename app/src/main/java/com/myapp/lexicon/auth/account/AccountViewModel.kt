@@ -11,6 +11,7 @@ class AccountViewModel : ViewModel() {
         object ReadOnly: State()
         object Editing: State()
         data class OnSave(val user: User): State()
+        data class OnNotValid(val user: User): State()
     }
 
     private var _state = MutableLiveData<State>().apply {

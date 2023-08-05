@@ -137,6 +137,7 @@ class AuthFragment : Fragment() {
                     AuthViewModel.LoadingState.Start -> {
                         progressBar.visibility = View.VISIBLE
                     }
+                    else -> {}
                 }
             }
 
