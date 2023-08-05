@@ -19,10 +19,10 @@ import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.LuhnAlgorithm
 import com.myapp.lexicon.helpers.setBackground
 import com.myapp.lexicon.helpers.showSnackBar
+import com.myapp.lexicon.helpers.toStringDate
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.settings.getExchangeRateFromPref
-import me.dkzwm.widget.fet.FormattedEditText
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -108,6 +108,7 @@ class AccountFragment : Fragment() {
                         val user = state.user
                         user.apply {
                             phone = tvPhoneValue.text.toString()
+                            bankCard = tvCardNumber.text.toString()
                             firstName = tvFirstNameValue.text.toString()
                             lastName = tvLastNameValue.text.toString()
                         }
@@ -115,25 +116,62 @@ class AccountFragment : Fragment() {
                         accountVM.setState(AccountViewModel.State.ReadOnly)
                     }
                     is AccountViewModel.State.OnNotValid -> {
-                        val user = state.user
-                        var isValid = true
-                        when {
-                            user.phone.length < 11 -> {
-                                tvPhoneValue.setBackground(R.drawable.bg_horizontal_oval_error)
-                                isValid = false
-                            }
+                        if (!state.phone) {
+                            tvPhoneValue.setBackground(R.drawable.bg_horizontal_oval_error)
+                            tvPhoneValue.requestFocus()
                         }
-                        if (!isValid) {
-                            showSnackBar("Заполните все поля")
-                        } else {
+                        if (!state.card) {
+                            tvCardNumber.setBackground(R.drawable.bg_horizontal_oval_error)
+                            tvCardNumber.requestFocus()
+                        }
+                        if (!state.firstName) {
+                            tvFirstNameValue.setBackground(R.drawable.bg_horizontal_oval_error)
+                            tvFirstNameValue.requestFocus()
+                        }
+                        if (!state.lastName) {
+                            tvLastNameValue.setBackground(R.drawable.bg_horizontal_oval_error)
+                            tvLastNameValue.requestFocus()
+                        }
+                        accountVM.setState(AccountViewModel.State.Editing)
+                    }
+
+                    is AccountViewModel.State.OnValid -> {
+                        if (state.phone) {
+                            tvPhoneValue.setBackground(R.drawable.bg_horizontal_oval)
+                        }
+                        if (state.card) {
+                            tvCardNumber.setBackground(R.drawable.bg_horizontal_oval)
+                        }
+                        if (state.firstName) {
+                            tvFirstNameValue.setBackground(R.drawable.bg_horizontal_oval)
+                        }
+                        if (state.lastName) {
+                            tvLastNameValue.setBackground(R.drawable.bg_horizontal_oval)
                         }
                     }
                 }
             }
 
             tvPhoneValue.doOnTextChanged { text, start, before, count ->
-                val formatStyle = tvPhoneValue.formatStyle
-                formatStyle
+                if (!text.isNullOrEmpty() && text.length > 10) {
+                    accountVM.setState(AccountViewModel.State.OnValid(phone = true))
+                }
+            }
+            tvCardNumber.doOnTextChanged { text, start, before, count ->
+                val isValid = LuhnAlgorithm.isLuhnChecksumValid(text.toString())
+                if (isValid) {
+                    accountVM.setState(AccountViewModel.State.OnValid(card = true))
+                }
+            }
+            tvFirstNameValue.doOnTextChanged { text, start, before, count ->
+                if (!text.isNullOrEmpty()) {
+                    accountVM.setState(AccountViewModel.State.OnValid(firstName = true))
+                }
+            }
+            tvLastNameValue.doOnTextChanged { text, start, before, count ->
+                if (!text.isNullOrEmpty()) {
+                    accountVM.setState(AccountViewModel.State.OnValid(lastName = true))
+                }
             }
 
             btnSave.setOnClickListener {
@@ -145,32 +183,43 @@ class AccountFragment : Fragment() {
 
             btnGetReward.setOnClickListener {
                 val user = userVM.user.value
-                if (user != null && user.bankCard.isEmpty()) {
-                    BankCardDialog.newInstance(onLaunch = { dialog, binding ->
-                        with(binding) {
-                            val explainText = "${getString(R.string.text_card_number_to_phone)} ${user.phone}"
-                            tvBankHint.text = explainText
-                            etBankCard.setText(user.bankCard)
-                            btnCancel.setOnClickListener {
-                                dialog.dismiss()
-                            }
-                            btnOk.setOnClickListener {
-                                val number = etBankCard.text.toString()
-                                val isValid = LuhnAlgorithm.isLuhnChecksumValid(number)
-                                if (isValid) {
-                                    userVM.updatePersonalData(user.apply {
-                                        paymentRequired = true
-                                        bankCard = number
-                                    })
-                                    showConfirmDialog()
-                                    dialog.dismiss()
-                                }
-                                else {
-                                    showSnackBar(getString(R.string.text_card_number_not_valid))
-                                }
-                            }
+                if (user != null) {
+                    if (tvPhoneValue.text.isNullOrEmpty() || (tvPhoneValue.text?.length?: 0) < 11) {
+                        accountVM.setState(AccountViewModel.State.OnNotValid(phone = false))
+                        return@setOnClickListener
+                    }
+                    if (tvCardNumber.text.isNullOrEmpty()) {
+                        accountVM.setState(AccountViewModel.State.OnNotValid(card = false))
+                        return@setOnClickListener
+                    }
+                    else {
+                        val number = tvCardNumber.text.toString()
+                        val isValid = LuhnAlgorithm.isLuhnChecksumValid(number)
+                        if (!isValid) {
+                            accountVM.setState(AccountViewModel.State.OnNotValid(card = false))
+                            return@setOnClickListener
                         }
-                    }).show(parentFragmentManager, BankCardDialog.TAG)
+                    }
+                    if (tvFirstNameValue.text.isNullOrEmpty()) {
+                        accountVM.setState(AccountViewModel.State.OnNotValid(firstName = false))
+                        return@setOnClickListener
+                    }
+                    if (tvLastNameValue.text.isNullOrEmpty()) {
+                        accountVM.setState(AccountViewModel.State.OnNotValid(lastName = false))
+                        return@setOnClickListener
+                    }
+
+                    user.apply {
+                        phone = tvPhoneValue.text.toString()
+                        bankCard = tvCardNumber.text.toString()
+                        firstName = tvFirstNameValue.text.toString()
+                        lastName = tvLastNameValue.text.toString()
+                        paymentRequired = true
+                        paymentDate = System.currentTimeMillis().toStringDate()
+                    }
+                    userVM.updatePersonalData(user)
+                    showConfirmDialog()
+                    accountVM.setState(AccountViewModel.State.ReadOnly)
                 }
             }
         }
