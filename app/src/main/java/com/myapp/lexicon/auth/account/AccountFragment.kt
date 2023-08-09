@@ -186,7 +186,7 @@ class AccountFragment : Fragment() {
             tvCardNumber.doOnTextChanged { text, start, before, count ->
                 val state = accountVM.state.value
                 if (state is AccountViewModel.State.OnValid) {
-                    if (!text.isNullOrEmpty() && text.length >= 16) {
+                    if (!text.isNullOrEmpty() && text.length >= 14) {
                         accountVM.setState(state.copy(card = true))
                     }
                     else accountVM.setState(state.copy(card = false))
@@ -227,7 +227,7 @@ class AccountFragment : Fragment() {
                     }
 
                     val number = tvCardNumber.text.toString()
-                    if (number.length < 16) {
+                    if (number.length < 14) {
                         accountVM.setState(AccountViewModel.State.OnValid(card = false))
                         return@setOnClickListener
                     }
@@ -283,6 +283,7 @@ class AccountFragment : Fragment() {
 
             tvEmailValue.text = user.email
             tvPhoneValue.setText(user.phone)
+            tvCardNumber.setText(user.bankCard)
             tvFirstNameValue.setText(user.firstName)
             tvLastNameValue.setText(user.lastName)
 
