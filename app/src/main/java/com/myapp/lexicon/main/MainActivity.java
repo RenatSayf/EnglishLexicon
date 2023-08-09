@@ -1,9 +1,11 @@
 package com.myapp.lexicon.main;
 
+import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -155,7 +157,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
 
         userVM.getState().observe(this, state -> {
-            if (state instanceof UserViewModel.State.Start) {
+            if (state instanceof UserViewModel.State.Init) {
                 boolean isInitialized = Appodeal.isInitialized(Appodeal.INTERSTITIAL | Appodeal.REWARDED_VIDEO);
                 if (!isInitialized)
                 {
@@ -975,6 +977,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     void onAppFinish() {
 
         ExtensionsKt.alarmClockEnable(this);
@@ -983,9 +986,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 this,
                 () -> {
                     PhoneUnlockedReceiver unlockedReceiver = PhoneUnlockedReceiver.Companion.getInstance();
-                    registerReceiver(
-                            unlockedReceiver,
-                            unlockedReceiver.getFilter());
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                    {
+                        registerReceiver(
+                                unlockedReceiver,
+                                unlockedReceiver.getFilter(),
+                                Context.RECEIVER_NOT_EXPORTED
+                        );
+                    }
+                    else {
+                        registerReceiver(
+                                unlockedReceiver,
+                                unlockedReceiver.getFilter()
+                        );
+                    }
                     return null;
                 },
                 () -> null

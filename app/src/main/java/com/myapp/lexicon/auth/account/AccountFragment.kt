@@ -12,6 +12,9 @@ import androidx.activity.OnBackPressedCallback
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
@@ -25,6 +28,7 @@ import com.myapp.lexicon.helpers.toStringDate
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.settings.getExchangeRateFromPref
+import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -64,6 +68,21 @@ class AccountFragment : Fragment() {
                 userVM.getUserFromCloud(userId!!)
             }
 
+            lifecycleScope.launch {
+                lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                    userVM.loadingState.collect { state ->
+                        when(state) {
+                            UserViewModel.LoadingState.Complete -> {
+                                progressBar.visibility = View.GONE
+                            }
+                            UserViewModel.LoadingState.Start -> {
+                                progressBar.visibility = View.VISIBLE
+                            }
+                        }
+                    }
+                }
+            }
+
             tvIoMoneyRef.setOnClickListener {
                 val intent = Intent(Intent.ACTION_VIEW)
                 intent.data = Uri.parse("https://yoomoney.ru/")
@@ -72,12 +91,7 @@ class AccountFragment : Fragment() {
 
             userVM.state.observe(viewLifecycleOwner) { state ->
                 when(state) {
-                    UserViewModel.State.Complete -> {
-                        progressBar.visibility = View.GONE
-                    }
-                    UserViewModel.State.Start -> {
-                        progressBar.visibility = View.VISIBLE
-                    }
+                    UserViewModel.State.Init -> {}
                     is UserViewModel.State.PersonalDataUpdated -> {
                         showSnackBar(getString(R.string.data_is_saved))
                     }
@@ -166,9 +180,10 @@ class AccountFragment : Fragment() {
                 }
             }
             tvCardNumber.doOnTextChanged { text, start, before, count ->
-                if ((text?.length ?: 0) >= 16) {
+                if (!text.isNullOrEmpty() && text.length >= 16) {
                     accountVM.setState(AccountViewModel.State.OnValid(card = true))
                 }
+                else accountVM.setState(AccountViewModel.State.OnValid(card = false))
             }
             tvFirstNameValue.doOnTextChanged { text, start, before, count ->
                 if (!text.isNullOrEmpty()) {

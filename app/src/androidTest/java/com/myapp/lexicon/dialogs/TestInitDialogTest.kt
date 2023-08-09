@@ -16,7 +16,7 @@ import org.junit.runner.RunWith
 
 
 @RunWith(AndroidJUnit4ClassRunner::class)
-class TestCompleteDialogTest {
+class TestInitDialogTest {
 
     @get:Rule
     var rule = ActivityScenarioRule(TestActivity::class.java)

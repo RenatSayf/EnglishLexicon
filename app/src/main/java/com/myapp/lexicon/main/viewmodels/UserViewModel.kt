@@ -40,9 +40,16 @@ class UserViewModel @Inject constructor(
         val REVENUE_RATIO: Double = Firebase.remoteConfig.getDouble("REVENUE_RATIO")
     }
 
+    sealed class LoadingState {
+        object Start: LoadingState()
+        object Complete: LoadingState()
+    }
+
+    private var _loadingState = MutableStateFlow<LoadingState>(LoadingState.Complete)
+    val loadingState: StateFlow<LoadingState> = _loadingState
+
     sealed class State {
-        object Start: State()
-        object Complete: State()
+        object Init: State()
         data class UserAdded(val user: User): State()
         data class ReceivedUserData(val user: User): State()
         data class PersonalDataUpdated(val user: User): State()
@@ -54,7 +61,7 @@ class UserViewModel @Inject constructor(
     private var _state = MutableLiveData<State>()
     val state: LiveData<State> = _state
 
-    private var _stateFlow = MutableStateFlow<State>(State.Start)
+    private var _stateFlow = MutableStateFlow<State>(State.Init)
     val stateFlow: StateFlow<State> = _stateFlow
 
     private val db: FirebaseFirestore = Firebase.firestore
@@ -79,7 +86,7 @@ class UserViewModel @Inject constructor(
     }
 
     private fun addUser(user: User) {
-        _state.value = State.Start
+        _loadingState.value = LoadingState.Start
         val map = user.toHashMap()
         db.collection(COLLECTION_PATH)
             .document(user.id)
@@ -93,12 +100,12 @@ class UserViewModel @Inject constructor(
                 _state.value = State.Error(ex.message?: "Unknown error")
             }
             .addOnCompleteListener {
-                _state.value = State.Complete
+                _loadingState.value = LoadingState.Complete
             }
     }
 
     fun addUserIfNotExists(user: User) {
-        _state.value = State.Start
+        _loadingState.value = LoadingState.Start
         db.collection(COLLECTION_PATH)
             .document(user.id)
             .get()
@@ -122,13 +129,13 @@ class UserViewModel @Inject constructor(
                 _user.value = null
             }
             .addOnCompleteListener {
-                _state.value = State.Complete
+                _loadingState.value = LoadingState.Complete
             }
     }
 
     @Suppress("UNCHECKED_CAST")
     fun getUserFromCloud(userId: String) {
-        _state.value = State.Start
+        _loadingState.value = LoadingState.Start
         db.collection(COLLECTION_PATH)
             .document(userId)
             .get()
@@ -149,14 +156,14 @@ class UserViewModel @Inject constructor(
                 _state.value = State.Error(ex.message?: "Unknown error")
             }
             .addOnCompleteListener {
-                _state.value = State.Complete
+                _loadingState.value = LoadingState.Complete
             }
     }
 
     @Suppress("UNCHECKED_CAST")
     fun updateUserRevenue(revenuePerAd: Double, user: User) {
 
-        _state.value = State.Start
+        _loadingState.value = LoadingState.Start
         db.collection(COLLECTION_PATH)
             .document(user.id)
             .get()
@@ -196,7 +203,7 @@ class UserViewModel @Inject constructor(
                                 _state.value = State.Error(ex.message?: "Unknown error")
                             }
                             .addOnCompleteListener {
-                                _state.value = State.Complete
+                                _loadingState.value = LoadingState.Complete
                             }
                     } else {
                         if (BuildConfig.DEBUG) {
@@ -214,12 +221,12 @@ class UserViewModel @Inject constructor(
                 _state.value = State.Error(ex.message?: "Unknown error")
             }
             .addOnCompleteListener {
-                _state.value = State.Complete
+                _loadingState.value = LoadingState.Complete
             }
     }
 
     fun updatePersonalData(user: User) {
-        _state.value = State.Start
+        _loadingState.value = LoadingState.Start
         val userMap = mapOf(
             User.KEY_PHONE to user.phone,
             User.KEY_FIRST_NAME to user.firstName,
@@ -242,7 +249,7 @@ class UserViewModel @Inject constructor(
                 _state.value = State.Error(ex.message?: "Unknown error")
             }
             .addOnCompleteListener {
-                _state.value = State.Complete
+                _loadingState.value = LoadingState.Complete
             }
     }
     fun calculateReallyRevenue(revenuePerAd: Double, remoteUserData: Map<String, String?>): Double {
