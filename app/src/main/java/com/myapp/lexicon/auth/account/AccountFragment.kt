@@ -2,6 +2,8 @@
 
 package com.myapp.lexicon.auth.account
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -60,6 +62,12 @@ class AccountFragment : Fragment() {
 
             if (savedInstanceState == null && !userId.isNullOrEmpty()) {
                 userVM.getUserFromCloud(userId!!)
+            }
+
+            tvIoMoneyRef.setOnClickListener {
+                val intent = Intent(Intent.ACTION_VIEW)
+                intent.data = Uri.parse("https://yoomoney.ru/")
+                startActivity(intent)
             }
 
             userVM.state.observe(viewLifecycleOwner) { state ->
@@ -158,8 +166,7 @@ class AccountFragment : Fragment() {
                 }
             }
             tvCardNumber.doOnTextChanged { text, start, before, count ->
-                val isValid = LuhnAlgorithm.isLuhnChecksumValid(text.toString())
-                if (isValid) {
+                if ((text?.length ?: 0) >= 16) {
                     accountVM.setState(AccountViewModel.State.OnValid(card = true))
                 }
             }

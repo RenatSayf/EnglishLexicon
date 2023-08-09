@@ -119,7 +119,9 @@
                     android:textColor="@color/color_3B5E91"
                     android:textSize="18sp"
                     tools:ignore="TouchTargetSizeCheck"
-                    tools:text="some-email@domain.com" />
+                    tools:text="some-email@domain.com"
+                    android:drawableStart="@drawable/email"
+                    android:drawablePadding="8dp"/>
 
             </androidx.appcompat.widget.LinearLayoutCompat>
 
@@ -163,6 +165,8 @@
                     tools:ignore="TouchTargetSizeCheck"
                     app:fet_formatStyle="+0 (000)000-00-00"
                     app:fet_mode="mode_mask"
+                    android:drawableStart="@drawable/phone"
+                    android:drawablePadding="8dp"
                     android:background="@drawable/bg_horizontal_oval"/>
 
             </androidx.appcompat.widget.LinearLayoutCompat>
@@ -191,7 +195,7 @@
                     android:textSize="14sp"
                     />
 
-                <me.dkzwm.widget.fet.FormattedEditText
+                <androidx.appcompat.widget.AppCompatEditText
                     android:id="@+id/tvCardNumber"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -204,11 +208,23 @@
                     android:textColor="@color/color_3B5E91"
                     android:textCursorDrawable="@null"
                     android:textSize="18sp"
+                    android:drawableStart="@drawable/yoo_money"
+                    android:drawablePadding="8dp"
                     tools:ignore="TouchTargetSizeCheck,VisualLintTextFieldSize"
                     android:hint="@string/text_when_awarding"
                     android:textColorHint="@color/color_CCC3C3"
-                    app:fet_formatStyle="0000 0000 0000 000*"
-                    app:fet_mode="mode_mask"
+                    />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvIoMoneyRef"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:text="@string/text_open_yoo_account"
+                    android:textColor="@color/colorYellowDark"
+                    android:textSize="14sp"
                     />
 
             </androidx.appcompat.widget.LinearLayoutCompat>
@@ -221,14 +237,15 @@
                 android:gravity="start"
                 app:layout_constraintTop_toBottomOf="@+id/layoutBankCard"
                 app:layout_constraintBottom_toTopOf="@+id/layoutLastName"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="0dp">
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tvFirstNameTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="start"
-                    android:padding="4dp"
+                    android:paddingTop="0dp"
+                    android:paddingBottom="4dp"
                     android:paddingStart="12dp"
                     android:paddingEnd="12dp"
                     android:text="@string/title_first_name"

@@ -351,6 +351,7 @@
     <string name="text_to_accept">Прийняти</string>
     <string name="text_when_awarding">При отриманні нагороди</string>
     <string name="text_bank_card">Банківська картка</string>
+    <string name="text_open_yoo_account">Открыть счет</string>
 
     <string-array name="words_interval">
         <item>після 5 слів</item>
