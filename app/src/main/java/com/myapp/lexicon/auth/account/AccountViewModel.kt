@@ -11,17 +11,11 @@ class AccountViewModel : ViewModel() {
         object ReadOnly: State()
         object Editing: State()
         data class OnSave(val user: User): State()
-        data class OnNotValid(
-            val phone: Boolean = true,
-            val card: Boolean = true,
-            val firstName: Boolean = true,
-            val lastName: Boolean = true
-        ): State()
         data class OnValid(
-            val phone: Boolean = false,
-            val card: Boolean = false,
-            val firstName: Boolean = false,
-            val lastName: Boolean = false
+            var phone: Boolean = true,
+            var card: Boolean = true,
+            var firstName: Boolean = true,
+            var lastName: Boolean = true
         ): State()
     }
 
@@ -33,4 +27,6 @@ class AccountViewModel : ViewModel() {
     fun setState(state: State) {
         _state.value = state
     }
+
+    val url = "https://play.google.com/store/apps/details?id=com.myapp.lexicon"
 }

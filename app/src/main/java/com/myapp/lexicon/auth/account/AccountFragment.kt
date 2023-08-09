@@ -21,7 +21,6 @@ import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.FragmentAccountBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
-import com.myapp.lexicon.helpers.LuhnAlgorithm
 import com.myapp.lexicon.helpers.setBackground
 import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.helpers.toStringDate
@@ -116,12 +115,14 @@ class AccountFragment : Fragment() {
                     AccountViewModel.State.Editing -> {
                         tvPhoneValue.isEnabled = true
                         tvPhoneValue.requestFocus()
+                        tvCardNumber.isEnabled = true
                         tvFirstNameValue.isEnabled = true
                         tvLastNameValue.isEnabled = true
                         btnSave.visibility = View.VISIBLE
                     }
                     AccountViewModel.State.ReadOnly -> {
                         tvPhoneValue.isEnabled = false
+                        tvCardNumber.isEnabled = false
                         tvFirstNameValue.isEnabled = false
                         tvLastNameValue.isEnabled = false
                         btnSave.visibility = View.GONE
@@ -137,38 +138,37 @@ class AccountFragment : Fragment() {
                         userVM.updatePersonalData(user)
                         accountVM.setState(AccountViewModel.State.ReadOnly)
                     }
-                    is AccountViewModel.State.OnNotValid -> {
-                        if (!state.phone) {
-                            tvPhoneValue.setBackground(R.drawable.bg_horizontal_oval_error)
-                            tvPhoneValue.requestFocus()
-                        }
-                        if (!state.card) {
-                            tvCardNumber.setBackground(R.drawable.bg_horizontal_oval_error)
-                            tvCardNumber.requestFocus()
-                        }
-                        if (!state.firstName) {
-                            tvFirstNameValue.setBackground(R.drawable.bg_horizontal_oval_error)
-                            tvFirstNameValue.requestFocus()
-                        }
-                        if (!state.lastName) {
-                            tvLastNameValue.setBackground(R.drawable.bg_horizontal_oval_error)
-                            tvLastNameValue.requestFocus()
-                        }
-                        accountVM.setState(AccountViewModel.State.Editing)
-                    }
-
                     is AccountViewModel.State.OnValid -> {
                         if (state.phone) {
                             tvPhoneValue.setBackground(R.drawable.bg_horizontal_oval)
                         }
+                        else {
+                            tvPhoneValue.setBackground(R.drawable.bg_horizontal_oval_error)
+                            tvPhoneValue.requestFocus()
+                        }
+
                         if (state.card) {
                             tvCardNumber.setBackground(R.drawable.bg_horizontal_oval)
                         }
+                        else {
+                            tvCardNumber.setBackground(R.drawable.bg_horizontal_oval_error)
+                            tvCardNumber.requestFocus()
+                        }
+
                         if (state.firstName) {
                             tvFirstNameValue.setBackground(R.drawable.bg_horizontal_oval)
                         }
+                        else {
+                            tvFirstNameValue.setBackground(R.drawable.bg_horizontal_oval_error)
+                            tvFirstNameValue.requestFocus()
+                        }
+
                         if (state.lastName) {
                             tvLastNameValue.setBackground(R.drawable.bg_horizontal_oval)
+                        }
+                        else {
+                            tvLastNameValue.setBackground(R.drawable.bg_horizontal_oval_error)
+                            tvLastNameValue.requestFocus()
                         }
                     }
                 }
@@ -176,23 +176,38 @@ class AccountFragment : Fragment() {
 
             tvPhoneValue.doOnTextChanged { text, start, before, count ->
                 if (!text.isNullOrEmpty() && text.length > 10) {
-                    accountVM.setState(AccountViewModel.State.OnValid(phone = true))
+                    val state = accountVM.state.value
+                    if (state is AccountViewModel.State.OnValid) {
+                        val newState = state.copy(phone = true)
+                        accountVM.setState(newState)
+                    }
                 }
             }
             tvCardNumber.doOnTextChanged { text, start, before, count ->
-                if (!text.isNullOrEmpty() && text.length >= 16) {
-                    accountVM.setState(AccountViewModel.State.OnValid(card = true))
+                val state = accountVM.state.value
+                if (state is AccountViewModel.State.OnValid) {
+                    if (!text.isNullOrEmpty() && text.length >= 16) {
+                        accountVM.setState(state.copy(card = true))
+                    }
+                    else accountVM.setState(state.copy(card = false))
                 }
-                else accountVM.setState(AccountViewModel.State.OnValid(card = false))
             }
             tvFirstNameValue.doOnTextChanged { text, start, before, count ->
-                if (!text.isNullOrEmpty()) {
-                    accountVM.setState(AccountViewModel.State.OnValid(firstName = true))
+                val state = accountVM.state.value
+                if (state is AccountViewModel.State.OnValid) {
+                    if (!text.isNullOrEmpty()) {
+                        accountVM.setState(state.copy(firstName = true))
+                    }
+                    else accountVM.setState(state.copy(firstName = false))
                 }
             }
             tvLastNameValue.doOnTextChanged { text, start, before, count ->
-                if (!text.isNullOrEmpty()) {
-                    accountVM.setState(AccountViewModel.State.OnValid(lastName = true))
+                val state = accountVM.state.value
+                if (state is AccountViewModel.State.OnValid) {
+                    if (!text.isNullOrEmpty()) {
+                        accountVM.setState(state.copy(lastName = true))
+                    }
+                    else accountVM.setState(state.copy(lastName = false))
                 }
             }
 
@@ -207,27 +222,21 @@ class AccountFragment : Fragment() {
                 val user = userVM.user.value
                 if (user != null) {
                     if (tvPhoneValue.text.isNullOrEmpty() || (tvPhoneValue.text?.length?: 0) < 11) {
-                        accountVM.setState(AccountViewModel.State.OnNotValid(phone = false))
+                        accountVM.setState(AccountViewModel.State.OnValid(phone = false))
                         return@setOnClickListener
                     }
-                    if (tvCardNumber.text.isNullOrEmpty()) {
-                        accountVM.setState(AccountViewModel.State.OnNotValid(card = false))
+
+                    val number = tvCardNumber.text.toString()
+                    if (number.length < 16) {
+                        accountVM.setState(AccountViewModel.State.OnValid(card = false))
                         return@setOnClickListener
-                    }
-                    else {
-                        val number = tvCardNumber.text.toString()
-                        val isValid = LuhnAlgorithm.isLuhnChecksumValid(number)
-                        if (!isValid) {
-                            accountVM.setState(AccountViewModel.State.OnNotValid(card = false))
-                            return@setOnClickListener
-                        }
                     }
                     if (tvFirstNameValue.text.isNullOrEmpty()) {
-                        accountVM.setState(AccountViewModel.State.OnNotValid(firstName = false))
+                        accountVM.setState(AccountViewModel.State.OnValid(firstName = false))
                         return@setOnClickListener
                     }
                     if (tvLastNameValue.text.isNullOrEmpty()) {
-                        accountVM.setState(AccountViewModel.State.OnNotValid(lastName = false))
+                        accountVM.setState(AccountViewModel.State.OnValid(lastName = false))
                         return@setOnClickListener
                     }
 
