@@ -176,8 +176,7 @@ class UserViewModel @Inject constructor(
                     app.getExchangeRateFromPref(
                         onInit = {},
                         onSuccess = { date, symbol, rate ->
-                            val defaultReward = BigDecimal(user.userReward * rate).setScale(2, RoundingMode.DOWN).toDouble()
-                            user.defaultCurrencyReward = defaultReward
+                            user.convertToDefaultCurrency(rate)
                         }
                     )
                     if (user.reallyRevenue > -1 && user.userReward > -1) {
@@ -201,6 +200,7 @@ class UserViewModel @Inject constructor(
                                     ex.printStackTrace()
                                 }
                                 _state.value = State.Error(ex.message?: "Unknown error")
+                                _stateFlow.value = State.Error(ex.message?: "Unknown error")
                             }
                             .addOnCompleteListener {
                                 _loadingState.value = LoadingState.Complete
@@ -219,6 +219,7 @@ class UserViewModel @Inject constructor(
                     ex.printStackTrace()
                 }
                 _state.value = State.Error(ex.message?: "Unknown error")
+                _stateFlow.value = State.Error(ex.message?: "Unknown error")
             }
             .addOnCompleteListener {
                 _loadingState.value = LoadingState.Complete
@@ -227,30 +228,38 @@ class UserViewModel @Inject constructor(
 
     fun updatePersonalData(user: User) {
         _loadingState.value = LoadingState.Start
-        val userMap = mapOf(
-            User.KEY_PHONE to user.phone,
-            User.KEY_FIRST_NAME to user.firstName,
-            User.KEY_LAST_NAME to user.lastName,
-            User.KEY_BANK_CARD to user.bankCard,
-            User.KEY_CURRENCY to Currency.getInstance(Locale.getDefault()).currencyCode,
-            User.KEY_PAYMENT_REQUIRED to user.paymentRequired.toString()
-        )
+        val userMap = user.toHashMap()
         db.collection(COLLECTION_PATH)
             .document(user.id)
             .update(userMap)
             .addOnSuccessListener {
                 _user.value = user
                 _state.value = State.PersonalDataUpdated(user)
+                _stateFlow.value = State.PersonalDataUpdated(user)
             }
             .addOnFailureListener { ex ->
                 if (BuildConfig.DEBUG) {
                     ex.printStackTrace()
                 }
-                _state.value = State.Error(ex.message?: "Unknown error")
+                _state.value = State.Error(ex.message ?: "Unknown error")
+                _state.value = State.Error(ex.message ?: "Unknown error")
             }
             .addOnCompleteListener {
                 _loadingState.value = LoadingState.Complete
             }
+    }
+
+    fun payTheReward(user: User) {
+        _loadingState.value = LoadingState.Start
+        app.getExchangeRateFromPref(
+            onInit = {},
+            onSuccess = { date, symbol, rate ->
+
+            },
+            onFailure = {ex ->
+                _state.value = State.Error(ex.message?: "Unknown error")
+            }
+        )
     }
     fun calculateReallyRevenue(revenuePerAd: Double, remoteUserData: Map<String, String?>): Double {
         val currentRevenue = try {

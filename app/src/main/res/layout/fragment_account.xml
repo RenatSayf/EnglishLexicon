@@ -75,6 +75,46 @@
 
             </androidx.appcompat.widget.LinearLayoutCompat>
 
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvReservedTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/layoutReward"
+                app:layout_constraintEnd_toStartOf="@id/tvReservedValue"
+                app:layout_constraintBottom_toTopOf="@+id/vDivider"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                android:gravity="start"
+                android:padding="4dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:text="@string/text_to_payment"
+                android:textColor="@color/colorYellowDark"
+                android:textSize="14sp"
+                android:visibility="gone"
+                tools:visibility="visible"
+                />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvReservedValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toEndOf="@+id/tvReservedTitle"
+                app:layout_constraintTop_toTopOf="@+id/tvReservedTitle"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="@+id/tvReservedTitle"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                android:gravity="start"
+                android:padding="4dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                tools:text="0 Р"
+                android:textColor="@color/colorYellowDark"
+                android:textSize="14sp"
+                android:visibility="gone"
+                tools:visibility="visible"
+                />
+
             <View
                 android:id="@+id/vDivider"
                 android:layout_height="1dp"

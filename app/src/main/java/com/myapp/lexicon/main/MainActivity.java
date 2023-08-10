@@ -61,8 +61,6 @@ import com.myapp.lexicon.wordstests.TestFragment;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -508,10 +506,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 this,
                 () -> null,
                 (date, symbol, rate) -> {
-                    double sum = (Double) user.getUserReward() * rate;
-                    String rewardToDisplay = BigDecimal.valueOf(sum).setScale(2, RoundingMode.DOWN).toString();
+                    double rewardToDisplay = user.getDefaultCurrencyReward();
                     TextView tvReward = root.findViewById(R.id.tvReward);
-                    String text = getString(R.string.text_your_reward).concat(" ").concat(rewardToDisplay).concat(" ").concat(symbol);
+                    String text = getString(R.string.text_your_reward).concat(" ").concat(String.valueOf(rewardToDisplay)).concat(" ").concat(symbol);
                     tvReward.setText(text);
                     tvReward.setVisibility(View.VISIBLE);
                     return null;

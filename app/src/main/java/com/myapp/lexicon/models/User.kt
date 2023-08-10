@@ -1,5 +1,10 @@
 package com.myapp.lexicon.models
 
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.remoteconfig.ktx.remoteConfig
+import java.math.BigDecimal
+import java.math.RoundingMode
+
 
 data class User(
     val id: String
@@ -9,6 +14,7 @@ data class User(
         const val KEY_REALLY_REVENUE = "really_revenue"
         const val KEY_USER_REWARD = "reward"
         const val KEY_DEFAULT_CURRENCY_REWARD = "default_currency_reward"
+        const val KEY_RESERVED_PAYMENT = "reserved_payment"
         const val KEY_CURRENCY = "currency"
         const val KEY_CURRENCY_SYMBOL = "currency_symbol"
         const val KEY_EMAIL = "email"
@@ -30,11 +36,16 @@ data class User(
     var reallyRevenue: Double = 0.0
     var userReward: Double = 0.0
     var defaultCurrencyReward: Double = 0.0
+    var reservedPayment: Int = 0
     var revenuePerAd: Double = 0.0
     var currency: String? = "USD"
     var currencySymbol: String = ""
     var paymentRequired: Boolean = false
     var paymentDate: String = ""
+
+    private val userPercentage: Double by lazy {
+        Firebase.remoteConfig.getDouble("USER_PERCENTAGE")
+    }
 
     fun toHashMap(): Map<String, String?> {
         return mapOf(
@@ -44,6 +55,7 @@ data class User(
             KEY_CURRENCY to currency,
             KEY_CURRENCY_SYMBOL to currencySymbol,
             KEY_DEFAULT_CURRENCY_REWARD to defaultCurrencyReward.toString(),
+            KEY_RESERVED_PAYMENT to reservedPayment.toString(),
             KEY_EMAIL to email,
             KEY_FIRST_NAME to firstName,
             KEY_LAST_NAME to lastName,
@@ -77,6 +89,11 @@ data class User(
             } catch (e: NumberFormatException) {
                 0.0
             }
+            reservedPayment = try {
+                map[KEY_RESERVED_PAYMENT]?.toInt()?: 0
+            } catch (e: NumberFormatException) {
+                0
+            }
             currency = map[KEY_CURRENCY]
             currencySymbol = map[KEY_CURRENCY_SYMBOL]?: ""
             firstName = map[KEY_FIRST_NAME]?: ""
@@ -85,6 +102,32 @@ data class User(
             bankCard = map[KEY_BANK_CARD]?: ""
             paymentRequired = map[KEY_PAYMENT_REQUIRED].toBoolean()
             paymentDate = map[KEY_PAYMENT_DATE]?: ""
+        }
+    }
+
+    fun convertToDefaultCurrency(rate: Double) {
+        val defaultReward = BigDecimal(this.userReward * rate).setScale(2, RoundingMode.DOWN).toDouble()
+        this.defaultCurrencyReward = defaultReward
+    }
+
+    fun reservePayment(
+        threshold: Double,
+        currencyRate: Double,
+        onReserve: (user: User) -> Unit,
+        onNotEnough: () -> Unit = {}
+    ) {
+        if (this.defaultCurrencyReward > threshold) {
+            this.reservedPayment = this.defaultCurrencyReward.toInt()
+            this.defaultCurrencyReward -= this.reservedPayment
+            this.defaultCurrencyReward = BigDecimal(defaultCurrencyReward).setScale(2, RoundingMode.DOWN).toDouble()
+
+            this.userReward = this.defaultCurrencyReward / currencyRate
+            this.totalRevenue = this.userReward / userPercentage
+
+            onReserve.invoke(this)
+        }
+        else {
+            onNotEnough.invoke()
         }
     }
 

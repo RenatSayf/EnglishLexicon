@@ -28,8 +28,6 @@ import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.settings.getExchangeRateFromPref
 import kotlinx.coroutines.launch
-import java.math.BigDecimal
-import java.math.RoundingMode
 
 class AccountFragment : Fragment() {
 
@@ -45,7 +43,7 @@ class AccountFragment : Fragment() {
 
     private lateinit var binding: FragmentAccountBinding
     private val accountVM: AccountViewModel by viewModels()
-    private val userVM: UserViewModel by viewModels()
+    private val userVM by viewModels<UserViewModel>()
 
     private val paymentThreshold: Double = Firebase.remoteConfig.getDouble("payment_threshold")
     private val paymentDays: Int = Firebase.remoteConfig.getDouble("payment_days").toInt()
@@ -92,6 +90,7 @@ class AccountFragment : Fragment() {
                 when(state) {
                     UserViewModel.State.Init -> {}
                     is UserViewModel.State.PersonalDataUpdated -> {
+                        handleUserData(state.user)
                         showSnackBar(getString(R.string.data_is_saved))
                     }
                     is UserViewModel.State.PaymentRequestSent -> {
@@ -248,9 +247,23 @@ class AccountFragment : Fragment() {
                         paymentRequired = true
                         paymentDate = System.currentTimeMillis().toStringDate()
                     }
-                    userVM.updatePersonalData(user)
-                    showConfirmDialog()
-                    accountVM.setState(AccountViewModel.State.ReadOnly)
+                    requireContext().getExchangeRateFromPref(
+                        onInit = {},
+                        onSuccess = {date, symbol, rate ->
+                            user.reservePayment(
+                                threshold = paymentThreshold,
+                                currencyRate = rate,
+                                onReserve = { u ->
+                                    userVM.updatePersonalData(u)
+                                    showConfirmDialog()
+                                },
+                                onNotEnough = {
+                                    showSnackBar(getString(R.string.text_not_money))
+                                }
+                            )
+                        }
+                    )
+
                 }
             }
         }
@@ -263,9 +276,22 @@ class AccountFragment : Fragment() {
             requireContext().getExchangeRateFromPref(
                 onInit = {},
                 onSuccess = { date, symbol, rate ->
-                    val reward = user.userReward * rate
-                    val rewardToDisplay = "${BigDecimal(reward).setScale(2, RoundingMode.DOWN)} $symbol"
+                    var rewardToDisplay = "${user.defaultCurrencyReward} $symbol"
                     tvRewardValue.text = rewardToDisplay
+
+                    if (user.reservedPayment > 0) {
+                        tvReservedTitle.visibility = View.VISIBLE
+                        tvReservedValue.visibility = View.VISIBLE
+                        val paymentToDisplay = "${user.reservedPayment} $symbol"
+                        tvReservedValue.text = paymentToDisplay
+
+                        rewardToDisplay = "${user.defaultCurrencyReward} $symbol"
+                        tvRewardValue.text = rewardToDisplay
+                    }
+                    else {
+                        tvReservedTitle.visibility = View.GONE
+                        tvReservedValue.visibility = View.GONE
+                    }
 
                     val rewardThreshold = (paymentThreshold * rate).toInt()
                     val textCondition = "${getString(R.string.text_reward_conditions)} $rewardThreshold $symbol"
@@ -299,6 +325,7 @@ class AccountFragment : Fragment() {
                 tvMessage.text = message
                 btnCancel.visibility = View.GONE
                 btnOk.setOnClickListener {
+                    accountVM.setState(AccountViewModel.State.ReadOnly)
                     dialog.dismiss()
                 }
             }

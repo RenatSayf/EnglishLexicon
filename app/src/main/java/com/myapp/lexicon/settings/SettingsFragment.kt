@@ -159,7 +159,7 @@ class SettingsFragment : PreferenceFragmentCompat()
         requireContext().checkCloudToken(
             onInit = {
                 cloudStorageSwitch?.apply {
-                    isEnabled = false
+                    isEnabled = true
                     isChecked = false
                 }
             },
@@ -171,7 +171,7 @@ class SettingsFragment : PreferenceFragmentCompat()
             },
             onEmpty = {
                 cloudStorageSwitch?.apply {
-                    isEnabled = false
+                    isEnabled = true
                     isChecked = false
                 }
             }

@@ -139,7 +139,7 @@ fun Context.checkPurchasesTokens(listener: PurchasesTokenListener) {
 
 fun Context.checkCloudToken(
     onInit: () -> Unit = {},
-    onExists: (String) -> Unit,
+    onExists: (userId: String) -> Unit,
     onEmpty: () -> Unit = {},
     onFailure: () -> Unit = {}
 ) {
@@ -150,9 +150,10 @@ fun Context.checkCloudToken(
         onSuccess = { id, _, _ ->
             val token = appSettings.getString(KEY_CLOUD_TOKEN, null)
             try {
-                when (token) {
-                    null -> onInit.invoke()
-                    else -> onExists.invoke(id)
+                when {
+                    token == null -> onInit.invoke()
+                    token.isNotEmpty() -> onExists.invoke(id)
+                    token.isEmpty() -> onEmpty.invoke()
                 }
             } catch (e: Exception) {
                 onFailure.invoke()
@@ -162,7 +163,6 @@ fun Context.checkCloudToken(
             onFailure.invoke()
         }
     )
-
 }
 
 fun Context.checkOnStartSpeech(onEnabled: () -> Unit, onDisabled: () -> Unit) {
