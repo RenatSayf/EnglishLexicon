@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.devtools.ksp'
 
 apply plugin: 'dagger.hilt.android.plugin' // Hint Hilt step 2
 
@@ -45,8 +46,8 @@ android {
         viewBinding true
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     namespace 'com.myapp.lexicon'
 
@@ -60,7 +61,7 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.preference:preference-ktx:1.2.0'
+    implementation 'androidx.preference:preference-ktx:1.2.1'
 
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
@@ -95,7 +96,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-config-ktx'
     implementation 'com.google.firebase:firebase-analytics-ktx'
 
-    implementation 'androidx.browser:browser:1.5.0'
+    implementation 'androidx.browser:browser:1.6.0'
 
     //Hint Hilt step 3
     implementation "com.google.dagger:hilt-android:2.44"
@@ -106,7 +107,8 @@ dependencies {
     //region Room
     implementation "androidx.room:room-runtime:2.5.2"
     implementation "androidx.room:room-ktx:2.5.2"
-    kapt "androidx.room:room-compiler:2.5.2"
+    //kapt "androidx.room:room-compiler:2.5.2"
+    ksp 'androidx.room:room-compiler:2.5.2'
     // optional - Test helpers
     testImplementation "androidx.room:room-testing:2.5.2"
     //endregion
@@ -121,7 +123,7 @@ dependencies {
 
     //region Hint Activity Result API. Runtime permission Step 1
     implementation 'androidx.activity:activity-ktx:1.7.2'
-    implementation 'androidx.fragment:fragment-ktx:1.6.0'
+    implementation 'androidx.fragment:fragment-ktx:1.6.1'
     //endregion
 
     //Google Play Billing Library

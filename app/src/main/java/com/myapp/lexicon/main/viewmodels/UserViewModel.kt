@@ -58,7 +58,7 @@ class UserViewModel @Inject constructor(
         data class Error(val message: String): State()
     }
 
-    private var _state = MutableLiveData<State>()
+    private var _state = MutableLiveData<State>(State.Init)
     val state: LiveData<State> = _state
 
     private var _stateFlow = MutableStateFlow<State>(State.Init)

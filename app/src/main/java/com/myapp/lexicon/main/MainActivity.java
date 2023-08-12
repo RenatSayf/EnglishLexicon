@@ -683,6 +683,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return super.onOptionsItemSelected(item);
     }
 
+    /** @noinspection Convert2Diamond*/
     ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             new ActivityResultCallback<ActivityResult>()
@@ -697,7 +698,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     }
                 }
             });
-
 
 
     @SuppressWarnings("Convert2Lambda")
