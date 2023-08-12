@@ -150,6 +150,12 @@ dependencies {
     //FormatEditText
     implementation 'com.github.dkzwm:fet-core:0.2.1'
 
+    //Ktor
+    implementation 'io.ktor:ktor-client-core:2.3.3'
+    implementation 'io.ktor:ktor-client-cio:2.3.3'
+    implementation("io.ktor:ktor-client-content-negotiation:2.3.3")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.3")
+
 }
 
 
