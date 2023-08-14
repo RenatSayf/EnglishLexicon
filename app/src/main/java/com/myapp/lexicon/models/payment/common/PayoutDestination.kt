@@ -5,11 +5,11 @@ import kotlinx.serialization.Serializable
 
 
 @Serializable
-data class Amount(
+data class PayoutDestination(
 
-    @SerialName("currency")
-    val currency: String,
+    @SerialName("account_number")
+    val accountNumber: String,
 
-    @SerialName("value")
-    val value: String
+    @SerialName("type")
+    val type: String
 )

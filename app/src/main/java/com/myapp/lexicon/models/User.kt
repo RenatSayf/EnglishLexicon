@@ -2,7 +2,13 @@ package com.myapp.lexicon.models
 
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
+import com.myapp.lexicon.auth.account.AccountViewModel
+import com.myapp.lexicon.models.payment.common.Amount
+import com.myapp.lexicon.models.payment.common.Metadata
+import com.myapp.lexicon.models.payment.common.PayoutDestination
+import com.myapp.lexicon.models.payment.request.PayClaims
 import com.myapp.lexicon.models.payment.response.PaymentObj
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -130,6 +136,44 @@ data class User(
         }
         else {
             onNotEnough.invoke()
+        }
+    }
+
+    fun createPayClaimsBodyJson(
+        onSuccess: (String) -> Unit,
+        onWrongInputData: (Exception) -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        if (this.reservedPayment <= 0) {
+            onWrongInputData.invoke(Exception(AccountViewModel.WRONG_AMOUNT))
+            return
+        }
+        if (this.currency.isNullOrEmpty()) {
+            onWrongInputData.invoke(Exception(AccountViewModel.WRONG_CURRENCY))
+            return
+        }
+        if (this.bankCard.isEmpty()) {
+            onWrongInputData.invoke(Exception(AccountViewModel.WRONG_WALLET_NUMBER))
+            return
+        }
+        val payClaims = PayClaims(
+            Amount(
+                this.currency!!,
+                this.reservedPayment.toString()
+            ),
+            "Выплата по заказу ${this.firstName} ${this.lastName}",
+            Metadata(this.id),
+            PayoutDestination(this.bankCard, "yoo_money")
+        )
+        try {
+            val json = Json.encodeToString(payClaims)
+            onSuccess.invoke(json)
+        }
+        catch (e: IllegalArgumentException) {
+            onWrongInputData.invoke(e)
+        }
+        catch (e: Exception) {
+            onFailure.invoke(e)
         }
     }
 
