@@ -28,7 +28,7 @@ class NetClient(
         }
     }
     private val gatewayId = "XXXXX"
-    suspend fun sendPayoutRequest(
+    override suspend fun sendPayoutRequest(
         user: User,
         onSuccess: (Deferred<HttpResponse>) -> Unit,
         onWrongInputData: (Exception) -> Unit,

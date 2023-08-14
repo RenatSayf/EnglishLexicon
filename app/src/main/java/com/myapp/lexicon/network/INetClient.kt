@@ -6,6 +6,11 @@ import io.ktor.client.statement.HttpResponse
 import kotlinx.coroutines.Deferred
 
 interface INetClient {
-    //suspend fun sendPayoutRequest(user: User): Deferred<HttpResponse>
+    suspend fun sendPayoutRequest(
+        user: User,
+        onSuccess: (Deferred<HttpResponse>) -> Unit,
+        onWrongInputData: (Exception) -> Unit,
+        onFailure: (Exception) -> Unit
+    )
     suspend fun getPayoutStatus(payoutId: String): HttpResponse
 }
