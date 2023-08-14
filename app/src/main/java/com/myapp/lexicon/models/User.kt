@@ -2,6 +2,8 @@ package com.myapp.lexicon.models
 
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
+import com.myapp.lexicon.models.payment.response.PaymentObj
+import kotlinx.serialization.json.Json
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -38,7 +40,7 @@ data class User(
     var defaultCurrencyReward: Double = 0.0
     var reservedPayment: Int = 0
     var revenuePerAd: Double = 0.0
-    var currency: String? = "USD"
+    var currency: String? = ""
     var currencySymbol: String = ""
     var paymentRequired: Boolean = false
     var paymentDate: String = ""
@@ -131,4 +133,16 @@ data class User(
         }
     }
 
+}
+
+fun String.jsonToPaymentObjClass(
+    onSuccess: (PaymentObj) -> Unit,
+    onFailure: (Exception) -> Unit
+) {
+    try {
+        val paymentObj = Json.decodeFromString<PaymentObj>(this)
+        onSuccess.invoke(paymentObj)
+    } catch (e: Exception) {
+        onFailure.invoke(e)
+    }
 }
