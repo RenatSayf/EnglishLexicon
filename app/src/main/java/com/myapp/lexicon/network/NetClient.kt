@@ -14,7 +14,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.coroutineScope
 
 class NetClient(
     engine: HttpClientEngine = CIO.create(),
@@ -28,35 +28,37 @@ class NetClient(
         }
     }
     private val gatewayId = "XXXXX"
-    override suspend fun sendPayoutRequest(
-        user: User,
-        onSuccess: (Deferred<HttpResponse>) -> Unit,
-        onWrongInputData: (Exception) -> Unit,
-        onFailure: (Exception) -> Unit
-    ) {
-        user.createPayClaimsBodyJson(
-            onSuccess = {s: String ->
-                onSuccess.invoke(
-                    runBlocking {
-                        async {
-                            val response = client.post(baseUrl) {
-                                header(gatewayId, secretKey)
-                                header("Idempotence-Key", "Jflk25785ss54s54s5g5f5s6s8798d13dXXXX")
-                                contentType(ContentType.Application.Json)
-                                setBody(s)
-                            }
-                            response
+    override suspend fun sendPayoutRequest(user: User): Deferred<Result<HttpResponse>> {
+        val result = user.createPayClaimsBodyJson()
+
+        return when {
+            result.isSuccess -> {
+                coroutineScope {
+                    async {
+                        val response = client.post(baseUrl) {
+                            header(gatewayId, secretKey)
+                            header("Idempotence-Key", "Jflk25785ss54s54s5g5f5s6s8798d13dXXXX")
+                            contentType(ContentType.Application.Json)
+                            setBody(result.getOrElse { exception ->
+                                Result.failure<Exception>(exception)
+                            })
+                        }
+                        Result.success(response)
+                    }
+                }
+            }
+            else -> {
+                coroutineScope {
+                    async {
+                        try {
+                            Result.failure(result.exceptionOrNull()!!)
+                        } catch (e: NullPointerException) {
+                            Result.failure(e)
                         }
                     }
-                )
-            },
-            onWrongInputData = {exception ->
-                onWrongInputData.invoke(exception)
-            },
-            onFailure = {exception ->
-                onFailure.invoke(exception)
+                }
             }
-        )
+        }
     }
 
     override suspend fun getPayoutStatus(payoutId: String): HttpResponse {

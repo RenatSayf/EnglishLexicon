@@ -2,7 +2,6 @@ package com.myapp.lexicon.models
 
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
-import com.myapp.lexicon.auth.account.AccountViewModel
 import com.myapp.lexicon.models.payment.common.Amount
 import com.myapp.lexicon.models.payment.common.Metadata
 import com.myapp.lexicon.models.payment.common.PayoutDestination
@@ -32,6 +31,10 @@ data class User(
         const val KEY_BANK_CARD = "bank_card"
         const val KEY_PAYMENT_REQUIRED = "payment_required"
         const val KEY_PAYMENT_DATE = "payment_date"
+
+        const val WRONG_AMOUNT = "the amount is less than zero"
+        const val WRONG_CURRENCY = "wrong_currency"
+        const val WRONG_WALLET_NUMBER = "wallet_number"
     }
 
     var email: String = ""
@@ -139,22 +142,15 @@ data class User(
         }
     }
 
-    fun createPayClaimsBodyJson(
-        onSuccess: (String) -> Unit,
-        onWrongInputData: (Exception) -> Unit,
-        onFailure: (Exception) -> Unit
-    ) {
+    fun createPayClaimsBodyJson(): Result<String> {
         if (this.reservedPayment <= 0) {
-            onWrongInputData.invoke(Exception(AccountViewModel.WRONG_AMOUNT))
-            return
+            return Result.failure(Exception(WRONG_AMOUNT))
         }
         if (this.currency.isNullOrEmpty()) {
-            onWrongInputData.invoke(Exception(AccountViewModel.WRONG_CURRENCY))
-            return
+            return Result.failure(Exception(WRONG_CURRENCY))
         }
         if (this.bankCard.isEmpty()) {
-            onWrongInputData.invoke(Exception(AccountViewModel.WRONG_WALLET_NUMBER))
-            return
+            return Result.failure(Exception(WRONG_WALLET_NUMBER))
         }
         val payClaims = PayClaims(
             Amount(
@@ -165,15 +161,15 @@ data class User(
             Metadata(this.id),
             PayoutDestination(this.bankCard, "yoo_money")
         )
-        try {
+        return try {
             val json = Json.encodeToString(payClaims)
-            onSuccess.invoke(json)
+            Result.success(json)
         }
         catch (e: IllegalArgumentException) {
-            onWrongInputData.invoke(e)
+            Result.failure(e)
         }
         catch (e: Exception) {
-            onFailure.invoke(e)
+            Result.failure(e)
         }
     }
 

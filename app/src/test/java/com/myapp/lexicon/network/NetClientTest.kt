@@ -32,7 +32,7 @@ class NetClientTest {
     @Test
     fun sendPayoutRequest() {
         runBlocking {
-            mockEngine = MockEngine() {
+            mockEngine = MockEngine {
                 respond(
                     content = """{
     "id": "SSSSSSSSSSSSSSS",
@@ -64,30 +64,23 @@ class NetClientTest {
                 firstName = "Xxxx"
                 lastName = "Yyyy"
             }
-            client.sendPayoutRequest(
-                user,
-                onSuccess = {response ->
-                    runBlocking {
-                        val httpResponse = response.await()
-                        val bodyString = httpResponse.body<String>()
-                        bodyString.jsonToPaymentObjClass(
-                            onSuccess = {paymentObj ->
-                                val actualId = paymentObj.id
-                                Assert.assertEquals("SSSSSSSSSSSSSSS", actualId)
-                            },
-                            onFailure = {exception ->
-                                Assert.assertTrue(exception.message, false)
-                            }
-                        )
+
+            val responseResult = client.sendPayoutRequest(user).await()
+            responseResult.onSuccess { httpResponse ->
+                val bodyString = httpResponse.body<String>()
+                bodyString.jsonToPaymentObjClass(
+                    onSuccess = {paymentObj ->
+                        val actualId = paymentObj.id
+                        Assert.assertEquals("SSSSSSSSSSSSSSS", actualId)
+                    },
+                    onFailure = {exception ->
+                        Assert.assertTrue(exception.message, false)
                     }
-                },
-                onWrongInputData = {exception ->
-                    Assert.assertTrue(exception.message, false)
-                },
-                onFailure = {exception ->
-                    Assert.assertTrue(exception.message, false)
-                }
-            )
+                )
+            }
+            responseResult.onFailure { exception ->
+                Assert.assertTrue(exception.message, false)
+            }
         }
     }
 
