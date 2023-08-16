@@ -11,6 +11,7 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
@@ -27,8 +28,12 @@ class NetClient(
             install(ContentNegotiation)
         }
     }
-    private val gatewayId = "XXXXX"
-    override suspend fun sendPayoutRequest(user: User): Deferred<Result<HttpResponse>> {
+    private val gatewayId = "XXXXX" // TODO there should be a real id here
+    override suspend fun sendPayoutRequest(
+        user: User,
+        onTimeout: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ): Deferred<Result<HttpResponse>> {
         val result = user.createPayClaimsBodyJson()
 
         return when {
@@ -37,13 +42,22 @@ class NetClient(
                     async {
                         val response = client.post(baseUrl) {
                             header(gatewayId, secretKey)
-                            header("Idempotence-Key", "Jflk25785ss54s54s5g5f5s6s8798d13dXXXX")
+                            header("Idempotence-Key", "Jflk25785ss54s54s5g5f5s6s8798d13dXXXX") // TODO there should be a real key here
                             contentType(ContentType.Application.Json)
                             setBody(result.getOrElse { exception ->
+                                onFailure.invoke(exception as Exception)
                                 Result.failure<Exception>(exception)
                             })
                         }
-                        Result.success(response)
+                        return@async if (response.status.value !in 200..203) {
+                            if (response.status.description == HttpStatusCode.GatewayTimeout.description) {
+                                onTimeout.invoke()
+                            }
+                            Result.failure(Exception(response.status.description))
+                        }
+                        else {
+                            Result.success(response)
+                        }
                     }
                 }
             }
@@ -61,10 +75,43 @@ class NetClient(
         }
     }
 
-    override suspend fun getPayoutStatus(payoutId: String): HttpResponse {
-        val response = client.get("${baseUrl}/$payoutId") {
-            header(gatewayId, secretKey)
+    override suspend fun getPayoutStatus(
+        payoutId: String,
+        onTimeout: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ): Deferred<Result<HttpResponse>> {
+        return coroutineScope {
+            async {
+                val response = client.get("${baseUrl}/$payoutId") {
+                    header(gatewayId, secretKey)
+                }
+                return@async if (response.status.value !in 200..203) {
+                    if (response.status.description == HttpStatusCode.GatewayTimeout.description) {
+                        onTimeout.invoke()
+                    }
+                    Result.failure(Exception(response.status.description))
+                }
+                else {
+                    Result.success(response)
+                }
+            }
         }
-        return response
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
