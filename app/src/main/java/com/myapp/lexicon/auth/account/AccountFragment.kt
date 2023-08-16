@@ -13,6 +13,7 @@ import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.firebase.ktx.Firebase
@@ -42,11 +43,15 @@ class AccountFragment : Fragment() {
     }
 
     private lateinit var binding: FragmentAccountBinding
-    private val accountVM: AccountViewModel by viewModels()
+
+    private val accountVM: AccountViewModel by lazy {
+        val yooApiKey = getString(R.string.YOO_API_KEY)
+        val factory = AccountViewModel.Factory(apiKey = yooApiKey)
+        ViewModelProvider(this, factory)[AccountViewModel::class.java]
+    }
     private val userVM by viewModels<UserViewModel>()
 
     private val paymentThreshold: Double = Firebase.remoteConfig.getDouble("payment_threshold")
-    private val paymentDays: Int = Firebase.remoteConfig.getDouble("payment_days").toInt()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -80,6 +85,13 @@ class AccountFragment : Fragment() {
                 }
             }
 
+            accountVM.loadingState.observe(viewLifecycleOwner) { state ->
+                when(state) {
+                    AccountViewModel.LoadingState.Complete -> progressBar.visibility = View.GONE
+                    AccountViewModel.LoadingState.Start -> progressBar.visibility = View.VISIBLE
+                }
+            }
+
             tvIoMoneyRef.setOnClickListener {
                 val intent = Intent(Intent.ACTION_VIEW)
                 intent.data = Uri.parse("https://yoomoney.ru/")
@@ -90,11 +102,17 @@ class AccountFragment : Fragment() {
                 when(state) {
                     UserViewModel.State.Init -> {}
                     is UserViewModel.State.PersonalDataUpdated -> {
-                        handleUserData(state.user)
-                        showSnackBar(getString(R.string.data_is_saved))
+                        val user = state.user
+                        if (user.paymentRequired) {
+                            accountVM.sendPayoutRequest(user)
+                        }
+                        else {
+                            handleUserData(state.user)
+                            showSnackBar(getString(R.string.data_is_saved))
+                        }
                     }
                     is UserViewModel.State.PaymentRequestSent -> {
-                        showConfirmDialog()
+
                     }
                     is UserViewModel.State.Error -> {
                         showSnackBar(state.message)
@@ -168,6 +186,42 @@ class AccountFragment : Fragment() {
                         else {
                             tvLastNameValue.setBackground(R.drawable.bg_horizontal_oval_error)
                             tvLastNameValue.requestFocus()
+                        }
+                    }
+                }
+            }
+
+            lifecycleScope.launch {
+                lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                    accountVM.payoutState.collect { state ->
+                        when(state) {
+                            AccountViewModel.PayoutState.Init -> {}
+                            is AccountViewModel.PayoutState.Failure -> {
+
+                            }
+                            is AccountViewModel.PayoutState.Success -> {
+                                val paymentObj = state.data
+                                if (paymentObj.status == "succeeded") {
+                                    val message = "${getString(R.string.text_payout_succeeded)} ${paymentObj.amount.value} ${paymentObj.amount.currency}"
+                                    showSnackBar(message)
+                                    val user = userVM.user.value
+                                    if (user != null) {
+                                        user.apply {
+                                            paymentRequired = false
+                                            paymentDate = ""
+                                            reservedPayment = 0
+                                        }
+                                        userVM.updatePersonalData(user)
+                                    }
+                                }
+                                else if (paymentObj.status == "pending") {
+                                    val message = getString(R.string.text_payout_pending)
+                                    showSnackBar(message)
+                                }
+                            }
+                            AccountViewModel.PayoutState.Timeout -> {
+
+                            }
                         }
                     }
                 }
@@ -254,8 +308,8 @@ class AccountFragment : Fragment() {
                                 threshold = paymentThreshold,
                                 currencyRate = rate,
                                 onReserve = { u ->
-                                    userVM.updatePersonalData(u)
-                                    showConfirmDialog()
+                                    showConfirmDialog(u)
+                                    userVM
                                 },
                                 onNotEnough = {
                                     showSnackBar(getString(R.string.text_not_money))
@@ -317,15 +371,18 @@ class AccountFragment : Fragment() {
         }
     }
 
-    private fun showConfirmDialog() {
+    private fun showConfirmDialog(user: User) {
         ConfirmDialog.newInstance(onLaunch = {dialog, binding ->
             with(binding) {
                 dialog.isCancelable = false
-                val message = "${getString(R.string.text_payment_request_sent_1)} $paymentDays ${getString(R.string.text_payment_request_sent_2)}"
+                val message = "${getString(R.string.text_payment_request_sent_1)} ${user.reservedPayment} ${user.currencySymbol}"
                 tvMessage.text = message
-                btnCancel.visibility = View.GONE
+                btnCancel.setOnClickListener {
+                    dialog.dismiss()
+                }
                 btnOk.setOnClickListener {
                     accountVM.setState(AccountViewModel.State.ReadOnly)
+                    userVM.updatePersonalData(user)
                     dialog.dismiss()
                 }
             }

@@ -345,7 +345,7 @@
     <string name="text_card_number_not_valid">Неправильний номер картки.</string>
     <string name="text_user_not_found">Користувача не знайдено</string>
     <string name="data_is_saved">Дані збережені</string>
-    <string name="text_payment_request_sent_1">Заявка прийнята. Чекайте надходження коштів на ваш рахунок протягом</string>
+    <string name="text_payment_request_sent_1">Вам буде виплачена сума в розмірі</string>
     <string name="text_payment_request_sent_2">днів</string>
     <string name="text_notification_permission">Для того щоб була можливість пасивного вивчення слів, додатком потрібно показувати повідомлення. Зараз повідомлення відключені. Перейдіть до налаштувань і ввімкніть сповіщення</string>
     <string name="text_to_accept">Прийняти</string>
@@ -354,6 +354,8 @@
     <string name="text_open_yoo_account">Открыть счет</string>
     <string name="text_not_money">Недостаточно средств</string>
     <string name="text_to_payment">К выплате:</string>
+    <string name="text_payout_succeeded">На Ваш счет зачисленна сумма в размере</string>
+    <string name="text_payout_pending">Ваша заявка поставлена в очередь. Ожидайте поступления средств</string>
 
     <string-array name="words_interval">
         <item>після 5 слів</item>

@@ -5,6 +5,8 @@ import io.ktor.client.statement.HttpResponse
 import kotlinx.coroutines.Deferred
 
 interface INetClient {
+
+    fun setSecretKey(value: String)
     suspend fun sendPayoutRequest(
         user: User,
         onTimeout: () -> Unit = {},

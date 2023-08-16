@@ -69,8 +69,8 @@ class UserViewModel @Inject constructor(
     private var _user = MutableLiveData<User?>(null)
     val user: LiveData<User?> = _user
 
-    fun setUser(user: User) {
-        _user.value = user
+    fun setState(state: State) {
+        _state.value = state
     }
 
     fun collect(callBack: FlowCallback) {

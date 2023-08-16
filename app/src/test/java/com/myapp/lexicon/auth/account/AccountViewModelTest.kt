@@ -17,7 +17,7 @@ class AccountViewModelTest {
             firstName = "Xxxx"
             lastName = "Yyyy"
         }
-        val viewModel = AccountViewModel()
+        val viewModel = AccountViewModel.Factory("XXXXX").create(AccountViewModel::class.java)
 
     }
 
@@ -25,7 +25,7 @@ class AccountViewModelTest {
     fun createPayClaimsBody_WrongInputData() {
 
         val user = User("SSSSSSSSSSSSSSS")
-        val viewModel = AccountViewModel()
+        val viewModel = AccountViewModel.Factory("XXXXX").create(AccountViewModel::class.java)
 
     }
 

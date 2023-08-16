@@ -19,8 +19,7 @@ import kotlinx.coroutines.coroutineScope
 
 class NetClient(
     engine: HttpClientEngine = CIO.create(),
-    private val baseUrl: String = "https://api.yookassa.ru/v3/payouts",
-    private val secretKey: String
+    private val baseUrl: String = "https://api.yookassa.ru/v3/payouts"
 ): INetClient {
 
     private val client = HttpClient(engine).apply {
@@ -29,6 +28,12 @@ class NetClient(
         }
     }
     private val gatewayId = "XXXXX" // TODO there should be a real id here
+
+    private var secretKey: String? = null
+
+    override fun setSecretKey(value: String) {
+        secretKey = value
+    }
     override suspend fun sendPayoutRequest(
         user: User,
         onTimeout: () -> Unit,
@@ -41,7 +46,10 @@ class NetClient(
                 coroutineScope {
                     async {
                         val response = client.post(baseUrl) {
-                            header(gatewayId, secretKey)
+                            if (secretKey.isNullOrEmpty()) {
+                                throw Exception("secret key is null or empty")
+                            }
+                            else header(gatewayId, secretKey)
                             header("Idempotence-Key", "Jflk25785ss54s54s5g5f5s6s8798d13dXXXX") // TODO there should be a real key here
                             contentType(ContentType.Application.Json)
                             setBody(result.getOrElse { exception ->
@@ -83,7 +91,10 @@ class NetClient(
         return coroutineScope {
             async {
                 val response = client.get("${baseUrl}/$payoutId") {
-                    header(gatewayId, secretKey)
+                    if (secretKey.isNullOrEmpty()) {
+                        throw Exception("secret key is null or empty")
+                    }
+                    else header(gatewayId, secretKey)
                 }
                 return@async if (response.status.value !in 200..203) {
                     if (response.status.description == HttpStatusCode.GatewayTimeout.description) {

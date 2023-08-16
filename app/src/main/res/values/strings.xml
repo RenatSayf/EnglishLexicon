@@ -304,7 +304,7 @@
     <string name="text_card_number_not_valid">Неправильный номер карты.</string>
     <string name="text_user_not_found">Пользователь не найден</string>
     <string name="data_is_saved">Данные сохранены</string>
-    <string name="text_payment_request_sent_1">Заявка принята. Ожидайте поступления средств на ваш счет в течении</string>
+    <string name="text_payment_request_sent_1">Вам будет выплачена сумма в размере</string>
     <string name="text_payment_request_sent_2">дней</string>
     <string name="text_notification_permission">Для того чтобы была возможность пассивного изучения слов, приложению требуется показывать уведомления. Сейчас уведомления отключены. Перейдите в настройки и включите уведомления</string>
     <string name="text_to_accept">Принять</string>
@@ -313,6 +313,8 @@
     <string name="text_open_yoo_account">Открыть счет</string>
     <string name="text_not_money">Недостаточно средств</string>
     <string name="text_to_payment">К выплате:</string>
+    <string name="text_payout_succeeded">На Ваш счет зачисленна сумма в размере</string>
+    <string name="text_payout_pending">Ваша заявка поставлена в очередь. Ожидайте поступления средств</string>
 
     <string-array name="not_move">
         <item>Не перемещать</item>

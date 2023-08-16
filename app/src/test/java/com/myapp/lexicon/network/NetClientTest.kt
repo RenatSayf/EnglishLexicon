@@ -64,7 +64,9 @@ class NetClientTest {
                     headers = headersOf()
                 )
             }
-            client = NetClient(engine = mockEngine, secretKey = "QQQQ")
+            client = NetClient(engine = mockEngine).apply {
+                setSecretKey("QQQQQQQQQQ")
+            }
 
             val responseResult = client.sendPayoutRequest(user).await()
             responseResult.onSuccess { httpResponse ->
@@ -94,7 +96,9 @@ class NetClientTest {
                     status = HttpStatusCode.OK
                 )
             }
-            client = NetClient(engine = mockEngine, secretKey = "QQQQ")
+            client = NetClient(engine = mockEngine).apply {
+                setSecretKey("QQQQQQQQQQ")
+            }
 
             val responseResult = client.sendPayoutRequest(
                 user.apply {
@@ -119,7 +123,9 @@ class NetClientTest {
                     status = HttpStatusCode.OK
                 )
             }
-            client = NetClient(engine = mockEngine, secretKey = "QQQQ")
+            client = NetClient(engine = mockEngine).apply {
+                setSecretKey("QQQQQQQQQQ")
+            }
 
             val responseResult = client.sendPayoutRequest(user.apply {
                 currency = ""
@@ -142,7 +148,9 @@ class NetClientTest {
                     status = HttpStatusCode.OK
                 )
             }
-            client = NetClient(engine = mockEngine, secretKey = "QQQQ")
+            client = NetClient(engine = mockEngine).apply {
+                setSecretKey("QQQQQQQQQQ")
+            }
 
             val responseResult = client.sendPayoutRequest(user.apply {
                 bankCard = ""
@@ -165,7 +173,9 @@ class NetClientTest {
                     status = HttpStatusCode.GatewayTimeout
                 )
             }
-            client = NetClient(engine = mockEngine, secretKey = "QQQQ")
+            client = NetClient(engine = mockEngine).apply {
+                setSecretKey("QQQQQQQQQQ")
+            }
 
             val responseResult = client.sendPayoutRequest(user, onTimeout = {
                 Assert.assertTrue(true)
@@ -187,7 +197,9 @@ class NetClientTest {
                     status = HttpStatusCode.OK
                 )
             }
-            client = NetClient(engine = mockEngine, secretKey = "QQQQ")
+            client = NetClient(engine = mockEngine).apply {
+                setSecretKey("QQQQQQQQQQ")
+            }
             val responseResult = client.getPayoutStatus("37").await()
             responseResult.onSuccess { response ->
                 val body = response.body<String>()
@@ -216,7 +228,9 @@ class NetClientTest {
                     status = HttpStatusCode.GatewayTimeout
                 )
             }
-            client = NetClient(engine = mockEngine, secretKey = "QQQQ")
+            client = NetClient(engine = mockEngine).apply {
+                setSecretKey("QQQQQQQQQQ")
+            }
             val responseResult = client.getPayoutStatus("37", onTimeout = {
                 Assert.assertTrue(true)
             }).await()
