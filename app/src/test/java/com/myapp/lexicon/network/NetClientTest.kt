@@ -165,6 +165,68 @@ class NetClientTest {
     }
 
     @Test
+    fun sendPayoutRequest_insufficient_funds() {
+
+        val response = """{
+    "id": "po-285ec15d-0003-5000-a000-08d1bec7dade",
+    "amount": {
+        "value": "2.00",
+        "currency": "RUB"
+    },
+    "status": "canceled",
+    "payout_destination": {
+        "type": "yoo_money",
+        "account_number": "410011806060766"
+    },
+    "description": "Выплата по заказу № 37",
+    "created_at": "21.06.2021T14:28:45.132Z",
+    "cancellation_details": {
+        "party": "yoo_money",
+        "reason": "insufficient_funds"
+    },
+    "metadata": {
+        "order_id": "37"
+    },
+    "test": "false"
+}"""
+
+        runBlocking {
+            mockEngine = MockEngine {
+                respond(
+                    content = response,
+                    status = HttpStatusCode.OK
+                )
+            }
+            client = NetClient(engine = mockEngine).apply {
+                setSecretKey("QQQQQQQQQQ")
+            }
+
+            val responseResult = client.sendPayoutRequest(user).await()
+            responseResult.onSuccess { httpResponse ->
+                val bodyString = httpResponse.body<String>()
+                bodyString.jsonToPaymentObjClass(
+                    onSuccess = {paymentObj ->
+                        val actualStatus = paymentObj.status
+                        Assert.assertEquals("canceled", actualStatus)
+
+                        paymentObj.cancellationDetails?.let { details ->
+                            Assert.assertEquals("insufficient_funds", details.reason)
+                        }?: let {
+                            Assert.assertTrue(false)
+                        }
+                    },
+                    onFailure = {exception ->
+                        Assert.assertTrue(exception.message, false)
+                    }
+                )
+            }
+            responseResult.onFailure { exception ->
+                Assert.assertTrue(exception.message, false)
+            }
+        }
+    }
+
+    @Test
     fun sendPayoutRequest_gate_way_timeout() {
         runBlocking {
             mockEngine = MockEngine {
@@ -242,4 +304,6 @@ class NetClientTest {
             }
         }
     }
+
+
 }

@@ -197,11 +197,15 @@ class AccountFragment : Fragment() {
                         when(state) {
                             AccountViewModel.PayoutState.Init -> {}
                             is AccountViewModel.PayoutState.Failure -> {
-
+                                val originalUser = accountVM.originalUser
+                                if (originalUser is User) {
+                                    userVM.updatePersonalData(originalUser)
+                                }
+                                else throw NullPointerException("******* originalUser is null **********")
                             }
                             is AccountViewModel.PayoutState.Success -> {
                                 val paymentObj = state.data
-                                if (paymentObj.status == "succeeded") {
+                                if (paymentObj.status == "succeeded" || paymentObj.status == "pending") {
                                     val message = "${getString(R.string.text_payout_succeeded)} ${paymentObj.amount.value} ${paymentObj.amount.currency}"
                                     showSnackBar(message)
                                     val user = userVM.user.value
@@ -214,13 +218,21 @@ class AccountFragment : Fragment() {
                                         userVM.updatePersonalData(user)
                                     }
                                 }
-                                else if (paymentObj.status == "pending") {
-                                    val message = getString(R.string.text_payout_pending)
+                                if (paymentObj.status == "canceled") {
+                                    val message = getString(R.string.text_payout_error)
                                     showSnackBar(message)
+                                    val originalUser = accountVM.originalUser
+                                    if (originalUser is User) {
+                                        userVM.updatePersonalData(originalUser)
+                                    }
+                                    else throw NullPointerException("******* originalUser is null **********")
                                 }
                             }
                             AccountViewModel.PayoutState.Timeout -> {
-
+                                val message = getString(R.string.text_internet_unavailable)
+                                showSnackBar(message)
+                                val originalUser = accountVM.originalUser
+                                originalUser?.let { handleUserData(it) }
                             }
                         }
                     }
@@ -304,12 +316,12 @@ class AccountFragment : Fragment() {
                     requireContext().getExchangeRateFromPref(
                         onInit = {},
                         onSuccess = {date, symbol, rate ->
+                            accountVM.saveOriginalUser(user)
                             user.reservePayment(
                                 threshold = paymentThreshold,
                                 currencyRate = rate,
                                 onReserve = { u ->
                                     showConfirmDialog(u)
-                                    userVM
                                 },
                                 onNotEnough = {
                                     showSnackBar(getString(R.string.text_not_money))

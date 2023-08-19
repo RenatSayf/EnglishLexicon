@@ -2,7 +2,6 @@ package com.myapp.lexicon.models.payment.request
 
 import com.myapp.lexicon.models.payment.common.Amount
 import com.myapp.lexicon.models.payment.common.Metadata
-import com.myapp.lexicon.models.payment.common.PayoutDestination
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -19,6 +18,6 @@ data class PayClaims(
     @SerialName("metadata")
     val metadata: Metadata,
 
-    @SerialName("payout_destination")
-    val payoutDestination: PayoutDestination
+    @SerialName("payout_destination_data")
+    val payoutDestinationData: PayoutDestinationData
 )

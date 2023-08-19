@@ -4,8 +4,8 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.models.payment.common.Amount
 import com.myapp.lexicon.models.payment.common.Metadata
-import com.myapp.lexicon.models.payment.common.PayoutDestination
 import com.myapp.lexicon.models.payment.request.PayClaims
+import com.myapp.lexicon.models.payment.request.PayoutDestinationData
 import com.myapp.lexicon.models.payment.response.PaymentObj
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -159,7 +159,7 @@ data class User(
             ),
             "Выплата по заказу ${this.firstName} ${this.lastName}",
             Metadata(this.id),
-            PayoutDestination(this.bankCard, "yoo_money")
+            PayoutDestinationData(this.bankCard, "yoo_money")
         )
         return try {
             val json = Json.encodeToString(payClaims)

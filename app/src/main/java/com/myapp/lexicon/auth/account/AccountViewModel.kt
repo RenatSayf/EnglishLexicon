@@ -100,6 +100,13 @@ class AccountViewModel(
         }
     }
 
+    var originalUser: User? = null
+        private set
+
+    fun saveOriginalUser(user: User) {
+        originalUser = user
+    }
+
 
 
 }

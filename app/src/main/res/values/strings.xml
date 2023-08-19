@@ -313,8 +313,10 @@
     <string name="text_open_yoo_account">Открыть счет</string>
     <string name="text_not_money">Недостаточно средств</string>
     <string name="text_to_payment">К выплате:</string>
-    <string name="text_payout_succeeded">На Ваш счет зачисленна сумма в размере</string>
-    <string name="text_payout_pending">Ваша заявка поставлена в очередь. Ожидайте поступления средств</string>
+    <string name="text_payout_succeeded">На Ваш счет будет зачисленна сумма в размере</string>
+    <string name="text_payout_succeeded_2">Ожидайте поступления средств</string>
+    <string name="text_payout_error">Сервис временно недоступен. Попробуйте чуть позже…</string>
+    <string name="text_internet_unavailable">Похоже нет соединения с интернетом...</string>
 
     <string-array name="not_move">
         <item>Не перемещать</item>
