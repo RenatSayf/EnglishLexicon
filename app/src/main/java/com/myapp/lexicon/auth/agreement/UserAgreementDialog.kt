@@ -1,4 +1,4 @@
-@file:Suppress("ObjectLiteralToLambda")
+@file:Suppress("ObjectLiteralToLambda", "RedundantSamConstructor")
 
 package com.myapp.lexicon.auth.agreement
 
@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.JavascriptInterface
 import androidx.fragment.app.DialogFragment
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.DialogUserAgreementBinding
@@ -30,6 +31,7 @@ class UserAgreementDialog: DialogFragment() {
     }
 
     private lateinit var binding: DialogUserAgreementBinding
+    private lateinit var dialog: Dialog
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -38,6 +40,7 @@ class UserAgreementDialog: DialogFragment() {
 
         binding.webView.apply {
             settings.javaScriptEnabled = true
+            addJavascriptInterface(JsInterface(), "Android")
             val url = "file:///android_asset/user_agreement/index.html"
             loadUrl(url)
         }
@@ -58,9 +61,10 @@ class UserAgreementDialog: DialogFragment() {
                 }
             })
         }
-        return builder.create().apply {
+        dialog = builder.create().apply {
             this.window?.setBackgroundDrawableResource(R.drawable.bg_popup_dialog_white)
         }
+        return dialog
     }
 
     override fun onCreateView(
@@ -69,6 +73,24 @@ class UserAgreementDialog: DialogFragment() {
         savedInstanceState: Bundle?
     ): View {
         return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = false
+    }
+
+    inner class JsInterface {
+
+        @JavascriptInterface
+        fun onCheckedListener(flag: Boolean) {
+
+            requireActivity().runOnUiThread(Runnable {
+                val positiveButton = (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE)
+                positiveButton.isEnabled = flag
+            })
+        }
     }
 
 

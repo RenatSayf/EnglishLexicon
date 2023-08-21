@@ -9,6 +9,22 @@
             line-height: 1.6;
             margin: 20px;
         }
+        .accept-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            display: block;
+            margin-top: 10px;
+            cursor: pointer;
+            opacity: 0.5;
+            float: right;
+            margin: 20px;
+        }
+
+        .accept-button.active {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -45,12 +61,25 @@
 <p>Это Соглашение является юридическим соглашением между Пользователями и Владельцем Приложения и регулирует использование Приложения.</p>
 <p>Если какое-либо положение Соглашения будет признано недействительным или несостоятельным, это не повлияет на остальные положения Соглашения.</p>
 
+<h2>Подтверждение ознакомления с условиями сервиса "ЮМани"</h2>
+<p>Пожалуйста, подтвердите, что вы ознакомились с <a href="https://yoomoney.ru/pay/page?id=526623" target="_blank">условиями сервиса "Быстрый платеж"</a>:</p>
+<label>
+    <input type="checkbox" id="agreementCheckbox">
+    Я подтверждаю, что ознакомился(ась) с условиями сервиса "Быстрый платеж".
+</label>
+
 <script>
-        // JavaScript код для отображения текущей даты
+        // JavaScript код для отображения текущей даты и управления кнопкой
         const currentDateElement = document.getElementById('currentDate');
         const currentDate = new Date();
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
         currentDateElement.textContent = currentDate.toLocaleDateString('ru-RU', options);
+
+        const agreementCheckbox = document.getElementById('agreementCheckbox');
+
+        agreementCheckbox.addEventListener('change', function () {
+            Android.onCheckedListener(agreementCheckbox.checked);
+        });
 </script>
 
 </body>
