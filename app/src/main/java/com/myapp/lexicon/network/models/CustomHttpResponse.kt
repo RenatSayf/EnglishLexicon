@@ -38,7 +38,7 @@ class CustomHttpResponse(
     override val responseTime: GMTDate
         get() = GMTDate(System.currentTimeMillis())
     override val status: HttpStatusCode
-        get() = statusCode
+        get() = HttpStatusCode(statusCode.value, description)
     override val version: HttpProtocolVersion
         get() = HttpProtocolVersion(name = "HTTPS", major = 1, minor = 1)
 }
