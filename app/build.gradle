@@ -62,6 +62,15 @@ android {
     testOptions {
         unitTests.returnDefaultValues = true
     }
+    flavorDimensions "data_source"
+    productFlavors {
+        network {
+            buildConfigField 'String', 'DATA_SOURCE', '\"NETWORK\"'
+        }
+        localhost {
+            buildConfigField 'String', 'DATA_SOURCE', '\"LOCALHOST\"'
+        }
+    }
     namespace 'com.myapp.lexicon'
 
 }

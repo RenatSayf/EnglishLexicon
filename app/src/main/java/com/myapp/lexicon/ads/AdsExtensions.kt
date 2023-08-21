@@ -16,7 +16,6 @@ import com.appodeal.ads.utils.Log
 import com.google.android.gms.ads.identifier.AdvertisingIdClient
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
-import com.myapp.lexicon.models.LaunchMode
 
 
 fun Context.getAdvertisingID(

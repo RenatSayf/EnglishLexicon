@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.myapp.lexicon.di.NetClientModule
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.jsonToPaymentObjClass
 import com.myapp.lexicon.models.payment.response.PaymentObj
@@ -26,9 +27,7 @@ class AccountViewModel(
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             require(modelClass == AccountViewModel::class.java)
-            return AccountViewModel(client = NetClient().apply {
-                setSecretKey(apiKey)
-            }) as T
+            return AccountViewModel(client = NetClientModule.provideNetClient(apiKey)) as T
         }
     }
 
