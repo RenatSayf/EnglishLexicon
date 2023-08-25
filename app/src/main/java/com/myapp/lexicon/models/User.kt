@@ -2,6 +2,7 @@ package com.myapp.lexicon.models
 
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
+import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.models.payment.common.Amount
 import com.myapp.lexicon.models.payment.common.Metadata
 import com.myapp.lexicon.models.payment.request.PayClaims
@@ -11,6 +12,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.math.BigDecimal
 import java.math.RoundingMode
+import kotlin.jvm.Throws
 
 
 data class User(
@@ -137,6 +139,9 @@ data class User(
 
             onReserve.invoke(this)
         }
+        else if (this.paymentRequired && this.reservedPayment >= threshold) {
+            onReserve.invoke(this)
+        }
         else {
             onNotEnough.invoke()
         }
@@ -175,14 +180,18 @@ data class User(
 
 }
 
+@Throws(Exception::class)
 fun String.jsonToPaymentObjClass(
-    onSuccess: (PaymentObj) -> Unit,
-    onFailure: (Exception) -> Unit
-) {
-    try {
+    onSuccess: (PaymentObj) -> Unit = {},
+    onFailure: (Exception) -> Unit = {}
+): PaymentObj? {
+    return try {
         val paymentObj = Json.decodeFromString<PaymentObj>(this)
         onSuccess.invoke(paymentObj)
+        paymentObj
     } catch (e: Exception) {
         onFailure.invoke(e)
+        if (BuildConfig.DEBUG) e.printStackTrace()
+        null
     }
 }

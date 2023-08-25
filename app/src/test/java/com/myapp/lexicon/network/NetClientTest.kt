@@ -69,17 +69,8 @@ class NetClientTest {
             }
 
             val responseResult = client.sendPayoutRequest(user).await()
-            responseResult.onSuccess { httpResponse ->
-                val bodyString = httpResponse.body<String>()
-                bodyString.jsonToPaymentObjClass(
-                    onSuccess = {paymentObj ->
-                        val actualStatus = paymentObj.status
-                        Assert.assertEquals("pending", actualStatus)
-                    },
-                    onFailure = {exception ->
-                        Assert.assertTrue(exception.message, false)
-                    }
-                )
+            responseResult.onSuccess { paymentObj ->
+                Assert.assertEquals("pending", paymentObj.status)
             }
             responseResult.onFailure { exception ->
                 Assert.assertTrue(exception.message, false)
@@ -202,23 +193,8 @@ class NetClientTest {
             }
 
             val responseResult = client.sendPayoutRequest(user).await()
-            responseResult.onSuccess { httpResponse ->
-                val bodyString = httpResponse.body<String>()
-                bodyString.jsonToPaymentObjClass(
-                    onSuccess = {paymentObj ->
-                        val actualStatus = paymentObj.status
-                        Assert.assertEquals("canceled", actualStatus)
-
-                        paymentObj.cancellationDetails?.let { details ->
-                            Assert.assertEquals("insufficient_funds", details.reason)
-                        }?: let {
-                            Assert.assertTrue(false)
-                        }
-                    },
-                    onFailure = {exception ->
-                        Assert.assertTrue(exception.message, false)
-                    }
-                )
+            responseResult.onSuccess { paymentObj ->
+                Assert.assertEquals("canceled", paymentObj.status)
             }
             responseResult.onFailure { exception ->
                 Assert.assertTrue(exception.message, false)

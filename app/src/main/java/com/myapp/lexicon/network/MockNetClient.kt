@@ -1,8 +1,11 @@
 package com.myapp.lexicon.network
 
 import com.myapp.lexicon.models.User
+import com.myapp.lexicon.models.jsonToPaymentObjClass
+import com.myapp.lexicon.models.payment.response.PaymentObj
 import com.myapp.lexicon.network.models.CustomHttpResponse
 import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.request
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
@@ -11,18 +14,8 @@ import kotlinx.coroutines.coroutineScope
 class MockNetClient: INetClient {
 
     private val statusCode = HttpStatusCode.OK
-    override fun setSecretKey(value: String) {}
 
-    override suspend fun sendPayoutRequest(
-        user: User,
-        onTimeout: () -> Unit,
-        onFailure: (Exception) -> Unit
-    ): Deferred<Result<HttpResponse>> {
-
-        val result = when (statusCode) {
-            HttpStatusCode.OK -> {
-                val response = CustomHttpResponse(
-                    jsonContent = """{
+    private val jsonBodySuccess = """{
     "id": "SSSSSSSSSSSSSSS",
     "amount": {
         "value": "100.00",
@@ -39,42 +32,28 @@ class MockNetClient: INetClient {
         "order_id": "37"
     },
     "test": "false"
-}""",
-                    statusCode = HttpStatusCode.OK
-                )
-                Result.success(response)
-            }
+}"""
 
-            HttpStatusCode.ServiceUnavailable -> {
-                val response = CustomHttpResponse(
-                    jsonContent = "",
-                    statusCode = HttpStatusCode.ServiceUnavailable,
-                    description = "Service Unavailable"
-                )
-                Result.failure<Exception>(Exception(response.status.description))
-            }
+    override fun setSecretKey(value: String) {}
 
-            HttpStatusCode.GatewayTimeout -> {
-                val response = CustomHttpResponse(
-                    jsonContent = "",
-                    statusCode = HttpStatusCode.GatewayTimeout,
-                    description = "Gateway Timeout"
-                )
-                Result.failure<Exception>(Exception(response.status.description))
-            }
-
-            else -> {
-                val response = CustomHttpResponse(
-                    jsonContent = "",
-                    statusCode = HttpStatusCode.BadRequest,
-                    description = "Bad Request"
-                )
-                Result.failure<Exception>(Exception(response.status.description))
-            }
-        }
+    override suspend fun sendPayoutRequest(
+        user: User,
+        onTimeout: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ): Deferred<Result<PaymentObj?>> {
         return coroutineScope {
             async {
-                result as Result<HttpResponse>
+                when (statusCode) {
+                    HttpStatusCode.OK -> {
+                        val paymentObj = jsonBodySuccess.jsonToPaymentObjClass()
+                        if (paymentObj != null) {
+                            Result.success(paymentObj)
+                        } else Result.failure(Exception("paymentObj is null"))
+                    }
+                    else -> {
+                        Result.failure(Exception(""))
+                    }
+                }
             }
         }
     }

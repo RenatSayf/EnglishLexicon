@@ -10,7 +10,6 @@ import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.jsonToPaymentObjClass
 import com.myapp.lexicon.models.payment.response.PaymentObj
 import com.myapp.lexicon.network.INetClient
-import com.myapp.lexicon.network.NetClient
 import io.ktor.client.call.body
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -83,18 +82,13 @@ class AccountViewModel(
                     _payoutState.value = PayoutState.Failure(exception)
                 }
             ).await()
-            responseResult.onSuccess { response ->
-                val body = response.body<String>()
-                body.jsonToPaymentObjClass(
-                    onSuccess = {paymentObj ->
-                        _loadingState.value = LoadingState.Complete
-                        _payoutState.value = PayoutState.Success(paymentObj)
-                    },
-                    onFailure = {exception ->
-                        _loadingState.value = LoadingState.Complete
-                        _payoutState.value = PayoutState.Failure(exception)
-                    }
-                )
+            responseResult.onSuccess { paymentObj ->
+                _loadingState.value = LoadingState.Complete
+                paymentObj?.let { obj ->
+                    _payoutState.value = PayoutState.Success(obj)
+                }?: let {
+                    _payoutState.value = PayoutState.Failure(Exception("paymentObj is null"))
+                }
             }
         }
     }

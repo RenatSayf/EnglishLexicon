@@ -1,7 +1,10 @@
 package com.myapp.lexicon.network
 
 import com.myapp.lexicon.models.User
+import com.myapp.lexicon.models.jsonToPaymentObjClass
+import com.myapp.lexicon.models.payment.response.PaymentObj
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -16,6 +19,7 @@ import io.ktor.http.contentType
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlin.system.exitProcess
 
 class NetClient(
     engine: HttpClientEngine = CIO.create(),
@@ -38,7 +42,7 @@ class NetClient(
         user: User,
         onTimeout: () -> Unit,
         onFailure: (Exception) -> Unit
-    ): Deferred<Result<HttpResponse>> {
+    ): Deferred<Result<PaymentObj>> {
         val result = user.createPayClaimsBodyJson()
 
         return when {
@@ -64,7 +68,18 @@ class NetClient(
                             Result.failure(Exception(response.status.description))
                         }
                         else {
-                            Result.success(response)
+                            val body = response.body<String>()
+                            val paymentObj = body.jsonToPaymentObjClass(
+                                onFailure = { ex ->
+                                    onFailure.invoke(ex)
+                                }
+                            )
+                            if (paymentObj != null) {
+                                Result.success(paymentObj)
+                            }
+                            else {
+                                Result.failure(Exception("paymentObj is null"))
+                            }
                         }
                     }
                 }

@@ -287,20 +287,24 @@ class AccountFragment : Fragment() {
                 val user = userVM.user.value
                 if (user != null) {
                     if (tvPhoneValue.text.isNullOrEmpty() || (tvPhoneValue.text?.length?: 0) < 11) {
+                        accountVM.setState(AccountViewModel.State.Editing)
                         accountVM.setState(AccountViewModel.State.OnValid(phone = false))
                         return@setOnClickListener
                     }
 
                     val number = tvCardNumber.text.toString()
                     if (number.length < 14) {
+                        accountVM.setState(AccountViewModel.State.Editing)
                         accountVM.setState(AccountViewModel.State.OnValid(card = false))
                         return@setOnClickListener
                     }
                     if (tvFirstNameValue.text.isNullOrEmpty()) {
+                        accountVM.setState(AccountViewModel.State.Editing)
                         accountVM.setState(AccountViewModel.State.OnValid(firstName = false))
                         return@setOnClickListener
                     }
                     if (tvLastNameValue.text.isNullOrEmpty()) {
+                        accountVM.setState(AccountViewModel.State.Editing)
                         accountVM.setState(AccountViewModel.State.OnValid(lastName = false))
                         return@setOnClickListener
                     }
@@ -362,7 +366,7 @@ class AccountFragment : Fragment() {
                     val rewardThreshold = (paymentThreshold * rate).toInt()
                     val textCondition = "${getString(R.string.text_reward_conditions)} $rewardThreshold $symbol"
                     tvRewardCondition.text = textCondition
-                    btnGetReward.isEnabled = user.defaultCurrencyReward > rewardThreshold
+                    btnGetReward.isEnabled = (user.defaultCurrencyReward > rewardThreshold || (user.paymentRequired && user.reservedPayment >= rewardThreshold))
                     if (user.userReward > rewardThreshold) {
                         tvRewardCondition.visibility = View.GONE
                     }
