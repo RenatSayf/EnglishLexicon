@@ -235,7 +235,7 @@
                     android:textSize="14sp"
                     />
 
-                <androidx.appcompat.widget.AppCompatEditText
+                <me.dkzwm.widget.fet.FormattedEditText
                     android:id="@+id/tvCardNumber"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -243,28 +243,18 @@
                     android:paddingStart="12dp"
                     android:paddingEnd="12dp"
                     android:background="@drawable/bg_horizontal_oval"
-                    android:gravity="start"
+                    android:gravity="start|center"
                     android:inputType="phone|textMultiLine"
                     android:textColor="@color/color_3B5E91"
                     android:textCursorDrawable="@null"
                     android:textSize="18sp"
-                    android:drawableStart="@drawable/yoo_money"
-                    android:drawablePadding="8dp"
                     tools:ignore="TouchTargetSizeCheck,VisualLintTextFieldSize"
                     android:hint="@string/text_when_awarding"
                     android:textColorHint="@color/color_CCC3C3"
-                    />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/tvIoMoneyRef"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="end"
-                    android:paddingStart="12dp"
-                    android:paddingEnd="12dp"
-                    android:text="@string/text_open_yoo_account"
-                    android:textColor="@color/colorYellowDark"
-                    android:textSize="14sp"
+                    android:drawableStart="@drawable/ic_credit_card"
+                    android:drawablePadding="8dp"
+                    app:fet_formatStyle="0000 0000 0000 000*"
+                    app:fet_mode="mode_mask"
                     />
 
             </androidx.appcompat.widget.LinearLayoutCompat>
@@ -277,7 +267,7 @@
                 android:gravity="start"
                 app:layout_constraintTop_toBottomOf="@+id/layoutBankCard"
                 app:layout_constraintBottom_toTopOf="@+id/layoutLastName"
-                android:layout_marginTop="0dp">
+                android:layout_marginTop="8dp">
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tvFirstNameTitle"

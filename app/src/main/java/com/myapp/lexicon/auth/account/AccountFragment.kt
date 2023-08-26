@@ -13,7 +13,6 @@ import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.firebase.ktx.Firebase
@@ -43,15 +42,11 @@ class AccountFragment : Fragment() {
     }
 
     private lateinit var binding: FragmentAccountBinding
-
-    private val accountVM: AccountViewModel by lazy {
-        val yooApiKey = getString(R.string.YOO_API_KEY)
-        val factory = AccountViewModel.Factory(apiKey = yooApiKey)
-        ViewModelProvider(this, factory)[AccountViewModel::class.java]
-    }
+    private val accountVM: AccountViewModel by viewModels()
     private val userVM by viewModels<UserViewModel>()
 
     private val paymentThreshold: Double = Firebase.remoteConfig.getDouble("payment_threshold")
+    private val paymentDays: Int = Firebase.remoteConfig.getDouble("payment_days").toInt()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -85,34 +80,15 @@ class AccountFragment : Fragment() {
                 }
             }
 
-            accountVM.loadingState.observe(viewLifecycleOwner) { state ->
-                when(state) {
-                    AccountViewModel.LoadingState.Complete -> progressBar.visibility = View.GONE
-                    AccountViewModel.LoadingState.Start -> progressBar.visibility = View.VISIBLE
-                }
-            }
-
-            tvIoMoneyRef.setOnClickListener {
-                val intent = Intent(Intent.ACTION_VIEW)
-                intent.data = Uri.parse("https://yoomoney.ru/")
-                startActivity(intent)
-            }
-
             userVM.state.observe(viewLifecycleOwner) { state ->
                 when(state) {
                     UserViewModel.State.Init -> {}
                     is UserViewModel.State.PersonalDataUpdated -> {
-                        val user = state.user
-                        if (user.paymentRequired) {
-                            accountVM.sendPayoutRequest(user)
-                        }
-                        else {
-                            handleUserData(state.user)
-                            showSnackBar(getString(R.string.data_is_saved))
-                        }
+                        handleUserData(state.user)
+                        showSnackBar(getString(R.string.data_is_saved))
                     }
                     is UserViewModel.State.PaymentRequestSent -> {
-
+                        showConfirmDialog()
                     }
                     is UserViewModel.State.Error -> {
                         showSnackBar(state.message)
@@ -186,54 +162,6 @@ class AccountFragment : Fragment() {
                         else {
                             tvLastNameValue.setBackground(R.drawable.bg_horizontal_oval_error)
                             tvLastNameValue.requestFocus()
-                        }
-                    }
-                }
-            }
-
-            lifecycleScope.launch {
-                lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                    accountVM.payoutState.collect { state ->
-                        when(state) {
-                            AccountViewModel.PayoutState.Init -> {}
-                            is AccountViewModel.PayoutState.Failure -> {
-                                val originalUser = accountVM.originalUser
-                                if (originalUser is User) {
-                                    userVM.updatePersonalData(originalUser)
-                                }
-                                else throw NullPointerException("******* originalUser is null **********")
-                            }
-                            is AccountViewModel.PayoutState.Success -> {
-                                val paymentObj = state.data
-                                if (paymentObj.status == "succeeded" || paymentObj.status == "pending") {
-                                    val message = "${getString(R.string.text_payout_succeeded)} ${paymentObj.amount.value} ${paymentObj.amount.currency}"
-                                    showSnackBar(message)
-                                    val user = userVM.user.value
-                                    if (user != null) {
-                                        user.apply {
-                                            paymentRequired = false
-                                            paymentDate = ""
-                                            reservedPayment = 0
-                                        }
-                                        userVM.updatePersonalData(user)
-                                    }
-                                }
-                                if (paymentObj.status == "canceled") {
-                                    val message = getString(R.string.text_payout_error)
-                                    showSnackBar(message)
-                                    val originalUser = accountVM.originalUser
-                                    if (originalUser is User) {
-                                        userVM.updatePersonalData(originalUser)
-                                    }
-                                    else throw NullPointerException("******* originalUser is null **********")
-                                }
-                            }
-                            AccountViewModel.PayoutState.Timeout -> {
-                                val message = getString(R.string.text_internet_unavailable)
-                                showSnackBar(message)
-                                val originalUser = accountVM.originalUser
-                                originalUser?.let { handleUserData(it) }
-                            }
                         }
                     }
                 }
@@ -316,12 +244,12 @@ class AccountFragment : Fragment() {
                     requireContext().getExchangeRateFromPref(
                         onInit = {},
                         onSuccess = {date, symbol, rate ->
-                            accountVM.saveOriginalUser(user)
                             user.reservePayment(
                                 threshold = paymentThreshold,
                                 currencyRate = rate,
                                 onReserve = { u ->
-                                    showConfirmDialog(u)
+                                    userVM.updatePersonalData(u)
+                                    showConfirmDialog()
                                 },
                                 onNotEnough = {
                                     showSnackBar(getString(R.string.text_not_money))
@@ -383,18 +311,15 @@ class AccountFragment : Fragment() {
         }
     }
 
-    private fun showConfirmDialog(user: User) {
+    private fun showConfirmDialog() {
         ConfirmDialog.newInstance(onLaunch = {dialog, binding ->
             with(binding) {
                 dialog.isCancelable = false
-                val message = "${getString(R.string.text_payment_request_sent_1)} ${user.reservedPayment} ${user.currencySymbol}"
+                val message = "${getString(R.string.text_payment_request_sent_1)} $paymentDays ${getString(R.string.text_payment_request_sent_2)}"
                 tvMessage.text = message
-                btnCancel.setOnClickListener {
-                    dialog.dismiss()
-                }
+                btnCancel.visibility = View.GONE
                 btnOk.setOnClickListener {
                     accountVM.setState(AccountViewModel.State.ReadOnly)
-                    userVM.updatePersonalData(user)
                     dialog.dismiss()
                 }
             }

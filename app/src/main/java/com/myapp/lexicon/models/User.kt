@@ -2,13 +2,6 @@ package com.myapp.lexicon.models
 
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
-import com.myapp.lexicon.models.payment.common.Amount
-import com.myapp.lexicon.models.payment.common.Metadata
-import com.myapp.lexicon.models.payment.request.PayClaims
-import com.myapp.lexicon.models.payment.request.PayoutDestinationData
-import com.myapp.lexicon.models.payment.response.PaymentObj
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -31,10 +24,6 @@ data class User(
         const val KEY_BANK_CARD = "bank_card"
         const val KEY_PAYMENT_REQUIRED = "payment_required"
         const val KEY_PAYMENT_DATE = "payment_date"
-
-        const val WRONG_AMOUNT = "the amount is less than zero"
-        const val WRONG_CURRENCY = "wrong_currency"
-        const val WRONG_WALLET_NUMBER = "wallet_number"
     }
 
     var email: String = ""
@@ -49,7 +38,7 @@ data class User(
     var defaultCurrencyReward: Double = 0.0
     var reservedPayment: Int = 0
     var revenuePerAd: Double = 0.0
-    var currency: String? = ""
+    var currency: String? = "USD"
     var currencySymbol: String = ""
     var paymentRequired: Boolean = false
     var paymentDate: String = ""
@@ -142,47 +131,4 @@ data class User(
         }
     }
 
-    fun createPayClaimsBodyJson(): Result<String> {
-        if (this.reservedPayment <= 0) {
-            return Result.failure(Exception(WRONG_AMOUNT))
-        }
-        if (this.currency.isNullOrEmpty()) {
-            return Result.failure(Exception(WRONG_CURRENCY))
-        }
-        if (this.bankCard.isEmpty()) {
-            return Result.failure(Exception(WRONG_WALLET_NUMBER))
-        }
-        val payClaims = PayClaims(
-            Amount(
-                this.currency!!,
-                this.reservedPayment.toString()
-            ),
-            "Выплата по заказу ${this.firstName} ${this.lastName}",
-            Metadata(this.id),
-            PayoutDestinationData(this.bankCard, "yoo_money")
-        )
-        return try {
-            val json = Json.encodeToString(payClaims)
-            Result.success(json)
-        }
-        catch (e: IllegalArgumentException) {
-            Result.failure(e)
-        }
-        catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-}
-
-fun String.jsonToPaymentObjClass(
-    onSuccess: (PaymentObj) -> Unit,
-    onFailure: (Exception) -> Unit
-) {
-    try {
-        val paymentObj = Json.decodeFromString<PaymentObj>(this)
-        onSuccess.invoke(paymentObj)
-    } catch (e: Exception) {
-        onFailure.invoke(e)
-    }
 }

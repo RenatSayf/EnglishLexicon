@@ -3,9 +3,8 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.devtools.ksp'
-apply plugin: 'dagger.hilt.android.plugin' // Hint Hilt step 2
-apply plugin: "org.jetbrains.kotlin.plugin.serialization"
 
+apply plugin: 'dagger.hilt.android.plugin' // Hint Hilt step 2
 
 android {
     compileSdkVersion 34
@@ -27,15 +26,6 @@ android {
                         "room.expandProjection":"true"]
             }
         }
-
-        Properties properties = new Properties()
-        properties.load(project.rootProject.file('local.properties').newDataInputStream())
-
-        def yooApiKey = properties.getProperty('yoo_api_key')
-        resValue "string", "YOO_API_KEY", yooApiKey
-
-        def idempotenceKey = properties.getProperty('idempotence_key')
-        resValue("string", "IDEMPOTENCE_KEY", idempotenceKey)
     }
     buildTypes {
         debug {
@@ -58,18 +48,6 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
-    }
-    testOptions {
-        unitTests.returnDefaultValues = true
-    }
-    flavorDimensions "data_source"
-    productFlavors {
-        network {
-            buildConfigField 'String', 'DATA_SOURCE', '\"NETWORK\"'
-        }
-        localhost {
-            buildConfigField 'String', 'DATA_SOURCE', '\"LOCALHOST\"'
-        }
     }
     namespace 'com.myapp.lexicon'
 
@@ -175,10 +153,10 @@ dependencies {
     //Ktor
     implementation 'io.ktor:ktor-client-core:2.3.3'
     implementation 'io.ktor:ktor-client-cio:2.3.3'
-    implementation 'io.ktor:ktor-client-content-negotiation-jvm:2.3.3'
-    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.5.1'
-    testImplementation 'io.ktor:ktor-client-mock-jvm:2.3.3'
-    testImplementation 'org.jetbrains.kotlin:kotlin-test'
+
+    //Kotlin Serialization
+    implementation("io.ktor:ktor-client-content-negotiation:2.3.3")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.3")
 
 }
 
