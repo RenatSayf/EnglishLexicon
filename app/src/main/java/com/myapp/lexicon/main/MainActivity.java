@@ -506,13 +506,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    @Override
-    protected void onResume()
-    {
-        super.onResume();
-    }
-
-    private void buildRewardText(User user) {
+    public void buildRewardText(User user) {
         SettingsExtKt.getExchangeRateFromPref(
                 this,
                 () -> null,

@@ -25,6 +25,7 @@ import com.myapp.lexicon.helpers.LuhnAlgorithm
 import com.myapp.lexicon.helpers.setBackground
 import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.helpers.toStringDate
+import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.settings.getExchangeRateFromPref
@@ -342,12 +343,14 @@ class AccountFragment : Fragment() {
                 true
             }
             toolBar.setNavigationOnClickListener {
+                (requireActivity() as MainActivity).buildRewardText(userVM.user.value)
                 parentFragmentManager.popBackStack()
             }
         }
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
+                (requireActivity() as MainActivity).buildRewardText(userVM.user.value)
                 parentFragmentManager.popBackStack()
             }
         })
