@@ -1,5 +1,3 @@
-@file:Suppress("UNUSED_ANONYMOUS_PARAMETER")
-
 package com.myapp.lexicon.auth
 
 import android.app.Application
@@ -193,7 +191,7 @@ class AuthViewModel @Inject constructor(
                 _state.value = UserState.NotRegistered
                 _stateFlow.value = UserState.NotRegistered
             },
-            onSuccess = { id, email, password ->
+            onSuccess = { email, password ->
                 val currentUser = auth.currentUser
                 if (currentUser == null) {
                     signInWithEmailAndPassword(email, password)

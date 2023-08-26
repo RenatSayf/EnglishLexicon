@@ -21,6 +21,7 @@ import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.FragmentAccountBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
+import com.myapp.lexicon.helpers.LuhnAlgorithm
 import com.myapp.lexicon.helpers.setBackground
 import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.helpers.toStringDate
@@ -220,7 +221,8 @@ class AccountFragment : Fragment() {
                     }
 
                     val number = tvCardNumber.text.toString()
-                    if (number.length < 14) {
+                    val isValidNumber = LuhnAlgorithm.isLuhnChecksumValid(number)
+                    if (isValidNumber) {
                         accountVM.setState(AccountViewModel.State.OnValid(card = false))
                         return@setOnClickListener
                     }

@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageException
 import com.google.firebase.storage.StorageReference
@@ -35,7 +36,6 @@ val Fragment.appSettings: SharedPreferences
 
 fun Context.saveUserToPref(user: User) {
     appSettings.edit().apply {
-        putString("KEY_USER_ID", user.id)
         putString("KEY_EMAIL", user.email)
         putString("KEY_PASSWORD", user.password)
         putBoolean("KEY_IS_REGISTERED", true)
@@ -43,26 +43,27 @@ fun Context.saveUserToPref(user: User) {
 }
 
 fun Context.clearEmailPasswordInPref() {
-    appSettings.edit().putString("KEY_USER_ID", null).apply()
-    appSettings.edit().putString("KEY_EMAIL", null).apply()
-    appSettings.edit().putString("KEY_PASSWORD", null).apply()
-    appSettings.edit().putBoolean("KEY_IS_REGISTERED", false).apply()
+    appSettings.edit().apply {
+        putString("KEY_EMAIL", null).apply()
+        putString("KEY_PASSWORD", null).apply()
+        putBoolean("KEY_IS_REGISTERED", false).apply()
+    }.apply()
+
 }
 
 fun Context.getAuthDataFromPref(
     onNotRegistered: () -> Unit,
-    onSuccess: (id: String, email: String, password: String) -> Unit,
+    onSuccess: (email: String, password: String) -> Unit,
     onFailure: (Exception) -> Unit = {}
 ) {
-    val id = appSettings.getString("KEY_USER_ID", null)
     val email = appSettings.getString("KEY_EMAIL", null)
     val password = appSettings.getString("KEY_PASSWORD", null)
     try {
-        if (id == null || email == null || password == null) {
+        if (email == null || password == null) {
             onNotRegistered.invoke()
         }
-        else if (id.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
-            onSuccess.invoke(id, email, password)
+        else if (email.isNotEmpty() && password.isNotEmpty()) {
+            onSuccess.invoke(email, password)
         }
         else {
             onNotRegistered.invoke()
@@ -117,8 +118,12 @@ var Context.checkFirstLaunch: Boolean
 private const val KEY_CLOUD_TOKEN = "KEY_CLOUD_TOKEN_777"
 
 fun Context.saveCloudToken(token: String) {
-    val tokenCheckSum = token.getCRC32CheckSum().toString()
-    appSettings.edit().putString(KEY_CLOUD_TOKEN, tokenCheckSum).apply()
+    if (token.isNotEmpty()) {
+        val tokenCheckSum = token.getCRC32CheckSum().toString()
+        appSettings.edit().putString(KEY_CLOUD_TOKEN, tokenCheckSum).apply()
+    } else {
+        appSettings.edit().putString(KEY_CLOUD_TOKEN, "").apply()
+    }
 }
 
 interface PurchasesTokenListener {
@@ -147,12 +152,20 @@ fun Context.checkCloudToken(
         onNotRegistered = {
             onEmpty.invoke()
         },
-        onSuccess = { id, _, _ ->
+        onSuccess = { _, _ ->
             val token = appSettings.getString(KEY_CLOUD_TOKEN, null)
             try {
                 when {
                     token == null -> onInit.invoke()
-                    token.isNotEmpty() -> onExists.invoke(id)
+                    token.isNotEmpty() -> {
+                        val currentUser = FirebaseAuth.getInstance().currentUser
+                        if (currentUser != null) {
+                            onExists.invoke(currentUser.uid)
+                        }
+                        else {
+                            onEmpty.invoke()
+                        }
+                    }
                     token.isEmpty() -> onEmpty.invoke()
                 }
             } catch (e: Exception) {

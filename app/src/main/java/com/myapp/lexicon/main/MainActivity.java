@@ -24,6 +24,8 @@ import com.appodeal.ads.Appodeal;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
@@ -154,44 +156,42 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             });
         });
 
-        userVM.getState().observe(this, state -> {
-            if (state instanceof UserViewModel.State.Init) {
-                boolean isInitialized = Appodeal.isInitialized(Appodeal.INTERSTITIAL | Appodeal.REWARDED_VIDEO);
-                if (!isInitialized)
-                {
-                    AdsExtensionsKt.adsInitialize(
-                            this,
-                            Appodeal.INTERSTITIAL | Appodeal.REWARDED_VIDEO,
-                            () -> {
-                                AdsExtensionsKt.adRevenueInfo(this, revenueInfo -> {
-                                    double revenue = revenueInfo.getRevenue();
-                                    String currency = revenueInfo.getCurrency();
-                                    User user = userVM.getUser().getValue();
-                                    if (user != null)
-                                    {
-                                        user.setTotalRevenue(revenue);
-                                        user.setCurrency(currency);
-                                        userVM.updateUserRevenue(revenue, user);
-                                    }
-                                    return null;
-                                });
-                                return null;
-                            },
-                            apdInitializationErrors -> {
-                                if (BuildConfig.DEBUG)
-                                {
-                                    apdInitializationErrors.forEach(Throwable::printStackTrace);
-                                }
-                                return null;
+        boolean isInitialized = Appodeal.isInitialized(Appodeal.INTERSTITIAL | Appodeal.REWARDED_VIDEO);
+        if (!isInitialized)
+        {
+            AdsExtensionsKt.adsInitialize(
+                    this,
+                    Appodeal.INTERSTITIAL | Appodeal.REWARDED_VIDEO,
+                    () -> {
+                        AdsExtensionsKt.adRevenueInfo(this, revenueInfo -> {
+                            double revenue = revenueInfo.getRevenue();
+                            String currency = revenueInfo.getCurrency();
+                            User user = userVM.getUser().getValue();
+                            if (user != null)
+                            {
+                                user.setTotalRevenue(revenue);
+                                user.setCurrency(currency);
+                                userVM.updateUserRevenue(revenue, user);
                             }
-                    );
-                }
-            }
+                            return null;
+                        });
+                        return null;
+                    },
+                    apdInitializationErrors -> {
+                        if (BuildConfig.DEBUG)
+                        {
+                            apdInitializationErrors.forEach(Throwable::printStackTrace);
+                        }
+                        return null;
+                    }
+            );
+        }
+
+        userVM.getState().observe(this, state -> {
             if (state instanceof UserViewModel.State.ReceivedUserData) {
                 User user = ((UserViewModel.State.ReceivedUserData) state).getUser();
                 buildRewardText(user);
             }
-
         });
 
         userVM.collect(new FlowCallback()
@@ -202,6 +202,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if (result instanceof UserViewModel.State.RevenueUpdated)
                 {
                     User user = ((UserViewModel.State.RevenueUpdated) result).getUser();
+                    buildRewardText(user);
+                }
+                if (result instanceof UserViewModel.State.PersonalDataUpdated)
+                {
+                    User user = ((UserViewModel.State.PersonalDataUpdated) result).getUser();
                     buildRewardText(user);
                 }
             }
@@ -501,6 +506,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+    }
+
     private void buildRewardText(User user) {
         SettingsExtKt.getExchangeRateFromPref(
                 this,
@@ -715,9 +726,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         transaction.replace(R.id.frame_to_page_fragm, authFragment).addToBackStack(null).commit();
                         return null;
                     },
-                    (id, email, password) -> {
-                        AccountFragment accountFragment = AccountFragment.Companion.newInstance(id);
-                        transaction.replace(R.id.frame_to_page_fragm, accountFragment).addToBackStack(null).commit();
+                    (email, password) -> {
+                        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                        if (currentUser != null)
+                        {
+                            AccountFragment accountFragment = AccountFragment.Companion.newInstance(currentUser.getUid());
+                            transaction.replace(R.id.frame_to_page_fragm, accountFragment).addToBackStack(null).commit();
+                        } else
+                        {
+                            ExtensionsKt.showSnackBar(root, "Current user is null", Snackbar.LENGTH_LONG);
+                        }
                         return null;
                     },
                     error -> {

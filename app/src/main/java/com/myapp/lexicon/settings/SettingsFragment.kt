@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.*
+import com.google.firebase.auth.FirebaseAuth
 import com.myapp.lexicon.R
 import com.myapp.lexicon.billing.BillingViewModel
 import com.myapp.lexicon.cloudstorage.StorageDialog
@@ -82,7 +83,6 @@ class SettingsFragment : PreferenceFragmentCompat()
             override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean
             {
                 listDisplayModePref.isEnabled = (newValue as? Boolean)?: false
-                //listOnUnBlockingScreen.isEnabled = (newValue as? Boolean)?: false
 
                 if (newValue == true)
                 {
@@ -100,7 +100,6 @@ class SettingsFragment : PreferenceFragmentCompat()
                     if (showIntervalsPref.value == requireContext().resources.getStringArray(R.array.show_intervals)[0])
                     {
                         listDisplayModePref.isEnabled = false
-                        //listOnUnBlockingScreen.isEnabled = false
                     }
                 }
                 return true
@@ -124,7 +123,6 @@ class SettingsFragment : PreferenceFragmentCompat()
                 if (interval != 0)
                 {
                     serviceCheckBoxPref.isChecked = false
-                    //listOnUnBlockingScreen.isEnabled = true
                     listDisplayModePref.isEnabled = true
                     view?.let { redirectIfXiaomiDevice() }
                 }
@@ -134,7 +132,6 @@ class SettingsFragment : PreferenceFragmentCompat()
                     if (!serviceCheckBoxPref.isChecked)
                     {
                         listDisplayModePref.isEnabled = false
-                        //listOnUnBlockingScreen.isEnabled = false
                     }
                 }
                 return true
@@ -143,12 +140,10 @@ class SettingsFragment : PreferenceFragmentCompat()
 
         if (!serviceCheckBoxPref.isChecked && showIntervalsPref.value == requireContext().resources.getStringArray(R.array.show_intervals)[0])
         {
-            //listOnUnBlockingScreen.isEnabled = false
             listDisplayModePref.isEnabled = false
         }
     }
 
-    @Suppress("ObjectLiteralToLambda")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?)
     {
         super.onViewCreated(view, savedInstanceState)
@@ -156,26 +151,35 @@ class SettingsFragment : PreferenceFragmentCompat()
 
         val cloudStorageSwitch = findPreference<SwitchPreferenceCompat>(getString(R.string.KEY_CLOUD_STORAGE))
 
-        requireContext().checkCloudToken(
-            onInit = {
-                cloudStorageSwitch?.apply {
-                    isEnabled = true
-                    isChecked = false
-                }
-            },
-            onExists = {
-                cloudStorageSwitch?.apply {
-                    isEnabled = false
-                    isChecked = true
-                }
-            },
-            onEmpty = {
-                cloudStorageSwitch?.apply {
-                    isEnabled = true
-                    isChecked = false
-                }
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        if (currentUser == null) {
+            cloudStorageSwitch?.apply {
+                isChecked = false
+                isEnabled = false
             }
-        )
+        }
+        else {
+            requireContext().checkCloudToken(
+                onInit = {
+                    cloudStorageSwitch?.apply {
+                        isEnabled = true
+                        isChecked = false
+                    }
+                },
+                onExists = {
+                    cloudStorageSwitch?.apply {
+                        isEnabled = false
+                        isChecked = true
+                    }
+                },
+                onEmpty = {
+                    cloudStorageSwitch?.apply {
+                        isEnabled = true
+                        isChecked = false
+                    }
+                }
+            )
+        }
 
         findPreference<PreferenceCategory>("cloudStorageCategory")?.isEnabled = !requireContext().cloudStorageEnabled
         cloudStorageSwitch?.isChecked = requireContext().cloudStorageEnabled
@@ -218,6 +222,8 @@ class SettingsFragment : PreferenceFragmentCompat()
                                     switch.isChecked = false
                                 }
                             }).show(parentFragmentManager, StorageDialog.TAG)
+                        }?: run {
+                            cloudStorageSwitch.isChecked = false
                         }
                     }
                     return true

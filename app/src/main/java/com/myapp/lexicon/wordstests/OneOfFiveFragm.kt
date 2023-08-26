@@ -247,7 +247,7 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
                     mActivity.showInterstitial(adType = Appodeal.REWARDED_VIDEO or Appodeal.INTERSTITIAL)
                 },
                 onNotRegistered = {
-                    mActivity.showInterstitial(adType = Appodeal.INTERSTITIAL)
+                    mActivity.showInterstitial(adType = Appodeal.INTERSTITIAL or Appodeal.INTERSTITIAL)
                 }
             )
         }

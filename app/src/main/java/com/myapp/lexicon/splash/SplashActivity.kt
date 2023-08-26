@@ -50,7 +50,7 @@ class SplashActivity : AppCompatActivity() {
             onNotRegistered = {
                 authChecked = true
             },
-            onSuccess = { id, email, password ->
+            onSuccess = { email, password ->
                 authVM.signInWithEmailAndPassword(email, password)
             }
         )

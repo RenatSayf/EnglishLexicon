@@ -68,7 +68,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
             SettingsExtKt.getAuthDataFromPref(
                     this,
                     () -> null,
-                    (id, email, password) -> {
+                    (email, password) -> {
                         authVM.signInWithEmailAndPassword(email, password);
                         authVM.getState().observe(this, userState -> {
                             userState.onSignIn(

@@ -142,7 +142,11 @@ fun Activity.showInterstitial(
         }
     })
 
-    Appodeal.show(this, adType)
+    val canShowInterstitial = Appodeal.canShow(Appodeal.INTERSTITIAL)
+    if (adType == Appodeal.INTERSTITIAL && !canShowInterstitial) {
+        Appodeal.show(this, Appodeal.REWARDED_VIDEO)
+    }
+    else Appodeal.show(this, adType)
 }
 
 fun Fragment.showInterstitial(

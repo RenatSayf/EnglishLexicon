@@ -117,8 +117,8 @@ data class User(
         onNotEnough: () -> Unit = {}
     ) {
         if (this.defaultCurrencyReward > threshold) {
-            this.reservedPayment = this.defaultCurrencyReward.toInt()
-            this.defaultCurrencyReward -= this.reservedPayment
+            this.reservedPayment += this.defaultCurrencyReward.toInt()
+            this.defaultCurrencyReward -= this.defaultCurrencyReward.toInt()
             this.defaultCurrencyReward = BigDecimal(defaultCurrencyReward).setScale(2, RoundingMode.DOWN).toDouble()
 
             this.userReward = this.defaultCurrencyReward / currencyRate

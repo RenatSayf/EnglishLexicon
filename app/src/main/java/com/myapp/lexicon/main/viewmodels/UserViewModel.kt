@@ -242,7 +242,7 @@ class UserViewModel @Inject constructor(
                     ex.printStackTrace()
                 }
                 _state.value = State.Error(ex.message ?: "Unknown error")
-                _state.value = State.Error(ex.message ?: "Unknown error")
+                _stateFlow.value = State.Error(ex.message ?: "Unknown error")
             }
             .addOnCompleteListener {
                 _loadingState.value = LoadingState.Complete
