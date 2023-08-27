@@ -187,7 +187,7 @@ class SettingsFragment : PreferenceFragmentCompat()
         }
 
         billingVM.cloudStorageProduct.observe(viewLifecycleOwner) { res ->
-            if (res.isSuccess) {
+            if (res.isSuccess && currentUser != null) {
                 res.onSuccess { details ->
                     cloudStorageCategory?.isVisible = true
                     cloudStorageCategory?.isEnabled = !requireContext().cloudStorageEnabled
