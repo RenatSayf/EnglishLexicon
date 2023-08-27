@@ -134,6 +134,22 @@
                 android:layout_marginTop="24dp">
 
                 <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvMessage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="start"
+                    android:padding="4dp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    tools:text="Для получения награды без коммиссии банка, настройте Вашу карту для
+                    Системы Быстрых Платежей (СБП) в Вашем онлайн банке."
+                    android:textColor="@color/colorWhite"
+                    android:textSize="14sp"
+                    android:visibility="gone"
+                    tools:visibility="visible"
+                    />
+
+                <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tvEmailTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

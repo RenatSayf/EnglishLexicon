@@ -23,6 +23,7 @@ data class User(
         const val KEY_PHONE = "phone"
         const val KEY_BANK_CARD = "bank_card"
         const val KEY_PAYMENT_DATE = "payment_date"
+        const val KEY_MESSAGE = "message_to_user"
     }
 
     var email: String = ""
@@ -40,6 +41,8 @@ data class User(
     var currency: String? = "USD"
     var currencySymbol: String = ""
     var paymentDate: String = ""
+    var message: String = ""
+        private set
 
     private val userPercentage: Double by lazy {
         Firebase.remoteConfig.getDouble("USER_PERCENTAGE")
@@ -59,7 +62,8 @@ data class User(
             KEY_LAST_NAME to lastName,
             KEY_PHONE to phone,
             KEY_BANK_CARD to bankCard,
-            KEY_PAYMENT_DATE to paymentDate
+            KEY_PAYMENT_DATE to paymentDate,
+            KEY_MESSAGE to message
         )
     }
 
@@ -98,6 +102,7 @@ data class User(
             phone = map[KEY_PHONE]?: ""
             bankCard = map[KEY_BANK_CARD]?: ""
             paymentDate = map[KEY_PAYMENT_DATE]?: ""
+            message = map[KEY_MESSAGE]?: ""
         }
     }
 

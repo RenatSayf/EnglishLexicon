@@ -322,13 +322,23 @@ class AccountFragment : Fragment() {
                 }
             )
 
+            if (user.message.isNotEmpty()) {
+                tvMessage.apply {
+                    visibility = View.VISIBLE
+                    text = user.message
+                }
+            }
+            else {
+                tvMessage.apply {
+                    visibility = View.GONE
+                }
+            }
+
             tvEmailValue.text = user.email
             tvPhoneValue.setText(user.phone)
             tvCardNumber.setText(user.bankCard)
             tvFirstNameValue.setText(user.firstName)
             tvLastNameValue.setText(user.lastName)
-
-
         }
     }
 
