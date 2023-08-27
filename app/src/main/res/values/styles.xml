@@ -18,12 +18,6 @@
         <item name="android:windowSplashScreenAnimatedIcon" tools:targetApi="s">@android:color/transparent</item>
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
-
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light">
-        <item name="android:textColorSecondary">@color/colorWhite</item>
-    </style>
-
     <style name="AppToolbarStyle" parent="ThemeOverlay.AppCompat.Light">
         <item name="android:textColorSecondary">@color/colorWhite</item>
         <item name="android:editTextColor">@color/colorWhite</item>
@@ -44,26 +38,6 @@
     </style>
 
     <!--Hint overridden them for transparent activity-->
-    <style name="Theme.AppCompat.Translucent" parent="Theme.AppCompat.NoActionBar">
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:colorBackgroundCacheHint">@null</item>
-        <item name="android:windowIsTranslucent">true</item>
-    </style>
-
-    <style name="AppEditText" parent="ThemeOverlay.Material3.TextInputEditText">
-        <item name="android:textCursorDrawable">@color/colorWhite</item>
-        <item name="android:textColorHighlight">@color/color_CCC3C3</item>
-        <item name="android:textColorHint">@color/color_CCC3C3</item>
-<!--        <item name="colorControlNormal">@color/colorTransparent</item>-->
-<!--        <item name="colorControlActivated">@color/colorTransparent</item>-->
-<!--        <item name="colorControlHighlight">@color/colorTransparent</item>-->
-        <item name="backgroundTint">@color/colorTransparent</item>
-    </style>
-
-    <style name="appSpinnerItemStyle" parent="android:TextAppearance.Widget.DropDownItem">
-        <item name="android:textColor">@color/colorBlack</item>
-    </style>
 
     <style name="AppBottomDialog" parent="Theme.MaterialComponents.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/BottomSheetStyleWrapper</item>
