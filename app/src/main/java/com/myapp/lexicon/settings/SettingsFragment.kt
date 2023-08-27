@@ -1,4 +1,4 @@
-@file:Suppress("DEPRECATION")
+@file:Suppress("DEPRECATION", "ObjectLiteralToLambda")
 
 package com.myapp.lexicon.settings
 
@@ -149,10 +149,12 @@ class SettingsFragment : PreferenceFragmentCompat()
         super.onViewCreated(view, savedInstanceState)
         view.setBackgroundColor(resources.getColor(R.color.colorWhite))
 
+        val cloudStorageCategory = findPreference<PreferenceCategory>("cloudStorageCategory")
         val cloudStorageSwitch = findPreference<SwitchPreferenceCompat>(getString(R.string.KEY_CLOUD_STORAGE))
 
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser == null) {
+            cloudStorageCategory?.isVisible = false
             cloudStorageSwitch?.apply {
                 isChecked = false
                 isEnabled = false
@@ -167,12 +169,14 @@ class SettingsFragment : PreferenceFragmentCompat()
                     }
                 },
                 onExists = {
+                    cloudStorageCategory?.isVisible = true
                     cloudStorageSwitch?.apply {
                         isEnabled = false
                         isChecked = true
                     }
                 },
                 onEmpty = {
+                    cloudStorageCategory?.isVisible = true
                     cloudStorageSwitch?.apply {
                         isEnabled = true
                         isChecked = false
@@ -181,22 +185,22 @@ class SettingsFragment : PreferenceFragmentCompat()
             )
         }
 
-        findPreference<PreferenceCategory>("cloudStorageCategory")?.isEnabled = !requireContext().cloudStorageEnabled
-        cloudStorageSwitch?.isChecked = requireContext().cloudStorageEnabled
-        if (cloudStorageSwitch?.isChecked == true) {
-            cloudStorageSwitch.isEnabled = false
-            val title = cloudStorageSwitch.title
-            val newTitle = "$title (${getString(R.string.text_enabled)})"
-            cloudStorageSwitch.title = newTitle
-        }
-        cloudStorageSwitch?.let { switch ->
-            switch.onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener {
-                override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean {
+        val result = billingVM.cloudStorageProduct.value
+        result?.onSuccess { details ->
+            cloudStorageCategory?.isVisible = true
+            cloudStorageCategory?.isEnabled = !requireContext().cloudStorageEnabled
+            cloudStorageSwitch?.isChecked = requireContext().cloudStorageEnabled
+            if (cloudStorageSwitch?.isChecked == true) {
+                cloudStorageSwitch.isEnabled = false
+                val title = cloudStorageSwitch.title
+                val newTitle = "$title (${getString(R.string.text_enabled)})"
+                cloudStorageSwitch.title = newTitle
+            }
+            cloudStorageSwitch?.let { switch ->
+                switch.onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener {
+                    override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean {
 
-                    if (newValue == true) {
-
-                        val result = billingVM.cloudStorageProduct.value
-                        result?.onSuccess { details ->
+                        if (newValue == true) {
 
                             StorageDialog.newInstance(listener = object : StorageDialog.Listener {
                                 private val locker = LockOrientation(requireActivity())
@@ -222,17 +226,18 @@ class SettingsFragment : PreferenceFragmentCompat()
                                     switch.isChecked = false
                                 }
                             }).show(parentFragmentManager, StorageDialog.TAG)
-                        }?: run {
-                            cloudStorageSwitch.isChecked = false
                         }
+                        return true
                     }
-                    return true
                 }
             }
+        }?: run {
+            cloudStorageCategory?.isVisible = false
         }
 
-        billingVM.cloudStorageToken.observe(viewLifecycleOwner) { result ->
-            result.onSuccess { token ->
+
+        billingVM.cloudStorageToken.observe(viewLifecycleOwner) { res ->
+            res.onSuccess { token ->
                 when {
                     token.isNotEmpty() -> {
                         cloudStorageSwitch?.let { switch ->
@@ -255,8 +260,8 @@ class SettingsFragment : PreferenceFragmentCompat()
             }
         }
 
-        billingVM.wasCancelled.observe(viewLifecycleOwner) { result ->
-            result.onSuccess { details ->
+        billingVM.wasCancelled.observe(viewLifecycleOwner) { res ->
+            res.onSuccess { details ->
                 when(details.productId) {
                     getString(R.string.id_cloud_storage) -> {
                         cloudStorageSwitch?.isChecked = false
