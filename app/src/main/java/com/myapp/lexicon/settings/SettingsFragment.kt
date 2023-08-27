@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.*
 import com.google.firebase.auth.FirebaseAuth
+import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.billing.BillingViewModel
 import com.myapp.lexicon.cloudstorage.StorageDialog
@@ -185,56 +186,64 @@ class SettingsFragment : PreferenceFragmentCompat()
             )
         }
 
-        val result = billingVM.cloudStorageProduct.value
-        result?.onSuccess { details ->
-            cloudStorageCategory?.isVisible = true
-            cloudStorageCategory?.isEnabled = !requireContext().cloudStorageEnabled
-            cloudStorageSwitch?.isChecked = requireContext().cloudStorageEnabled
-            if (cloudStorageSwitch?.isChecked == true) {
-                cloudStorageSwitch.isEnabled = false
-                val title = cloudStorageSwitch.title
-                val newTitle = "$title (${getString(R.string.text_enabled)})"
-                cloudStorageSwitch.title = newTitle
-            }
-            cloudStorageSwitch?.let { switch ->
-                switch.onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener {
-                    override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean {
+        billingVM.cloudStorageProduct.observe(viewLifecycleOwner) { res ->
+            if (res.isSuccess) {
+                res.onSuccess { details ->
+                    cloudStorageCategory?.isVisible = true
+                    cloudStorageCategory?.isEnabled = !requireContext().cloudStorageEnabled
+                    cloudStorageSwitch?.isChecked = requireContext().cloudStorageEnabled
+                    if (cloudStorageSwitch?.isChecked == true) {
+                        cloudStorageSwitch.isEnabled = false
+                        val title = cloudStorageSwitch.title
+                        val newTitle = "$title (${getString(R.string.text_enabled)})"
+                        cloudStorageSwitch.title = newTitle
+                    }
+                    cloudStorageSwitch?.let { switch ->
+                        switch.onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener {
+                            override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean {
 
-                        if (newValue == true) {
+                                if (newValue == true) {
 
-                            StorageDialog.newInstance(listener = object : StorageDialog.Listener {
-                                private val locker = LockOrientation(requireActivity())
-                                override fun onLaunch(binding: DialogStorageBinding) {
-                                    locker.lock()
-                                    with(binding) {
-                                        tvProductName.text = details.name
-                                        tvPriceTitle.text = getString(R.string.text_price)
-                                        tvPriceValue.text =
-                                            details.oneTimePurchaseOfferDetails?.formattedPrice
-                                    }
+                                    StorageDialog.newInstance(listener = object : StorageDialog.Listener {
+                                        private val locker = LockOrientation(requireActivity())
+                                        override fun onLaunch(binding: DialogStorageBinding) {
+                                            locker.lock()
+                                            with(binding) {
+                                                tvProductName.text = details.name
+                                                tvPriceTitle.text = getString(R.string.text_price)
+                                                tvPriceValue.text =
+                                                    details.oneTimePurchaseOfferDetails?.formattedPrice
+                                            }
+                                        }
+
+                                        override fun onDestroy() {
+                                            locker.unLock()
+                                        }
+
+                                        override fun onPositiveClick() {
+                                            billingVM.purchaseProduct(requireActivity(), details)
+                                        }
+
+                                        override fun onCancelClick() {
+                                            switch.isChecked = false
+                                        }
+                                    }).show(parentFragmentManager, StorageDialog.TAG)
                                 }
-
-                                override fun onDestroy() {
-                                    locker.unLock()
-                                }
-
-                                override fun onPositiveClick() {
-                                    billingVM.purchaseProduct(requireActivity(), details)
-                                }
-
-                                override fun onCancelClick() {
-                                    switch.isChecked = false
-                                }
-                            }).show(parentFragmentManager, StorageDialog.TAG)
+                                return true
+                            }
                         }
-                        return true
                     }
                 }
             }
-        }?: run {
-            cloudStorageCategory?.isVisible = false
+            if (res.isFailure) {
+                res.onFailure { exception ->
+                    if (BuildConfig.DEBUG) {
+                        exception.printStackTrace()
+                    }
+                    cloudStorageCategory?.isVisible = false
+                }
+            }
         }
-
 
         billingVM.cloudStorageToken.observe(viewLifecycleOwner) { res ->
             res.onSuccess { token ->
