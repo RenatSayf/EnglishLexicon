@@ -22,7 +22,6 @@ data class User(
         const val KEY_LAST_NAME = "last_name"
         const val KEY_PHONE = "phone"
         const val KEY_BANK_CARD = "bank_card"
-        const val KEY_PAYMENT_REQUIRED = "payment_required"
         const val KEY_PAYMENT_DATE = "payment_date"
     }
 
@@ -40,7 +39,6 @@ data class User(
     var revenuePerAd: Double = 0.0
     var currency: String? = "USD"
     var currencySymbol: String = ""
-    var paymentRequired: Boolean = false
     var paymentDate: String = ""
 
     private val userPercentage: Double by lazy {
@@ -61,7 +59,6 @@ data class User(
             KEY_LAST_NAME to lastName,
             KEY_PHONE to phone,
             KEY_BANK_CARD to bankCard,
-            KEY_PAYMENT_REQUIRED to paymentRequired.toString(),
             KEY_PAYMENT_DATE to paymentDate
         )
     }
@@ -100,7 +97,6 @@ data class User(
             lastName = map[KEY_LAST_NAME]?: ""
             phone = map[KEY_PHONE]?: ""
             bankCard = map[KEY_BANK_CARD]?: ""
-            paymentRequired = map[KEY_PAYMENT_REQUIRED].toBoolean()
             paymentDate = map[KEY_PAYMENT_DATE]?: ""
         }
     }

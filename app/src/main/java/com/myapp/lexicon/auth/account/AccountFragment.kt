@@ -260,7 +260,7 @@ class AccountFragment : Fragment() {
                         bankCard = tvCardNumber.text.toString()
                         firstName = tvFirstNameValue.text.toString()
                         lastName = tvLastNameValue.text.toString()
-                        paymentRequired = true
+                        //paymentRequired = true
                         paymentDate = System.currentTimeMillis().toStringDate()
                     }
                     requireContext().getExchangeRateFromPref(
