@@ -71,13 +71,17 @@ fun Activity.adsInitialize(
                         }
                     }
                 }?: run {
-                    if (BuildConfig.DEBUG) {
+                    if (!BuildConfig.DEBUG) {
                         Appodeal.setTesting(true)
                         Appodeal.setLogLevel(Log.LogLevel.debug)
                     }
                     else {
-                        Appodeal.setTesting(false)
-                        Appodeal.setLogLevel(Log.LogLevel.none)
+                        Appodeal.apply {
+                            setAutoCache(INTERSTITIAL, false)
+                            setAutoCache(REWARDED_VIDEO, false)
+                            setTesting(false)
+                            setLogLevel(Log.LogLevel.debug)
+                        }
                     }
                     onSuccess.invoke()
                 }

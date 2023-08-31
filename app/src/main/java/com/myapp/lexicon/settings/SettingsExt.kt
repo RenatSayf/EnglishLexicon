@@ -438,6 +438,12 @@ fun Context.getNotificationMode(
     }
 }
 
+fun Context.checkPassiveModeEnabled(): Boolean {
+    val interval = appSettings.getString(getString(R.string.key_show_intervals), "10")
+    val isUnlockedScreen = appSettings.getBoolean(getString(R.string.key_service), false)
+    return interval != "0" || isUnlockedScreen
+}
+
 
 
 

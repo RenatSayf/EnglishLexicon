@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -55,6 +56,7 @@ import com.myapp.lexicon.models.currency.Currency;
 import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.service.PhoneUnlockedReceiver;
 import com.myapp.lexicon.settings.ContainerFragment;
+import com.myapp.lexicon.settings.PowerSettingsExtKt;
 import com.myapp.lexicon.settings.SettingsExtKt;
 import com.myapp.lexicon.viewmodels.CurrencyViewModel;
 import com.myapp.lexicon.wordeditor.WordEditorActivity;
@@ -705,6 +707,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             });
 
 
+    /** @noinspection deprecation*/
     @SuppressWarnings("Convert2Lambda")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item)
@@ -805,7 +808,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         else if (itemId == R.id.nav_exit)
         {
             onAppFinish();
-            finish();
+            boolean passiveModeEnabled = SettingsExtKt.checkPassiveModeEnabled(this);
+            if (passiveModeEnabled) {
+                PowerSettingsExtKt.checkBatterySettings(
+                        this,
+                        () -> {
+                            Intent intent = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+                            intent.putExtra(PowerSettingsExtKt.KEY_BATTERY_SETTINGS, PowerSettingsExtKt.BATTERY_SETTINGS);
+                            startActivityForResult(intent, PowerSettingsExtKt.BATTERY_SETTINGS);
+                            return null;
+                        },
+                        () -> {
+                            finish();
+                            return null;
+                        }
+                );
+            }
+            else {
+                finish();
+            }
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -814,6 +835,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             drawer.closeDrawer(GravityCompat.START);
         }
         return true;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PowerSettingsExtKt.BATTERY_SETTINGS)
+        {
+            finish();
+        }
     }
 
     public void testIntervalOnChange(int value)
