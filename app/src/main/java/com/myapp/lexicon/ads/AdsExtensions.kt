@@ -80,7 +80,7 @@ fun Activity.adsInitialize(
                             setAutoCache(INTERSTITIAL, false)
                             setAutoCache(REWARDED_VIDEO, false)
                             setTesting(false)
-                            setLogLevel(Log.LogLevel.debug)
+                            setLogLevel(Log.LogLevel.none)
                         }
                     }
                     onSuccess.invoke()
