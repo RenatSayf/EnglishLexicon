@@ -50,10 +50,6 @@ android {
         checkReleaseBuilds false
     }
     namespace 'com.myapp.lexicon'
-    lint {
-        abortOnError false
-        checkReleaseBuilds false
-    }
 
 }
 
