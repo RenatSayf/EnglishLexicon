@@ -77,8 +77,6 @@ fun Activity.adsInitialize(
                     }
                     else {
                         Appodeal.apply {
-                            setAutoCache(INTERSTITIAL, false)
-                            setAutoCache(REWARDED_VIDEO, false)
                             setTesting(false)
                             setLogLevel(Log.LogLevel.none)
                         }
