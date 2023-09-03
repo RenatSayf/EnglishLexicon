@@ -141,7 +141,7 @@ class CurrencyViewModel @Inject constructor(
 
         if (currencyCode == Currencies.USD.name) {
             _currency.value = AppResult.Success(Currency(
-                0L.toStringDate(),
+                System.currentTimeMillis().toStringDate(),
                 name = Currencies.USD.name,
                 rate = 1.0
             ))

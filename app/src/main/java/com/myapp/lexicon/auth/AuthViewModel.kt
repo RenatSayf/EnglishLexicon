@@ -17,6 +17,7 @@ import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserState
+import com.myapp.lexicon.models.currency.Currencies
 import com.myapp.lexicon.settings.getAuthDataFromPref
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -65,8 +66,13 @@ class AuthViewModel @Inject constructor(
                     this.email = email
                     this.password = password
                     val currency = Currency.getInstance(Locale.getDefault())
-                    this.currency = currency.currencyCode
-                    this.currencySymbol = currency.symbol
+                    if (currency.currencyCode == Currencies.RUB.name) {
+                        this.currency = currency.currencyCode
+                        this.currencySymbol = currency.symbol
+                    } else {
+                        this.currency = Currencies.USD.name
+                        this.currencySymbol = "$"
+                    }
                 }
                 _state.value = UserState.SignUp(user)
                 _stateFlow.value = UserState.SignUp(user)

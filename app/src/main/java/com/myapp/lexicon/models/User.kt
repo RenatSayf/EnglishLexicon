@@ -2,6 +2,7 @@ package com.myapp.lexicon.models
 
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
+import com.myapp.lexicon.helpers.toStringTime
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -24,6 +25,7 @@ data class User(
         const val KEY_BANK_CARD = "bank_card"
         const val KEY_PAYMENT_DATE = "payment_date"
         const val KEY_MESSAGE = "message_to_user"
+        const val KEY_LAST_UPDATE_TIME = "last_update_time"
     }
 
     var email: String = ""
@@ -41,6 +43,7 @@ data class User(
     var currency: String? = "USD"
     var currencySymbol: String = ""
     var paymentDate: String = ""
+    var lastUpdateTime: String = ""
     var message: String = ""
         private set
 
@@ -63,7 +66,8 @@ data class User(
             KEY_PHONE to phone,
             KEY_BANK_CARD to bankCard,
             KEY_PAYMENT_DATE to paymentDate,
-            KEY_MESSAGE to message
+            KEY_MESSAGE to message,
+            KEY_LAST_UPDATE_TIME to System.currentTimeMillis().toStringTime()
         )
     }
 
@@ -103,6 +107,7 @@ data class User(
             bankCard = map[KEY_BANK_CARD]?: ""
             paymentDate = map[KEY_PAYMENT_DATE]?: ""
             message = map[KEY_MESSAGE]?: ""
+            lastUpdateTime = map[KEY_LAST_UPDATE_TIME]?: ""
         }
     }
 

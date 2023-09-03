@@ -3,7 +3,6 @@
 package com.myapp.lexicon.main.viewmodels
 
 import android.app.Application
-import android.icu.util.Currency
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -14,6 +13,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
+import com.myapp.lexicon.helpers.toStringTime
 import com.myapp.lexicon.interfaces.FlowCallback
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.settings.getExchangeRateFromPref
@@ -23,9 +23,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import java.math.BigDecimal
-import java.math.RoundingMode
-import java.util.Locale
 import javax.inject.Inject
 
 
@@ -185,7 +182,11 @@ class UserViewModel @Inject constructor(
                             User.KEY_REALLY_REVENUE to user.reallyRevenue.toString(),
                             User.KEY_USER_REWARD to user.userReward.toString(),
                             User.KEY_TOTAL_REVENUE to user.totalRevenue.toString(),
-                            User.KEY_DEFAULT_CURRENCY_REWARD to user.defaultCurrencyReward.toString()
+                            User.KEY_DEFAULT_CURRENCY_REWARD to user.defaultCurrencyReward.toString(),
+                            User.KEY_RESERVED_PAYMENT to user.reservedPayment.toString(),
+                            User.KEY_CURRENCY to user.currency,
+                            User.KEY_CURRENCY_SYMBOL to user.currencySymbol,
+                            User.KEY_LAST_UPDATE_TIME to System.currentTimeMillis().toStringTime()
                         )
                         db.collection(COLLECTION_PATH)
                             .document(user.id)
