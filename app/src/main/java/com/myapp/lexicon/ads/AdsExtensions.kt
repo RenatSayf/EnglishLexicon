@@ -71,7 +71,7 @@ fun Activity.adsInitialize(
                         }
                     }
                 }?: run {
-                    if (!BuildConfig.DEBUG) { //TODO !!!!!!!!!!!!!!!!!!!!!!!!
+                    if (BuildConfig.DEBUG) {
                         Appodeal.setTesting(true)
                         Appodeal.setLogLevel(Log.LogLevel.debug)
                     }
