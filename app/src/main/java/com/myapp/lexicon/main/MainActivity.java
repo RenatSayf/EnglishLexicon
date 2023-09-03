@@ -808,25 +808,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         else if (itemId == R.id.nav_exit)
         {
             onAppFinish();
-            boolean passiveModeEnabled = SettingsExtKt.checkPassiveModeEnabled(this);
-            if (passiveModeEnabled) {
-                PowerSettingsExtKt.checkBatterySettings(
-                        this,
-                        () -> {
-                            Intent intent = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
-                            intent.putExtra(PowerSettingsExtKt.KEY_BATTERY_SETTINGS, PowerSettingsExtKt.BATTERY_SETTINGS);
-                            startActivityForResult(intent, PowerSettingsExtKt.BATTERY_SETTINGS);
-                            return null;
-                        },
-                        () -> {
-                            finish();
-                            return null;
-                        }
-                );
-            }
-            else {
-                finish();
-            }
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -1070,6 +1051,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     () -> null,
                     () -> null
             );
+        }
+
+        boolean passiveModeEnabled = SettingsExtKt.checkPassiveModeEnabled(this);
+        if (passiveModeEnabled) {
+            PowerSettingsExtKt.checkBatterySettings(
+                    this,
+                    () -> {
+                        Intent intent = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+                        intent.putExtra(PowerSettingsExtKt.KEY_BATTERY_SETTINGS, PowerSettingsExtKt.BATTERY_SETTINGS);
+                        startActivityForResult(intent, PowerSettingsExtKt.BATTERY_SETTINGS);
+                        return null;
+                    },
+                    () -> {
+                        finish();
+                        return null;
+                    }
+            );
+        }
+        else {
+            finish();
         }
     }
 

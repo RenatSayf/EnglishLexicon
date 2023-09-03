@@ -108,7 +108,6 @@ public class BackgroundFragm extends Fragment
             {
                 MainActivity mainActivity = (MainActivity) requireActivity();
                 mainActivity.onAppFinish();
-                requireActivity().finish();
             }
         });
     }

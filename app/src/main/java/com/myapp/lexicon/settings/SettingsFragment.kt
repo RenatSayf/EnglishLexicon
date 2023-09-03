@@ -6,8 +6,10 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.*
@@ -91,10 +93,10 @@ class SettingsFragment : PreferenceFragmentCompat()
                         value = requireContext().resources.getStringArray(R.array.show_intervals_values)[0]
                         summary = requireContext().resources.getStringArray(R.array.show_intervals)[0]
                     }
-                    if (ContextCompat.checkSelfPermission(requireContext(), "") != PackageManager.PERMISSION_GRANTED)
-                    {
-                        view?.let { redirectIfXiaomiDevice() }
-                    }
+//                    if (ContextCompat.checkSelfPermission(requireContext(), "") != PackageManager.PERMISSION_GRANTED)
+//                    {
+//                        view?.let { redirectIfXiaomiDevice() }
+//                    }
                 }
                 else if (newValue == null)
                 {
@@ -105,7 +107,6 @@ class SettingsFragment : PreferenceFragmentCompat()
                 }
                 return true
             }
-
         }
 
         showIntervalsPref = findPreference(requireContext().getString(R.string.key_show_intervals))!!
@@ -125,7 +126,15 @@ class SettingsFragment : PreferenceFragmentCompat()
                 {
                     serviceCheckBoxPref.isChecked = false
                     listDisplayModePref.isEnabled = true
-                    view?.let { redirectIfXiaomiDevice() }
+                    //view?.let { redirectIfXiaomiDevice() }
+
+                    (requireActivity() as AppCompatActivity).checkBatterySettings(
+                        onGoToSettings = {
+                            val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+                            startActivity(intent)
+                        },
+                        onFinish = {}
+                    )
                 }
                 else
                 {
