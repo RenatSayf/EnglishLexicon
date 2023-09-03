@@ -13,6 +13,7 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.toLongDate
 import com.myapp.lexicon.helpers.toStringDate
+import com.myapp.lexicon.models.currency.Currencies
 import com.myapp.lexicon.models.currency.Currency
 import com.myapp.lexicon.settings.askForPermission
 import com.myapp.lexicon.settings.saveExchangeRateToPref
@@ -89,9 +90,15 @@ class MainFragment : Fragment() {
                     currencyVM.getExchangeRateFromApi(
                         onSuccess = { rate ->
                             val date = System.currentTimeMillis().toStringDate()
-                            currencyVM.saveExchangeRateToCloud(
-                                currency = Currency(date, currency.name, rate)
-                            )
+                            if (rate != 1.0) {
+                                currencyVM.saveExchangeRateToCloud(
+                                    currency = Currency(date, currency.name, rate)
+                                )
+                            } else {
+                                currencyVM.saveExchangeRateToCloud(
+                                    currency = Currency(date, Currencies.USD.name, 1.0)
+                                )
+                            }
                         },
                         onFailure = {}
                     )

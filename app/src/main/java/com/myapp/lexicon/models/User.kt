@@ -109,6 +109,8 @@ data class User(
     fun convertToDefaultCurrency(rate: Double) {
         val defaultReward = BigDecimal(this.userReward * rate).setScale(2, RoundingMode.DOWN).toDouble()
         this.defaultCurrencyReward = defaultReward
+        val reserved = BigDecimal(this.reservedPayment * rate).setScale(2, RoundingMode.DOWN).toInt()
+        this.reservedPayment = reserved
     }
 
     fun reservePayment(

@@ -56,7 +56,7 @@ class CurrencyViewModel @Inject constructor(
     ) {
         val currency = android.icu.util.Currency.getInstance(locale)
         when(currency.currencyCode) {
-            "USD" -> {
+            Currencies.USD.name -> {
                 onSuccess.invoke(1.0)
             }
             else -> {
@@ -98,6 +98,9 @@ class CurrencyViewModel @Inject constructor(
                         else {
                             onFailure.invoke(Exception())
                         }
+                    }
+                    422 -> {
+                        onSuccess.invoke(1.0)
                     }
                     else -> {
                         onFailure.invoke(Exception(responseText))

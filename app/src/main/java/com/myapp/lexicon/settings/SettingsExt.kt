@@ -20,6 +20,7 @@ import com.myapp.lexicon.helpers.getCRC32CheckSum
 import com.myapp.lexicon.models.TestState
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.Word
+import com.myapp.lexicon.models.currency.Currencies
 import com.myapp.lexicon.models.currency.Currency
 import com.myapp.lexicon.models.toWord
 import java.util.Locale
@@ -374,7 +375,12 @@ fun Context.saveExchangeRateToPref(currency: Currency) {
     appSettings.edit().putString("KEY_EXCHANGE_DATE", currency.date).apply()
     appSettings.edit().putFloat("KEY_EXCHANGE_RATE", currency.rate.toFloat()).apply()
     val instance = android.icu.util.Currency.getInstance(Locale.getDefault())
-    val symbol = instance.symbol
+    val symbol = if (instance.currencyCode == Currencies.RUB.name) {
+        instance.symbol
+    }
+    else {
+        "$"
+    }
     appSettings.edit().putString("KEY_CURRENCY_SYMBOL", symbol).apply()
 }
 
