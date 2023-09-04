@@ -56,6 +56,16 @@ fun Activity.adsInitialize(
     onSuccess: () -> Unit = {},
     onFailed: (List<ApdInitializationError>) -> Unit = {}
 ) {
+    if (BuildConfig.DEBUG) {
+        Appodeal.setTesting(true)
+        Appodeal.setLogLevel(Log.LogLevel.debug)
+    }
+    else {
+        Appodeal.apply {
+            setTesting(false)
+            setLogLevel(Log.LogLevel.verbose)
+        }
+    }
     Appodeal.initialize(
         context = this,
         appKey = this.getString(R.string.appodeal_app_key),
@@ -70,16 +80,6 @@ fun Activity.adsInitialize(
                         }
                     }
                 }?: run {
-                    if (BuildConfig.DEBUG) {
-                        Appodeal.setTesting(true)
-                        Appodeal.setLogLevel(Log.LogLevel.debug)
-                    }
-                    else {
-                        Appodeal.apply {
-                            setTesting(false)
-                            setLogLevel(Log.LogLevel.none)
-                        }
-                    }
                     onSuccess.invoke()
                 }
             }
