@@ -26,8 +26,11 @@ import com.myapp.lexicon.helpers.toStringDate
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.User
+import com.myapp.lexicon.models.convertToLocaleCurrency
 import com.myapp.lexicon.settings.getExchangeRateFromPref
 import kotlinx.coroutines.launch
+import java.math.BigDecimal
+import java.math.RoundingMode
 
 class AccountFragment : Fragment() {
 
@@ -260,23 +263,17 @@ class AccountFragment : Fragment() {
                         bankCard = tvCardNumber.text.toString()
                         firstName = tvFirstNameValue.text.toString()
                         lastName = tvLastNameValue.text.toString()
-                        //paymentRequired = true
                         paymentDate = System.currentTimeMillis().toStringDate()
                     }
-                    requireContext().getExchangeRateFromPref(
-                        onInit = {},
-                        onSuccess = {date, symbol, rate ->
-                            user.reservePayment(
-                                threshold = paymentThreshold,
-                                currencyRate = rate,
-                                onReserve = { u ->
-                                    userVM.updatePersonalData(u)
-                                    showConfirmDialog()
-                                },
-                                onNotEnough = {
-                                    showSnackBar(getString(R.string.text_not_money))
-                                }
-                            )
+                    user.reservePayment(
+                        threshold = paymentThreshold,
+                        currencyRate = 1.0,
+                        onReserve = { u ->
+                            userVM.updatePersonalData(u)
+                            showConfirmDialog()
+                        },
+                        onNotEnough = {
+                            showSnackBar(getString(R.string.text_not_money))
                         }
                     )
                 }
@@ -291,16 +288,18 @@ class AccountFragment : Fragment() {
             requireContext().getExchangeRateFromPref(
                 onInit = {},
                 onSuccess = { date, symbol, rate ->
-                    var rewardToDisplay = "${user.defaultCurrencyReward} $symbol"
+
+                    val roundingReward = user.userReward.convertToLocaleCurrency(rate)
+                    var rewardToDisplay = "$roundingReward $symbol"
                     tvRewardValue.text = rewardToDisplay
 
                     if (user.reservedPayment > 0) {
                         tvReservedTitle.visibility = View.VISIBLE
                         tvReservedValue.visibility = View.VISIBLE
-                        val paymentToDisplay = "${user.reservedPayment} $symbol"
+                        val paymentToDisplay = "${user.reservedPayment.convertToLocaleCurrency(rate)} $symbol"
                         tvReservedValue.text = paymentToDisplay
 
-                        rewardToDisplay = "${user.defaultCurrencyReward} $symbol"
+                        rewardToDisplay = "${user.userReward.convertToLocaleCurrency(rate)} $symbol"
                         tvRewardValue.text = rewardToDisplay
                     }
                     else {
@@ -311,7 +310,7 @@ class AccountFragment : Fragment() {
                     val rewardThreshold = (paymentThreshold * rate).toInt()
                     val textCondition = "${getString(R.string.text_reward_conditions)} $rewardThreshold $symbol"
                     tvRewardCondition.text = textCondition
-                    btnGetReward.isEnabled = user.defaultCurrencyReward > rewardThreshold
+                    btnGetReward.isEnabled = (user.userReward * rate) > rewardThreshold
                     if (user.userReward > rewardThreshold) {
                         tvRewardCondition.visibility = View.GONE
                     }

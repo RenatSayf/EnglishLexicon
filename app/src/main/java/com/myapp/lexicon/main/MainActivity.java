@@ -51,9 +51,9 @@ import com.myapp.lexicon.helpers.Share;
 import com.myapp.lexicon.interfaces.FlowCallback;
 import com.myapp.lexicon.main.viewmodels.UserViewModel;
 import com.myapp.lexicon.models.User;
+import com.myapp.lexicon.models.UserKt;
 import com.myapp.lexicon.models.UserState;
 import com.myapp.lexicon.models.Word;
-import com.myapp.lexicon.models.currency.Currencies;
 import com.myapp.lexicon.models.currency.Currency;
 import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.service.PhoneUnlockedReceiver;
@@ -70,7 +70,6 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -516,7 +515,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 this,
                 () -> null,
                 (date, symbol, rate) -> {
-                    double rewardToDisplay = user.getDefaultCurrencyReward();
+                    double rewardToDisplay = UserKt.convertToLocaleCurrency(user.getUserReward(), rate);
                     TextView tvReward = root.findViewById(R.id.tvReward);
                     String text = getString(R.string.text_your_reward).concat(" ").concat(String.valueOf(rewardToDisplay)).concat(" ").concat(symbol);
                     tvReward.setText(text);
@@ -1131,16 +1130,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 result.onSuccess(o -> {
                     if (o instanceof Currency currency) {
                         SettingsExtKt.saveExchangeRateToPref(this, currency);
-                        java.util.Currency localeCurrency = java.util.Currency.getInstance(Locale.getDefault());
-                        if (Objects.equals(localeCurrency.getCurrencyCode(), Currencies.RUB.name())) {
-                            user.setCurrency(localeCurrency.getCurrencyCode());
-                            user.setCurrencySymbol(localeCurrency.getSymbol());
-                        }
-                        else {
-                            user.setCurrency(Currencies.USD.name());
-                            user.setCurrencySymbol("$");
-                        }
-                        userVM.updateUserRevenue(0.0, user);
                     }
                     return null;
                 });

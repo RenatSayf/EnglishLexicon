@@ -170,12 +170,12 @@ class UserViewModel @Inject constructor(
                     user.reallyRevenue = calculateReallyRevenue(revenuePerAd, remoteUserData)
                     user.userReward = calculateUserReward(revenuePerAd, remoteUserData)
                     user.totalRevenue = calculateTotalRevenue(revenuePerAd, remoteUserData)
-                    app.getExchangeRateFromPref(
-                        onInit = {},
-                        onSuccess = { date, symbol, rate ->
-                            user.convertToDefaultCurrency(rate)
-                        }
-                    )
+//                    app.getExchangeRateFromPref(
+//                        onInit = {},
+//                        onSuccess = { date, symbol, rate ->
+//                            user.convertToDefaultCurrency(rate)
+//                        }
+//                    )
                     if (user.reallyRevenue > -1 && user.userReward > -1) {
 
                         val revenueMap = mapOf(
@@ -250,18 +250,6 @@ class UserViewModel @Inject constructor(
             }
     }
 
-    fun payTheReward(user: User) {
-        _loadingState.value = LoadingState.Start
-        app.getExchangeRateFromPref(
-            onInit = {},
-            onSuccess = { date, symbol, rate ->
-
-            },
-            onFailure = {ex ->
-                _state.value = State.Error(ex.message?: "Unknown error")
-            }
-        )
-    }
     fun calculateReallyRevenue(revenuePerAd: Double, remoteUserData: Map<String, String?>): Double {
         val currentRevenue = try {
             remoteUserData[User.KEY_REALLY_REVENUE]?.ifEmpty {

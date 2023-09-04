@@ -23,6 +23,8 @@ import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.currency.Currencies
 import com.myapp.lexicon.models.currency.Currency
 import com.myapp.lexicon.models.toWord
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.util.Locale
 
 val Context.appSettings: SharedPreferences
@@ -398,7 +400,7 @@ fun Context.getExchangeRateFromPref(
             return
         }
         else if (rate > 0) {
-            onSuccess.invoke(date, symbol, rate)
+            onSuccess.invoke(date, symbol, BigDecimal(rate).setScale(2, RoundingMode.DOWN).toDouble())
         }
     } catch (e: Exception) {
         e.printStackTrace()

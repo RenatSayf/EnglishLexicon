@@ -19,6 +19,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.BufferedInputStream
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.Locale
@@ -119,7 +121,7 @@ class CurrencyViewModel @Inject constructor(
     fun parsingCurrencyApiResult(json: String, currency: String): Currency? {
         return try {
             val jsonData = JSONObject(json).getJSONObject("data")
-            val value = jsonData.getDouble(currency)
+            val value = BigDecimal(jsonData.getDouble(currency)).setScale(2, RoundingMode.DOWN).toDouble()
             when(currency) {
                 Currencies.RUB.name -> {
                     Currency(System.currentTimeMillis().toStringDate(), currency, value)

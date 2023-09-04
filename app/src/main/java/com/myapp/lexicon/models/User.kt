@@ -37,8 +37,11 @@ data class User(
     var totalRevenue: Double = 0.0
     var reallyRevenue: Double = 0.0
     var userReward: Double = 0.0
+        get() = BigDecimal(field).setScale(2, RoundingMode.DOWN).toDouble()
     var defaultCurrencyReward: Double = 0.0
-    var reservedPayment: Int = 0
+    var reservedPayment: Double = 0.0
+        get() = BigDecimal(field).setScale(2, RoundingMode.DOWN).toDouble()
+        private set
     var revenuePerAd: Double = 0.0
     var currency: String? = "USD"
     var currencySymbol: String = ""
@@ -95,9 +98,9 @@ data class User(
                 0.0
             }
             reservedPayment = try {
-                map[KEY_RESERVED_PAYMENT]?.toInt()?: 0
+                map[KEY_RESERVED_PAYMENT]?.toDouble()?: 0.0
             } catch (e: NumberFormatException) {
-                0
+                0.0
             }
             currency = map[KEY_CURRENCY]
             currencySymbol = map[KEY_CURRENCY_SYMBOL]?: ""
@@ -111,27 +114,17 @@ data class User(
         }
     }
 
-    fun convertToDefaultCurrency(rate: Double) {
-        val defaultReward = BigDecimal(this.userReward * rate).setScale(2, RoundingMode.DOWN).toDouble()
-        this.defaultCurrencyReward = defaultReward
-        val reserved = BigDecimal(this.reservedPayment * rate).setScale(2, RoundingMode.DOWN).toInt()
-        this.reservedPayment = reserved
-    }
-
     fun reservePayment(
         threshold: Double,
         currencyRate: Double,
         onReserve: (user: User) -> Unit,
         onNotEnough: () -> Unit = {}
     ) {
-        if (this.defaultCurrencyReward > threshold) {
-            this.reservedPayment += this.defaultCurrencyReward.toInt()
-            this.defaultCurrencyReward -= this.defaultCurrencyReward.toInt()
-            this.defaultCurrencyReward = BigDecimal(defaultCurrencyReward).setScale(2, RoundingMode.DOWN).toDouble()
-
-            this.userReward = this.defaultCurrencyReward / currencyRate
-            this.totalRevenue = this.userReward / userPercentage
-
+        if (this.userReward > threshold) {
+            this.reservedPayment += this.userReward
+            this.userReward = 0.0
+            this.totalRevenue = 0.0
+            this.reallyRevenue = 0.0
             onReserve.invoke(this)
         }
         else {
@@ -139,4 +132,8 @@ data class User(
         }
     }
 
+}
+
+fun Double.convertToLocaleCurrency(rate: Double): Double {
+    return BigDecimal(this * rate).setScale(2, RoundingMode.DOWN).toDouble()
 }
