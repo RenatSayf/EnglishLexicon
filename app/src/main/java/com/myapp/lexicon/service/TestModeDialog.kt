@@ -30,6 +30,7 @@ import com.myapp.lexicon.main.viewmodels.UserViewModel.State.ReceivedUserData
 import com.myapp.lexicon.main.viewmodels.UserViewModel.State.RevenueUpdated
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.Word
+import com.myapp.lexicon.models.convertToLocaleCurrency
 import com.myapp.lexicon.models.toWordList
 import com.myapp.lexicon.settings.AppSettings
 import com.myapp.lexicon.settings.disablePassiveWordsRepeat
@@ -208,10 +209,11 @@ class TestModeDialog : DialogFragment() {
     }
 
     private fun buildRewardText(user: User) {
-        val userReward = BigDecimal.valueOf(user.defaultCurrencyReward).setScale(2, RoundingMode.DOWN)
+
         requireContext().getExchangeRateFromPref(
             onInit = {},
-            onSuccess = { date: String?, symbol: String, rate: Double? ->
+            onSuccess = { date: String?, symbol: String, rate: Double ->
+                val userReward = user.userReward.convertToLocaleCurrency(rate)
                 val text = "${getString(R.string.coins_bag)} $userReward $symbol"
                 binding.tvReward.text = text
             },
