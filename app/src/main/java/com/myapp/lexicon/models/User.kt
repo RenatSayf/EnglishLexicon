@@ -1,7 +1,5 @@
 package com.myapp.lexicon.models
 
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.helpers.toStringTime
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -37,7 +35,6 @@ data class User(
     var totalRevenue: Double = 0.0
     var reallyRevenue: Double = 0.0
     var userReward: Double = 0.0
-        get() = BigDecimal(field).setScale(2, RoundingMode.DOWN).toDouble()
     var defaultCurrencyReward: Double = 0.0
     var reservedPayment: Double = 0.0
         get() = BigDecimal(field).setScale(2, RoundingMode.DOWN).toDouble()
@@ -46,13 +43,9 @@ data class User(
     var currency: String? = "USD"
     var currencySymbol: String = ""
     var paymentDate: String = ""
-    var lastUpdateTime: String = ""
+    private var lastUpdateTime: String = ""
     var message: String = ""
         private set
-
-    private val userPercentage: Double by lazy {
-        Firebase.remoteConfig.getDouble("USER_PERCENTAGE")
-    }
 
     fun toHashMap(): Map<String, String?> {
         return mapOf(
@@ -115,10 +108,9 @@ data class User(
     }
 
     fun reservePayment(
-        threshold: Double,
-        currencyRate: Double,
-        onReserve: (user: User) -> Unit,
-        onNotEnough: () -> Unit = {}
+            threshold: Double,
+            onReserve: (user: User) -> Unit,
+            onNotEnough: () -> Unit = {}
     ) {
         if (this.userReward > threshold) {
             this.reservedPayment += this.userReward

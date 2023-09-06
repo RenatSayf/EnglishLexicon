@@ -29,8 +29,6 @@ import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.convertToLocaleCurrency
 import com.myapp.lexicon.settings.getExchangeRateFromPref
 import kotlinx.coroutines.launch
-import java.math.BigDecimal
-import java.math.RoundingMode
 
 class AccountFragment : Fragment() {
 
@@ -266,16 +264,14 @@ class AccountFragment : Fragment() {
                         paymentDate = System.currentTimeMillis().toStringDate()
                     }
                     user.reservePayment(
-                        threshold = paymentThreshold,
-                        currencyRate = 1.0,
-                        onReserve = { u ->
-                            userVM.updatePersonalData(u)
-                            showConfirmDialog()
-                        },
-                        onNotEnough = {
-                            showSnackBar(getString(R.string.text_not_money))
-                        }
-                    )
+                            threshold = paymentThreshold,
+                            onReserve = { u ->
+                                userVM.updatePersonalData(u)
+                                showConfirmDialog()
+                            }
+                    ) {
+                        showSnackBar(getString(R.string.text_not_money))
+                    }
                 }
             }
         }

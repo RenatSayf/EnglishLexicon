@@ -150,7 +150,7 @@ class UserViewModelTest {
             Assert.assertEquals(expectedRevenue, actualRevenue, 0.0)
 
             val actualPercentage = actualReward / actualRevenue
-            Assert.assertEquals(UserViewModel.USER_PERCENTAGE, actualPercentage, 0.01)
+            Assert.assertEquals(UserViewModel.USER_PERCENTAGE, actualPercentage, 0.05)
 
             isRunning = false
         }

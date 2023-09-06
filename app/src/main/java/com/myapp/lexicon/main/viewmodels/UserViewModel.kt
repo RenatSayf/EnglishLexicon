@@ -1,4 +1,4 @@
-@file:Suppress("UnnecessaryVariable", "UNUSED_ANONYMOUS_PARAMETER")
+@file:Suppress("UnnecessaryVariable")
 
 package com.myapp.lexicon.main.viewmodels
 
@@ -16,7 +16,6 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.helpers.toStringTime
 import com.myapp.lexicon.interfaces.FlowCallback
 import com.myapp.lexicon.models.User
-import com.myapp.lexicon.settings.getExchangeRateFromPref
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -170,12 +169,6 @@ class UserViewModel @Inject constructor(
                     user.reallyRevenue = calculateReallyRevenue(revenuePerAd, remoteUserData)
                     user.userReward = calculateUserReward(revenuePerAd, remoteUserData)
                     user.totalRevenue = calculateTotalRevenue(revenuePerAd, remoteUserData)
-//                    app.getExchangeRateFromPref(
-//                        onInit = {},
-//                        onSuccess = { date, symbol, rate ->
-//                            user.convertToDefaultCurrency(rate)
-//                        }
-//                    )
                     if (user.reallyRevenue > -1 && user.userReward > -1) {
 
                         val revenueMap = mapOf(
