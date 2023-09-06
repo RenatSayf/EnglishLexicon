@@ -27,7 +27,9 @@ import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.convertToLocaleCurrency
+import com.myapp.lexicon.settings.getAuthDataFromPref
 import com.myapp.lexicon.settings.getExchangeRateFromPref
+import com.myapp.lexicon.settings.saveUserToPref
 import kotlinx.coroutines.launch
 
 class AccountFragment : Fragment() {
@@ -48,6 +50,9 @@ class AccountFragment : Fragment() {
 
     private val paymentThreshold: Double = Firebase.remoteConfig.getDouble("payment_threshold")
     private val paymentDays: Int = Firebase.remoteConfig.getDouble("payment_days").toInt()
+    private val explainMessage: String by lazy {
+        Firebase.remoteConfig.getString("reward_explain_message")
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -95,6 +100,12 @@ class AccountFragment : Fragment() {
                         showSnackBar(state.message)
                     }
                     is UserViewModel.State.ReceivedUserData -> {
+                        requireContext().getAuthDataFromPref(
+                            onNotRegistered = {
+                                showInfoDialog()
+                                requireContext().saveUserToPref(state.user)
+                            }
+                        )
                         handleUserData(state.user)
                     }
                     is UserViewModel.State.UserAdded -> {
@@ -352,6 +363,24 @@ class AccountFragment : Fragment() {
         }).show(parentFragmentManager, ConfirmDialog.TAG)
     }
 
+    private fun showInfoDialog() {
+        ConfirmDialog.newInstance(onLaunch = {dialog, binding ->
+            with(binding) {
+                dialog.isCancelable = true
+                val message = explainMessage
+                tvMessage.text = message
+                tvEmoji.apply {
+                    visibility = View.VISIBLE
+                    text = getString(R.string.coins_bag)
+                }
+                btnCancel.visibility = View.GONE
+                btnOk.setOnClickListener {
+                    dialog.dismiss()
+                }
+            }
+        }).show(parentFragmentManager, ConfirmDialog.TAG)
+    }
+
     override fun onResume() {
         super.onResume()
 
@@ -367,14 +396,14 @@ class AccountFragment : Fragment() {
             }
             toolBar.setNavigationOnClickListener {
                 (requireActivity() as MainActivity).buildRewardText(userVM.user.value)
-                parentFragmentManager.popBackStack()
+                parentFragmentManager.beginTransaction().detach(this@AccountFragment).commit()
             }
         }
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 (requireActivity() as MainActivity).buildRewardText(userVM.user.value)
-                parentFragmentManager.popBackStack()
+                parentFragmentManager.beginTransaction().detach(this@AccountFragment).commit()
             }
         })
     }

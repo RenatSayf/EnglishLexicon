@@ -10,6 +10,7 @@ import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.myapp.lexicon.R
+import com.myapp.lexicon.auth.account.AccountFragment
 import com.myapp.lexicon.auth.agreement.UserAgreementDialog
 import com.myapp.lexicon.databinding.FragmentAuthBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
@@ -18,7 +19,6 @@ import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserState
-import com.myapp.lexicon.settings.saveUserToPref
 
 class AuthFragment : Fragment() {
 
@@ -149,15 +149,16 @@ class AuthFragment : Fragment() {
                 state.onSignUp { user ->
                     showSnackBar(getString(R.string.text_user_is_registered))
                     userVM.addUserIfNotExists(user)
-                    requireContext().saveUserToPref(user)
+                    //requireContext().saveUserToPref(user)
                     listener?.refreshAuthState(user)
                     parentFragmentManager.popBackStack()
                 }
                 state.onSignIn { user ->
                     showSnackBar(getString(R.string.text_login_completed))
-                    requireContext().saveUserToPref(user)
+                    //requireContext().saveUserToPref(user)
                     listener?.refreshAuthState(user)
-                    parentFragmentManager.popBackStack()
+                    val accountFragment = AccountFragment.newInstance(user.id)
+                    parentFragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, accountFragment).addToBackStack(null).commit()
                 }
                 state.onEmailValid { flag ->
                     if (flag) {

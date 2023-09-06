@@ -55,8 +55,8 @@ fun Context.clearEmailPasswordInPref() {
 }
 
 fun Context.getAuthDataFromPref(
-    onNotRegistered: () -> Unit,
-    onSuccess: (email: String, password: String) -> Unit,
+    onNotRegistered: () -> Unit = {},
+    onSuccess: (email: String, password: String) -> Unit = {_,_ ->},
     onFailure: (Exception) -> Unit = {}
 ) {
     val email = appSettings.getString("KEY_EMAIL", null)
