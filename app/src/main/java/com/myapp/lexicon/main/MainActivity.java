@@ -1130,6 +1130,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 result.onSuccess(o -> {
                     if (o instanceof Currency currency) {
                         SettingsExtKt.saveExchangeRateToPref(this, currency);
+                        userVM.updateUserRevenue(0.0, user);
                     }
                     return null;
                 });
