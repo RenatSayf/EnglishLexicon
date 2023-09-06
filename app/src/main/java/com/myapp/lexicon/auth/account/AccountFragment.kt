@@ -37,9 +37,11 @@ class AccountFragment : Fragment() {
     companion object {
 
         private var userId: String? = null
-        fun newInstance(userId: String): AccountFragment {
+        private var password: String? = null
+        fun newInstance(userId: String, password: String): AccountFragment {
 
             this.userId = userId
+            this.password = password
             return AccountFragment()
         }
     }
@@ -103,7 +105,9 @@ class AccountFragment : Fragment() {
                         requireContext().getAuthDataFromPref(
                             onNotRegistered = {
                                 showInfoDialog()
-                                requireContext().saveUserToPref(state.user)
+                                requireContext().saveUserToPref(state.user.apply {
+                                    password = AccountFragment.password?: ""
+                                })
                             }
                         )
                         handleUserData(state.user)

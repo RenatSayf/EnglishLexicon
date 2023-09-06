@@ -728,7 +728,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
                         if (currentUser != null)
                         {
-                            AccountFragment accountFragment = AccountFragment.Companion.newInstance(currentUser.getUid());
+                            AccountFragment accountFragment = AccountFragment.Companion.newInstance(currentUser.getUid(), password);
                             transaction.replace(R.id.frame_to_page_fragm, accountFragment).addToBackStack(null).commit();
                         } else
                         {

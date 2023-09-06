@@ -155,7 +155,8 @@ class AuthFragment : Fragment() {
                 state.onSignIn { user ->
                     showSnackBar(getString(R.string.text_login_completed))
                     listener?.refreshAuthState(user)
-                    val accountFragment = AccountFragment.newInstance(user.id)
+                    val password = etPassword.text.toString().trim()
+                    val accountFragment = AccountFragment.newInstance(user.id, password)
                     parentFragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, accountFragment).addToBackStack(null).commit()
                 }
                 state.onEmailValid { flag ->
