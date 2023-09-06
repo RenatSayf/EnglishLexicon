@@ -371,6 +371,7 @@ class AccountFragment : Fragment() {
         ConfirmDialog.newInstance(onLaunch = {dialog, binding ->
             with(binding) {
                 dialog.isCancelable = true
+                ivIcon.visibility = View.GONE
                 val message = explainMessage
                 tvMessage.text = message
                 tvEmoji.apply {
