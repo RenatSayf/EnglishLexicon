@@ -149,13 +149,11 @@ class AuthFragment : Fragment() {
                 state.onSignUp { user ->
                     showSnackBar(getString(R.string.text_user_is_registered))
                     userVM.addUserIfNotExists(user)
-                    //requireContext().saveUserToPref(user)
                     listener?.refreshAuthState(user)
                     parentFragmentManager.popBackStack()
                 }
                 state.onSignIn { user ->
                     showSnackBar(getString(R.string.text_login_completed))
-                    //requireContext().saveUserToPref(user)
                     listener?.refreshAuthState(user)
                     val accountFragment = AccountFragment.newInstance(user.id)
                     parentFragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, accountFragment).addToBackStack(null).commit()
