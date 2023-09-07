@@ -31,7 +31,7 @@ class UserViewModel @Inject constructor(
 ) : AndroidViewModel(app) {
     companion object {
 
-        private const val COLLECTION_PATH = "users"
+        const val COLLECTION_PATH = "users"
         val USER_PERCENTAGE: Double = Firebase.remoteConfig.getDouble("USER_PERCENTAGE")
         val REVENUE_RATIO: Double = Firebase.remoteConfig.getDouble("REVENUE_RATIO")
     }
@@ -64,10 +64,6 @@ class UserViewModel @Inject constructor(
 
     private var _user = MutableLiveData<User?>(null)
     val user: LiveData<User?> = _user
-
-    fun setUser(user: User) {
-        _user.value = user
-    }
 
     fun collect(callBack: FlowCallback) {
         viewModelScope.launch {

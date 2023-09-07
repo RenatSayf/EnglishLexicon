@@ -140,6 +140,14 @@
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="@string/admob_app_id" />
 
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/icon_logo" />
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/colorAccent" />
+
         <receiver
             android:name=".service.BroadcastReceiverOnBootComplete"
             android:enabled="true"
@@ -161,6 +169,14 @@
 
         <receiver android:name=".schedule.TimerReceiver">
         </receiver>
+
+        <service
+            android:name=".push.MessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
 
     </application>
 

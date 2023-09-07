@@ -9,6 +9,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
+import com.google.firebase.auth.FirebaseAuth
 import com.myapp.lexicon.R
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.toLongDate
@@ -40,6 +41,9 @@ class MainFragment : Fragment() {
     }
 
     private val currencyVM: CurrencyViewModel by viewModels()
+    private val auth: FirebaseAuth by lazy {
+        FirebaseAuth.getInstance()
+    }
 
     interface Listener {
         fun refreshMainScreen(isAdShow: Boolean)
@@ -90,13 +94,16 @@ class MainFragment : Fragment() {
                     currencyVM.getExchangeRateFromApi(
                         onSuccess = { rate ->
                             val date = System.currentTimeMillis().toStringDate()
+                            val id = auth.currentUser?.uid
                             if (rate != 1.0) {
                                 currencyVM.saveExchangeRateToCloud(
-                                    currency = Currency(date, currency.name, rate)
+                                    currency = Currency(date, currency.name, rate),
+                                    userId = id?: ""
                                 )
                             } else {
                                 currencyVM.saveExchangeRateToCloud(
-                                    currency = Currency(date, Currencies.USD.name, 1.0)
+                                    currency = Currency(date, Currencies.USD.name, 1.0),
+                                    userId = id?: ""
                                 )
                             }
                         },

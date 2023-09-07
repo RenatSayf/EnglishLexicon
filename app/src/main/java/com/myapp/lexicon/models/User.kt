@@ -16,6 +16,7 @@ data class User(
         const val KEY_RESERVED_PAYMENT = "reserved_payment"
         const val KEY_CURRENCY = "currency"
         const val KEY_CURRENCY_SYMBOL = "currency_symbol"
+        const val KEY_CURRENCY_RATE = "currency_rate"
         const val KEY_EMAIL = "email"
         const val KEY_FIRST_NAME = "first_name"
         const val KEY_LAST_NAME = "last_name"
@@ -24,6 +25,7 @@ data class User(
         const val KEY_PAYMENT_DATE = "payment_date"
         const val KEY_MESSAGE = "message_to_user"
         const val KEY_LAST_UPDATE_TIME = "last_update_time"
+        const val KEY_MESSAGING_TOKEN = "messaging_token"
     }
 
     var email: String = ""
@@ -42,10 +44,12 @@ data class User(
     var revenuePerAd: Double = 0.0
     var currency: String? = "USD"
     var currencySymbol: String = ""
+    var currencyRate: Double = 0.0
     var paymentDate: String = ""
     private var lastUpdateTime: String = ""
     var message: String = ""
         private set
+    var messagingToken: String = ""
 
     fun toHashMap(): Map<String, String?> {
         return mapOf(
@@ -54,6 +58,7 @@ data class User(
             KEY_USER_REWARD to userReward.toString(),
             KEY_CURRENCY to currency,
             KEY_CURRENCY_SYMBOL to currencySymbol,
+            KEY_CURRENCY_RATE to currencyRate.toString(),
             KEY_DEFAULT_CURRENCY_REWARD to defaultCurrencyReward.toString(),
             KEY_RESERVED_PAYMENT to reservedPayment.toString(),
             KEY_EMAIL to email,
@@ -95,6 +100,11 @@ data class User(
             } catch (e: NumberFormatException) {
                 0.0
             }
+            currencyRate = try {
+                map[KEY_CURRENCY_RATE]?.toDouble()?: 0.0
+            } catch (e: NumberFormatException) {
+                0.0
+            }
             currency = map[KEY_CURRENCY]
             currencySymbol = map[KEY_CURRENCY_SYMBOL]?: ""
             firstName = map[KEY_FIRST_NAME]?: ""
@@ -103,6 +113,7 @@ data class User(
             bankCard = map[KEY_BANK_CARD]?: ""
             paymentDate = map[KEY_PAYMENT_DATE]?: ""
             message = map[KEY_MESSAGE]?: ""
+            messagingToken = map[KEY_MESSAGING_TOKEN]?: ""
             lastUpdateTime = map[KEY_LAST_UPDATE_TIME]?: ""
         }
     }

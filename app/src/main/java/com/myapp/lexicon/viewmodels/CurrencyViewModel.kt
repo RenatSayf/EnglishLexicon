@@ -11,8 +11,10 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
+import com.myapp.lexicon.common.COLLECTION_PATH_USERS
 import com.myapp.lexicon.helpers.toStringDate
 import com.myapp.lexicon.models.AppResult
+import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.currency.Currencies
 import com.myapp.lexicon.models.currency.Currency
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -174,7 +176,7 @@ class CurrencyViewModel @Inject constructor(
             }
     }
 
-    fun saveExchangeRateToCloud(currency: Currency) {
+    fun saveExchangeRateToCloud(userId: String, currency: Currency) {
         db.collection(COLLECTION_PATH)
             .document(currency.name)
             .set(currency.toMap())
@@ -185,6 +187,15 @@ class CurrencyViewModel @Inject constructor(
                 ex.printStackTrace()
                 _state.value = State.Error(ex)
             }
+
+        val map = mapOf(
+            User.KEY_CURRENCY to currency.name,
+            User.KEY_CURRENCY_SYMBOL to currency.symbol,
+            User.KEY_CURRENCY_RATE to currency.rate.toString()
+        )
+        db.collection(COLLECTION_PATH_USERS)
+            .document(userId)
+            .update(map)
     }
 
     override fun onCleared() {

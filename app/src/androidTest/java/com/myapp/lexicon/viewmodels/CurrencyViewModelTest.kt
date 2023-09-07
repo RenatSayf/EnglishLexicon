@@ -145,7 +145,7 @@ class CurrencyViewModelTest {
                 name = "RUB",
                 rate = 88.8888
             )
-            currencyVM.saveExchangeRateToCloud(currency)
+            currencyVM.saveExchangeRateToCloud("", currency)
 
             currencyVM.state.observe(activity) { state ->
                 when(state) {
