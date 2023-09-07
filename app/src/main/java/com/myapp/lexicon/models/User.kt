@@ -47,7 +47,7 @@ data class User(
             field = value
         }
     var revenuePerAd: Double = 0.0
-    var currency: String? = "USD"
+    var currency: String? = ""
     var currencySymbol: String = ""
     var currencyRate: Double = 0.0
     var paymentDate: String = ""
