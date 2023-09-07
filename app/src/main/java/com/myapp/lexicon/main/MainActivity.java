@@ -515,7 +515,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 this,
                 () -> null,
                 (date, symbol, rate) -> {
-                    double rewardToDisplay = UserKt.convertToLocaleCurrency(user.getUserReward(), rate);
+                    double rewardToDisplay = UserKt.to2DigitsScale(user.getUserReward() * user.getCurrencyRate());
                     TextView tvReward = root.findViewById(R.id.tvReward);
                     String text = getString(R.string.text_your_reward).concat(" ").concat(String.valueOf(rewardToDisplay)).concat(" ").concat(symbol);
                     tvReward.setText(text);

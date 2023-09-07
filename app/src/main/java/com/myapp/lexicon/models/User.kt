@@ -12,7 +12,7 @@ data class User(
         const val KEY_TOTAL_REVENUE = "total_revenue"
         const val KEY_REALLY_REVENUE = "really_revenue"
         const val KEY_USER_REWARD = "reward"
-        const val KEY_DEFAULT_CURRENCY_REWARD = "default_currency_reward"
+        const val KEY_PAYOUT_IN_LOCAL_CURRENCY = "payment_in_local_currency"
         const val KEY_RESERVED_PAYMENT = "reserved_payment"
         const val KEY_CURRENCY = "currency"
         const val KEY_CURRENCY_SYMBOL = "currency_symbol"
@@ -37,10 +37,15 @@ data class User(
     var totalRevenue: Double = 0.0
     var reallyRevenue: Double = 0.0
     var userReward: Double = 0.0
-    var defaultCurrencyReward: Double = 0.0
+    var payoutInLocalCurrency: Double = 0.0
+        private set
+
     var reservedPayment: Double = 0.0
         get() = BigDecimal(field).setScale(2, RoundingMode.DOWN).toDouble()
-        private set
+        private set(value) {
+            this.payoutInLocalCurrency = BigDecimal(value * this.currencyRate).setScale(2, RoundingMode.DOWN).toDouble()
+            field = value
+        }
     var revenuePerAd: Double = 0.0
     var currency: String? = "USD"
     var currencySymbol: String = ""
@@ -49,7 +54,7 @@ data class User(
     private var lastUpdateTime: String = ""
     var message: String = ""
         private set
-    var messagingToken: String = ""
+    private var messagingToken: String = ""
 
     fun toHashMap(): Map<String, String?> {
         return mapOf(
@@ -59,7 +64,7 @@ data class User(
             KEY_CURRENCY to currency,
             KEY_CURRENCY_SYMBOL to currencySymbol,
             KEY_CURRENCY_RATE to currencyRate.toString(),
-            KEY_DEFAULT_CURRENCY_REWARD to defaultCurrencyReward.toString(),
+            KEY_PAYOUT_IN_LOCAL_CURRENCY to payoutInLocalCurrency.toString(),
             KEY_RESERVED_PAYMENT to reservedPayment.toString(),
             KEY_EMAIL to email,
             KEY_FIRST_NAME to firstName,
@@ -90,8 +95,8 @@ data class User(
             } catch (e: NumberFormatException) {
                 0.0
             }
-            defaultCurrencyReward = try {
-                map[KEY_DEFAULT_CURRENCY_REWARD]?.toDouble()?: 0.0
+            payoutInLocalCurrency = try {
+                map[KEY_PAYOUT_IN_LOCAL_CURRENCY]?.toDouble()?: 0.0
             } catch (e: NumberFormatException) {
                 0.0
             }
@@ -137,6 +142,7 @@ data class User(
 
 }
 
-fun Double.convertToLocaleCurrency(rate: Double): Double {
-    return BigDecimal(this * rate).setScale(2, RoundingMode.DOWN).toDouble()
+fun Double.to2DigitsScale(): Double {
+    return BigDecimal(this).setScale(2, RoundingMode.DOWN).toDouble()
 }
+

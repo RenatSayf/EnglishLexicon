@@ -26,11 +26,12 @@ import com.myapp.lexicon.helpers.toStringDate
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.User
-import com.myapp.lexicon.models.convertToLocaleCurrency
+import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.settings.getAuthDataFromPref
 import com.myapp.lexicon.settings.getExchangeRateFromPref
 import com.myapp.lexicon.settings.saveUserToPref
 import kotlinx.coroutines.launch
+
 
 class AccountFragment : Fragment() {
 
@@ -300,18 +301,14 @@ class AccountFragment : Fragment() {
                 onInit = {},
                 onSuccess = { date, symbol, rate ->
 
-                    val roundingReward = user.userReward.convertToLocaleCurrency(rate)
-                    var rewardToDisplay = "$roundingReward $symbol"
+                    val rewardToDisplay = "${(user.userReward * user.currencyRate).to2DigitsScale()} ${user.currencySymbol}"
                     tvRewardValue.text = rewardToDisplay
 
                     if (user.reservedPayment > 0) {
                         tvReservedTitle.visibility = View.VISIBLE
                         tvReservedValue.visibility = View.VISIBLE
-                        val paymentToDisplay = "${user.reservedPayment.convertToLocaleCurrency(rate)} $symbol"
-                        tvReservedValue.text = paymentToDisplay
-
-                        rewardToDisplay = "${user.userReward.convertToLocaleCurrency(rate)} $symbol"
-                        tvRewardValue.text = rewardToDisplay
+                        val payoutToDisplay = "${user.payoutInLocalCurrency} ${user.currencySymbol}"
+                        tvReservedValue.text = payoutToDisplay
                     }
                     else {
                         tvReservedTitle.visibility = View.GONE

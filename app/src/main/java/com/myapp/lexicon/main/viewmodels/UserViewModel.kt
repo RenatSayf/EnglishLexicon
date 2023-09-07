@@ -171,7 +171,7 @@ class UserViewModel @Inject constructor(
                             User.KEY_REALLY_REVENUE to user.reallyRevenue.toString(),
                             User.KEY_USER_REWARD to user.userReward.toString(),
                             User.KEY_TOTAL_REVENUE to user.totalRevenue.toString(),
-                            User.KEY_DEFAULT_CURRENCY_REWARD to user.defaultCurrencyReward.toString(),
+                            User.KEY_PAYOUT_IN_LOCAL_CURRENCY to user.payoutInLocalCurrency.toString(),
                             User.KEY_RESERVED_PAYMENT to user.reservedPayment.toString(),
                             User.KEY_CURRENCY to user.currency,
                             User.KEY_CURRENCY_SYMBOL to user.currencySymbol,

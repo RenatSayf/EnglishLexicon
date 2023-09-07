@@ -1,4 +1,4 @@
-@file:Suppress("ObjectLiteralToLambda", "UNUSED_ANONYMOUS_PARAMETER")
+@file:Suppress("ObjectLiteralToLambda")
 
 package com.myapp.lexicon.service
 
@@ -22,16 +22,13 @@ import com.myapp.lexicon.interfaces.IModalFragment
 import com.myapp.lexicon.main.SpeechViewModel
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.User
-import com.myapp.lexicon.models.convertToLocaleCurrency
+import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.models.toWordList
 import com.myapp.lexicon.settings.AppSettings
 import com.myapp.lexicon.settings.disablePassiveWordsRepeat
-import com.myapp.lexicon.settings.getExchangeRateFromPref
 import com.myapp.lexicon.settings.isUserRegistered
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import java.math.BigDecimal
-import java.math.RoundingMode
 import java.util.Locale
 
 
@@ -175,18 +172,9 @@ class RepeatDialog: DialogFragment() {
 
     private fun buildRewardText(user: User) {
 
-        requireContext().getExchangeRateFromPref(
-            onInit = {},
-            onSuccess = { date: String?, symbol: String, rate: Double ->
-                val userReward = user.userReward.convertToLocaleCurrency(rate)
-                val text = "${getString(R.string.coins_bag)} $userReward $symbol"
-                binding.tvReward.text = text
-            },
-            onFailure = { e: Exception ->
-                val message = if (e.message == null) this.javaClass.simpleName + ": Unknown error" else e.message!!
-                showToast(message)
-            }
-        )
+        val userReward = (user.userReward * user.currencyRate).to2DigitsScale()
+        val text = "${getString(R.string.coins_bag)} $userReward ${user.currencySymbol}"
+        binding.tvReward.text = text
     }
 
     override fun onResume() {
