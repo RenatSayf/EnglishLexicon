@@ -4,6 +4,9 @@ import android.app.ActivityManager
 import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
 import android.os.CountDownTimer
 import android.text.TextUtils
 import android.util.Patterns
@@ -242,6 +245,40 @@ fun Context.showDebugNotification(message: String?) {
 
 fun View.setBackground(resId: Int) {
     this.background = ResourcesCompat.getDrawable(resources, resId, null)
+}
+
+fun printLogIfDebug(message: String) {
+    if (BuildConfig.DEBUG) {
+        println(message)
+    }
+}
+
+fun Context.isNetworkAvailable(): Boolean {
+    val manager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    return when {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
+            val capabilities = manager.getNetworkCapabilities(manager.activeNetwork)
+            when {
+                capabilities != null -> {
+                    when {
+                        capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+                        capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+                        else -> capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
+                    }
+                }
+                else -> false
+            }
+        }
+        else -> {
+            try {
+                val activeNetworkInfo = manager.activeNetworkInfo
+                activeNetworkInfo != null && activeNetworkInfo.isConnected
+            } catch (e: Exception) {
+                if (BuildConfig.DEBUG) e.printStackTrace()
+                false
+            }
+        }
+    }
 }
 
 

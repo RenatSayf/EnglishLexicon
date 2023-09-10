@@ -14,8 +14,11 @@ import com.appodeal.ads.revenue.AdRevenueCallbacks
 import com.appodeal.ads.revenue.RevenueInfo
 import com.appodeal.ads.utils.Log
 import com.google.android.gms.ads.identifier.AdvertisingIdClient
+import com.google.firebase.auth.FirebaseAuth
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
+import com.myapp.lexicon.helpers.isNetworkAvailable
+import com.myapp.lexicon.helpers.printLogIfDebug
 
 
 fun Context.getAdvertisingID(
@@ -56,9 +59,11 @@ fun Activity.adsInitialize(
     onSuccess: () -> Unit = {},
     onFailed: (List<ApdInitializationError>) -> Unit = {}
 ) {
-    if (BuildConfig.DEBUG) {
-        Appodeal.setTesting(true)
-        Appodeal.setLogLevel(Log.LogLevel.debug)
+    if (!BuildConfig.DEBUG) {
+        Appodeal.apply {
+            setTesting(true)
+            setLogLevel(Log.LogLevel.debug)
+        }
     }
     else {
         Appodeal.apply {
@@ -101,13 +106,17 @@ fun Activity.showInterstitial(
         override fun onInterstitialExpired() {}
 
         override fun onInterstitialFailedToLoad() {
-            onFailed.invoke("*** Interstitial ad failed to load ****")
+            val message = "*** Interstitial ad failed to load ****"
+            onFailed.invoke(message)
+            printLogIfDebug(message)
         }
 
         override fun onInterstitialLoaded(isPrecache: Boolean) {}
 
         override fun onInterstitialShowFailed() {
-            onFailed.invoke("**** Interstitial ad show failed ****")
+            val message = "**** Interstitial ad show failed ****"
+            onFailed.invoke(message)
+            printLogIfDebug(message)
         }
 
         override fun onInterstitialShown() {
@@ -127,7 +136,9 @@ fun Activity.showInterstitial(
         override fun onRewardedVideoExpired() {}
 
         override fun onRewardedVideoFailedToLoad() {
-            onFailed.invoke("*** Rewarded video failed to load ****")
+            val message = "*** Rewarded video failed to load ****"
+            onFailed.invoke(message)
+            printLogIfDebug(message)
         }
 
         override fun onRewardedVideoFinished(amount: Double, currency: String?) {}
@@ -135,7 +146,9 @@ fun Activity.showInterstitial(
         override fun onRewardedVideoLoaded(isPrecache: Boolean) {}
 
         override fun onRewardedVideoShowFailed() {
-            onFailed.invoke("***** Rewarded video show failed *****")
+            val message = "***** Rewarded video show failed *****"
+            onFailed.invoke(message)
+            printLogIfDebug(message)
         }
 
         override fun onRewardedVideoShown() {
@@ -144,10 +157,31 @@ fun Activity.showInterstitial(
     })
 
     val canShowInterstitial = Appodeal.canShow(Appodeal.INTERSTITIAL)
-    if (adType == Appodeal.INTERSTITIAL && !canShowInterstitial) {
-        Appodeal.show(this, Appodeal.REWARDED_VIDEO)
+    if (canShowInterstitial) {
+        Appodeal.show(this, Appodeal.INTERSTITIAL)
+        return
     }
-    else Appodeal.show(this, adType)
+    else {
+        val canShowVideo = Appodeal.canShow(Appodeal.REWARDED_VIDEO)
+        if (canShowVideo) {
+            Appodeal.show(this, Appodeal.REWARDED_VIDEO)
+            return
+        }
+        else {
+            val networkAvailable = this.isNetworkAvailable()
+            if (networkAvailable) {
+                //this.clearAdsData()
+                this.adsInitialize(
+                    Appodeal.REWARDED_VIDEO or Appodeal.INTERSTITIAL,
+                    onSuccess = {
+                        Appodeal.show(this, Appodeal.REWARDED_VIDEO or Appodeal.INTERSTITIAL)
+                    }
+                )
+                return
+            }
+            else return
+        }
+    }
 }
 
 fun Fragment.showInterstitial(
@@ -201,6 +235,39 @@ fun Activity.adRevenueInfo(
             onInfo.invoke(revenueInfo)
         }
     })
+}
+
+fun Context.clearAdsData() {
+    val files = this.applicationContext.dataDir.listFiles()
+
+    val dirFiles = files?.find {
+        it.name == "files"
+    }
+    val fileList = dirFiles?.listFiles()
+    fileList?.forEach {
+        try {
+            if (it.delete()) {
+                printLogIfDebug("*********** ${it.name} has been deleted *****************")
+            }
+        } catch (e: Exception) {
+            if (BuildConfig.DEBUG) e.printStackTrace()
+        }
+    }
+
+    val dirSharedPrefs = files?.find {
+        it.name == "shared_prefs"
+    }
+    val prefsList = dirSharedPrefs?.listFiles()
+    prefsList?.forEach {
+        try {
+            if (it.delete()) {
+                printLogIfDebug("*********** ${it.name} has been deleted *****************")
+            }
+        }
+        catch (e: Exception) {
+            if (BuildConfig.DEBUG) e.printStackTrace()
+        }
+    }
 }
 
 
