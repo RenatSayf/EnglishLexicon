@@ -56,7 +56,7 @@ fun Activity.adsInitialize(
     onSuccess: () -> Unit = {},
     onFailed: (List<ApdInitializationError>) -> Unit = {}
 ) {
-    if (!BuildConfig.DEBUG) {
+    if (BuildConfig.DEBUG) {
         Appodeal.apply {
             setTesting(true)
             setLogLevel(Log.LogLevel.debug)
