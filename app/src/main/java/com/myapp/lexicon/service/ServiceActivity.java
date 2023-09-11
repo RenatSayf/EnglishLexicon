@@ -163,7 +163,6 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                                 setAdRevenueListener(user);
                                 AdsExtensionsKt.showInterstitial(
                                         this,
-                                        Appodeal.INTERSTITIAL | Appodeal.REWARDED_VIDEO,
                                         () -> null,
                                         () -> null,
                                         err -> {
@@ -189,7 +188,6 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                     setAdRevenueListener(user);
                     AdsExtensionsKt.showInterstitial(
                             this,
-                            Appodeal.INTERSTITIAL | Appodeal.REWARDED_VIDEO,
                             () -> null,
                             () -> null,
                             err -> {
@@ -207,14 +205,19 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
 
     private void setAdRevenueListener(User user) {
 
-        AdsExtensionsKt.adRevenueInfo(this, revenueInfo -> {
+        Appodeal.setAdRevenueCallbacks(revenueInfo -> {
             double revenue = revenueInfo.getRevenue();
             String currency = revenueInfo.getCurrency();
             user.setTotalRevenue(revenue);
             user.setCurrency(currency);
             userVM.updateUserRevenue(revenue, user);
-            return null;
         });
     }
 
+    @Override
+    protected void onDestroy()
+    {
+        Appodeal.setAdRevenueCallbacks(null);
+        super.onDestroy();
+    }
 }

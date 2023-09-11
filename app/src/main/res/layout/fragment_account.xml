@@ -388,7 +388,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/btnSave"
                 app:layout_constraintBottom_toTopOf="@+id/tvRewardCondition"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="24dp"
                 android:text="@string/text_get_reward_now"
                 android:textAllCaps="false"
                 android:textColor="@color/colorWhite"
@@ -402,7 +402,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toBottomOf="@+id/btnGetReward"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/btnLogOut"
                 app:layout_constraintVertical_bias="1"
                 android:layout_marginTop="8dp"
                 android:gravity="center"
@@ -410,6 +410,20 @@
                 android:textColor="@color/colorWhite"
                 android:textSize="11sp"
                 />
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/btnLogOut"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvRewardCondition"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginTop="8dp"
+                android:padding="12dp"
+                android:background="@drawable/bg_ripple_transparent"
+                android:src="@drawable/ic_logout"
+                android:contentDescription="@string/text_logout"/>
 
             <ProgressBar
                 android:id="@+id/progressBar"

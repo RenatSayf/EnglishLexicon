@@ -20,7 +20,6 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
-import com.appodeal.ads.Appodeal
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.myapp.lexicon.BuildConfig
@@ -255,10 +254,10 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 TestViewModel.State.ShowAd -> {
                     requireContext().isUserRegistered(
                         onYes = {
-                            showInterstitial(adType = Appodeal.REWARDED_VIDEO)
+                            showInterstitial()
                         },
                         onNotRegistered = {
-                            showInterstitial(adType = Appodeal.INTERSTITIAL)
+                            showInterstitial()
                         }
                     )
                     testVM.setState(TestViewModel.State.NotShowAd)
@@ -533,14 +532,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         }
 
         if (this.adsIsEnabled) {
-            requireContext().isUserRegistered(
-                onYes = {
-                    this.showInterstitial(Appodeal.REWARDED_VIDEO)
-                },
-                onNotRegistered = {
-                    this.showInterstitial(Appodeal.INTERSTITIAL)
-                }
-            )
+            this.showInterstitial()
         }
         super.onDetach()
     }

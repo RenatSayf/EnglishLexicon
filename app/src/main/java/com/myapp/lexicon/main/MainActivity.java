@@ -158,6 +158,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 userVM.getUserFromCloud(user.getId());
                 return null;
             });
+            result.onSignOut(() -> {
+                navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_get_reward);
+                root.findViewById(R.id.tvReward).setVisibility(View.GONE);
+                ExtensionsKt.showSnackBar(mainControlLayout, getString(R.string.text_you_are_signed_out), Snackbar.LENGTH_LONG);
+                return null;
+            });
         });
 
         boolean isInitialized = Appodeal.isInitialized(Appodeal.INTERSTITIAL | Appodeal.REWARDED_VIDEO);
@@ -167,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     this,
                     Appodeal.INTERSTITIAL | Appodeal.REWARDED_VIDEO,
                     () -> {
-                        AdsExtensionsKt.adRevenueInfo(this, revenueInfo -> {
+                        Appodeal.setAdRevenueCallbacks(revenueInfo -> {
                             double revenue = revenueInfo.getRevenue();
                             String currency = revenueInfo.getCurrency();
                             User user = userVM.getUser().getValue();
@@ -177,7 +183,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 user.setCurrency(currency);
                                 userVM.updateUserRevenue(revenue, user);
                             }
-                            return null;
                         });
                         return null;
                     },
@@ -194,6 +199,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         userVM.getState().observe(this, state -> {
             if (state instanceof UserViewModel.State.ReceivedUserData) {
                 User user = ((UserViewModel.State.ReceivedUserData) state).getUser();
+                buildRewardText(user);
+            }
+            if (state instanceof UserViewModel.State.RevenueUpdated)
+            {
+                User user = ((UserViewModel.State.RevenueUpdated) state).getUser();
                 buildRewardText(user);
             }
         });
@@ -632,6 +642,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onDestroy()
     {
+        Appodeal.setAdRevenueCallbacks(null);
         try
         {
             mainViewModel.saveCurrentWordToPref(currentWord);
@@ -1118,6 +1129,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+    /** @noinspection CodeBlock2Expr*/
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig)
     {

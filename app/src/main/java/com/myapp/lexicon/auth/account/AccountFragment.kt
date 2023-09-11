@@ -9,14 +9,17 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
+import com.myapp.lexicon.auth.AuthViewModel
 import com.myapp.lexicon.databinding.FragmentAccountBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.LuhnAlgorithm
@@ -26,7 +29,9 @@ import com.myapp.lexicon.helpers.toStringDate
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.User
+import com.myapp.lexicon.models.UserState
 import com.myapp.lexicon.models.to2DigitsScale
+import com.myapp.lexicon.settings.clearEmailPasswordInPref
 import com.myapp.lexicon.settings.getAuthDataFromPref
 import com.myapp.lexicon.settings.getExchangeRateFromPref
 import com.myapp.lexicon.settings.saveUserToPref
@@ -49,6 +54,7 @@ class AccountFragment : Fragment() {
 
     private lateinit var binding: FragmentAccountBinding
     private val accountVM: AccountViewModel by viewModels()
+    private val authVM: AuthViewModel by activityViewModels()
     private val userVM by viewModels<UserViewModel>()
 
     private val paymentThreshold: Double = Firebase.remoteConfig.getDouble("payment_threshold")
@@ -290,6 +296,10 @@ class AccountFragment : Fragment() {
                     }
                 }
             }
+
+            btnLogOut.setOnClickListener {
+                showLogoutDialog()
+            }
         }
     }
 
@@ -378,6 +388,34 @@ class AccountFragment : Fragment() {
                 tvMessage.text = message
                 btnCancel.visibility = View.GONE
                 btnOk.setOnClickListener {
+                    dialog.dismiss()
+                }
+            }
+        }).show(parentFragmentManager, ConfirmDialog.TAG)
+    }
+
+    private fun showLogoutDialog() {
+        ConfirmDialog.newInstance(onLaunch = {dialog, binding ->
+            with(binding) {
+                dialog.isCancelable = true
+                ivIcon.visibility = View.VISIBLE
+                tvEmoji.visibility = View.GONE
+                tvEmoji2.visibility = View.GONE
+                val message = getString(R.string.text_signout_message)
+                tvMessage.text = message
+                btnCancel.apply {
+                    visibility = View.VISIBLE
+                    setOnClickListener {
+                        dialog.dismiss()
+                    }
+                }
+                btnOk.setOnClickListener {
+                    val auth = FirebaseAuth.getInstance()
+                    auth.signOut()
+                    requireContext().cacheDir.deleteRecursively()
+                    requireContext().clearEmailPasswordInPref()
+                    authVM.setState(UserState.SignOut)
+                    parentFragmentManager.beginTransaction().detach(this@AccountFragment).commit()
                     dialog.dismiss()
                 }
             }

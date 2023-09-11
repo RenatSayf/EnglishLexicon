@@ -8,12 +8,10 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import com.appodeal.ads.Appodeal
 import com.myapp.lexicon.ads.showInterstitial
 import com.myapp.lexicon.databinding.TranslateFragmentBinding
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.settings.adsIsEnabled
-import com.myapp.lexicon.settings.isUserRegistered
 import dagger.hilt.android.AndroidEntryPoint
 import java.net.URLDecoder
 
@@ -142,14 +140,7 @@ class TranslateFragment : Fragment()
     override fun onDetach() {
 
         if (this@TranslateFragment.adsIsEnabled) {
-            requireContext().isUserRegistered(
-                onYes = {
-                    showInterstitial(Appodeal.REWARDED_VIDEO)
-                },
-                onNotRegistered = {
-                    showInterstitial(Appodeal.INTERSTITIAL)
-                }
-            )
+            showInterstitial()
         }
         super.onDetach()
     }

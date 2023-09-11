@@ -211,6 +211,9 @@
     <string name="text_bank_card">Номер банковской карты</string>
     <string name="text_not_money">Недостаточно средств</string>
     <string name="text_to_payment">К выплате:</string>
+    <string name="text_logout">Выход из аккаунта</string>
+    <string name="text_signout_message">Вы действительно хотите выйти из аккаунта? Тогда Вы не сможете получать вознаграждение. Продолжить?</string>
+    <string name="text_you_are_signed_out">Вы вышли из аккаунта</string>
 
     <string-array name="not_move">
         <item>Не перемещать</item>

@@ -10,11 +10,8 @@ import com.appodeal.ads.InterstitialCallbacks
 import com.appodeal.ads.RewardedVideoCallbacks
 import com.appodeal.ads.initializing.ApdInitializationCallback
 import com.appodeal.ads.initializing.ApdInitializationError
-import com.appodeal.ads.revenue.AdRevenueCallbacks
-import com.appodeal.ads.revenue.RevenueInfo
 import com.appodeal.ads.utils.Log
 import com.google.android.gms.ads.identifier.AdvertisingIdClient
-import com.google.firebase.auth.FirebaseAuth
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.helpers.isNetworkAvailable
@@ -93,7 +90,6 @@ fun Activity.adsInitialize(
 }
 
 fun Activity.showInterstitial(
-    adType: Int,
     onShown: () -> Unit = {},
     onClosed: () -> Unit = {},
     onFailed: (String) -> Unit = {}
@@ -185,12 +181,11 @@ fun Activity.showInterstitial(
 }
 
 fun Fragment.showInterstitial(
-    adType: Int,
     onShown: () -> Unit = {},
     onClosed: () -> Unit = {},
     onFailed: (String) -> Unit = {}
 ) {
-    requireActivity().showInterstitial(adType, onShown, onClosed, onFailed)
+    requireActivity().showInterstitial(onShown, onClosed, onFailed)
 }
 
 fun FrameLayout.showBanner(activity: Activity) {
@@ -226,17 +221,6 @@ fun FrameLayout.showBanner(activity: Activity) {
     })
     Appodeal.show(activity, Appodeal.BANNER_VIEW)
 }
-
-fun Activity.adRevenueInfo(
-    onInfo: (RevenueInfo) -> Unit
-) {
-    Appodeal.setAdRevenueCallbacks(object : AdRevenueCallbacks {
-        override fun onAdRevenueReceive(revenueInfo: RevenueInfo) {
-            onInfo.invoke(revenueInfo)
-        }
-    })
-}
-
 fun Context.clearAdsData() {
     val files = this.applicationContext.dataDir.listFiles()
 

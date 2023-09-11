@@ -7,6 +7,7 @@ sealed class UserState {
     data class PasswordValid(val flag: Boolean): UserState()
     object AlreadyExists: UserState()
     object PasswordReset: UserState()
+    object SignOut: UserState()
     data class SignUp(val user: User): UserState()
     data class SignIn(val user: User): UserState()
     data class Failure(val error: Exception): UserState()
@@ -44,6 +45,12 @@ sealed class UserState {
     fun onSignIn(onSignIn: (User) -> Unit) {
         if (this is SignIn) {
             onSignIn.invoke(this.user)
+        }
+    }
+
+    fun onSignOut(onOut: () -> Unit) {
+        if (this is SignOut) {
+            onOut.invoke()
         }
     }
 

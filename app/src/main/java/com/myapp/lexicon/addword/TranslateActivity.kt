@@ -1,52 +1,36 @@
-package com.myapp.lexicon.addword;
+package com.myapp.lexicon.addword
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.MenuItem;
-
-import com.myapp.lexicon.R;
-
-import java.util.Objects;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import dagger.hilt.android.AndroidEntryPoint;
-
+import android.content.Intent
+import android.os.Bundle
+import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
+import com.myapp.lexicon.R
+import com.myapp.lexicon.addword.TranslateFragment.Companion.getInstance
+import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-public class TranslateActivity extends AppCompatActivity
-{
-    private TranslateFragment translateFragment;
+class TranslateActivity : AppCompatActivity() {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.b_translate_activity);
+    private var translateFragment: TranslateFragment? = null
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.b_translate_activity)
 
-        String enWord;
-        Intent intent = getIntent();
-        if (intent != null)
-        {
-            CharSequence sequence = intent.getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT);
-            if (sequence != null)
-            {
-                enWord = Objects.requireNonNull(intent.getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT)).toString().toLowerCase();
-                translateFragment = TranslateFragment.Companion.getInstance(enWord);
-                getSupportFragmentManager().beginTransaction().add(R.id.translate_fragment, translateFragment).addToBackStack(null).commit();
-            }
+        val sequence = intent.getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT)
+        if (sequence != null) {
+            val enWord = intent.getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT).toString().lowercase()
+            translateFragment = getInstance(enWord)
+            supportFragmentManager.beginTransaction()
+                .add(R.id.translate_fragment, translateFragment!!)
+                .addToBackStack(null)
+                .commit()
         }
-
-
     }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item)
-    {
-        if (translateFragment != null)
-        {
-            translateFragment.onOptionsItemSelected(item);
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (translateFragment != null) {
+            translateFragment!!.onOptionsItemSelected(item)
         }
-        return false;
+        return false
     }
 }
