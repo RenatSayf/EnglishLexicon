@@ -132,35 +132,29 @@ class TranslateFragment : Fragment()
         {
             override fun handleOnBackPressed()
             {
-                yandexAd?.showInterstitialAd {
-                    when(mActivity)
-                    {
-                        is MainActivity -> parentFragmentManager.popBackStack()
-                        is TranslateActivity -> requireActivity().finish()
+                yandexAd?.showInterstitialAd(
+                    activity = requireActivity(),
+                    dismiss = {
+                        when(requireActivity())
+                        {
+                            is MainActivity -> parentFragmentManager.popBackStack()
+                            is TranslateActivity -> requireActivity().finish()
+                        }
                     }
-                }?: run {
+                )
+            }
+        })
+
+        binding.btnBack.setOnClickListener {
+            yandexAd?.showInterstitialAd(
+                activity = requireActivity(),
+                dismiss = {
                     when (mActivity) {
                         is MainActivity -> parentFragmentManager.popBackStack()
                         is TranslateActivity -> requireActivity().finish()
                     }
                 }
-            }
-        })
-
-        binding.btnBack.setOnClickListener {
-
-            yandexAd?.showInterstitialAd {
-                when(mActivity)
-                {
-                    is MainActivity -> parentFragmentManager.popBackStack()
-                    is TranslateActivity -> requireActivity().finish()
-                }
-            }?: run {
-                when (mActivity) {
-                    is MainActivity -> parentFragmentManager.popBackStack()
-                    is TranslateActivity -> requireActivity().finish()
-                }
-            }
+            )
         }
 
     }

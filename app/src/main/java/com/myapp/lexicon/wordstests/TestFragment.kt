@@ -362,6 +362,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 yandexAd2?.showInterstitialAd(
+                    activity = requireActivity(),
                     dismiss = {
                         parentFragmentManager.popBackStack()
                     }
@@ -372,6 +373,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         })
         binding.toolBar.setNavigationOnClickListener {
             yandexAd2?.showInterstitialAd(
+                activity = requireActivity(),
                 dismiss = {
                     parentFragmentManager.popBackStack()
                 }
@@ -559,6 +561,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     override fun onTestCompleteClick() {
         testVM.testState.reset()
         yandexAd2?.showInterstitialAd(
+            activity = requireActivity(),
             dismiss = {
                 parentFragmentManager.popBackStack()
             }

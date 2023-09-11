@@ -203,7 +203,11 @@ public class BackgroundFragm extends Fragment
                 {
                     try
                     {
-                        new JavaKotlinMediator().showInterstitialAd(yandexAd, () -> requireActivity().finish());
+                        new JavaKotlinMediator().showInterstitialAd(
+                                requireActivity(),
+                                yandexAd,
+                                () -> requireActivity().finish()
+                        );
                     } catch (Exception e)
                     {
                         e.printStackTrace();

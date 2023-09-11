@@ -1,16 +1,22 @@
 package com.myapp.lexicon.ads
 
+import android.app.Activity
 import android.content.Context
 import androidx.fragment.app.Fragment
 import com.myapp.lexicon.BuildConfig
-import com.yandex.mobile.ads.banner.AdSize
 import com.yandex.mobile.ads.banner.BannerAdEventListener
+import com.yandex.mobile.ads.banner.BannerAdSize
 import com.yandex.mobile.ads.banner.BannerAdView
+import com.yandex.mobile.ads.common.AdError
 import com.yandex.mobile.ads.common.AdRequest
+import com.yandex.mobile.ads.common.AdRequestConfiguration
 import com.yandex.mobile.ads.common.AdRequestError
 import com.yandex.mobile.ads.common.ImpressionData
 import com.yandex.mobile.ads.interstitial.InterstitialAd
 import com.yandex.mobile.ads.interstitial.InterstitialAdEventListener
+import com.yandex.mobile.ads.interstitial.InterstitialAdLoadListener
+import com.yandex.mobile.ads.interstitial.InterstitialAdLoader
+import kotlin.math.roundToInt
 
 
 private val bannerAdIds = listOf(
@@ -31,32 +37,34 @@ private val interstitialAdIds = listOf(
 private const val testInterstitialAdId = "demo-interstitial-yandex"
 
 fun InterstitialAd.showInterstitialAd(
+    activity: Activity,
     success: () -> Unit = {},
-    error: (error: AdRequestError) -> Unit = {},
+    error: (error: AdError) -> Unit = {},
     dismiss: () -> Unit = {}
 ) {
     this.let { ad ->
-        ad.setInterstitialAdEventListener(object : InterstitialAdEventListener {
-            override fun onAdLoaded() {
+        ad.setAdEventListener(object : InterstitialAdEventListener {
+
+            override fun onAdShown() {
                 success.invoke()
             }
-            override fun onAdFailedToLoad(err: AdRequestError) {
+            override fun onAdFailedToShow(p0: AdError) {
                 if (BuildConfig.DEBUG) {
-                    val exception = Exception("**************** ${err.description} *******************")
+                    val exception = Exception("**************** ${p0.description} *******************")
                     exception.printStackTrace()
                 }
-                error.invoke(err)
+                error.invoke(p0)
             }
-            override fun onAdShown() {}
+
             override fun onAdDismissed() {
                 dismiss.invoke()
             }
             override fun onAdClicked() {}
-            override fun onLeftApplication() {}
-            override fun onReturnedToApplication() {}
-            override fun onImpression(p0: ImpressionData?) {}
+            override fun onAdImpression(p0: ImpressionData?) {
+
+            }
         })
-        ad.show()
+        ad.show(activity)
     }
 }
 
@@ -66,45 +74,31 @@ fun Context.loadInterstitialAd(
     error: (error: AdRequestError) -> Unit = {},
     dismiss: () -> Unit = {}
 ) {
-    val ad = InterstitialAd(this)
-    ad.apply {
-        if (BuildConfig.DEBUG) {
-            setAdUnitId(testInterstitialAdId)
-        }else {
-            val id = try {
-                interstitialAdIds[index]
-            }
-            catch (e: IndexOutOfBoundsException) {
-                interstitialAdIds[0]
-            }
-            setAdUnitId(id)
-        }
-        setInterstitialAdEventListener(object : InterstitialAdEventListener {
-            override fun onAdLoaded() {
-                success.invoke(this@apply)
+    val interstitialAdLoader = InterstitialAdLoader(this)
+    interstitialAdLoader.apply {
+
+        setAdLoadListener(object : InterstitialAdLoadListener {
+            override fun onAdLoaded(p0: InterstitialAd) {
+                success.invoke(p0)
             }
 
             override fun onAdFailedToLoad(p0: AdRequestError) {
                 error.invoke(p0)
             }
-
-            override fun onAdShown() {}
-
-            override fun onAdDismissed() {
-                dismiss.invoke()
-            }
-
-            override fun onAdClicked() {}
-
-            override fun onLeftApplication() {}
-
-            override fun onReturnedToApplication() {}
-
-            override fun onImpression(p0: ImpressionData?) {}
         })
     }
-    val adRequest = AdRequest.Builder().build()
-    ad.loadAd(adRequest)
+    val adId = if (BuildConfig.DEBUG) {
+        testInterstitialAdId
+    }else {
+        try {
+            interstitialAdIds[index]
+        }
+        catch (e: IndexOutOfBoundsException) {
+            interstitialAdIds[0]
+        }
+    }
+    val adRequest = AdRequestConfiguration.Builder(adId).build()
+    interstitialAdLoader.loadAd(adRequest)
 }
 
 fun Fragment.loadInterstitialAd(
@@ -140,7 +134,10 @@ fun Context.loadBanner(
             setAdUnitId(id)
         }
         try {
-            setAdSize(AdSize.stickySize(AdSize.FULL_SCREEN.width))
+            val screenHeight = this@loadBanner.resources.displayMetrics.run { heightPixels / density }.roundToInt()
+            val viewWidth = adView.width
+            val bannerAdSize = BannerAdSize.inlineSize(this@loadBanner, viewWidth, screenHeight)
+            setAdSize(bannerAdSize)
             setBannerAdEventListener(object : BannerAdEventListener {
                 override fun onAdLoaded() {
                     success.invoke()
@@ -172,38 +169,7 @@ fun Fragment.loadBanner(
     requireContext().loadBanner(index, adView, success, error)
 }
 
-//fun Context.getAdvertisingID(
-//    onSuccess: (String) -> Unit,
-//    onUnavailable: () -> Unit,
-//    onFailure: (String) -> Unit = {},
-//    onComplete: () -> Unit = {}
-//) {
-//    val client = AdvertisingIdClient(this)
-//    var thread: Thread? = null
-//    thread = Thread {
-//        try {
-//            client.start()
-//            val clientInfo = client.info
-//            val id = clientInfo.id
-//            id?.let {
-//                onSuccess.invoke(it)
-//            }?: run {
-//                onUnavailable.invoke()
-//            }
-//        } catch (e: Exception) {
-//            onFailure.invoke(e.message?: "Unknown error")
-//        }
-//        finally {
-//            thread?.let {
-//                if (it.isAlive) {
-//                    it.interrupt()
-//                }
-//            }
-//            onComplete.invoke()
-//        }
-//    }
-//    thread.start()
-//}
+
 
 
 

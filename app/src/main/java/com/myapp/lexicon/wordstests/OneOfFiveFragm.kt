@@ -255,6 +255,7 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
     private fun onTestPassed()
     {
         yandexAd2?.showInterstitialAd(
+            activity = requireActivity(),
             dismiss = {
                 mActivity.supportFragmentManager.popBackStack()
                 mActivity.testPassed()
@@ -268,6 +269,7 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
     private fun onTestFailed(errors: Int)
     {
         yandexAd2?.showInterstitialAd(
+            activity = requireActivity(),
             dismiss = {
                 mActivity.supportFragmentManager.popBackStack()
                 mActivity.testFailed(errors)

@@ -1,5 +1,6 @@
 package com.myapp.lexicon.helpers
 
+import android.app.Activity
 import android.content.Context
 import com.myapp.lexicon.ads.loadBanner
 import com.myapp.lexicon.ads.loadInterstitialAd
@@ -23,9 +24,10 @@ class JavaKotlinMediator {
         )
     }
 
-    fun showInterstitialAd(ad: InterstitialAd?, listener: AdDismissListener?) {
+    fun showInterstitialAd(activity: Activity, ad: InterstitialAd?, listener: AdDismissListener?) {
         ad?.let {
             it.showInterstitialAd(
+                activity = activity,
                 dismiss = {
                     listener?.onDismiss()
                 }
