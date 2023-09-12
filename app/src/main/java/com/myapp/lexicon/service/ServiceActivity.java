@@ -14,6 +14,7 @@ import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.ads.AdsExtensionsKt;
 import com.myapp.lexicon.auth.AuthViewModel;
+import com.myapp.lexicon.common.CommonConstantsKt;
 import com.myapp.lexicon.databinding.ServiceDialogActivityBinding;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.interfaces.IModalFragment;
@@ -206,7 +207,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
     private void setAdRevenueListener(User user) {
 
         Appodeal.setAdRevenueCallbacks(revenueInfo -> {
-            if (revenueInfo.getRevenuePrecision().equals("exact"))
+            if (revenueInfo.getRevenuePrecision().equals(CommonConstantsKt.REVENUE_PRECISION))
             {
                 double revenue = revenueInfo.getRevenue();
                 String currency = revenueInfo.getCurrency();
