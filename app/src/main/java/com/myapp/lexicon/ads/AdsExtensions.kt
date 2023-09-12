@@ -166,7 +166,6 @@ fun Activity.showInterstitial(
         else {
             val networkAvailable = this.isNetworkAvailable()
             if (networkAvailable) {
-                //this.clearAdsData()
                 this.adsInitialize(
                     Appodeal.REWARDED_VIDEO or Appodeal.INTERSTITIAL,
                     onSuccess = {
