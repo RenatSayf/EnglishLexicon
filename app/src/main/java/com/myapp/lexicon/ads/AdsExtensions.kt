@@ -65,7 +65,7 @@ fun Activity.adsInitialize(
     else {
         Appodeal.apply {
             setTesting(false)
-            setLogLevel(Log.LogLevel.verbose)
+            setLogLevel(Log.LogLevel.none)
         }
     }
     Appodeal.initialize(
