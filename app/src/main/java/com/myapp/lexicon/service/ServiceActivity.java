@@ -206,11 +206,14 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
     private void setAdRevenueListener(User user) {
 
         Appodeal.setAdRevenueCallbacks(revenueInfo -> {
-            double revenue = revenueInfo.getRevenue();
-            String currency = revenueInfo.getCurrency();
-            user.setTotalRevenue(revenue);
-            user.setCurrency(currency);
-            userVM.updateUserRevenue(revenue, user);
+            if (revenueInfo.getRevenuePrecision().equals("exact"))
+            {
+                double revenue = revenueInfo.getRevenue();
+                String currency = revenueInfo.getCurrency();
+                user.setTotalRevenue(revenue);
+                user.setCurrency(currency);
+                userVM.updateUserRevenue(revenue, user);
+            }
         });
     }
 

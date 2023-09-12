@@ -174,14 +174,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Appodeal.INTERSTITIAL | Appodeal.REWARDED_VIDEO,
                     () -> {
                         Appodeal.setAdRevenueCallbacks(revenueInfo -> {
-                            double revenue = revenueInfo.getRevenue();
-                            String currency = revenueInfo.getCurrency();
-                            User user = userVM.getUser().getValue();
-                            if (user != null)
+                            if (revenueInfo.getRevenuePrecision().equals("exact"))
                             {
-                                user.setTotalRevenue(revenue);
-                                user.setCurrency(currency);
-                                userVM.updateUserRevenue(revenue, user);
+                                double revenue = revenueInfo.getRevenue();
+                                String currency = revenueInfo.getCurrency();
+                                User user = userVM.getUser().getValue();
+                                if (user != null)
+                                {
+                                    user.setTotalRevenue(revenue);
+                                    user.setCurrency(currency);
+                                    userVM.updateUserRevenue(revenue, user);
+                                }
                             }
                         });
                         return null;
