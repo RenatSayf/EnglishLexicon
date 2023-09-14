@@ -39,7 +39,6 @@ import com.myapp.lexicon.auth.account.AccountFragment;
 import com.myapp.lexicon.cloudstorage.CloudCheckWorker;
 import com.myapp.lexicon.cloudstorage.DownloadDbWorker;
 import com.myapp.lexicon.cloudstorage.StorageDialog;
-import com.myapp.lexicon.common.CommonConstantsKt;
 import com.myapp.lexicon.database.AppDataBase;
 import com.myapp.lexicon.databinding.DialogStorageBinding;
 import com.myapp.lexicon.dialogs.ConfirmDialog;
@@ -175,17 +174,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Appodeal.INTERSTITIAL | Appodeal.REWARDED_VIDEO,
                     () -> {
                         Appodeal.setAdRevenueCallbacks(revenueInfo -> {
-                            if (revenueInfo.getRevenuePrecision().equals(CommonConstantsKt.REVENUE_PRECISION))
+                            double revenue = revenueInfo.getRevenue();
+                            String currency = revenueInfo.getCurrency();
+                            User user = userVM.getUser().getValue();
+                            if (user != null)
                             {
-                                double revenue = revenueInfo.getRevenue();
-                                String currency = revenueInfo.getCurrency();
-                                User user = userVM.getUser().getValue();
-                                if (user != null)
-                                {
-                                    user.setTotalRevenue(revenue);
-                                    user.setCurrency(currency);
-                                    userVM.updateUserRevenue(revenue, user);
-                                }
+                                user.setTotalRevenue(revenue);
+                                user.setCurrency(currency);
+                                userVM.updateUserRevenue(revenue, user);
                             }
                         });
                         return null;
