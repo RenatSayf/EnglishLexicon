@@ -1,3 +1,5 @@
+@file:Suppress("ObjectLiteralToLambda")
+
 package com.myapp.lexicon.di
 
 import android.app.Activity
@@ -13,10 +15,13 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
+import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.database.AppDataBase
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.wordeditor.WordEditorActivity
+import com.yandex.mobile.ads.common.InitializationListener
+import com.yandex.mobile.ads.common.MobileAds
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
@@ -40,6 +45,14 @@ class App : Application(), Configuration.Provider {
             setDefaultsAsync(R.xml.remote_config_defaults)
             fetchAndActivate()
         }
+
+        MobileAds.initialize(this, object : InitializationListener {
+            override fun onInitializationCompleted() {
+                if (BuildConfig.DEBUG) {
+                    println("*************** MobileAds initialization successful ***************")
+                }
+            }
+        })
     }
 
     override fun getWorkManagerConfiguration(): Configuration {

@@ -148,6 +148,9 @@ dependencies {
     }
     //endregion
 
+    // Yandex Mobile Ads SDK
+    implementation 'com.yandex.android:mobileads:6.0.1'
+
     //FormatEditText
     implementation 'com.github.dkzwm:fet-core:0.2.1'
 

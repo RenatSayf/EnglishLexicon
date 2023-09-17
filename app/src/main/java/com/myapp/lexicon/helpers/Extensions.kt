@@ -249,7 +249,7 @@ fun View.setBackground(resId: Int) {
 
 fun printLogIfDebug(message: String) {
     if (BuildConfig.DEBUG) {
-        println(message)
+        println("*************** $message *********************")
     }
 }
 
