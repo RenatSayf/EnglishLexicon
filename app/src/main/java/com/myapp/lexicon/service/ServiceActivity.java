@@ -201,11 +201,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
     private void updateUserRevenue(User user, AdData data) {
         if (user != null && data != null)
         {
-            double revenue = data.getRevenue();
-            String currency = data.getCurrency();
-            user.setTotalRevenue(revenue);
-            user.setCurrency(currency);
-            userVM.updateUserRevenue(revenue, user);
+            userVM.updateUserRevenue(data, user);
         }
     }
 }

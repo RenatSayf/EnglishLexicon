@@ -10,6 +10,7 @@ data class User(
     val id: String
 ) {
     companion object {
+        const val KEY_REVENUE_USD = "revenue_usd"
         const val KEY_TOTAL_REVENUE = "total_revenue"
         const val KEY_REALLY_REVENUE = "really_revenue"
         const val KEY_USER_REWARD = "reward"
@@ -38,6 +39,7 @@ data class User(
     var totalRevenue: Double = 0.0
     var reallyRevenue: Double = 0.0
     var userReward: Double = 0.0
+    var revenueUSD: Double = 0.0
     var payoutInLocalCurrency: Double = 0.0
         private set
 
@@ -64,6 +66,7 @@ data class User(
 
     fun toHashMap(): Map<String, String?> {
         return mapOf(
+            KEY_REVENUE_USD to revenueUSD.toString(),
             KEY_TOTAL_REVENUE to totalRevenue.toString(),
             KEY_REALLY_REVENUE to reallyRevenue.toString(),
             KEY_USER_REWARD to userReward.toString(),
@@ -86,6 +89,11 @@ data class User(
     fun mapToUser(map: Map<String, String?>): User {
         return this.apply {
             email = map[KEY_EMAIL]?: ""
+            revenueUSD = try {
+                map[KEY_REVENUE_USD]?.toDouble()?: 0.0
+            } catch (e: NumberFormatException) {
+                0.0
+            }
             totalRevenue = try {
                 map[KEY_TOTAL_REVENUE]?.toDouble()?: 0.0
             } catch (e: NumberFormatException) {

@@ -1115,7 +1115,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 result.onSuccess(o -> {
                     if (o instanceof Currency currency) {
                         SettingsExtKt.saveExchangeRateToPref(this, currency);
-                        userVM.updateUserRevenue(0.0, user);
+                        //userVM.updateUserRevenue(0.0, user);
                     }
                     return null;
                 });
@@ -1128,14 +1128,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         if (data != null)
         {
-            double revenue = data.getRevenue();
-            String currency = data.getCurrency();
             User user = userVM.getUser().getValue();
             if (user != null)
             {
-                user.setTotalRevenue(revenue);
-                user.setCurrency(currency);
-                userVM.updateUserRevenue(revenue, user);
+                userVM.updateUserRevenue(data, user);
             }
         }
     }

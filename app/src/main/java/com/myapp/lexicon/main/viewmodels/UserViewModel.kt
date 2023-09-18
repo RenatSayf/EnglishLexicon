@@ -13,6 +13,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
+import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.helpers.toStringTime
 import com.myapp.lexicon.interfaces.FlowCallback
 import com.myapp.lexicon.models.User
@@ -22,6 +23,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
+import java.math.BigDecimal
+import java.math.RoundingMode
 import javax.inject.Inject
 
 
@@ -153,7 +156,7 @@ class UserViewModel @Inject constructor(
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun updateUserRevenue(revenuePerAd: Double, user: User) {
+    fun updateUserRevenue(adData: AdData, user: User) {
 
         _loadingState.value = LoadingState.Start
         db.collection(COLLECTION_PATH)
@@ -162,12 +165,16 @@ class UserViewModel @Inject constructor(
             .addOnSuccessListener { snapshot ->
                 if (snapshot.data != null) {
                     val remoteUserData = snapshot.data as Map<String, String>
-                    user.reallyRevenue = calculateReallyRevenue(revenuePerAd, remoteUserData)
-                    user.userReward = calculateUserReward(revenuePerAd, remoteUserData)
-                    user.totalRevenue = calculateTotalRevenue(revenuePerAd, remoteUserData)
+                    user.reallyRevenue = calcReallyRevenue(adData.revenue, remoteUserData)
+                    user.userReward = calcUserReward(adData.revenue, remoteUserData)
+                    user.totalRevenue = calcTotalRevenue(adData.revenue, remoteUserData, User.KEY_TOTAL_REVENUE)
+                    user.revenueUSD = calcTotalRevenue(adData.revenueUSD, remoteUserData, User.KEY_REVENUE_USD)
+                    user.currency = adData.currency
+                    user.currencyRate = BigDecimal(adData.revenue / adData.revenueUSD).setScale(2, RoundingMode.DOWN).toDouble()
                     if (user.reallyRevenue > -1 && user.userReward > -1) {
 
                         val revenueMap = mapOf(
+                            User.KEY_REVENUE_USD to user.revenueUSD.toString(),
                             User.KEY_REALLY_REVENUE to user.reallyRevenue.toString(),
                             User.KEY_USER_REWARD to user.userReward.toString(),
                             User.KEY_TOTAL_REVENUE to user.totalRevenue.toString(),
@@ -175,6 +182,7 @@ class UserViewModel @Inject constructor(
                             User.KEY_RESERVED_PAYMENT to user.reservedPayment.toString(),
                             User.KEY_CURRENCY to user.currency,
                             User.KEY_CURRENCY_SYMBOL to user.currencySymbol,
+                            User.KEY_CURRENCY_RATE to user.currencyRate.toString(),
                             User.KEY_LAST_UPDATE_TIME to System.currentTimeMillis().toStringTime()
                         )
                         db.collection(COLLECTION_PATH)
@@ -182,8 +190,8 @@ class UserViewModel @Inject constructor(
                             .update(revenueMap)
                             .addOnSuccessListener {
                                 _user.value = user
-                                _state.value = State.RevenueUpdated(revenuePerAd, user)
-                                _stateFlow.value = State.RevenueUpdated(revenuePerAd, user)
+                                _state.value = State.RevenueUpdated(adData.revenue, user)
+                                _stateFlow.value = State.RevenueUpdated(adData.revenue, user)
                             }
                             .addOnFailureListener { ex ->
                                 if (BuildConfig.DEBUG) {
@@ -239,7 +247,7 @@ class UserViewModel @Inject constructor(
             }
     }
 
-    fun calculateReallyRevenue(revenuePerAd: Double, remoteUserData: Map<String, String?>): Double {
+    fun calcReallyRevenue(revenuePerAd: Double, remoteUserData: Map<String, String?>): Double {
         val currentRevenue = try {
             remoteUserData[User.KEY_REALLY_REVENUE]?.ifEmpty {
                 -1.0
@@ -255,7 +263,7 @@ class UserViewModel @Inject constructor(
         }
     }
 
-    fun calculateUserReward(revenuePerAd: Double, remoteUserData: Map<String, String?>): Double {
+    fun calcUserReward(revenuePerAd: Double, remoteUserData: Map<String, String?>): Double {
         val currentReward = try {
             remoteUserData[User.KEY_USER_REWARD]?.ifEmpty {
                 -1.0
@@ -271,9 +279,13 @@ class UserViewModel @Inject constructor(
         }
     }
 
-    private fun calculateTotalRevenue(revenuePerAd: Double, remoteUserData: Map<String, String?>): Double {
+    private fun calcTotalRevenue(
+        revenuePerAd: Double,
+        remoteUserData: Map<String, String?>,
+        mapKey: String
+    ): Double {
         val currentRevenue = try {
-            remoteUserData[User.KEY_TOTAL_REVENUE]?.ifEmpty {
+            remoteUserData[mapKey]?.ifEmpty {
                 -1.0
             }.toString().toDouble()
         } catch (e: Exception) {
@@ -286,7 +298,6 @@ class UserViewModel @Inject constructor(
             newRevenue
         }
     }
-
 
 
 }
