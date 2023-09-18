@@ -4,15 +4,16 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
-import com.appodeal.ads.Appodeal;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.ads.AdsExtensionsKt;
+import com.myapp.lexicon.ads.AdsViewModel;
+import com.myapp.lexicon.ads.AdsViewModelKt;
+import com.myapp.lexicon.ads.InterstitialAdIds;
+import com.myapp.lexicon.ads.RewardedAdIds;
+import com.myapp.lexicon.ads.models.AdData;
 import com.myapp.lexicon.auth.AuthViewModel;
 import com.myapp.lexicon.databinding.ServiceDialogActivityBinding;
 import com.myapp.lexicon.helpers.ExtensionsKt;
@@ -24,6 +25,8 @@ import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.models.WordKt;
 import com.myapp.lexicon.settings.SettingsExtKt;
 import com.myapp.lexicon.splash.SplashActivity;
+import com.yandex.mobile.ads.interstitial.InterstitialAd;
+import com.yandex.mobile.ads.rewarded.RewardedAd;
 
 import java.util.List;
 
@@ -34,7 +37,6 @@ import androidx.preference.PreferenceManager;
 import dagger.hilt.android.AndroidEntryPoint;
 
 
-
 @AndroidEntryPoint
 public class ServiceActivity extends AppCompatActivity implements IModalFragment
 {
@@ -42,6 +44,9 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
     private ServiceDialogActivityBinding binding;
     private UserViewModel userVM;
     private AuthViewModel authVM;
+    private AdsViewModel adsVM;
+    private RewardedAd rewardedAd;
+    private InterstitialAd interstitialAd;
 
     @Override
     public void openApp()
@@ -59,6 +64,8 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
 
         FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseUser firebaseUser = auth.getCurrentUser();
+
+        adsVM = new ViewModelProvider(this).get(AdsViewModel.class);
 
         if (firebaseUser != null) {
             handleAdvertisingPayload(firebaseUser.getUid());
@@ -153,70 +160,52 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
 
             if (state instanceof UserViewModel.State.ReceivedUserData) {
 
-                boolean isInitialized = Appodeal.isInitialized(Appodeal.INTERSTITIAL | Appodeal.REWARDED_VIDEO);
-                if (!isInitialized) {
-                    AdsExtensionsKt.adsInitialize(
-                            this,
-                            Appodeal.INTERSTITIAL | Appodeal.REWARDED_VIDEO,
-                            () -> {
+                adsVM.loadRewardedAd(RewardedAdIds.REWARDED_3);
+                adsVM.getRewardedAd().observe(this, result -> {
+                    rewardedAd = adsVM.getRewardedAdOrNull();
+                    if (rewardedAd != null) {
+                        AdsViewModelKt.showAd(
+                            rewardedAd,
+                            ServiceActivity.this,
+                            () -> null,
+                            data -> {
                                 User user = ((UserViewModel.State.ReceivedUserData) state).getUser();
-                                setAdRevenueListener(user);
-                                AdsExtensionsKt.showInterstitial(
-                                        this,
-                                        () -> null,
-                                        () -> null,
-                                        err -> {
-                                            if (BuildConfig.DEBUG) {
-                                                ExtensionsKt.showToast(this, err, Toast.LENGTH_LONG);
-                                            }
-                                            return null;
-                                        }
-                                );
+                                updateUserRevenue(user, data);
                                 return null;
                             },
-                            errors -> {
-                                errors.forEach(error -> {
-                                    String message = error.getMessage() == null ? ServiceActivity.class.getSimpleName().concat(": ad initialize error") : error.getMessage();
-                                    ExtensionsKt.showToast(ServiceActivity.this, message, Toast.LENGTH_LONG);
-                                });
-                                return null;
-                            }
-                    );
-                }
-                else {
-                    User user = ((UserViewModel.State.ReceivedUserData) state).getUser();
-                    setAdRevenueListener(user);
-                    AdsExtensionsKt.showInterstitial(
-                            this,
                             () -> null,
-                            () -> null,
-                            err -> {
-                                if (BuildConfig.DEBUG) {
-                                    ExtensionsKt.showToast(this, err, Toast.LENGTH_LONG);
-                                }
-                                return null;
-                            }
-                    );
-                }
-
+                            () -> null
+                        );
+                    }
+                });
+            }
+            else {
+                adsVM.loadInterstitialAd(InterstitialAdIds.INTERSTITIAL_4);
+                adsVM.getInterstitialAd().observe(this, result -> {
+                    interstitialAd = adsVM.getInterstitialAdOrNull();
+                    if (interstitialAd != null) {
+                        AdsViewModelKt.showAd(
+                                interstitialAd,
+                                ServiceActivity.this,
+                                () -> null,
+                                adData -> null,
+                                () -> null,
+                                () -> null
+                        );
+                    }
+                });
             }
         });
     }
 
-    private void setAdRevenueListener(User user) {
-        Appodeal.setAdRevenueCallbacks(revenueInfo -> {
-            double revenue = revenueInfo.getRevenue();
-            String currency = revenueInfo.getCurrency();
+    private void updateUserRevenue(User user, AdData data) {
+        if (user != null && data != null)
+        {
+            double revenue = data.getRevenue();
+            String currency = data.getCurrency();
             user.setTotalRevenue(revenue);
             user.setCurrency(currency);
             userVM.updateUserRevenue(revenue, user);
-        });
-    }
-
-    @Override
-    protected void onDestroy()
-    {
-        Appodeal.setAdRevenueCallbacks(null);
-        super.onDestroy();
+        }
     }
 }

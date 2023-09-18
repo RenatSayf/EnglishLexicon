@@ -60,7 +60,7 @@ class TestFragmentTest {
 
             act.supportFragmentManager.beginTransaction().add(
                 act.binding.frameLayout.id,
-                TestFragment.newInstance()
+                TestFragment.newInstance(null)
             ).commit()
 
             act.onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {

@@ -6,6 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.myapp.lexicon.BuildConfig
+import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.helpers.printLogIfDebug
 import com.yandex.mobile.ads.common.AdError
 import com.yandex.mobile.ads.common.AdRequestConfiguration
@@ -15,7 +16,9 @@ import com.yandex.mobile.ads.interstitial.InterstitialAd
 import com.yandex.mobile.ads.interstitial.InterstitialAdEventListener
 import com.yandex.mobile.ads.interstitial.InterstitialAdLoadListener
 import com.yandex.mobile.ads.interstitial.InterstitialAdLoader
+import com.yandex.mobile.ads.rewarded.Reward
 import com.yandex.mobile.ads.rewarded.RewardedAd
+import com.yandex.mobile.ads.rewarded.RewardedAdEventListener
 import com.yandex.mobile.ads.rewarded.RewardedAdLoadListener
 import com.yandex.mobile.ads.rewarded.RewardedAdLoader
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,6 +35,20 @@ class AdsViewModel @Inject constructor(
 
     private var _rewardedAd = MutableLiveData<Result<RewardedAd>>()
     val rewardedAd: LiveData<Result<RewardedAd>> = _rewardedAd
+
+    fun getInterstitialAdOrNull(): InterstitialAd? {
+        _interstitialAd.value?.onSuccess { ad ->
+            return ad
+        }
+        return null
+    }
+
+    fun getRewardedAdOrNull(): RewardedAd? {
+        _rewardedAd.value?.onSuccess { ad ->
+            return ad
+        }
+        return null
+    }
 
     fun loadInterstitialAd(adId: InterstitialAdIds) {
         val id = if (BuildConfig.DEBUG) {
@@ -81,7 +98,8 @@ class AdsViewModel @Inject constructor(
 fun InterstitialAd.showAd(
     activity: Activity,
     onShown: () -> Unit = {},
-    onImpression: () -> Unit = {},
+    onImpression: (data: AdData?) -> Unit = {},
+    onFailed: () -> Unit = {},
     onDismissed: () -> Unit = {}
 ) {
     this.apply {
@@ -92,6 +110,7 @@ fun InterstitialAd.showAd(
 
             override fun onAdFailedToShow(p0: AdError) {
                 printLogIfDebug("${this::class.simpleName} - ${p0.description}")
+                onFailed.invoke()
             }
 
             override fun onAdDismissed() {
@@ -104,9 +123,52 @@ fun InterstitialAd.showAd(
                 p0?.let {
                     val rawData = it.rawData
                     rawData
-                    onImpression.invoke()
+                    onImpression.invoke(null)
+                }?: run {
+                    onImpression.invoke(null)
                 }
             }
         })
+        show(activity)
+    }
+}
+
+fun RewardedAd.showAd(
+    activity: Activity,
+    onShown: () -> Unit = {},
+    onImpression: (data: AdData?) -> Unit = {},
+    onFailed: () -> Unit = {},
+    onDismissed: () -> Unit = {}
+) {
+    this.apply {
+        setAdEventListener(object : RewardedAdEventListener {
+            override fun onAdShown() {
+                onShown.invoke()
+            }
+
+            override fun onAdFailedToShow(p0: AdError) {
+                printLogIfDebug("${this::class.simpleName} - ${p0.description}")
+                onFailed.invoke()
+            }
+
+            override fun onAdDismissed() {
+                onDismissed.invoke()
+            }
+
+            override fun onAdClicked() {}
+
+            override fun onAdImpression(p0: ImpressionData?) {
+                p0?.let {
+                    val rawData = it.rawData
+                    rawData
+                    onImpression.invoke(null)
+                }?: run {
+                    onImpression.invoke(null)
+                }
+            }
+
+            override fun onRewarded(p0: Reward) {}
+        })
+        show(activity)
     }
 }

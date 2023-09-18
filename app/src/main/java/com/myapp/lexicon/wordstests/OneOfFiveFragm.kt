@@ -10,19 +10,26 @@ import android.view.animation.AnimationUtils
 import android.widget.Button
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.firebase.auth.FirebaseAuth
 import com.myapp.lexicon.R
 import com.myapp.lexicon.adapters.OneFiveTestAdapter
-import com.myapp.lexicon.ads.showInterstitial
+import com.myapp.lexicon.ads.AdsViewModel
+import com.myapp.lexicon.ads.InterstitialAdIds
+import com.myapp.lexicon.ads.RewardedAdIds
+import com.myapp.lexicon.ads.intrefaces.AdEventListener
+import com.myapp.lexicon.ads.showAd
 import com.myapp.lexicon.databinding.OneOfFiveFragmNewBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.RandomNumberGenerator
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.adsIsEnabled
-import com.myapp.lexicon.settings.isUserRegistered
+import com.yandex.mobile.ads.interstitial.InterstitialAd
+import com.yandex.mobile.ads.rewarded.RewardedAd
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
@@ -35,16 +42,28 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
     private lateinit var binding: OneOfFiveFragmNewBinding
     private lateinit var vm: OneOfFiveViewModel
     private lateinit var mActivity: MainActivity
+    private val auth: FirebaseAuth by lazy {
+        FirebaseAuth.getInstance()
+    }
+    private val adsVM: AdsViewModel by viewModels()
+    private var interstitialAd: InterstitialAd? = null
+    private var rewardedAd: RewardedAd? = null
+
 
 
     companion object
     {
         private var wordList: List<Word>? = null
         private var instance: OneOfFiveFragm? = null
+        private var adListener: AdEventListener? = null
 
         @JvmStatic
-        fun newInstance(list: MutableList<Word>): OneOfFiveFragm
+        fun newInstance(
+            list: MutableList<Word>,
+            listener: AdEventListener?
+        ): OneOfFiveFragm
         {
+            this.adListener = listener
             val shuffledList = list.shuffled()
             wordList = shuffledList
             return if (instance == null)
@@ -74,6 +93,23 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
     {
         super.onViewCreated(view, savedInstanceState)
         binding = OneOfFiveFragmNewBinding.bind(view)
+
+        if (auth.currentUser != null) {
+            adsVM.loadRewardedAd(adId = RewardedAdIds.REWARDED_1)
+            adsVM.rewardedAd.observe(viewLifecycleOwner) { result ->
+                result.onSuccess { ad ->
+                    rewardedAd = ad
+                }
+            }
+        }
+        else {
+            adsVM.loadInterstitialAd(adId = InterstitialAdIds.INTERSTITIAL_1)
+            adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
+                result.onSuccess { ad ->
+                    interstitialAd = ad
+                }
+            }
+        }
 
         vm.adapterList.observe(viewLifecycleOwner) {
             binding.answersRecyclerView.apply {
@@ -238,24 +274,53 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
         }
     }
 
-    override fun onDetach() {
+    override fun onDestroy() {
 
-        if (this.adsIsEnabled) {
-            mActivity.showInterstitial()
-        }
-        super.onDetach()
+        adListener = null
+        super.onDestroy()
     }
 
     private fun onTestPassed()
     {
         mActivity.testPassed()
-        parentFragmentManager.popBackStack()
+        showAd()
+
     }
 
     private fun onTestFailed(errors: Int)
     {
         mActivity.testFailed(errors)
-        parentFragmentManager.popBackStack()
+        showAd()
     }
+
+    private fun showAd() {
+        if (this.adsIsEnabled) {
+            interstitialAd?.showAd(
+                requireActivity(),
+                onImpression = { data ->
+                    adListener?.onAdImpression(data)
+                },
+                onFailed = {
+                    parentFragmentManager.popBackStack()
+                },
+                onDismissed = {
+                    parentFragmentManager.popBackStack()
+                }
+            )
+            rewardedAd?.showAd(
+                requireActivity(),
+                onImpression = { data ->
+                    adListener?.onAdImpression(data)
+                },
+                onFailed = {
+                    parentFragmentManager.popBackStack()
+                },
+                onDismissed = {
+                    parentFragmentManager.popBackStack()
+                }
+            )
+        }
+    }
+
 
 }

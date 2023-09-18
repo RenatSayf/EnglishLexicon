@@ -8,10 +8,14 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import com.myapp.lexicon.ads.showInterstitial
+import androidx.fragment.app.viewModels
+import com.myapp.lexicon.ads.AdsViewModel
+import com.myapp.lexicon.ads.InterstitialAdIds
+import com.myapp.lexicon.ads.intrefaces.AdEventListener
+import com.myapp.lexicon.ads.showAd
 import com.myapp.lexicon.databinding.TranslateFragmentBinding
 import com.myapp.lexicon.main.MainActivity
-import com.myapp.lexicon.settings.adsIsEnabled
+import com.yandex.mobile.ads.interstitial.InterstitialAd
 import dagger.hilt.android.AndroidEntryPoint
 import java.net.URLDecoder
 
@@ -23,13 +27,17 @@ class TranslateFragment : Fragment()
 {
     private lateinit var binding: TranslateFragmentBinding
     private lateinit var mActivity: AppCompatActivity
+    private var interstitialAd: InterstitialAd? = null
+    private val adsVM: AdsViewModel by viewModels()
 
     companion object
     {
         private var instance: TranslateFragment? = null
         private val javaScriptInterface = AppJavaScriptInterface()
-        fun getInstance(text: String) : TranslateFragment = if (instance == null)
+        private var adListener: AdEventListener? = null
+        fun getInstance(text: String, listener: AdEventListener?) : TranslateFragment = if (instance == null)
         {
+            this.adListener = listener
             TranslateFragment().apply {
                 arguments = Bundle().apply {
                     putString(TEXT, text)
@@ -69,6 +77,13 @@ class TranslateFragment : Fragment()
     {
         super.onViewCreated(view, savedInstanceState)
         binding = TranslateFragmentBinding.bind(view)
+
+        adsVM.loadInterstitialAd(adId = InterstitialAdIds.INTERSTITIAL_2)
+        adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
+            result.onSuccess { ad ->
+                interstitialAd = ad
+            }
+        }
 
         val inputText = arguments?.getString(TEXT) ?: ""
 
@@ -127,22 +142,37 @@ class TranslateFragment : Fragment()
             when(mActivity)
             {
                 is MainActivity -> {
-                    parentFragmentManager.popBackStack()
                     (mActivity as MainActivity).refreshMainScreen(true)
+                    interstitialAd?.showAd(
+                        requireActivity(),
+                        onImpression = { data ->
+                            adListener?.onAdImpression(data)
+                        },
+                        onFailed = {
+                            parentFragmentManager.popBackStack()
+                        },
+                        onDismissed = {
+                            parentFragmentManager.popBackStack()
+                        }
+                    )
                 }
                 is TranslateActivity -> {
-                    requireActivity().finish()
+                    interstitialAd?.showAd(
+                        requireActivity(),
+                        onImpression = { data ->
+                            adListener?.onAdImpression(data)
+                        },
+                        onFailed = {
+                            requireActivity().finish()
+                        },
+                        onDismissed = {
+                            requireActivity().finish()
+                        }
+                    )
                 }
             }
         }
     }
 
-    override fun onDetach() {
-
-        if (this@TranslateFragment.adsIsEnabled) {
-            showInterstitial()
-        }
-        super.onDetach()
-    }
 
 }

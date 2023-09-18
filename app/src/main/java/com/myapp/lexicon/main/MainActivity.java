@@ -22,7 +22,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.appodeal.ads.Appodeal;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
@@ -32,7 +31,8 @@ import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
-import com.myapp.lexicon.ads.AdsExtensionsKt;
+import com.myapp.lexicon.ads.intrefaces.AdEventListener;
+import com.myapp.lexicon.ads.models.AdData;
 import com.myapp.lexicon.auth.AuthFragment;
 import com.myapp.lexicon.auth.AuthViewModel;
 import com.myapp.lexicon.auth.account.AccountFragment;
@@ -93,7 +93,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
-        MainFragment.Listener, AuthFragment.AuthListener
+        MainFragment.Listener, AuthFragment.AuthListener, AdEventListener
 {
     private View root;
     private NavigationView navView;
@@ -165,36 +165,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return null;
             });
         });
-
-        boolean isInitialized = Appodeal.isInitialized(Appodeal.INTERSTITIAL | Appodeal.REWARDED_VIDEO);
-        if (!isInitialized)
-        {
-            AdsExtensionsKt.adsInitialize(
-                    this,
-                    Appodeal.INTERSTITIAL | Appodeal.REWARDED_VIDEO,
-                    () -> {
-                        Appodeal.setAdRevenueCallbacks(revenueInfo -> {
-                            double revenue = revenueInfo.getRevenue();
-                            String currency = revenueInfo.getCurrency();
-                            User user = userVM.getUser().getValue();
-                            if (user != null)
-                            {
-                                user.setTotalRevenue(revenue);
-                                user.setCurrency(currency);
-                                userVM.updateUserRevenue(revenue, user);
-                            }
-                        });
-                        return null;
-                    },
-                    apdInitializationErrors -> {
-                        if (BuildConfig.DEBUG)
-                        {
-                            apdInitializationErrors.forEach(Throwable::printStackTrace);
-                        }
-                        return null;
-                    }
-            );
-        }
 
         userVM.getState().observe(this, state -> {
             if (state instanceof UserViewModel.State.ReceivedUserData) {
@@ -376,7 +346,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         mainViewModel.setMainControlVisibility(View.INVISIBLE);
                         speechViewModel.setSpeechProgressVisibility(View.INVISIBLE);
                         Toast.makeText(MainActivity.this, getString(R.string.text_test_knowledge), Toast.LENGTH_LONG).show();
-                        OneOfFiveFragm testFragment = OneOfFiveFragm.newInstance(list);
+                        OneOfFiveFragm testFragment = OneOfFiveFragm.newInstance(list, MainActivity.this);
                         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                         transaction.setCustomAnimations(R.anim.from_right_to_left_anim, R.anim.from_left_to_right_anim);
                         transaction.replace(R.id.frame_to_page_fragm, testFragment).addToBackStack(null).commit();
@@ -642,7 +612,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onDestroy()
     {
-        Appodeal.setAdRevenueCallbacks(null);
         try
         {
             mainViewModel.saveCurrentWordToPref(currentWord);
@@ -758,7 +727,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         if (itemId == R.id.nav_add_word)
         {
-            TranslateFragment translateFragm = TranslateFragment.Companion.getInstance("");
+            TranslateFragment translateFragm = TranslateFragment.Companion.getInstance("", MainActivity.this);
             transaction.replace(R.id.frame_to_page_fragm, translateFragm).addToBackStack(null).commitAllowingStateLoss();
         }
         else if (itemId == R.id.nav_delete_dict)
@@ -796,7 +765,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         else if (itemId == R.id.nav_check_your_self)
         {
-            getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, TestFragment.Companion.newInstance()).addToBackStack(null).commit();
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.frame_to_page_fragm, TestFragment.Companion.newInstance(MainActivity.this))
+                    .addToBackStack(null)
+                    .commit();
         }
         else if (itemId == R.id.nav_settings)
         {
@@ -1147,6 +1120,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     return null;
                 });
             });
+        }
+    }
+
+    @Override
+    public void onAdImpression(@Nullable AdData data)
+    {
+        if (data != null)
+        {
+            double revenue = data.getRevenue();
+            String currency = data.getCurrency();
+            User user = userVM.getUser().getValue();
+            if (user != null)
+            {
+                user.setTotalRevenue(revenue);
+                user.setCurrency(currency);
+                userVM.updateUserRevenue(revenue, user);
+            }
         }
     }
 }

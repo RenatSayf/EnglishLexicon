@@ -13,7 +13,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -25,14 +24,12 @@ import android.widget.ViewSwitcher;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.addword.AddWordViewModel;
-import com.myapp.lexicon.ads.AdsExtensionsKt;
 import com.myapp.lexicon.dialogs.ConfirmDialog;
 import com.myapp.lexicon.helpers.AppBus;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SpeechViewModel;
 import com.myapp.lexicon.models.Word;
-import com.myapp.lexicon.settings.SettingsExtKt;
 import com.myapp.lexicon.viewmodels.EditorSearchViewModel;
 
 import java.util.ArrayList;

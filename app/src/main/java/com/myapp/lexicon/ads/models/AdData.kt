@@ -8,6 +8,6 @@ data class AdData(
     val network: Network,
     val precision: String,
     val requestId: String,
-    val revenue: String,
-    val revenueUSD: String
+    val revenue: Double,
+    val revenueUSD: Double
 )
