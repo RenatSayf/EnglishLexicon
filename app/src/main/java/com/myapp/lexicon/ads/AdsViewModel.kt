@@ -22,6 +22,7 @@ import com.yandex.mobile.ads.rewarded.RewardedAdEventListener
 import com.yandex.mobile.ads.rewarded.RewardedAdLoadListener
 import com.yandex.mobile.ads.rewarded.RewardedAdLoader
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 
@@ -122,8 +123,14 @@ fun InterstitialAd.showAd(
             override fun onAdImpression(p0: ImpressionData?) {
                 p0?.let {
                     val rawData = it.rawData
-                    rawData
-                    onImpression.invoke(null)
+                    rawData.toAdData(
+                        onSuccess = {data ->
+                            onImpression.invoke(data)
+                        },
+                        onFailed = {
+                            onImpression.invoke(null)
+                        }
+                    )
                 }?: run {
                     onImpression.invoke(null)
                 }
@@ -160,8 +167,14 @@ fun RewardedAd.showAd(
             override fun onAdImpression(p0: ImpressionData?) {
                 p0?.let {
                     val rawData = it.rawData
-                    rawData
-                    onImpression.invoke(null)
+                    rawData.toAdData(
+                        onSuccess = {data ->
+                            onImpression.invoke(data)
+                        },
+                        onFailed = {
+                            onImpression.invoke(null)
+                        }
+                    )
                 }?: run {
                     onImpression.invoke(null)
                 }
@@ -170,5 +183,19 @@ fun RewardedAd.showAd(
             override fun onRewarded(p0: Reward) {}
         })
         show(activity)
+    }
+}
+
+fun String.toAdData(
+    onSuccess: (AdData) -> Unit,
+    onFailed: () -> Unit
+) {
+    try {
+        val adData = Json.decodeFromString<AdData>(this)
+        onSuccess.invoke(adData)
+    }
+    catch (e: Exception) {
+        if (BuildConfig.DEBUG) e.printStackTrace()
+        onFailed.invoke()
     }
 }

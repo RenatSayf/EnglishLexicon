@@ -3,8 +3,8 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.devtools.ksp'
-
 apply plugin: 'dagger.hilt.android.plugin' // Hint Hilt step 2
+apply plugin: "org.jetbrains.kotlin.plugin.serialization"
 
 android {
     compileSdk 34
@@ -143,6 +143,9 @@ dependencies {
 
     //FormatEditText
     implementation 'com.github.dkzwm:fet-core:0.2.1'
+
+    //Kotlin Serialization
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.5.1'
 
 }
 
