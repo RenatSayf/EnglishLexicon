@@ -1,7 +1,6 @@
 package com.myapp.lexicon.auth
 
 import android.app.Application
-import android.icu.util.Currency
 import android.text.TextUtils
 import android.util.Patterns
 import androidx.lifecycle.AndroidViewModel
@@ -17,12 +16,10 @@ import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserState
-import com.myapp.lexicon.models.currency.Currencies
 import com.myapp.lexicon.settings.getAuthDataFromPref
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -65,14 +62,6 @@ class AuthViewModel @Inject constructor(
                 val user = User(firebaseUser?.uid.toString()).apply {
                     this.email = email
                     this.password = password
-                    val currency = Currency.getInstance(Locale.getDefault())
-                    if (currency.currencyCode == Currencies.RUB.name) {
-                        this.currency = currency.currencyCode
-                        this.currencySymbol = currency.symbol
-                    } else {
-                        this.currency = Currencies.USD.name
-                        this.currencySymbol = "$"
-                    }
                 }
                 _state.value = UserState.SignUp(user)
                 _stateFlow.value = UserState.SignUp(user)

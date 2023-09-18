@@ -1,5 +1,6 @@
 package com.myapp.lexicon.models
 
+import android.icu.util.Currency
 import com.myapp.lexicon.helpers.toStringTime
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -48,6 +49,11 @@ data class User(
         }
     var revenuePerAd: Double = 0.0
     var currency: String? = ""
+        set(value) {
+            field = value
+            val instance = java.util.Currency.getInstance(field)
+            currencySymbol = instance.symbol
+        }
     var currencySymbol: String = ""
     var currencyRate: Double = 0.0
     var paymentDate: String = ""
