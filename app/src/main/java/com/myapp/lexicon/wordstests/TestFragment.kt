@@ -26,7 +26,6 @@ import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.InterstitialAdIds
-import com.myapp.lexicon.ads.RewardedAdIds
 import com.myapp.lexicon.ads.intrefaces.AdEventListener
 import com.myapp.lexicon.ads.showAd
 import com.myapp.lexicon.databinding.TestFragmentBinding
@@ -35,12 +34,10 @@ import com.myapp.lexicon.helpers.*
 import com.myapp.lexicon.main.SpeechViewModel
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.getTestStateFromPref
-import com.myapp.lexicon.settings.isUserRegistered
 import com.myapp.lexicon.settings.saveTestStateToPref
 import com.myapp.lexicon.viewmodels.AnimViewModel
 import com.myapp.lexicon.viewmodels.PageBackViewModel
 import com.yandex.mobile.ads.interstitial.InterstitialAd
-import com.yandex.mobile.ads.rewarded.RewardedAd
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.disposables.CompositeDisposable
 import java.util.*
@@ -73,7 +70,6 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     private val composite = CompositeDisposable()
     private var dialogWarning: DialogWarning? = null
     private var interstitialAd: InterstitialAd? = null
-    private var rewardedAd: RewardedAd? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -264,34 +260,15 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 interstitialAd = ad
             }
         }
-        adsVM.rewardedAd.observe(viewLifecycleOwner) { result ->
-            result.onSuccess { ad ->
-                rewardedAd = ad
-            }
-        }
 
         testVM.state.observe(viewLifecycleOwner) { state ->
             when(state) {
                 TestViewModel.State.Init -> {
-                    requireContext().isUserRegistered(
-                        onYes = {
-                            adsVM.loadRewardedAd(adId = RewardedAdIds.REWARDED_2)
-                        },
-                        onNotRegistered = {
-                            adsVM.loadInterstitialAd(adId = InterstitialAdIds.INTERSTITIAL_3)
-                        }
-                    )
+                    adsVM.loadInterstitialAd(adId = InterstitialAdIds.INTERSTITIAL_3)
                 }
                 TestViewModel.State.NotShowAd -> {}
                 TestViewModel.State.ShowAd -> {
                     interstitialAd?.showAd(
-                        requireActivity(),
-                        onImpression = { data ->
-                            adListener?.onAdImpression(data)
-                            testVM.setState(TestViewModel.State.Init)
-                        }
-                    )
-                    rewardedAd?.showAd(
                         requireActivity(),
                         onImpression = { data ->
                             adListener?.onAdImpression(data)

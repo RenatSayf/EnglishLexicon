@@ -172,7 +172,7 @@ class RepeatDialog: DialogFragment() {
 
     private fun buildRewardText(user: User) {
 
-        val userReward = (user.userReward * user.currencyRate).to2DigitsScale()
+        val userReward = user.userReward.to2DigitsScale()
         val text = "${getString(R.string.coins_bag)} $userReward ${user.currencySymbol}"
         binding.tvReward.text = text
     }

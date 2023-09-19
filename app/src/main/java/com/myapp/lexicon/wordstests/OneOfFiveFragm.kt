@@ -19,7 +19,6 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.adapters.OneFiveTestAdapter
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.InterstitialAdIds
-import com.myapp.lexicon.ads.RewardedAdIds
 import com.myapp.lexicon.ads.intrefaces.AdEventListener
 import com.myapp.lexicon.ads.showAd
 import com.myapp.lexicon.databinding.OneOfFiveFragmNewBinding
@@ -29,7 +28,6 @@ import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.adsIsEnabled
 import com.yandex.mobile.ads.interstitial.InterstitialAd
-import com.yandex.mobile.ads.rewarded.RewardedAd
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
@@ -47,8 +45,6 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
     }
     private val adsVM: AdsViewModel by viewModels()
     private var interstitialAd: InterstitialAd? = null
-    private var rewardedAd: RewardedAd? = null
-
 
 
     companion object
@@ -94,20 +90,10 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
         super.onViewCreated(view, savedInstanceState)
         binding = OneOfFiveFragmNewBinding.bind(view)
 
-        if (auth.currentUser != null) {
-            adsVM.loadRewardedAd(adId = RewardedAdIds.REWARDED_1)
-            adsVM.rewardedAd.observe(viewLifecycleOwner) { result ->
-                result.onSuccess { ad ->
-                    rewardedAd = ad
-                }
-            }
-        }
-        else {
-            adsVM.loadInterstitialAd(adId = InterstitialAdIds.INTERSTITIAL_1)
-            adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
-                result.onSuccess { ad ->
-                    interstitialAd = ad
-                }
+        adsVM.loadInterstitialAd(adId = InterstitialAdIds.INTERSTITIAL_1)
+        adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
+            result.onSuccess { ad ->
+                interstitialAd = ad
             }
         }
 
@@ -295,22 +281,15 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
 
     private fun showAd() {
         if (this.adsIsEnabled) {
+
+            val firebaseUser = auth.currentUser
+
             interstitialAd?.showAd(
                 requireActivity(),
                 onImpression = { data ->
-                    adListener?.onAdImpression(data)
-                },
-                onFailed = {
-                    parentFragmentManager.popBackStack()
-                },
-                onDismissed = {
-                    parentFragmentManager.popBackStack()
-                }
-            )
-            rewardedAd?.showAd(
-                requireActivity(),
-                onImpression = { data ->
-                    adListener?.onAdImpression(data)
+                    if (firebaseUser != null) {
+                        adListener?.onAdImpression(data)
+                    }
                 },
                 onFailed = {
                     parentFragmentManager.popBackStack()

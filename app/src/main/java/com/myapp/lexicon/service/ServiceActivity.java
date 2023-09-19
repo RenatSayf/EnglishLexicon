@@ -12,21 +12,17 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.ads.AdsViewModel;
 import com.myapp.lexicon.ads.AdsViewModelKt;
 import com.myapp.lexicon.ads.InterstitialAdIds;
-import com.myapp.lexicon.ads.RewardedAdIds;
-import com.myapp.lexicon.ads.models.AdData;
 import com.myapp.lexicon.auth.AuthViewModel;
 import com.myapp.lexicon.databinding.ServiceDialogActivityBinding;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.interfaces.IModalFragment;
 import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.viewmodels.UserViewModel;
-import com.myapp.lexicon.models.User;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.models.WordKt;
 import com.myapp.lexicon.settings.SettingsExtKt;
 import com.myapp.lexicon.splash.SplashActivity;
 import com.yandex.mobile.ads.interstitial.InterstitialAd;
-import com.yandex.mobile.ads.rewarded.RewardedAd;
 
 import java.util.List;
 
@@ -45,7 +41,6 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
     private UserViewModel userVM;
     private AuthViewModel authVM;
     private AdsViewModel adsVM;
-    private RewardedAd rewardedAd;
     private InterstitialAd interstitialAd;
 
     @Override
@@ -156,52 +151,27 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         userVM = new ViewModelProvider(ServiceActivity.this).get(UserViewModel.class);
         userVM.getUserFromCloud(userId);
 
-        userVM.getState().observe(this, state -> {
-
-            if (state instanceof UserViewModel.State.ReceivedUserData) {
-
-                adsVM.loadRewardedAd(RewardedAdIds.REWARDED_3);
-                adsVM.getRewardedAd().observe(this, result -> {
-                    rewardedAd = adsVM.getRewardedAdOrNull();
-                    if (rewardedAd != null) {
-                        AdsViewModelKt.showAd(
-                            rewardedAd,
-                            ServiceActivity.this,
-                            () -> null,
-                            data -> {
-                                User user = ((UserViewModel.State.ReceivedUserData) state).getUser();
-                                updateUserRevenue(user, data);
-                                return null;
-                            },
-                            () -> null,
-                            () -> null
-                        );
-                    }
-                });
-            }
-            else {
-                adsVM.loadInterstitialAd(InterstitialAdIds.INTERSTITIAL_4);
-                adsVM.getInterstitialAd().observe(this, result -> {
-                    interstitialAd = adsVM.getInterstitialAdOrNull();
-                    if (interstitialAd != null) {
-                        AdsViewModelKt.showAd(
-                                interstitialAd,
-                                ServiceActivity.this,
-                                () -> null,
-                                adData -> null,
-                                () -> null,
-                                () -> null
-                        );
-                    }
-                });
+        adsVM.loadInterstitialAd(InterstitialAdIds.INTERSTITIAL_4);
+        adsVM.getInterstitialAd().observe(this, result -> {
+            interstitialAd = adsVM.getInterstitialAdOrNull();
+            if (interstitialAd != null) {
+                AdsViewModelKt.showAd(
+                        interstitialAd,
+                        ServiceActivity.this,
+                        () -> null,
+                        adData -> {
+                            userVM.getUser().observe(this, user -> {
+                                if (adData != null && user != null) {
+                                    userVM.updateUserRevenue(adData, user);
+                                }
+                            });
+                            return null;
+                        },
+                        () -> null,
+                        () -> null
+                );
             }
         });
     }
 
-    private void updateUserRevenue(User user, AdData data) {
-        if (user != null && data != null)
-        {
-            userVM.updateUserRevenue(data, user);
-        }
-    }
 }
