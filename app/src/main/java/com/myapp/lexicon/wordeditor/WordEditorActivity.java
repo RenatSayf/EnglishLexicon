@@ -24,6 +24,8 @@ import android.widget.ViewSwitcher;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.addword.AddWordViewModel;
+import com.myapp.lexicon.ads.AdsViewModelKt;
+import com.myapp.lexicon.ads.BannerAdIds;
 import com.myapp.lexicon.dialogs.ConfirmDialog;
 import com.myapp.lexicon.helpers.AppBus;
 import com.myapp.lexicon.helpers.ExtensionsKt;
@@ -31,6 +33,8 @@ import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SpeechViewModel;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.viewmodels.EditorSearchViewModel;
+import com.yandex.mobile.ads.banner.BannerAdSize;
+import com.yandex.mobile.ads.banner.BannerAdView;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,6 +44,7 @@ import java.util.Locale;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.ViewModelProvider;
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -110,6 +115,11 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
         buttonWrite_OnClick();
         buttonCancel_OnClick();
         checkMove_OnClick();
+
+        ConstraintLayout rootLayout = findViewById(R.id.rootLayout);
+        BannerAdView bannerView = (BannerAdView)findViewById(R.id.bannerView);
+        BannerAdSize bannerAdSize = BannerAdSize.stickySize(WordEditorActivity.this, rootLayout.getWidth());
+        AdsViewModelKt.loadBanner(bannerView, BannerAdIds.BANNER_2);
     }
 
     @SuppressWarnings("CodeBlock2Expr")
@@ -287,7 +297,6 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             editorVM.setRuWord(ruWord);
             switcher.showNext();
         }
-
 
     }
 

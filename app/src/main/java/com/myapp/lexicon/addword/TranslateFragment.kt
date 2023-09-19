@@ -10,8 +10,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.myapp.lexicon.ads.AdsViewModel
+import com.myapp.lexicon.ads.BannerAdIds
 import com.myapp.lexicon.ads.InterstitialAdIds
 import com.myapp.lexicon.ads.intrefaces.AdEventListener
+import com.myapp.lexicon.ads.loadBanner
 import com.myapp.lexicon.ads.showAd
 import com.myapp.lexicon.databinding.TranslateFragmentBinding
 import com.myapp.lexicon.main.MainActivity
@@ -87,34 +89,42 @@ class TranslateFragment : Fragment()
 
         val inputText = arguments?.getString(TEXT) ?: ""
 
-        binding.webView.apply {
-            settings.javaScriptEnabled = true //todo parsing WebView: Step 3
-            settings.domStorageEnabled = true //todo parsing WebView: Step 4
-            addJavascriptInterface(javaScriptInterface, "HtmlHandler") //todo parsing WebView: Step 5
-            webViewClient = AppWebViewClient(this@TranslateFragment) //todo parsing WebView: Step 6
-            loadUrl("https://translate.yandex.ru/?text=${inputText}")
-        }
+        with(binding) {
 
-        binding.btnSave.setOnClickListener {
-            binding.loadProgress.visibility = View.VISIBLE
-            val url = binding.webView.url
-            val decode = URLDecoder.decode(url, "UTF-8")
-            javaScriptInterface.setInputText(decode)
-            //Hint parsing WebView: Step 7
-            binding.webView.loadUrl("javascript:window.HtmlHandler.handleHtml('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>');")
-        }
-
-        //Hint Отправка события в активити/фрагмент: Step 4. End
-        AppJavaScriptInterface.parseEvent.observe(viewLifecycleOwner) {
-            if (!it.hasBeenHandled) {
-                val content = it.getContent()
-                if (!content.isNullOrEmpty()) {
-                    AddWordDialog.newInstance(content)
-                        .show(mActivity.supportFragmentManager, AddWordDialog.TAG)
-                }
+            webView.apply {
+                settings.javaScriptEnabled = true //todo parsing WebView: Step 3
+                settings.domStorageEnabled = true //todo parsing WebView: Step 4
+                addJavascriptInterface(javaScriptInterface, "HtmlHandler") //todo parsing WebView: Step 5
+                webViewClient = AppWebViewClient(this@TranslateFragment) //todo parsing WebView: Step 6
+                loadUrl("https://translate.yandex.ru/?text=${inputText}")
             }
-            binding.loadProgress.visibility = View.GONE
+
+            btnSave.setOnClickListener {
+                loadProgress.visibility = View.VISIBLE
+                val url = webView.url
+                val decode = URLDecoder.decode(url, "UTF-8")
+                javaScriptInterface.setInputText(decode)
+                //Hint parsing WebView: Step 7
+                webView.loadUrl("javascript:window.HtmlHandler.handleHtml('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>');")
+            }
+
+            //Hint Отправка события в активити/фрагмент: Step 4. End
+            AppJavaScriptInterface.parseEvent.observe(viewLifecycleOwner) {
+                if (!it.hasBeenHandled) {
+                    val content = it.getContent()
+                    if (!content.isNullOrEmpty()) {
+                        AddWordDialog.newInstance(content)
+                            .show(mActivity.supportFragmentManager, AddWordDialog.TAG)
+                    }
+                }
+                loadProgress.visibility = View.GONE
+            }
+
+            bannerView.loadBanner(
+                adId = BannerAdIds.BANNER_3
+            )
         }
+
     }
 
     override fun onResume()

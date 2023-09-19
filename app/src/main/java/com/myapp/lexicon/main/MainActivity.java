@@ -31,6 +31,8 @@ import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
+import com.myapp.lexicon.ads.AdsViewModelKt;
+import com.myapp.lexicon.ads.BannerAdIds;
 import com.myapp.lexicon.ads.intrefaces.AdEventListener;
 import com.myapp.lexicon.ads.models.AdData;
 import com.myapp.lexicon.auth.AuthFragment;
@@ -62,6 +64,7 @@ import com.myapp.lexicon.settings.SettingsExtKt;
 import com.myapp.lexicon.wordeditor.WordEditorActivity;
 import com.myapp.lexicon.wordstests.OneOfFiveFragm;
 import com.myapp.lexicon.wordstests.TestFragment;
+import com.yandex.mobile.ads.banner.BannerAdView;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -486,14 +489,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         MainFragment mainFragment = MainFragment.Companion.getInstance(this);
         getSupportFragmentManager().beginTransaction().add(R.id.frame_to_page_fragm, mainFragment).commit();
 
+        BannerAdView bannerView = (BannerAdView)root.findViewById(R.id.bannerView);
+        AdsViewModelKt.loadBanner(bannerView, BannerAdIds.BANNER_1);
+
     }
 
     public void buildRewardText(User user) {
         double rewardToDisplay = UserKt.to2DigitsScale(user.getUserReward());
         TextView tvReward = root.findViewById(R.id.tvReward);
         String text = getString(R.string.text_your_reward).concat(" ").concat(String.valueOf(rewardToDisplay)).concat(" ").concat(user.getCurrencySymbol());
-        tvReward.setText(text);
-        tvReward.setVisibility(View.VISIBLE);
+        if (tvReward != null)
+        {
+            tvReward.setText(text);
+            tvReward.setVisibility(View.VISIBLE);
+        }
     }
 
     public void testPassed()

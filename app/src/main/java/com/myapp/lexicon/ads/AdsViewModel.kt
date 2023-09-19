@@ -8,7 +8,10 @@ import androidx.lifecycle.MutableLiveData
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.helpers.printLogIfDebug
+import com.yandex.mobile.ads.banner.BannerAdSize
+import com.yandex.mobile.ads.banner.BannerAdView
 import com.yandex.mobile.ads.common.AdError
+import com.yandex.mobile.ads.common.AdRequest
 import com.yandex.mobile.ads.common.AdRequestConfiguration
 import com.yandex.mobile.ads.common.AdRequestError
 import com.yandex.mobile.ads.common.ImpressionData
@@ -24,6 +27,7 @@ import com.yandex.mobile.ads.rewarded.RewardedAdLoader
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
+import kotlin.math.roundToInt
 
 
 @HiltViewModel
@@ -94,6 +98,8 @@ class AdsViewModel @Inject constructor(
             loadAd(adRequestConfiguration)
         }
     }
+
+
 }
 
 fun InterstitialAd.showAd(
@@ -215,3 +221,17 @@ private val jsonString = """{
     "ad_unit_id": "R-M-711877-3"
   }
 }"""
+
+fun BannerAdView.loadBanner(adId: BannerAdIds) {
+    val width = (this.context.resources.displayMetrics.widthPixels / context.resources.displayMetrics.density).roundToInt()
+    val stickySize = BannerAdSize.stickySize(this.context, width)
+    this.apply {
+        val id = if (BuildConfig.DEBUG) {
+            "demo-banner-yandex"
+        } else {
+            adId.id
+        }
+        setAdUnitId(id)
+        setAdSize(stickySize)
+    }.loadAd(AdRequest.Builder().build())
+}

@@ -205,13 +205,13 @@
 
         </LinearLayout>
 
-        <FrameLayout
-            android:id="@+id/adLayout"
+        <com.yandex.mobile.ads.banner.BannerAdView
+            android:id="@+id/bannerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center">
-        </FrameLayout>
+        </com.yandex.mobile.ads.banner.BannerAdView>
 
     </LinearLayout>
 
