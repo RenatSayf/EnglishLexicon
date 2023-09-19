@@ -46,7 +46,7 @@ data class User(
     var reservedPayment: Double = 0.0
         get() = BigDecimal(field).setScale(2, RoundingMode.DOWN).toDouble()
         private set(value) {
-            this.payoutInLocalCurrency = BigDecimal(value * this.currencyRate).setScale(2, RoundingMode.DOWN).toDouble()
+            this.payoutInLocalCurrency = BigDecimal(value).setScale(2, RoundingMode.DOWN).toDouble()
             field = value
         }
     var revenuePerAd: Double = 0.0

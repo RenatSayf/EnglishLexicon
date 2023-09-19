@@ -199,3 +199,19 @@ fun String.toAdData(
         onFailed.invoke()
     }
 }
+
+private val jsonString = """{
+  "currency": "RUB",
+  "revenueUSD": "0.001200671",
+  "precision": "estimated",
+  "revenue": "0.116025434",
+  "requestId": "1694954665976270-617871108186477874100342-production-app-host-vla-326",
+  "blockId": "R-M-711877-3",
+  "adType": "interstitial",
+  "ad_unit_id": "R-M-711877-3",
+  "network": {
+    "name": "Yandex",
+    "adapter": "Yandex",
+    "ad_unit_id": "R-M-711877-3"
+  }
+}"""

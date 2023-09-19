@@ -17,6 +17,7 @@ import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.helpers.toStringTime
 import com.myapp.lexicon.interfaces.FlowCallback
 import com.myapp.lexicon.models.User
+import com.myapp.lexicon.models.to2DigitsScale
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -170,9 +171,9 @@ class UserViewModel @Inject constructor(
                     user.totalRevenue = calcTotalRevenue(adData.revenue, remoteUserData, User.KEY_TOTAL_REVENUE)
                     user.revenueUSD = calcTotalRevenue(adData.revenueUSD, remoteUserData, User.KEY_REVENUE_USD)
                     user.currency = adData.currency
-                    user.currencyRate = BigDecimal(adData.revenue / adData.revenueUSD).setScale(2, RoundingMode.DOWN).toDouble()
-                    if (user.reallyRevenue > -1 && user.userReward > -1) {
+                    user.currencyRate = (adData.revenue / adData.revenueUSD).to2DigitsScale()
 
+                    if (user.reallyRevenue > -1 && user.userReward > -1) {
                         val revenueMap = mapOf(
                             User.KEY_REVENUE_USD to user.revenueUSD.toString(),
                             User.KEY_REALLY_REVENUE to user.reallyRevenue.toString(),
@@ -250,7 +251,7 @@ class UserViewModel @Inject constructor(
     fun calcReallyRevenue(revenuePerAd: Double, remoteUserData: Map<String, String?>): Double {
         val currentRevenue = try {
             remoteUserData[User.KEY_REALLY_REVENUE]?.ifEmpty {
-                -1.0
+                0.0
             }.toString().toDouble()
         } catch (e: Exception) {
             -1.0
@@ -266,7 +267,7 @@ class UserViewModel @Inject constructor(
     fun calcUserReward(revenuePerAd: Double, remoteUserData: Map<String, String?>): Double {
         val currentReward = try {
             remoteUserData[User.KEY_USER_REWARD]?.ifEmpty {
-                -1.0
+                0.0
             }.toString().toDouble()
         } catch (e: Exception) {
             -1.0
@@ -286,7 +287,7 @@ class UserViewModel @Inject constructor(
     ): Double {
         val currentRevenue = try {
             remoteUserData[mapKey]?.ifEmpty {
-                -1.0
+                0.0
             }.toString().toDouble()
         } catch (e: Exception) {
             -1.0

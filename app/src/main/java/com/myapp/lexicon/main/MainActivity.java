@@ -489,22 +489,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void buildRewardText(User user) {
-        SettingsExtKt.getExchangeRateFromPref(
-                this,
-                () -> null,
-                (date, symbol, rate) -> {
-                    double rewardToDisplay = UserKt.to2DigitsScale(user.getUserReward() * user.getCurrencyRate());
-                    TextView tvReward = root.findViewById(R.id.tvReward);
-                    String text = getString(R.string.text_your_reward).concat(" ").concat(String.valueOf(rewardToDisplay)).concat(" ").concat(symbol);
-                    tvReward.setText(text);
-                    tvReward.setVisibility(View.VISIBLE);
-                    return null;
-                },
-                e -> {
-                    if (BuildConfig.DEBUG) e.printStackTrace();
-                    return null;
-                }
-        );
+        double rewardToDisplay = UserKt.to2DigitsScale(user.getUserReward());
+        TextView tvReward = root.findViewById(R.id.tvReward);
+        String text = getString(R.string.text_your_reward).concat(" ").concat(String.valueOf(rewardToDisplay)).concat(" ").concat(user.getCurrencySymbol());
+        tvReward.setText(text);
+        tvReward.setVisibility(View.VISIBLE);
     }
 
     public void testPassed()

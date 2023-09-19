@@ -311,7 +311,7 @@ class AccountFragment : Fragment() {
                 onInit = {},
                 onSuccess = { date, symbol, rate ->
 
-                    val rewardToDisplay = "${(user.userReward * user.currencyRate).to2DigitsScale()} ${user.currencySymbol}"
+                    val rewardToDisplay = "${(user.userReward).to2DigitsScale()} ${user.currencySymbol}"
                     tvRewardValue.text = rewardToDisplay
 
                     if (user.reservedPayment > 0) {
@@ -325,10 +325,10 @@ class AccountFragment : Fragment() {
                         tvReservedValue.visibility = View.GONE
                     }
 
-                    val rewardThreshold = (paymentThreshold * rate).toInt()
-                    val textCondition = "${getString(R.string.text_reward_conditions)} $rewardThreshold $symbol"
+                    val rewardThreshold = (paymentThreshold * user.currencyRate).toInt()
+                    val textCondition = "${getString(R.string.text_reward_conditions)} $rewardThreshold ${user.currencySymbol}"
                     tvRewardCondition.text = textCondition
-                    btnGetReward.isEnabled = (user.userReward * rate) > rewardThreshold
+                    btnGetReward.isEnabled = (user.userReward) > (rewardThreshold * user.currencyRate).toInt()
                     if (user.userReward > rewardThreshold) {
                         tvRewardCondition.visibility = View.GONE
                     }
