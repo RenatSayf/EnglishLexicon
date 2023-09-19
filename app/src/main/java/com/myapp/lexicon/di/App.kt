@@ -2,11 +2,8 @@
 
 package com.myapp.lexicon.di
 
-import android.app.Activity
 import android.app.Application
-import android.app.Application.ActivityLifecycleCallbacks
 import android.content.Context
-import android.os.Bundle
 import android.util.Log
 import androidx.multidex.MultiDex
 import androidx.work.Configuration
@@ -17,9 +14,8 @@ import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
-import com.myapp.lexicon.database.AppDataBase
-import com.myapp.lexicon.main.MainActivity
-import com.myapp.lexicon.wordeditor.WordEditorActivity
+import com.yandex.metrica.YandexMetrica
+import com.yandex.metrica.YandexMetricaConfig
 import com.yandex.mobile.ads.common.InitializationListener
 import com.yandex.mobile.ads.common.MobileAds
 import dagger.hilt.android.HiltAndroidApp
@@ -45,6 +41,11 @@ class App : Application(), Configuration.Provider {
             setDefaultsAsync(R.xml.remote_config_defaults)
             fetchAndActivate()
         }
+
+        val apiKey = getString(R.string.ya_metrica_api_key)
+        val config = YandexMetricaConfig.newConfigBuilder(apiKey).build()
+        YandexMetrica.activate(applicationContext, config)
+        YandexMetrica.enableActivityAutoTracking(this)
 
         MobileAds.initialize(this, object : InitializationListener {
             override fun onInitializationCompleted() {
