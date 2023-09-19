@@ -53,8 +53,10 @@ data class User(
     var currency: String? = ""
         set(value) {
             field = value
-            val instance = java.util.Currency.getInstance(field)
-            currencySymbol = instance.symbol
+            if (!value.isNullOrEmpty() && value.length == 3) {
+                val instance = java.util.Currency.getInstance(field)
+                currencySymbol = instance.symbol
+            }
         }
     var currencySymbol: String = ""
     var currencyRate: Double = 0.0
