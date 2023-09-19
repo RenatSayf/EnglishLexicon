@@ -54,13 +54,11 @@ import com.myapp.lexicon.models.User;
 import com.myapp.lexicon.models.UserKt;
 import com.myapp.lexicon.models.UserState;
 import com.myapp.lexicon.models.Word;
-import com.myapp.lexicon.models.currency.Currency;
 import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.service.PhoneUnlockedReceiver;
 import com.myapp.lexicon.settings.ContainerFragment;
 import com.myapp.lexicon.settings.PowerSettingsExtKt;
 import com.myapp.lexicon.settings.SettingsExtKt;
-import com.myapp.lexicon.viewmodels.CurrencyViewModel;
 import com.myapp.lexicon.wordeditor.WordEditorActivity;
 import com.myapp.lexicon.wordstests.OneOfFiveFragm;
 import com.myapp.lexicon.wordstests.TestFragment;
@@ -1071,21 +1069,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         wordsInterval = SettingsExtKt.getTestIntervalFromPref(this);
     }
 
-    @SuppressWarnings("CodeBlock2Expr")
     @Override
     public void refreshAuthState(@NonNull User user)
     {
-        CurrencyViewModel currencyVM = new ViewModelProvider(MainActivity.this).get(CurrencyViewModel.class);
-        currencyVM.fetchExchangeRateFromCloud(Locale.getDefault());
-        currencyVM.getCurrency().observe(this, result -> {
-            result.onSuccess(obj -> {
-                Currency currency = (Currency) obj;
-                SettingsExtKt.saveExchangeRateToPref(this, currency);
-                user.setCurrency(currency.getName());
-                authVM.setState(new UserState.SignUp(user));
-                return null;
-            });
-        });
+        authVM.setState(new UserState.SignUp(user));
 
         SettingsExtKt.checkCloudToken(
                 this,
@@ -1102,25 +1089,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    /** @noinspection CodeBlock2Expr*/
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig)
     {
         super.onConfigurationChanged(newConfig);
-        User user = userVM.getUser().getValue();
-        if (user != null) {
-            CurrencyViewModel currencyVM = new ViewModelProvider(this).get(CurrencyViewModel.class);
-            currencyVM.fetchExchangeRateFromCloud(Locale.getDefault());
-            currencyVM.getCurrency().observe(this, result -> {
-                result.onSuccess(o -> {
-                    if (o instanceof Currency currency) {
-                        SettingsExtKt.saveExchangeRateToPref(this, currency);
-                        //userVM.updateUserRevenue(0.0, user);
-                    }
-                    return null;
-                });
-            });
-        }
+//        User user = userVM.getUser().getValue();
+//        if (user != null) {
+//            CurrencyViewModel currencyVM = new ViewModelProvider(this).get(CurrencyViewModel.class);
+//            currencyVM.fetchExchangeRateFromCloud(Locale.getDefault());
+//            currencyVM.getCurrency().observe(this, result -> {
+//                result.onSuccess(o -> {
+//                    if (o instanceof Currency currency) {
+//                        SettingsExtKt.saveExchangeRateToPref(this, currency);
+//                        userVM.updateUserRevenue(0.0, user);
+//                    }
+//                    return null;
+//                });
+//            });
+//        }
     }
 
     @Override
