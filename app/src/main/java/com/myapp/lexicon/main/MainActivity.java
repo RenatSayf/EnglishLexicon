@@ -489,7 +489,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         MainFragment mainFragment = MainFragment.Companion.getInstance(this);
         getSupportFragmentManager().beginTransaction().add(R.id.frame_to_page_fragm, mainFragment).commit();
 
-        BannerAdView bannerView = (BannerAdView)root.findViewById(R.id.bannerView);
+        BannerAdView bannerView = root.findViewById(R.id.bannerView);
         AdsViewModelKt.loadBanner(bannerView, BannerAdIds.BANNER_1);
 
     }

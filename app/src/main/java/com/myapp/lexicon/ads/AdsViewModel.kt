@@ -223,14 +223,14 @@ private val jsonString = """{
   }
 }"""
 
-fun BannerAdView.loadBanner(adId: BannerAdIds) {
+fun BannerAdView.loadBanner(adId: BannerAdIds? = null) {
     val width = (this.context.resources.displayMetrics.widthPixels / context.resources.displayMetrics.density).roundToInt()
     val stickySize = BannerAdSize.stickySize(this.context, width)
     this.apply {
         val id = if (BuildConfig.DEBUG) {
             "demo-banner-yandex"
         } else {
-            adId.id
+            adId?.id ?: BannerAdIds.values().random().id
         }
         setAdUnitId(id)
         setAdSize(stickySize)
