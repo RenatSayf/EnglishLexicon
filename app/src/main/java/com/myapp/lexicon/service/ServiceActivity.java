@@ -11,7 +11,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.ads.AdsViewModel;
 import com.myapp.lexicon.ads.AdsViewModelKt;
-import com.myapp.lexicon.ads.InterstitialAdIds;
 import com.myapp.lexicon.auth.AuthViewModel;
 import com.myapp.lexicon.databinding.ServiceDialogActivityBinding;
 import com.myapp.lexicon.helpers.ExtensionsKt;
@@ -152,7 +151,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         userVM = new ViewModelProvider(ServiceActivity.this).get(UserViewModel.class);
         userVM.getUserFromCloud(userId);
 
-        adsVM.loadInterstitialAd(InterstitialAdIds.INTERSTITIAL_4);
+        adsVM.loadInterstitialAd(null);
         adsVM.getInterstitialAd().observe(this, result -> {
             interstitialAd = adsVM.getInterstitialAdOrNull();
             if (interstitialAd != null) {

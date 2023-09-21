@@ -25,7 +25,6 @@ import com.jakewharton.rxbinding2.widget.RxTextView
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
-import com.myapp.lexicon.ads.InterstitialAdIds
 import com.myapp.lexicon.ads.intrefaces.AdEventListener
 import com.myapp.lexicon.ads.showAd
 import com.myapp.lexicon.databinding.TestFragmentBinding
@@ -264,7 +263,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         testVM.state.observe(viewLifecycleOwner) { state ->
             when(state) {
                 TestViewModel.State.Init -> {
-                    adsVM.loadInterstitialAd(adId = InterstitialAdIds.INTERSTITIAL_3)
+                    adsVM.loadInterstitialAd()
                 }
                 TestViewModel.State.NotShowAd -> {}
                 TestViewModel.State.ShowAd -> {

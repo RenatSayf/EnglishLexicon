@@ -55,11 +55,12 @@ class AdsViewModel @Inject constructor(
         return null
     }
 
-    fun loadInterstitialAd(adId: InterstitialAdIds) {
+    fun loadInterstitialAd(adId: InterstitialAdIds? = null) {
+
         val id = if (BuildConfig.DEBUG) {
             "demo-interstitial-yandex"
         } else {
-            adId.id
+            adId?.id ?: InterstitialAdIds.values().random().id
         }
         val adRequestConfiguration = AdRequestConfiguration.Builder(id).build()
         InterstitialAdLoader(app).apply {
@@ -77,11 +78,11 @@ class AdsViewModel @Inject constructor(
         }
     }
 
-    fun loadRewardedAd(adId: RewardedAdIds) {
+    fun loadRewardedAd(adId: RewardedAdIds? = null) {
         val id = if (BuildConfig.DEBUG) {
             "demo-rewarded-yandex"
         } else {
-            adId.id
+            adId?.id ?: RewardedAdIds.values().random().id
         }
         val adRequestConfiguration = AdRequestConfiguration.Builder(id).build()
         RewardedAdLoader(app).apply {
