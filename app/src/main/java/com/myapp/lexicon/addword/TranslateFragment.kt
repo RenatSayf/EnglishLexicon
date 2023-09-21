@@ -137,11 +137,33 @@ class TranslateFragment : Fragment()
                 when(mActivity)
                 {
                     is MainActivity -> {
-                        parentFragmentManager.popBackStack()
                        (mActivity as MainActivity).refreshMainScreen(true)
+                        interstitialAd?.showAd(
+                            requireActivity(),
+                            onImpression = { data ->
+                                adListener?.onAdImpression(data)
+                            },
+                            onFailed = {
+                                parentFragmentManager.popBackStack()
+                            },
+                            onDismissed = {
+                                parentFragmentManager.popBackStack()
+                            }
+                        )
                     }
                     is TranslateActivity -> {
-                        requireActivity().finish()
+                        interstitialAd?.showAd(
+                            requireActivity(),
+                            onImpression = { data ->
+                                adListener?.onAdImpression(data)
+                            },
+                            onFailed = {
+                                requireActivity().finish()
+                            },
+                            onDismissed = {
+                                requireActivity().finish()
+                            }
+                        )
                     }
                 }
             }
