@@ -207,7 +207,7 @@ fun String.toAdData(
     }
 }
 
-private val jsonString = """{
+private const val JSON_STRING = """{
   "currency": "RUB",
   "revenueUSD": "0.001200671",
   "precision": "estimated",

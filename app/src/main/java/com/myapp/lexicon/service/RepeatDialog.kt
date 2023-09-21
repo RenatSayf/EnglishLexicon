@@ -16,6 +16,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.myapp.lexicon.R
+import com.myapp.lexicon.ads.AdsViewModel
+import com.myapp.lexicon.ads.loadBanner
 import com.myapp.lexicon.databinding.SRepeatModalFragmentBinding
 import com.myapp.lexicon.helpers.showToast
 import com.myapp.lexicon.interfaces.IModalFragment
@@ -53,6 +55,7 @@ class RepeatDialog: DialogFragment() {
     private lateinit var binding: SRepeatModalFragmentBinding
     private val speechVM: SpeechViewModel by viewModels()
     private val userVM: UserViewModel by activityViewModels()
+    private val adsVM: AdsViewModel by activityViewModels()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
 
@@ -75,6 +78,8 @@ class RepeatDialog: DialogFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         with(binding) {
+
+            bannerView.loadBanner()
 
             val words = json.toWordList()
             if (words.isNotEmpty()) {
@@ -167,6 +172,12 @@ class RepeatDialog: DialogFragment() {
                 }
             }
 
+            adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
+                if (result != null) {
+                    adProgress.visibility = View.GONE
+                }
+            }
+
         }
     }
 
@@ -184,11 +195,11 @@ class RepeatDialog: DialogFragment() {
             requireContext().isUserRegistered(
                 onYes = {
                     btnStopService.visibility = View.GONE
-                    tvReward.visibility = View.VISIBLE
+                    rewardBlock.visibility = View.VISIBLE
                 },
                 onNotRegistered = {
                     btnStopService.visibility = View.VISIBLE
-                    tvReward.visibility = View.GONE
+                    rewardBlock.visibility = View.GONE
                 }
             )
         }

@@ -19,6 +19,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.myapp.lexicon.R
+import com.myapp.lexicon.ads.AdsViewModel
+import com.myapp.lexicon.ads.loadBanner
 import com.myapp.lexicon.databinding.STestModalFragmentBinding
 import com.myapp.lexicon.helpers.RandomNumberGenerator
 import com.myapp.lexicon.helpers.showToast
@@ -63,6 +65,7 @@ class TestModeDialog : DialogFragment() {
     private val mainVM: MainViewModel by viewModels()
     private val speechVM: SpeechViewModel by viewModels()
     private val userVM: UserViewModel by activityViewModels()
+    private val adsVM: AdsViewModel by activityViewModels()
     private var compareList: List<Word> = listOf()
     private var wordIsStudied = false
     private var words: List<Word> = listOf()
@@ -88,6 +91,8 @@ class TestModeDialog : DialogFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         with(binding) {
+
+            bannerView.loadBanner()
 
             words = json.toWordList()
             if (words.isNotEmpty()) {
@@ -178,6 +183,12 @@ class TestModeDialog : DialogFragment() {
                 }
             }
 
+            adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
+                if (result != null) {
+                    adProgress.visibility = View.GONE
+                }
+            }
+
         }
     }
 
@@ -187,11 +198,11 @@ class TestModeDialog : DialogFragment() {
             requireContext().isUserRegistered(
                 onYes = {
                     btnStopService.visibility = View.GONE
-                    tvReward.visibility = View.VISIBLE
+                    rewardBlock.visibility = View.VISIBLE
                 },
                 onNotRegistered = {
                     btnStopService.visibility = View.VISIBLE
-                    tvReward.visibility = View.GONE
+                    rewardBlock.visibility = View.GONE
                 }
             )
         }

@@ -149,7 +149,10 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
 
     private void handleAdvertisingPayload(String userId) {
         userVM = new ViewModelProvider(ServiceActivity.this).get(UserViewModel.class);
-        userVM.getUserFromCloud(userId);
+        if (!userId.isEmpty())
+        {
+            userVM.getUserFromCloud(userId);
+        }
 
         adsVM.loadInterstitialAd(null);
         adsVM.getInterstitialAd().observe(this, result -> {
@@ -178,3 +181,5 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
     }
 
 }
+
+
