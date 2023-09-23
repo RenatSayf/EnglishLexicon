@@ -35,7 +35,7 @@
 
         <FrameLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="0.0">
 
             <Button
@@ -49,10 +49,10 @@
                 android:text="@string/text_off"
                 android:visibility="gone"/>
 
-            <androidx.appcompat.widget.LinearLayoutCompat
+            <FrameLayout
                 android:id="@+id/rewardBlock"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:orientation="vertical"
                 android:visibility="gone"
                 tools:visibility="visible"
@@ -65,7 +65,7 @@
                     android:paddingStart="8dp"
                     android:paddingTop="8dp"
                     android:paddingEnd="8dp"
-                    android:paddingBottom="0dp"
+                    android:paddingBottom="8dp"
                     tools:text="💰 18.00 Р"
                     android:textColor="@color/colorYellowDark"
                     android:gravity="center"
@@ -76,12 +76,13 @@
                     style="?android:attr/progressBarStyleHorizontal"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
                     android:paddingStart="8dp"
                     android:paddingEnd="8dp"
                     android:indeterminate="true"
                     android:indeterminateTint="@android:color/holo_orange_light"/>
 
-            </androidx.appcompat.widget.LinearLayoutCompat>
+            </FrameLayout>
         </FrameLayout>
 
     </LinearLayout>
