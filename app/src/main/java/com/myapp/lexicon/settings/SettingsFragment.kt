@@ -93,10 +93,6 @@ class SettingsFragment : PreferenceFragmentCompat()
                         value = requireContext().resources.getStringArray(R.array.show_intervals_values)[0]
                         summary = requireContext().resources.getStringArray(R.array.show_intervals)[0]
                     }
-//                    if (ContextCompat.checkSelfPermission(requireContext(), "") != PackageManager.PERMISSION_GRANTED)
-//                    {
-//                        view?.let { redirectIfXiaomiDevice() }
-//                    }
                 }
                 else if (newValue == null)
                 {

@@ -26,6 +26,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.SnackBarTestBinding
+import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.schedule.AlarmScheduler
 import com.myapp.lexicon.schedule.AppNotification
 import kotlinx.coroutines.CoroutineScope
@@ -281,6 +282,21 @@ fun Context.isNetworkAvailable(): Boolean {
     }
 }
 
+fun List<Word>.findItemWithoutRemainder(
+    divider: Int,
+    isRemainder: () -> Unit = {},
+    noRemainder: () -> Unit = {}
+) {
+    val result = this.any {
+        it._id % divider == 0
+    }
+    if (result) {
+        noRemainder.invoke()
+    }
+    else {
+        isRemainder.invoke()
+    }
+}
 
 
 

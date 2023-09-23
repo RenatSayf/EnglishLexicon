@@ -23,10 +23,13 @@ import com.myapp.lexicon.ads.showAd
 import com.myapp.lexicon.databinding.OneOfFiveFragmNewBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.RandomNumberGenerator
+import com.myapp.lexicon.helpers.findItemWithoutRemainder
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.adsIsEnabled
+import com.myapp.lexicon.settings.testIntervalFromPref
 import com.yandex.mobile.ads.interstitial.InterstitialAd
+import com.yandex.mobile.ads.rewarded.RewardedAd
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
@@ -44,12 +47,12 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
     }
     private val adsVM: AdsViewModel by viewModels()
     private var interstitialAd: InterstitialAd? = null
+    private var rewardedAd: RewardedAd? = null
 
 
     companion object
     {
         private var wordList: List<Word>? = null
-        private var instance: OneOfFiveFragm? = null
         private var adListener: AdEventListener? = null
 
         @JvmStatic
@@ -59,12 +62,9 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
         ): OneOfFiveFragm
         {
             this.adListener = listener
-            val shuffledList = list.shuffled()
+            val shuffledList = list.shuffled().toList()
             wordList = shuffledList
-            return if (instance == null)
-            {
-                OneOfFiveFragm()
-            } else instance as OneOfFiveFragm
+            return OneOfFiveFragm()
         }
     }
 
@@ -73,7 +73,7 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
         super.onCreate(savedInstanceState)
         mActivity = activity as MainActivity
         vm = ViewModelProvider(this)[OneOfFiveViewModel::class.java]
-        if (!wordList.isNullOrEmpty()) vm.initTest(wordList as MutableList<Word>)
+
     }
 
     override fun onCreateView(
@@ -89,12 +89,28 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
         super.onViewCreated(view, savedInstanceState)
         binding = OneOfFiveFragmNewBinding.bind(view)
 
-        adsVM.loadInterstitialAd()
-        adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
-            result.onSuccess { ad ->
-                interstitialAd = ad
+        if (!wordList.isNullOrEmpty()) vm.initTest(wordList!!.toList())
+
+        val wordsInterval = requireContext().testIntervalFromPref
+        wordList?.findItemWithoutRemainder(
+            wordsInterval * 5,
+            isRemainder = {
+                adsVM.loadInterstitialAd()
+                adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
+                    result.onSuccess { ad ->
+                        interstitialAd = ad
+                    }
+                }
+            },
+            noRemainder = {
+                adsVM.loadRewardedAd()
+                adsVM.rewardedAd.observe(viewLifecycleOwner) { result ->
+                    result.onSuccess { ad ->
+                        rewardedAd = ad
+                    }
+                }
             }
-        }
+        )
 
         vm.adapterList.observe(viewLifecycleOwner) {
             binding.answersRecyclerView.apply {
@@ -289,6 +305,9 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
                     if (firebaseUser != null) {
                         adListener?.onAdImpression(data)
                     }
+                    else {
+                        parentFragmentManager.popBackStack()
+                    }
                 },
                 onFailed = {
                     parentFragmentManager.popBackStack()
@@ -297,6 +316,28 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
                     parentFragmentManager.popBackStack()
                 }
             )
+
+            rewardedAd?.showAd(
+                requireActivity(),
+                onImpression = { data ->
+                    if (firebaseUser != null) {
+                        adListener?.onAdImpression(data)
+                    }
+                    else {
+                        parentFragmentManager.popBackStack()
+                    }
+                },
+                onFailed = {
+                    parentFragmentManager.popBackStack()
+                },
+                onDismissed = {
+                    parentFragmentManager.popBackStack()
+                }
+            )
+
+            if (interstitialAd == null && rewardedAd == null) {
+                parentFragmentManager.popBackStack()
+            }
         }
     }
 

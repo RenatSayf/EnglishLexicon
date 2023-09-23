@@ -35,7 +35,7 @@
             android:textSize="18sp"
             android:textColor="@color/eng_text_color"
             android:textStyle="bold"
-            android:inputType="textMultiLine"
+            android:inputType="textMultiLine|textNoSuggestions"
             android:padding="12dp"
             android:background="@drawable/semitransparent_back_white" />
 

@@ -34,9 +34,11 @@ import com.myapp.lexicon.main.SpeechViewModel
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.getTestStateFromPref
 import com.myapp.lexicon.settings.saveTestStateToPref
+import com.myapp.lexicon.settings.testIntervalFromPref
 import com.myapp.lexicon.viewmodels.AnimViewModel
 import com.myapp.lexicon.viewmodels.PageBackViewModel
 import com.yandex.mobile.ads.interstitial.InterstitialAd
+import com.yandex.mobile.ads.rewarded.RewardedAd
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.disposables.CompositeDisposable
 import java.util.*
@@ -69,6 +71,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     private val composite = CompositeDisposable()
     private var dialogWarning: DialogWarning? = null
     private var interstitialAd: InterstitialAd? = null
+    private var rewardedAd: RewardedAd? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -260,10 +263,25 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
             }
         }
 
+        adsVM.rewardedAd.observe(viewLifecycleOwner) { result ->
+            result.onSuccess { ad ->
+                rewardedAd = ad
+            }
+        }
+
         testVM.state.observe(viewLifecycleOwner) { state ->
             when(state) {
                 TestViewModel.State.Init -> {
-                    adsVM.loadInterstitialAd()
+                    val wordIndex = testVM.wordIndex.value
+                    wordIndex?.let { index ->
+                        val wordsInterval = requireContext().testIntervalFromPref
+                        if (index % wordsInterval == 0) {
+                            adsVM.loadRewardedAd()
+                        }
+                        else {
+                            adsVM.loadInterstitialAd()
+                        }
+                    }
                 }
                 TestViewModel.State.NotShowAd -> {}
                 TestViewModel.State.ShowAd -> {
