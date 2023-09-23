@@ -34,7 +34,6 @@ import com.myapp.lexicon.main.SpeechViewModel
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.getTestStateFromPref
 import com.myapp.lexicon.settings.saveTestStateToPref
-import com.myapp.lexicon.settings.testIntervalFromPref
 import com.myapp.lexicon.viewmodels.AnimViewModel
 import com.myapp.lexicon.viewmodels.PageBackViewModel
 import com.yandex.mobile.ads.interstitial.InterstitialAd
@@ -274,11 +273,12 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 TestViewModel.State.Init -> {
                     val wordIndex = testVM.wordIndex.value
                     wordIndex?.let { index ->
-                        val wordsInterval = requireContext().testIntervalFromPref
-                        if (index % wordsInterval == 0) {
+                        if (index % 4 == 0) {
+                            interstitialAd = null
                             adsVM.loadRewardedAd()
                         }
                         else {
+                            rewardedAd = null
                             adsVM.loadInterstitialAd()
                         }
                     }
@@ -288,6 +288,13 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                     interstitialAd?.showAd(
                         requireActivity(),
                         onImpression = { data ->
+                            adListener?.onAdImpression(data)
+                            testVM.setState(TestViewModel.State.Init)
+                        }
+                    )
+                    rewardedAd?.showAd(
+                        requireActivity(),
+                        onImpression = {data ->
                             adListener?.onAdImpression(data)
                             testVM.setState(TestViewModel.State.Init)
                         }
