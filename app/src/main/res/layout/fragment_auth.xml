@@ -4,7 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:fillViewport="true"
     tools:context=".auth.AuthFragment"
     tools:ignore="SpeakableTextPresentCheck"
     >
@@ -23,7 +22,8 @@
             android:theme="@style/AppToolbarStyle"
             app:titleTextColor="@color/colorWhite"
             app:navigationIcon="@drawable/ic_arrow_back_white"
-            android:background="@color/colorTransparent" />
+            android:background="@color/colorTransparent"
+            android:translationZ="10dp"/>
 
         <ScrollView
             android:layout_width="match_parent"
