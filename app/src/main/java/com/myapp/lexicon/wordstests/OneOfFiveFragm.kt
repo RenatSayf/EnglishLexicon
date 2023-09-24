@@ -305,9 +305,6 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
                     if (firebaseUser != null) {
                         adListener?.onAdImpression(data)
                     }
-                    else {
-                        parentFragmentManager.popBackStack()
-                    }
                 },
                 onFailed = {
                     parentFragmentManager.popBackStack()
@@ -322,9 +319,6 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
                 onImpression = { data ->
                     if (firebaseUser != null) {
                         adListener?.onAdImpression(data)
-                    }
-                    else {
-                        parentFragmentManager.popBackStack()
                     }
                 },
                 onFailed = {

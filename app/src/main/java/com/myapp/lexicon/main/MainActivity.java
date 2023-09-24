@@ -348,9 +348,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         speechViewModel.setSpeechProgressVisibility(View.INVISIBLE);
                         Toast.makeText(MainActivity.this, getString(R.string.text_test_knowledge), Toast.LENGTH_LONG).show();
                         OneOfFiveFragm testFragment = OneOfFiveFragm.newInstance(list, MainActivity.this);
-                        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                        transaction.setCustomAnimations(R.anim.from_right_to_left_anim, R.anim.from_left_to_right_anim);
-                        transaction.replace(R.id.frame_to_page_fragm, testFragment).addToBackStack(null).commit();
+                        getSupportFragmentManager()
+                                .beginTransaction()
+                                .setCustomAnimations(R.anim.from_right_to_left_anim, R.anim.from_left_to_right_anim)
+                                .addToBackStack(null)
+                                .add(R.id.frame_to_page_fragm, testFragment)
+                                .commit();
                         mainViewPager.setCurrentItem(position - 1);
                         return;
                     }
