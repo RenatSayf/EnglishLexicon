@@ -253,7 +253,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         int currentId = currentWord.get_id();
                         if (entriesId >= currentId)
                         {
-                            mainViewPager.setCurrentItem(i, false);
+                            if (i == 0) {
+                                mainViewPager.setCurrentItem(entries.size() - 1, false);
+                                mainViewPager.setCurrentItem(i, true);
+                            }
+                            else {
+                                mainViewPager.setCurrentItem(i, false);
+                            }
                             break;
                         }
                     }
