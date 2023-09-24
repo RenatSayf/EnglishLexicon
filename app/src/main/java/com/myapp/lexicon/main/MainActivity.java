@@ -495,13 +495,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void buildRewardText(User user) {
-        double rewardToDisplay = UserKt.to2DigitsScale(user.getUserReward());
-        TextView tvReward = root.findViewById(R.id.tvReward);
-        String text = getString(R.string.text_your_reward).concat(" ").concat(String.valueOf(rewardToDisplay)).concat(" ").concat(user.getCurrencySymbol());
-        if (tvReward != null)
+        if (user != null)
         {
-            tvReward.setText(text);
-            tvReward.setVisibility(View.VISIBLE);
+            double rewardToDisplay = UserKt.to2DigitsScale(user.getUserReward());
+            TextView tvReward = root.findViewById(R.id.tvReward);
+            String text = getString(R.string.text_your_reward).concat(" ").concat(String.valueOf(rewardToDisplay)).concat(" ").concat(user.getCurrencySymbol());
+            if (tvReward != null)
+            {
+                tvReward.setText(text);
+                tvReward.setVisibility(View.VISIBLE);
+            }
         }
     }
 

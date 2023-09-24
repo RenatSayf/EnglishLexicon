@@ -14,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import com.myapp.lexicon.R
 import com.myapp.lexicon.auth.AuthViewModel
 import com.myapp.lexicon.billing.UserPurchases
+import com.myapp.lexicon.common.KEY_APP_STORE_LINK
 import com.myapp.lexicon.databinding.ALayoutSplashScreenBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.showDialogAsSingleton
@@ -43,6 +44,13 @@ class SplashActivity : AppCompatActivity() {
 
         binding = ALayoutSplashScreenBinding.inflate(layoutInflater, CoordinatorLayout(this), false)
         setContentView(binding.root)
+
+        val extras = intent.extras
+        val appStoreLink = extras?.getString(KEY_APP_STORE_LINK)
+        if (!appStoreLink.isNullOrEmpty()) {
+            goToAppStore()
+            finish()
+        }
 
         applicationContext.adsIsEnabled = true
 

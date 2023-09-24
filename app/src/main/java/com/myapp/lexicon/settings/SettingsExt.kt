@@ -3,8 +3,10 @@
 package com.myapp.lexicon.settings
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -20,12 +22,7 @@ import com.myapp.lexicon.helpers.getCRC32CheckSum
 import com.myapp.lexicon.models.TestState
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.Word
-import com.myapp.lexicon.models.currency.Currencies
-import com.myapp.lexicon.models.currency.Currency
 import com.myapp.lexicon.models.toWord
-import java.math.BigDecimal
-import java.math.RoundingMode
-import java.util.Locale
 
 val Context.appSettings: SharedPreferences
     get() {
@@ -373,41 +370,6 @@ fun Fragment.getTestStateFromPref(
     }
 }
 
-fun Context.saveExchangeRateToPref(currency: Currency) {
-    appSettings.edit().putString("KEY_EXCHANGE_DATE", currency.date).apply()
-    appSettings.edit().putFloat("KEY_EXCHANGE_RATE", currency.rate.toFloat()).apply()
-    val instance = android.icu.util.Currency.getInstance(Locale.getDefault())
-    val symbol = if (instance.currencyCode == Currencies.RUB.name) {
-        instance.symbol
-    }
-    else {
-        "$"
-    }
-    appSettings.edit().putString("KEY_CURRENCY_SYMBOL", symbol).apply()
-}
-
-fun Context.getExchangeRateFromPref(
-    onInit: () -> Unit,
-    onSuccess: (date: String, symbol: String, rate: Double) -> Unit,
-    onFailure: (Exception) -> Unit = {}
-) {
-    try {
-        val date = appSettings.getString("KEY_EXCHANGE_DATE", null)
-        val symbol = appSettings.getString("KEY_CURRENCY_SYMBOL", null)
-        val rate = appSettings.getFloat("KEY_EXCHANGE_RATE", -1.0F).toDouble()
-        if (date == null || symbol == null || rate < 0) {
-            onInit.invoke()
-            return
-        }
-        else if (rate > 0) {
-            onSuccess.invoke(date, symbol, BigDecimal(rate).setScale(2, RoundingMode.DOWN).toDouble())
-        }
-    } catch (e: Exception) {
-        e.printStackTrace()
-        onFailure.invoke(e)
-    }
-}
-
 fun AppCompatActivity.askForPermission(
     permission: String,
     onInit: () -> Unit,
@@ -450,6 +412,12 @@ fun Context.checkPassiveModeEnabled(): Boolean {
     val interval = appSettings.getString(getString(R.string.key_show_intervals), "10")
     val isUnlockedScreen = appSettings.getBoolean(getString(R.string.key_service), false)
     return interval != "0" || isUnlockedScreen
+}
+
+fun Context.goToAppStore() {
+    val intent = Intent(Intent.ACTION_VIEW)
+    intent.data = Uri.parse(this.getString(R.string.app_link).plus(this.packageName))
+    startActivity(intent)
 }
 
 

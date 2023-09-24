@@ -17,7 +17,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
-import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.auth.AuthViewModel
 import com.myapp.lexicon.databinding.FragmentAccountBinding
@@ -33,7 +32,6 @@ import com.myapp.lexicon.models.UserState
 import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.settings.clearEmailPasswordInPref
 import com.myapp.lexicon.settings.getAuthDataFromPref
-import com.myapp.lexicon.settings.getExchangeRateFromPref
 import com.myapp.lexicon.settings.saveUserToPref
 import kotlinx.coroutines.launch
 
@@ -307,37 +305,28 @@ class AccountFragment : Fragment() {
 
         with(binding) {
 
-            requireContext().getExchangeRateFromPref(
-                onInit = {},
-                onSuccess = { date, symbol, rate ->
+            val rewardToDisplay = "${(user.userReward).to2DigitsScale()} ${user.currencySymbol}"
+            tvRewardValue.text = rewardToDisplay
 
-                    val rewardToDisplay = "${(user.userReward).to2DigitsScale()} ${user.currencySymbol}"
-                    tvRewardValue.text = rewardToDisplay
+            if (user.reservedPayment > 0) {
+                tvReservedTitle.visibility = View.VISIBLE
+                tvReservedValue.visibility = View.VISIBLE
+                val payoutToDisplay = "${user.payoutInLocalCurrency} ${user.currencySymbol}"
+                tvReservedValue.text = payoutToDisplay
+            }
+            else {
+                tvReservedTitle.visibility = View.GONE
+                tvReservedValue.visibility = View.GONE
+            }
 
-                    if (user.reservedPayment > 0) {
-                        tvReservedTitle.visibility = View.VISIBLE
-                        tvReservedValue.visibility = View.VISIBLE
-                        val payoutToDisplay = "${user.payoutInLocalCurrency} ${user.currencySymbol}"
-                        tvReservedValue.text = payoutToDisplay
-                    }
-                    else {
-                        tvReservedTitle.visibility = View.GONE
-                        tvReservedValue.visibility = View.GONE
-                    }
-
-                    val rewardThreshold = (paymentThreshold * user.currencyRate).toInt()
-                    val textCondition = "${getString(R.string.text_reward_conditions)} $rewardThreshold ${user.currencySymbol}"
-                    tvRewardCondition.text = textCondition
-                    if (user.userReward <= 0.0) {
-                        tvRewardCondition.visibility = View.GONE
-                    }
-                    else tvRewardCondition.visibility = View.VISIBLE
-                    btnGetReward.isEnabled = (user.userReward) > (rewardThreshold * user.currencyRate).toInt()
-                },
-                onFailure = {
-                    if (BuildConfig.DEBUG) it.printStackTrace()
-                }
-            )
+            val rewardThreshold = (paymentThreshold * user.currencyRate).toInt()
+            val textCondition = "${getString(R.string.text_reward_conditions)} $rewardThreshold ${user.currencySymbol}"
+            tvRewardCondition.text = textCondition
+            if (user.userReward <= 0.0) {
+                tvRewardCondition.visibility = View.GONE
+            }
+            else tvRewardCondition.visibility = View.VISIBLE
+            btnGetReward.isEnabled = (user.userReward) > (rewardThreshold * user.currencyRate).toInt()
 
             if (user.message.isNotEmpty()) {
                 tvMessage.apply {

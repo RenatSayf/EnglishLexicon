@@ -1,6 +1,5 @@
 package com.myapp.lexicon.models
 
-import android.icu.util.Currency
 import com.myapp.lexicon.helpers.toStringTime
 import java.math.BigDecimal
 import java.math.RoundingMode
