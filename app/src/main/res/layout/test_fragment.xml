@@ -129,7 +129,7 @@
                     <ImageButton
                         android:id="@+id/microphoneBtnView"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_gravity="start|center_vertical"
                         android:layout_margin="0dp"
                         android:layout_weight="1"
@@ -153,7 +153,7 @@
                     <ImageButton
                         android:id="@+id/clearBtnView"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:layout_gravity="end|center_vertical"
                         android:layout_margin="0dp"
