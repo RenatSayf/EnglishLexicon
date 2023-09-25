@@ -141,28 +141,20 @@ class TranslateFragment : Fragment()
                             requireActivity(),
                             onImpression = { data ->
                                 adListener?.onAdImpression(data)
-                            },
-                            onFailed = {
-                                parentFragmentManager.popBackStack()
-                            },
-                            onDismissed = {
-                                parentFragmentManager.popBackStack()
                             }
-                        )
+                        ) {
+                            parentFragmentManager.popBackStack()
+                        }
                     }
                     is TranslateActivity -> {
                         interstitialAd?.showAd(
                             requireActivity(),
                             onImpression = { data ->
                                 adListener?.onAdImpression(data)
-                            },
-                            onFailed = {
-                                requireActivity().finish()
-                            },
-                            onDismissed = {
-                                requireActivity().finish()
                             }
-                        )
+                        ) {
+                            requireActivity().finish()
+                        }
                     }
                 }
             }
@@ -178,28 +170,20 @@ class TranslateFragment : Fragment()
                         requireActivity(),
                         onImpression = { data ->
                             adListener?.onAdImpression(data)
-                        },
-                        onFailed = {
-                            parentFragmentManager.popBackStack()
-                        },
-                        onDismissed = {
-                            parentFragmentManager.popBackStack()
                         }
-                    )
+                    ) {
+                        parentFragmentManager.popBackStack()
+                    }
                 }
                 is TranslateActivity -> {
                     interstitialAd?.showAd(
                         requireActivity(),
                         onImpression = { data ->
                             adListener?.onAdImpression(data)
-                        },
-                        onFailed = {
-                            requireActivity().finish()
-                        },
-                        onDismissed = {
-                            requireActivity().finish()
                         }
-                    )
+                    ) {
+                        requireActivity().finish()
+                    }
                 }
             }
         }

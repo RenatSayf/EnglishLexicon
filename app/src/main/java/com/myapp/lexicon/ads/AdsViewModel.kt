@@ -107,7 +107,6 @@ fun InterstitialAd.showAd(
     activity: Activity,
     onShown: () -> Unit = {},
     onImpression: (data: AdData?) -> Unit = {},
-    onFailed: () -> Unit = {},
     onDismissed: () -> Unit = {}
 ) {
     this.apply {
@@ -118,7 +117,7 @@ fun InterstitialAd.showAd(
 
             override fun onAdFailedToShow(p0: AdError) {
                 printLogIfDebug("${this::class.simpleName} - ${p0.description}")
-                onFailed.invoke()
+                onDismissed.invoke()
             }
 
             override fun onAdDismissed() {
@@ -151,7 +150,6 @@ fun RewardedAd.showAd(
     activity: Activity,
     onShown: () -> Unit = {},
     onImpression: (data: AdData?) -> Unit = {},
-    onFailed: () -> Unit = {},
     onDismissed: () -> Unit = {}
 ) {
     this.apply {
@@ -162,7 +160,7 @@ fun RewardedAd.showAd(
 
             override fun onAdFailedToShow(p0: AdError) {
                 printLogIfDebug("${this::class.simpleName} - ${p0.description}")
-                onFailed.invoke()
+                onDismissed.invoke()
             }
 
             override fun onAdDismissed() {

@@ -283,18 +283,27 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
 
     private fun onTestPassed()
     {
-        mActivity.testPassed()
-        showAd()
-
+        showAd(
+            onComplete = {
+                parentFragmentManager.popBackStack()
+                mActivity.testPassed()
+            }
+        )
     }
 
     private fun onTestFailed(errors: Int)
     {
-        mActivity.testFailed(errors)
-        showAd()
+        showAd(
+            onComplete = {
+                parentFragmentManager.popBackStack()
+                mActivity.testFailed(errors)
+            }
+        )
     }
 
-    private fun showAd() {
+    private fun showAd(
+        onComplete: () -> Unit = {}
+    ) {
         if (this.adsIsEnabled) {
 
             val firebaseUser = auth.currentUser
@@ -305,12 +314,8 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
                     if (firebaseUser != null) {
                         adListener?.onAdImpression(data)
                     }
-                },
-                onFailed = {
-                    parentFragmentManager.popBackStack()
-                },
-                onDismissed = {
-                    parentFragmentManager.popBackStack()
+                }, onDismissed = {
+                    onComplete.invoke()
                 }
             )
 
@@ -320,18 +325,17 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
                     if (firebaseUser != null) {
                         adListener?.onAdImpression(data)
                     }
-                },
-                onFailed = {
-                    parentFragmentManager.popBackStack()
-                },
-                onDismissed = {
-                    parentFragmentManager.popBackStack()
+                }, onDismissed = {
+                    onComplete.invoke()
                 }
             )
 
             if (interstitialAd == null && rewardedAd == null) {
-                parentFragmentManager.popBackStack()
+                onComplete.invoke()
             }
+        }
+        else {
+            onComplete.invoke()
         }
     }
 
