@@ -5,6 +5,8 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.helpers.printLogIfDebug
@@ -35,6 +37,10 @@ class AdsViewModel @Inject constructor(
     private val app: Application
 ): AndroidViewModel(app) {
 
+    private val isAdsEnabled: Boolean by lazy {
+        Firebase.remoteConfig.getBoolean("is_ads_enabled")
+    }
+
     private var _interstitialAd = MutableLiveData<Result<InterstitialAd>>()
     val interstitialAd: LiveData<Result<InterstitialAd>> = _interstitialAd
 
@@ -57,46 +63,51 @@ class AdsViewModel @Inject constructor(
 
     fun loadInterstitialAd(adId: InterstitialAdIds? = null) {
 
-        val id = if (BuildConfig.DEBUG) {
-            "demo-interstitial-yandex"
-        } else {
-            adId?.id ?: InterstitialAdIds.values().random().id
-        }
-        val adRequestConfiguration = AdRequestConfiguration.Builder(id).build()
-        InterstitialAdLoader(app).apply {
-            setAdLoadListener(object : InterstitialAdLoadListener {
-                override fun onAdLoaded(p0: InterstitialAd) {
-                    _interstitialAd.value = Result.success(p0)
-                }
+        if (isAdsEnabled) {
+            val id = if (BuildConfig.DEBUG) {
+                "demo-interstitial-yandex"
+            } else {
+                adId?.id ?: InterstitialAdIds.values().random().id
+            }
+            val adRequestConfiguration = AdRequestConfiguration.Builder(id).build()
+            InterstitialAdLoader(app).apply {
+                setAdLoadListener(object : InterstitialAdLoadListener {
+                    override fun onAdLoaded(p0: InterstitialAd) {
+                        _interstitialAd.value = Result.success(p0)
+                    }
 
-                override fun onAdFailedToLoad(p0: AdRequestError) {
-                    printLogIfDebug("${this::class.simpleName} - ${p0.description}")
-                    _interstitialAd.value = Result.failure(Throwable(p0.description))
-                }
-            })
-            loadAd(adRequestConfiguration)
+                    override fun onAdFailedToLoad(p0: AdRequestError) {
+                        printLogIfDebug("${this::class.simpleName} - ${p0.description}")
+                        _interstitialAd.value = Result.failure(Throwable(p0.description))
+                    }
+                })
+                loadAd(adRequestConfiguration)
+            }
         }
     }
 
     fun loadRewardedAd(adId: RewardedAdIds? = null) {
-        val id = if (BuildConfig.DEBUG) {
-            "demo-rewarded-yandex"
-        } else {
-            adId?.id ?: RewardedAdIds.values().random().id
-        }
-        val adRequestConfiguration = AdRequestConfiguration.Builder(id).build()
-        RewardedAdLoader(app).apply {
-            setAdLoadListener(object : RewardedAdLoadListener {
-                override fun onAdLoaded(p0: RewardedAd) {
-                    _rewardedAd.value = Result.success(p0)
-                }
 
-                override fun onAdFailedToLoad(p0: AdRequestError) {
-                    printLogIfDebug("${this::class.simpleName} - ${p0.description}")
-                    _rewardedAd.value = Result.failure(Throwable(p0.description))
-                }
-            })
-            loadAd(adRequestConfiguration)
+        if (isAdsEnabled) {
+            val id = if (BuildConfig.DEBUG) {
+                "demo-rewarded-yandex"
+            } else {
+                adId?.id ?: RewardedAdIds.values().random().id
+            }
+            val adRequestConfiguration = AdRequestConfiguration.Builder(id).build()
+            RewardedAdLoader(app).apply {
+                setAdLoadListener(object : RewardedAdLoadListener {
+                    override fun onAdLoaded(p0: RewardedAd) {
+                        _rewardedAd.value = Result.success(p0)
+                    }
+
+                    override fun onAdFailedToLoad(p0: AdRequestError) {
+                        printLogIfDebug("${this::class.simpleName} - ${p0.description}")
+                        _rewardedAd.value = Result.failure(Throwable(p0.description))
+                    }
+                })
+                loadAd(adRequestConfiguration)
+            }
         }
     }
 
@@ -222,15 +233,19 @@ private const val JSON_STRING = """{
 }"""
 
 fun BannerAdView.loadBanner(adId: BannerAdIds? = null) {
-    val width = (this.context.resources.displayMetrics.widthPixels / context.resources.displayMetrics.density).roundToInt()
-    val stickySize = BannerAdSize.stickySize(this.context, width)
-    this.apply {
-        val id = if (BuildConfig.DEBUG) {
-            "demo-banner-yandex"
-        } else {
-            adId?.id ?: BannerAdIds.values().random().id
-        }
-        setAdUnitId(id)
-        setAdSize(stickySize)
-    }.loadAd(AdRequest.Builder().build())
+
+    val isBannerEnabled = Firebase.remoteConfig.getBoolean("is_banner_enabled")
+    if (isBannerEnabled) {
+        val width = (this.context.resources.displayMetrics.widthPixels / context.resources.displayMetrics.density).roundToInt()
+        val stickySize = BannerAdSize.stickySize(this.context, width)
+        this.apply {
+            val id = if (BuildConfig.DEBUG) {
+                "demo-banner-yandex"
+            } else {
+                adId?.id ?: BannerAdIds.values().random().id
+            }
+            setAdUnitId(id)
+            setAdSize(stickySize)
+        }.loadAd(AdRequest.Builder().build())
+    }
 }

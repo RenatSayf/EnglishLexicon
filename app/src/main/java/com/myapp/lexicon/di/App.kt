@@ -34,7 +34,12 @@ class App : Application(), Configuration.Provider {
         FirebaseApp.initializeApp(this)
         val remoteConfig: FirebaseRemoteConfig = Firebase.remoteConfig
         val configSettings = remoteConfigSettings {
-            minimumFetchIntervalInSeconds = 3600
+            if (BuildConfig.DEBUG) {
+                minimumFetchIntervalInSeconds = 60
+            }
+            else {
+                minimumFetchIntervalInSeconds = 3600
+            }
         }
         remoteConfig.apply {
             setConfigSettingsAsync(configSettings)
