@@ -33,7 +33,6 @@ import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SpeechViewModel;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.viewmodels.EditorSearchViewModel;
-import com.yandex.mobile.ads.banner.BannerAdSize;
 import com.yandex.mobile.ads.banner.BannerAdView;
 
 import java.util.ArrayList;
@@ -44,7 +43,6 @@ import java.util.Locale;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.ViewModelProvider;
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -116,9 +114,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
         buttonCancel_OnClick();
         checkMove_OnClick();
 
-        ConstraintLayout rootLayout = findViewById(R.id.rootLayout);
-        BannerAdView bannerView = (BannerAdView)findViewById(R.id.bannerView);
-        BannerAdSize bannerAdSize = BannerAdSize.stickySize(WordEditorActivity.this, rootLayout.getWidth());
+        BannerAdView bannerView = findViewById(R.id.bannerView);
         AdsViewModelKt.loadBanner(bannerView, BannerAdIds.BANNER_2);
     }
 

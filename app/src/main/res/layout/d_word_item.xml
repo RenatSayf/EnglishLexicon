@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/side_nav_bar"
@@ -26,12 +27,14 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:gravity="bottom"
+                    android:layout_gravity="bottom"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:text="@string/label_english"
                     android:textColor="@color/colorWhite"
                     />
 
-                <Space
+                <View
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"/>
@@ -39,9 +42,10 @@
                 <ImageButton
                     android:id="@+id/btn_sound"
                     style="?android:attr/buttonStyleSmall"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="end"
+                    android:padding="2dp"
                     android:src="@drawable/selector_icon_sound"
                     android:visibility="visible"
                     android:background="@drawable/selector_transp_to_white_back"
@@ -53,17 +57,18 @@
 
 
             <EditText
+                android:id="@+id/edit_text_en"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:id="@+id/edit_text_en"
                 android:background="@drawable/text_button_for_test"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:inputType="text"
+                android:hint="@string/label_english"
                 android:importantForAutofill="no"
-                android:hint="@string/label_english"/>
+                android:inputType="text"
+                android:paddingStart="18dp"
+                android:paddingEnd="18dp"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                tools:ignore="DuplicateSpeakableTextCheck,VisualLintTextFieldSize" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -75,65 +80,68 @@
                 />
 
             <EditText
+                android:id="@+id/edit_text_ru"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:id="@+id/edit_text_ru"
                 android:background="@drawable/text_button_for_test"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:inputType="textMultiLine"
-                android:importantForAutofill="no"
                 android:hint="@string/label_russian"
-                />
+                android:importantForAutofill="no"
+                android:inputType="textMultiLine"
+                android:paddingStart="18dp"
+                android:paddingEnd="18dp"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                tools:ignore="DuplicateSpeakableTextCheck,VisualLintTextFieldSize" />
 
             <CheckBox
                 android:id="@+id/checkStudied2"
+                style="@android:style/Widget.Holo.Light.CompoundButton.CheckBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
+                android:minHeight="48dp"
                 android:text="@string/text_studied"
                 android:textColor="@color/colorWhite"
-                style="@android:style/Widget.Holo.Light.CompoundButton.CheckBox"
-                app:buttonTint="@color/colorWhite"/>
+                app:buttonTint="@color/colorWhite" />
 
             <CheckBox
                 android:id="@+id/check_move"
+                style="@android:style/Widget.Holo.Light.CompoundButton.CheckBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
+                android:minHeight="48dp"
                 android:text="@string/text_move_to_dict"
                 android:textColor="@color/colorWhite"
-                style="@android:style/Widget.Holo.Light.CompoundButton.CheckBox"
-                app:buttonTint="@color/colorWhite"/>
+                app:buttonTint="@color/colorWhite" />
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
                 android:orientation="horizontal"
+                android:layout_marginTop="8dp"
                 android:id="@+id/lin_layout_spin"
                 >
 
                 <Spinner
                     android:id="@+id/spinn_dict_to_move"
                     android:layout_width="wrap_content"
-                    android:layout_height="36dp"
+                    android:layout_height="match_parent"
                     android:layout_marginEnd="5dp"
                     android:layout_weight="3"
                     style="@style/spinner_style"
-                    android:layout_marginTop="8dp"
                     android:entries="@array/not_move" />
 
                 <CheckBox
+                    android:id="@+id/check_copy"
                     android:layout_width="wrap_content"
                     android:layout_height="36dp"
+                    android:layout_gravity="center_vertical|end"
                     android:layout_weight="0"
                     android:text="@string/label_copy"
-                    android:id="@+id/check_copy"
-                    android:layout_gravity="center_vertical|end"
                     android:textColor="@color/colorWhite"
-                    app:buttonTint="@color/colorWhite"/>
+                    app:buttonTint="@color/colorWhite"
+                    tools:ignore="TouchTargetSizeCheck" />
 
             </LinearLayout>
 
@@ -160,14 +168,15 @@
             android:gravity="center_horizontal">
 
             <ImageButton
+                android:id="@+id/btn_cancel"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
-                android:layout_weight="2"
-                android:src="@drawable/btn_cancel_action"
-                android:background="@android:color/transparent"
-                android:id="@+id/btn_cancel"
                 android:layout_gravity="center_horizontal"
-                android:contentDescription="@string/app_name" />
+                android:layout_weight="2"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/app_name"
+                android:src="@drawable/btn_cancel_action"
+                tools:ignore="TouchTargetSizeCheck,DuplicateSpeakableTextCheck" />
 
             <TextView
                 android:layout_width="80dp"
@@ -192,14 +201,15 @@
             android:paddingBottom="4dp">
 
             <ImageButton
+                android:id="@+id/btn_write"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
-                android:layout_weight="2"
-                android:src="@drawable/edit_btn_foreground"
-                android:background="@android:color/transparent"
                 android:layout_gravity="center_horizontal"
-                android:id="@+id/btn_write"
-                android:contentDescription="@string/app_name" />
+                android:layout_weight="2"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/app_name"
+                android:src="@drawable/edit_btn_foreground"
+                tools:ignore="TouchTargetSizeCheck" />
 
             <TextView
                 android:layout_width="80dp"
@@ -221,13 +231,14 @@
             android:gravity="center_horizontal">
 
             <ImageButton
+                android:id="@+id/btn_delete"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/btn_delete_action"
-                android:background="@android:color/transparent"
                 android:layout_gravity="center_horizontal"
-                android:id="@+id/btn_delete"
-                android:contentDescription="@string/app_name" />
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/app_name"
+                android:src="@drawable/btn_delete_action"
+                tools:ignore="TouchTargetSizeCheck,ImageContrastCheck" />
 
             <TextView
                 android:layout_width="80dp"
