@@ -284,14 +284,15 @@ class AccountFragment : Fragment() {
                         paymentDate = System.currentTimeMillis().toStringDate()
                     }
                     user.reservePayment(
-                            threshold = paymentThreshold,
-                            onReserve = { u ->
-                                userVM.updatePersonalData(u)
-                                showConfirmDialog()
-                            }
-                    ) {
-                        showSnackBar(getString(R.string.text_not_money))
-                    }
+                        threshold = paymentThreshold,
+                        onReserve = { u ->
+                            userVM.updatePersonalData(u)
+                            showConfirmDialog()
+                        },
+                        onNotEnough = {
+                            showSnackBar(getString(R.string.text_not_money))
+                        }
+                    )
                 }
             }
 
@@ -311,7 +312,7 @@ class AccountFragment : Fragment() {
             if (user.reservedPayment > 0) {
                 tvReservedTitle.visibility = View.VISIBLE
                 tvReservedValue.visibility = View.VISIBLE
-                val payoutToDisplay = "${user.payoutInLocalCurrency} ${user.currencySymbol}"
+                val payoutToDisplay = "${user.reservedPayment} ${user.currencySymbol}"
                 tvReservedValue.text = payoutToDisplay
             }
             else {
@@ -326,7 +327,7 @@ class AccountFragment : Fragment() {
                 tvRewardCondition.visibility = View.GONE
             }
             else tvRewardCondition.visibility = View.VISIBLE
-            btnGetReward.isEnabled = (user.userReward) > (rewardThreshold * user.currencyRate).toInt()
+            btnGetReward.isEnabled = user.userReward > rewardThreshold
 
             if (user.message.isNotEmpty()) {
                 tvMessage.apply {

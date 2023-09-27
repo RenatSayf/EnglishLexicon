@@ -11,9 +11,7 @@ data class User(
     companion object {
         const val KEY_REVENUE_USD = "revenue_usd"
         const val KEY_TOTAL_REVENUE = "total_revenue"
-        const val KEY_REALLY_REVENUE = "really_revenue"
         const val KEY_USER_REWARD = "reward"
-        const val KEY_PAYOUT_IN_LOCAL_CURRENCY = "payment_in_local_currency"
         const val KEY_RESERVED_PAYMENT = "reserved_payment"
         const val KEY_CURRENCY = "currency"
         const val KEY_CURRENCY_SYMBOL = "currency_symbol"
@@ -36,19 +34,11 @@ data class User(
     var phone: String = ""
     var bankCard: String = ""
     var totalRevenue: Double = 0.0
-    var reallyRevenue: Double = 0.0
     var userReward: Double = 0.0
     var revenueUSD: Double = 0.0
-    var payoutInLocalCurrency: Double = 0.0
-        private set
-
     var reservedPayment: Double = 0.0
         get() = BigDecimal(field).setScale(2, RoundingMode.DOWN).toDouble()
-        private set(value) {
-            this.payoutInLocalCurrency = BigDecimal(value).setScale(2, RoundingMode.DOWN).toDouble()
-            field = value
-        }
-    var revenuePerAd: Double = 0.0
+        private set
     var currency: String? = ""
         set(value) {
             field = value
@@ -69,12 +59,10 @@ data class User(
         return mapOf(
             KEY_REVENUE_USD to revenueUSD.toString(),
             KEY_TOTAL_REVENUE to totalRevenue.toString(),
-            KEY_REALLY_REVENUE to reallyRevenue.toString(),
             KEY_USER_REWARD to userReward.toString(),
             KEY_CURRENCY to currency,
             KEY_CURRENCY_SYMBOL to currencySymbol,
             KEY_CURRENCY_RATE to currencyRate.toString(),
-            KEY_PAYOUT_IN_LOCAL_CURRENCY to payoutInLocalCurrency.toString(),
             KEY_RESERVED_PAYMENT to reservedPayment.toString(),
             KEY_EMAIL to email,
             KEY_FIRST_NAME to firstName,
@@ -100,18 +88,8 @@ data class User(
             } catch (e: NumberFormatException) {
                 0.0
             }
-            reallyRevenue = try {
-                map[KEY_REALLY_REVENUE]?.toDouble()?: 0.0
-            } catch (e: NumberFormatException) {
-                0.0
-            }
             userReward = try {
                 map[KEY_USER_REWARD]?.toDouble()?: 0.0
-            } catch (e: NumberFormatException) {
-                0.0
-            }
-            payoutInLocalCurrency = try {
-                map[KEY_PAYOUT_IN_LOCAL_CURRENCY]?.toDouble()?: 0.0
             } catch (e: NumberFormatException) {
                 0.0
             }
@@ -147,7 +125,6 @@ data class User(
             this.reservedPayment += this.userReward
             this.userReward = 0.0
             this.totalRevenue = 0.0
-            this.reallyRevenue = 0.0
             onReserve.invoke(this)
         }
         else {

@@ -24,8 +24,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import java.math.BigDecimal
-import java.math.RoundingMode
 import javax.inject.Inject
 
 
@@ -37,7 +35,6 @@ class UserViewModel @Inject constructor(
 
         const val COLLECTION_PATH = "users"
         val USER_PERCENTAGE: Double = Firebase.remoteConfig.getDouble("USER_PERCENTAGE")
-        val REVENUE_RATIO: Double = Firebase.remoteConfig.getDouble("REVENUE_RATIO")
     }
 
     sealed class LoadingState {
@@ -166,20 +163,17 @@ class UserViewModel @Inject constructor(
             .addOnSuccessListener { snapshot ->
                 if (snapshot.data != null) {
                     val remoteUserData = snapshot.data as Map<String, String>
-                    user.reallyRevenue = calcReallyRevenue(adData.revenue, remoteUserData)
                     user.userReward = calcUserReward(adData.revenue, remoteUserData)
                     user.totalRevenue = calcTotalRevenue(adData.revenue, remoteUserData, User.KEY_TOTAL_REVENUE)
                     user.revenueUSD = calcTotalRevenue(adData.revenueUSD, remoteUserData, User.KEY_REVENUE_USD)
                     user.currency = adData.currency
                     user.currencyRate = (adData.revenue / adData.revenueUSD).to2DigitsScale()
 
-                    if (user.reallyRevenue > -1 && user.userReward > -1) {
+                    if (user.userReward > -1) {
                         val revenueMap = mapOf(
                             User.KEY_REVENUE_USD to user.revenueUSD.toString(),
-                            User.KEY_REALLY_REVENUE to user.reallyRevenue.toString(),
                             User.KEY_USER_REWARD to user.userReward.toString(),
                             User.KEY_TOTAL_REVENUE to user.totalRevenue.toString(),
-                            User.KEY_PAYOUT_IN_LOCAL_CURRENCY to user.payoutInLocalCurrency.toString(),
                             User.KEY_RESERVED_PAYMENT to user.reservedPayment.toString(),
                             User.KEY_CURRENCY to user.currency,
                             User.KEY_CURRENCY_SYMBOL to user.currencySymbol,
@@ -207,7 +201,7 @@ class UserViewModel @Inject constructor(
                     } else {
                         if (BuildConfig.DEBUG) {
                             val message =
-                                "******************** A negative revenue value cannot be sent: ${user.reallyRevenue}, ${user.userReward} ************"
+                                "******************** A negative revenue value cannot be sent: ${user.userReward} ************"
                             Throwable(message).printStackTrace()
                         }
                     }
@@ -248,22 +242,6 @@ class UserViewModel @Inject constructor(
             }
     }
 
-    fun calcReallyRevenue(revenuePerAd: Double, remoteUserData: Map<String, String?>): Double {
-        val currentRevenue = try {
-            remoteUserData[User.KEY_REALLY_REVENUE]?.ifEmpty {
-                0.0
-            }.toString().toDouble()
-        } catch (e: Exception) {
-            -1.0
-        }
-        return if (currentRevenue < 0) {
-            currentRevenue
-        } else {
-            val newRevenue = currentRevenue + (revenuePerAd * REVENUE_RATIO)
-            newRevenue
-        }
-    }
-
     fun calcUserReward(revenuePerAd: Double, remoteUserData: Map<String, String?>): Double {
         val currentReward = try {
             remoteUserData[User.KEY_USER_REWARD]?.ifEmpty {
@@ -275,7 +253,7 @@ class UserViewModel @Inject constructor(
         return if (currentReward < 0) {
             currentReward
         } else {
-            val newReward = currentReward + ((revenuePerAd * REVENUE_RATIO) * USER_PERCENTAGE)
+            val newReward = currentReward + (revenuePerAd * USER_PERCENTAGE)
             newReward
         }
     }
