@@ -34,6 +34,7 @@ import com.myapp.lexicon.settings.clearEmailPasswordInPref
 import com.myapp.lexicon.settings.getAuthDataFromPref
 import com.myapp.lexicon.settings.saveUserToPref
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 
 class AccountFragment : Fragment() {
@@ -144,13 +145,13 @@ class AccountFragment : Fragment() {
                     }
                     is AccountViewModel.State.OnSave -> {
                         val user = state.user
-                        user.apply {
-                            phone = tvPhoneValue.text.toString()
-                            bankCard = tvCardNumber.text.toString()
-                            firstName = tvFirstNameValue.text.toString()
-                            lastName = tvLastNameValue.text.toString()
-                        }
-                        userVM.updatePersonalData(user)
+                        val userMap = mapOf<String, Any>(
+                            User.KEY_PHONE to tvPhoneValue.text.toString(),
+                            User.KEY_BANK_CARD to tvCardNumber.text.toString(),
+                            User.KEY_FIRST_NAME to tvFirstNameValue.text.toString(),
+                            User.KEY_LAST_NAME to tvLastNameValue.text.toString()
+                        )
+                        userVM.addUserToStorage(user.id, userMap, isNew = false)
                         accountVM.setState(AccountViewModel.State.ReadOnly)
                     }
                     is AccountViewModel.State.OnValid -> {
@@ -284,9 +285,9 @@ class AccountFragment : Fragment() {
                         paymentDate = System.currentTimeMillis().toStringDate()
                     }
                     user.reservePayment(
-                        threshold = paymentThreshold,
-                        onReserve = { u ->
-                            userVM.updatePersonalData(u)
+                        threshold = (paymentThreshold * user.currencyRate).roundToInt(),
+                        onReserve = { map ->
+                            userVM.addUserToStorage(user.id, map, isNew = false)
                             showConfirmDialog()
                         },
                         onNotEnough = {

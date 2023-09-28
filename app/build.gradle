@@ -48,8 +48,20 @@ android {
         abortOnError false
         checkReleaseBuilds false
     }
-    namespace 'com.myapp.lexicon'
 
+    flavorDimensions = ['ADS_TEST']
+    productFlavors {
+        TEST_ADS {
+            dimension 'ADS_TEST'
+            buildConfigField 'String', 'ADS_SOURCE', '\"TEST_AD\"'
+        }
+        ALIVE_ADS {
+            dimension 'ADS_TEST'
+            buildConfigField 'String', 'ADS_SOURCE', '\"ALIVE_AD\"'
+        }
+    }
+
+    namespace 'com.myapp.lexicon'
 }
 
 dependencies {

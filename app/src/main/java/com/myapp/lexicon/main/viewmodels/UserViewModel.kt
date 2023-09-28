@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
@@ -24,6 +25,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
+import java.util.Currency
 import javax.inject.Inject
 
 
@@ -34,7 +36,9 @@ class UserViewModel @Inject constructor(
     companion object {
 
         const val COLLECTION_PATH = "users"
-        val USER_PERCENTAGE: Double = Firebase.remoteConfig.getDouble("USER_PERCENTAGE")
+        val USER_PERCENTAGE: Double by lazy {
+            Firebase.remoteConfig.getDouble("USER_PERCENTAGE")
+        }
     }
 
     sealed class LoadingState {
@@ -78,64 +82,15 @@ class UserViewModel @Inject constructor(
         }
     }
 
-    private fun addUser(user: User) {
-        _loadingState.value = LoadingState.Start
-        val map = user.toHashMap()
-        db.collection(COLLECTION_PATH)
-            .document(user.id)
-            .set(map)
-            .addOnSuccessListener {
-                _user.value = user
-                _state.value = State.UserAdded(user)
-            }
-            .addOnFailureListener { ex ->
-                ex.printStackTrace()
-                _state.value = State.Error(ex.message?: "Unknown error")
-            }
-            .addOnCompleteListener {
-                _loadingState.value = LoadingState.Complete
-            }
-    }
-
-    fun addUserIfNotExists(user: User) {
-        _loadingState.value = LoadingState.Start
-        db.collection(COLLECTION_PATH)
-            .document(user.id)
-            .get()
-            .addOnSuccessListener { document ->
-                val data = document.data
-                if (data != null) {
-                    _user.value = User(document.id).apply {
-                        this.currency = data[User.KEY_CURRENCY].toString()
-                        val reward = data[User.KEY_USER_REWARD].toString().ifEmpty {
-                            0.0
-                        }.toString().toDouble()
-                        this.userReward = reward
-                    }
-                }
-                else {
-                    addUser(user)
-                }
-            }
-            .addOnFailureListener {
-                it.printStackTrace()
-                _user.value = null
-            }
-            .addOnCompleteListener {
-                _loadingState.value = LoadingState.Complete
-            }
-    }
-
-    @Suppress("UNCHECKED_CAST")
     fun getUserFromCloud(userId: String) {
         _loadingState.value = LoadingState.Start
         db.collection(COLLECTION_PATH)
             .document(userId)
             .get()
             .addOnSuccessListener { document ->
-                val data = document.data as? Map<String, String?>
+                val data = document.data as? Map<String, Any?>
                 if (data != null) {
-                    val user = User(document.id).mapToUser(data)
+                    val user = data.mapToUser(userId)
                     _user.value = user
                     _state.value = State.ReceivedUserData(user)
                     _stateFlow.value = State.ReceivedUserData(user)
@@ -154,39 +109,69 @@ class UserViewModel @Inject constructor(
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun updateUserRevenue(adData: AdData, user: User) {
+    fun updateUserRevenue(adData: AdData, userId: String) {
 
         _loadingState.value = LoadingState.Start
         db.collection(COLLECTION_PATH)
-            .document(user.id)
+            .document(userId)
             .get()
             .addOnSuccessListener { snapshot ->
                 if (snapshot.data != null) {
-                    val remoteUserData = snapshot.data as Map<String, String>
-                    user.userReward = calcUserReward(adData.revenue, remoteUserData)
-                    user.totalRevenue = calcTotalRevenue(adData.revenue, remoteUserData, User.KEY_TOTAL_REVENUE)
-                    user.revenueUSD = calcTotalRevenue(adData.revenueUSD, remoteUserData, User.KEY_REVENUE_USD)
-                    user.currency = adData.currency
-                    user.currencyRate = (adData.revenue / adData.revenueUSD).to2DigitsScale()
+                    if (adData.revenueUSD > 0) {
+                        val remoteUserData = snapshot.data as Map<String, Comparable<Any>>
+                        val userReward = calcUserReward(adData.revenue, USER_PERCENTAGE, remoteUserData)
+                        val totalRevenue = calcTotalRevenue(adData.revenue, remoteUserData, User.KEY_TOTAL_REVENUE)
+                        val revenueUSD = calcTotalRevenue(adData.revenueUSD, remoteUserData, User.KEY_REVENUE_USD)
+                        val currency = adData.currency
+                        val currencySymbol = Currency.getInstance(currency).symbol
+                        val currencyRate = (adData.revenue / adData.revenueUSD).to2DigitsScale()
 
-                    if (user.userReward > -1) {
                         val revenueMap = mapOf(
-                            User.KEY_REVENUE_USD to user.revenueUSD.toString(),
-                            User.KEY_USER_REWARD to user.userReward.toString(),
-                            User.KEY_TOTAL_REVENUE to user.totalRevenue.toString(),
-                            User.KEY_RESERVED_PAYMENT to user.reservedPayment.toString(),
-                            User.KEY_CURRENCY to user.currency,
-                            User.KEY_CURRENCY_SYMBOL to user.currencySymbol,
-                            User.KEY_CURRENCY_RATE to user.currencyRate.toString(),
+                            User.KEY_REVENUE_USD to revenueUSD,
+                            User.KEY_USER_REWARD to userReward,
+                            User.KEY_TOTAL_REVENUE to totalRevenue,
+                            User.KEY_CURRENCY to currency,
+                            User.KEY_CURRENCY_SYMBOL to currencySymbol,
+                            User.KEY_CURRENCY_RATE to currencyRate,
                             User.KEY_LAST_UPDATE_TIME to System.currentTimeMillis().toStringTime()
                         )
+
+                        _loadingState.value = LoadingState.Start
                         db.collection(COLLECTION_PATH)
-                            .document(user.id)
+                            .document(userId)
                             .update(revenueMap)
                             .addOnSuccessListener {
-                                _user.value = user
-                                _state.value = State.RevenueUpdated(adData.revenue, user)
-                                _stateFlow.value = State.RevenueUpdated(adData.revenue, user)
+
+                                db.collection(COLLECTION_PATH)
+                                    .document(userId)
+                                    .get()
+                                    .addOnCompleteListener { snapshot ->
+                                        if (snapshot.isSuccessful) {
+                                            val data = snapshot.result.data
+                                            data?.let {
+                                                val user = it.mapToUser(userId)
+                                                _user.value = user
+                                                _state.value = State.RevenueUpdated(adData.revenue, user)
+                                                _stateFlow.value = State.RevenueUpdated(adData.revenue, user)
+                                            }?: run {
+                                                val exception = snapshot.exception
+                                                if (BuildConfig.DEBUG) {
+                                                    exception?.printStackTrace()
+                                                }
+                                                _state.value = State.Error(exception?.message?: "Unknown error")
+                                                _stateFlow.value = State.Error(exception?.message?: "Unknown error")
+                                            }
+                                        }
+                                        else {
+                                            val exception = snapshot.exception
+                                            if (BuildConfig.DEBUG) {
+                                                exception?.printStackTrace()
+                                            }
+                                            _state.value = State.Error(exception?.message?: "Unknown error")
+                                            _stateFlow.value = State.Error(exception?.message?: "Unknown error")
+                                        }
+                                        _loadingState.value = LoadingState.Complete
+                                    }
                             }
                             .addOnFailureListener { ex ->
                                 if (BuildConfig.DEBUG) {
@@ -201,7 +186,7 @@ class UserViewModel @Inject constructor(
                     } else {
                         if (BuildConfig.DEBUG) {
                             val message =
-                                "******************** A negative revenue value cannot be sent: ${user.userReward} ************"
+                                "******************** A zero revenue value cannot be sent: ${adData.revenue} ************"
                             Throwable(message).printStackTrace()
                         }
                     }
@@ -219,62 +204,98 @@ class UserViewModel @Inject constructor(
             }
     }
 
-    fun updatePersonalData(user: User) {
+    fun addUserToStorage(userId: String, userMap: Map<String, Any?>, isNew: Boolean = false): LiveData<Result<Unit>> {
         _loadingState.value = LoadingState.Start
-        val userMap = user.toHashMap()
+
+        val result = MutableLiveData<Result<Unit>>()
         db.collection(COLLECTION_PATH)
-            .document(user.id)
-            .update(userMap)
+            .document(userId)
+            .run {
+                if (isNew) {
+                    set(userMap)
+                }
+                else {
+                    update(userMap)
+                }
+            }
             .addOnSuccessListener {
-                _user.value = user
-                _state.value = State.PersonalDataUpdated(user)
-                _stateFlow.value = State.PersonalDataUpdated(user)
+                result.value = Result.success(Unit)
             }
             .addOnFailureListener { ex ->
                 if (BuildConfig.DEBUG) {
                     ex.printStackTrace()
                 }
-                _state.value = State.Error(ex.message ?: "Unknown error")
-                _stateFlow.value = State.Error(ex.message ?: "Unknown error")
+                result.value = Result.failure(ex as FirebaseFirestoreException)
             }
             .addOnCompleteListener {
                 _loadingState.value = LoadingState.Complete
             }
+        return result
     }
 
-    fun calcUserReward(revenuePerAd: Double, remoteUserData: Map<String, String?>): Double {
-        val currentReward = try {
-            remoteUserData[User.KEY_USER_REWARD]?.ifEmpty {
-                0.0
-            }.toString().toDouble()
-        } catch (e: Exception) {
-            -1.0
-        }
-        return if (currentReward < 0) {
-            currentReward
-        } else {
-            val newReward = currentReward + (revenuePerAd * USER_PERCENTAGE)
+    fun<T> calcUserReward(
+        revenuePerAd: Double,
+        userPercentage: Double,
+        remoteUserData: Map<String, Comparable<T>?>
+    ): Double {
+        val currentReward = remoteUserData[User.KEY_USER_REWARD]
+        return if (currentReward != null && (currentReward is Number)) {
+            val newReward = currentReward.toDouble() + (revenuePerAd * userPercentage)
             newReward
         }
+        else {
+            revenuePerAd * userPercentage
+        }
     }
 
-    private fun calcTotalRevenue(
+    private fun<T> calcTotalRevenue(
         revenuePerAd: Double,
-        remoteUserData: Map<String, String?>,
+        remoteUserData: Map<String, Comparable<T>?>,
         mapKey: String
     ): Double {
-        val currentRevenue = try {
-            remoteUserData[mapKey]?.ifEmpty {
-                0.0
-            }.toString().toDouble()
-        } catch (e: Exception) {
-            -1.0
-        }
-        return if (currentRevenue < 0) {
-            currentRevenue
-        } else {
-            val newRevenue = currentRevenue + revenuePerAd
+        val currentRevenue = remoteUserData[mapKey]
+        return if (currentRevenue != null && currentRevenue is Number) {
+            val newRevenue = currentRevenue.toDouble() + revenuePerAd
             newRevenue
+        } else {
+            revenuePerAd
+        }
+    }
+
+    private fun Map<String, Any?>.mapToUser(userId: String): User {
+        return User(userId).apply {
+            var value = this@mapToUser[User.KEY_REVENUE_USD]
+            this.revenueUSD = if (value is Number) value.toDouble() else 0.0
+
+            value = this@mapToUser[User.KEY_TOTAL_REVENUE]
+            this.totalRevenue = if (value is Number) value.toDouble() else 0.0
+
+            value = this@mapToUser[User.KEY_USER_REWARD]
+            this.userReward = if (value is Number) value.toDouble() else 0.0
+
+            value = this@mapToUser[User.KEY_CURRENCY]
+            this.currency = if (value is String) value else ""
+
+            value = this@mapToUser[User.KEY_EMAIL]
+            this.email = if (value is String) value else ""
+
+            value = this@mapToUser[User.KEY_PHONE]
+            this.phone = if (value is String) value else ""
+
+            value = this@mapToUser[User.KEY_BANK_CARD]
+            this.bankCard = if (value is String) value else ""
+
+            value = this@mapToUser[User.KEY_BANK_NAME]
+            this.bankName = if (value is String) value else ""
+
+            value = this@mapToUser[User.KEY_FIRST_NAME]
+            this.firstName = if (value is String) value else ""
+
+            value = this@mapToUser[User.KEY_LAST_NAME]
+            this.lastName = if (value is String) value else ""
+
+            value = this@mapToUser[User.KEY_MESSAGE]
+            this.message = if (value is String) value else ""
         }
     }
 

@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             });
             result.onSignUp(user -> {
                 navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_account);
-                userVM.addUserIfNotExists(user);
+                //userVM.addUserIfNotExists(user);
                 return null;
             });
             result.onSignIn(user -> {
@@ -1127,7 +1127,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             User user = userVM.getUser().getValue();
             if (user != null)
             {
-                userVM.updateUserRevenue(data, user);
+                userVM.updateUserRevenue(data, user.getId());
             }
         }
     }

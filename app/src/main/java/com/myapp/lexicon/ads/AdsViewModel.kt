@@ -9,6 +9,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.ads.models.AdData
+import com.myapp.lexicon.common.AdsSource
 import com.myapp.lexicon.helpers.printLogIfDebug
 import com.yandex.mobile.ads.banner.BannerAdSize
 import com.yandex.mobile.ads.banner.BannerAdView
@@ -149,7 +150,19 @@ fun InterstitialAd.showAd(
                         }
                     )
                 }?: run {
-                    onImpression.invoke(null)
+                    if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
+                        TEST_INTERSTITIAL_DATA.toAdData(
+                            onSuccess = { data ->
+                                onImpression.invoke(data)
+                            },
+                            onFailed = {
+                                onImpression.invoke(null)
+                            }
+                        )
+                    }
+                    else {
+                        onImpression.invoke(null)
+                    }
                 }
             }
         })
@@ -192,7 +205,19 @@ fun RewardedAd.showAd(
                         }
                     )
                 }?: run {
-                    onImpression.invoke(null)
+                    if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
+                        TEST_REWARDED_DATA.toAdData(
+                            onSuccess = { data ->
+                                onImpression.invoke(data)
+                            },
+                            onFailed = {
+                                onImpression.invoke(null)
+                            }
+                        )
+                    }
+                    else {
+                        onImpression.invoke(null)
+                    }
                 }
             }
 
@@ -216,19 +241,35 @@ fun String.toAdData(
     }
 }
 
-private const val JSON_STRING = """{
+private const val TEST_INTERSTITIAL_DATA = """{
   "currency": "RUB",
-  "revenueUSD": "0.001200671",
+  "revenueUSD": "0.2051",
   "precision": "estimated",
-  "revenue": "0.116025434",
-  "requestId": "1694954665976270-617871108186477874100342-production-app-host-vla-326",
-  "blockId": "R-M-711877-3",
+  "revenue": "20.0",
+  "requestId": "1694954665976270-617871108186477874100342-demo-interstitial-yandex",
+  "blockId": "demo-interstitial-yandex",
   "adType": "interstitial",
-  "ad_unit_id": "R-M-711877-3",
+  "ad_unit_id": "demo-interstitial-yandex",
   "network": {
     "name": "Yandex",
     "adapter": "Yandex",
-    "ad_unit_id": "R-M-711877-3"
+    "ad_unit_id": "demo-interstitial-yandex"
+  }
+}"""
+
+private const val TEST_REWARDED_DATA = """{
+  "currency": "RUB",
+  "revenueUSD": "0.4051",
+  "precision": "estimated",
+  "revenue": "40.0",
+  "requestId": "1694954665976270-617871108186477874100342-demo-rewarded-yandex",
+  "blockId": "demo-rewarded-yandex",
+  "adType": "interstitial",
+  "ad_unit_id": "demo-rewarded-yandex",
+  "network": {
+    "name": "Yandex",
+    "adapter": "Yandex",
+    "ad_unit_id": "demo-rewarded-yandex"
   }
 }"""
 

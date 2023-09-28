@@ -9,6 +9,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.google.firebase.firestore.FirebaseFirestoreException
 import com.myapp.lexicon.R
 import com.myapp.lexicon.auth.account.AccountFragment
 import com.myapp.lexicon.auth.agreement.UserAgreementDialog
@@ -148,16 +149,11 @@ class AuthFragment : Fragment() {
                 }
                 state.onSignUp { user ->
                     showSnackBar(getString(R.string.text_user_is_registered))
-                    userVM.addUserIfNotExists(user)
-                    listener?.refreshAuthState(user)
-                    parentFragmentManager.popBackStack()
+                    handleAuthorization(user, isNew = true)
                 }
                 state.onSignIn { user ->
                     showSnackBar(getString(R.string.text_login_completed))
-                    listener?.refreshAuthState(user)
-                    val password = etPassword.text.toString().trim()
-                    val accountFragment = AccountFragment.newInstance(user.id, password)
-                    parentFragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, accountFragment).addToBackStack(null).commit()
+                    handleAuthorization(user, isNew = false)
                 }
                 state.onEmailValid { flag ->
                     if (flag) {
@@ -186,6 +182,35 @@ class AuthFragment : Fragment() {
                 state.onFailure { exception ->
                     exception.printStackTrace()
                     showSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
+                }
+            }
+        }
+    }
+
+    private fun handleAuthorization(user: User, isNew: Boolean) {
+        with(binding) {
+            progressBar.visibility = View.VISIBLE
+            listener?.refreshAuthState(user)
+            userVM.addUserToStorage(
+                user.id,
+                mapOf(User.KEY_EMAIL to etEmail.text.toString().trim()),
+                isNew
+            ).observe(viewLifecycleOwner) { result ->
+                result.onSuccess {
+                    progressBar.visibility = View.GONE
+                    val password = etPassword.text.toString().trim()
+                    val accountFragment = AccountFragment.newInstance(user.id, password)
+                    parentFragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, accountFragment).addToBackStack(null).commit()
+                }
+                result.onFailure { exception ->
+                    progressBar.visibility = View.GONE
+                    val firestoreException = exception as FirebaseFirestoreException
+                    if (firestoreException.code == FirebaseFirestoreException.Code.NOT_FOUND) {
+                        handleAuthorization(user, isNew = true)
+                    }
+                    else {
+                        showSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
+                    }
                 }
             }
         }

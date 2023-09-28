@@ -55,7 +55,7 @@ class TranslateActivity : AppCompatActivity(), AdEventListener {
         if (data != null) {
             val user = userVM.user.value
             if (user != null) {
-                userVM.updateUserRevenue(data, user)
+                userVM.updateUserRevenue(data, user.id)
                 finish()
             }
         }

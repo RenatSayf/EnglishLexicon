@@ -167,7 +167,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                                 if (state instanceof UserViewModel.State.ReceivedUserData) {
                                     User user = ((UserViewModel.State.ReceivedUserData) state).getUser();
                                     if (adData != null) {
-                                        userVM.updateUserRevenue(adData, user);
+                                        userVM.updateUserRevenue(adData, user.getId());
                                     }
                                 }
                             });
