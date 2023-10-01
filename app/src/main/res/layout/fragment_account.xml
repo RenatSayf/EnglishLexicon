@@ -188,7 +188,7 @@
                 android:orientation="vertical"
                 android:gravity="start"
                 app:layout_constraintTop_toBottomOf="@+id/layoutEmail"
-                app:layout_constraintBottom_toTopOf="@+id/layoutBankCard"
+                app:layout_constraintBottom_toTopOf="@+id/layoutBankName"
                 android:layout_marginTop="8dp">
 
                 <androidx.appcompat.widget.AppCompatTextView
@@ -228,12 +228,58 @@
             </androidx.appcompat.widget.LinearLayoutCompat>
 
             <androidx.appcompat.widget.LinearLayoutCompat
-                android:id="@+id/layoutBankCard"
+                android:id="@+id/layoutBankName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="start"
                 app:layout_constraintTop_toBottomOf="@+id/layoutPhone"
+                app:layout_constraintBottom_toTopOf="@+id/layoutBankCard"
+                android:layout_marginTop="8dp"
+                >
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvBankNameTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="start"
+                    android:padding="4dp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:text="@string/text_bank_name"
+                    android:textColor="@color/colorYellowDark"
+                    android:textSize="14sp"
+                    />
+
+                <AutoCompleteTextView
+                    android:id="@+id/tvBankNameValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:background="@drawable/bg_horizontal_oval"
+                    android:gravity="start|center"
+                    android:inputType="text|textMultiLine"
+                    android:textColor="@color/color_3B5E91"
+                    android:textCursorDrawable="@null"
+                    android:textSize="18sp"
+                    tools:ignore="TouchTargetSizeCheck,VisualLintTextFieldSize"
+                    android:hint="@string/text_when_awarding"
+                    android:textColorHint="@color/color_CCC3C3"
+                    android:drawableStart="@drawable/ic_bank"
+                    android:drawablePadding="8dp"
+                    />
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/layoutBankCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="start"
+                app:layout_constraintTop_toBottomOf="@+id/layoutBankName"
                 app:layout_constraintBottom_toTopOf="@+id/layoutFirstName"
                 android:layout_marginTop="8dp"
                 >

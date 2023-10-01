@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import androidx.activity.OnBackPressedCallback
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
@@ -95,6 +96,16 @@ class AccountFragment : Fragment() {
                 }
             }
 
+            accountVM.fetchBankList().observe(viewLifecycleOwner) { result ->
+                result.onSuccess { list ->
+                    val bankListAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, list)
+                    tvBankNameValue.setAdapter(bankListAdapter)
+                }
+                result.onFailure { exception ->
+                    showSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
+                }
+            }
+
             userVM.state.observe(viewLifecycleOwner) { state ->
                 when(state) {
                     UserViewModel.State.Init -> {}
@@ -131,6 +142,7 @@ class AccountFragment : Fragment() {
                     AccountViewModel.State.Editing -> {
                         tvPhoneValue.isEnabled = true
                         tvPhoneValue.requestFocus()
+                        tvBankNameValue.isEnabled = true
                         tvCardNumber.isEnabled = true
                         tvFirstNameValue.isEnabled = true
                         tvLastNameValue.isEnabled = true
@@ -139,6 +151,7 @@ class AccountFragment : Fragment() {
                     }
                     AccountViewModel.State.ReadOnly -> {
                         tvPhoneValue.isEnabled = false
+                        tvBankNameValue.isEnabled = false
                         tvCardNumber.isEnabled = false
                         tvFirstNameValue.isEnabled = false
                         tvLastNameValue.isEnabled = false
@@ -148,6 +161,7 @@ class AccountFragment : Fragment() {
                         val user = state.user
                         val userMap = mapOf<String, Any>(
                             User.KEY_PHONE to tvPhoneValue.text.toString(),
+                            User.KEY_BANK_NAME to tvBankNameValue.text.toString(),
                             User.KEY_BANK_CARD to tvCardNumber.text.toString(),
                             User.KEY_FIRST_NAME to tvFirstNameValue.text.toString(),
                             User.KEY_LAST_NAME to tvLastNameValue.text.toString()
@@ -161,6 +175,17 @@ class AccountFragment : Fragment() {
                         }
                         else {
                             tvPhoneValue.apply {
+                                setBackground(R.drawable.bg_horizontal_oval_error)
+                                isEnabled = true
+                                requestFocus()
+                            }
+                        }
+
+                        if (state.bankName) {
+                            tvBankNameValue.setBackground(R.drawable.bg_horizontal_oval)
+                        }
+                        else {
+                            tvBankNameValue.apply {
                                 setBackground(R.drawable.bg_horizontal_oval_error)
                                 isEnabled = true
                                 requestFocus()
@@ -216,7 +241,15 @@ class AccountFragment : Fragment() {
                     }
                     else accountVM.setState(state.copy(phone = false))
                 }
-
+            }
+            tvBankNameValue.doOnTextChanged { text, start, before, count ->
+                val state = accountVM.state.value
+                if (state is AccountViewModel.State.OnValid) {
+                    if (!text.isNullOrEmpty()) {
+                        accountVM.setState(state.copy(bankName = true))
+                    }
+                    else accountVM.setState(state.copy(bankName = false))
+                }
             }
             tvCardNumber.doOnTextChanged { text, start, before, count ->
                 val state = accountVM.state.value
@@ -291,7 +324,7 @@ class AccountFragment : Fragment() {
                             val userMap = map.toMutableMap()
                             userMap.apply {
                                 this[User.KEY_BANK_CARD] = tvCardNumber.text.toString()
-                                this[User.KEY_BANK_NAME] = "XXXXXX"
+                                this[User.KEY_BANK_NAME] = tvBankNameValue.text.toString()
                                 this[User.KEY_PHONE] = tvPhoneValue.text.toString()
                                 this[User.KEY_FIRST_NAME] = tvFirstNameValue.text.toString()
                                 this[User.KEY_LAST_NAME] = tvLastNameValue.text.toString()
@@ -360,6 +393,7 @@ class AccountFragment : Fragment() {
 
             tvEmailValue.text = user.email
             tvPhoneValue.setText(user.phone)
+            tvBankNameValue.setText(user.bankName)
             tvCardNumber.setText(user.bankCard)
             tvFirstNameValue.setText(user.firstName)
             tvLastNameValue.setText(user.lastName)
