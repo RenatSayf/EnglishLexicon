@@ -85,7 +85,7 @@ data class User(
                 KEY_RESERVED_PAYMENT to reservedPayment,
                 KEY_USER_REWARD to 0.0,
                 KEY_TOTAL_REVENUE to 0.0,
-                KEY_REVENUE_USD to 0.0,
+                //KEY_REVENUE_USD to 0.0,
                 KEY_PAYMENT_DATE to System.currentTimeMillis().toStringTime()
             )
             onReserve.invoke(userMap)
