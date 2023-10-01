@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.firestoreSettings
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
@@ -65,7 +66,10 @@ class UserViewModel @Inject constructor(
     private var _stateFlow = MutableStateFlow<State>(State.Init)
     val stateFlow: StateFlow<State> = _stateFlow
 
-    private val db: FirebaseFirestore = Firebase.firestore
+    private val db: FirebaseFirestore = Firebase.firestore.apply {
+        val settings = firestoreSettings { isPersistenceEnabled = true }
+        this.firestoreSettings = settings
+    }
 
     private var _user = MutableLiveData<User?>(null)
     val user: LiveData<User?> = _user
