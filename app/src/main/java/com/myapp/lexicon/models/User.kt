@@ -59,7 +59,7 @@ data class User(
 
     var reservedPayment: Double = 0.0
         get() = BigDecimal(field).setScale(2, RoundingMode.DOWN).toDouble()
-        private set
+
     var currency: String? = ""
         set(value) {
             field = value
@@ -72,7 +72,6 @@ data class User(
         private set
 
     var paymentDate: String = ""
-    private var lastUpdateTime: String = ""
     var message: String = ""
 
     fun reservePayment(

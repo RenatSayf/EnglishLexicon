@@ -17,6 +17,7 @@ import com.myapp.lexicon.databinding.FragmentAuthBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.isItEmail
 import com.myapp.lexicon.helpers.showSnackBar
+import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserState
@@ -36,11 +37,6 @@ class AuthFragment : Fragment() {
     private lateinit var binding: FragmentAuthBinding
     private val authVM: AuthViewModel by viewModels()
     private val userVM: UserViewModel by viewModels()
-
-    interface AuthListener {
-        fun refreshAuthState(user: User)
-    }
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -178,6 +174,7 @@ class AuthFragment : Fragment() {
                 }
                 state.onNotRegistered {
                     btnRegistration.visibility = View.VISIBLE
+                    showSnackBar(getString(R.string.text_user_not_found))
                 }
                 state.onFailure { exception ->
                     exception.printStackTrace()
@@ -196,19 +193,19 @@ class AuthFragment : Fragment() {
                 mapOf(User.KEY_EMAIL to etEmail.text.toString().trim()),
                 isNew
             ).observe(viewLifecycleOwner) { result ->
-                result.onSuccess {
+                result.onSuccess { id ->
                     progressBar.visibility = View.GONE
                     val password = etPassword.text.toString().trim()
-                    val accountFragment = AccountFragment.newInstance(user.id, password)
+                    val accountFragment = AccountFragment.newInstance(id, password, (requireActivity() as MainActivity))
                     parentFragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, accountFragment).addToBackStack(null).commit()
                 }
                 result.onFailure { exception ->
-                    progressBar.visibility = View.GONE
-                    val firestoreException = exception as FirebaseFirestoreException
-                    if (firestoreException.code == FirebaseFirestoreException.Code.NOT_FOUND) {
+                    val fireStoreException = exception as FirebaseFirestoreException
+                    if (fireStoreException.code == FirebaseFirestoreException.Code.NOT_FOUND) {
                         handleAuthorization(user, isNew = true)
                     }
                     else {
+                        progressBar.visibility = View.GONE
                         showSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
                     }
                 }
@@ -258,6 +255,12 @@ class AuthFragment : Fragment() {
                     parentFragmentManager.popBackStack()
                 }
             })
+    }
+
+    override fun onDetach() {
+
+        listener = null
+        super.onDetach()
     }
 
 }

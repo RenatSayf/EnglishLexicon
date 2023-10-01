@@ -204,10 +204,10 @@ class UserViewModel @Inject constructor(
             }
     }
 
-    fun addUserToStorage(userId: String, userMap: Map<String, Any?>, isNew: Boolean = false): LiveData<Result<Unit>> {
+    fun addUserToStorage(userId: String, userMap: Map<String, Any?>, isNew: Boolean = false): LiveData<Result<String>> {
         _loadingState.value = LoadingState.Start
 
-        val result = MutableLiveData<Result<Unit>>()
+        val result = MutableLiveData<Result<String>>()
         db.collection(COLLECTION_PATH)
             .document(userId)
             .run {
@@ -219,7 +219,7 @@ class UserViewModel @Inject constructor(
                 }
             }
             .addOnSuccessListener {
-                result.value = Result.success(Unit)
+                result.value = Result.success(userId)
             }
             .addOnFailureListener { ex ->
                 if (BuildConfig.DEBUG) {
@@ -272,6 +272,9 @@ class UserViewModel @Inject constructor(
 
             value = this@mapToUser[User.KEY_USER_REWARD]
             this.userReward = if (value is Number) value.toDouble() else 0.0
+
+            value = this@mapToUser[User.KEY_RESERVED_PAYMENT]
+            this.reservedPayment = if (value is Number) value.toDouble() else 0.0
 
             value = this@mapToUser[User.KEY_CURRENCY]
             this.currency = if (value is String) value else ""

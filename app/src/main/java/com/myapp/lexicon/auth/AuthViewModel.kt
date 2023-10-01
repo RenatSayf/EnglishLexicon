@@ -130,9 +130,15 @@ class AuthViewModel @Inject constructor(
                         _stateFlow.value = newState
                     }
                 } else {
-                    val exception = task.exception as Exception
-                    _state.value = UserState.Failure(exception)
-                    _stateFlow.value = UserState.Failure(exception)
+                    val exception = task.exception
+                    if (exception is FirebaseAuthException && exception.errorCode == "ERROR_USER_NOT_FOUND") {
+                        _state.value = UserState.NotRegistered
+                        _stateFlow.value = UserState.NotRegistered
+                    }
+                    else {
+                        _state.value = UserState.Failure(exception?: Exception("Unknown error"))
+                        _stateFlow.value = UserState.Failure(exception?: Exception("Unknown error"))
+                    }
                 }
                 _loadingState.value = LoadingState.Complete
             }
@@ -183,8 +189,8 @@ class AuthViewModel @Inject constructor(
 
         app.getAuthDataFromPref(
             onNotRegistered = {
-                _state.value = UserState.NotRegistered
-                _stateFlow.value = UserState.NotRegistered
+                _state.value = UserState.Init
+                _stateFlow.value = UserState.Init
             },
             onSuccess = { email, password ->
                 val currentUser = auth.currentUser

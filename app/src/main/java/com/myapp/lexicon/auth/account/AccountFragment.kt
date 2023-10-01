@@ -18,6 +18,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.R
+import com.myapp.lexicon.auth.AuthListener
 import com.myapp.lexicon.auth.AuthViewModel
 import com.myapp.lexicon.databinding.FragmentAccountBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
@@ -25,7 +26,6 @@ import com.myapp.lexicon.helpers.LuhnAlgorithm
 import com.myapp.lexicon.helpers.setBackground
 import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.helpers.toStringDate
-import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserState
@@ -34,7 +34,6 @@ import com.myapp.lexicon.settings.clearEmailPasswordInPref
 import com.myapp.lexicon.settings.getAuthDataFromPref
 import com.myapp.lexicon.settings.saveUserToPref
 import kotlinx.coroutines.launch
-import kotlin.math.roundToInt
 
 
 class AccountFragment : Fragment() {
@@ -43,10 +42,12 @@ class AccountFragment : Fragment() {
 
         private var userId: String? = null
         private var password: String? = null
-        fun newInstance(userId: String, password: String): AccountFragment {
+        private var listener: AuthListener? = null
+        fun newInstance(userId: String, password: String, listener: AuthListener?): AccountFragment {
 
             this.userId = userId
             this.password = password
+            this.listener = listener
             return AccountFragment()
         }
     }
@@ -285,10 +286,25 @@ class AccountFragment : Fragment() {
                         paymentDate = System.currentTimeMillis().toStringDate()
                     }
                     user.reservePayment(
-                        threshold = (paymentThreshold * user.currencyRate).roundToInt(),
+                        threshold = (paymentThreshold * user.currencyRate).toInt(),
                         onReserve = { map ->
-                            userVM.addUserToStorage(user.id, map, isNew = false)
-                            showConfirmDialog()
+                            val userMap = map.toMutableMap()
+                            userMap.apply {
+                                this[User.KEY_BANK_CARD] = tvCardNumber.text.toString()
+                                this[User.KEY_BANK_NAME] = "XXXXXX"
+                                this[User.KEY_PHONE] = tvPhoneValue.text.toString()
+                                this[User.KEY_FIRST_NAME] = tvFirstNameValue.text.toString()
+                                this[User.KEY_LAST_NAME] = tvLastNameValue.text.toString()
+                            }
+                            userVM.addUserToStorage(user.id, userMap, isNew = false).observe(viewLifecycleOwner) { result ->
+                                result.onSuccess { id ->
+                                    userVM.getUserFromCloud(id)
+                                    showConfirmDialog()
+                                }
+                                result.onFailure { exception ->
+                                    showSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
+                                }
+                            }
                         },
                         onNotEnough = {
                             showSnackBar(getString(R.string.text_not_money))
@@ -417,7 +433,6 @@ class AccountFragment : Fragment() {
         super.onResume()
 
         with(binding) {
-
             toolBar.setOnMenuItemClickListener { item ->
                 when(item.itemId) {
                     R.id.menu_edit -> {
@@ -427,17 +442,29 @@ class AccountFragment : Fragment() {
                 true
             }
             toolBar.setNavigationOnClickListener {
-                (requireActivity() as MainActivity).buildRewardText(userVM.user.value)
-                parentFragmentManager.beginTransaction().detach(this@AccountFragment).commit()
+                goBack()
             }
         }
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                (requireActivity() as MainActivity).buildRewardText(userVM.user.value)
-                parentFragmentManager.beginTransaction().detach(this@AccountFragment).commit()
+                goBack()
             }
         })
+    }
+
+    private fun goBack() {
+        val user = userVM.user.value
+        user?.let {
+            listener?.refreshAuthState(it)
+        }
+        parentFragmentManager.beginTransaction().detach(this@AccountFragment).commit()
+    }
+
+    override fun onDetach() {
+
+        listener = null
+        super.onDetach()
     }
 
 

@@ -36,6 +36,7 @@ import com.myapp.lexicon.ads.BannerAdIds;
 import com.myapp.lexicon.ads.intrefaces.AdEventListener;
 import com.myapp.lexicon.ads.models.AdData;
 import com.myapp.lexicon.auth.AuthFragment;
+import com.myapp.lexicon.auth.AuthListener;
 import com.myapp.lexicon.auth.AuthViewModel;
 import com.myapp.lexicon.auth.account.AccountFragment;
 import com.myapp.lexicon.cloudstorage.CloudCheckWorker;
@@ -94,7 +95,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
-        MainFragment.Listener, AuthFragment.AuthListener, AdEventListener
+        MainFragment.Listener, AuthListener, AdEventListener
 {
     private View root;
     private NavigationView navView;
@@ -716,7 +717,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
                         if (currentUser != null)
                         {
-                            AccountFragment accountFragment = AccountFragment.Companion.newInstance(currentUser.getUid(), password);
+                            AccountFragment accountFragment = AccountFragment.Companion.newInstance(
+                                    currentUser.getUid(),
+                                    password,
+                                    MainActivity.this
+                            );
                             transaction.replace(R.id.frame_to_page_fragm, accountFragment).addToBackStack(null).commit();
                         } else
                         {
@@ -991,6 +996,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    /** @noinspection deprecation*/
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     void onAppFinish() {
 
@@ -1083,6 +1089,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void refreshAuthState(@NonNull User user)
     {
         authVM.setState(new UserState.SignUp(user));
+        buildRewardText(user);
 
         SettingsExtKt.checkCloudToken(
                 this,
