@@ -21,7 +21,7 @@ class OneOfFiveViewModel : ViewModel()
     fun initTest(list: List<Word>)
     {
         _progressMax.value = list.size
-        if (_wordsList.value.isNullOrEmpty() && !list.isNullOrEmpty())
+        if (_wordsList.value.isNullOrEmpty() && list.isNotEmpty())
         {
             _adapterList.value = list.take(ROWS) as MutableList<Word>
             val randomIndex = if (list.size >= ROWS)
@@ -31,7 +31,7 @@ class OneOfFiveViewModel : ViewModel()
             else RandomNumberGenerator(list.size, (Date().time.toInt())).generate()
             _mysteryWord.value = _adapterList.value!![randomIndex].translate
             _wordsList.value = list as ArrayList<Word>
-            _wordsList.value?.removeAll(_adapterList.value as MutableList)
+            _wordsList.value?.removeAll((_adapterList.value as MutableList).toSet())
         }
     }
 

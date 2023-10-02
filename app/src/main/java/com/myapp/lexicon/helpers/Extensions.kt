@@ -1,21 +1,41 @@
 package com.myapp.lexicon.helpers
 
+import android.app.ActivityManager
+import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
 import android.os.CountDownTimer
+import android.text.TextUtils
+import android.util.Patterns
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import com.google.android.material.snackbar.Snackbar
+import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
+import com.myapp.lexicon.databinding.SnackBarTestBinding
+import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.schedule.AlarmScheduler
+import com.myapp.lexicon.schedule.AppNotification
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import java.util.zip.CRC32
 import kotlin.math.roundToInt
@@ -51,6 +71,17 @@ fun Context.showToast(message: String, duration: Int = Toast.LENGTH_LONG) {
 
 fun Fragment.showToast(message: String, duration: Int = Toast.LENGTH_LONG) {
     requireContext().showToast(message, duration)
+}
+
+fun Context.showToastIfDebug(message: String?) {
+    if (BuildConfig.DEBUG) {
+        val text = message ?: "*********** Unknown error ***************"
+        Toast.makeText(this, text, Toast.LENGTH_LONG).show()
+    }
+}
+
+fun Fragment.showToastIfDebug(message: String?) {
+    requireContext().showToastIfDebug(message)
 }
 
 fun File.fileToBytes(): ByteArray {
@@ -139,6 +170,133 @@ val Context.screenWidth: Int
 
 val Context.screenHeight: Int
     get() = resources.displayMetrics.run { heightPixels / density }.roundToInt()
+
+val String.isItEmail: Boolean
+    get() {
+        return !TextUtils.isEmpty(this) && Patterns.EMAIL_ADDRESS.matcher(this).matches()
+    }
+
+@Suppress("UnnecessaryVariable")
+fun Long.toStringDate(locale: Locale = Locale.getDefault()): String {
+    val formatter = SimpleDateFormat("yyyy-MM-dd", locale)
+    val strDate = formatter.format(this)
+    return strDate
+}
+
+fun String.toLongDate(locale: Locale = Locale.getDefault()): Long {
+    val formatter = SimpleDateFormat("yyyy-MM-dd", locale)
+    val date = try {
+        formatter.parse(this)
+    } catch (e: ParseException) {
+        Date(-1)
+    }
+    return date.time
+}
+
+@Suppress("UnnecessaryVariable")
+fun Long.toStringTime(locale: Locale = Locale.getDefault()): String {
+    val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", locale)
+    val strDate = formatter.format(this)
+    return strDate
+}
+
+fun View.showCustomSnackBar(
+    message: String,
+    onLaunch: (SnackBarTestBinding) -> Unit = {}
+) {
+    val snackBar = Snackbar.make(this, "", Snackbar.LENGTH_LONG)
+    val binding = SnackBarTestBinding.inflate(LayoutInflater.from(this.context), null, false)
+
+    snackBar.setBackgroundTint(ResourcesCompat.getColor(this.resources, R.color.colorTransparent, null))
+    val layoutParams = snackBar.view.layoutParams as CoordinatorLayout.LayoutParams
+    layoutParams.setMargins(16, 0, 16, 16)
+    layoutParams.height = LayoutParams.WRAP_CONTENT
+    snackBar.view.layoutParams = layoutParams
+    binding.tvMessage.text = message
+
+    (snackBar.view as ViewGroup).apply {
+        removeAllViews()
+        addView(binding.root)
+    }
+    onLaunch.invoke(binding)
+    snackBar.show()
+}
+
+fun<T> Context.checkIsActivityShown(
+    clazz: Class<T>,
+    onVisible: () -> Unit = {},
+    onInvisible: () -> Unit = {}
+) {
+    val activityManager = (this.getSystemService(Service.ACTIVITY_SERVICE)) as ActivityManager?
+    val tasks = activityManager?.appTasks
+    tasks?.forEach { t ->
+        if (clazz.canonicalName.equals(t.taskInfo.baseActivity?.className, true)) {
+            onVisible.invoke()
+            return
+        }
+    }
+    onInvisible.invoke()
+}
+
+fun Context.showDebugNotification(message: String?) {
+    val notification = AppNotification(this)
+    notification.create(message?: "Unknown error")
+    notification.show()
+}
+
+fun View.setBackground(resId: Int) {
+    this.background = ResourcesCompat.getDrawable(resources, resId, null)
+}
+
+fun printLogIfDebug(message: String) {
+    if (BuildConfig.DEBUG) {
+        println("*************** $message *********************")
+    }
+}
+
+fun Context.isNetworkAvailable(): Boolean {
+    val manager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    return when {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
+            val capabilities = manager.getNetworkCapabilities(manager.activeNetwork)
+            when {
+                capabilities != null -> {
+                    when {
+                        capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+                        capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+                        else -> capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
+                    }
+                }
+                else -> false
+            }
+        }
+        else -> {
+            try {
+                val activeNetworkInfo = manager.activeNetworkInfo
+                activeNetworkInfo != null && activeNetworkInfo.isConnected
+            } catch (e: Exception) {
+                if (BuildConfig.DEBUG) e.printStackTrace()
+                false
+            }
+        }
+    }
+}
+
+fun List<Word>.findItemWithoutRemainder(
+    divider: Int,
+    isRemainder: () -> Unit = {},
+    noRemainder: () -> Unit = {}
+) {
+    val result = this.any {
+        it._id % divider == 0
+    }
+    if (result) {
+        noRemainder.invoke()
+    }
+    else {
+        isRemainder.invoke()
+    }
+}
 
 
 

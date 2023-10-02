@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="16dp"
+    android:background="@color/color_3B5E91">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/imgTitleIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:src="@drawable/ic_add_bank_card"
+        />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@+id/imgTitleIcon"
+        app:layout_constraintTop_toTopOf="@+id/imgTitleIcon"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/imgTitleIcon"
+        android:layout_marginStart="12dp"
+        android:text="@string/text_enter_card_number"
+        android:textColor="@color/colorWhite"
+        android:textSize="16sp"
+        android:textStyle="bold"/>
+
+    <me.dkzwm.widget.fet.FormattedEditText
+        android:id="@+id/etBankCard"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_horizontal_oval"
+        android:minHeight="35dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/tvTitle"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle"
+        tools:ignore="TouchTargetSizeCheck"
+        android:inputType="phone"
+        android:hint="@string/text_card_number_hint"
+        android:textColorHint="@color/color_CCC3C3"
+        app:fet_formatStyle="0000 0000 0000 000*"
+        app:fet_mode="mode_mask"
+        />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvBankHint"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/etBankCard"
+        app:layout_constraintStart_toStartOf="@+id/etBankCard"
+        app:layout_constraintEnd_toEndOf="@id/etBankCard"
+        android:layout_marginTop="2dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:gravity="start"
+        android:text="@string/text_card_number_to_phone"
+        android:textColor="@color/colorWhite"
+        android:textSize="12sp" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/btnOk"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvBankHint"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp"
+        android:paddingStart="28dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="28dp"
+        android:paddingBottom="8dp"
+        android:text="@string/text_ok"
+        android:textColor="@color/color_D3CC26"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:includeFontPadding="false"/>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/btnCancel"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toTopOf="@+id/btnOk"
+        app:layout_constraintEnd_toStartOf="@+id/btnOk"
+        app:layout_constraintBottom_toBottomOf="@+id/btnOk"
+        android:paddingStart="26dp"
+        android:paddingEnd="26dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:text="@string/text_cancel"
+        android:textColor="@color/color_F5F5F5"
+        android:textSize="16sp"
+        android:includeFontPadding="false"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

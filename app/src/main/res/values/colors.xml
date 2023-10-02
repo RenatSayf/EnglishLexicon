@@ -1,28 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#3f51b5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorPrimaryDarkTransparent">#993F51B5</color>
     <color name="colorAccent">#303F9F</color>
     <color name="colorWhite">#ffffff</color>
     <color name="colorWhiteOpacity">#dcffffff</color>
     <color name="colorBlack">#FF000000</color>
-    <color name="colorOrange">#e6a612</color>
-    <color name="colorLightOrange">#FAAB92</color>
     <color name="colorDarkOrange">#FDD83603</color>
     <color name="colorGreen">#42ed8a</color>
-    <color name="colorDarkGreen">#079F47</color>
+    <color name="colorDarkGreen">#0D8841</color>
     <color name="colorLightRed">#fa3f42</color>
-    <color name="colorLightPurple">#a7a5f7</color>
+    <color name="colorDarkRed">#9F0609</color>
     <color name="colorTransparent">#00000000</color>
     <color name="color_transparent_5">#0D000000</color>
     <color name="colorGrey">#aaafd7</color>
     <color name="eng_text_color">#132ef7</color>
     <color name="trans_text_color">#0b9404</color>
     <color name="colorLightGreen">#90fd75</color>
-    <color name="colorPopAppBody">#3b5e91</color>
     <color name="colorLightGrey">#e9ebec</color>
-    <color name="colorLightBlue">#C3E9FC</color>
     <color name="colorYellow">#ffdc61</color>
     <color name="colorYellowDark">#FFC107</color>
     <color name="colorSemitransparent">#640b0b0b</color>
@@ -34,10 +28,10 @@
     <color name="color_1BCD38">#1BCD38</color>
     <color name="color_A4BA21">#A4BA21</color>
     <color name="color_CCC3C3">#CCC3C3</color>
-    <color name="color_0B0730">#0B0730</color>
     <color name="color_DBFF05">#DBFF05</color>
     <color name="color_2B4B78">#2B4B78</color>
     <color name="color_3B5E91">#3B5E91</color>
     <color name="color_F5F5F5">#F5F5F5</color>
     <color name="color_D3CC26">#D3CC26</color>
+    <color name="color_25B72B">#25B72B</color>
 </resources>

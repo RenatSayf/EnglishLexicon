@@ -115,17 +115,18 @@
 
             <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/btnReplay"
+                style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@drawable/selector_transp_to_white_back"
+                android:src="@drawable/selector_icon_replay"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:src="@drawable/selector_icon_replay"
-                android:background="@drawable/selector_transp_to_white_back"
-                style="?android:attr/buttonStyleSmall"
-                android:visibility="invisible"
-                tools:visibility="visible"/>
+                tools:ignore="SpeakableTextPresentCheck"
+                tools:visibility="visible" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -145,11 +146,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:layoutDirection="rtl"
                 android:text="@string/text_en"
                 android:textColor="@color/colorWhite"
                 android:visibility="visible"
                 app:buttonTint="@color/colorWhite"
-                android:layoutDirection="rtl"/>
+                tools:ignore="TouchTargetSizeCheck" />
 
             <View
                 android:layout_width="wrap_content"
@@ -198,23 +200,21 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:layoutDirection="ltr"
                 android:text="@string/text_ru"
                 android:textColor="@color/colorWhite"
                 app:buttonTint="@color/colorWhite"
-                android:layoutDirection="ltr"/>
+                tools:ignore="TouchTargetSizeCheck" />
 
         </LinearLayout>
 
-        <LinearLayout
+        <com.yandex.mobile.ads.banner.BannerAdView
+            android:id="@+id/bannerView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <com.yandex.mobile.ads.banner.BannerAdView
-                android:id="@+id/banner_main"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-
-        </LinearLayout>
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center">
+        </com.yandex.mobile.ads.banner.BannerAdView>
 
     </LinearLayout>
 

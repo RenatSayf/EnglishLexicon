@@ -6,10 +6,10 @@
 
             <solid android:color="@color/colorWhiteOpacity"/>
             <stroke
-                android:width="4dp"
+                android:width="1dp"
                 android:color="#4aa5d4" />
             <corners
-                android:radius="7dp" />
+                android:radius="500dp" />
             <padding
                 android:left="12dp"
                 android:top="12dp"

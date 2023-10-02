@@ -66,6 +66,7 @@ public class NewDictDialog extends DialogFragment
     {
         super.onViewCreated(view, savedInstanceState);
 
+        binding.etDictName.requestFocus();
         binding.etDictName.addTextChangedListener(new TextWatcher()
         {
             @Override

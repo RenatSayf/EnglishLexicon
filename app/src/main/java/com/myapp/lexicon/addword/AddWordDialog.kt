@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
@@ -22,7 +21,7 @@ import com.myapp.lexicon.main.MainViewModel
 import com.myapp.lexicon.main.Speaker
 import com.myapp.lexicon.models.Word
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.*
+import java.util.Locale
 
 
 @AndroidEntryPoint
@@ -73,10 +72,8 @@ class AddWordDialog : DialogFragment(),
         }
     }
 
-    @Suppress("ObjectLiteralToLambda")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View
     {
-
         binding = AddWordDialogBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -88,7 +85,6 @@ class AddWordDialog : DialogFragment(),
         with(binding) {
 
             mainVM.dictionaryList.observe(viewLifecycleOwner) { list ->
-                list.add(getString(R.string.text_new_dict))
                 if (!list.isNullOrEmpty()) {
                     mainVM.currentWord.observe(viewLifecycleOwner) { word ->
                         if (word.dictName.isNotEmpty()) {
@@ -96,11 +92,11 @@ class AddWordDialog : DialogFragment(),
                             if (index >= 0) {
                                 val adapter = ArrayAdapter(requireContext(), R.layout.app_spinner_item, list.distinct())
                                 dictListSpinner.adapter = adapter
-                                when {
-                                    newDictName == null && index > -1 -> {
+                                when (newDictName) {
+                                    null -> {
                                         dictListSpinner.setSelection(index)
                                     }
-                                    newDictName != null -> {
+                                    else -> {
                                         val i = list.indexOf(newDictName)
                                         dictListSpinner.setSelection(i)
                                     }
@@ -111,27 +107,8 @@ class AddWordDialog : DialogFragment(),
                 }
             }
 
-            dictListSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener
-            {
-                override fun onItemSelected(adapterView: AdapterView<*>?, view: View?, index: Int, p3: Long)
-                {
-                    view?.let {
-                        addWordVM.setSelected(index)
-                        when ((view as TextView).text)
-                        {
-                            getString(R.string.text_new_dict) ->
-                            {
-                                NewDictDialog.newInstance(this@AddWordDialog).show(parentFragmentManager, NewDictDialog.TAG)
-                            }
-                        }
-                    }
-                    return
-                }
-
-                override fun onNothingSelected(p0: AdapterView<*>?)
-                {
-
-                }
+            btnNewDict.setOnClickListener {
+                NewDictDialog.newInstance(this@AddWordDialog).show(parentFragmentManager, NewDictDialog.TAG)
             }
 
             editBtnView.setOnClickListener {
@@ -154,35 +131,25 @@ class AddWordDialog : DialogFragment(),
 
 
             btnOk.setOnClickListener {
-                when (val dictName = (dictListSpinner.selectedView as TextView).text.toString())
-                {
-                    getString(R.string.text_new_dict) ->
+                val dictName = (dictListSpinner.selectedView as TextView).text.toString()
+                (!translateTV.text.isNullOrEmpty()).run {
+                    if (this)
                     {
-                        NewDictDialog.newInstance(this@AddWordDialog).show(parentFragmentManager, NewDictDialog.TAG)
-                    }
-                    else ->
-                    {
-                        (!translateTV.text.isNullOrEmpty()).run {
-                            if (this)
-                            {
-
-                                val enWord = inputWordTV.text.toString()
-                                val ruWord = translateTV.text.toString()
-                                val word = Word(0, dictName, enWord, ruWord, 1)
-                                addWordVM.insertedId.observe(viewLifecycleOwner) {
-                                    if (it > 0) {
-                                        val message =
-                                            getString(R.string.in_dictionary) + dictName + getString(
-                                                R.string.new_word_is_added
-                                            )
-                                        showToast(message)
-                                        setFragmentResult(getString(R.string.KEY_NEED_REFRESH), Bundle.EMPTY)
-                                    }
-                                }
-                                addWordVM.insertEntryAsync(word)
-                                dismiss()
+                        val enWord = inputWordTV.text.toString()
+                        val ruWord = translateTV.text.toString()
+                        val word = Word(0, dictName, enWord, ruWord, 1)
+                        addWordVM.insertedId.observe(viewLifecycleOwner) {
+                            if (it > 0) {
+                                val message =
+                                    getString(R.string.in_dictionary) + dictName + getString(
+                                        R.string.new_word_is_added
+                                    )
+                                showToast(message)
+                                setFragmentResult(getString(R.string.KEY_NEED_REFRESH), Bundle.EMPTY)
                             }
                         }
+                        addWordVM.insertEntryAsync(word)
+                        dismiss()
                     }
                 }
             }

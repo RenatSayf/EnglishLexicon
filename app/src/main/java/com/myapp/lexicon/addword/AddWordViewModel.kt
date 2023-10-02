@@ -28,24 +28,6 @@ class AddWordViewModel @Inject constructor(private val repository: DataRepositor
         _spinnerSelectedIndex.value = index
     }
 
-//    fun insertInTableAsync(context: Context?, tableName: String?, entry: DataBaseEntry?): Observable<Long?>
-//    {
-//        return Observable.create { emitter: ObservableEmitter<Long?> ->
-//            try
-//            {
-//                val res = DataBaseQueries(context).insertWordInTableSync(tableName, entry)
-//                emitter.onNext(res)
-//            }
-//            catch (e: Exception)
-//            {
-//                emitter.onError(e)
-//            }
-//            finally
-//            {
-//                emitter.onComplete()
-//            }
-//        }
-//    }
     private var _insertedId = MutableLiveData<Long>().apply {
         value = 0
     }
@@ -53,6 +35,7 @@ class AddWordViewModel @Inject constructor(private val repository: DataRepositor
 
     fun insertEntryAsync(word: Word)
     {
+
         composite.add(repository.insertEntry(word)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

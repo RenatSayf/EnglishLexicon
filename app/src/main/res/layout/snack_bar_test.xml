@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="12dp"
+    android:background="@drawable/bg_popup_dialog"
+    android:backgroundTint="@color/color_3B5E91">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvSmileyFace"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:text="@string/slightly_smiling_face"
+        android:textColor="@color/colorBlack"
+        android:textSize="24sp"/>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvThumbsUp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@+id/tvSmileyFace"
+        app:layout_constraintTop_toTopOf="@+id/tvSmileyFace"
+        app:layout_constraintBottom_toBottomOf="@+id/tvSmileyFace"
+        app:layout_constraintVertical_bias="1"
+        android:text="@string/thumbs_up"
+        android:textColor="@color/colorBlack"
+        android:textSize="14sp"/>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:text="@string/text_is_right"
+        android:textColor="@color/colorWhite"
+        android:textStyle="bold"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

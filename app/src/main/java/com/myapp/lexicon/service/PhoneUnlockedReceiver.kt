@@ -5,16 +5,17 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import androidx.preference.PreferenceManager
-import com.google.gson.Gson
-import com.myapp.lexicon.R
 import com.myapp.lexicon.database.AppDataBase
+import com.myapp.lexicon.helpers.checkIsActivityShown
 import com.myapp.lexicon.helpers.goAsync
+import com.myapp.lexicon.helpers.showDebugNotification
 import com.myapp.lexicon.models.Word
+import com.myapp.lexicon.models.toWordsString
 import com.myapp.lexicon.repository.DataRepositoryImpl
 import com.myapp.lexicon.schedule.AppNotification
 import com.myapp.lexicon.settings.AppSettings
 import com.myapp.lexicon.settings.checkUnLockedBroadcast
+import com.myapp.lexicon.settings.getNotificationMode
 import com.myapp.lexicon.settings.getWordFromPref
 import com.myapp.lexicon.settings.saveWordToPref
 import dagger.hilt.android.AndroidEntryPoint
@@ -44,7 +45,6 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
     }
 
     private lateinit var repository: DataRepositoryImpl
-    private var appNotification: AppNotification? = null
 
     @SuppressLint("CheckResult")
     override fun onReceive(context: Context, intent: Intent)
@@ -69,9 +69,6 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
             val appSettings = AppSettings(context)
             repository = DataRepositoryImpl(dao, appSettings)
 
-            val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val displayVariant = preferences.getString(context.getString(R.string.key_display_variant), "0")!!
-            val displayMode = preferences.getString(context.getString(R.string.key_list_display_mode), "0")!!
             val action = intent.action
 
             //String actionUserPresent = Intent.ACTION_USER_PRESENT;
@@ -83,18 +80,18 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
                         scope.launch {
                             try {
                                 val word = repository.getFirstEntryAsync().await()
-                                handleBroadCast(context, scope, word, displayVariant, displayMode)
+                                handleBroadCast(context, scope, word)
                             } catch (e: Exception) {
-                                showDebugNotification(context, e.message)
+                                context.showDebugNotification(e.message)
                             }
                         }
                     },
                     onSuccess = { word ->
-                        handleBroadCast(context, scope, word, displayVariant, displayMode)
+                        handleBroadCast(context, scope, word)
                     },
                     onFailure = {
                         it.printStackTrace()
-                        showDebugNotification(context, it.message)
+                        context.showDebugNotification(it.message)
                     }
                 )
             }
@@ -102,49 +99,47 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
 
     }
 
-    private fun handleBroadCast(context: Context, scope: CoroutineScope, word: Word, displayVariant: String, displayMode: String) {
+    private fun handleBroadCast(context: Context, scope: CoroutineScope, word: Word) {
 
         scope.launch {
             try {
                 val words = repository.getEntriesByDictNameAsync(word.dictName, id = word._id.toLong(), limit = 2).await()
-                if (displayVariant == "0")
-                {
-                    val intentAct = Intent(context, ServiceActivity::class.java).apply {
-                        action = Intent.ACTION_MAIN
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                        val json = Gson().toJson(words)
-                        putExtra(ServiceActivity.ARG_JSON, json)
-                    }
-                    context.startActivity(intentAct)
-                    if (displayMode == "0")
-                    {
-                        saveCurrentStep(context, this,  words)
-                    }
-                }
-                if (displayVariant == "1")
-                {
-                    val json = Gson().toJson(words)
-
-                    if (appNotification == null) {
-                        appNotification = AppNotification(context)
-                    }
-                    appNotification?.let { n ->
-                        if (!n.isVisible()) {
-                            n.create(json)
-                            n.show()
+                if (words.isNotEmpty()) {
+                    val notification = AppNotification(context)
+                    val text = words.toWordsString()
+                    context.getNotificationMode(
+                        onRepeatMode = {
+                            saveCurrentStep(context, scope, words)
+                            context.checkIsActivityShown(
+                                ServiceActivity::class.java,
+                                onInvisible = {
+                                    notification.apply {
+                                        create(text)
+                                        show()
+                                    }
+                                }
+                            )
+                        },
+                        onTestMode = {
+                            context.checkIsActivityShown(
+                                ServiceActivity::class.java,
+                                onInvisible = {
+                                    if (!notification.isVisible()) {
+                                        notification.apply {
+                                            create(text)
+                                            show()
+                                        }
+                                    }
+                                }
+                            )
                         }
-                    }
-                    if (displayMode == "0")
-                    {
-                        saveCurrentStep(context, this, words)
-                    }
+                    )
                 }
             } catch (e: Exception) {
-                showDebugNotification(context, e.message)
+                context.showDebugNotification(e.message)
                 e.printStackTrace()
             }
         }
-
     }
 
     private fun saveCurrentStep(context: Context, scope: CoroutineScope, words: List<Word>) {
@@ -169,9 +164,4 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
         }
     }
 
-    private fun showDebugNotification(context: Context, message: String?) {
-        val notification = AppNotification(context)
-        notification.create(message?: "Unknown error")
-        notification.show()
-    }
 }

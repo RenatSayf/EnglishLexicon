@@ -8,11 +8,11 @@
               android:padding="0dp"
               android:background="@drawable/side_nav_bar"
               android:orientation="vertical"
-              tools:context=".service.TestModalFragment">
+              >
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="?attr/actionBarSize"
         android:layout_margin="0dp"
         android:gravity="center"
         android:orientation="horizontal"
@@ -24,28 +24,66 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:paddingLeft="10dp"
             android:paddingStart="10dp"
-            android:paddingRight="5dp"
             android:paddingEnd="5dp"
             android:background="@drawable/transparent_background_straight_angle"
-            android:drawableLeft="@drawable/selector_lexicon_icon"
+            android:drawableStart="@drawable/selector_lexicon_icon"
             android:text="@string/app_name"
             android:textColor="@drawable/selector_white_to_orange_color"
             android:textSize="18sp"
             />
 
-        <Button
-            android:id="@+id/btn_stop_service"
-            style="@style/Base.Widget.AppCompat.Toolbar.Button.Navigation"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="3"
-            android:background="@drawable/transparent_background_straight_angle"
-            android:drawableTop="@drawable/selector_icon_power"
-            android:text="@string/text_off"
-            android:textColor="@drawable/selector_white_to_orange_color"
-            />
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="0.0">
+
+            <Button
+                android:id="@+id/btn_stop_service"
+                style="@style/Base.Widget.AppCompat.Toolbar.Button.Navigation"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/transparent_background_straight_angle"
+                android:drawableTop="@drawable/selector_icon_power"
+                android:textColor="@drawable/selector_white_to_orange_color"
+                android:text="@string/text_off"
+                android:visibility="gone"/>
+
+            <FrameLayout
+                android:id="@+id/rewardBlock"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="visible"
+                >
+
+                <TextView
+                    android:id="@+id/tvReward"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:paddingStart="8dp"
+                    android:paddingTop="8dp"
+                    android:paddingEnd="8dp"
+                    android:paddingBottom="8dp"
+                    tools:text="💰 18.00 Р"
+                    android:textColor="@color/colorYellowDark"
+                    android:gravity="center"
+                    />
+
+                <ProgressBar
+                    android:id="@+id/adProgress"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:indeterminate="true"
+                    android:indeterminateTint="@android:color/holo_orange_light"/>
+
+            </FrameLayout>
+        </FrameLayout>
 
     </LinearLayout>
 
@@ -94,14 +132,12 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
         android:layout_marginEnd="10dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
         android:layout_marginStart="10dp"
         android:layout_marginTop="20dp"
         android:layout_weight="6"
         android:gravity="center"
         android:scrollbars="vertical"
-        android:text="@string/text_en"
+        tools:text="@string/text_en"
         android:textColor="@color/colorWhite"
         android:textSize="26sp"
         android:textStyle="normal|bold"
@@ -125,7 +161,7 @@
         android:background="@drawable/btn_for_test_modal_transp"
         android:gravity="center"
         android:scrollbars="vertical"
-        android:text="@string/text_ru"
+        tools:text="@string/text_ru"
         android:textColor="@color/colorLightGreen"
         android:textSize="26sp"
         android:textStyle="normal|bold"/>
@@ -148,7 +184,7 @@
         android:background="@drawable/btn_for_test_modal_transp"
         android:gravity="center"
         android:scrollbars="vertical"
-        android:text="@string/text_ru"
+        tools:text="@string/text_ru"
         android:textColor="@color/colorLightGreen"
         android:textSize="26sp"
         android:textStyle="normal|bold"/>
@@ -165,14 +201,15 @@
             android:id="@+id/btn_sound_modal"
             style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
             android:background="@drawable/transparent_background_straight_angle"
             android:contentDescription="@string/btn_sound_discribtion"
             android:src="@drawable/selector_sound_icon"
             android:textColor="@drawable/selector_white_to_orange_color"
             />
 
-        <Space
+        <View
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"/>
@@ -192,7 +229,7 @@
             android:textColor="@drawable/selector_white_to_orange_color"
             app:buttonTint="@color/colorWhite"/>
 
-        <Space
+        <View
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"/>
@@ -203,6 +240,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="0"
+            android:padding="12dp"
             android:background="@drawable/transparent_background_straight_angle"
             android:contentDescription="@string/btn_close_discribtion"
             android:src="@drawable/selector_close_icon"
@@ -212,19 +250,12 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/adLayout"
+    <com.yandex.mobile.ads.banner.BannerAdView
+        android:id="@+id/bannerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:layout_marginTop="20dp"
-        android:orientation="vertical">
-
-        <com.yandex.mobile.ads.banner.BannerAdView
-            android:id="@+id/banner_test_dialog"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-    </LinearLayout>
+        android:layout_marginTop="0dp">
+    </com.yandex.mobile.ads.banner.BannerAdView>
 
 </LinearLayout>

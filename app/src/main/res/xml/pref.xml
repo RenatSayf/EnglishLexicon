@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?><!--suppress DeprecatedClassUsageInspection -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:title="@string/text_settings">
 
     <PreferenceCategory android:title="@string/text_on_start">
@@ -12,26 +14,29 @@
 
     <PreferenceCategory
         android:key="disableAdsCategory"
-        android:title="@string/text_ad">
+        android:title="@string/text_ad"
+        app:isPreferenceVisible="false">
 
         <SwitchPreferenceCompat
             android:key="@string/KEY_IS_ADS_ENABLED"
             android:title="@string/text_show_ads"
             android:defaultValue="true"
-
             />
 
     </PreferenceCategory>
 
     <PreferenceCategory
         android:key="cloudStorageCategory"
-        android:title="Облачное хранилище">
+        android:title="Облачное хранилище"
+        app:isPreferenceVisible="false"
+        tools:isPreferenceVisible="true">
 
         <SwitchPreferenceCompat
             android:key="@string/KEY_CLOUD_STORAGE"
             android:title="@string/text_save_my_dicts"
             android:summary="@string/text_cloud_description"
-            android:defaultValue="false"/>
+            android:defaultValue="false"
+            android:enabled="false"/>
 
     </PreferenceCategory>
 
@@ -67,13 +72,6 @@
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/text_display_mode">
-
-        <ListPreference
-            android:defaultValue="1"
-            android:entries="@array/display_variant"
-            android:entryValues="@array/display_variant_values"
-            android:key="@string/key_display_variant"
-            android:title="@string/text_show_words_over" />
 
         <ListPreference
             android:defaultValue="0"

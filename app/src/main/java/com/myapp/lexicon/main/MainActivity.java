@@ -1,10 +1,14 @@
 package com.myapp.lexicon.main;
 
+import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,10 +25,20 @@ import android.widget.Toast;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
+import com.myapp.lexicon.ads.AdsViewModelKt;
+import com.myapp.lexicon.ads.BannerAdIds;
+import com.myapp.lexicon.ads.intrefaces.AdEventListener;
+import com.myapp.lexicon.ads.models.AdData;
+import com.myapp.lexicon.auth.AuthFragment;
+import com.myapp.lexicon.auth.AuthListener;
+import com.myapp.lexicon.auth.AuthViewModel;
+import com.myapp.lexicon.auth.account.AccountFragment;
 import com.myapp.lexicon.cloudstorage.CloudCheckWorker;
 import com.myapp.lexicon.cloudstorage.DownloadDbWorker;
 import com.myapp.lexicon.cloudstorage.StorageDialog;
@@ -35,17 +49,23 @@ import com.myapp.lexicon.dialogs.DictListDialog;
 import com.myapp.lexicon.dialogs.OrderPlayDialog;
 import com.myapp.lexicon.dialogs.RemoveDictDialog;
 import com.myapp.lexicon.helpers.ExtensionsKt;
-import com.myapp.lexicon.helpers.JavaKotlinMediator;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.Share;
+import com.myapp.lexicon.interfaces.FlowCallback;
+import com.myapp.lexicon.main.viewmodels.UserViewModel;
+import com.myapp.lexicon.models.User;
+import com.myapp.lexicon.models.UserKt;
+import com.myapp.lexicon.models.UserState;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.service.PhoneUnlockedReceiver;
 import com.myapp.lexicon.settings.ContainerFragment;
+import com.myapp.lexicon.settings.PowerSettingsExtKt;
 import com.myapp.lexicon.settings.SettingsExtKt;
 import com.myapp.lexicon.wordeditor.WordEditorActivity;
 import com.myapp.lexicon.wordstests.OneOfFiveFragm;
 import com.myapp.lexicon.wordstests.TestFragment;
+import com.yandex.mobile.ads.banner.BannerAdView;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -60,6 +80,7 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageButton;
@@ -73,8 +94,11 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 
 @AndroidEntryPoint
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, MainFragment.Listener
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
+        MainFragment.Listener, AuthListener, AdEventListener
 {
+    private View root;
+    private NavigationView navView;
     public LinearLayout mainControlLayout;
     private Button btnViewDict;
     private TextView tvWordsCounter;
@@ -86,24 +110,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public MainViewModel mainViewModel;
     private SpeechViewModel speechViewModel;
+    private AuthViewModel authVM;
+    private UserViewModel userVM;
     private Word currentWord;
     private int wordsInterval = 10;
     public BackgroundFragm backgroundFragm = null;
-
     @Inject
     AlarmScheduler scheduler;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        View root = LayoutInflater.from(this).inflate(R.layout.a_navig_main, new DrawerLayout(this));
+        root = LayoutInflater.from(this).inflate(R.layout.a_navig_main, new DrawerLayout(this));
         setContentView(root);
 
         toolBar = findViewById(R.id.tool_bar);
         setSupportActionBar(toolBar);
+
+        navView = root.findViewById(R.id.nav_view);
 
         PhoneUnlockedReceiver.Companion.disableBroadcast();
 
@@ -116,6 +141,70 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
         speechViewModel = new ViewModelProvider(this).get(SpeechViewModel.class);
+        userVM = new ViewModelProvider(this).get(UserViewModel.class);
+        authVM = new ViewModelProvider(this).get(AuthViewModel.class);
+
+        authVM.getState().observe(this, result -> {
+            result.onInit(() -> null);
+            result.onNotRegistered(() -> {
+                navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_get_reward);
+                return null;
+            });
+            result.onSignUp(user -> {
+                navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_account);
+                //userVM.addUserIfNotExists(user);
+                return null;
+            });
+            result.onSignIn(user -> {
+                navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_account);
+                userVM.getUserFromCloud(user.getId());
+                return null;
+            });
+            result.onSignOut(() -> {
+                navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_get_reward);
+                root.findViewById(R.id.tvReward).setVisibility(View.GONE);
+                ExtensionsKt.showSnackBar(mainControlLayout, getString(R.string.text_you_are_signed_out), Snackbar.LENGTH_LONG);
+                return null;
+            });
+        });
+
+        userVM.getState().observe(this, state -> {
+            if (state instanceof UserViewModel.State.ReceivedUserData) {
+                User user = ((UserViewModel.State.ReceivedUserData) state).getUser();
+                buildRewardText(user);
+            }
+            if (state instanceof UserViewModel.State.RevenueUpdated)
+            {
+                User user = ((UserViewModel.State.RevenueUpdated) state).getUser();
+                buildRewardText(user);
+            }
+        });
+
+        userVM.collect(new FlowCallback()
+        {
+            @Override
+            public void onResult(@Nullable UserViewModel.State result)
+            {
+                if (result instanceof UserViewModel.State.RevenueUpdated)
+                {
+                    User user = ((UserViewModel.State.RevenueUpdated) result).getUser();
+                    buildRewardText(user);
+                }
+                if (result instanceof UserViewModel.State.PersonalDataUpdated)
+                {
+                    User user = ((UserViewModel.State.PersonalDataUpdated) result).getUser();
+                    buildRewardText(user);
+                }
+            }
+
+            @Override
+            public void onCompletion(@Nullable Throwable thr)
+            {}
+
+            @Override
+            public void onStart()
+            {}
+        });
 
         btnViewDict = findViewById(R.id.btnViewDict);
         btnViewDictOnClick(btnViewDict);
@@ -165,7 +254,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         int currentId = currentWord.get_id();
                         if (entriesId >= currentId)
                         {
-                            mainViewPager.setCurrentItem(i, false);
+                            if (i == 0) {
+                                mainViewPager.setCurrentItem(entries.size() - 1, false);
+                                mainViewPager.setCurrentItem(i, true);
+                            }
+                            else {
+                                mainViewPager.setCurrentItem(i, false);
+                            }
                             break;
                         }
                     }
@@ -259,10 +354,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         mainViewModel.setMainControlVisibility(View.INVISIBLE);
                         speechViewModel.setSpeechProgressVisibility(View.INVISIBLE);
                         Toast.makeText(MainActivity.this, getString(R.string.text_test_knowledge), Toast.LENGTH_LONG).show();
-                        OneOfFiveFragm testFragment = OneOfFiveFragm.newInstance(list);
-                        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                        transaction.setCustomAnimations(R.anim.from_right_to_left_anim, R.anim.from_left_to_right_anim);
-                        transaction.replace(R.id.frame_to_page_fragm, testFragment).addToBackStack(null).commit();
+                        OneOfFiveFragm testFragment = OneOfFiveFragm.newInstance(list, MainActivity.this);
+                        getSupportFragmentManager()
+                                .beginTransaction()
+                                .setCustomAnimations(R.anim.from_right_to_left_anim, R.anim.from_left_to_right_anim)
+                                .addToBackStack(null)
+                                .add(R.id.frame_to_page_fragm, testFragment)
+                                .commit();
                         mainViewPager.setCurrentItem(position - 1);
                         return;
                     }
@@ -401,6 +499,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         MainFragment mainFragment = MainFragment.Companion.getInstance(this);
         getSupportFragmentManager().beginTransaction().add(R.id.frame_to_page_fragm, mainFragment).commit();
 
+        BannerAdView bannerView = root.findViewById(R.id.bannerView);
+        AdsViewModelKt.loadBanner(bannerView, BannerAdIds.BANNER_1);
+
+    }
+
+    public void buildRewardText(User user) {
+        if (user != null)
+        {
+            double rewardToDisplay = UserKt.to2DigitsScale(user.getUserReward());
+            TextView tvReward = root.findViewById(R.id.tvReward);
+            String text = getString(R.string.text_your_reward).concat(" ").concat(String.valueOf(rewardToDisplay)).concat(" ").concat(user.getCurrencySymbol());
+            if (tvReward != null)
+            {
+                tvReward.setText(text);
+                tvReward.setVisibility(View.VISIBLE);
+            }
+        }
     }
 
     public void testPassed()
@@ -521,6 +636,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         getMenuInflater().inflate(R.menu.a_up_menu_main, menu);
         configureOptionsMenu(menu);
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -565,9 +681,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return super.onOptionsItemSelected(item);
     }
 
+    /** @noinspection Convert2Diamond*/
     ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
-            new ActivityResultCallback<>()
+            new ActivityResultCallback<ActivityResult>()
             {
                 @Override
                 public void onActivityResult(ActivityResult result)
@@ -580,19 +697,53 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
             });
 
+
     @SuppressWarnings("Convert2Lambda")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item)
     {
-        int id = item.getItemId();
-        if (id == R.id.nav_add_word)
-        {
-            TranslateFragment translateFragm = TranslateFragment.Companion.getInstance("");
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.setCustomAnimations(R.anim.from_right_to_left_anim, R.anim.from_left_to_right_anim);
-            transaction.replace(R.id.frame_to_page_fragm, translateFragm).addToBackStack(null).commit();
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.setCustomAnimations(R.anim.from_right_to_left_anim, R.anim.from_left_to_right_anim);
+        int itemId = item.getItemId();
+        if (itemId == R.id.nav_user_reward) {
+            SettingsExtKt.getAuthDataFromPref(
+                    this,
+                    () -> {
+                        AuthFragment authFragment = AuthFragment.Companion.newInstance(this);
+                        transaction.replace(R.id.frame_to_page_fragm, authFragment).addToBackStack(null).commit();
+                        return null;
+                    },
+                    (email, password) -> {
+                        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                        if (currentUser != null)
+                        {
+                            AccountFragment accountFragment = AccountFragment.Companion.newInstance(
+                                    currentUser.getUid(),
+                                    password,
+                                    MainActivity.this
+                            );
+                            transaction.replace(R.id.frame_to_page_fragm, accountFragment).addToBackStack(null).commit();
+                        } else
+                        {
+                            ExtensionsKt.showSnackBar(root, "Current user is null", Snackbar.LENGTH_LONG);
+                        }
+                        return null;
+                    },
+                    error -> {
+                        String message = error.getMessage();
+                        if (message != null)
+                        {
+                            ExtensionsKt.showSnackBar(root, message, Snackbar.LENGTH_LONG);
+                        }
+                        return null;
+                    });
         }
-        else if (id == R.id.nav_delete_dict)
+        if (itemId == R.id.nav_add_word)
+        {
+            TranslateFragment translateFragm = TranslateFragment.Companion.getInstance("", MainActivity.this);
+            transaction.replace(R.id.frame_to_page_fragm, translateFragm).addToBackStack(null).commitAllowingStateLoss();
+        }
+        else if (itemId == R.id.nav_delete_dict)
         {
             mainViewModel.getDictList(list -> {
                 if (!list.isEmpty()) {
@@ -617,7 +768,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return null;
             });
         }
-        else if (id == R.id.nav_edit)
+        else if (itemId == R.id.nav_edit)
         {
             Intent intent = new Intent(this, WordEditorActivity.class);
             Bundle bundle = new Bundle();
@@ -625,56 +776,36 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             intent.replaceExtras(bundle);
             activityResultLauncher.launch(intent);
         }
-        else if (id == R.id.nav_check_your_self)
+        else if (itemId == R.id.nav_check_your_self)
         {
-            getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, TestFragment.Companion.newInstance()).addToBackStack(null).commit();
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.frame_to_page_fragm, TestFragment.Companion.newInstance(MainActivity.this))
+                    .addToBackStack(null)
+                    .commit();
         }
-        else if (id == R.id.nav_settings)
+        else if (itemId == R.id.nav_settings)
         {
             getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, new ContainerFragment()).addToBackStack(null).commit();
         }
-        else if (id == R.id.nav_evaluate_app)
+        else if (itemId == R.id.nav_evaluate_app)
         {
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setData(Uri.parse(getString(R.string.app_link)));
             startActivity(intent);
         }
-        else if (id == R.id.nav_share)
+        else if (itemId == R.id.nav_share)
         {
             new Share().doShare(this);
         }
-        else if (id == R.id.nav_about_app)
+        else if (itemId == R.id.nav_about_app)
         {
             AboutAppFragment aboutAppFragment = new AboutAppFragment();
             getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, aboutAppFragment).addToBackStack(null).commit();
         }
-        else if (id == R.id.nav_exit)
+        else if (itemId == R.id.nav_exit)
         {
             onAppFinish();
-            ExtensionsKt.alarmClockEnable(this);
-
-            SettingsExtKt.checkUnLockedBroadcast(
-                    this,
-                    () -> {
-                        PhoneUnlockedReceiver unlockedReceiver = PhoneUnlockedReceiver.Companion.getInstance();
-                        registerReceiver(
-                                unlockedReceiver,
-                                unlockedReceiver.getFilter());
-                        return null;
-                    },
-                    () -> null);
-
-            if (backgroundFragm != null && backgroundFragm.yandexAd != null)
-            {
-                new JavaKotlinMediator().showInterstitialAd(
-                        this,
-                        backgroundFragm.yandexAd,
-                        this::finish
-                );
-            } else
-            {
-                finish();
-            }
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -683,6 +814,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             drawer.closeDrawer(GravityCompat.START);
         }
         return true;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PowerSettingsExtKt.BATTERY_SETTINGS)
+        {
+            finish();
+        }
     }
 
     public void testIntervalOnChange(int value)
@@ -753,11 +894,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     SettingsExtKt.checkCloudToken(
                             MainActivity.this,
                             () -> null,
-                            token -> {
+                            userId -> {
                                 DownloadDbWorker.Companion.downloadDbFromCloud(
                                         MainActivity.this,
                                         getString(R.string.data_base_name),
-                                        token,
+                                        userId,
                                         new DownloadDbWorker.Listener()
                                         {
                                             @Override
@@ -818,17 +959,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             SettingsExtKt.checkCloudToken(
                     this,
                     () -> null,
-                    token -> {
+                    userId -> {
                         CloudCheckWorker.Companion.check(
                                 this,
-                                token,
+                                userId,
                                 getString(R.string.data_base_name),
                                 new CloudCheckWorker.Listener()
                                 {
-                                    @Override
-                                    public void onRequireUpSync(@NonNull String token)
-                                    {}
-
                                     @Override
                                     public void onRequireDownSync(@NonNull String token)
                                     {
@@ -859,7 +996,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    /** @noinspection deprecation*/
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     void onAppFinish() {
+
+        ExtensionsKt.alarmClockEnable(this);
+
+        SettingsExtKt.checkUnLockedBroadcast(
+                this,
+                () -> {
+                    PhoneUnlockedReceiver unlockedReceiver = PhoneUnlockedReceiver.Companion.getInstance();
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                    {
+                        registerReceiver(
+                                unlockedReceiver,
+                                unlockedReceiver.getFilter(),
+                                Context.RECEIVER_NOT_EXPORTED
+                        );
+                    }
+                    else {
+                        registerReceiver(
+                                unlockedReceiver,
+                                unlockedReceiver.getFilter()
+                        );
+                    }
+                    return null;
+                },
+                () -> null
+        );
 
         boolean storageEnabled = SettingsExtKt.getCloudStorageEnabled(this);
         if (storageEnabled) {
@@ -867,12 +1031,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             SettingsExtKt.checkCloudToken(
                     this,
                     () -> null,
-                    token -> {
+                    userId -> {
                         CloudCheckWorker.Companion.check(
                                 this,
-                                token,
+                                userId,
                                 getString(R.string.data_base_name),
-                                null
+                                new CloudCheckWorker.Listener()
+                                {
+                                    @Override
+                                    public void onBeforeChecking(@NonNull String dbName)
+                                    {
+                                        AppDataBase.Companion.dbClose();
+                                    }
+                                }
                         );
                         return null;
                     },
@@ -880,10 +1051,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     () -> null
             );
         }
+
+        boolean passiveModeEnabled = SettingsExtKt.checkPassiveModeEnabled(this);
+        if (passiveModeEnabled) {
+            PowerSettingsExtKt.checkBatterySettings(
+                    this,
+                    () -> {
+                        Intent intent = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+                        intent.putExtra(PowerSettingsExtKt.KEY_BATTERY_SETTINGS, PowerSettingsExtKt.BATTERY_SETTINGS);
+                        startActivityForResult(intent, PowerSettingsExtKt.BATTERY_SETTINGS);
+                        return null;
+                    },
+                    () -> {
+                        finish();
+                        return null;
+                    }
+            );
+        }
+        else {
+            finish();
+        }
     }
 
     @Override
-    public void refreshMainScreen()
+    public void refreshMainScreen(boolean isAdShow)
     {
         mainViewModel.refreshWordsList();
     }
@@ -892,6 +1083,60 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onVisibleMainScreen()
     {
         wordsInterval = SettingsExtKt.getTestIntervalFromPref(this);
+    }
+
+    @Override
+    public void refreshAuthState(@NonNull User user)
+    {
+        authVM.setState(new UserState.SignUp(user));
+        buildRewardText(user);
+
+        SettingsExtKt.checkCloudToken(
+                this,
+                () -> null,
+                userId -> {
+                    SettingsExtKt.setCloudStorageEnabled(MainActivity.this, true);
+                    Menu menu = toolBar.getMenu();
+                    configureOptionsMenu(menu);
+                    return null;
+                },
+                () -> null,
+                () -> null
+        );
+
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig)
+    {
+        super.onConfigurationChanged(newConfig);
+//        User user = userVM.getUser().getValue();
+//        if (user != null) {
+//            CurrencyViewModel currencyVM = new ViewModelProvider(this).get(CurrencyViewModel.class);
+//            currencyVM.fetchExchangeRateFromCloud(Locale.getDefault());
+//            currencyVM.getCurrency().observe(this, result -> {
+//                result.onSuccess(o -> {
+//                    if (o instanceof Currency currency) {
+//                        SettingsExtKt.saveExchangeRateToPref(this, currency);
+//                        userVM.updateUserRevenue(0.0, user);
+//                    }
+//                    return null;
+//                });
+//            });
+//        }
+    }
+
+    @Override
+    public void onAdImpression(@Nullable AdData data)
+    {
+        if (data != null)
+        {
+            User user = userVM.getUser().getValue();
+            if (user != null)
+            {
+                userVM.updateUserRevenue(data, user.getId());
+            }
+        }
     }
 }
 

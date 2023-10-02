@@ -2,18 +2,18 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.google.gms.google-services'
-
+apply plugin: 'com.google.devtools.ksp'
 apply plugin: 'dagger.hilt.android.plugin' // Hint Hilt step 2
+apply plugin: "org.jetbrains.kotlin.plugin.serialization"
 
 android {
-    compileSdkVersion 33
-    buildToolsVersion '30.0.3'
+    compileSdk 34
     defaultConfig {
         applicationId "com.myapp.lexicon"
         minSdkVersion 26
-        targetSdkVersion 33
-        versionName '3.3.3'
-        versionCode 58
+        targetSdkVersion 34
+        versionName '4.0'
+        versionCode 66  //Hint last version in store is 65
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
 
@@ -33,33 +33,35 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-    }
-    flavorDimensions "purchases_test"
-    productFlavors {
-        PURCHASE_TEST_ {
-            buildConfigField 'String', 'PURCHASE_MODE', '\"TEST\"'
-        }
-        PURCHASE_NORMAL_ {
-            buildConfigField 'String', 'PURCHASE_MODE', '\"NORMAL\"'
-        }
-    }
-    lintOptions {
-        checkReleaseBuilds false
-        abortOnError false
     }
     buildFeatures {
         viewBinding true
     }
     compileOptions {
-        sourceCompatibility = 1.11
-        targetCompatibility = 1.11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
-    flavorDimensions 'test_ads'
-    namespace 'com.myapp.lexicon'
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+    }
 
+    flavorDimensions = ['ADS_TEST']
+    productFlavors {
+        TEST_ADS {
+            dimension 'ADS_TEST'
+            buildConfigField 'String', 'ADS_SOURCE', '\"TEST_AD\"'
+        }
+        ALIVE_ADS {
+            dimension 'ADS_TEST'
+            buildConfigField 'String', 'ADS_SOURCE', '\"ALIVE_AD\"'
+        }
+    }
+
+    namespace 'com.myapp.lexicon'
 }
 
 dependencies {
@@ -70,10 +72,12 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.preference:preference-ktx:1.2.0'
+    implementation 'androidx.preference:preference-ktx:1.2.1'
 
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.2'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.2'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
@@ -97,11 +101,14 @@ dependencies {
 
     //firebase
     implementation platform('com.google.firebase:firebase-bom:31.2.3')
+    implementation 'com.google.firebase:firebase-auth-ktx'
     implementation 'com.google.firebase:firebase-storage-ktx'
+    implementation 'com.google.firebase:firebase-firestore-ktx'
+    implementation 'com.google.firebase:firebase-config-ktx'
+    implementation 'com.google.firebase:firebase-messaging-ktx'
+    implementation 'com.google.firebase:firebase-analytics-ktx'
 
-    implementation 'com.google.android.gms:play-services-ads:22.0.0'
-
-    implementation 'androidx.browser:browser:1.5.0'
+    implementation 'androidx.browser:browser:1.6.0'
 
     //Hint Hilt step 3
     implementation "com.google.dagger:hilt-android:2.44"
@@ -110,37 +117,28 @@ dependencies {
     kapt 'androidx.hilt:hilt-compiler:1.0.0'
 
     //region Room
-    implementation "androidx.room:room-runtime:2.5.1"
-    implementation "androidx.room:room-ktx:2.5.1"
-    kapt "androidx.room:room-compiler:2.5.1"
+    implementation "androidx.room:room-runtime:2.5.2"
+    implementation "androidx.room:room-ktx:2.5.2"
+    ksp 'androidx.room:room-compiler:2.5.2'
     // optional - Test helpers
-    testImplementation "androidx.room:room-testing:2.5.1"
+    testImplementation "androidx.room:room-testing:2.5.2"
     //endregion
 
     //reactivex
     implementation 'io.reactivex.rxjava2:rxjava:2.2.21'
     implementation 'com.jakewharton.rxbinding2:rxbinding:2.2.0'
-    implementation 'androidx.room:room-rxjava2:2.5.1'
+    implementation 'androidx.room:room-rxjava2:2.5.2'
 
     //jsoup
     implementation 'org.jsoup:jsoup:1.15.2'
 
-    //GSON
-    implementation 'com.google.code.gson:gson:2.10.1'
-
     //region Hint Activity Result API. Runtime permission Step 1
-    implementation 'androidx.activity:activity-ktx:1.7.1'
-    implementation 'androidx.fragment:fragment-ktx:1.5.7'
+    implementation 'androidx.activity:activity-ktx:1.7.2'
+    implementation 'androidx.fragment:fragment-ktx:1.6.1'
     //endregion
 
     //Google Play Billing Library
-    implementation 'com.android.billingclient:billing-ktx:5.2.0'
-
-    //Yandex ads
-    implementation 'com.yandex.android:mobileads:6.0.0'
-
-    // AppMetrica SDK.
-    implementation 'com.yandex.android:mobmetricalib:5.3.0'
+    implementation 'com.android.billingclient:billing-ktx:6.0.1'
 
     //WorkManager library
     def work_version = "2.8.1"
@@ -150,6 +148,18 @@ dependencies {
     implementation "androidx.work:work-gcm:$work_version"
     // optional - Test helpers
     testImplementation "androidx.work:work-testing:$work_version"
+
+    // Yandex Mobile Ads SDK
+    implementation 'com.yandex.android:mobileads:6.0.1'
+
+    // Yandex AppMetrica SDK.
+    implementation 'com.yandex.android:mobmetricalib:5.3.0'
+
+    //FormatEditText
+    implementation 'com.github.dkzwm:fet-core:0.2.1'
+
+    //Kotlin Serialization
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.5.1'
 
 }
 

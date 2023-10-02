@@ -7,15 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterViewFlipper;
 
-import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
-import com.myapp.lexicon.helpers.ExtensionsKt;
-import com.myapp.lexicon.helpers.JavaKotlinMediator;
-import com.myapp.lexicon.service.PhoneUnlockedReceiver;
-import com.myapp.lexicon.settings.SettingsExtKt;
-import com.yandex.mobile.ads.banner.BannerAdView;
-import com.yandex.mobile.ads.common.AdRequestError;
-import com.yandex.mobile.ads.interstitial.InterstitialAd;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -27,7 +19,6 @@ import androidx.fragment.app.FragmentActivity;
 public class BackgroundFragm extends Fragment
 {
     private View fragmentView = null;
-    public InterstitialAd yandexAd = null;
 
     // картинки для фона
     private final int[] imagesId = new int[]
@@ -75,68 +66,10 @@ public class BackgroundFragm extends Fragment
         setRetainInstance(true);
     }
 
-    private void loadAds()
-    {
-        JavaKotlinMediator mediator = new JavaKotlinMediator();
-        mediator.loadInterstitialAd(requireContext(), 3, new JavaKotlinMediator.InterstitialAdListener()
-        {
-            @Override
-            public void onSuccess(@NonNull InterstitialAd ad)
-            {
-                if (BuildConfig.DEBUG)
-                {
-                    System.out.println("************* InterstitialAd is loaded ******************");
-                }
-                yandexAd = ad;
-            }
-
-            @Override
-            public void onError(@NonNull AdRequestError error)
-            {
-                if (BuildConfig.DEBUG) {
-                    System.out.println("**************** InterstitialAd Error: " + error.getDescription() + " *******************");
-                }
-            }
-        });
-
-        BannerAdView adBanner = requireActivity().findViewById(R.id.banner_main);
-        if (adBanner != null)
-        {
-            mediator = new JavaKotlinMediator();
-            mediator.loadBannerAd(requireContext(), 0, adBanner, new JavaKotlinMediator.BannerAdListener()
-            {
-                @Override
-                public void onSuccess()
-                {
-                    if (BuildConfig.DEBUG)
-                    {
-                        System.out.println("************* Banner is loaded ******************");
-                    }
-                }
-
-                @Override
-                public void onError(@NonNull AdRequestError error)
-                {
-                    if (BuildConfig.DEBUG)
-                    {
-                        System.out.println("**************** Banner Error: " + error.getDescription() + " *******************");
-                    }
-                }
-            });
-        }
-    }
-
-    private void hideAdBanner() {
-        BannerAdView adBanner = requireActivity().findViewById(R.id.banner_main);
-        if (adBanner != null) {
-            adBanner.setVisibility(View.GONE);
-        }
-    }
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        if (fragmentView == null)   // TODO: Fragment 4. Обязательная проверка, что бы не раздувать новый макет при повороте экрана
+        if (fragmentView == null)
         {
             fragmentView = inflater.inflate(R.layout.a_fragment_background, container, false);
         }
@@ -168,16 +101,6 @@ public class BackgroundFragm extends Fragment
     public void onResume()
     {
         super.onResume();
-
-        boolean adsIsEnabled = SettingsExtKt.getAdsIsEnabled(this);
-        if (adsIsEnabled) {
-            loadAds();
-        }
-        else {
-            hideAdBanner();
-            yandexAd = null;
-        }
-
         requireActivity().getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true)
         {
             @Override
@@ -185,38 +108,6 @@ public class BackgroundFragm extends Fragment
             {
                 MainActivity mainActivity = (MainActivity) requireActivity();
                 mainActivity.onAppFinish();
-
-                ExtensionsKt.alarmClockEnable(requireContext());
-
-                SettingsExtKt.checkUnLockedBroadcast(
-                        requireContext(),
-                        () -> {
-                            PhoneUnlockedReceiver unlockedReceiver = PhoneUnlockedReceiver.Companion.getInstance();
-                            requireContext().registerReceiver(
-                                    unlockedReceiver,
-                                    unlockedReceiver.getFilter());
-                            return null;
-                        },
-                        () -> null);
-
-                if (yandexAd != null)
-                {
-                    try
-                    {
-                        new JavaKotlinMediator().showInterstitialAd(
-                                requireActivity(),
-                                yandexAd,
-                                () -> requireActivity().finish()
-                        );
-                    } catch (Exception e)
-                    {
-                        e.printStackTrace();
-                        requireActivity().finish();
-                    }
-                } else
-                {
-                    requireActivity().finish();
-                }
             }
         });
     }
