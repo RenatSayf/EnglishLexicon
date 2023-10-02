@@ -156,7 +156,7 @@ class TranslateFragment : Fragment()
                             requireActivity().finish()
                         }
                     }
-                )
+                }
             }
         })
 
@@ -187,7 +187,7 @@ class TranslateFragment : Fragment()
                         }
                     )
                 }
-            )
+            }
         }
     }
 
