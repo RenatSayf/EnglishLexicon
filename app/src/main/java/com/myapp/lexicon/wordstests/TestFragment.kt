@@ -1,9 +1,7 @@
 package com.myapp.lexicon.wordstests
 
-import android.Manifest
 import android.animation.Animator
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.view.*
@@ -16,11 +14,9 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
@@ -319,12 +315,6 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         }
 
         binding.microphoneBtnView.setOnClickListener {
-            // TODO Runtime permission Step 4
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
-            {
-                recordAudioPermission.launch(Manifest.permission.RECORD_AUDIO)
-                return@setOnClickListener
-            }
             speechRecognize(Locale.US)
         }
 
@@ -501,13 +491,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         })
     }
 
-    // TODO Runtime permission Step 3
-    private val recordAudioPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-        if (isGranted) Snackbar.make(binding.mainScroll, getString(R.string.text_is_granted), Snackbar.LENGTH_LONG).show()
-        return@registerForActivityResult
-    }
-
-    //TODO Speech Recognizer Step 3 Готовим intent
+    //TODO Speech Recognizer Step 1 Готовим intent
     @Suppress("SameParameterValue")
     private fun speechRecognize(locale: Locale)
     {
@@ -523,7 +507,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         speechRecognizer.launch(intent)
     }
 
-    //TODO Speech Recognizer Step 4 Получение результата распознавания
+    //TODO Speech Recognizer Step 2 Получение результата распознавания
     private val speechRecognizer = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result ->
         val data = result.data
         data?.let {
