@@ -1,0 +1,490 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="@color/color_3B5E91"
+    tools:context=".auth.account.AccountFragment">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolBar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:layout_constraintTop_toTopOf="parent"
+        android:theme="@style/AppToolbarStyle"
+        app:title="@string/text_account"
+        app:titleTextColor="@color/colorWhite"
+        app:navigationIcon="@drawable/ic_arrow_back_white"
+        app:menu="@menu/account_menu"
+        />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:paddingStart="32dp"
+            android:paddingEnd="32dp"
+            android:paddingBottom="16dp">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/imgReward"
+                android:layout_width="144dp"
+                android:layout_height="144dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:src="@drawable/money_bag"/>
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/layoutReward"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                app:layout_constraintTop_toBottomOf="@+id/imgReward">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvRewardTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="@string/text_your_reward"
+                    android:textColor="@color/colorYellowDark"
+                    android:textStyle="bold"
+                    android:textSize="20sp"
+                    />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvRewardValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="0dp"
+                    android:gravity="center"
+                    tools:text="0.0 Р"
+                    android:textColor="@color/colorYellowDark"
+                    android:textStyle="bold"
+                    android:textSize="20sp"
+                    />
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvReservedTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/layoutReward"
+                app:layout_constraintEnd_toStartOf="@id/tvReservedValue"
+                app:layout_constraintBottom_toTopOf="@+id/vDivider"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                android:gravity="start"
+                android:padding="4dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:text="@string/text_to_payment"
+                android:textColor="@color/colorYellowDark"
+                android:textSize="14sp"
+                android:visibility="gone"
+                tools:visibility="visible"
+                />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvReservedValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toEndOf="@+id/tvReservedTitle"
+                app:layout_constraintTop_toTopOf="@+id/tvReservedTitle"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="@+id/tvReservedTitle"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                android:gravity="start"
+                android:padding="4dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                tools:text="0 Р"
+                android:textColor="@color/colorYellowDark"
+                android:textSize="14sp"
+                android:visibility="gone"
+                tools:visibility="visible"
+                />
+
+            <View
+                android:id="@+id/vDivider"
+                android:layout_height="1dp"
+                android:layout_width="match_parent"
+                app:layout_constraintTop_toBottomOf="@id/layoutReward"
+                android:layout_marginTop="24dp"
+                android:background="@color/colorWhite"/>
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/layoutEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="start"
+                app:layout_constraintTop_toBottomOf="@+id/vDivider"
+                app:layout_constraintBottom_toTopOf="@+id/layoutPhone"
+                android:layout_marginTop="24dp">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvMessage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="start"
+                    android:padding="4dp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    tools:text="Для получения награды без коммиссии банка, настройте Вашу карту для
+                    Системы Быстрых Платежей (СБП) в Вашем онлайн банке."
+                    android:textColor="@color/colorWhite"
+                    android:textSize="14sp"
+                    android:visibility="gone"
+                    tools:visibility="visible"
+                    />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvEmailTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="start"
+                    android:padding="4dp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:text="@string/title_e_mail"
+                    android:textColor="@color/colorYellowDark"
+                    android:textSize="14sp"
+                    />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvEmailValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_horizontal_oval"
+                    android:gravity="start"
+                    android:inputType="textEmailAddress"
+                    android:padding="8dp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:textColor="@color/color_3B5E91"
+                    android:textSize="18sp"
+                    tools:ignore="TouchTargetSizeCheck"
+                    tools:text="some-email@domain.com"
+                    android:drawableStart="@drawable/email"
+                    android:drawablePadding="8dp"/>
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/layoutPhone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="start"
+                app:layout_constraintTop_toBottomOf="@+id/layoutEmail"
+                app:layout_constraintBottom_toTopOf="@+id/layoutBankName"
+                android:layout_marginTop="8dp">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvPhoneTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="start"
+                    android:padding="4dp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:text="@string/title_phone"
+                    android:textColor="@color/colorYellowDark"
+                    android:textSize="14sp"
+                    />
+
+                <me.dkzwm.widget.fet.FormattedEditText
+                    android:id="@+id/tvPhoneValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="start"
+                    android:padding="8dp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:inputType="phone"
+                    android:textColor="@color/color_3B5E91"
+                    android:textCursorDrawable="@null"
+                    android:textSize="18sp"
+                    android:hint="@string/text_when_awarding"
+                    android:textColorHint="@color/color_CCC3C3"
+                    tools:ignore="TouchTargetSizeCheck"
+                    app:fet_formatStyle="+0 (000)000-00-00"
+                    app:fet_mode="mode_mask"
+                    android:drawableStart="@drawable/phone"
+                    android:drawablePadding="8dp"
+                    android:background="@drawable/bg_horizontal_oval"/>
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/layoutBankName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="start"
+                app:layout_constraintTop_toBottomOf="@+id/layoutPhone"
+                app:layout_constraintBottom_toTopOf="@+id/layoutBankCard"
+                android:layout_marginTop="8dp"
+                >
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvBankNameTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="start"
+                    android:padding="4dp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:text="@string/text_bank_name"
+                    android:textColor="@color/colorYellowDark"
+                    android:textSize="14sp"
+                    />
+
+                <AutoCompleteTextView
+                    android:id="@+id/tvBankNameValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:background="@drawable/bg_horizontal_oval"
+                    android:gravity="start|center"
+                    android:inputType="text|textMultiLine"
+                    android:textColor="@color/color_3B5E91"
+                    android:textCursorDrawable="@null"
+                    android:textSize="18sp"
+                    tools:ignore="TouchTargetSizeCheck,VisualLintTextFieldSize"
+                    android:hint="@string/text_when_awarding"
+                    android:textColorHint="@color/color_CCC3C3"
+                    android:drawableStart="@drawable/ic_bank"
+                    android:drawablePadding="8dp"
+                    />
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/layoutBankCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="start"
+                app:layout_constraintTop_toBottomOf="@+id/layoutBankName"
+                app:layout_constraintBottom_toTopOf="@+id/layoutFirstName"
+                android:layout_marginTop="8dp"
+                >
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvCardTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="start"
+                    android:padding="4dp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:text="@string/text_bank_card"
+                    android:textColor="@color/colorYellowDark"
+                    android:textSize="14sp"
+                    />
+
+                <me.dkzwm.widget.fet.FormattedEditText
+                    android:id="@+id/tvCardNumber"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:background="@drawable/bg_horizontal_oval"
+                    android:gravity="start|center"
+                    android:inputType="phone|textMultiLine"
+                    android:textColor="@color/color_3B5E91"
+                    android:textCursorDrawable="@null"
+                    android:textSize="18sp"
+                    tools:ignore="TouchTargetSizeCheck,VisualLintTextFieldSize"
+                    android:hint="@string/text_when_awarding"
+                    android:textColorHint="@color/color_CCC3C3"
+                    android:drawableStart="@drawable/ic_credit_card"
+                    android:drawablePadding="8dp"
+                    app:fet_formatStyle="0000 0000 0000 000*"
+                    app:fet_mode="mode_mask"
+                    />
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/layoutFirstName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="start"
+                app:layout_constraintTop_toBottomOf="@+id/layoutBankCard"
+                app:layout_constraintBottom_toTopOf="@+id/layoutLastName"
+                android:layout_marginTop="8dp">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvFirstNameTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="start"
+                    android:paddingTop="0dp"
+                    android:paddingBottom="4dp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:text="@string/title_first_name"
+                    android:textColor="@color/colorYellowDark"
+                    android:textSize="14sp"
+                    />
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/tvFirstNameValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:background="@drawable/bg_horizontal_oval"
+                    android:gravity="start"
+                    android:inputType="none"
+                    android:textColor="@color/color_3B5E91"
+                    android:textCursorDrawable="@null"
+                    android:textSize="18sp"
+                    android:hint="@string/text_when_awarding"
+                    android:textColorHint="@color/color_CCC3C3"
+                    tools:ignore="TouchTargetSizeCheck"
+                    />
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/layoutLastName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="start"
+                app:layout_constraintTop_toBottomOf="@+id/layoutFirstName"
+                app:layout_constraintBottom_toTopOf="@+id/btnSave"
+                android:layout_marginTop="8dp">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvLastNameTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="4dp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:gravity="start"
+                    android:text="@string/title_last_name"
+                    android:textColor="@color/colorYellowDark"
+                    android:textSize="14sp"
+                    />
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/tvLastNameValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:background="@drawable/bg_horizontal_oval"
+                    android:gravity="start"
+                    android:inputType="none"
+                    android:textColor="@color/color_3B5E91"
+                    android:textCursorDrawable="@null"
+                    android:textSize="18sp"
+                    tools:ignore="TouchTargetSizeCheck"
+                    android:hint="@string/text_when_awarding"
+                    android:textColorHint="@color/color_CCC3C3"/>
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnSave"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/layoutLastName"
+                app:layout_constraintBottom_toTopOf="@+id/btnGetReward"
+                android:layout_marginTop="24dp"
+                android:padding="12dp"
+                android:background="@drawable/bg_ripple_transparent"
+                android:textColor="@color/colorWhite"
+                android:text="@string/text_save"
+                android:textAllCaps="false"
+                android:drawableStart="@drawable/ic_save"
+                android:drawablePadding="8dp"
+                android:visibility="gone"
+                tools:visibility="visible"/>
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnGetReward"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/btnSave"
+                app:layout_constraintBottom_toTopOf="@+id/tvRewardCondition"
+                android:layout_marginTop="24dp"
+                android:text="@string/text_get_reward_now"
+                android:textAllCaps="false"
+                android:textColor="@color/colorWhite"
+                android:background="@drawable/bg_ripple_horizintal_oval_green"
+                android:enabled="false"
+                tools:enabled="true"
+                />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvRewardCondition"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@+id/btnGetReward"
+                app:layout_constraintBottom_toTopOf="@id/btnLogOut"
+                app:layout_constraintVertical_bias="1"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:text="@string/text_reward_conditions"
+                android:textColor="@color/colorWhite"
+                android:textSize="11sp"
+                />
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/btnLogOut"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvRewardCondition"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginTop="8dp"
+                android:padding="12dp"
+                android:background="@drawable/bg_ripple_transparent"
+                android:src="@drawable/ic_logout"
+                android:contentDescription="@string/text_logout"/>
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:indeterminateTint="@color/colorYellowDark"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
+
+</androidx.appcompat.widget.LinearLayoutCompat>

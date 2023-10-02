@@ -1,9 +1,7 @@
 package com.myapp.lexicon.wordstests
 
-import android.Manifest
 import android.animation.Animator
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.view.*
@@ -16,27 +14,26 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
-import com.myapp.lexicon.ads.loadInterstitialAd
-import com.myapp.lexicon.ads.showInterstitialAd
+import com.myapp.lexicon.ads.AdsViewModel
+import com.myapp.lexicon.ads.intrefaces.AdEventListener
+import com.myapp.lexicon.ads.showAd
 import com.myapp.lexicon.databinding.TestFragmentBinding
 import com.myapp.lexicon.dialogs.DictListDialog
 import com.myapp.lexicon.helpers.*
 import com.myapp.lexicon.main.SpeechViewModel
 import com.myapp.lexicon.models.Word
-import com.myapp.lexicon.settings.adsIsEnabled
 import com.myapp.lexicon.settings.getTestStateFromPref
 import com.myapp.lexicon.settings.saveTestStateToPref
 import com.myapp.lexicon.viewmodels.AnimViewModel
 import com.myapp.lexicon.viewmodels.PageBackViewModel
 import com.yandex.mobile.ads.interstitial.InterstitialAd
+import com.yandex.mobile.ads.rewarded.RewardedAd
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.disposables.CompositeDisposable
 import java.util.*
@@ -50,7 +47,12 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
 {
     companion object
     {
-        fun newInstance() = TestFragment()
+        val TAG = "${TestFragment::class.java.simpleName}.TAG"
+        private var adListener: AdEventListener? = null
+        fun newInstance(listener: AdEventListener?): TestFragment {
+            this.adListener = listener
+            return TestFragment()
+        }
     }
 
     private lateinit var binding: TestFragmentBinding
@@ -60,9 +62,11 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     private val animVM: AnimViewModel by viewModels()
     private val speechVM: SpeechViewModel by viewModels()
     private val pageBackVM: PageBackViewModel by viewModels()
-    private var yandexAd2: InterstitialAd? = null
+    private val adsVM: AdsViewModel by viewModels()
     private val composite = CompositeDisposable()
     private var dialogWarning: DialogWarning? = null
+    private var interstitialAd: InterstitialAd? = null
+    private var rewardedAd: RewardedAd? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -78,17 +82,28 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         super.onViewCreated(view, savedInstanceState)
         binding = TestFragmentBinding.bind(view)
 
-        if (this.adsIsEnabled) {
-            this.loadInterstitialAd(
-                index = 2,
-                success = { ad ->
-                    yandexAd2 = ad
-                },
-                error = {
-                    yandexAd2 = null
+        this.getTestStateFromPref(
+            onInit = {
+                val dictName = testVM.currentWord.value?.dictName
+                dictName?.let { dict ->
+                    testVM.getWordsByDictName(dict)
                 }
-            )
-        }
+            },
+            onSuccess = {
+                if (dialogWarning == null) {
+                    dialogWarning = DialogWarning().apply {
+                        setListener(this@TestFragment)
+                    }
+                    dialogWarning?.show(
+                        parentFragmentManager.beginTransaction(),
+                        DialogWarning.DIALOG_TAG
+                    )
+                }
+            },
+            onError = { err ->
+                Throwable(err).printStackTrace()
+            }
+        )
 
         pageBackVM.imageBack.observe(viewLifecycleOwner) { img ->
             binding.imgBack.setImageResource(img)
@@ -131,24 +146,19 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                             startDelay = 0
                             animIncreaseScaleListener(this)
                         }.start()
-
-                        Toast.makeText(
-                            requireContext(),
-                            getString(R.string.text_is_right),
-                            Toast.LENGTH_LONG
-                        ).apply {
-                            setGravity(Gravity.TOP, 0, 0)
-                        }.show()
+                        binding.root.showCustomSnackBar(
+                            getString(R.string.text_is_right)
+                        )
                     }
                     else -> {
                         testVM.testState.rightAnswers--
-                        Toast.makeText(
-                            requireContext(),
-                            getString(R.string.text_wrong),
-                            Toast.LENGTH_LONG
-                        ).apply {
-                            setGravity(Gravity.TOP, 0, 0)
-                        }.show()
+                        binding.root.showCustomSnackBar(
+                            message = getString(R.string.text_wrong),
+                            onLaunch = { binding ->
+                                binding.tvThumbsUp.visibility = View.GONE
+                                binding.tvSmileyFace.text = getString(R.string.confused_face)
+                            }
+                        )
 
                         val animNotRight = AnimationUtils.loadAnimation(requireContext(), R.anim.anim_not_right)
                         animNotRight.setAnimationListener(object : Animation.AnimationListener {
@@ -242,6 +252,54 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
             binding.progressValueTV.text = progressValue
         }
 
+        adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
+            result.onSuccess { ad ->
+                interstitialAd = ad
+            }
+        }
+
+        adsVM.rewardedAd.observe(viewLifecycleOwner) { result ->
+            result.onSuccess { ad ->
+                rewardedAd = ad
+            }
+        }
+
+        testVM.state.observe(viewLifecycleOwner) { state ->
+            when(state) {
+                TestViewModel.State.Init -> {
+                    val wordIndex = testVM.wordIndex.value
+                    wordIndex?.let { index ->
+                        if (index % 4 == 0) {
+                            interstitialAd = null
+                            adsVM.loadRewardedAd()
+                        }
+                        else {
+                            rewardedAd = null
+                            adsVM.loadInterstitialAd()
+                        }
+                    }
+                }
+                TestViewModel.State.NotShowAd -> {}
+                TestViewModel.State.ShowAd -> {
+                    interstitialAd?.showAd(
+                        requireActivity(),
+                        onImpression = { data ->
+                            adListener?.onAdImpression(data)
+                            testVM.setState(TestViewModel.State.Init)
+                        }
+                    )
+                    rewardedAd?.showAd(
+                        requireActivity(),
+                        onImpression = {data ->
+                            adListener?.onAdImpression(data)
+                            testVM.setState(TestViewModel.State.Init)
+                        }
+                    )
+                }
+                else -> {}
+            }
+        }
+
         animVM.animState.observe(viewLifecycleOwner) {
             when (it) {
                 is UiState.AnimStarted -> LockOrientation(requireActivity()).lock()
@@ -257,12 +315,6 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         }
 
         binding.microphoneBtnView.setOnClickListener {
-            // TODO Runtime permission Step 4
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
-            {
-                recordAudioPermission.launch(Manifest.permission.RECORD_AUDIO)
-                return@setOnClickListener
-            }
             speechRecognize(Locale.US)
         }
 
@@ -328,83 +380,17 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
 
     }
 
-    override fun onStart()
-    {
-        super.onStart()
-
-        this.getTestStateFromPref(
-            onInit = {
-                val dictName = testVM.currentWord.value?.dictName
-                dictName?.let { dict ->
-                    testVM.getWordsByDictName(dict)
-                }
-            },
-            onSuccess = {
-                if (dialogWarning == null) {
-                    dialogWarning = DialogWarning().apply {
-                        setListener(this@TestFragment)
-                    }
-                    dialogWarning?.show(
-                        parentFragmentManager.beginTransaction(),
-                        DialogWarning.DIALOG_TAG
-                    )
-                }
-            },
-            onError = { err ->
-                Throwable(err).printStackTrace()
-            }
-        )
-    }
-
     override fun onResume() {
         super.onResume()
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                yandexAd2?.showInterstitialAd(
-                    dismiss = {
-                        parentFragmentManager.popBackStack()
-                    }
-                )?: run {
-                    parentFragmentManager.popBackStack()
-                }
+                parentFragmentManager.popBackStack()
             }
         })
         binding.toolBar.setNavigationOnClickListener {
-            yandexAd2?.showInterstitialAd(
-                dismiss = {
-                    parentFragmentManager.popBackStack()
-                }
-            )?: run {
-                parentFragmentManager.popBackStack()
-            }
+            parentFragmentManager.popBackStack()
         }
-    }
-
-    override fun onPause() {
-
-        val testState = testVM.testState.apply {
-            dict = binding.btnViewDict.text.toString()
-            wordId = binding.tvTargetWord.tag.toString().toInt()
-            progress = binding.progressBar.progress
-            progressMax = binding.progressBar.max
-        }
-        if (BuildConfig.DEBUG) {
-            when {
-                testState.studiedWordIds.size > 1 -> {
-                    this.saveTestStateToPref(testState)
-                }
-            }
-        }
-        else {
-            when {
-                testState.studiedWordIds.size > 5 -> {
-                    this.saveTestStateToPref(testState)
-                }
-            }
-        }
-
-        super.onPause()
     }
 
     // TODO ViewPropertyAnimation.Scale Step 6 слушатель анимации
@@ -505,19 +491,13 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         })
     }
 
-    // TODO Runtime permission Step 3
-    private val recordAudioPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-        if (isGranted) Snackbar.make(binding.mainScroll, getString(R.string.text_is_granted), Snackbar.LENGTH_LONG).show()
-        return@registerForActivityResult
-    }
-
-    //TODO Speech Recognizer Step 3 Готовим intent
+    //TODO Speech Recognizer Step 1 Готовим intent
     @Suppress("SameParameterValue")
     private fun speechRecognize(locale: Locale)
     {
         val intent = Intent(Intent.ACTION_VIEW).apply {
             action = RecognizerIntent.ACTION_RECOGNIZE_SPEECH
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, locale)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, locale.toLanguageTag())
             putExtra(
                 RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH
@@ -527,7 +507,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         speechRecognizer.launch(intent)
     }
 
-    //TODO Speech Recognizer Step 4 Получение результата распознавания
+    //TODO Speech Recognizer Step 2 Получение результата распознавания
     private val speechRecognizer = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result ->
         val data = result.data
         data?.let {
@@ -551,6 +531,32 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         super.onDestroy()
     }
 
+    override fun onDetach() {
+
+        val testState = testVM.testState.apply {
+            dict = binding.btnViewDict.text.toString()
+            wordId = binding.tvTargetWord.tag.toString().toInt()
+            progress = binding.progressBar.progress
+            progressMax = binding.progressBar.max
+        }
+        if (BuildConfig.DEBUG) {
+            when {
+                testState.studiedWordIds.size > 1 -> {
+                    this.saveTestStateToPref(testState)
+                }
+            }
+        }
+        else {
+            when {
+                testState.studiedWordIds.size > 5 -> {
+                    this.saveTestStateToPref(testState)
+                }
+            }
+        }
+        adListener = null
+        super.onDetach()
+    }
+
     override fun dictListItemOnSelected(dict: String)
     {
 
@@ -558,13 +564,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
 
     override fun onTestCompleteClick() {
         testVM.testState.reset()
-        yandexAd2?.showInterstitialAd(
-            dismiss = {
-                parentFragmentManager.popBackStack()
-            }
-        )?: run {
-            parentFragmentManager.popBackStack()
-        }
+        parentFragmentManager.popBackStack()
     }
 
     override fun onTestRepeatClick() {

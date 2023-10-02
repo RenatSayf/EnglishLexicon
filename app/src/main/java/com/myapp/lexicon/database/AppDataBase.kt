@@ -41,6 +41,10 @@ abstract class AppDataBase : RoomDatabase()
             return dataBase as AppDataBase
         }
 
+        fun dbClose() {
+            dataBase?.close()
+        }
+
         private fun getMigration(): Migration
         {
             return object : Migration(DB_VERSION - 1, DB_VERSION)

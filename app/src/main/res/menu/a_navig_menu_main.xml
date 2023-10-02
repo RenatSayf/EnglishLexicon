@@ -4,6 +4,11 @@
     <group >
 
         <item
+            android:id="@+id/nav_user_reward"
+            android:icon="@drawable/ic_monetization"
+            android:title="@string/text_get_reward"/>
+
+        <item
             android:id="@+id/nav_add_word"
             android:icon="@drawable/ic_add_word"
             android:title="@string/add_word"/>

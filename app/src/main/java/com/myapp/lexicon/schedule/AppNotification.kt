@@ -6,14 +6,12 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.graphics.BitmapFactory
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
 import com.myapp.lexicon.R
-import com.myapp.lexicon.helpers.StringOperations
-import com.myapp.lexicon.models.Word
+import com.myapp.lexicon.models.toWordList
 import com.myapp.lexicon.service.ServiceActivity
 import com.myapp.lexicon.splash.SplashActivity
 
@@ -26,18 +24,11 @@ class AppNotification constructor(private val context: Context) : Notification()
         const val CHANNEL_ID : String = "${NOTIFICATION_ID}.service_notification"
     }
 
-    private var preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
     private lateinit var notification: Notification
-    private var displayMode: String = "0"
 
-    init
+    fun create(text: String) : Notification
     {
-        displayMode = preferences.getString(context.getString(R.string.key_list_display_mode), "0").toString()
-    }
-
-    fun create(json: String) : Notification
-    {
-        val words: Array<Word> = StringOperations.instance.jsonToWord(json)
+        val words = text.toWordList()
 
         notification = NotificationCompat.Builder(context, CHANNEL_ID).apply {
             setOngoing(false)
@@ -49,18 +40,24 @@ class AppNotification constructor(private val context: Context) : Notification()
             setChannelId(CHANNEL_ID)
             setDefaults(DEFAULT_ALL)
 
+            val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+            val displayMode = preferences.getString(context.getString(R.string.key_list_display_mode), "0").toString()
             if (words.isNotEmpty())
             {
                 setContentTitle(words[0].english)
                 if (displayMode == "1")
                 {
-                    setContentText("?????????????")
+                    var contentText = ""
+                    repeat(5) {
+                        contentText += "${context.getString(R.string.star)} "
+                    }
+                    setContentText(contentText.trim())
                 }
                 else setContentText(words[0].translate)
 
                 val actionIntent = Intent(Intent.ACTION_MAIN)
                 actionIntent.setClass(context, ServiceActivity::class.java).apply {
-                    putExtra(ServiceActivity.ARG_JSON, json)
+                    putExtra(ServiceActivity.ARG_JSON, text)
                     flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
                 }
                 val pendingIntent = PendingIntent.getActivity(

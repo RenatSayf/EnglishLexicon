@@ -1,10 +1,9 @@
-@file:Suppress("ObjectLiteralToLambda", "UNUSED_ANONYMOUS_PARAMETER") @file:JvmName("BillingViewModelKt")
+@file:Suppress("ObjectLiteralToLambda") @file:JvmName("BillingViewModelKt")
 
 package com.myapp.lexicon.billing
 
 import android.content.Context
 import com.android.billingclient.api.*
-import com.google.gson.Gson
 import com.myapp.lexicon.R
 import com.myapp.lexicon.models.UserPurchase
 import javax.inject.Inject
@@ -49,7 +48,7 @@ class UserPurchases @Inject constructor (
                         ) {
                             historyRecords?.forEach {
                                 val json = it.originalJson
-                                val purchase = Gson().fromJson(json, UserPurchase::class.java)
+                                val purchase = UserPurchase.fromJson(json)
 
                                 when(purchase.productId) {
                                     productIdNoAds -> {

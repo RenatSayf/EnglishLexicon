@@ -3,20 +3,26 @@
 package com.myapp.lexicon.settings
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
+import android.net.Uri
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageException
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
-import com.google.gson.Gson
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.helpers.getCRC32CheckSum
-import com.myapp.lexicon.models.LaunchMode
 import com.myapp.lexicon.models.TestState
+import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.Word
+import com.myapp.lexicon.models.toWord
 
 val Context.appSettings: SharedPreferences
     get() {
@@ -28,11 +34,63 @@ val Fragment.appSettings: SharedPreferences
         return requireContext().appSettings
     }
 
+fun Context.saveUserToPref(user: User) {
+    appSettings.edit().apply {
+        putString("KEY_EMAIL", user.email)
+        putString("KEY_PASSWORD", user.password)
+        putBoolean("KEY_IS_REGISTERED", true)
+    }.apply()
+}
+
+fun Context.clearEmailPasswordInPref() {
+    appSettings.edit().apply {
+        putString("KEY_EMAIL", null).apply()
+        putString("KEY_PASSWORD", null).apply()
+        putBoolean("KEY_IS_REGISTERED", false).apply()
+    }.apply()
+
+}
+
+fun Context.getAuthDataFromPref(
+    onNotRegistered: () -> Unit = {},
+    onSuccess: (email: String, password: String) -> Unit = {_,_ ->},
+    onFailure: (Exception) -> Unit = {}
+) {
+    val email = appSettings.getString("KEY_EMAIL", null)
+    val password = appSettings.getString("KEY_PASSWORD", null)
+    try {
+        if (email == null || password == null) {
+            onNotRegistered.invoke()
+        }
+        else if (email.isNotEmpty() && password.isNotEmpty()) {
+            onSuccess.invoke(email, password)
+        }
+        else {
+            onNotRegistered.invoke()
+        }
+    } catch (e: Exception) {
+        onFailure.invoke(e)
+    }
+}
+
+fun Context.isUserRegistered(
+    onYes: () -> Unit,
+    onNotRegistered: () -> Unit = {}
+) {
+    val result = appSettings.getBoolean("KEY_IS_REGISTERED", false)
+    if (result) {
+        onYes.invoke()
+    }
+    else {
+        onNotRegistered.invoke()
+    }
+}
+
 var Context.adsIsEnabled: Boolean
     get() {
         return appSettings.getBoolean(getString(R.string.KEY_IS_ADS_ENABLED), true)
     }
-    private set(value) {
+    set(value) {
         appSettings.edit().putBoolean(getString(R.string.KEY_IS_ADS_ENABLED), value).apply()
     }
 
@@ -45,13 +103,8 @@ var Context.cloudStorageEnabled: Boolean
     get() {
         return appSettings.getBoolean(getString(R.string.KEY_CLOUD_STORAGE), false)
     }
-    private set(value) {
+    set(value) {
         appSettings.edit().putBoolean(getString(R.string.KEY_CLOUD_STORAGE), value).apply()
-    }
-
-val Fragment.cloudStorageEnabled: Boolean
-    get() {
-        return requireContext().cloudStorageEnabled
     }
 
 var Context.checkFirstLaunch: Boolean
@@ -62,8 +115,16 @@ var Context.checkFirstLaunch: Boolean
         appSettings.edit().putBoolean(getString(R.string.KEY_FIRST_LAUNCH), value).apply()
     }
 
-private const val KEY_ADS_TOKEN = "KEY_ADS_TOKEN_555"
 private const val KEY_CLOUD_TOKEN = "KEY_CLOUD_TOKEN_777"
+
+fun Context.saveCloudToken(token: String) {
+    if (token.isNotEmpty()) {
+        val tokenCheckSum = token.getCRC32CheckSum().toString()
+        appSettings.edit().putString(KEY_CLOUD_TOKEN, tokenCheckSum).apply()
+    } else {
+        appSettings.edit().putString(KEY_CLOUD_TOKEN, "").apply()
+    }
+}
 
 interface PurchasesTokenListener {
     fun onInit()
@@ -71,89 +132,50 @@ interface PurchasesTokenListener {
 }
 
 fun Context.checkPurchasesTokens(listener: PurchasesTokenListener) {
-    val adsToken = appSettings.getString(KEY_ADS_TOKEN, null)
     val cloudToken = appSettings.getString(KEY_CLOUD_TOKEN, null)
-    try {
-        if (adsToken == null || cloudToken == null) {
-            listener.onInit()
-            return
-        }
-        this.adsIsEnabled = adsToken.isEmpty()
+    if (cloudToken == null) {
+        listener.onInit()
+    }
+    else {
         this.cloudStorageEnabled = cloudToken.isNotEmpty()
-    } finally {
         listener.onCheckComplete()
     }
 }
 
 fun Context.checkCloudToken(
     onInit: () -> Unit = {},
-    onExists: (String) -> Unit,
+    onExists: (userId: String) -> Unit,
     onEmpty: () -> Unit = {},
-    onComplete: () -> Unit = {}
+    onFailure: () -> Unit = {}
 ) {
-    val token = appSettings.getString(KEY_CLOUD_TOKEN, null)
-    try {
-        when {
-            token == null -> onInit.invoke()
-            token.isNotEmpty() -> onExists.invoke(token)
-            else -> onEmpty.invoke()
+    getAuthDataFromPref(
+        onNotRegistered = {
+            onEmpty.invoke()
+        },
+        onSuccess = { _, _ ->
+            val token = appSettings.getString(KEY_CLOUD_TOKEN, null)
+            try {
+                when {
+                    token == null -> onInit.invoke()
+                    token.isNotEmpty() -> {
+                        val currentUser = FirebaseAuth.getInstance().currentUser
+                        if (currentUser != null) {
+                            onExists.invoke(currentUser.uid)
+                        }
+                        else {
+                            onEmpty.invoke()
+                        }
+                    }
+                    token.isEmpty() -> onEmpty.invoke()
+                }
+            } catch (e: Exception) {
+                onFailure.invoke()
+            }
+        },
+        onFailure = {
+            onFailure.invoke()
         }
-    } finally {
-        onComplete.invoke()
-    }
-}
-
-fun Context.setAdsSetting(token: String?) {
-
-    when {
-        token == null -> {
-            appSettings.edit().apply {
-                putBoolean(getString(R.string.KEY_IS_ADS_ENABLED), true)
-                putString(KEY_ADS_TOKEN, null)
-            }.apply()
-            this.adsIsEnabled = true
-        }
-        token.isEmpty() -> {
-            appSettings.edit().apply {
-                putBoolean(getString(R.string.KEY_IS_ADS_ENABLED), true)
-                putString(KEY_ADS_TOKEN, "")
-            }.apply()
-            this.adsIsEnabled = true
-        }
-        else -> {
-            appSettings.edit().apply {
-                putBoolean(getString(R.string.KEY_IS_ADS_ENABLED), false)
-                putString(KEY_ADS_TOKEN, token.getCRC32CheckSum().toString())
-            }.apply()
-            this.adsIsEnabled = false
-        }
-    }
-}
-
-fun Context.setCloudSetting(token: String?) {
-    when {
-        token == null -> {
-            appSettings.edit().apply {
-                putBoolean(getString(R.string.KEY_CLOUD_STORAGE), false)
-                putString(KEY_CLOUD_TOKEN, null)
-            }.apply()
-            this.cloudStorageEnabled = false
-        }
-        token.isEmpty() -> {
-            appSettings.edit().apply {
-                putBoolean(getString(R.string.KEY_CLOUD_STORAGE), false)
-                putString(KEY_CLOUD_TOKEN, "")
-            }.apply()
-            this.cloudStorageEnabled = false
-        }
-        else -> {
-            appSettings.edit().apply {
-                putBoolean(getString(R.string.KEY_CLOUD_STORAGE), true)
-                putString(KEY_CLOUD_TOKEN, token.getCRC32CheckSum().toString())
-            }.apply()
-            this.cloudStorageEnabled = true
-        }
-    }
+    )
 }
 
 fun Context.checkOnStartSpeech(onEnabled: () -> Unit, onDisabled: () -> Unit) {
@@ -165,15 +187,14 @@ fun Context.checkOnStartSpeech(onEnabled: () -> Unit, onDisabled: () -> Unit) {
 }
 
 fun Context.saveWordToPref(word: Word) {
-    val json = Gson().toJson(word)
-    appSettings.edit().putString("KEY_CURRENT_WORD", json).apply()
+    appSettings.edit().putString("KEY_CURRENT_WORD", word.toString()).apply()
 }
 
 fun Context.getWordFromPref(onInit: () -> Unit, onSuccess: (Word) -> Unit, onFailure: (Exception) -> Unit) {
     val string = appSettings.getString("KEY_CURRENT_WORD", null)
     string?.let {
         try {
-            val word = Gson().fromJson(it, Word::class.java)
+            val word = it.toWord()
             onSuccess.invoke(word)
         } catch (e: Exception) {
             onFailure.invoke(e)
@@ -290,10 +311,26 @@ fun Fragment.disablePassiveWordsRepeat(
 
 fun Fragment.saveTestStateToPref(state: TestState?) {
     if (state != null) {
-        val json = Gson().toJson(state)
-        appSettings.edit().putString("KEY_TEST_STATE", json).apply()
+        appSettings.edit().apply {
+            putString(TestState.KEY_DICTIONARY, state.dict)
+            putInt(TestState.KEY_WORD_ID, state.wordId)
+            putInt(TestState.KEY_PROGRESS, state.progress)
+            putInt(TestState.KEY_PROGRESS_MAX, state.progressMax)
+            putInt(TestState.KEY_RIGHT_ANSWERS, state.rightAnswers)
+            val stringIds = state.studiedWordIds.map { item ->
+                item.toString()
+            }.toSet()
+            putStringSet(TestState.KEY_STUDIED_WORD_IDS, stringIds)
+        }.apply()
     } else {
-        appSettings.edit().putString("KEY_TEST_STATE", null).apply()
+        appSettings.edit().apply {
+            putString(TestState.KEY_DICTIONARY, null)
+            putInt(TestState.KEY_WORD_ID, 0)
+            putInt(TestState.KEY_PROGRESS, 0)
+            putInt(TestState.KEY_PROGRESS_MAX, Int.MAX_VALUE)
+            putInt(TestState.KEY_RIGHT_ANSWERS, 0)
+            putStringSet(TestState.KEY_STUDIED_WORD_IDS, null)
+        }.apply()
     }
 }
 
@@ -302,47 +339,86 @@ fun Fragment.getTestStateFromPref(
     onSuccess: (TestState) -> Unit,
     onError: (String?) -> Unit = {}
     ) {
-    val string = appSettings.getString("KEY_TEST_STATE", null)
-    if (string == null) {
+
+    val dict = appSettings.getString(TestState.KEY_DICTIONARY, null)
+    val stringSet = appSettings.getStringSet(TestState.KEY_STUDIED_WORD_IDS, null)
+
+    if (dict == null || stringSet == null) {
         onInit.invoke()
         return
     }
-    try {
-        val state = Gson().fromJson(string, TestState::class.java)
-        onSuccess.invoke(state)
-    } catch (e: Exception) {
-        onError.invoke(e.message)
-        if (BuildConfig.DEBUG) {
-            e.printStackTrace()
+    else {
+        try {
+            val studiedIds = stringSet.map {
+                it.toInt()
+            }
+            val testState = TestState(
+                dict = dict,
+                wordId = appSettings.getInt(TestState.KEY_WORD_ID, 0),
+                progress = appSettings.getInt(TestState.KEY_PROGRESS, 0),
+                progressMax = appSettings.getInt(TestState.KEY_PROGRESS_MAX, Int.MAX_VALUE),
+                rightAnswers = appSettings.getInt(TestState.KEY_RIGHT_ANSWERS, 0),
+                studiedWordIds = studiedIds.toMutableList()
+            )
+            onSuccess.invoke(testState)
+        } catch (e: Exception) {
+            onError.invoke(e.message)
+            if (BuildConfig.DEBUG) {
+                e.printStackTrace()
+            }
         }
     }
 }
 
-fun Context.checkBuildConfig(
+fun AppCompatActivity.askForPermission(
+    permission: String,
     onInit: () -> Unit,
-    onChangeToTest: (String) -> Unit,
-    onChangeToNormal: (String) -> Unit
+    onGranted: () -> Unit
 ) {
-    val key = "KEY_LAUNCH_MODE"
-    val savedMode = appSettings.getString(key, null)
-    val currentMode = BuildConfig.PURCHASE_MODE
-    if (savedMode == null) {
-        onInit.invoke()
-        appSettings.edit().putString(key, currentMode).apply()
+    val isShould = this.shouldShowRequestPermissionRationale(permission)
+    val selfPermission = ContextCompat.checkSelfPermission(this, permission)
+    if (selfPermission == PackageManager.PERMISSION_GRANTED) {
+        onGranted.invoke()
     }
-    if (savedMode != currentMode) {
-        when(currentMode) {
-            LaunchMode.TEST.name -> {
-                onChangeToTest.invoke(currentMode)
-            }
-            LaunchMode.NORMAL.name -> {
-                onChangeToNormal.invoke(currentMode)
-            }
-        }
-        appSettings.edit().putString(key, currentMode).apply()
+    else if (selfPermission == PackageManager.PERMISSION_DENIED || isShould) {
+        onInit.invoke()
     }
 }
 
+fun Fragment.askForPermission(
+    permission: String,
+    onInit: () -> Unit = {},
+    onGranted: () -> Unit = {}
+) {
+    (requireActivity() as AppCompatActivity).askForPermission(
+        permission,
+        onInit,
+        onGranted
+    )
+}
+
+fun Context.getNotificationMode(
+    onRepeatMode: () -> Unit = {},
+    onTestMode: () -> Unit = {}
+) {
+    val mode = appSettings.getString(getString(R.string.key_list_display_mode), "0")
+    when(mode) {
+        "0" -> onRepeatMode.invoke()
+        "1" -> onTestMode.invoke()
+    }
+}
+
+fun Context.checkPassiveModeEnabled(): Boolean {
+    val interval = appSettings.getString(getString(R.string.key_show_intervals), "10")
+    val isUnlockedScreen = appSettings.getBoolean(getString(R.string.key_service), false)
+    return interval != "0" || isUnlockedScreen
+}
+
+fun Context.goToAppStore() {
+    val intent = Intent(Intent.ACTION_VIEW)
+    intent.data = Uri.parse(this.getString(R.string.app_link).plus(this.packageName))
+    startActivity(intent)
+}
 
 
 

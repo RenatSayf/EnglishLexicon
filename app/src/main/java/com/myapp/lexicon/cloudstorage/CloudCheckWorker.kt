@@ -1,7 +1,13 @@
 package com.myapp.lexicon.cloudstorage
 
 import android.content.Context
-import androidx.work.*
+import androidx.work.Constraints
+import androidx.work.CoroutineWorker
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
+import androidx.work.WorkerParameters
 import com.myapp.lexicon.R
 import com.myapp.lexicon.settings.checkCloudStorage
 import kotlinx.coroutines.Dispatchers
@@ -45,6 +51,7 @@ class CloudCheckWorker(
             val workManager = WorkManager.getInstance(context)
             this.userId = userId
             this.dbName = dbName
+            listener?.onBeforeChecking(dbName)
             val workRequest = createWorkRequest()
             workManager.enqueueUniqueWork(TAG, ExistingWorkPolicy.REPLACE, workRequest)
         }
@@ -89,9 +96,10 @@ class CloudCheckWorker(
         }
     }
 
-    interface Listener {
-        fun onRequireUpSync(token: String)
-        fun onRequireDownSync(token: String)
-        fun onNotRequireSync()
+    abstract class Listener {
+        open fun onBeforeChecking(dbName: String) {}
+        open fun onRequireUpSync(token: String) {}
+        open fun onRequireDownSync(token: String) {}
+        open fun onNotRequireSync() {}
     }
 }

@@ -4,5 +4,7 @@
     <string name="slightly_smiling_face" translatable="false">🙂</string>
     <string name="confused_face" translatable="false">😕</string>
     <string name="thumbs_up" translatable="false">👍</string>
+    <string name="coins_bag" translatable="false">💰</string>
+    <string name="star" translatable="false">⭐</string>
     
 </resources>

@@ -11,6 +11,7 @@
         android:id="@+id/webView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        app:layout_constraintVertical_weight="1"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/bottom_layout"
         />
@@ -20,33 +21,35 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@+id/webView"
+        app:layout_constraintBottom_toTopOf="@+id/bannerView"
         android:padding="4dp"
         android:orientation="horizontal"
         android:background="@color/colorYellow">
 
         <ImageButton
             android:id="@+id/btn_back"
+            style="@style/Widget.AppCompat.ButtonBar"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:padding="8dp"
-            style="@style/Widget.AppCompat.ButtonBar"
             android:background="@drawable/bg_ripple_yellow_round_corners"
+            android:contentDescription="@string/text_back"
+            android:padding="8dp"
             android:src="@drawable/ic_action_close_white"
-            android:contentDescription="@string/text_back" />
+            tools:ignore="ImageContrastCheck" />
 
         <Button
             android:id="@+id/btnSave"
+            style="@style/Widget.AppCompat.ButtonBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="4dp"
             android:layout_marginStart="4dp"
+            android:background="@drawable/bg_ripple_yellow_round_corners"
+            android:padding="4dp"
             android:text="@string/add_to_dict"
             android:textColor="@color/colorWhite"
+            android:textSize="16sp"
             android:textStyle="bold"
-            android:textSize="16dp"
-            style="@style/Widget.AppCompat.ButtonBar"
-            android:background="@drawable/bg_ripple_yellow_round_corners"
-            />
+            tools:ignore="TextContrastCheck,VisualLintButtonSize" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 
@@ -61,21 +64,13 @@
         android:indeterminateTint="@color/colorYellow"
         tools:ignore="UnusedAttribute" />
 
-    <LinearLayout
-        android:id="@+id/adLayout"
+    <com.yandex.mobile.ads.banner.BannerAdView
+        android:id="@+id/bannerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/bottom_layout"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_gravity="bottom"
-        android:orientation="vertical">
-
-        <com.yandex.mobile.ads.banner.BannerAdView
-            android:id="@+id/banner_translator"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            />
-
-    </LinearLayout>
+        >
+    </com.yandex.mobile.ads.banner.BannerAdView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

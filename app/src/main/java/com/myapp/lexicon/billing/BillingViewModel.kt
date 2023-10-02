@@ -11,7 +11,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.android.billingclient.api.*
-import com.google.gson.Gson
 import com.myapp.lexicon.R
 import com.myapp.lexicon.models.UserPurchase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -127,7 +126,7 @@ class BillingViewModel @Inject constructor(app: Application) : AndroidViewModel(
             .build()
 
         val json = purchase.originalJson
-        val userPurchase = Gson().fromJson(json, UserPurchase::class.java)
+        val userPurchase = UserPurchase.fromJson(json)
 
         billingClient.consumeAsync(consumeParams) { billingResult, outToken ->
             when (billingResult.responseCode) {

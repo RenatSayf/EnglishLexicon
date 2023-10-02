@@ -4,6 +4,7 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import javax.inject.Inject
 
 
@@ -34,7 +35,18 @@ class AlarmScheduler @Inject constructor(private val context: Context)
         val pendingIntent = createPendingIntent(ONE_SHOOT_ACTION)
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         alarmManager.apply {
-            setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + overTime, pendingIntent)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val isCanSchedule = canScheduleExactAlarms()
+                if (isCanSchedule) {
+                    setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + overTime, pendingIntent)
+                }
+                else {
+                    set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + overTime, pendingIntent)
+                }
+            }
+            else {
+                setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + overTime, pendingIntent)
+            }
         }
     }
 

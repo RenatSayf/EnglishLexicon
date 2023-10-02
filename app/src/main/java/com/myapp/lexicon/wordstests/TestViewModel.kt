@@ -9,6 +9,7 @@ import com.myapp.lexicon.models.TestState
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.repository.DataRepositoryImpl
 import com.myapp.lexicon.settings.getWordFromPref
+import com.myapp.lexicon.settings.testIntervalFromPref
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -23,9 +24,26 @@ class TestViewModel @Inject constructor(
     private val repository: DataRepositoryImpl
 ) : AndroidViewModel(app)
 {
+    sealed class State {
+        object Init: State()
+        object ShowAd: State()
+        object NotShowAd: State()
+    }
+
+    private var _state = MutableLiveData<State>(State.Init)
+    val state: LiveData<State> = _state
+
+    fun setState(state: State) {
+        _state.value = state
+    }
+
     private val composite = CompositeDisposable()
 
     var testState = TestState()
+
+    private val testInterval: Int by lazy {
+        app.testIntervalFromPref
+    }
 
     private var _currentWord = MutableLiveData<Word>().apply {
         app.getWordFromPref(
@@ -160,6 +178,15 @@ class TestViewModel @Inject constructor(
 
     fun getNextWords() : Word?
     {
+        _wordIndex.value?.let { index ->
+            if (index % testInterval == 0) {
+                _state.value = State.ShowAd
+            }
+            else {
+                _state.value = State.NotShowAd
+            }
+        }
+
         return if (!_wordsList.value.isNullOrEmpty())
         {
             _wordsList.value!![0]

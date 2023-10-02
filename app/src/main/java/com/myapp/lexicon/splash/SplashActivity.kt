@@ -7,11 +7,14 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.lifecycle.lifecycleScope
 import com.myapp.lexicon.R
+import com.myapp.lexicon.auth.AuthViewModel
 import com.myapp.lexicon.billing.UserPurchases
+import com.myapp.lexicon.common.KEY_APP_STORE_LINK
 import com.myapp.lexicon.databinding.ALayoutSplashScreenBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.showDialogAsSingleton
@@ -30,62 +33,69 @@ class SplashActivity : AppCompatActivity() {
     private lateinit var binding: ALayoutSplashScreenBinding
     private var speaker: Speaker? = null
 
+    private val authVM: AuthViewModel by viewModels()
+
+    private var authChecked = false
+    private var cloudChecked = false
+    private var speechChecked = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ALayoutSplashScreenBinding.inflate(layoutInflater, CoordinatorLayout(this), false)
         setContentView(binding.root)
+
+        val extras = intent.extras
+        val appStoreLink = extras?.getString(KEY_APP_STORE_LINK)
+        if (!appStoreLink.isNullOrEmpty()) {
+            goToAppStore()
+            finish()
+        }
+
+        applicationContext.adsIsEnabled = true
+
+        applicationContext.getAuthDataFromPref(
+            onNotRegistered = {
+                authChecked = true
+            },
+            onSuccess = { email, password ->
+                authVM.signInWithEmailAndPassword(email, password)
+            }
+        )
+
+        authVM.state.observe(this) { state ->
+            state.onSignIn { user ->
+                authChecked = true
+            }
+            state.onFailure {
+                authChecked = true
+            }
+        }
     }
 
     override fun onResume() {
         super.onResume()
 
-        var adsChecked = false
-        var cloudChecked = false
-        var speechChecked = false
-
-        this.checkBuildConfig(
-            onInit = {
-                this.setAdsSetting(null)
-                this.setCloudSetting(null)
-            },
-            onChangeToTest = { mode ->
-                this.setAdsSetting("")
-                this.setCloudSetting("")
-            },
-            onChangeToNormal = { mode ->
-                this.setAdsSetting(null)
-                this.setCloudSetting(null)
-            }
-        )
-
         this.checkPurchasesTokens(listener = object : PurchasesTokenListener {
             override fun onInit() {
                 UserPurchases(this@SplashActivity, object : UserPurchases.Listener {
-                    override fun onExistsAdsToken(token: String) {
-                        this@SplashActivity.setAdsSetting(token)
-                        adsChecked = true
-                    }
+                    override fun onExistsAdsToken(token: String) {}
 
-                    override fun onEmptyAdsToken() {
-                        this@SplashActivity.setAdsSetting("")
-                        adsChecked = true
-                    }
+                    override fun onEmptyAdsToken() {}
 
                     override fun onExistsCloudToken(token: String) {
-                        this@SplashActivity.setCloudSetting(token)
+                        this@SplashActivity.saveCloudToken(token)
                         cloudChecked = true
                     }
 
                     override fun onEmptyCloudToken() {
-                        this@SplashActivity.setCloudSetting("")
+                        this@SplashActivity.saveCloudToken("")
                         cloudChecked = true
                     }
                 })
             }
 
             override fun onCheckComplete() {
-                adsChecked = true
                 cloudChecked = true
             }
         })
@@ -197,14 +207,14 @@ class SplashActivity : AppCompatActivity() {
         })
 
         startTimer(30000, onFinish = {
-            adsChecked = true
             cloudChecked = true
+            authChecked = true
         })
 
         lifecycleScope.launch {
-            while (!adsChecked || !cloudChecked || !speechChecked) {
+            while (!cloudChecked || !speechChecked || !authChecked) {
                 delay(500)
-                if (adsChecked && cloudChecked && speechChecked) {
+                if (authChecked && cloudChecked && speechChecked) {
                     val intent = Intent(this@SplashActivity, MainActivity::class.java)
                     startActivity(intent)
                     this@SplashActivity.finish()
@@ -212,5 +222,11 @@ class SplashActivity : AppCompatActivity() {
             }
         }
 
+    }
+
+    override fun onDestroy() {
+
+        authChecked
+        super.onDestroy()
     }
 }

@@ -10,9 +10,9 @@
                 android:angle="270" />
             <stroke
                 android:width="4dp"
-                android:color="#4aa5d4" />
+                android:color="@color/colorWhite" />
             <corners
-                android:radius="7dp" />
+                android:radius="500dp" />
             <padding
                 android:left="12dp"
                 android:top="12dp"
@@ -30,9 +30,9 @@
             <solid android:color="@color/colorLightRed"/>
             <stroke
                 android:width="4dp"
-                android:color="#4aa5d4" />
+                android:color="@color/colorWhite" />
             <corners
-                android:radius="7dp" />
+                android:radius="500dp" />
             <padding
                 android:left="12dp"
                 android:top="12dp"
