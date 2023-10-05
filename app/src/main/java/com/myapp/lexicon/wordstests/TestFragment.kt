@@ -32,7 +32,6 @@ import com.myapp.lexicon.main.SpeechViewModel
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.getTestStateFromPref
 import com.myapp.lexicon.settings.saveTestStateToPref
-import com.myapp.lexicon.settings.testIntervalFromPref
 import com.myapp.lexicon.viewmodels.AnimViewModel
 import com.myapp.lexicon.viewmodels.PageBackViewModel
 import com.yandex.mobile.ads.interstitial.InterstitialAd
