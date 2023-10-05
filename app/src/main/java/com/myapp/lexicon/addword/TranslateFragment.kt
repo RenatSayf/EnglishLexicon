@@ -140,8 +140,11 @@ class TranslateFragment : Fragment()
                             requireActivity(),
                             onImpression = { data ->
                                 adListener?.onAdImpression(data)
+                            },
+                            onDismissed = {
+                                parentFragmentManager.popBackStack()
                             }
-                        ) {
+                        )?: run {
                             parentFragmentManager.popBackStack()
                         }
                     }
@@ -150,9 +153,12 @@ class TranslateFragment : Fragment()
                             requireActivity(),
                             onImpression = { data ->
                                 adListener?.onAdImpression(data)
+                            },
+                            onDismissed = {
+                                requireActivity().finish()
                             }
-                        ) {
-                            requireActivity().finish()
+                        )?: run {
+                            parentFragmentManager.popBackStack()
                         }
                     }
                 }
@@ -173,7 +179,9 @@ class TranslateFragment : Fragment()
                         onDismissed = {
                             parentFragmentManager.popBackStack()
                         }
-                    )
+                    )?: run {
+                        parentFragmentManager.popBackStack()
+                    }
                 }
                 is TranslateActivity -> {
                     interstitialAd?.showAd(
@@ -184,7 +192,9 @@ class TranslateFragment : Fragment()
                         onDismissed = {
                             requireActivity().finish()
                         }
-                    )
+                    )?: run {
+                        parentFragmentManager.popBackStack()
+                    }
                 }
             }
         }
