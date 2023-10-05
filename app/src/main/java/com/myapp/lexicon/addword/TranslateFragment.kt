@@ -158,7 +158,7 @@ class TranslateFragment : Fragment()
                                 requireActivity().finish()
                             }
                         )?: run {
-                            parentFragmentManager.popBackStack()
+                            requireActivity().finish()
                         }
                     }
                 }
@@ -193,7 +193,7 @@ class TranslateFragment : Fragment()
                             requireActivity().finish()
                         }
                     )?: run {
-                        parentFragmentManager.popBackStack()
+                        requireActivity().finish()
                     }
                 }
             }
