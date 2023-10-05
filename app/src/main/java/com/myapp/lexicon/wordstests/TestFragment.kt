@@ -21,6 +21,8 @@ import com.jakewharton.rxbinding2.widget.RxTextView
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
+import com.myapp.lexicon.ads.InterstitialAdIds
+import com.myapp.lexicon.ads.RewardedAdIds
 import com.myapp.lexicon.ads.intrefaces.AdEventListener
 import com.myapp.lexicon.ads.showAd
 import com.myapp.lexicon.databinding.TestFragmentBinding
@@ -269,13 +271,13 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 TestViewModel.State.Init -> {
                     val wordIndex = testVM.wordIndex.value
                     wordIndex?.let { index ->
-                        if (index % 4 == 0) {
+                        if (index % 5 == 0) {
                             interstitialAd = null
-                            adsVM.loadRewardedAd()
+                            adsVM.loadRewardedAd(RewardedAdIds.REWARDED_1)
                         }
                         else {
                             rewardedAd = null
-                            adsVM.loadInterstitialAd()
+                            adsVM.loadInterstitialAd(InterstitialAdIds.INTERSTITIAL_4)
                         }
                     }
                 }

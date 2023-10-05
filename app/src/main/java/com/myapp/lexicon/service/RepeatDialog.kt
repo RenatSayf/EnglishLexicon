@@ -17,6 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
+import com.myapp.lexicon.ads.BannerAdIds
 import com.myapp.lexicon.ads.loadBanner
 import com.myapp.lexicon.databinding.SRepeatModalFragmentBinding
 import com.myapp.lexicon.helpers.showToast
@@ -79,7 +80,7 @@ class RepeatDialog: DialogFragment() {
 
         with(binding) {
 
-            bannerView.loadBanner()
+            bannerView.loadBanner(BannerAdIds.BANNER_3)
 
             val words = json.toWordList()
             if (words.isNotEmpty()) {

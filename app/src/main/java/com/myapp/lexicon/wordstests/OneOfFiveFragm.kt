@@ -18,6 +18,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.myapp.lexicon.R
 import com.myapp.lexicon.adapters.OneFiveTestAdapter
 import com.myapp.lexicon.ads.AdsViewModel
+import com.myapp.lexicon.ads.InterstitialAdIds
+import com.myapp.lexicon.ads.RewardedAdIds
 import com.myapp.lexicon.ads.intrefaces.AdEventListener
 import com.myapp.lexicon.ads.showAd
 import com.myapp.lexicon.databinding.OneOfFiveFragmNewBinding
@@ -95,7 +97,7 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
         wordList?.findItemWithoutRemainder(
             wordsInterval * 5,
             isRemainder = {
-                adsVM.loadInterstitialAd()
+                adsVM.loadInterstitialAd(InterstitialAdIds.INTERSTITIAL_3)
                 adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
                     result.onSuccess { ad ->
                         interstitialAd = ad
@@ -103,7 +105,7 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
                 }
             },
             noRemainder = {
-                adsVM.loadRewardedAd()
+                adsVM.loadRewardedAd(RewardedAdIds.REWARDED_1)
                 adsVM.rewardedAd.observe(viewLifecycleOwner) { result ->
                     result.onSuccess { ad ->
                         rewardedAd = ad
