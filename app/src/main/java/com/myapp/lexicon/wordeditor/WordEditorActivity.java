@@ -115,7 +115,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
         checkMove_OnClick();
 
         BannerAdView bannerView = findViewById(R.id.bannerView);
-        AdsViewModelKt.loadBanner(bannerView, BannerAdIds.BANNER_2);
+        AdsViewModelKt.loadBanner(bannerView, BannerAdIds.BANNER_4);
     }
 
     @SuppressWarnings("CodeBlock2Expr")

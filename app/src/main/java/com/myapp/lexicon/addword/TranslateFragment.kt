@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.BannerAdIds
+import com.myapp.lexicon.ads.InterstitialAdIds
 import com.myapp.lexicon.ads.intrefaces.AdEventListener
 import com.myapp.lexicon.ads.loadBanner
 import com.myapp.lexicon.ads.showAd
@@ -79,7 +80,7 @@ class TranslateFragment : Fragment()
         super.onViewCreated(view, savedInstanceState)
         binding = TranslateFragmentBinding.bind(view)
 
-        adsVM.loadInterstitialAd()
+        adsVM.loadInterstitialAd(InterstitialAdIds.INTERSTITIAL_1)
         adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
             result.onSuccess { ad ->
                 interstitialAd = ad
@@ -119,9 +120,7 @@ class TranslateFragment : Fragment()
                 loadProgress.visibility = View.GONE
             }
 
-            bannerView.loadBanner(
-                adId = BannerAdIds.BANNER_3
-            )
+            bannerView.loadBanner(adId = BannerAdIds.BANNER_1)
         }
 
     }
@@ -141,8 +140,11 @@ class TranslateFragment : Fragment()
                             requireActivity(),
                             onImpression = { data ->
                                 adListener?.onAdImpression(data)
+                            },
+                            onDismissed = {
+                                parentFragmentManager.popBackStack()
                             }
-                        ) {
+                        )?: run {
                             parentFragmentManager.popBackStack()
                         }
                     }
@@ -151,8 +153,11 @@ class TranslateFragment : Fragment()
                             requireActivity(),
                             onImpression = { data ->
                                 adListener?.onAdImpression(data)
+                            },
+                            onDismissed = {
+                                requireActivity().finish()
                             }
-                        ) {
+                        )?: run {
                             requireActivity().finish()
                         }
                     }
@@ -174,7 +179,9 @@ class TranslateFragment : Fragment()
                         onDismissed = {
                             parentFragmentManager.popBackStack()
                         }
-                    )
+                    )?: run {
+                        parentFragmentManager.popBackStack()
+                    }
                 }
                 is TranslateActivity -> {
                     interstitialAd?.showAd(
@@ -185,7 +192,9 @@ class TranslateFragment : Fragment()
                         onDismissed = {
                             requireActivity().finish()
                         }
-                    )
+                    )?: run {
+                        requireActivity().finish()
+                    }
                 }
             }
         }

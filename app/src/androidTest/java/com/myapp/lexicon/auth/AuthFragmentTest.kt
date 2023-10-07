@@ -38,7 +38,7 @@ class AuthFragmentTest {
 
         scenario.onActivity { activity ->
 
-            val fragment = AuthFragment.newInstance(object : AuthFragment.AuthListener {
+            val fragment = AuthFragment.newInstance(object : AuthListener {
                 override fun refreshAuthState(user: User) {}
             })
             activity.supportFragmentManager.beginTransaction().add(

@@ -20,6 +20,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
+import com.myapp.lexicon.ads.BannerAdIds
 import com.myapp.lexicon.ads.loadBanner
 import com.myapp.lexicon.databinding.STestModalFragmentBinding
 import com.myapp.lexicon.helpers.RandomNumberGenerator
@@ -92,7 +93,7 @@ class TestModeDialog : DialogFragment() {
 
         with(binding) {
 
-            bannerView.loadBanner()
+            bannerView.loadBanner(BannerAdIds.BANNER_3)
 
             words = json.toWordList()
             if (words.isNotEmpty()) {

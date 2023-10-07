@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="first_app_name">English</string>
     <string name="last_app_name">Lexicon</string>
     <string name="app_name">English Lexicon</string>
@@ -214,7 +214,7 @@
     <string name="text_logout">Выход из аккаунта</string>
     <string name="text_signout_message">Вы действительно хотите выйти из аккаунта? Тогда Вы не сможете получать вознаграждение. Продолжить?</string>
     <string name="text_you_are_signed_out">Вы вышли из аккаунта</string>
-    <string name="ya_metrica_api_key">31a17f0a-3956-4e9f-8edf-debdc1059e68</string>
+    <string name="ya_metrica_api_key" tools:ignore="TypographyDashes">31a17f0a-3956-4e9f-8edf-debdc1059e68</string>
     <string name="text_bank_name">Банк СБП</string>
 
     <string-array name="not_move">
@@ -237,16 +237,16 @@
 
     <string-array name="show_intervals">
         <item>Не показывать</item>
-        <item>через 1 мин</item>
         <item>через 5 мин</item>
         <item>через 10 мин</item>
+        <item>через 15 мин</item>
         <item>через 20 мин</item>
     </string-array>
     <string-array name="show_intervals_values">
         <item>0</item>
-        <item>1</item>
         <item>5</item>
         <item>10</item>
+        <item>15</item>
         <item>20</item>
     </string-array>
     <string-array name="words_interval">
