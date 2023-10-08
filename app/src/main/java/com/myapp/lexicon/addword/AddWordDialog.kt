@@ -36,12 +36,12 @@ class AddWordDialog : DialogFragment(),
         private var listener: Listener? = null
 
         fun newInstance(
-            list: ArrayList<String>,
+            list: List<String>,
             listener: Listener? = null
         ) : AddWordDialog = AddWordDialog().apply {
             this@Companion.listener = listener
             arguments = Bundle().apply {
-                putStringArrayList(WORD_LIST_TAG, list)
+                putStringArrayList(WORD_LIST_TAG, (list as java.util.ArrayList<String>))
             }
         }
     }
@@ -213,8 +213,9 @@ class AddWordDialog : DialogFragment(),
 
     override fun onDestroy()
     {
-        super.onDestroy()
         speaker.shutdown()
+        listener = null
+        super.onDestroy()
     }
 
     override fun onSuccessInit() {
