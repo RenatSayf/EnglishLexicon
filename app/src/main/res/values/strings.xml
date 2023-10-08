@@ -214,7 +214,7 @@
     <string name="text_logout">Выход из аккаунта</string>
     <string name="text_signout_message">Вы действительно хотите выйти из аккаунта? Тогда Вы не сможете получать вознаграждение. Продолжить?</string>
     <string name="text_you_are_signed_out">Вы вышли из аккаунта</string>
-    <string name="ya_metrica_api_key" tools:ignore="TypographyDashes">31a17f0a-3956-4e9f-8edf-debdc1059e68</string>
+    <string name="ya_metrica_api_key" tools:ignore="TypographyDashes">c94c303b-4981-4be6-890f-a9c6a7d09d6b</string>
     <string name="text_bank_name">Банк СБП</string>
 
     <string-array name="not_move">
