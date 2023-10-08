@@ -113,8 +113,10 @@ class TranslateFragment : Fragment()
                 if (!it.hasBeenHandled) {
                     val content = it.getContent()
                     if (!content.isNullOrEmpty()) {
-                        AddWordDialog.newInstance(content)
-                            .show(mActivity.supportFragmentManager, AddWordDialog.TAG)
+                        val inputList = if (!content[0].contains(Regex("[A-Za-z]"))) {
+                            content.reversed()
+                        } else content
+                        AddWordDialog.newInstance(inputList).show(mActivity.supportFragmentManager, AddWordDialog.TAG)
                     }
                 }
                 loadProgress.visibility = View.GONE
