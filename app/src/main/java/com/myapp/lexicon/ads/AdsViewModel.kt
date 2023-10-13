@@ -243,9 +243,9 @@ fun String.toAdData(
 
 private const val TEST_INTERSTITIAL_DATA = """{
   "currency": "RUB",
-  "revenueUSD": "0.2051",
+  "revenueUSD": "0.01051",
   "precision": "estimated",
-  "revenue": "20.0",
+  "revenue": "1.0",
   "requestId": "1694954665976270-617871108186477874100342-demo-interstitial-yandex",
   "blockId": "demo-interstitial-yandex",
   "adType": "interstitial",
@@ -259,9 +259,9 @@ private const val TEST_INTERSTITIAL_DATA = """{
 
 private const val TEST_REWARDED_DATA = """{
   "currency": "RUB",
-  "revenueUSD": "0.4051",
+  "revenueUSD": "0.02051",
   "precision": "estimated",
-  "revenue": "40.0",
+  "revenue": "2.0",
   "requestId": "1694954665976270-617871108186477874100342-demo-rewarded-yandex",
   "blockId": "demo-rewarded-yandex",
   "adType": "interstitial",
