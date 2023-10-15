@@ -22,9 +22,10 @@
             android:layout_height="80dp"
             android:layout_gravity="center"
             android:id="@+id/imageView"
-            android:src="@drawable/icon_lexicon"
+            android:src="@drawable/ic_logo_rounded_corners"
             android:layout_marginStart="10dp"
-            tools:ignore="ContentDescription" />
+            tools:ignore="ContentDescription"
+            android:elevation="120dp"/>
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="wrap_content"
