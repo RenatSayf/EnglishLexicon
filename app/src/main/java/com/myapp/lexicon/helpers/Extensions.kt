@@ -23,9 +23,12 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.SnackBarTestBinding
+import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.schedule.AlarmScheduler
 import com.myapp.lexicon.schedule.AppNotification
@@ -295,6 +298,40 @@ fun List<Word>.findItemWithoutRemainder(
     }
     else {
         isRemainder.invoke()
+    }
+}
+
+fun AppCompatActivity.showSignUpBenefitsDialog(
+    onPositiveClick: () -> Unit,
+    onCancel: () -> Unit = {}
+) {
+    val explainMessage = Firebase.remoteConfig.getString("sign_up_benefits_message")
+    if (explainMessage.isNotEmpty()) {
+        ConfirmDialog.newInstance(onLaunch = { dialog, binding ->
+            with(binding) {
+                dialog.isCancelable = false
+                ivIcon.visibility = View.INVISIBLE
+                tvEmoji2.visibility = View.GONE
+                tvEmoji.apply {
+                    visibility = View.VISIBLE
+                    text = getString(R.string.coins_bag)
+                }
+                tvMessage.text = explainMessage
+                btnCancel.apply {
+                    visibility = View.VISIBLE
+                    setOnClickListener {
+                        dialog.dismiss()
+                        onCancel.invoke()
+                    }
+                }
+                btnOk.apply {
+                    text = this@showSignUpBenefitsDialog.getString(R.string.text_go_over)
+                }.setOnClickListener {
+                    dialog.dismiss()
+                    onPositiveClick.invoke()
+                }
+            }
+        }).show(this.supportFragmentManager, ConfirmDialog.TAG)
     }
 }
 

@@ -145,7 +145,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         authVM = new ViewModelProvider(this).get(AuthViewModel.class);
 
         authVM.getState().observe(this, result -> {
-            result.onInit(() -> null);
+            result.onInit(() -> {
+                boolean isFirstLaunch = SettingsExtKt.getCheckFirstLaunch(this);
+                if (isFirstLaunch) {
+                    ExtensionsKt.showSignUpBenefitsDialog(
+                            this,
+                            () -> {
+                                AuthFragment authFragment = AuthFragment.Companion.newInstance(this);
+                                getSupportFragmentManager()
+                                        .beginTransaction()
+                                        .replace(R.id.frame_to_page_fragm, authFragment)
+                                        .addToBackStack(null)
+                                        .commit();
+                                return null;
+                            },
+                            () -> null
+                    );
+                }
+                return null;
+            });
             result.onNotRegistered(() -> {
                 navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_get_reward);
                 return null;
@@ -507,13 +525,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void buildRewardText(User user) {
         if (user != null)
         {
-            double rewardToDisplay = UserKt.to2DigitsScale(user.getUserReward());
-            TextView tvReward = root.findViewById(R.id.tvReward);
-            String text = getString(R.string.text_your_reward).concat(" ").concat(String.valueOf(rewardToDisplay)).concat(" ").concat(user.getCurrencySymbol());
-            if (tvReward != null)
+            Toolbar toolBar = root.findViewById(R.id.tool_bar);
+            if (toolBar != null)
             {
-                tvReward.setText(text);
-                tvReward.setVisibility(View.VISIBLE);
+                double rewardToDisplay = UserKt.to2DigitsScale(user.getUserReward());
+                if (rewardToDisplay > 0.0)
+                {
+                    String text = getString(R.string.coins_bag).concat(" ")
+                            .concat(getString(R.string.text_your_reward)).concat(" ")
+                            .concat(String.valueOf(rewardToDisplay)).concat(" ")
+                            .concat(user.getCurrencySymbol());
+                    toolBar.setSubtitle(text);
+
+                    TextView tvReward = root.findViewById(R.id.tvReward);
+                    if (tvReward != null)
+                    {
+                        tvReward.setText(text);
+                        tvReward.setVisibility(View.VISIBLE);
+                    }
+                }
             }
         }
     }
@@ -628,6 +658,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             if (BuildConfig.DEBUG) e.printStackTrace();
         }
+        SettingsExtKt.setCheckFirstLaunch(MainActivity.this, false);
         super.onDestroy();
     }
 
@@ -974,13 +1005,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                             showCloudDialog();
                                         }
                                         menu.findItem(R.id.cloud_storage).setVisible(true);
-                                        SettingsExtKt.setCheckFirstLaunch(MainActivity.this, false);
                                     }
 
                                     @Override
                                     public void onNotRequireSync()
                                     {
-                                        SettingsExtKt.setCheckFirstLaunch(MainActivity.this, false);
+                                        //SettingsExtKt.setCheckFirstLaunch(MainActivity.this, false);
                                         menu.findItem(R.id.cloud_storage).setVisible(false);
                                     }
                                 }

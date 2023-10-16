@@ -216,6 +216,7 @@
     <string name="text_you_are_signed_out">Вы вышли из аккаунта</string>
     <string name="ya_metrica_api_key" tools:ignore="TypographyDashes">c94c303b-4981-4be6-890f-a9c6a7d09d6b</string>
     <string name="text_bank_name">Банк СБП</string>
+    <string name="text_go_over">Перейти</string>
 
     <string-array name="not_move">
         <item>Не перемещать</item>
