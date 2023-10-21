@@ -1,7 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="first_app_name">English</string>
-    <string name="last_app_name">Lexicon</string>
-    <string name="app_name">English Lexicon</string>
+    <string name="first_app_name">Английский</string>
+    <string name="last_app_name">Лексикон</string>
+    <string name="app_name">Английский Лексикон</string>
     <string name="app_link">https://play.google.com/store/apps/details?id=</string>
 
     <string name="admob_app_id">ca-app-pub-1615119435047194~1180910418</string>

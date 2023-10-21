@@ -170,7 +170,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             });
             result.onSignUp(user -> {
                 navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_account);
-                //userVM.addUserIfNotExists(user);
                 return null;
             });
             result.onSignIn(user -> {
