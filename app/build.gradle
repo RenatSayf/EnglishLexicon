@@ -161,6 +161,9 @@ dependencies {
     //Kotlin Serialization
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.6.0'
 
+    //back4app
+    implementation "com.github.parse-community.Parse-SDK-Android:parse:4.2.1"
+
 }
 
 

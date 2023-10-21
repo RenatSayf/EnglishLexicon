@@ -14,6 +14,8 @@ import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
+import com.parse.Parse
+import com.parse.ParseConfig
 import com.yandex.metrica.YandexMetrica
 import com.yandex.metrica.YandexMetricaConfig
 import com.yandex.mobile.ads.common.InitializationListener
@@ -34,11 +36,10 @@ class App : Application(), Configuration.Provider {
         FirebaseApp.initializeApp(this)
         val remoteConfig: FirebaseRemoteConfig = Firebase.remoteConfig
         val configSettings = remoteConfigSettings {
-            if (BuildConfig.DEBUG) {
-                minimumFetchIntervalInSeconds = 60
-            }
-            else {
-                minimumFetchIntervalInSeconds = 3600
+            minimumFetchIntervalInSeconds = if (BuildConfig.DEBUG) {
+                60
+            } else {
+                3600
             }
         }
         remoteConfig.apply {
@@ -59,6 +60,14 @@ class App : Application(), Configuration.Provider {
                 }
             }
         })
+
+        Parse.initialize(
+            Parse.Configuration.Builder(this).apply {
+                applicationId(getString(R.string.back4app_app_id))
+                clientKey(getString(R.string.back4app_client_key))
+                server(getString(R.string.back4app_server_url))
+            }.build()
+        )
     }
 
     override fun getWorkManagerConfiguration(): Configuration {

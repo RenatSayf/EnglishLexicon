@@ -8,8 +8,6 @@ dependencyResolutionManagement {
         maven {
             url 'https://maven.google.com'
         }
-        maven {
-            url "https://artifactory.appodeal.com/appodeal-beta-public"
-        }
+        maven { url 'https://jitpack.io' }
     }
 }
