@@ -25,8 +25,6 @@ import android.widget.Toast;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
@@ -65,6 +63,7 @@ import com.myapp.lexicon.settings.SettingsExtKt;
 import com.myapp.lexicon.wordeditor.WordEditorActivity;
 import com.myapp.lexicon.wordstests.OneOfFiveFragm;
 import com.myapp.lexicon.wordstests.TestFragment;
+import com.parse.ParseUser;
 import com.yandex.mobile.ads.banner.BannerAdView;
 
 import java.io.File;
@@ -744,12 +743,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         return null;
                     },
                     (email, password) -> {
-                        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                        ParseUser currentUser = ParseUser.getCurrentUser();
                         if (currentUser != null)
                         {
                             AccountFragment accountFragment = AccountFragment.Companion.newInstance(
-                                    currentUser.getUid(),
-                                    password,
+                                    currentUser.getObjectId(),
                                     MainActivity.this
                             );
                             transaction.replace(R.id.frame_to_page_fragm, accountFragment).addToBackStack(null).commit();

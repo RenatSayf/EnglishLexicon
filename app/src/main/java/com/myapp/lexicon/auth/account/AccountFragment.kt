@@ -33,7 +33,6 @@ import com.myapp.lexicon.models.UserState
 import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.settings.clearEmailPasswordInPref
 import com.myapp.lexicon.settings.getAuthDataFromPref
-import com.myapp.lexicon.settings.saveUserToPref
 import kotlinx.coroutines.launch
 
 
@@ -42,12 +41,11 @@ class AccountFragment : Fragment() {
     companion object {
 
         private var userId: String? = null
-        private var password: String? = null
+
         private var listener: AuthListener? = null
-        fun newInstance(userId: String, password: String, listener: AuthListener?): AccountFragment {
+        fun newInstance(userId: String, listener: AuthListener?): AccountFragment {
 
             this.userId = userId
-            this.password = password
             this.listener = listener
             return AccountFragment()
         }
@@ -123,9 +121,6 @@ class AccountFragment : Fragment() {
                         requireContext().getAuthDataFromPref(
                             onNotRegistered = {
                                 showInfoDialog()
-                                requireContext().saveUserToPref(state.user.apply {
-                                    password = AccountFragment.password?: ""
-                                })
                             }
                         )
                         handleUserData(state.user)
@@ -166,7 +161,7 @@ class AccountFragment : Fragment() {
                             User.KEY_FIRST_NAME to tvFirstNameValue.text.toString(),
                             User.KEY_LAST_NAME to tvLastNameValue.text.toString()
                         )
-                        userVM.addUserToStorage(user.id, userMap, isNew = false)
+                        userVM.saveUserDataToStorage(user.id, userMap)
                         accountVM.setState(AccountViewModel.State.ReadOnly)
                     }
                     is AccountViewModel.State.OnValid -> {
@@ -329,7 +324,10 @@ class AccountFragment : Fragment() {
                                 this[User.KEY_FIRST_NAME] = tvFirstNameValue.text.toString()
                                 this[User.KEY_LAST_NAME] = tvLastNameValue.text.toString()
                             }
-                            userVM.addUserToStorage(user.id, userMap, isNew = false).observe(viewLifecycleOwner) { result ->
+                            userVM.saveUserDataToStorage(
+                                user.id,
+                                userMap
+                            ).observe(viewLifecycleOwner) { result ->
                                 result.onSuccess { id ->
                                     userVM.getUserFromCloud(id)
                                     showConfirmDialog()

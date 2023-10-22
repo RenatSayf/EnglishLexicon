@@ -1,4 +1,4 @@
-@file:Suppress("UnnecessaryVariable")
+@file:Suppress("UnnecessaryVariable", "ObjectLiteralToLambda")
 
 package com.myapp.lexicon.main.viewmodels
 
@@ -8,7 +8,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.firestoreSettings
 import com.google.firebase.ktx.Firebase
@@ -20,6 +19,11 @@ import com.myapp.lexicon.helpers.toStringTime
 import com.myapp.lexicon.interfaces.FlowCallback
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.to2DigitsScale
+import com.parse.GetCallback
+import com.parse.ParseException
+import com.parse.ParseObject
+import com.parse.ParseQuery
+import com.parse.SaveCallback
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -88,28 +92,24 @@ class UserViewModel @Inject constructor(
 
     fun getUserFromCloud(userId: String) {
         _loadingState.value = LoadingState.Start
-        db.collection(COLLECTION_PATH)
-            .document(userId)
-            .get()
-            .addOnSuccessListener { document ->
-                val data = document.data as? Map<String, Any?>
-                if (data != null) {
-                    val user = data.mapToUser(userId)
+
+        val parseQuery = ParseQuery.getQuery<ParseObject>("_User")
+        parseQuery.whereEqualTo("objectId", userId)
+        parseQuery.getFirstInBackground(object : GetCallback<ParseObject> {
+            override fun done(obj: ParseObject?, e: ParseException?) {
+                if (obj is ParseObject) {
+                    val user = obj.mapToUser(userId)
                     _user.value = user
                     _state.value = State.ReceivedUserData(user)
                     _stateFlow.value = State.ReceivedUserData(user)
                 }
-                else {
-                    _state.value = State.Error(app.getString(R.string.text_user_not_found))
+                else if (e is ParseException) {
+                    e.printStackTrace()
+                    _state.value = State.Error(e.message?: "Unknown error")
                 }
-            }
-            .addOnFailureListener { ex ->
-                ex.printStackTrace()
-                _state.value = State.Error(ex.message?: "Unknown error")
-            }
-            .addOnCompleteListener {
                 _loadingState.value = LoadingState.Complete
             }
+        })
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -151,20 +151,20 @@ class UserViewModel @Inject constructor(
                                     .get()
                                     .addOnCompleteListener { snapshot ->
                                         if (snapshot.isSuccessful) {
-                                            val data = snapshot.result.data
-                                            data?.let {
-                                                val user = it.mapToUser(userId)
-                                                _user.value = user
-                                                _state.value = State.RevenueUpdated(adData.revenue, user)
-                                                _stateFlow.value = State.RevenueUpdated(adData.revenue, user)
-                                            }?: run {
-                                                val exception = snapshot.exception
-                                                if (BuildConfig.DEBUG) {
-                                                    exception?.printStackTrace()
-                                                }
-                                                _state.value = State.Error(exception?.message?: "Unknown error")
-                                                _stateFlow.value = State.Error(exception?.message?: "Unknown error")
-                                            }
+//                                            val data = snapshot.result.data
+//                                            data?.let {
+//                                                val user = it.mapToUser(userId)
+//                                                _user.value = user
+//                                                _state.value = State.RevenueUpdated(adData.revenue, user)
+//                                                _stateFlow.value = State.RevenueUpdated(adData.revenue, user)
+//                                            }?: run {
+//                                                val exception = snapshot.exception
+//                                                if (BuildConfig.DEBUG) {
+//                                                    exception?.printStackTrace()
+//                                                }
+//                                                _state.value = State.Error(exception?.message?: "Unknown error")
+//                                                _stateFlow.value = State.Error(exception?.message?: "Unknown error")
+//                                            }
                                         }
                                         else {
                                             val exception = snapshot.exception
@@ -208,32 +208,33 @@ class UserViewModel @Inject constructor(
             }
     }
 
-    fun addUserToStorage(userId: String, userMap: Map<String, Any?>, isNew: Boolean = false): LiveData<Result<String>> {
+    fun saveUserDataToStorage(userId: String, userMap: Map<String, Any?>): LiveData<Result<String>> {
         _loadingState.value = LoadingState.Start
-
         val result = MutableLiveData<Result<String>>()
-        db.collection(COLLECTION_PATH)
-            .document(userId)
-            .run {
-                if (isNew) {
-                    set(userMap)
+
+        val parseObject = ParseObject("_User")
+        userMap.forEach { entry ->
+            parseObject.put(entry.key, entry.value?: "")
+        }
+        parseObject.objectId = userId
+        parseObject.saveInBackground(object : SaveCallback {
+            override fun done(e: ParseException?) {
+                if (e is ParseException) {
+                    if (BuildConfig.DEBUG) {
+                        e.printStackTrace()
+                    }
+                    if (e.code == ParseException.OBJECT_NOT_FOUND) {
+                        saveUserDataToStorage("", userMap)
+                    } else {
+                        result.value = Result.failure(e)
+                    }
                 }
                 else {
-                    update(userMap)
+                    result.value = Result.success(userId)
                 }
-            }
-            .addOnSuccessListener {
-                result.value = Result.success(userId)
-            }
-            .addOnFailureListener { ex ->
-                if (BuildConfig.DEBUG) {
-                    ex.printStackTrace()
-                }
-                result.value = Result.failure(ex as FirebaseFirestoreException)
-            }
-            .addOnCompleteListener {
                 _loadingState.value = LoadingState.Complete
             }
+        })
         return result
     }
 
@@ -266,7 +267,7 @@ class UserViewModel @Inject constructor(
         }
     }
 
-    private fun Map<String, Any?>.mapToUser(userId: String): User {
+    private fun ParseObject.mapToUser(userId: String): User {
         return User(userId).apply {
             var value = this@mapToUser[User.KEY_REVENUE_USD]
             this.revenueUSD = if (value is Number) value.toDouble() else 0.0

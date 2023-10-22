@@ -9,7 +9,6 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.google.firebase.firestore.FirebaseFirestoreException
 import com.myapp.lexicon.R
 import com.myapp.lexicon.auth.account.AccountFragment
 import com.myapp.lexicon.auth.agreement.UserAgreementDialog
@@ -18,9 +17,9 @@ import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.isItEmail
 import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.main.MainActivity
-import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserState
+import com.myapp.lexicon.settings.saveUserToPref
 
 class AuthFragment : Fragment() {
 
@@ -36,7 +35,6 @@ class AuthFragment : Fragment() {
 
     private lateinit var binding: FragmentAuthBinding
     private val authVM: AuthViewModel by viewModels()
-    private val userVM: UserViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -145,11 +143,11 @@ class AuthFragment : Fragment() {
                 }
                 state.onSignUp { user ->
                     showSnackBar(getString(R.string.text_user_is_registered))
-                    handleAuthorization(user, isNew = true)
+                    handleAuthorization(user)
                 }
                 state.onSignIn { user ->
                     showSnackBar(getString(R.string.text_login_completed))
-                    handleAuthorization(user, isNew = false)
+                    handleAuthorization(user)
                 }
                 state.onEmailValid { flag ->
                     if (flag) {
@@ -173,6 +171,7 @@ class AuthFragment : Fragment() {
                     showSnackBar(getString(R.string.text_check_email))
                 }
                 state.onNotRegistered {
+                    etPassword.text?.clear()
                     btnRegistration.visibility = View.VISIBLE
                     showSnackBar(getString(R.string.text_user_not_found))
                 }
@@ -184,32 +183,21 @@ class AuthFragment : Fragment() {
         }
     }
 
-    private fun handleAuthorization(user: User, isNew: Boolean) {
+    private fun handleAuthorization(user: User) {
         with(binding) {
             progressBar.visibility = View.VISIBLE
             listener?.refreshAuthState(user)
-            userVM.addUserToStorage(
+
+            progressBar.visibility = View.GONE
+
+            requireContext().saveUserToPref(user.apply {
+                password = etPassword.text.toString()
+            })
+            val accountFragment = AccountFragment.newInstance(
                 user.id,
-                mapOf(User.KEY_EMAIL to etEmail.text.toString().trim()),
-                isNew
-            ).observe(viewLifecycleOwner) { result ->
-                result.onSuccess { id ->
-                    progressBar.visibility = View.GONE
-                    val password = etPassword.text.toString().trim()
-                    val accountFragment = AccountFragment.newInstance(id, password, (requireActivity() as MainActivity))
-                    parentFragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, accountFragment).addToBackStack(null).commit()
-                }
-                result.onFailure { exception ->
-                    val fireStoreException = exception as FirebaseFirestoreException
-                    if (fireStoreException.code == FirebaseFirestoreException.Code.NOT_FOUND) {
-                        handleAuthorization(user, isNew = true)
-                    }
-                    else {
-                        progressBar.visibility = View.GONE
-                        showSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
-                    }
-                }
-            }
+                (requireActivity() as MainActivity)
+            )
+            parentFragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, accountFragment).addToBackStack(null).commit()
         }
     }
 
