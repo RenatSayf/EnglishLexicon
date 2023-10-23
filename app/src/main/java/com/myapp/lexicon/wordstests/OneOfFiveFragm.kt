@@ -14,7 +14,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.firebase.auth.FirebaseAuth
 import com.myapp.lexicon.R
 import com.myapp.lexicon.adapters.OneFiveTestAdapter
 import com.myapp.lexicon.ads.AdsViewModel
@@ -30,6 +29,7 @@ import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.adsIsEnabled
 import com.myapp.lexicon.settings.testIntervalFromPref
+import com.parse.ParseUser
 import com.yandex.mobile.ads.interstitial.InterstitialAd
 import com.yandex.mobile.ads.rewarded.RewardedAd
 import dagger.hilt.android.AndroidEntryPoint
@@ -44,9 +44,6 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
     private lateinit var binding: OneOfFiveFragmNewBinding
     private lateinit var vm: OneOfFiveViewModel
     private lateinit var mActivity: MainActivity
-    private val auth: FirebaseAuth by lazy {
-        FirebaseAuth.getInstance()
-    }
     private val adsVM: AdsViewModel by viewModels()
     private var interstitialAd: InterstitialAd? = null
     private var rewardedAd: RewardedAd? = null
@@ -308,12 +305,12 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
     ) {
         if (this.adsIsEnabled) {
 
-            val firebaseUser = auth.currentUser
+            val currentUser = ParseUser.getCurrentUser()
 
             interstitialAd?.showAd(
                 requireActivity(),
                 onImpression = { data ->
-                    if (firebaseUser != null) {
+                    if (currentUser != null) {
                         adListener?.onAdImpression(data)
                     }
                 }, onDismissed = {
@@ -324,7 +321,7 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
             rewardedAd?.showAd(
                 requireActivity(),
                 onImpression = { data ->
-                    if (firebaseUser != null) {
+                    if (currentUser != null) {
                         adListener?.onAdImpression(data)
                     }
                 }, onDismissed = {

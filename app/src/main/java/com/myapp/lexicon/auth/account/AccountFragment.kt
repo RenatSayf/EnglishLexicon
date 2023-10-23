@@ -162,7 +162,7 @@ class AccountFragment : Fragment() {
                             User.KEY_FIRST_NAME to tvFirstNameValue.text.toString(),
                             User.KEY_LAST_NAME to tvLastNameValue.text.toString()
                         )
-                        userVM.updateUserDataIntoCloud(user.id, userMap).observe(viewLifecycleOwner) { result ->
+                        userVM.updateUserDataIntoCloud(userMap).observe(viewLifecycleOwner) { result ->
                             result.onSuccess {
                                 userVM.setState(UserViewModel.State.PersonalDataUpdated(user))
                             }
@@ -336,7 +336,6 @@ class AccountFragment : Fragment() {
                                 this[User.KEY_LAST_NAME] = tvLastNameValue.text.toString()
                             }
                             userVM.updateUserDataIntoCloud(
-                                user.id,
                                 userMap
                             ).observe(viewLifecycleOwner) { result ->
                                 result.onSuccess { id ->

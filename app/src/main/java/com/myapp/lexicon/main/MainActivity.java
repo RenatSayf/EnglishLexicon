@@ -1161,7 +1161,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             User user = userVM.getUser().getValue();
             if (user != null)
             {
-                userVM.updateUserRevenue(data, user.getId());
+                userVM.updateUserRevenueIntoCloud(data);
             }
         }
     }

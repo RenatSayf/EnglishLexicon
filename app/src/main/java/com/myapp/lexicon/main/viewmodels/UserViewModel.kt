@@ -7,14 +7,10 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.firestore.ktx.firestoreSettings
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.ads.models.AdData
-import com.myapp.lexicon.helpers.toStringTime
 import com.myapp.lexicon.interfaces.FlowCallback
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.to2DigitsScale
@@ -22,6 +18,7 @@ import com.parse.GetCallback
 import com.parse.ParseException
 import com.parse.ParseObject
 import com.parse.ParseQuery
+import com.parse.ParseUser
 import com.parse.SaveCallback
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,7 +32,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class UserViewModel @Inject constructor(
-    private val app: Application
+    app: Application
 ) : AndroidViewModel(app) {
     companion object {
 
@@ -74,11 +71,6 @@ class UserViewModel @Inject constructor(
         _stateFlow.value = state
     }
 
-    private val db: FirebaseFirestore = Firebase.firestore.apply {
-        val settings = firestoreSettings { isPersistenceEnabled = true }
-        this.firestoreSettings = settings
-    }
-
     private var _user = MutableLiveData<User?>(null)
     val user: LiveData<User?> = _user
 
@@ -115,112 +107,15 @@ class UserViewModel @Inject constructor(
         })
     }
 
-    @Suppress("UNCHECKED_CAST")
-    fun updateUserRevenue(adData: AdData, userId: String) {
-
-        _loadingState.value = LoadingState.Start
-        db.collection(COLLECTION_PATH)
-            .document(userId)
-            .get()
-            .addOnSuccessListener { snapshot ->
-                if (snapshot.data != null) {
-                    if (adData.revenueUSD > 0) {
-                        val remoteUserData = snapshot.data as Map<String, Comparable<Any>>
-                        val userReward = calcUserReward(adData.revenue, USER_PERCENTAGE, remoteUserData)
-                        val totalRevenue = calcTotalRevenue(adData.revenue, remoteUserData, User.KEY_TOTAL_REVENUE)
-                        val revenueUSD = calcTotalRevenue(adData.revenueUSD, remoteUserData, User.KEY_REVENUE_USD)
-                        val currency = adData.currency
-                        val currencySymbol = Currency.getInstance(currency).symbol
-                        val currencyRate = (adData.revenue / adData.revenueUSD).to2DigitsScale()
-
-                        val revenueMap = mapOf(
-                            User.KEY_REVENUE_USD to revenueUSD,
-                            User.KEY_USER_REWARD to userReward,
-                            User.KEY_TOTAL_REVENUE to totalRevenue,
-                            User.KEY_CURRENCY to currency,
-                            User.KEY_CURRENCY_SYMBOL to currencySymbol,
-                            User.KEY_CURRENCY_RATE to currencyRate,
-                            User.KEY_LAST_UPDATE_TIME to System.currentTimeMillis().toStringTime()
-                        )
-
-                        _loadingState.value = LoadingState.Start
-                        db.collection(COLLECTION_PATH)
-                            .document(userId)
-                            .update(revenueMap)
-                            .addOnSuccessListener {
-
-                                db.collection(COLLECTION_PATH)
-                                    .document(userId)
-                                    .get()
-                                    .addOnCompleteListener { snapshot ->
-                                        if (snapshot.isSuccessful) {
-//                                            val data = snapshot.result.data
-//                                            data?.let {
-//                                                val user = it.mapToUser(userId)
-//                                                _user.value = user
-//                                                _state.value = State.RevenueUpdated(adData.revenue, user)
-//                                                _stateFlow.value = State.RevenueUpdated(adData.revenue, user)
-//                                            }?: run {
-//                                                val exception = snapshot.exception
-//                                                if (BuildConfig.DEBUG) {
-//                                                    exception?.printStackTrace()
-//                                                }
-//                                                _state.value = State.Error(exception?.message?: "Unknown error")
-//                                                _stateFlow.value = State.Error(exception?.message?: "Unknown error")
-//                                            }
-                                        }
-                                        else {
-                                            val exception = snapshot.exception
-                                            if (BuildConfig.DEBUG) {
-                                                exception?.printStackTrace()
-                                            }
-                                            _state.value = State.Error(exception?.message?: "Unknown error")
-                                            _stateFlow.value = State.Error(exception?.message?: "Unknown error")
-                                        }
-                                        _loadingState.value = LoadingState.Complete
-                                    }
-                            }
-                            .addOnFailureListener { ex ->
-                                if (BuildConfig.DEBUG) {
-                                    ex.printStackTrace()
-                                }
-                                _state.value = State.Error(ex.message?: "Unknown error")
-                                _stateFlow.value = State.Error(ex.message?: "Unknown error")
-                            }
-                            .addOnCompleteListener {
-                                _loadingState.value = LoadingState.Complete
-                            }
-                    } else {
-                        if (BuildConfig.DEBUG) {
-                            val message =
-                                "******************** A zero revenue value cannot be sent: ${adData.revenue} ************"
-                            Throwable(message).printStackTrace()
-                        }
-                    }
-                }
-            }
-            .addOnFailureListener { ex ->
-                if (BuildConfig.DEBUG) {
-                    ex.printStackTrace()
-                }
-                _state.value = State.Error(ex.message?: "Unknown error")
-                _stateFlow.value = State.Error(ex.message?: "Unknown error")
-            }
-            .addOnCompleteListener {
-                _loadingState.value = LoadingState.Complete
-            }
-    }
-
-    fun updateUserDataIntoCloud(userId: String, userMap: Map<String, Any?>): LiveData<Result<String>> {
+    fun updateUserDataIntoCloud(userMap: Map<String, Any?>): LiveData<Result<String>> {
         _loadingState.value = LoadingState.Start
         val result = MutableLiveData<Result<String>>()
 
-        val parseObject = ParseObject.create("_User")
+        val currentUser = ParseUser.getCurrentUser()
         userMap.forEach { entry ->
-            parseObject.put(entry.key, entry.value?: "")
+            currentUser.put(entry.key, entry.value?: "")
         }
-        parseObject.objectId = userId
-        parseObject.saveInBackground(object : SaveCallback {
+        currentUser.saveInBackground(object : SaveCallback {
             override fun done(e: ParseException?) {
                 if (e is ParseException) {
                     if (BuildConfig.DEBUG) {
@@ -229,12 +124,58 @@ class UserViewModel @Inject constructor(
                     result.value = Result.failure(e)
                 }
                 else {
-                    result.value = Result.success(userId)
+                    result.value = Result.success(currentUser.objectId)
                 }
                 _loadingState.value = LoadingState.Complete
             }
         })
         return result
+    }
+
+    fun updateUserRevenueIntoCloud(adData: AdData) {
+        _loadingState.value = LoadingState.Start
+        val currentUser = ParseUser.getCurrentUser()
+        if (currentUser is ParseUser) {
+            if (adData.revenueUSD > 0.0) {
+                currentUser.apply {
+                    increment(User.KEY_REVENUE_USD, adData.revenueUSD)
+                    increment(User.KEY_TOTAL_REVENUE, adData.revenue)
+                    increment(User.KEY_USER_REWARD, adData.revenue * USER_PERCENTAGE)
+                    put(User.KEY_CURRENCY, adData.currency.toString())
+                    val currencySymbol = Currency.getInstance(adData.currency).symbol
+                    put(User.KEY_CURRENCY_SYMBOL, currencySymbol)
+                    val currencyRate = (adData.revenue / adData.revenueUSD).to2DigitsScale()
+                    put(User.KEY_CURRENCY_RATE, currencyRate)
+                }
+                currentUser.saveInBackground(object : SaveCallback {
+                    override fun done(e: ParseException?) {
+                        if (e is ParseException) {
+                            if (BuildConfig.DEBUG) {
+                                e.printStackTrace()
+                            }
+                            _state.value = State.Error(e.message?: "Unknown error")
+                            _stateFlow.value = State.Error(e.message?: "Unknown error")
+                        }
+                        else {
+                            val user = currentUser.mapToUser(currentUser.objectId)
+                            _user.value = user
+                            _state.value = State.RevenueUpdated(adData.revenue, user)
+                            _stateFlow.value = State.RevenueUpdated(adData.revenue, user)
+                        }
+                        _loadingState.value = LoadingState.Complete
+                    }
+                })
+            }
+            else {
+                if (BuildConfig.DEBUG) {
+                    val message =
+                        "******************** A zero revenue value cannot be sent: ${adData.revenue} ************"
+                    Throwable(message).printStackTrace()
+                }
+                _loadingState.value = LoadingState.Complete
+            }
+        }
+        else _loadingState.value = LoadingState.Complete
     }
 
     fun<T> calcUserReward(
@@ -249,20 +190,6 @@ class UserViewModel @Inject constructor(
         }
         else {
             revenuePerAd * userPercentage
-        }
-    }
-
-    private fun<T> calcTotalRevenue(
-        revenuePerAd: Double,
-        remoteUserData: Map<String, Comparable<T>?>,
-        mapKey: String
-    ): Double {
-        val currentRevenue = remoteUserData[mapKey]
-        return if (currentRevenue != null && currentRevenue is Number) {
-            val newRevenue = currentRevenue.toDouble() + revenuePerAd
-            newRevenue
-        } else {
-            revenuePerAd
         }
     }
 

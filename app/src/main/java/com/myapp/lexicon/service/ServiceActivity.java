@@ -18,7 +18,6 @@ import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.interfaces.IModalFragment;
 import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.viewmodels.UserViewModel;
-import com.myapp.lexicon.models.User;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.models.WordKt;
 import com.myapp.lexicon.settings.SettingsExtKt;
@@ -166,9 +165,8 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                         adData -> {
                             userVM.getState().observe(this, state -> {
                                 if (state instanceof UserViewModel.State.ReceivedUserData) {
-                                    User user = ((UserViewModel.State.ReceivedUserData) state).getUser();
                                     if (adData != null) {
-                                        userVM.updateUserRevenue(adData, user.getId());
+                                        userVM.updateUserRevenueIntoCloud(adData);
                                     }
                                 }
                             });

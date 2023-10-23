@@ -14,6 +14,7 @@ import com.myapp.lexicon.settings.getAuthDataFromPref
 import com.parse.LogInCallback
 import com.parse.ParseException
 import com.parse.ParseUser
+import com.parse.RequestPasswordResetCallback
 import com.parse.SignUpCallback
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -119,20 +120,19 @@ class AuthViewModel @Inject constructor(
 
         _loadingState.value = LoadingState.Start
 
-
-
-//        auth.sendPasswordResetEmail(email)
-//            .addOnCompleteListener { task ->
-//                if (task.isSuccessful) {
-//                    _state.value = UserState.PasswordReset
-//                    _stateFlow.value = UserState.PasswordReset
-//                } else {
-//                    val exception = task.exception as FirebaseAuthException
-//                    _state.value = UserState.Failure(exception)
-//                    _stateFlow.value = UserState.Failure(exception)
-//                }
-//                _loadingState.value = LoadingState.Complete
-//            }
+        ParseUser.requestPasswordResetInBackground(email, object : RequestPasswordResetCallback {
+            override fun done(e: ParseException?) {
+                if (e == null) {
+                    _state.value = UserState.PasswordReset
+                    _stateFlow.value = UserState.PasswordReset
+                }
+                else {
+                    _state.value = UserState.Failure(e)
+                    _stateFlow.value = UserState.Failure(e)
+                }
+                _loadingState.value = LoadingState.Complete
+            }
+        })
     }
 
 
