@@ -190,8 +190,9 @@ class AuthFragment : Fragment() {
 
             progressBar.visibility = View.GONE
 
+            val password = etPassword.text.toString()
             requireContext().saveUserToPref(user.apply {
-                password = etPassword.text.toString()
+                this.password = password
             })
             val accountFragment = AccountFragment.newInstance(
                 user.id,

@@ -13,7 +13,6 @@ import com.google.firebase.firestore.ktx.firestoreSettings
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
-import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.helpers.toStringTime
 import com.myapp.lexicon.interfaces.FlowCallback
@@ -70,6 +69,11 @@ class UserViewModel @Inject constructor(
     private var _stateFlow = MutableStateFlow<State>(State.Init)
     val stateFlow: StateFlow<State> = _stateFlow
 
+    fun setState(state: State) {
+        _state.value = state
+        _stateFlow.value = state
+    }
+
     private val db: FirebaseFirestore = Firebase.firestore.apply {
         val settings = firestoreSettings { isPersistenceEnabled = true }
         this.firestoreSettings = settings
@@ -94,8 +98,7 @@ class UserViewModel @Inject constructor(
         _loadingState.value = LoadingState.Start
 
         val parseQuery = ParseQuery.getQuery<ParseObject>("_User")
-        parseQuery.whereEqualTo("objectId", userId)
-        parseQuery.getFirstInBackground(object : GetCallback<ParseObject> {
+        parseQuery.getInBackground(userId, object : GetCallback<ParseObject> {
             override fun done(obj: ParseObject?, e: ParseException?) {
                 if (obj is ParseObject) {
                     val user = obj.mapToUser(userId)
@@ -208,11 +211,11 @@ class UserViewModel @Inject constructor(
             }
     }
 
-    fun saveUserDataToStorage(userId: String, userMap: Map<String, Any?>): LiveData<Result<String>> {
+    fun updateUserDataIntoCloud(userId: String, userMap: Map<String, Any?>): LiveData<Result<String>> {
         _loadingState.value = LoadingState.Start
         val result = MutableLiveData<Result<String>>()
 
-        val parseObject = ParseObject("_User")
+        val parseObject = ParseObject.create("_User")
         userMap.forEach { entry ->
             parseObject.put(entry.key, entry.value?: "")
         }
@@ -223,11 +226,7 @@ class UserViewModel @Inject constructor(
                     if (BuildConfig.DEBUG) {
                         e.printStackTrace()
                     }
-                    if (e.code == ParseException.OBJECT_NOT_FOUND) {
-                        saveUserDataToStorage("", userMap)
-                    } else {
-                        result.value = Result.failure(e)
-                    }
+                    result.value = Result.failure(e)
                 }
                 else {
                     result.value = Result.success(userId)

@@ -33,6 +33,7 @@ import com.myapp.lexicon.models.UserState
 import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.settings.clearEmailPasswordInPref
 import com.myapp.lexicon.settings.getAuthDataFromPref
+import com.parse.ParseException
 import kotlinx.coroutines.launch
 
 
@@ -161,7 +162,17 @@ class AccountFragment : Fragment() {
                             User.KEY_FIRST_NAME to tvFirstNameValue.text.toString(),
                             User.KEY_LAST_NAME to tvLastNameValue.text.toString()
                         )
-                        userVM.saveUserDataToStorage(user.id, userMap)
+                        userVM.updateUserDataIntoCloud(user.id, userMap).observe(viewLifecycleOwner) { result ->
+                            result.onSuccess {
+                                userVM.setState(UserViewModel.State.PersonalDataUpdated(user))
+                            }
+                            result.onFailure { exception ->
+                                if ((exception as ParseException).code == ParseException.OBJECT_NOT_FOUND) {
+                                    showSnackBar(getString(R.string.text_user_not_found))
+                                }
+                                else showSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
+                            }
+                        }
                         accountVM.setState(AccountViewModel.State.ReadOnly)
                     }
                     is AccountViewModel.State.OnValid -> {
@@ -324,7 +335,7 @@ class AccountFragment : Fragment() {
                                 this[User.KEY_FIRST_NAME] = tvFirstNameValue.text.toString()
                                 this[User.KEY_LAST_NAME] = tvLastNameValue.text.toString()
                             }
-                            userVM.saveUserDataToStorage(
+                            userVM.updateUserDataIntoCloud(
                                 user.id,
                                 userMap
                             ).observe(viewLifecycleOwner) { result ->
