@@ -18,15 +18,16 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
+import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.auth.AuthListener
 import com.myapp.lexicon.auth.AuthViewModel
 import com.myapp.lexicon.databinding.FragmentAccountBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
+import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.LuhnAlgorithm
 import com.myapp.lexicon.helpers.setBackground
 import com.myapp.lexicon.helpers.showSnackBar
-import com.myapp.lexicon.helpers.toStringDate
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserState
@@ -34,6 +35,7 @@ import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.settings.clearEmailPasswordInPref
 import com.myapp.lexicon.settings.getAuthDataFromPref
 import com.parse.ParseException
+import com.parse.ParseUser
 import kotlinx.coroutines.launch
 
 
@@ -61,6 +63,10 @@ class AccountFragment : Fragment() {
     private val paymentDays: Int = Firebase.remoteConfig.getDouble("payment_days").toInt()
     private val explainMessage: String by lazy {
         Firebase.remoteConfig.getString("reward_explain_message")
+    }
+
+    private val screenOrientation: LockOrientation by lazy {
+        LockOrientation(requireActivity())
     }
 
     override fun onCreateView(
@@ -114,6 +120,10 @@ class AccountFragment : Fragment() {
                     }
                     is UserViewModel.State.PaymentRequestSent -> {
                         showConfirmDialog()
+                        val currentUser = ParseUser.getCurrentUser()
+                        if (currentUser != null) {
+                            userVM.getUserFromCloud(currentUser.objectId)
+                        }
                     }
                     is UserViewModel.State.Error -> {
                         showSnackBar(state.message)
@@ -317,38 +327,33 @@ class AccountFragment : Fragment() {
                         return@setOnClickListener
                     }
 
-                    user.apply {
-                        phone = tvPhoneValue.text.toString()
-                        bankCard = tvCardNumber.text.toString()
-                        firstName = tvFirstNameValue.text.toString()
-                        lastName = tvLastNameValue.text.toString()
-                        paymentDate = System.currentTimeMillis().toStringDate()
-                    }
-                    user.reservePayment(
+                    userVM.updatePayoutDataIntoCloud(
                         threshold = (paymentThreshold * user.currencyRate).toInt(),
-                        onReserve = { map ->
-                            val userMap = map.toMutableMap()
-                            userMap.apply {
-                                this[User.KEY_BANK_CARD] = tvCardNumber.text.toString()
-                                this[User.KEY_BANK_NAME] = tvBankNameValue.text.toString()
-                                this[User.KEY_PHONE] = tvPhoneValue.text.toString()
-                                this[User.KEY_FIRST_NAME] = tvFirstNameValue.text.toString()
-                                this[User.KEY_LAST_NAME] = tvLastNameValue.text.toString()
-                            }
-                            userVM.updateUserDataIntoCloud(
-                                userMap
-                            ).observe(viewLifecycleOwner) { result ->
-                                result.onSuccess { id ->
-                                    userVM.getUserFromCloud(id)
-                                    showConfirmDialog()
-                                }
-                                result.onFailure { exception ->
-                                    showSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
-                                }
-                            }
+                        reward = user.userReward,
+                        userMap = mapOf(
+                            User.KEY_BANK_CARD to tvCardNumber.text.toString(),
+                            User.KEY_BANK_NAME to tvBankNameValue.text.toString(),
+                            User.KEY_PHONE to tvPhoneValue.text.toString(),
+                            User.KEY_FIRST_NAME to tvFirstNameValue.text.toString(),
+                            User.KEY_LAST_NAME to tvLastNameValue.text.toString()
+                        ),
+                        onStart = {
+                            userVM.setLoadingState(UserViewModel.LoadingState.Start)
+                            screenOrientation.lock()
+                        },
+                        onSuccess = {payout: Int, remainder: Double ->
+                            userVM.setState(UserViewModel.State.PaymentRequestSent)
                         },
                         onNotEnough = {
                             showSnackBar(getString(R.string.text_not_money))
+                        },
+                        onComplete = {exception ->
+                            if (exception != null) {
+                                if (BuildConfig.DEBUG) exception.printStackTrace()
+                                showSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
+                            }
+                            userVM.setLoadingState(UserViewModel.LoadingState.Complete)
+                            screenOrientation.unLock()
                         }
                     )
                 }

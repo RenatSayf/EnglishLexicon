@@ -11,6 +11,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.ads.models.AdData
+import com.myapp.lexicon.helpers.toStringTime
 import com.myapp.lexicon.interfaces.FlowCallback
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.to2DigitsScale
@@ -49,6 +50,9 @@ class UserViewModel @Inject constructor(
 
     private var _loadingState = MutableStateFlow<LoadingState>(LoadingState.Complete)
     val loadingState: StateFlow<LoadingState> = _loadingState
+    fun setLoadingState(state: LoadingState) {
+        _loadingState.value = state
+    }
 
     sealed class State {
         object Init: State()
@@ -56,7 +60,7 @@ class UserViewModel @Inject constructor(
         data class ReceivedUserData(val user: User): State()
         data class PersonalDataUpdated(val user: User): State()
         data class RevenueUpdated(val bonus: Double, val user: User): State()
-        data class PaymentRequestSent(val user: User): State()
+        object PaymentRequestSent: State()
         data class Error(val message: String): State()
     }
 
@@ -178,6 +182,52 @@ class UserViewModel @Inject constructor(
         else _loadingState.value = LoadingState.Complete
     }
 
+    fun updatePayoutDataIntoCloud(
+        threshold: Int,
+        reward: Double,
+        userMap: Map<String, Any?> = mapOf(),
+        onStart: () -> Unit = {},
+        onSuccess: (Int, Double) -> Unit,
+        onNotEnough: () -> Unit = {},
+        onComplete: (Exception?) -> Unit = {}
+    ) {
+        onStart.invoke()
+        if (reward > threshold) {
+            val payout = reward.toInt()
+            val remainder = reward - payout
+            val currentUser = ParseUser.getCurrentUser()
+            if (currentUser is ParseUser) {
+                currentUser.apply {
+                    put(User.KEY_PAYMENT_DATE, System.currentTimeMillis().toStringTime())
+                    put(User.KEY_USER_REWARD, remainder)
+                    increment(User.KEY_RESERVED_PAYMENT, payout)
+                }
+                userMap.forEach { entry ->
+                    currentUser.put(entry.key, entry.value?: "")
+                }
+                currentUser.saveInBackground(object : SaveCallback {
+                    override fun done(e: ParseException?) {
+                        if (e is ParseException) {
+                            if (BuildConfig.DEBUG) e.printStackTrace()
+                            onComplete.invoke(e)
+                        }
+                        else {
+                            onSuccess.invoke(payout, remainder)
+                            onComplete.invoke(null)
+                        }
+                    }
+                })
+            }
+            else {
+                onComplete.invoke(Exception("************ Current user is NULL ***********"))
+            }
+        }
+        else {
+            onNotEnough.invoke()
+            onComplete.invoke(null)
+        }
+    }
+
     fun<T> calcUserReward(
         revenuePerAd: Double,
         userPercentage: Double,
@@ -196,40 +246,40 @@ class UserViewModel @Inject constructor(
     private fun ParseObject.mapToUser(userId: String): User {
         return User(userId).apply {
             var value = this@mapToUser[User.KEY_REVENUE_USD]
-            this.revenueUSD = if (value is Number) value.toDouble() else 0.0
+            this.revenueUSD = if (value is Number) value.toDouble() else this.revenueUSD
 
             value = this@mapToUser[User.KEY_TOTAL_REVENUE]
-            this.totalRevenue = if (value is Number) value.toDouble() else 0.0
+            this.totalRevenue = if (value is Number) value.toDouble() else this.totalRevenue
 
             value = this@mapToUser[User.KEY_USER_REWARD]
-            this.userReward = if (value is Number) value.toDouble() else 0.0
+            this.userReward = if (value is Number) value.toDouble() else this.userReward
 
             value = this@mapToUser[User.KEY_RESERVED_PAYMENT]
-            this.reservedPayment = if (value is Number) value.toDouble() else 0.0
+            this.reservedPayment = if (value is Number) value.toDouble() else this.reservedPayment
 
             value = this@mapToUser[User.KEY_CURRENCY]
-            this.currency = if (value is String) value else ""
+            this.currency = if (value is String) value else this.currency
 
             value = this@mapToUser[User.KEY_EMAIL]
-            this.email = if (value is String) value else ""
+            this.email = if (value is String) value else this.email
 
             value = this@mapToUser[User.KEY_PHONE]
-            this.phone = if (value is String) value else ""
+            this.phone = if (value is String) value else this.phone
 
             value = this@mapToUser[User.KEY_BANK_CARD]
-            this.bankCard = if (value is String) value else ""
+            this.bankCard = if (value is String) value else this.bankCard
 
             value = this@mapToUser[User.KEY_BANK_NAME]
-            this.bankName = if (value is String) value else ""
+            this.bankName = if (value is String) value else this.bankName
 
             value = this@mapToUser[User.KEY_FIRST_NAME]
-            this.firstName = if (value is String) value else ""
+            this.firstName = if (value is String) value else this.firstName
 
             value = this@mapToUser[User.KEY_LAST_NAME]
-            this.lastName = if (value is String) value else ""
+            this.lastName = if (value is String) value else this.lastName
 
             value = this@mapToUser[User.KEY_MESSAGE]
-            this.message = if (value is String) value else ""
+            this.message = if (value is String) value else this.message
         }
     }
 

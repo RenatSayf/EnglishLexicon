@@ -1,6 +1,5 @@
 package com.myapp.lexicon.models
 
-import com.myapp.lexicon.helpers.toStringTime
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -9,7 +8,6 @@ data class User(
     val id: String
 ) {
     companion object {
-        const val KEY_SESSION_TOKEN = "sessionToken"
         const val KEY_REVENUE_USD = "revenueUsd"
         const val KEY_TOTAL_REVENUE = "totalRevenue"
         const val KEY_USER_REWARD = "userReward"
@@ -25,11 +23,9 @@ data class User(
         const val KEY_BANK_NAME = "bankName"
         const val KEY_PAYMENT_DATE = "paymentDate"
         const val KEY_MESSAGE = "messageToUser"
-        const val KEY_LAST_UPDATE_TIME = "lastUpdateTime"
         const val KEY_MESSAGING_TOKEN = "messagingToken"
     }
 
-    var sessionToken: String = ""
     var email: String = ""
     var password: String = ""
     var firstName: String = ""
@@ -73,29 +69,7 @@ data class User(
     var currencySymbol: String = ""
         private set
 
-    var paymentDate: String = ""
     var message: String = ""
-
-    fun reservePayment(
-        threshold: Int,
-        onReserve: (map: Map<String, Any?>) -> Unit,
-        onNotEnough: () -> Unit = {}
-    ) {
-        if (this.userReward > threshold) {
-            val reservedPayment = this.reservedPayment + this.userReward
-            val userMap = mapOf<String, Any?>(
-                KEY_RESERVED_PAYMENT to reservedPayment,
-                KEY_USER_REWARD to 0.0,
-                KEY_TOTAL_REVENUE to 0.0,
-                //KEY_REVENUE_USD to 0.0,
-                KEY_PAYMENT_DATE to System.currentTimeMillis().toStringTime()
-            )
-            onReserve.invoke(userMap)
-        }
-        else {
-            onNotEnough.invoke()
-        }
-    }
 
 }
 
