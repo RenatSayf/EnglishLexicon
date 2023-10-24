@@ -15,7 +15,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
@@ -464,8 +463,10 @@ class AccountFragment : Fragment() {
                     }
                 }
                 btnOk.setOnClickListener {
-                    val auth = FirebaseAuth.getInstance()
-                    auth.signOut()
+                    val currentUser = ParseUser.getCurrentUser()
+                    if (currentUser is ParseUser) {
+                        ParseUser.logOut()
+                    }
                     requireContext().cacheDir.deleteRecursively()
                     requireContext().clearEmailPasswordInPref()
                     authVM.setState(UserState.SignOut)
@@ -475,7 +476,6 @@ class AccountFragment : Fragment() {
             }
         }).show(parentFragmentManager, ConfirmDialog.TAG)
     }
-
     override fun onResume() {
         super.onResume()
 
@@ -484,6 +484,9 @@ class AccountFragment : Fragment() {
                 when(item.itemId) {
                     R.id.menu_edit -> {
                         accountVM.setState(AccountViewModel.State.Editing)
+                    }
+                    R.id.menu_delete -> {
+                        showAccountDeletingDialog()
                     }
                 }
                 true
@@ -498,6 +501,49 @@ class AccountFragment : Fragment() {
                 goBack()
             }
         })
+    }
+
+    private fun showAccountDeletingDialog() {
+        ConfirmDialog.newInstance(onLaunch = {dialog, binding ->
+            with(binding) {
+                dialog.isCancelable = true
+                ivIcon.visibility = View.VISIBLE
+                tvEmoji.visibility = View.GONE
+                tvEmoji2.visibility = View.GONE
+                val message = getString(R.string.text_warning_account_delete)
+                tvMessage.text = message
+                btnCancel.apply {
+                    visibility = View.VISIBLE
+                    setOnClickListener {
+                        dialog.dismiss()
+                    }
+                }
+                btnOk.apply {
+                    text = getString(R.string.btn_text_delete)
+                    setOnClickListener {
+                        authVM.deleteAccount(
+                            onStart = {
+                                screenOrientation.lock()
+                                authVM.setLoadingState(AuthViewModel.LoadingState.Start)
+                            },
+                            onSuccess = {
+                                showSnackBar(getString(R.string.text_account_has_been_deleted))
+                                parentFragmentManager.beginTransaction().detach(this@AccountFragment).commit()
+                            },
+                            onComplete = { exception ->
+                                exception?.let {
+                                    it.printStackTrace()
+                                    showSnackBar(it.message?: getString(R.string.text_unknown_error_message))
+                                }
+                                screenOrientation.unLock()
+                                authVM.setLoadingState(AuthViewModel.LoadingState.Complete)
+                                dialog.dismiss()
+                            }
+                        )
+                    }
+                }
+            }
+        }).show(parentFragmentManager, ConfirmDialog.TAG)
     }
 
     private fun goBack() {

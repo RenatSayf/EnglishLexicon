@@ -179,6 +179,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             result.onSignOut(() -> {
                 navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_get_reward);
                 root.findViewById(R.id.tvReward).setVisibility(View.GONE);
+                Toolbar toolBar = root.findViewById(R.id.tool_bar);
+                toolBar.setSubtitle(null);
                 ExtensionsKt.showSnackBar(mainControlLayout, getString(R.string.text_you_are_signed_out), Snackbar.LENGTH_LONG);
                 return null;
             });

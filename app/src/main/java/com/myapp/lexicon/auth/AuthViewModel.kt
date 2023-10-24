@@ -11,6 +11,7 @@ import androidx.lifecycle.MutableLiveData
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserState
 import com.myapp.lexicon.settings.getAuthDataFromPref
+import com.parse.DeleteCallback
 import com.parse.LogInCallback
 import com.parse.ParseException
 import com.parse.ParseUser
@@ -33,6 +34,10 @@ class AuthViewModel @Inject constructor(
 
     private var _loadingState = MutableLiveData<LoadingState>()
     val loadingState: LiveData<LoadingState> = _loadingState
+
+    fun setLoadingState(state: LoadingState) {
+        _loadingState.value = state
+    }
 
     private var _state = MutableLiveData<UserState>().apply {
         value = UserState.Init
@@ -133,6 +138,31 @@ class AuthViewModel @Inject constructor(
                 _loadingState.value = LoadingState.Complete
             }
         })
+    }
+
+    fun deleteAccount(
+        onStart: () -> Unit = {},
+        onSuccess: () -> Unit,
+        onComplete: (Exception?) -> Unit = {}
+    ) {
+        onStart.invoke()
+        val currentUser = ParseUser.getCurrentUser()
+        if (currentUser != null) {
+            currentUser.deleteInBackground(object : DeleteCallback {
+                override fun done(e: ParseException?) {
+                    if (e == null) {
+                        onSuccess.invoke()
+                        onComplete.invoke(null)
+                    }
+                    else {
+                        onComplete.invoke(e)
+                    }
+                }
+            })
+        }
+        else {
+            onComplete.invoke(Exception("************ Current user is NULL ***********"))
+        }
     }
 
 

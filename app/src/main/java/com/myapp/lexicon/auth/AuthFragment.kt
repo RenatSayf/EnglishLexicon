@@ -103,25 +103,31 @@ class AuthFragment : Fragment() {
             }
 
             tvResetPassword.setOnClickListener {
-                ConfirmDialog.newInstance(
-                    onLaunch = { dialog, binding ->
-                        with(binding) {
-                            tvEmoji.visibility = View.GONE
-                            tvEmoji2.visibility = View.GONE
-                            tvMessage.text = getString(R.string.text_email_will_be_sent_to)
-                            btnCancel.setOnClickListener {
-                                dialog.dismiss()
-                            }
-                            btnOk.setOnClickListener {
-                                val text = etEmail.text.toString()
-                                if (text.isItEmail) {
-                                    authVM.resetPassword(text)
+                val isValidEmail = authVM.isValidEmail(etEmail.text.toString())
+                if (isValidEmail) {
+                    ConfirmDialog.newInstance(
+                        onLaunch = { dialog, binding ->
+                            with(binding) {
+                                tvEmoji.visibility = View.GONE
+                                tvEmoji2.visibility = View.GONE
+                                tvMessage.text = getString(R.string.text_email_will_be_sent_to)
+                                btnCancel.setOnClickListener {
+                                    dialog.dismiss()
                                 }
-                                dialog.dismiss()
+                                btnOk.setOnClickListener {
+                                    val text = etEmail.text.toString()
+                                    if (text.isItEmail) {
+                                        authVM.resetPassword(text)
+                                    }
+                                    dialog.dismiss()
+                                }
                             }
                         }
-                    }
-                ).show(parentFragmentManager, ConfirmDialog.TAG)
+                    ).show(parentFragmentManager, ConfirmDialog.TAG)
+                }
+                else {
+                    etEmail.background = ResourcesCompat.getDrawable(resources, R.drawable.bg_horizontal_oval_error, null)
+                }
             }
 
             authVM.loadingState.observe(viewLifecycleOwner) { state ->
@@ -205,7 +211,7 @@ class AuthFragment : Fragment() {
     private fun validateEmailAndPassword(
         onSuccess: (String, String) -> Unit,
         onEmailNotValid: (String) -> Unit,
-        onPasswordNotValid: (String) -> Unit
+        onPasswordNotValid: (String) -> Unit = {}
     ) {
         with(binding) {
             val email = etEmail.text.toString()
