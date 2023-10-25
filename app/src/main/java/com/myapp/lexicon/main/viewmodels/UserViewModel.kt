@@ -37,7 +37,6 @@ class UserViewModel @Inject constructor(
 ) : AndroidViewModel(app) {
     companion object {
 
-        const val COLLECTION_PATH = "users"
         val USER_PERCENTAGE: Double by lazy {
             Firebase.remoteConfig.getDouble("USER_PERCENTAGE")
         }
@@ -194,12 +193,13 @@ class UserViewModel @Inject constructor(
         onStart.invoke()
         if (reward > threshold) {
             val payout = reward.toInt()
-            val remainder = reward - payout
+            val rewardRemainder = reward - payout
             val currentUser = ParseUser.getCurrentUser()
             if (currentUser is ParseUser) {
                 currentUser.apply {
                     put(User.KEY_PAYMENT_DATE, System.currentTimeMillis().toStringTime())
-                    put(User.KEY_USER_REWARD, remainder)
+                    put(User.KEY_TOTAL_REVENUE, rewardRemainder)
+                    put(User.KEY_USER_REWARD, rewardRemainder)
                     increment(User.KEY_RESERVED_PAYMENT, payout)
                 }
                 userMap.forEach { entry ->
@@ -212,7 +212,7 @@ class UserViewModel @Inject constructor(
                             onComplete.invoke(e)
                         }
                         else {
-                            onSuccess.invoke(payout, remainder)
+                            onSuccess.invoke(payout, rewardRemainder)
                             onComplete.invoke(null)
                         }
                     }
@@ -225,21 +225,6 @@ class UserViewModel @Inject constructor(
         else {
             onNotEnough.invoke()
             onComplete.invoke(null)
-        }
-    }
-
-    fun<T> calcUserReward(
-        revenuePerAd: Double,
-        userPercentage: Double,
-        remoteUserData: Map<String, Comparable<T>?>
-    ): Double {
-        val currentReward = remoteUserData[User.KEY_USER_REWARD]
-        return if (currentReward != null && (currentReward is Number)) {
-            val newReward = currentReward.toDouble() + (revenuePerAd * userPercentage)
-            newReward
-        }
-        else {
-            revenuePerAd * userPercentage
         }
     }
 

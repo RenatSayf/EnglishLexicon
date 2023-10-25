@@ -3,17 +3,14 @@
 package com.myapp.lexicon.settings
 
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.*
-import com.google.firebase.auth.FirebaseAuth
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.billing.BillingViewModel
@@ -22,6 +19,7 @@ import com.myapp.lexicon.databinding.DialogStorageBinding
 import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.schedule.AlarmScheduler
+import com.parse.ParseUser
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
@@ -158,7 +156,7 @@ class SettingsFragment : PreferenceFragmentCompat()
         val cloudStorageCategory = findPreference<PreferenceCategory>("cloudStorageCategory")
         val cloudStorageSwitch = findPreference<SwitchPreferenceCompat>(getString(R.string.KEY_CLOUD_STORAGE))
 
-        val currentUser = FirebaseAuth.getInstance().currentUser
+        val currentUser = ParseUser.getCurrentUser()
         if (currentUser == null) {
             cloudStorageCategory?.isVisible = false
             cloudStorageSwitch?.apply {

@@ -11,7 +11,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageException
 import com.google.firebase.storage.StorageReference
@@ -23,6 +22,7 @@ import com.myapp.lexicon.models.TestState
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.toWord
+import com.parse.ParseUser
 
 val Context.appSettings: SharedPreferences
     get() {
@@ -83,6 +83,21 @@ fun Context.isUserRegistered(
     }
     else {
         onNotRegistered.invoke()
+    }
+}
+
+fun Context.isFirstLogin(
+    onYes: () -> Unit = {},
+    onNotFirst: () -> Unit = {}
+) {
+    val key = "KEY_IS_FIRST_LOGIN"
+    val isFirst = appSettings.getBoolean(key, true)
+    if (isFirst) {
+        onYes.invoke()
+        appSettings.edit().putBoolean(key, false).apply()
+    }
+    else {
+        onNotFirst.invoke()
     }
 }
 
@@ -158,9 +173,9 @@ fun Context.checkCloudToken(
                 when {
                     token == null -> onInit.invoke()
                     token.isNotEmpty() -> {
-                        val currentUser = FirebaseAuth.getInstance().currentUser
+                        val currentUser = ParseUser.getCurrentUser()
                         if (currentUser != null) {
-                            onExists.invoke(currentUser.uid)
+                            onExists.invoke(currentUser.objectId)
                         }
                         else {
                             onEmpty.invoke()

@@ -6,8 +6,6 @@ import android.os.Bundle;
 import android.widget.LinearLayout;
 
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.ads.AdsViewModel;
 import com.myapp.lexicon.ads.AdsViewModelKt;
@@ -22,6 +20,7 @@ import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.models.WordKt;
 import com.myapp.lexicon.settings.SettingsExtKt;
 import com.myapp.lexicon.splash.SplashActivity;
+import com.parse.ParseUser;
 import com.yandex.mobile.ads.interstitial.InterstitialAd;
 
 import java.util.List;
@@ -57,13 +56,11 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         binding = ServiceDialogActivityBinding.inflate(getLayoutInflater(), new LinearLayout(this), false);
         setContentView(binding.getRoot());
 
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        FirebaseUser firebaseUser = auth.getCurrentUser();
-
         adsVM = new ViewModelProvider(this).get(AdsViewModel.class);
 
-        if (firebaseUser != null) {
-            handleAdvertisingPayload(firebaseUser.getUid());
+        ParseUser currentUser = ParseUser.getCurrentUser();
+        if (currentUser != null) {
+            handleAdvertisingPayload(currentUser.getObjectId());
         }
         else {
             authVM = new ViewModelProvider(this).get(AuthViewModel.class);

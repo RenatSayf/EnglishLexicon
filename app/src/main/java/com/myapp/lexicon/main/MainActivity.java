@@ -173,7 +173,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             });
             result.onSignIn(user -> {
                 navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_account);
-                userVM.getUserFromCloud(user.getId());
+                ParseUser currentUser = ParseUser.getCurrentUser();
+                if (currentUser != null)
+                {
+                    userVM.getUserFromCloud(currentUser.getObjectId());
+                }
                 return null;
             });
             result.onSignOut(() -> {

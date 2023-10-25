@@ -33,6 +33,7 @@ import com.myapp.lexicon.models.UserState
 import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.settings.clearEmailPasswordInPref
 import com.myapp.lexicon.settings.getAuthDataFromPref
+import com.myapp.lexicon.settings.isFirstLogin
 import com.parse.ParseException
 import com.parse.ParseUser
 import kotlinx.coroutines.launch
@@ -110,16 +111,18 @@ class AccountFragment : Fragment() {
                 }
             }
 
+            val currentUser = ParseUser.getCurrentUser()
             userVM.state.observe(viewLifecycleOwner) { state ->
                 when(state) {
                     UserViewModel.State.Init -> {}
                     is UserViewModel.State.PersonalDataUpdated -> {
-                        handleUserData(state.user)
                         showSnackBar(getString(R.string.data_is_saved))
+                        if (currentUser != null) {
+                            userVM.getUserFromCloud(currentUser.objectId)
+                        }
                     }
                     is UserViewModel.State.PaymentRequestSent -> {
                         showConfirmDialog()
-                        val currentUser = ParseUser.getCurrentUser()
                         if (currentUser != null) {
                             userVM.getUserFromCloud(currentUser.objectId)
                         }
@@ -128,16 +131,14 @@ class AccountFragment : Fragment() {
                         showSnackBar(state.message)
                     }
                     is UserViewModel.State.ReceivedUserData -> {
-                        requireContext().getAuthDataFromPref(
-                            onNotRegistered = {
+                        requireContext().isFirstLogin(
+                            onYes = {
                                 showInfoDialog()
                             }
                         )
                         handleUserData(state.user)
                     }
-                    is UserViewModel.State.UserAdded -> {
-
-                    }
+                    is UserViewModel.State.UserAdded -> {}
                     is UserViewModel.State.RevenueUpdated -> {}
                 }
             }
@@ -250,7 +251,7 @@ class AccountFragment : Fragment() {
                         it.isDigit()
                     }
                     val isPhoneNumber = Regex("^[+]?[0-9]{10,13}$").matches(digits?: "")
-                    if (isPhoneNumber) {
+                    if (isPhoneNumber || digits.isNullOrEmpty()) {
                         val newState = state.copy(phone = true)
                         accountVM.setState(newState)
                     }
@@ -260,7 +261,10 @@ class AccountFragment : Fragment() {
             tvBankNameValue.doOnTextChanged { text, start, before, count ->
                 val state = accountVM.state.value
                 if (state is AccountViewModel.State.OnValid) {
-                    if (!text.isNullOrEmpty()) {
+                    if (text.toString().isEmpty()) {
+                        accountVM.setState(state.copy(bankName = true))
+                    }
+                    else if (!text.isNullOrEmpty() && text.toString().length > 1) {
                         accountVM.setState(state.copy(bankName = true))
                     }
                     else accountVM.setState(state.copy(bankName = false))
@@ -271,7 +275,7 @@ class AccountFragment : Fragment() {
                 if (state is AccountViewModel.State.OnValid) {
                     val number = tvCardNumber.text.toString()
                     val isValidNumber = LuhnAlgorithm.isLuhnChecksumValid(number)
-                    if (isValidNumber) {
+                    if (isValidNumber || number.isEmpty()) {
                         accountVM.setState(state.copy(card = true))
                     }
                     else accountVM.setState(state.copy(card = false))
@@ -280,7 +284,10 @@ class AccountFragment : Fragment() {
             tvFirstNameValue.doOnTextChanged { text, start, before, count ->
                 val state = accountVM.state.value
                 if (state is AccountViewModel.State.OnValid) {
-                    if (!text.isNullOrEmpty()) {
+                    if (text.isNullOrEmpty()) {
+                        accountVM.setState(state.copy(firstName = true))
+                    }
+                    else if (text.isNotEmpty() && text.toString().length > 1) {
                         accountVM.setState(state.copy(firstName = true))
                     }
                     else accountVM.setState(state.copy(firstName = false))
@@ -289,7 +296,10 @@ class AccountFragment : Fragment() {
             tvLastNameValue.doOnTextChanged { text, start, before, count ->
                 val state = accountVM.state.value
                 if (state is AccountViewModel.State.OnValid) {
-                    if (!text.isNullOrEmpty()) {
+                    if (text.isNullOrEmpty()) {
+                        accountVM.setState(state.copy(firstName = true))
+                    }
+                    else if (text.isNotEmpty() && text.toString().length > 1) {
                         accountVM.setState(state.copy(lastName = true))
                     }
                     else accountVM.setState(state.copy(lastName = false))
@@ -315,6 +325,10 @@ class AccountFragment : Fragment() {
                     val isValidNumber = LuhnAlgorithm.isLuhnChecksumValid(number)
                     if (!isValidNumber) {
                         accountVM.setState(AccountViewModel.State.OnValid(card = false))
+                        return@setOnClickListener
+                    }
+                    if (tvBankNameValue.text.isNullOrEmpty()) {
+                        accountVM.setState(AccountViewModel.State.OnValid(bankName = false))
                         return@setOnClickListener
                     }
                     if (tvFirstNameValue.text.isNullOrEmpty()) {

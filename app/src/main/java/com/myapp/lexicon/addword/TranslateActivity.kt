@@ -5,21 +5,18 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import com.google.firebase.auth.FirebaseAuth
 import com.myapp.lexicon.R
 import com.myapp.lexicon.addword.TranslateFragment.Companion.getInstance
 import com.myapp.lexicon.ads.intrefaces.AdEventListener
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.main.viewmodels.UserViewModel
+import com.parse.ParseUser
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class TranslateActivity : AppCompatActivity(), AdEventListener {
 
     private var translateFragment: TranslateFragment? = null
-    private val auth: FirebaseAuth by lazy {
-        FirebaseAuth.getInstance()
-    }
     private val userVM: UserViewModel by lazy {
         ViewModelProvider(this)[UserViewModel::class.java]
     }
@@ -37,9 +34,9 @@ class TranslateActivity : AppCompatActivity(), AdEventListener {
                 .commit()
         }
 
-        val currentUser = auth.currentUser
+        val currentUser = ParseUser.getCurrentUser()
         if (currentUser != null) {
-            userVM.getUserFromCloud(currentUser.uid)
+            userVM.getUserFromCloud(currentUser.objectId)
         }
 
     }
