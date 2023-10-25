@@ -177,11 +177,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return null;
             });
             result.onSignOut(() -> {
-                navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_get_reward);
-                root.findViewById(R.id.tvReward).setVisibility(View.GONE);
-                Toolbar toolBar = root.findViewById(R.id.tool_bar);
-                toolBar.setSubtitle(null);
+                handleSignOutAction();
                 ExtensionsKt.showSnackBar(mainControlLayout, getString(R.string.text_you_are_signed_out), Snackbar.LENGTH_LONG);
+                return null;
+            });
+            result.onAccountDeleted(() -> {
+                handleSignOutAction();
+                ExtensionsKt.showSnackBar(mainControlLayout, getString(R.string.text_account_has_been_deleted), Snackbar.LENGTH_LONG);
                 return null;
             });
         });
@@ -548,6 +550,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    private void handleSignOutAction() {
+        navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_get_reward);
+        root.findViewById(R.id.tvReward).setVisibility(View.GONE);
+        Toolbar toolBar = root.findViewById(R.id.tool_bar);
+        toolBar.setSubtitle(null);
+    }
+
     public void testPassed()
     {
         if (currentWord != null)
@@ -755,7 +764,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             transaction.replace(R.id.frame_to_page_fragm, accountFragment).addToBackStack(null).commit();
                         } else
                         {
-                            ExtensionsKt.showSnackBar(root, "Current user is null", Snackbar.LENGTH_LONG);
+                            AuthFragment authFragment = AuthFragment.Companion.newInstance(this);
+                            transaction.replace(R.id.frame_to_page_fragm, authFragment).addToBackStack(null).commit();
                         }
                         return null;
                     },

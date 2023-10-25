@@ -527,7 +527,9 @@ class AccountFragment : Fragment() {
                                 authVM.setLoadingState(AuthViewModel.LoadingState.Start)
                             },
                             onSuccess = {
-                                showSnackBar(getString(R.string.text_account_has_been_deleted))
+                                requireContext().cacheDir.deleteRecursively()
+                                requireContext().clearEmailPasswordInPref()
+                                authVM.setState(UserState.AccountDeleted)
                                 parentFragmentManager.beginTransaction().detach(this@AccountFragment).commit()
                             },
                             onComplete = { exception ->

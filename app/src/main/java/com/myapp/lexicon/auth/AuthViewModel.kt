@@ -151,6 +151,7 @@ class AuthViewModel @Inject constructor(
             currentUser.deleteInBackground(object : DeleteCallback {
                 override fun done(e: ParseException?) {
                     if (e == null) {
+                        ParseUser.logOut()
                         onSuccess.invoke()
                         onComplete.invoke(null)
                     }
