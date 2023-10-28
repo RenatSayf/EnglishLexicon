@@ -5,6 +5,8 @@ package com.myapp.lexicon.auth.account
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.models.User
 import org.jsoup.Jsoup
@@ -12,7 +14,7 @@ import java.io.BufferedInputStream
 import java.net.HttpURLConnection
 import java.net.URL
 
-class AccountViewModel : ViewModel() {
+open class AccountViewModel : ViewModel() {
 
     sealed class State {
         object ReadOnly: State()
@@ -27,18 +29,22 @@ class AccountViewModel : ViewModel() {
         ): State()
     }
 
+    open val paymentThreshold: Double = Firebase.remoteConfig.getDouble("payment_threshold")
+    open val paymentDays: Int = Firebase.remoteConfig.getDouble("payment_days").toInt()
+    open val explainMessage: String = Firebase.remoteConfig.getString("reward_explain_message")
+
     private var thread: Thread? = null
 
     private var _state = MutableLiveData<State>().apply {
         value = State.ReadOnly
     }
-    val state: LiveData<State> = _state
+    open val state: LiveData<State> = _state
 
-    fun setState(state: State) {
+    open fun setState(state: State) {
         _state.value = state
     }
 
-    fun fetchBankList(): LiveData<Result<List<String>>> {
+    open fun fetchBankList(): LiveData<Result<List<String>>> {
 
         val result = MutableLiveData<Result<List<String>>>()
         thread = Thread(Runnable {

@@ -1,4 +1,4 @@
-@file:Suppress("ObjectLiteralToLambda")
+@file:Suppress("ObjectLiteralToLambda", "PropertyName")
 
 package com.myapp.lexicon.auth
 
@@ -24,35 +24,36 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class AuthViewModel @Inject constructor(
+open class AuthViewModel @Inject constructor(
     app: Application
 ) : AndroidViewModel(app) {
+
     sealed class LoadingState {
         object Start: LoadingState()
         object Complete: LoadingState()
     }
 
-    private var _loadingState = MutableLiveData<LoadingState>()
-    val loadingState: LiveData<LoadingState> = _loadingState
+    protected var _loadingState = MutableLiveData<LoadingState>()
+    open val loadingState: LiveData<LoadingState> = _loadingState
 
-    fun setLoadingState(state: LoadingState) {
+    open fun setLoadingState(state: LoadingState) {
         _loadingState.value = state
     }
 
-    private var _state = MutableLiveData<UserState>().apply {
+    protected var _state = MutableLiveData<UserState>().apply {
         value = UserState.Init
     }
-    val state: LiveData<UserState> = _state
+    open val state: LiveData<UserState> = _state
 
-    private val _stateFlow = MutableStateFlow<UserState>(UserState.Init)
-    val stateFlow: StateFlow<UserState> = _stateFlow
+    protected val _stateFlow = MutableStateFlow<UserState>(UserState.Init)
+    open val stateFlow: StateFlow<UserState> = _stateFlow
 
-    fun setState(state: UserState) {
+    open fun setState(state: UserState) {
         _state.value = state
         _stateFlow.value = state
     }
 
-    fun registerWithEmailAndPassword(email: String, password: String) {
+    open fun registerWithEmailAndPassword(email: String, password: String) {
 
         _loadingState.value = LoadingState.Start
         val parseUser = ParseUser()
@@ -83,11 +84,11 @@ class AuthViewModel @Inject constructor(
         })
     }
 
-    fun isValidEmail(email: String): Boolean {
+    open fun isValidEmail(email: String): Boolean {
         return !TextUtils.isEmpty(email) && Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 
-    fun signInWithEmailAndPassword(email: String, password: String) {
+    open fun signInWithEmailAndPassword(email: String, password: String) {
 
         _loadingState.value = LoadingState.Start
         ParseUser.logInInBackground(
@@ -121,7 +122,7 @@ class AuthViewModel @Inject constructor(
         )
     }
 
-    fun resetPassword(email: String) {
+    open fun resetPassword(email: String) {
 
         _loadingState.value = LoadingState.Start
 
@@ -140,7 +141,7 @@ class AuthViewModel @Inject constructor(
         })
     }
 
-    fun deleteAccount(
+    open fun deleteAccount(
         onStart: () -> Unit = {},
         onSuccess: () -> Unit,
         onComplete: (Exception?) -> Unit = {}

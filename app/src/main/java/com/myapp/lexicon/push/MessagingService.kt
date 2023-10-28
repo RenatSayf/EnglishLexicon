@@ -29,6 +29,6 @@ class MessagingService : FirebaseMessagingService() {
         val map = mapOf(
             User.KEY_MESSAGING_TOKEN to token
         )
-        UserViewModel(this.application).updateUserDataIntoCloud(map)
+        UserViewModel().updateUserDataIntoCloud(map)
     }
 }

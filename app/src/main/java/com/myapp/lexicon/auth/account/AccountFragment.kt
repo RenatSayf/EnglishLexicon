@@ -10,13 +10,9 @@ import android.widget.ArrayAdapter
 import androidx.activity.OnBackPressedCallback
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.auth.AuthListener
@@ -25,6 +21,7 @@ import com.myapp.lexicon.databinding.FragmentAccountBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.LuhnAlgorithm
+import com.myapp.lexicon.helpers.getViewModel
 import com.myapp.lexicon.helpers.setBackground
 import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.main.viewmodels.UserViewModel
@@ -32,7 +29,6 @@ import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserState
 import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.settings.clearEmailPasswordInPref
-import com.myapp.lexicon.settings.getAuthDataFromPref
 import com.myapp.lexicon.settings.isFirstLogin
 import com.parse.ParseException
 import com.parse.ParseUser
@@ -55,14 +51,17 @@ class AccountFragment : Fragment() {
     }
 
     private lateinit var binding: FragmentAccountBinding
-    private val accountVM: AccountViewModel by viewModels()
-    private val authVM: AuthViewModel by activityViewModels()
-    private val userVM by viewModels<UserViewModel>()
 
-    private val paymentThreshold: Double = Firebase.remoteConfig.getDouble("payment_threshold")
-    private val paymentDays: Int = Firebase.remoteConfig.getDouble("payment_days").toInt()
-    private val explainMessage: String by lazy {
-        Firebase.remoteConfig.getString("reward_explain_message")
+    private val accountVM: AccountViewModel by lazy {
+        this.getViewModel(AccountViewModel::class.java) as AccountViewModel
+    }
+
+    private val authVM: AuthViewModel by lazy {
+        this.getViewModel(AuthViewModel::class.java) as AuthViewModel
+    }
+
+    private val userVM: UserViewModel by lazy {
+        this.getViewModel(UserViewModel::class.java) as UserViewModel
     }
 
     private val screenOrientation: LockOrientation by lazy {
@@ -341,7 +340,7 @@ class AccountFragment : Fragment() {
                     }
 
                     userVM.updatePayoutDataIntoCloud(
-                        threshold = (paymentThreshold * user.currencyRate).toInt(),
+                        threshold = (accountVM.paymentThreshold * user.currencyRate).toInt(),
                         reward = user.userReward,
                         userMap = mapOf(
                             User.KEY_BANK_CARD to tvCardNumber.text.toString(),
@@ -396,7 +395,7 @@ class AccountFragment : Fragment() {
                 tvReservedValue.visibility = View.GONE
             }
 
-            val rewardThreshold = (paymentThreshold * user.currencyRate).toInt()
+            val rewardThreshold = (accountVM.paymentThreshold * user.currencyRate).toInt()
             val textCondition = "${getString(R.string.text_reward_conditions)} $rewardThreshold ${user.currencySymbol}"
             tvRewardCondition.text = textCondition
             if (user.userReward <= 0.0) {
@@ -430,7 +429,7 @@ class AccountFragment : Fragment() {
         ConfirmDialog.newInstance(onLaunch = {dialog, binding ->
             with(binding) {
                 dialog.isCancelable = false
-                val message = "${getString(R.string.text_payment_request_sent_1)} $paymentDays ${getString(R.string.text_payment_request_sent_2)}"
+                val message = "${getString(R.string.text_payment_request_sent_1)} ${accountVM.paymentDays} ${getString(R.string.text_payment_request_sent_2)}"
                 tvMessage.text = message
                 btnCancel.visibility = View.GONE
                 btnOk.setOnClickListener {
@@ -451,7 +450,7 @@ class AccountFragment : Fragment() {
                     visibility = View.VISIBLE
                     text = getString(R.string.coins_bag)
                 }
-                val message = explainMessage
+                val message = accountVM.explainMessage
                 tvMessage.text = message
                 btnCancel.visibility = View.GONE
                 btnOk.setOnClickListener {

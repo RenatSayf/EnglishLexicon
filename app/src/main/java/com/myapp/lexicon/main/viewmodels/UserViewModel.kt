@@ -1,11 +1,10 @@
-@file:Suppress("UnnecessaryVariable", "ObjectLiteralToLambda")
+@file:Suppress("UnnecessaryVariable", "ObjectLiteralToLambda", "PropertyName")
 
 package com.myapp.lexicon.main.viewmodels
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
@@ -32,9 +31,7 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class UserViewModel @Inject constructor(
-    app: Application
-) : AndroidViewModel(app) {
+open class UserViewModel @Inject constructor() : ViewModel() {
     companion object {
 
         val USER_PERCENTAGE: Double by lazy {
@@ -47,9 +44,9 @@ class UserViewModel @Inject constructor(
         object Complete: LoadingState()
     }
 
-    private var _loadingState = MutableStateFlow<LoadingState>(LoadingState.Complete)
-    val loadingState: StateFlow<LoadingState> = _loadingState
-    fun setLoadingState(state: LoadingState) {
+    protected var _loadingState = MutableStateFlow<LoadingState>(LoadingState.Complete)
+    open val loadingState: StateFlow<LoadingState> = _loadingState
+    open fun setLoadingState(state: LoadingState) {
         _loadingState.value = state
     }
 
@@ -63,21 +60,21 @@ class UserViewModel @Inject constructor(
         data class Error(val message: String): State()
     }
 
-    private var _state = MutableLiveData<State>(State.Init)
-    val state: LiveData<State> = _state
+    protected var _state = MutableLiveData<State>(State.Init)
+    open val state: LiveData<State> = _state
 
-    private var _stateFlow = MutableStateFlow<State>(State.Init)
-    val stateFlow: StateFlow<State> = _stateFlow
+    protected var _stateFlow = MutableStateFlow<State>(State.Init)
+    open val stateFlow: StateFlow<State> = _stateFlow
 
-    fun setState(state: State) {
+    open fun setState(state: State) {
         _state.value = state
         _stateFlow.value = state
     }
 
-    private var _user = MutableLiveData<User?>(null)
-    val user: LiveData<User?> = _user
+    protected var _user = MutableLiveData<User?>(null)
+    open val user: LiveData<User?> = _user
 
-    fun collect(callBack: FlowCallback) {
+    open fun collect(callBack: FlowCallback) {
         viewModelScope.launch {
             _stateFlow.onStart {
                 callBack.onStart()
@@ -89,7 +86,7 @@ class UserViewModel @Inject constructor(
         }
     }
 
-    fun getUserFromCloud(userId: String) {
+    open fun getUserFromCloud(userId: String) {
         _loadingState.value = LoadingState.Start
 
         val parseQuery = ParseQuery.getQuery<ParseObject>("_User")
@@ -104,13 +101,14 @@ class UserViewModel @Inject constructor(
                 else if (e is ParseException) {
                     e.printStackTrace()
                     _state.value = State.Error(e.message?: "Unknown error")
+                    _stateFlow.value = State.Error(e.message?: "Unknown error")
                 }
                 _loadingState.value = LoadingState.Complete
             }
         })
     }
 
-    fun updateUserDataIntoCloud(userMap: Map<String, Any?>): LiveData<Result<String>> {
+    open fun updateUserDataIntoCloud(userMap: Map<String, Any?>): LiveData<Result<String>> {
         _loadingState.value = LoadingState.Start
         val result = MutableLiveData<Result<String>>()
 
@@ -135,7 +133,7 @@ class UserViewModel @Inject constructor(
         return result
     }
 
-    fun updateUserRevenueIntoCloud(adData: AdData) {
+    open fun updateUserRevenueIntoCloud(adData: AdData) {
         _loadingState.value = LoadingState.Start
         val currentUser = ParseUser.getCurrentUser()
         if (currentUser is ParseUser) {
@@ -181,7 +179,7 @@ class UserViewModel @Inject constructor(
         else _loadingState.value = LoadingState.Complete
     }
 
-    fun updatePayoutDataIntoCloud(
+    open fun updatePayoutDataIntoCloud(
         threshold: Int,
         reward: Double,
         userMap: Map<String, Any?> = mapOf(),
@@ -228,7 +226,7 @@ class UserViewModel @Inject constructor(
         }
     }
 
-    private fun ParseObject.mapToUser(userId: String): User {
+    protected fun ParseObject.mapToUser(userId: String): User {
         return User(userId).apply {
             var value = this@mapToUser[User.KEY_REVENUE_USD]
             this.revenueUSD = if (value is Number) value.toDouble() else this.revenueUSD

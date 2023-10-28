@@ -150,7 +150,7 @@ fun InterstitialAd.showAd(
                         }
                     )
                 }?: run {
-                    if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
+                    if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name || BuildConfig.ADS_SOURCE == AdsSource.LOCAL_HOST.name) {
                         TEST_INTERSTITIAL_DATA.toAdData(
                             onSuccess = { data ->
                                 onImpression.invoke(data)
@@ -205,7 +205,7 @@ fun RewardedAd.showAd(
                         }
                     )
                 }?: run {
-                    if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
+                    if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name || BuildConfig.ADS_SOURCE == AdsSource.LOCAL_HOST.name) {
                         TEST_REWARDED_DATA.toAdData(
                             onSuccess = { data ->
                                 onImpression.invoke(data)

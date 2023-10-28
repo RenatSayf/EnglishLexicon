@@ -59,6 +59,10 @@ android {
             dimension 'ADS_TEST'
             buildConfigField 'String', 'ADS_SOURCE', '\"ALIVE_AD\"'
         }
+        LOCAL_HOST {
+            dimension 'ADS_TEST'
+            buildConfigField('String', 'ADS_SOURCE', '\"LOCAL_HOST\"')
+        }
     }
 
     namespace 'com.myapp.lexicon'
