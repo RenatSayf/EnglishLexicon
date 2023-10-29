@@ -12,6 +12,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
@@ -68,9 +69,9 @@ class AccountFragment : Fragment() {
             it == AccountViewModel::class.java || it == MockAccountViewModel::class.java
         }
         val modelLazy = if (clazz == AccountViewModel::class.java) {
-            activityViewModels<AccountViewModel>()
+            viewModels<AccountViewModel>()
         } else {
-            activityViewModels<MockAccountViewModel>()
+            viewModels<MockAccountViewModel>()
         }
         modelLazy.value
     }
