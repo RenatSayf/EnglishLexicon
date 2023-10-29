@@ -11,20 +11,23 @@ import androidx.activity.OnBackPressedCallback
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.auth.AuthListener
 import com.myapp.lexicon.auth.AuthViewModel
+import com.myapp.lexicon.auth.MockAuthViewModel
 import com.myapp.lexicon.databinding.FragmentAccountBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.LuhnAlgorithm
-import com.myapp.lexicon.helpers.getViewModel
 import com.myapp.lexicon.helpers.setBackground
 import com.myapp.lexicon.helpers.showSnackBar
+import com.myapp.lexicon.main.viewmodels.MockUserViewModel
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserState
@@ -40,12 +43,19 @@ class AccountFragment : Fragment() {
 
     companion object {
 
-        private var userId: String? = null
+        private lateinit var viewModelClasses: List<Class<out ViewModel>>
 
         private var listener: AuthListener? = null
-        fun newInstance(userId: String, listener: AuthListener?): AccountFragment {
+        fun newInstance(
+            viewModelClasses: List<Class<out ViewModel>> = listOf(
+                AccountViewModel::class.java,
+                AuthViewModel::class.java,
+                UserViewModel::class.java
+            ),
+            listener: AuthListener?
+        ): AccountFragment {
 
-            this.userId = userId
+            this.viewModelClasses = viewModelClasses
             this.listener = listener
             return AccountFragment()
         }
@@ -54,15 +64,39 @@ class AccountFragment : Fragment() {
     private lateinit var binding: FragmentAccountBinding
 
     private val accountVM: AccountViewModel by lazy {
-        this.getViewModel(AccountViewModel::class.java) as AccountViewModel
+        val clazz = viewModelClasses.first {
+            it == AccountViewModel::class.java || it == MockAccountViewModel::class.java
+        }
+        val modelLazy = if (clazz == AccountViewModel::class.java) {
+            activityViewModels<AccountViewModel>()
+        } else {
+            activityViewModels<MockAccountViewModel>()
+        }
+        modelLazy.value
     }
 
     private val authVM: AuthViewModel by lazy {
-        this.getViewModel(AuthViewModel::class.java) as AuthViewModel
+        val clazz = viewModelClasses.first {
+            it == AuthViewModel::class.java || it == MockAuthViewModel::class.java
+        }
+        val modelLazy = if (clazz == AuthViewModel::class.java) {
+            activityViewModels<AuthViewModel>()
+        } else {
+            activityViewModels<MockAuthViewModel>()
+        }
+        modelLazy.value
     }
 
     private val userVM: UserViewModel by lazy {
-        this.getViewModel(UserViewModel::class.java) as UserViewModel
+        val clazz = viewModelClasses.first {
+            it == UserViewModel::class.java || it == MockUserViewModel::class.java
+        }
+        val modelLazy = if (clazz == UserViewModel::class.java) {
+            activityViewModels<UserViewModel>()
+        } else {
+            activityViewModels<MockUserViewModel>()
+        }
+        modelLazy.value
     }
 
     private val screenOrientation: LockOrientation by lazy {
@@ -82,8 +116,8 @@ class AccountFragment : Fragment() {
 
         with(binding) {
 
-            if (savedInstanceState == null && !userId.isNullOrEmpty()) {
-                userVM.getUserFromCloud(userId!!)
+            if (savedInstanceState == null) {
+                userVM.getUserFromCloud()
             }
 
             lifecycleScope.launch {
@@ -118,13 +152,13 @@ class AccountFragment : Fragment() {
                     is UserViewModel.State.PersonalDataUpdated -> {
                         showSnackBar(getString(R.string.data_is_saved))
                         if (currentUser != null) {
-                            userVM.getUserFromCloud(currentUser.objectId)
+                            userVM.getUserFromCloud()
                         }
                     }
                     is UserViewModel.State.PaymentRequestSent -> {
                         showConfirmDialog()
                         if (currentUser != null) {
-                            userVM.getUserFromCloud(currentUser.objectId)
+                            userVM.getUserFromCloud()
                         }
                     }
                     is UserViewModel.State.Error -> {

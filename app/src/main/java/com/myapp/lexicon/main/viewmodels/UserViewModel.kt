@@ -86,26 +86,31 @@ open class UserViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    open fun getUserFromCloud(userId: String) {
+    open fun getUserFromCloud() {
         _loadingState.value = LoadingState.Start
 
-        val parseQuery = ParseQuery.getQuery<ParseObject>("_User")
-        parseQuery.getInBackground(userId, object : GetCallback<ParseObject> {
-            override fun done(obj: ParseObject?, e: ParseException?) {
-                if (obj is ParseObject) {
-                    val user = obj.mapToUser(userId)
-                    _user.value = user
-                    _state.value = State.ReceivedUserData(user)
-                    _stateFlow.value = State.ReceivedUserData(user)
+        val currentUser = ParseUser.getCurrentUser()
+        if (currentUser != null) {
+            val parseQuery = ParseQuery.getQuery<ParseObject>("_User")
+            parseQuery.getInBackground(currentUser.objectId, object : GetCallback<ParseObject> {
+                override fun done(obj: ParseObject?, e: ParseException?) {
+                    if (obj is ParseObject) {
+                        val user = obj.mapToUser(currentUser.objectId)
+                        _user.value = user
+                        _state.value = State.ReceivedUserData(user)
+                        _stateFlow.value = State.ReceivedUserData(user)
+                    }
+                    else if (e is ParseException) {
+                        e.printStackTrace()
+                        _state.value = State.Error(e.message?: "Unknown error")
+                        _stateFlow.value = State.Error(e.message?: "Unknown error")
+                    }
+                    _loadingState.value = LoadingState.Complete
                 }
-                else if (e is ParseException) {
-                    e.printStackTrace()
-                    _state.value = State.Error(e.message?: "Unknown error")
-                    _stateFlow.value = State.Error(e.message?: "Unknown error")
-                }
-                _loadingState.value = LoadingState.Complete
-            }
-        })
+            })
+        } else {
+            _loadingState.value = LoadingState.Complete
+        }
     }
 
     open fun updateUserDataIntoCloud(userMap: Map<String, Any?>): LiveData<Result<String>> {

@@ -148,7 +148,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         userVM = new ViewModelProvider(ServiceActivity.this).get(UserViewModel.class);
         if (!userId.isEmpty())
         {
-            userVM.getUserFromCloud(userId);
+            userVM.getUserFromCloud();
         }
 
         adsVM.loadInterstitialAd(InterstitialAdIds.INTERSTITIAL_2);

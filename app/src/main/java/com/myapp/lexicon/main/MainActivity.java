@@ -37,6 +37,7 @@ import com.myapp.lexicon.auth.AuthFragment;
 import com.myapp.lexicon.auth.AuthListener;
 import com.myapp.lexicon.auth.AuthViewModel;
 import com.myapp.lexicon.auth.account.AccountFragment;
+import com.myapp.lexicon.auth.account.AccountViewModel;
 import com.myapp.lexicon.cloudstorage.CloudCheckWorker;
 import com.myapp.lexicon.cloudstorage.DownloadDbWorker;
 import com.myapp.lexicon.cloudstorage.StorageDialog;
@@ -176,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 ParseUser currentUser = ParseUser.getCurrentUser();
                 if (currentUser != null)
                 {
-                    userVM.getUserFromCloud(currentUser.getObjectId());
+                    userVM.getUserFromCloud();
                 }
                 return null;
             });
@@ -768,7 +769,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         if (currentUser != null)
                         {
                             AccountFragment accountFragment = AccountFragment.Companion.newInstance(
-                                    currentUser.getObjectId(),
+                                    List.of(AccountViewModel.class, AuthViewModel.class, UserViewModel.class),
                                     MainActivity.this
                             );
                             transaction.replace(R.id.frame_to_page_fragm, accountFragment).addToBackStack(null).commit();

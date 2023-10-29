@@ -36,7 +36,7 @@ class TranslateActivity : AppCompatActivity(), AdEventListener {
 
         val currentUser = ParseUser.getCurrentUser()
         if (currentUser != null) {
-            userVM.getUserFromCloud(currentUser.objectId)
+            userVM.getUserFromCloud()
         }
 
     }

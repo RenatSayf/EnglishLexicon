@@ -15,7 +15,7 @@ class MockUserViewModel @Inject constructor(): UserViewModel() {
         var testData: User? = null
     }
 
-    override fun getUserFromCloud(userId: String) {
+    override fun getUserFromCloud() {
 
         _loadingState.value = LoadingState.Start
         viewModelScope.launch {

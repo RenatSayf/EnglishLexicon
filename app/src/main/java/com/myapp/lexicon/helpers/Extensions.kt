@@ -21,25 +21,14 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
-import com.myapp.lexicon.auth.AuthViewModel
-import com.myapp.lexicon.auth.MockAuthViewModel
-import com.myapp.lexicon.auth.account.AccountViewModel
-import com.myapp.lexicon.auth.account.MockAccountViewModel
-import com.myapp.lexicon.common.AdsSource
 import com.myapp.lexicon.databinding.SnackBarTestBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
-import com.myapp.lexicon.main.viewmodels.MockUserViewModel
-import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.schedule.AlarmScheduler
 import com.myapp.lexicon.schedule.AppNotification
@@ -343,41 +332,6 @@ fun AppCompatActivity.showSignUpBenefitsDialog(
                 }
             }
         }).show(this.supportFragmentManager, ConfirmDialog.TAG)
-    }
-}
-
-fun<T> Fragment.getViewModel(clazz: Class<T>): ViewModel {
-    if (BuildConfig.ADS_SOURCE == AdsSource.LOCAL_HOST.name) {
-        return when(clazz) {
-            UserViewModel::class.java -> {
-                activityViewModels<MockUserViewModel>().value
-            }
-            AccountViewModel::class.java -> {
-                ViewModelProvider(this)[MockAccountViewModel::class.java]
-            }
-            AuthViewModel::class.java -> {
-                activityViewModels<MockAuthViewModel>().value
-            }
-            else -> {
-                throw IllegalArgumentException()
-            }
-        }
-    }
-    else {
-        return when(clazz) {
-            UserViewModel::class.java -> {
-                activityViewModels<UserViewModel>().value
-            }
-            AccountViewModel::class.java -> {
-                ViewModelProvider(this)[AccountViewModel::class.java]
-            }
-            AuthViewModel::class.java -> {
-                activityViewModels<AuthViewModel>().value
-            }
-            else -> {
-                throw IllegalArgumentException()
-            }
-        }
     }
 }
 

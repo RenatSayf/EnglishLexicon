@@ -235,8 +235,7 @@ class AuthFragment : Fragment() {
                 this.password = password
             })
             val accountFragment = AccountFragment.newInstance(
-                user.id,
-                (requireActivity() as MainActivity)
+                listener = (requireActivity() as MainActivity)
             )
             parentFragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, accountFragment).addToBackStack(null).commit()
         }

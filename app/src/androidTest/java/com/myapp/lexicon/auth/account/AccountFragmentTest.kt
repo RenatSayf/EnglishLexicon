@@ -1,6 +1,7 @@
 package com.myapp.lexicon.auth.account
 
 import androidx.appcompat.widget.AppCompatEditText
+import androidx.lifecycle.ViewModel
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions
@@ -10,6 +11,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
+import com.myapp.lexicon.auth.MockAuthViewModel
 import com.myapp.lexicon.common.AdsSource
 import com.myapp.lexicon.main.viewmodels.MockUserViewModel
 import com.myapp.lexicon.models.User
@@ -32,7 +34,7 @@ class AccountFragmentTest {
 
     init {
         require(BuildConfig.ADS_SOURCE == AdsSource.LOCAL_HOST.name, lazyMessage = {
-            println("**************** BuildVariants LOCAL_HOST is required *********************")
+            "**************** BuildVariants LOCAL_HOST is required *********************"
         })
     }
 
@@ -60,7 +62,13 @@ class AccountFragmentTest {
             }
             MockUserViewModel.testData = user
 
-            val accountFragment = AccountFragment.newInstance("ldSTdkg7lo", null)
+            val classList = listOf(
+                MockAccountViewModel::class.java,
+                MockAuthViewModel::class.java,
+                MockUserViewModel::class.java
+            )
+
+            val accountFragment = AccountFragment.newInstance(viewModelClasses = classList, listener = null)
             act.supportFragmentManager.beginTransaction().add(R.id.frameLayout, accountFragment, "XXX").commitNow()
 
             val tvFirstName = act.findViewById<AppCompatEditText>(R.id.tvFirstNameValue)
