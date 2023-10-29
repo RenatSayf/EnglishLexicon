@@ -556,9 +556,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void handleSignOutAction() {
         navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_get_reward);
-        root.findViewById(R.id.tvReward).setVisibility(View.GONE);
+        TextView tvReward = root.findViewById(R.id.tvReward);
+        if (tvReward != null) {
+            tvReward.setVisibility(View.GONE);
+        }
         Toolbar toolBar = root.findViewById(R.id.tool_bar);
-        toolBar.setSubtitle(null);
+        if (toolBar != null)
+        {
+            toolBar.setSubtitle(null);
+        }
     }
 
     public void testPassed()

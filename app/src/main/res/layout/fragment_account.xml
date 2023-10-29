@@ -162,7 +162,7 @@
                     android:textSize="14sp"
                     />
 
-                <androidx.appcompat.widget.AppCompatTextView
+                <androidx.appcompat.widget.AppCompatEditText
                     android:id="@+id/tvEmailValue"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

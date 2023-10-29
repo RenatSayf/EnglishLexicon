@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.activity.OnBackPressedCallback
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -100,7 +101,7 @@ class AccountFragment : Fragment() {
                 }
             }
 
-            accountVM.fetchBankList().observe(viewLifecycleOwner) { result ->
+            accountVM.bankList.observe(viewLifecycleOwner) { result ->
                 result.onSuccess { list ->
                     val bankListAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, list)
                     tvBankNameValue.setAdapter(bankListAdapter)
@@ -142,29 +143,43 @@ class AccountFragment : Fragment() {
                 }
             }
 
+            val editTextList = listOf(
+                tvEmailValue,
+                tvPhoneValue,
+                tvBankNameValue,
+                tvCardNumber,
+                tvFirstNameValue,
+                tvLastNameValue
+            )
             accountVM.state.observe(viewLifecycleOwner) { state ->
                 when(state) {
                     AccountViewModel.State.Editing -> {
-                        tvPhoneValue.isEnabled = true
-                        tvPhoneValue.requestFocus()
-                        tvBankNameValue.isEnabled = true
-                        tvCardNumber.isEnabled = true
-                        tvFirstNameValue.isEnabled = true
-                        tvLastNameValue.isEnabled = true
+                        editTextList.forEach {
+                            it.isEnabled = true
+                        }
+                        val editText = editTextList.firstOrNull {
+                            it.text.isEmpty()
+                        }
+                        editText?.requestFocus() ?: run {
+                            tvFirstNameValue.apply {
+                                requestFocus()
+                                setSelection(this.text?.length?: 0)
+                            }
+                        }
                         btnSave.visibility = View.VISIBLE
                         accountVM.setState(AccountViewModel.State.OnValid())
+                        userVM.setState(UserViewModel.State.Init)
                     }
                     AccountViewModel.State.ReadOnly -> {
-                        tvPhoneValue.isEnabled = false
-                        tvBankNameValue.isEnabled = false
-                        tvCardNumber.isEnabled = false
-                        tvFirstNameValue.isEnabled = false
-                        tvLastNameValue.isEnabled = false
+                        editTextList.forEach {
+                            it.isEnabled = false
+                        }
                         btnSave.visibility = View.GONE
                     }
                     is AccountViewModel.State.OnSave -> {
                         val user = state.user
                         val userMap = mapOf<String, Any>(
+                            User.KEY_EMAIL to tvEmailValue.text.toString(),
                             User.KEY_PHONE to tvPhoneValue.text.toString(),
                             User.KEY_BANK_NAME to tvBankNameValue.text.toString(),
                             User.KEY_BANK_CARD to tvCardNumber.text.toString(),
@@ -185,6 +200,18 @@ class AccountFragment : Fragment() {
                         accountVM.setState(AccountViewModel.State.ReadOnly)
                     }
                     is AccountViewModel.State.OnValid -> {
+                        btnSave.visibility = View.VISIBLE
+                        if (state.email) {
+                            tvEmailValue.setBackground(R.drawable.bg_horizontal_oval)
+                        }
+                        else {
+                            tvEmailValue.apply {
+                                setBackground(R.drawable.bg_horizontal_oval_error)
+                                isEnabled = true
+                                requestFocus()
+                            }
+                        }
+
                         if (state.phone) {
                             tvPhoneValue.setBackground(R.drawable.bg_horizontal_oval)
                         }
@@ -243,6 +270,18 @@ class AccountFragment : Fragment() {
                 }
             }
 
+            tvEmailValue.doOnTextChanged { text, start, before, count ->
+                val state = accountVM.state.value
+                if (state is AccountViewModel.State.OnValid) {
+                    val isValid = authVM.isValidEmail(text.toString())
+                    if (text.isNullOrEmpty() || !isValid) {
+                        accountVM.setState(state.copy(email = false))
+                    }
+                    else {
+                        accountVM.setState(state.copy(email = true))
+                    }
+                }
+            }
             tvPhoneValue.doOnTextChanged { text, start, before, count ->
                 val state = accountVM.state.value
                 if (state is AccountViewModel.State.OnValid) {
@@ -308,6 +347,20 @@ class AccountFragment : Fragment() {
             btnSave.setOnClickListener {
                 val user = userVM.user.value
                 if (user != null) {
+                    val state = accountVM.state.value
+                    if (state is AccountViewModel.State.OnValid) {
+                        val editText = editTextList.firstOrNull {
+                            it.background.constantState == ResourcesCompat.getDrawable(
+                                resources,
+                                R.drawable.bg_horizontal_oval_error,
+                                null
+                            )?.constantState
+                        }
+                        if (editText != null) {
+                            showSnackBar(getString(R.string.text_form_incorrect))
+                            return@setOnClickListener
+                        }
+                    }
                     accountVM.setState(AccountViewModel.State.OnSave(user))
                 }
             }
@@ -416,7 +469,7 @@ class AccountFragment : Fragment() {
                 }
             }
 
-            tvEmailValue.text = user.email
+            tvEmailValue.setText(user.email)
             tvPhoneValue.setText(user.phone)
             tvBankNameValue.setText(user.bankName)
             tvCardNumber.setText(user.bankCard)

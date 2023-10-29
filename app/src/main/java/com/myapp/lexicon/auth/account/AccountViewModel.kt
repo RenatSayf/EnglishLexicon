@@ -1,4 +1,4 @@
-@file:Suppress("RedundantSamConstructor", "MoveVariableDeclarationIntoWhen")
+@file:Suppress("RedundantSamConstructor", "MoveVariableDeclarationIntoWhen", "PropertyName")
 
 package com.myapp.lexicon.auth.account
 
@@ -21,6 +21,7 @@ open class AccountViewModel : ViewModel() {
         object Editing: State()
         data class OnSave(val user: User): State()
         data class OnValid(
+            var email: Boolean = true,
             var phone: Boolean = true,
             var bankName: Boolean = true,
             var card: Boolean = true,
@@ -44,9 +45,11 @@ open class AccountViewModel : ViewModel() {
         _state.value = state
     }
 
-    open fun fetchBankList(): LiveData<Result<List<String>>> {
+    protected var _bankList = MutableLiveData<Result<List<String>>>()
+    open val bankList: LiveData<Result<List<String>>> = _bankList
 
-        val result = MutableLiveData<Result<List<String>>>()
+    open fun fetchBankList() {
+
         thread = Thread(Runnable {
             val url = "https://sbp.nspk.ru/participants/"
             try {
@@ -61,26 +64,28 @@ open class AccountViewModel : ViewModel() {
                         val list = elements.map {
                             it.text()
                         }
-                        result.postValue(Result.success(list))
+                        _bankList.postValue(Result.success(list))
                     }
                     else -> {
-                        result.postValue(Result.failure(Exception("********* ${AccountViewModel::class.simpleName}.fetchBankList() - Http response code - $code **************")))
+                        _bankList.postValue(Result.failure(Exception("********* ${AccountViewModel::class.simpleName}.fetchBankList() - Http response code - $code **************")))
                     }
                 }
             } catch (e: Exception) {
                 if (BuildConfig.DEBUG) {
                     e.printStackTrace()
                 }
-                result.postValue(Result.failure(e))
+                _bankList.postValue(Result.failure(e))
             }
         })
         thread?.start()
-
-        return result
     }
 
     override fun onCleared() {
         thread?.interrupt()
         super.onCleared()
+    }
+
+    init {
+        this.fetchBankList()
     }
 }

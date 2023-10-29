@@ -22,16 +22,17 @@ class MockAccountViewModel: AccountViewModel() {
         super.setState(state)
     }
 
-    override fun fetchBankList(): LiveData<Result<List<String>>> {
-        val result = MutableLiveData<Result<List<String>>>()
+    override val bankList: LiveData<Result<List<String>>>
+        get() = super.bankList
+
+    override fun fetchBankList() {
         viewModelScope.launch {
             delay(1000)
-            result.value = Result.success(listOf(
+            _bankList.value = Result.success(listOf(
                 "Сбербанк",
                 "Газпромбанк",
                 "Альфа банк"
             ))
         }
-        return result
     }
 }

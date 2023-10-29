@@ -49,6 +49,36 @@ class AuthFragment : Fragment() {
 
         with(binding) {
 
+            authVM.screenState.observe(viewLifecycleOwner) { state ->
+                when(state) {
+                    AuthViewModel.ScreenState.Init -> {}
+                    is AuthViewModel.ScreenState.Current -> {
+                        etEmail.apply {
+                            setText(state.emailText)
+                            if (state.emailIsFocused) {
+                                requestFocus()
+                                setSelection(text?.length?: 0)
+                            }
+                            background = state.emailBackground
+                        }
+                        etPassword.apply {
+                            setText(state.passwordText)
+                            if (state.passwordIsFocused) {
+                                requestFocus()
+                                setSelection(text?.length?: 0)
+                            }
+                            background = state.passwordBackground
+                        }
+                        btnSignIn.apply {
+                            isEnabled = state.btnSignInEnable
+                        }
+                        btnRegistration.apply {
+                            isEnabled = state.btnSignUpEnable
+                        }
+                    }
+                }
+            }
+
             btnRegistration.setOnClickListener {
                 validateEmailAndPassword(
                     onSuccess = { email, password ->
@@ -71,18 +101,22 @@ class AuthFragment : Fragment() {
             }
 
             etEmail.doOnTextChanged { text, _, _, _ ->
-                val result = authVM.isValidEmail(text.toString())
-                if (result) {
-                    authVM.setState(UserState.EmailValid(true))
+                if (!text.isNullOrBlank()) {
+                    val result = authVM.isValidEmail(text.toString())
+                    if (result) {
+                        authVM.setState(UserState.EmailValid(true))
+                    }
+                    else authVM.setState(UserState.EmailValid(false))
                 }
-                else authVM.setState(UserState.EmailValid(false))
             }
             etPassword.doOnTextChanged { text, _, _, _ ->
-                if (text.toString().length >= 6) {
-                    authVM.setState(UserState.PasswordValid(true))
-                }
-                else {
-                    authVM.setState(UserState.PasswordValid(false))
+                if (!text.isNullOrBlank()) {
+                    if (text.toString().length >= 6) {
+                        authVM.setState(UserState.PasswordValid(true))
+                    }
+                    else {
+                        authVM.setState(UserState.PasswordValid(false))
+                    }
                 }
             }
 
@@ -235,6 +269,25 @@ class AuthFragment : Fragment() {
                 }
             }
         }
+    }
+
+    override fun onPause() {
+
+        with(binding) {
+            authVM.setScreenState(
+                AuthViewModel.ScreenState.Current(
+                    emailText = etEmail.text.toString(),
+                    emailIsFocused = etEmail.isFocused,
+                    emailBackground = etEmail.background,
+                    passwordText = etPassword.text.toString(),
+                    passwordIsFocused = etPassword.isFocused,
+                    passwordBackground = etPassword.background,
+                    btnSignInEnable = btnSignIn.isEnabled,
+                    btnSignUpEnable = btnRegistration.isEnabled
+                )
+            )
+        }
+        super.onPause()
     }
 
     override fun onResume() {

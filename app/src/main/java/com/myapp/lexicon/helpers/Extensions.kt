@@ -21,6 +21,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -349,13 +350,13 @@ fun<T> Fragment.getViewModel(clazz: Class<T>): ViewModel {
     if (BuildConfig.ADS_SOURCE == AdsSource.LOCAL_HOST.name) {
         return when(clazz) {
             UserViewModel::class.java -> {
-                ViewModelProvider(this)[MockUserViewModel::class.java]
+                activityViewModels<MockUserViewModel>().value
             }
             AccountViewModel::class.java -> {
                 ViewModelProvider(this)[MockAccountViewModel::class.java]
             }
             AuthViewModel::class.java -> {
-                viewModels<MockAuthViewModel>().value
+                activityViewModels<MockAuthViewModel>().value
             }
             else -> {
                 throw IllegalArgumentException()
@@ -365,13 +366,13 @@ fun<T> Fragment.getViewModel(clazz: Class<T>): ViewModel {
     else {
         return when(clazz) {
             UserViewModel::class.java -> {
-                ViewModelProvider(this)[UserViewModel::class.java]
+                activityViewModels<UserViewModel>().value
             }
             AccountViewModel::class.java -> {
                 ViewModelProvider(this)[AccountViewModel::class.java]
             }
             AuthViewModel::class.java -> {
-                viewModels<AuthViewModel>().value
+                activityViewModels<AuthViewModel>().value
             }
             else -> {
                 throw IllegalArgumentException()

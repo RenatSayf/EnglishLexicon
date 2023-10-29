@@ -113,6 +113,11 @@ open class UserViewModel @Inject constructor() : ViewModel() {
         val result = MutableLiveData<Result<String>>()
 
         val currentUser = ParseUser.getCurrentUser()
+        val email = userMap[User.KEY_EMAIL].toString()
+        if (email.isNotEmpty()) {
+            currentUser.username = email
+            currentUser.email = email
+        }
         userMap.forEach { entry ->
             currentUser.put(entry.key, entry.value?: "")
         }

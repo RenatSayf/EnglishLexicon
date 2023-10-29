@@ -3,6 +3,7 @@
 package com.myapp.lexicon.auth
 
 import android.app.Application
+import android.graphics.drawable.Drawable
 import android.text.TextUtils
 import android.util.Patterns
 import androidx.lifecycle.AndroidViewModel
@@ -38,6 +39,26 @@ open class AuthViewModel @Inject constructor(
 
     open fun setLoadingState(state: LoadingState) {
         _loadingState.value = state
+    }
+
+    sealed class ScreenState {
+        object Init: ScreenState()
+        data class Current(
+            val emailText: String,
+            val emailIsFocused: Boolean,
+            val emailBackground: Drawable,
+            val passwordText: String,
+            val passwordIsFocused: Boolean,
+            val passwordBackground: Drawable,
+            val btnSignInEnable: Boolean,
+            val btnSignUpEnable: Boolean,
+        ): ScreenState()
+    }
+
+    private var _screenState = MutableLiveData<ScreenState>(ScreenState.Init)
+    open val screenState: LiveData<ScreenState> = _screenState
+    fun setScreenState(state: ScreenState) {
+        _screenState.value = state
     }
 
     protected var _state = MutableLiveData<UserState>().apply {
