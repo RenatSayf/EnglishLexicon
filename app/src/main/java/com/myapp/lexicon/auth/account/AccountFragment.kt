@@ -144,12 +144,19 @@ class AccountFragment : Fragment() {
 
             accountVM.screenState.observe(viewLifecycleOwner) { state ->
                 when(state) {
-                    AccountScreenModel.Init -> {
+                    AccountScreenState.Init -> {
                         userVM.getUserFromCloud()
                     }
-                    is AccountScreenModel.Current -> {
-                        tvRewardValue.text = state.reward
-                        groupReward.visibility = state.groupRewardVisibility
+                    is AccountScreenState.Current -> {
+                        tvRewardValue.text = state.reward.text
+                        groupToPayout.apply {
+                            visibility = state.groupPayout.visibility
+                            tvReservedValue.text = state.groupPayout.text
+                        }
+                        tvMessage.apply {
+                            text = state.messageForUser.text
+                            visibility = state.messageForUser.visibility
+                        }
                         tvEmailValue.apply {
                             setText(state.emailState.text)
                             background = state.emailState.background
@@ -159,33 +166,53 @@ class AccountFragment : Fragment() {
                             }
                         }
                         tvPhoneValue.apply {
-                            setText(state.phone)
-                            background = state.phoneBackground
+                            setText(state.phoneState.text)
+                            background = state.phoneState.background
+                            if (state.phoneState.isFocused) {
+                                requestFocus()
+                                setSelection(this.text?.length?: 0)
+                            }
                         }
                         tvBankNameValue.apply {
-                            setText(state.bankName)
-                            background = state.bankNameBackground
+                            setText(state.bankName.text)
+                            background = state.bankName.background
+                            if (state.bankName.isFocused) {
+                                requestFocus()
+                                setSelection(this.text?.length?: 0)
+                            }
                         }
                         tvCardNumber.apply {
-                            setText(state.cardNumber)
-                            background = state.cardNumberBackground
+                            setText(state.cardNumber.text)
+                            background = state.cardNumber.background
+                            if (state.cardNumber.isFocused) {
+                                requestFocus()
+                                setSelection(this.text?.length?: 0)
+                            }
                         }
                         tvFirstNameValue.apply {
-                            setText(state.firstName)
-                            background = state.firstNameBackground
+                            setText(state.firstName.text)
+                            background = state.firstName.background
+                            if (state.firstName.isFocused) {
+                                requestFocus()
+                                setSelection(this.text?.length?: 0)
+                            }
                         }
                         tvLastNameValue.apply {
-                            setText(state.lastName)
-                            background = state.lastNameBackground
+                            setText(state.lastName.text)
+                            background = state.lastName.background
+                            if (state.lastName.isFocused) {
+                                requestFocus()
+                                setSelection(this.text?.length?: 0)
+                            }
                         }
                         btnSave.apply {
-                            visibility = state.btnSaveVisibility
+                            visibility = state.btnSave.visibility
                         }
                         btnGetReward.apply {
-                            isEnabled = state.btnRewardEnable
+                            isEnabled = state.btnGetReward.isEnabled
                         }
                         tvRewardCondition.apply {
-                            text = state.rewardCondition
+                            text = state.rewardCondition.text
                         }
                     }
                 }
@@ -228,7 +255,7 @@ class AccountFragment : Fragment() {
                             }
                         )
                         handleUserData(state.user)
-                        userVM.setState(UserViewModel.State.UserAdded(state.user))
+                        userVM.setState(UserViewModel.State.Init)
                     }
                     else -> {}
                 }
@@ -439,14 +466,12 @@ class AccountFragment : Fragment() {
             tvRewardValue.text = rewardToDisplay
 
             if (user.reservedPayment > 0) {
-                tvReservedTitle.visibility = View.VISIBLE
-                tvReservedValue.visibility = View.VISIBLE
+                groupToPayout.visibility = View.VISIBLE
                 val payoutToDisplay = "${user.reservedPayment} ${user.currencySymbol}"
                 tvReservedValue.text = payoutToDisplay
             }
             else {
-                tvReservedTitle.visibility = View.GONE
-                tvReservedValue.visibility = View.GONE
+                groupToPayout.visibility = View.GONE
             }
 
             val rewardThreshold = (accountVM.paymentThreshold * user.currencyRate).toInt()
@@ -548,33 +573,48 @@ class AccountFragment : Fragment() {
 
         with(binding) {
             accountVM.saveScreenState(
-                AccountScreenModel.Current(
-                    reward = tvRewardValue.text.toString(),
-                    groupRewardVisibility = groupReward.visibility,
-                    messageForUser = tvMessage.text.toString(),
-                    messageForUserVisibility = tvMessage.visibility,
-                    email = tvEmailValue.text.toString(),
-                    emailBackground = tvEmailValue.background,
-                    phone = tvPhoneValue.text.toString(),
-                    phoneBackground = tvPhoneValue.background,
-                    bankName = tvBankNameValue.text.toString(),
-                    bankNameBackground = tvBankNameValue.background,
-                    cardNumber = tvCardNumber.text.toString(),
-                    cardNumberBackground = tvCardNumber.background,
-                    firstName = tvFirstNameValue.text.toString(),
-                    firstNameBackground = tvFirstNameValue.background,
-                    lastName = tvLastNameValue.text.toString(),
-                    lastNameBackground = tvLastNameValue.background,
-                    btnSaveVisibility = btnSave.visibility,
-                    btnRewardEnable = btnGetReward.isEnabled,
-                    rewardCondition = tvRewardCondition.text.toString(),
+                AccountScreenState.Current(
+                    reward = ViewState(
+                        text = tvRewardValue.text.toString(),
+                    ),
+                    groupPayout = ViewState(
+                        text = tvReservedValue.text.toString(),
+                        visibility = groupToPayout.visibility
+                    ),
+                    messageForUser = ViewState(
+                        text = tvMessage.text.toString(),
+                        visibility = tvMessage.visibility
+                    ),
                     emailState = ViewState(
                         text = tvEmailValue.text.toString(),
                         isEnabled = tvEmailValue.isEnabled,
-                        visibility = tvEmailValue.visibility,
                         isFocused = tvEmailValue.isFocused,
                         background = tvEmailValue.background
-                    )
+                    ),
+                    phoneState = ViewState(
+                        text = tvPhoneValue.text.toString(),
+                        isEnabled = tvPhoneValue.isEnabled,
+                        background = tvPhoneValue.background
+                    ),
+                    bankName = ViewState(
+                        text = tvBankNameValue.text.toString(),
+                        background = tvBankNameValue.background
+                    ),
+                    cardNumber = ViewState(
+                        text = tvCardNumber.text.toString(),
+                        background = tvCardNumber.background
+                    ),
+                    firstName = ViewState(
+                        text = tvFirstNameValue.text.toString(),
+                        background = tvFirstNameValue.background
+                    ),
+                    lastName = ViewState(
+                        text = tvLastNameValue.text.toString(),
+                        background = tvLastNameValue.background
+                    ),
+                    btnSave = ViewState(visibility = btnSave.visibility),
+                    btnGetReward = ViewState(isEnabled = btnGetReward.isEnabled),
+                    rewardCondition = ViewState(text = tvRewardCondition.text.toString())
                 )
             )
         }

@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
-import com.myapp.lexicon.models.User
 import org.jsoup.Jsoup
 import java.io.BufferedInputStream
 import java.net.HttpURLConnection
@@ -36,9 +35,9 @@ open class AccountViewModel : ViewModel() {
         _state.value = state
     }
 
-    private var _screenState = MutableLiveData<AccountScreenModel>(AccountScreenModel.Init)
-    open val screenState: LiveData<AccountScreenModel> = _screenState
-    fun saveScreenState(state: AccountScreenModel) {
+    private var _screenState = MutableLiveData<AccountScreenState>(AccountScreenState.Init)
+    open val screenState: LiveData<AccountScreenState> = _screenState
+    fun saveScreenState(state: AccountScreenState) {
         _screenState.value = state
     }
 
