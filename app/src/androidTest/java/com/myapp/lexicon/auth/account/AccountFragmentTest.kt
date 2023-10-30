@@ -1,7 +1,6 @@
 package com.myapp.lexicon.auth.account
 
 import androidx.appcompat.widget.AppCompatEditText
-import androidx.lifecycle.ViewModel
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions
@@ -68,7 +67,7 @@ class AccountFragmentTest {
                 MockUserViewModel::class.java
             )
 
-            val accountFragment = AccountFragment.newInstance(viewModelClasses = classList, listener = null)
+            val accountFragment = AccountFragment.newInstance(viewModelClasses = classList)
             act.supportFragmentManager.beginTransaction().add(R.id.frameLayout, accountFragment, "XXX").commitNow()
 
             val tvFirstName = act.findViewById<AppCompatEditText>(R.id.tvFirstNameValue)

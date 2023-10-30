@@ -175,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             result.onSignIn(user -> {
                 navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_account);
                 ParseUser currentUser = ParseUser.getCurrentUser();
-                if (currentUser != null)
+                if (currentUser != null && savedInstanceState == null)
                 {
                     userVM.getUserFromCloud();
                 }
@@ -215,11 +215,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     User user = ((UserViewModel.State.RevenueUpdated) result).getUser();
                     buildRewardText(user);
                 }
-                if (result instanceof UserViewModel.State.PersonalDataUpdated)
-                {
-                    User user = ((UserViewModel.State.PersonalDataUpdated) result).getUser();
-                    buildRewardText(user);
-                }
+//                if (result instanceof UserViewModel.State.PersonalDataUpdated)
+//                {
+//                    User user = ((UserViewModel.State.PersonalDataUpdated) result).getUser();
+//                    buildRewardText(user);
+//                }
             }
 
             @Override
@@ -769,8 +769,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         if (currentUser != null)
                         {
                             AccountFragment accountFragment = AccountFragment.Companion.newInstance(
-                                    List.of(AccountViewModel.class, AuthViewModel.class, UserViewModel.class),
-                                    MainActivity.this
+                                    List.of(AccountViewModel.class, AuthViewModel.class, UserViewModel.class)
                             );
                             transaction.replace(R.id.frame_to_page_fragm, accountFragment).addToBackStack(null).commit();
                         } else

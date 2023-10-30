@@ -19,15 +19,6 @@ open class AccountViewModel : ViewModel() {
     sealed class State {
         object ReadOnly: State()
         object Editing: State()
-        data class OnSave(val user: User): State()
-        data class OnValid(
-            var email: Boolean = true,
-            var phone: Boolean = true,
-            var bankName: Boolean = true,
-            var card: Boolean = true,
-            var firstName: Boolean = true,
-            var lastName: Boolean = true
-        ): State()
     }
 
     open val paymentThreshold: Double = Firebase.remoteConfig.getDouble("payment_threshold")
@@ -43,6 +34,12 @@ open class AccountViewModel : ViewModel() {
 
     open fun setState(state: State) {
         _state.value = state
+    }
+
+    private var _screenState = MutableLiveData<AccountScreenModel>(AccountScreenModel.Init)
+    open val screenState: LiveData<AccountScreenModel> = _screenState
+    fun saveScreenState(state: AccountScreenModel) {
+        _screenState.value = state
     }
 
     protected var _bankList = MutableLiveData<Result<List<String>>>()

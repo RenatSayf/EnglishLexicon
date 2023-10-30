@@ -54,7 +54,7 @@ open class UserViewModel @Inject constructor() : ViewModel() {
         object Init: State()
         data class UserAdded(val user: User): State()
         data class ReceivedUserData(val user: User): State()
-        data class PersonalDataUpdated(val user: User): State()
+        object PersonalDataUpdated: State()
         data class RevenueUpdated(val bonus: Double, val user: User): State()
         object PaymentRequestSent: State()
         data class Error(val message: String): State()
@@ -86,9 +86,10 @@ open class UserViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    open fun getUserFromCloud() {
+    open fun getUserFromCloud(): LiveData<Result<User>> {
         _loadingState.value = LoadingState.Start
 
+        val result = MutableLiveData<Result<User>>()
         val currentUser = ParseUser.getCurrentUser()
         if (currentUser != null) {
             val parseQuery = ParseQuery.getQuery<ParseObject>("_User")
@@ -99,18 +100,22 @@ open class UserViewModel @Inject constructor() : ViewModel() {
                         _user.value = user
                         _state.value = State.ReceivedUserData(user)
                         _stateFlow.value = State.ReceivedUserData(user)
+                        result.value = Result.success(user)
                     }
                     else if (e is ParseException) {
                         e.printStackTrace()
                         _state.value = State.Error(e.message?: "Unknown error")
                         _stateFlow.value = State.Error(e.message?: "Unknown error")
+                        result.value = Result.failure(e)
                     }
                     _loadingState.value = LoadingState.Complete
                 }
             })
         } else {
+            result.value = Result.failure(Exception("********** ${this::class.simpleName} - current user is NULL **************"))
             _loadingState.value = LoadingState.Complete
         }
+        return result
     }
 
     open fun updateUserDataIntoCloud(userMap: Map<String, Any?>): LiveData<Result<String>> {
@@ -133,9 +138,13 @@ open class UserViewModel @Inject constructor() : ViewModel() {
                         e.printStackTrace()
                     }
                     result.value = Result.failure(e)
+                    _state.value = State.Error(e.message?: "Unknown error")
+                    _stateFlow.value = State.Error(e.message?: "Unknown error")
                 }
                 else {
                     result.value = Result.success(currentUser.objectId)
+                    _state.value = State.PersonalDataUpdated
+                    _stateFlow.value = State.PersonalDataUpdated
                 }
                 _loadingState.value = LoadingState.Complete
             }
