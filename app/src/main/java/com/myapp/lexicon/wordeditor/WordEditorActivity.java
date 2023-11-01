@@ -40,6 +40,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
@@ -88,6 +89,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
                 android.R.anim.slide_out_right);
         switcher.setInAnimation(slide_in_left);
         switcher.setOutAnimation(slide_out_right);
+        switcher.setDisplayedChild(editorVM.getSwitcherChildIndex());
         
         buttonWrite = findViewById(R.id.btn_write);
         if (buttonWrite != null)
@@ -285,6 +287,8 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             }
         });
 
+
+
         String enWord = getIntent().getStringExtra(KEY_EXTRA_EN_WORD);
         String ruWord = getIntent().getStringExtra(KEY_EXTRA_RU_WORD);
         if (enWord != null && ruWord != null)
@@ -297,22 +301,35 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
     }
 
     @Override
-    public void onBackPressed()
+    protected void onResume()
     {
-        int index = switcher.getDisplayedChild();
-        if (index > 0) {
-            switcher.showPrevious();
-        }
-        else {
-            setResult(requestCode, new Intent());
-            finish();
-        }
+        super.onResume();
+
+        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true)
+        {
+            @Override
+            public void handleOnBackPressed()
+            {
+                int index = switcher.getDisplayedChild();
+                if (index > 0)
+                {
+                    switcher.showPrevious();
+                } else
+                {
+                    setResult(requestCode, new Intent());
+                    finish();
+                }
+            }
+        });
     }
 
     @Override
-    protected void onDestroy()
+    protected void onPause()
     {
-        super.onDestroy();
+        View currentView = switcher.getCurrentView();
+        int index = switcher.indexOfChild(currentView);
+        editorVM.setSwitcherChildIndex(index);
+        super.onPause();
     }
 
     private void buttonCancel_OnClick()
@@ -440,7 +457,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
         }
         if (id == android.R.id.home)
         {
-            onBackPressed();
+            getOnBackPressedDispatcher().onBackPressed();
         }
         return true;
     }

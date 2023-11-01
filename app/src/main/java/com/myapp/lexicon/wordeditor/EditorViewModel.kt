@@ -28,6 +28,8 @@ class EditorViewModel @Inject constructor(
     @JvmField
     val wordsList: LiveData<MutableList<Word>> = _wordsList
 
+    var switcherChildIndex = 0
+
     fun getAllWordsByDictName(dict: String)
     {
         composite.add(
