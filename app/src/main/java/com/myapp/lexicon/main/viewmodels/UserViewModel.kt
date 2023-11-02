@@ -2,19 +2,23 @@
 
 package com.myapp.lexicon.main.viewmodels
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
+import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.helpers.toStringTime
 import com.myapp.lexicon.interfaces.FlowCallback
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.to2DigitsScale
+import com.myapp.lexicon.settings.getAuthDataFromPref
 import com.parse.GetCallback
+import com.parse.LogInCallback
 import com.parse.ParseException
 import com.parse.ParseObject
 import com.parse.ParseQuery
@@ -31,7 +35,9 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-open class UserViewModel @Inject constructor() : ViewModel() {
+open class UserViewModel @Inject constructor(
+    private val app: Application
+) : AndroidViewModel(app) {
     companion object {
 
         val USER_PERCENTAGE: Double by lazy {
@@ -52,7 +58,6 @@ open class UserViewModel @Inject constructor() : ViewModel() {
 
     sealed class State {
         object Init: State()
-        data class UserAdded(val user: User): State()
         data class ReceivedUserData(val user: User): State()
         object PersonalDataUpdated: State()
         data class RevenueUpdated(val bonus: Double, val user: User): State()
@@ -86,6 +91,37 @@ open class UserViewModel @Inject constructor() : ViewModel() {
         }
     }
 
+    private fun signInWithCurrentUser(
+        onSuccess: () -> Unit,
+        onFailure: (String) -> Unit
+    ) {
+        app.getAuthDataFromPref(
+            onSuccess = { email, password ->
+                ParseUser.logInInBackground(
+                    email,
+                    password,
+                    object : LogInCallback {
+                        override fun done(user: ParseUser?, e: ParseException?) {
+                            if (user is ParseUser) {
+                                onSuccess.invoke()
+                            }
+                            else {
+                                ParseUser.logOut()
+                                onFailure.invoke(e?.message?: "Unknown error")
+                            }
+                        }
+                    }
+                )
+            },
+            onNotRegistered = {
+                onFailure.invoke("*********** User not registered ***************")
+            },
+            onFailure = {
+                onFailure.invoke(app.getString(R.string.text_unknown_error_message))
+            }
+        )
+    }
+
     open fun getUserFromCloud(): LiveData<Result<User>> {
         _loadingState.value = LoadingState.Start
 
@@ -103,10 +139,25 @@ open class UserViewModel @Inject constructor() : ViewModel() {
                         result.value = Result.success(user)
                     }
                     else if (e is ParseException) {
-                        e.printStackTrace()
-                        _state.value = State.Error(e.message?: "Unknown error")
-                        _stateFlow.value = State.Error(e.message?: "Unknown error")
-                        result.value = Result.failure(e)
+                        if (e.code == ParseException.INVALID_SESSION_TOKEN) {
+                            signInWithCurrentUser(
+                                onSuccess = {
+                                    getUserFromCloud()
+                                },
+                                onFailure = {message ->
+                                    Exception(message).printStackTrace()
+                                    _state.value = State.Error(message)
+                                    _stateFlow.value = State.Error(message)
+                                    result.value = Result.failure(Exception(message))
+                                }
+                            )
+                        }
+                        else {
+                            e.printStackTrace()
+                            _state.value = State.Error(e.message?: "Unknown error")
+                            _stateFlow.value = State.Error(e.message?: "Unknown error")
+                            result.value = Result.failure(e)
+                        }
                     }
                     _loadingState.value = LoadingState.Complete
                 }
@@ -134,12 +185,29 @@ open class UserViewModel @Inject constructor() : ViewModel() {
         currentUser.saveInBackground(object : SaveCallback {
             override fun done(e: ParseException?) {
                 if (e is ParseException) {
-                    if (BuildConfig.DEBUG) {
-                        e.printStackTrace()
+                    if (e.code == ParseException.INVALID_SESSION_TOKEN) {
+                        signInWithCurrentUser(
+                            onSuccess = {
+                                updateUserDataIntoCloud(userMap)
+                            },
+                            onFailure = {message ->
+                                if (BuildConfig.DEBUG) {
+                                    Exception(message).printStackTrace()
+                                }
+                                _state.value = State.Error(message)
+                                _stateFlow.value = State.Error(message)
+                                result.value = Result.failure(Exception(message))
+                            }
+                        )
                     }
-                    result.value = Result.failure(e)
-                    _state.value = State.Error(e.message?: "Unknown error")
-                    _stateFlow.value = State.Error(e.message?: "Unknown error")
+                    else {
+                        if (BuildConfig.DEBUG) {
+                            e.printStackTrace()
+                        }
+                        result.value = Result.failure(e)
+                        _state.value = State.Error(e.message?: "Unknown error")
+                        _stateFlow.value = State.Error(e.message?: "Unknown error")
+                    }
                 }
                 else {
                     result.value = Result.success(currentUser.objectId)
@@ -170,11 +238,25 @@ open class UserViewModel @Inject constructor() : ViewModel() {
                 currentUser.saveInBackground(object : SaveCallback {
                     override fun done(e: ParseException?) {
                         if (e is ParseException) {
-                            if (BuildConfig.DEBUG) {
-                                e.printStackTrace()
+                            if (e.code == ParseException.INVALID_SESSION_TOKEN) {
+                                signInWithCurrentUser(
+                                    onSuccess = {},
+                                    onFailure = {message ->
+                                        if (BuildConfig.DEBUG) {
+                                            Exception(message).printStackTrace()
+                                        }
+                                        _state.value = State.Error(message)
+                                        _stateFlow.value = State.Error(message)
+                                    }
+                                )
                             }
-                            _state.value = State.Error(e.message?: "Unknown error")
-                            _stateFlow.value = State.Error(e.message?: "Unknown error")
+                            else {
+                                if (BuildConfig.DEBUG) {
+                                    e.printStackTrace()
+                                }
+                                _state.value = State.Error(e.message?: "Unknown error")
+                                _stateFlow.value = State.Error(e.message?: "Unknown error")
+                            }
                         }
                         else {
                             val user = currentUser.mapToUser(currentUser.objectId)
@@ -225,8 +307,22 @@ open class UserViewModel @Inject constructor() : ViewModel() {
                 currentUser.saveInBackground(object : SaveCallback {
                     override fun done(e: ParseException?) {
                         if (e is ParseException) {
-                            if (BuildConfig.DEBUG) e.printStackTrace()
-                            onComplete.invoke(e)
+                            if (e.code == ParseException.INVALID_SESSION_TOKEN) {
+                                signInWithCurrentUser(
+                                    onSuccess = {},
+                                    onFailure = {message ->
+                                        if (BuildConfig.DEBUG) {
+                                            Exception(message).printStackTrace()
+                                        }
+                                        _state.value = State.Error(message)
+                                        _stateFlow.value = State.Error(message)
+                                    }
+                                )
+                            }
+                            else {
+                                if (BuildConfig.DEBUG) e.printStackTrace()
+                                onComplete.invoke(e)
+                            }
                         }
                         else {
                             onSuccess.invoke(payout, rewardRemainder)

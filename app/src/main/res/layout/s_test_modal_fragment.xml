@@ -16,7 +16,7 @@
         android:layout_margin="0dp"
         android:gravity="center"
         android:orientation="horizontal"
-        android:background="@color/colorPrimary">
+        android:background="@color/colorBlackTransparent">
 
         <Button
             android:id="@+id/btn_open_app"

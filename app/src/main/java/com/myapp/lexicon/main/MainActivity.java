@@ -70,6 +70,7 @@ import com.yandex.mobile.ads.banner.BannerAdView;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
 
@@ -146,6 +147,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         authVM.getState().observe(this, result -> {
             result.onInit(() -> {
+                buildRewardText(null);
                 boolean isFirstLaunch = SettingsExtKt.getCheckFirstLaunch(this);
                 if (isFirstLaunch) {
                     ExtensionsKt.showSignUpBenefitsDialog(
@@ -166,6 +168,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             });
             result.onNotRegistered(() -> {
                 navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_get_reward);
+                buildRewardText(null);
                 return null;
             });
             result.onSignUp(user -> {
@@ -215,11 +218,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     User user = ((UserViewModel.State.RevenueUpdated) result).getUser();
                     buildRewardText(user);
                 }
-//                if (result instanceof UserViewModel.State.PersonalDataUpdated)
-//                {
-//                    User user = ((UserViewModel.State.PersonalDataUpdated) result).getUser();
-//                    buildRewardText(user);
-//                }
             }
 
             @Override
@@ -530,42 +528,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void buildRewardText(User user) {
-        if (user != null)
+        Toolbar toolBar = root.findViewById(R.id.tool_bar);
+        if (toolBar != null)
         {
-            Toolbar toolBar = root.findViewById(R.id.tool_bar);
-            if (toolBar != null)
-            {
-                double rewardToDisplay = UserKt.to2DigitsScale(user.getUserReward());
-                if (rewardToDisplay > 0.0)
-                {
-                    String text = getString(R.string.coins_bag).concat(" ")
-                            .concat(getString(R.string.text_your_reward)).concat(" ")
-                            .concat(String.valueOf(rewardToDisplay)).concat(" ")
-                            .concat(user.getCurrencySymbol());
-                    toolBar.setSubtitle(text);
+            double rewardToDisplay = (user != null) ? UserKt.to2DigitsScale(user.getUserReward()) : 0.0;
+            String text = getString(R.string.coins_bag).concat(" ")
+                    .concat(getString(R.string.text_your_reward)).concat(" ")
+                    .concat(String.valueOf(rewardToDisplay)).concat(" ")
+                    .concat((user != null) ? user.getCurrencySymbol() : Currency.getInstance("RUB").getSymbol());
+            toolBar.setSubtitle(text);
 
-                    TextView tvReward = root.findViewById(R.id.tvReward);
-                    if (tvReward != null)
-                    {
-                        tvReward.setText(text);
-                        tvReward.setVisibility(View.VISIBLE);
-                    }
-                }
+            TextView tvReward = root.findViewById(R.id.tvReward);
+            if (tvReward != null)
+            {
+                tvReward.setText(text);
+                tvReward.setVisibility(View.VISIBLE);
             }
         }
     }
 
     private void handleSignOutAction() {
         navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_get_reward);
-        TextView tvReward = root.findViewById(R.id.tvReward);
-        if (tvReward != null) {
-            tvReward.setVisibility(View.GONE);
-        }
-        Toolbar toolBar = root.findViewById(R.id.tool_bar);
-        if (toolBar != null)
-        {
-            toolBar.setSubtitle(null);
-        }
+        buildRewardText(null);
     }
 
     public void testPassed()
@@ -1159,20 +1143,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onConfigurationChanged(@NonNull Configuration newConfig)
     {
         super.onConfigurationChanged(newConfig);
-//        User user = userVM.getUser().getValue();
-//        if (user != null) {
-//            CurrencyViewModel currencyVM = new ViewModelProvider(this).get(CurrencyViewModel.class);
-//            currencyVM.fetchExchangeRateFromCloud(Locale.getDefault());
-//            currencyVM.getCurrency().observe(this, result -> {
-//                result.onSuccess(o -> {
-//                    if (o instanceof Currency currency) {
-//                        SettingsExtKt.saveExchangeRateToPref(this, currency);
-//                        userVM.updateUserRevenue(0.0, user);
-//                    }
-//                    return null;
-//                });
-//            });
-//        }
     }
 
     @Override

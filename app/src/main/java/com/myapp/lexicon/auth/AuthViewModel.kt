@@ -121,7 +121,6 @@ open class AuthViewModel @Inject constructor(
                         val newState = UserState.SignIn(User(user.objectId).apply {
                             this.email = email
                             this.password = password
-                            ///this.sessionToken = user.sessionToken
                         })
                         _state.value = newState
                         _stateFlow.value = newState

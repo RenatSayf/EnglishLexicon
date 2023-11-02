@@ -1,5 +1,6 @@
 package com.myapp.lexicon.main.viewmodels
 
+import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -11,7 +12,9 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class MockUserViewModel @Inject constructor(): UserViewModel() {
+class MockUserViewModel @Inject constructor(
+    app: Application
+): UserViewModel(app) {
 
     companion object {
         var testData: User? = null
