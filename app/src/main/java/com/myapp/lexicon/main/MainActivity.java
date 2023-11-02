@@ -148,22 +148,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         authVM.getState().observe(this, result -> {
             result.onInit(() -> {
                 buildRewardText(null);
-                boolean isFirstLaunch = SettingsExtKt.getCheckFirstLaunch(this);
-                if (isFirstLaunch) {
-                    ExtensionsKt.showSignUpBenefitsDialog(
-                            this,
-                            () -> {
-                                AuthFragment authFragment = AuthFragment.Companion.newInstance(this);
-                                getSupportFragmentManager()
-                                        .beginTransaction()
-                                        .replace(R.id.frame_to_page_fragm, authFragment)
-                                        .addToBackStack(null)
-                                        .commit();
-                                return null;
-                            },
-                            () -> null
-                    );
-                }
+                SettingsExtKt.isUserRegistered(this,
+                        () -> null,
+                        () -> {
+                            boolean isFirstLaunch = SettingsExtKt.getCheckFirstLaunch(this);
+                            if (isFirstLaunch) {
+                                ExtensionsKt.showSignUpBenefitsDialog(
+                                        this,
+                                        () -> {
+                                            SettingsExtKt.setCheckFirstLaunch(MainActivity.this, false);
+                                            AuthFragment authFragment = AuthFragment.Companion.newInstance(this);
+                                            getSupportFragmentManager()
+                                                    .beginTransaction()
+                                                    .replace(R.id.frame_to_page_fragm, authFragment)
+                                                    .addToBackStack(null)
+                                                    .commit();
+                                            return null;
+                                        },
+                                        () -> {
+                                            SettingsExtKt.setCheckFirstLaunch(MainActivity.this, false);
+                                            return null;
+                                        }
+                                );
+                            }
+                            return null;
+                        }
+                );
                 return null;
             });
             result.onNotRegistered(() -> {
@@ -544,6 +554,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 tvReward.setText(text);
                 tvReward.setVisibility(View.VISIBLE);
             }
+            toolBar.setOnClickListener( view -> {
+                DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+                drawerLayout.open();
+            });
         }
     }
 
@@ -662,7 +676,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             if (BuildConfig.DEBUG) e.printStackTrace();
         }
-        SettingsExtKt.setCheckFirstLaunch(MainActivity.this, false);
         super.onDestroy();
     }
 

@@ -174,7 +174,7 @@
     <string name="text_your_reward">Ваша награда: </string>
     <string name="text_account">Аккаунт</string>
     <string name="text_get_reward">Получать вознаграждение</string>
-    <string name="explaining_about_revenue_getting">Для того, что бы получать доход, необходимо зарегистрироваться в приложении.</string>
+    <string name="explaining_about_revenue_getting">Для того, что бы получать вознаграждение, необходимо зарегистрироваться либо войти, если Вы уже были зарегистрированы раннее.</string>
     <string name="text_hint_email">your-email@domain.com</string>
     <string name="text_enter_email">Введите свой адрес электронной почты</string>
     <string name="text_hint_password">your password</string>
