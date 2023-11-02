@@ -830,7 +830,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.frame_to_page_fragm, TestFragment.Companion.newInstance(MainActivity.this))
+                    .replace(R.id.frame_to_page_fragm, TestFragment.Companion.newInstance())
                     .addToBackStack(null)
                     .commit();
         }
