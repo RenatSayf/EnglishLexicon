@@ -16,6 +16,7 @@ import com.myapp.lexicon.databinding.FragmentAuthBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.isItEmail
 import com.myapp.lexicon.helpers.showSnackBar
+import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserState
 import com.myapp.lexicon.settings.saveUserToPref
@@ -25,9 +26,7 @@ class AuthFragment : Fragment() {
     companion object {
 
         val TAG = "${AuthFragment::class.java.simpleName}.TAG"
-        private var listener: AuthListener? = null
-        fun newInstance(listener: AuthListener): AuthFragment {
-            this.listener = listener
+        fun newInstance(): AuthFragment {
             return AuthFragment()
         }
     }
@@ -224,17 +223,20 @@ class AuthFragment : Fragment() {
 
     private fun handleAuthorization(user: User) {
         with(binding) {
-            progressBar.visibility = View.VISIBLE
-            listener?.refreshAuthState(user)
-
-            progressBar.visibility = View.GONE
 
             val password = etPassword.text.toString()
             requireContext().saveUserToPref(user.apply {
                 this.password = password
             })
+
             val accountFragment = AccountFragment.newInstance()
-            parentFragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, accountFragment).addToBackStack(null).commit()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.frame_to_page_fragm, accountFragment)
+                .runOnCommit {
+                    accountFragment.setAuthListener(requireActivity() as MainActivity)
+                }
+                //.addToBackStack(null)
+                .commit()
         }
     }
 
@@ -299,12 +301,6 @@ class AuthFragment : Fragment() {
                     parentFragmentManager.popBackStack()
                 }
             })
-    }
-
-    override fun onDetach() {
-
-        listener = null
-        super.onDetach()
     }
 
 }

@@ -61,14 +61,17 @@ class AccountFragmentTest {
             }
             MockUserViewModel.testData = user
 
-            val classList = listOf(
-                MockAccountViewModel::class.java,
-                MockAuthViewModel::class.java,
-                MockUserViewModel::class.java
+            val accountFragment = AccountFragment.newInstance(
+                authVMClass = MockAuthViewModel::class.java,
+                accountVMClass = MockAccountViewModel::class.java,
+                userVMClass = MockUserViewModel::class.java
             )
-
-            val accountFragment = AccountFragment.newInstance(viewModelClasses = classList)
-            act.supportFragmentManager.beginTransaction().add(R.id.frameLayout, accountFragment, "XXX").commitNow()
+            act.supportFragmentManager.beginTransaction()
+                .add(R.id.frameLayout, accountFragment, "XXX")
+                .runOnCommit {
+                    accountFragment.setAuthListener(act)
+                }
+                .commitNow()
 
             val tvFirstName = act.findViewById<AppCompatEditText>(R.id.tvFirstNameValue)
             val actualBgState = tvFirstName.background.constantState

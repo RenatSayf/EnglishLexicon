@@ -278,6 +278,7 @@
     <string name="text_warning_account_delete">Вы действительно хотите удалить аккаунт. После этого действия Вы не сможете получать вознаграждение.</string>
     <string name="text_account_has_been_deleted">Аккаунт удален</string>
     <string name="text_form_incorrect">Не все поля заполнены правильно.</string>
+    <string name="text_session_has_expired">Сессия истекла. Войдите в аккаунт снова.</string>
 
 
 </resources>

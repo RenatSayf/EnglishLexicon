@@ -19,6 +19,7 @@ import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.settings.getAuthDataFromPref
 import com.parse.GetCallback
 import com.parse.LogInCallback
+import com.parse.LogOutCallback
 import com.parse.ParseException
 import com.parse.ParseObject
 import com.parse.ParseQuery
@@ -95,31 +96,35 @@ open class UserViewModel @Inject constructor(
         onSuccess: () -> Unit,
         onFailure: (String) -> Unit
     ) {
-        app.getAuthDataFromPref(
-            onSuccess = { email, password ->
-                ParseUser.logInInBackground(
-                    email,
-                    password,
-                    object : LogInCallback {
-                        override fun done(user: ParseUser?, e: ParseException?) {
-                            if (user is ParseUser) {
-                                onSuccess.invoke()
+        ParseUser.logOutInBackground(object : LogOutCallback {
+            override fun done(e: ParseException?) {
+                app.getAuthDataFromPref(
+                    onSuccess = { email, password ->
+                        ParseUser.logInInBackground(
+                            email,
+                            password,
+                            object : LogInCallback {
+                                override fun done(user: ParseUser?, e: ParseException?) {
+                                    if (user is ParseUser) {
+                                        onSuccess.invoke()
+                                    }
+                                    else {
+                                        ParseUser.logOut()
+                                        onFailure.invoke(e?.message?: "Unknown error")
+                                    }
+                                }
                             }
-                            else {
-                                ParseUser.logOut()
-                                onFailure.invoke(e?.message?: "Unknown error")
-                            }
-                        }
+                        )
+                    },
+                    onNotRegistered = {
+                        onFailure.invoke("*********** User not registered ***************")
+                    },
+                    onFailure = {
+                        onFailure.invoke(app.getString(R.string.text_unknown_error_message))
                     }
                 )
-            },
-            onNotRegistered = {
-                onFailure.invoke("*********** User not registered ***************")
-            },
-            onFailure = {
-                onFailure.invoke(app.getString(R.string.text_unknown_error_message))
             }
-        )
+        })
     }
 
     open fun getUserFromCloud(): LiveData<Result<User>> {
@@ -287,6 +292,7 @@ open class UserViewModel @Inject constructor(
         onStart: () -> Unit = {},
         onSuccess: (Int, Double) -> Unit,
         onNotEnough: () -> Unit = {},
+        onInvalidToken: (String) -> Unit,
         onComplete: (Exception?) -> Unit = {}
     ) {
         onStart.invoke()
@@ -308,16 +314,8 @@ open class UserViewModel @Inject constructor(
                     override fun done(e: ParseException?) {
                         if (e is ParseException) {
                             if (e.code == ParseException.INVALID_SESSION_TOKEN) {
-                                signInWithCurrentUser(
-                                    onSuccess = {},
-                                    onFailure = {message ->
-                                        if (BuildConfig.DEBUG) {
-                                            Exception(message).printStackTrace()
-                                        }
-                                        _state.value = State.Error(message)
-                                        _stateFlow.value = State.Error(message)
-                                    }
-                                )
+                                onInvalidToken.invoke(currentUser.sessionToken)
+                                onComplete.invoke(null)
                             }
                             else {
                                 if (BuildConfig.DEBUG) e.printStackTrace()

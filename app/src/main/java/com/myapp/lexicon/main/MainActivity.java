@@ -116,6 +116,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Word currentWord;
     private int wordsInterval = 10;
     public BackgroundFragm backgroundFragm = null;
+
+    @Nullable
+    private AccountFragment accountFragment;
+
     @Inject
     AlarmScheduler scheduler;
 
@@ -157,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                         this,
                                         () -> {
                                             SettingsExtKt.setCheckFirstLaunch(MainActivity.this, false);
-                                            AuthFragment authFragment = AuthFragment.Companion.newInstance(this);
+                                            AuthFragment authFragment = AuthFragment.Companion.newInstance();
                                             getSupportFragmentManager()
                                                     .beginTransaction()
                                                     .replace(R.id.frame_to_page_fragm, authFragment)
@@ -431,6 +435,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (savedInstanceState != null)
         {
             tvWordsCounter.setText(savedInstanceState.getString(KEY_TV_WORDS_COUNTER));
+            if (accountFragment != null && accountFragment.isAdded()) {
+                accountFragment.setAuthListener(MainActivity.this);
+            }
         }
 
         CheckBox checkBoxEnView = findViewById(R.id.check_box_en_speak);
@@ -757,7 +764,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             SettingsExtKt.getAuthDataFromPref(
                     this,
                     () -> {
-                        AuthFragment authFragment = AuthFragment.Companion.newInstance(this);
+                        AuthFragment authFragment = AuthFragment.Companion.newInstance();
                         transaction.replace(R.id.frame_to_page_fragm, authFragment).addToBackStack(null).commit();
                         return null;
                     },
@@ -765,13 +772,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         ParseUser currentUser = ParseUser.getCurrentUser();
                         if (currentUser != null)
                         {
-                            AccountFragment accountFragment = AccountFragment.Companion.newInstance(
-                                    List.of(AccountViewModel.class, AuthViewModel.class, UserViewModel.class)
+                            accountFragment = AccountFragment.Companion.newInstance(
+                                    AuthViewModel.class,
+                                    AccountViewModel.class,
+                                    UserViewModel.class
                             );
-                            transaction.replace(R.id.frame_to_page_fragm, accountFragment).addToBackStack(null).commit();
+                            transaction.replace(R.id.frame_to_page_fragm, accountFragment)
+                                    .runOnCommit(new Runnable()
+                                    {
+                                        @Override
+                                        public void run()
+                                        {
+                                            accountFragment.setAuthListener(MainActivity.this);
+                                        }
+                                    })
+                                    //.addToBackStack(null)
+                                    .commit();
                         } else
                         {
-                            AuthFragment authFragment = AuthFragment.Companion.newInstance(this);
+                            AuthFragment authFragment = AuthFragment.Companion.newInstance();
                             transaction.replace(R.id.frame_to_page_fragm, authFragment).addToBackStack(null).commit();
                         }
                         return null;

@@ -12,24 +12,21 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
+import com.myapp.lexicon.auth.AuthFragment
 import com.myapp.lexicon.auth.AuthListener
 import com.myapp.lexicon.auth.AuthViewModel
-import com.myapp.lexicon.auth.MockAuthViewModel
 import com.myapp.lexicon.databinding.FragmentAccountBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.LuhnAlgorithm
 import com.myapp.lexicon.helpers.showSnackBar
-import com.myapp.lexicon.main.MainActivity
-import com.myapp.lexicon.main.viewmodels.MockUserViewModel
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserState
@@ -45,18 +42,20 @@ class AccountFragment : Fragment() {
 
     companion object {
 
-        private lateinit var viewModelClasses: List<Class<out ViewModel>>
+        private lateinit var authVMClass: Class<out ViewModel>
+        private lateinit var accountVMClass: Class<out ViewModel>
+        private lateinit var userVMClass: Class<out ViewModel>
 
         private var listener: AuthListener? = null
-        fun newInstance(
-            viewModelClasses: List<Class<out ViewModel>> = listOf(
-                AccountViewModel::class.java,
-                AuthViewModel::class.java,
-                UserViewModel::class.java
-            )
-        ): AccountFragment {
 
-            this.viewModelClasses = viewModelClasses
+        fun newInstance(
+            authVMClass: Class<out ViewModel> = AuthViewModel::class.java,
+            accountVMClass: Class<out ViewModel> = AccountViewModel::class.java,
+            userVMClass: Class<out ViewModel> = UserViewModel::class.java,
+        ): AccountFragment {
+            this.authVMClass = authVMClass
+            this.accountVMClass = accountVMClass
+            this.userVMClass = userVMClass
             return AccountFragment()
         }
     }
@@ -64,43 +63,23 @@ class AccountFragment : Fragment() {
     private lateinit var binding: FragmentAccountBinding
 
     private val accountVM: AccountViewModel by lazy {
-        val clazz = viewModelClasses.first {
-            it == AccountViewModel::class.java || it == MockAccountViewModel::class.java
-        }
-        val modelLazy = if (clazz == AccountViewModel::class.java) {
-            viewModels<AccountViewModel>()
-        } else {
-            viewModels<MockAccountViewModel>()
-        }
-        modelLazy.value
+        ViewModelProvider(this)[accountVMClass] as AccountViewModel
     }
 
     private val authVM: AuthViewModel by lazy {
-        val clazz = viewModelClasses.first {
-            it == AuthViewModel::class.java || it == MockAuthViewModel::class.java
-        }
-        val modelLazy = if (clazz == AuthViewModel::class.java) {
-            activityViewModels<AuthViewModel>()
-        } else {
-            activityViewModels<MockAuthViewModel>()
-        }
-        modelLazy.value
+        ViewModelProvider(requireActivity())[authVMClass] as AuthViewModel
     }
 
     private val userVM: UserViewModel by lazy {
-        val clazz = viewModelClasses.first {
-            it == UserViewModel::class.java || it == MockUserViewModel::class.java
-        }
-        val modelLazy = if (clazz == UserViewModel::class.java) {
-            activityViewModels<UserViewModel>()
-        } else {
-            activityViewModels<MockUserViewModel>()
-        }
-        modelLazy.value
+        ViewModelProvider(requireActivity())[userVMClass] as UserViewModel
     }
 
     private val screenOrientation: LockOrientation by lazy {
         LockOrientation(requireActivity())
+    }
+
+    fun setAuthListener(listener: AuthListener) {
+        Companion.listener = listener
     }
 
     override fun onCreateView(
@@ -113,8 +92,6 @@ class AccountFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        listener = requireActivity() as MainActivity
 
         with(binding) {
 
@@ -425,12 +402,17 @@ class AccountFragment : Fragment() {
                         onNotEnough = {
                             showSnackBar(getString(R.string.text_not_money))
                         },
+                        onInvalidToken = {oldToken ->
+                            showSnackBar(getString(R.string.text_session_has_expired))
+                            val authFragment = AuthFragment.newInstance()
+                            parentFragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, authFragment).commit()
+                        },
                         onComplete = {exception ->
+                            userVM.setLoadingState(UserViewModel.LoadingState.Complete)
                             if (exception != null) {
                                 if (BuildConfig.DEBUG) exception.printStackTrace()
                                 showSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
                             }
-                            userVM.setLoadingState(UserViewModel.LoadingState.Complete)
                             screenOrientation.unLock()
                         }
                     )
@@ -678,9 +660,17 @@ class AccountFragment : Fragment() {
     private fun goBack() {
         val user = userVM.user.value
         user?.let {
-            listener?.refreshAuthState(it)
+            listener?.refreshAuthState(it)?: run {
+                throw NullPointerException("******** the listener is NULL, you must configure its method before *********")
+            }
         }
         parentFragmentManager.beginTransaction().detach(this@AccountFragment).commit()
+    }
+
+    override fun onDestroy() {
+
+        listener = null
+        super.onDestroy()
     }
 
     override fun onDetach() {
