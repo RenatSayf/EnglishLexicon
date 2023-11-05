@@ -12,9 +12,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.BannerAdIds
@@ -34,7 +31,6 @@ import com.myapp.lexicon.settings.AppSettings
 import com.myapp.lexicon.settings.disablePassiveWordsRepeat
 import com.myapp.lexicon.settings.isUserRegistered
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import java.util.Locale
 
 
@@ -163,30 +159,22 @@ class RepeatDialog: DialogFragment() {
                 }
             }
 
-            lifecycleScope.launch {
-                viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-
-                    userVM.stateFlow.collect { state ->
-                        when(state) {
-                            is UserViewModel.State.ReceivedUserData -> {
-                                val user = state.user
-                                buildRewardText(user)
-                            }
-                            else -> {}
-                        }
+            userVM.state.observe(viewLifecycleOwner) { state ->
+                when(state) {
+                    is UserViewModel.State.ReceivedUserData -> {
+                        val user = state.user
+                        buildRewardText(user)
                     }
+                    else -> {}
                 }
             }
-            lifecycleScope.launch {
-                viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                    revenueVM.userRevenue.collect { result ->
-                        result.onSuccess<Revenue> { revenue ->
-                            buildRewardText(revenue)
-                        }
-                        result.onError { throwable ->
-                            (throwable as Exception).printStackTraceIfDebug()
-                        }
-                    }
+
+            revenueVM.userRevenueLD.observe(viewLifecycleOwner) { result ->
+                result.onSuccess<Revenue> { revenue ->
+                    buildRewardText(revenue)
+                }
+                result.onError { throwable ->
+                    (throwable as Exception).printStackTraceIfDebug()
                 }
             }
 

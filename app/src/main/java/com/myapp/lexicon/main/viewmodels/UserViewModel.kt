@@ -93,7 +93,7 @@ open class UserViewModel @Inject constructor(
         }
     }
 
-    private fun signInWithCurrentUser(
+    protected fun signInWithCurrentUser(
         onSuccess: () -> Unit,
         onFailure: (String) -> Unit
     ) {

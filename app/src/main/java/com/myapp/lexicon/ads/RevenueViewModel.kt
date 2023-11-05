@@ -3,11 +3,12 @@
 package com.myapp.lexicon.ads
 
 import android.app.Application
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.common.mapToRevenue
-import com.myapp.lexicon.interfaces.FlowCallback
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.AppResult
 import com.myapp.lexicon.models.User
@@ -19,11 +20,6 @@ import com.parse.ParseQuery
 import com.parse.ParseUser
 import com.parse.SaveCallback
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.launch
 import java.util.Currency
 import javax.inject.Inject
 
@@ -33,22 +29,8 @@ class RevenueViewModel @Inject constructor(
     app: Application
 ): UserViewModel(app) {
 
-    private var _userRevenue = MutableStateFlow<AppResult>(AppResult.Init)
-    val userRevenue: StateFlow<AppResult> = _userRevenue
-
-    fun collectRevenue(callBack: FlowCallback) {
-        viewModelScope.launch {
-            _userRevenue.onStart {
-                callBack.onStart()
-            }.onCompletion { throwable ->
-                if (throwable?.message != "Job was cancelled") {
-                    callBack.onCompletion(throwable)
-                }
-            }.collect {
-                callBack.onResult(_userRevenue.value)
-            }
-        }
-    }
+    private var _userRevenueLD = MutableLiveData<AppResult>(AppResult.Init)
+    val userRevenueLD: LiveData<AppResult> = _userRevenueLD
 
     override fun updateUserRevenueIntoCloud(adData: AdData) {
 
@@ -68,7 +50,18 @@ class RevenueViewModel @Inject constructor(
                 currentUser.saveInBackground(object : SaveCallback {
                     override fun done(e: ParseException?) {
                         if (e is ParseException) {
-                            _userRevenue.value = AppResult.Error(e)
+                            if (e.code == ParseException.INVALID_SESSION_TOKEN) {
+                                signInWithCurrentUser(
+                                    onSuccess = {},
+                                    onFailure = {message ->
+                                        Exception(message).printStackTraceIfDebug()
+                                        _userRevenueLD.value = AppResult.Error(Exception(e.message))
+                                    }
+                                )
+                            }
+                            else {
+                                _userRevenueLD.value = AppResult.Error(Exception(e.message))
+                            }
                         }
                         else {
                             val query = ParseQuery<ParseObject>("_User")
@@ -77,10 +70,10 @@ class RevenueViewModel @Inject constructor(
                                     when {
                                         obj is ParseObject -> {
                                             val revenue = obj.mapToRevenue()
-                                            _userRevenue.value = AppResult.Success(revenue)
+                                            _userRevenueLD.value = AppResult.Success(revenue)
                                         }
                                         e is ParseException -> {
-                                            _userRevenue.value = AppResult.Error(e)
+                                            _userRevenueLD.value = AppResult.Error(Exception(e.message))
                                         }
                                     }
                                 }

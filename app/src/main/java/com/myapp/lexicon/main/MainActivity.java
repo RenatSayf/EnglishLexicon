@@ -48,7 +48,6 @@ import com.myapp.lexicon.dialogs.RemoveDictDialog;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.Share;
-import com.myapp.lexicon.interfaces.FlowCallback;
 import com.myapp.lexicon.main.viewmodels.UserViewModel;
 import com.myapp.lexicon.models.AppResult;
 import com.myapp.lexicon.models.Revenue;
@@ -1134,34 +1133,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
+    /** @noinspection unchecked*/
     private void onRevenueUpdate() {
 
         RevenueViewModel revenueVM = new ViewModelProvider(MainActivity.this).get(RevenueViewModel.class);
-        revenueVM.collectRevenue(new FlowCallback()
-        {
-            @Override
-            public void onCompletion(@Nullable Throwable thr)
-            {
-                if (thr != null) {
-                    ExtensionsKt.printStackTraceIfDebug((Exception) thr);
-                }
+        revenueVM.getUserRevenueLD().observe(this, result -> {
+            if (result instanceof AppResult.Success<?>) {
+                AppResult.Success<Revenue> castResult = (AppResult.Success<Revenue>) result;
+                Revenue revenue = castResult.getData();
+                buildRewardText2(revenue);
             }
-
-            @Override
-            public void onStart()
-            {}
-
-            @Override
-            public <T> void onResult(T result)
-            {
-                if (result instanceof AppResult.Success<?>) {
-                    AppResult.Success<Revenue> castResult = (AppResult.Success<Revenue>) result;
-                    Revenue revenue = castResult.getData();
-                    buildRewardText2(revenue);
-                }
-                if (result instanceof AppResult.Error error) {
-                    ExtensionsKt.printStackTraceIfDebug((Exception) error.getError());
-                }
+            if (result instanceof AppResult.Error error) {
+                ExtensionsKt.printStackTraceIfDebug((Exception) error.getError());
             }
         });
     }
