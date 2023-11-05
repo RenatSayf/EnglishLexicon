@@ -176,6 +176,8 @@ class RepeatDialog: DialogFragment() {
                         }
                     }
                 }
+            }
+            lifecycleScope.launch {
                 viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
                     revenueVM.userRevenue.collect { result ->
                         result.onSuccess<Revenue> { revenue ->

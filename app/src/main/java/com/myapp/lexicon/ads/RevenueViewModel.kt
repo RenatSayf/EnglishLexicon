@@ -40,8 +40,10 @@ class RevenueViewModel @Inject constructor(
         viewModelScope.launch {
             _userRevenue.onStart {
                 callBack.onStart()
-            }.onCompletion {
-                callBack.onCompletion(it)
+            }.onCompletion { throwable ->
+                if (throwable?.message != "Job was cancelled") {
+                    callBack.onCompletion(throwable)
+                }
             }.collect {
                 callBack.onResult(_userRevenue.value)
             }
