@@ -12,6 +12,7 @@ import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.models.AdData
+import com.myapp.lexicon.common.mapToUser
 import com.myapp.lexicon.helpers.toStringTime
 import com.myapp.lexicon.interfaces.FlowCallback
 import com.myapp.lexicon.models.User
@@ -87,7 +88,7 @@ open class UserViewModel @Inject constructor(
             }.onCompletion {
                 callBack.onCompletion(it)
             }.collect {
-                callBack.onResult(_state.value)
+                callBack.onResult(_stateFlow.value)
             }
         }
     }
@@ -137,7 +138,7 @@ open class UserViewModel @Inject constructor(
             parseQuery.getInBackground(currentUser.objectId, object : GetCallback<ParseObject> {
                 override fun done(obj: ParseObject?, e: ParseException?) {
                     if (obj is ParseObject) {
-                        val user = obj.mapToUser(currentUser.objectId)
+                        val user = obj.mapToUser()
                         _user.value = user
                         _state.value = State.ReceivedUserData(user)
                         _stateFlow.value = State.ReceivedUserData(user)
@@ -264,7 +265,7 @@ open class UserViewModel @Inject constructor(
                             }
                         }
                         else {
-                            val user = currentUser.mapToUser(currentUser.objectId)
+                            val user = currentUser.mapToUser()
                             _user.value = user
                             _state.value = State.RevenueUpdated(adData.revenue, user)
                             _stateFlow.value = State.RevenueUpdated(adData.revenue, user)
@@ -339,45 +340,7 @@ open class UserViewModel @Inject constructor(
         }
     }
 
-    protected fun ParseObject.mapToUser(userId: String): User {
-        return User(userId).apply {
-            var value = this@mapToUser[User.KEY_REVENUE_USD]
-            this.revenueUSD = if (value is Number) value.toDouble() else this.revenueUSD
 
-            value = this@mapToUser[User.KEY_TOTAL_REVENUE]
-            this.totalRevenue = if (value is Number) value.toDouble() else this.totalRevenue
-
-            value = this@mapToUser[User.KEY_USER_REWARD]
-            this.userReward = if (value is Number) value.toDouble() else this.userReward
-
-            value = this@mapToUser[User.KEY_RESERVED_PAYMENT]
-            this.reservedPayment = if (value is Number) value.toDouble() else this.reservedPayment
-
-            value = this@mapToUser[User.KEY_CURRENCY]
-            this.currency = if (value is String) value else this.currency
-
-            value = this@mapToUser[User.KEY_EMAIL]
-            this.email = if (value is String) value else this.email
-
-            value = this@mapToUser[User.KEY_PHONE]
-            this.phone = if (value is String) value else this.phone
-
-            value = this@mapToUser[User.KEY_BANK_CARD]
-            this.bankCard = if (value is String) value else this.bankCard
-
-            value = this@mapToUser[User.KEY_BANK_NAME]
-            this.bankName = if (value is String) value else this.bankName
-
-            value = this@mapToUser[User.KEY_FIRST_NAME]
-            this.firstName = if (value is String) value else this.firstName
-
-            value = this@mapToUser[User.KEY_LAST_NAME]
-            this.lastName = if (value is String) value else this.lastName
-
-            value = this@mapToUser[User.KEY_MESSAGE]
-            this.message = if (value is String) value else this.message
-        }
-    }
 
 
 }

@@ -31,10 +31,8 @@ import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
 import com.myapp.lexicon.ads.AdsViewModelKt;
 import com.myapp.lexicon.ads.BannerAdIds;
-import com.myapp.lexicon.ads.intrefaces.AdEventListener;
-import com.myapp.lexicon.ads.models.AdData;
+import com.myapp.lexicon.ads.RevenueViewModel;
 import com.myapp.lexicon.auth.AuthFragment;
-import com.myapp.lexicon.auth.AuthListener;
 import com.myapp.lexicon.auth.AuthViewModel;
 import com.myapp.lexicon.auth.account.AccountFragment;
 import com.myapp.lexicon.auth.account.AccountViewModel;
@@ -52,15 +50,17 @@ import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.Share;
 import com.myapp.lexicon.interfaces.FlowCallback;
 import com.myapp.lexicon.main.viewmodels.UserViewModel;
+import com.myapp.lexicon.models.AppResult;
+import com.myapp.lexicon.models.Revenue;
 import com.myapp.lexicon.models.User;
 import com.myapp.lexicon.models.UserKt;
-import com.myapp.lexicon.models.UserState;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.service.PhoneUnlockedReceiver;
 import com.myapp.lexicon.settings.ContainerFragment;
 import com.myapp.lexicon.settings.PowerSettingsExtKt;
 import com.myapp.lexicon.settings.SettingsExtKt;
+import com.myapp.lexicon.settings.SettingsViewModel;
 import com.myapp.lexicon.wordeditor.WordEditorActivity;
 import com.myapp.lexicon.wordstests.OneOfFiveFragm;
 import com.myapp.lexicon.wordstests.TestFragment;
@@ -96,7 +96,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
-        MainFragment.Listener, AuthListener, AdEventListener
+        MainFragment.Listener
 {
     private View root;
     private NavigationView navView;
@@ -111,15 +111,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public MainViewModel mainViewModel;
     private SpeechViewModel speechViewModel;
-    private AuthViewModel authVM;
-    private UserViewModel userVM;
     private Word currentWord;
     private int wordsInterval = 10;
     public BackgroundFragm backgroundFragm = null;
-
     @Nullable
     private AccountFragment accountFragment;
-
     @Inject
     AlarmScheduler scheduler;
 
@@ -146,8 +142,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
         speechViewModel = new ViewModelProvider(this).get(SpeechViewModel.class);
-        userVM = new ViewModelProvider(this).get(UserViewModel.class);
-        authVM = new ViewModelProvider(this).get(AuthViewModel.class);
+        AuthViewModel authVM = new ViewModelProvider(this).get(AuthViewModel.class);
 
         authVM.getState().observe(this, result -> {
             result.onInit(() -> {
@@ -191,11 +186,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             });
             result.onSignIn(user -> {
                 navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_account);
-                ParseUser currentUser = ParseUser.getCurrentUser();
-                if (currentUser != null && savedInstanceState == null)
-                {
-                    userVM.getUserFromCloud();
-                }
+                buildRewardText(user);
                 return null;
             });
             result.onSignOut(() -> {
@@ -208,39 +199,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 ExtensionsKt.showSnackBar(mainControlLayout, getString(R.string.text_account_has_been_deleted), Snackbar.LENGTH_LONG);
                 return null;
             });
-        });
-
-        userVM.getState().observe(this, state -> {
-            if (state instanceof UserViewModel.State.ReceivedUserData) {
-                User user = ((UserViewModel.State.ReceivedUserData) state).getUser();
-                buildRewardText(user);
-            }
-            if (state instanceof UserViewModel.State.RevenueUpdated)
-            {
-                User user = ((UserViewModel.State.RevenueUpdated) state).getUser();
-                buildRewardText(user);
-            }
-        });
-
-        userVM.collect(new FlowCallback()
-        {
-            @Override
-            public void onResult(@Nullable UserViewModel.State result)
-            {
-                if (result instanceof UserViewModel.State.RevenueUpdated)
-                {
-                    User user = ((UserViewModel.State.RevenueUpdated) result).getUser();
-                    buildRewardText(user);
-                }
-            }
-
-            @Override
-            public void onCompletion(@Nullable Throwable thr)
-            {}
-
-            @Override
-            public void onStart()
-            {}
         });
 
         btnViewDict = findViewById(R.id.btnViewDict);
@@ -391,7 +349,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         mainViewModel.setMainControlVisibility(View.INVISIBLE);
                         speechViewModel.setSpeechProgressVisibility(View.INVISIBLE);
                         Toast.makeText(MainActivity.this, getString(R.string.text_test_knowledge), Toast.LENGTH_LONG).show();
-                        OneOfFiveFragm testFragment = OneOfFiveFragm.newInstance(list, MainActivity.this);
+                        OneOfFiveFragm testFragment = OneOfFiveFragm.newInstance(list);
                         getSupportFragmentManager()
                                 .beginTransaction()
                                 .setCustomAnimations(R.anim.from_right_to_left_anim, R.anim.from_left_to_right_anim)
@@ -435,9 +393,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (savedInstanceState != null)
         {
             tvWordsCounter.setText(savedInstanceState.getString(KEY_TV_WORDS_COUNTER));
-            if (accountFragment != null && accountFragment.isAdded()) {
-                accountFragment.setAuthListener(MainActivity.this);
-            }
         }
 
         CheckBox checkBoxEnView = findViewById(R.id.check_box_en_speak);
@@ -542,6 +497,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         BannerAdView bannerView = root.findViewById(R.id.bannerView);
         AdsViewModelKt.loadBanner(bannerView, BannerAdIds.BANNER_2);
 
+        onRevenueUpdate();
+        onSettingsChange();
+
     }
 
     public void buildRewardText(User user) {
@@ -553,6 +511,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     .concat(getString(R.string.text_your_reward)).concat(" ")
                     .concat(String.valueOf(rewardToDisplay)).concat(" ")
                     .concat((user != null) ? user.getCurrencySymbol() : Currency.getInstance("RUB").getSymbol());
+            toolBar.setSubtitle(text);
+
+            TextView tvReward = root.findViewById(R.id.tvReward);
+            if (tvReward != null)
+            {
+                tvReward.setText(text);
+                tvReward.setVisibility(View.VISIBLE);
+            }
+            toolBar.setOnClickListener( view -> {
+                DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+                drawerLayout.open();
+            });
+        }
+    }
+
+    private void buildRewardText2(Revenue revenue) {
+        Toolbar toolBar = root.findViewById(R.id.tool_bar);
+        if (toolBar != null)
+        {
+            double rewardToDisplay = (revenue != null) ? UserKt.to2DigitsScale(revenue.getReward()) : 0.0;
+            String text = getString(R.string.coins_bag).concat(" ")
+                    .concat(getString(R.string.text_your_reward)).concat(" ")
+                    .concat(String.valueOf(rewardToDisplay)).concat(" ")
+                    .concat((revenue != null) ? revenue.getCurrencySymbol() : Currency.getInstance("RUB").getSymbol());
             toolBar.setSubtitle(text);
 
             TextView tvReward = root.findViewById(R.id.tvReward);
@@ -778,15 +760,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     UserViewModel.class
                             );
                             transaction.replace(R.id.frame_to_page_fragm, accountFragment)
-                                    .runOnCommit(new Runnable()
-                                    {
-                                        @Override
-                                        public void run()
-                                        {
-                                            accountFragment.setAuthListener(MainActivity.this);
-                                        }
-                                    })
-                                    //.addToBackStack(null)
+                                    .addToBackStack(null)
                                     .commit();
                         } else
                         {
@@ -806,7 +780,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         if (itemId == R.id.nav_add_word)
         {
-            TranslateFragment translateFragm = TranslateFragment.Companion.getInstance("", MainActivity.this);
+            TranslateFragment translateFragm = TranslateFragment.Companion.getInstance("");
             transaction.replace(R.id.frame_to_page_fragm, translateFragm).addToBackStack(null).commitAllowingStateLoss();
         }
         else if (itemId == R.id.nav_delete_dict)
@@ -1150,45 +1124,53 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         wordsInterval = SettingsExtKt.getTestIntervalFromPref(this);
     }
 
-    @Override
-    public void refreshAuthState(@NonNull User user)
-    {
-        authVM.setState(new UserState.SignUp(user));
-        buildRewardText(user);
-
-        SettingsExtKt.checkCloudToken(
-                this,
-                () -> null,
-                userId -> {
-                    SettingsExtKt.setCloudStorageEnabled(MainActivity.this, true);
-                    Menu menu = toolBar.getMenu();
-                    configureOptionsMenu(menu);
-                    return null;
-                },
-                () -> null,
-                () -> null
-        );
-
+    private void onSettingsChange() {
+        SettingsViewModel viewModel = new ViewModelProvider(MainActivity.this).get(SettingsViewModel.class);
+        viewModel.getStoragePrefHasChanged().observe(this, result -> {
+            if (result) {
+                Menu menu = toolBar.getMenu();
+                configureOptionsMenu(menu);
+            }
+        });
     }
 
+    private void onRevenueUpdate() {
+
+        RevenueViewModel revenueVM = new ViewModelProvider(MainActivity.this).get(RevenueViewModel.class);
+        revenueVM.collectRevenue(new FlowCallback()
+        {
+            @Override
+            public void onCompletion(@Nullable Throwable thr)
+            {
+                if (thr != null) {
+                    ExtensionsKt.printStackTraceIfDebug((Exception) thr);
+                }
+            }
+
+            @Override
+            public void onStart()
+            {}
+
+            @Override
+            public <T> void onResult(T result)
+            {
+                if (result instanceof AppResult.Success<?>) {
+                    AppResult.Success<Revenue> castResult = (AppResult.Success<Revenue>) result;
+                    Revenue revenue = castResult.getData();
+                    buildRewardText2(revenue);
+                }
+                if (result instanceof AppResult.Error error) {
+                    ExtensionsKt.printStackTraceIfDebug((Exception) error.getError());
+                }
+            }
+        });
+    }
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig)
     {
         super.onConfigurationChanged(newConfig);
     }
 
-    @Override
-    public void onAdImpression(@Nullable AdData data)
-    {
-        if (data != null)
-        {
-            User user = userVM.getUser().getValue();
-            if (user != null)
-            {
-                userVM.updateUserRevenueIntoCloud(data);
-            }
-        }
-    }
 }
 
 

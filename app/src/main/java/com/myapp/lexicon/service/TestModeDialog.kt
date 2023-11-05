@@ -21,16 +21,18 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.BannerAdIds
+import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.loadBanner
 import com.myapp.lexicon.databinding.STestModalFragmentBinding
 import com.myapp.lexicon.helpers.RandomNumberGenerator
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showToast
 import com.myapp.lexicon.interfaces.IModalFragment
 import com.myapp.lexicon.main.MainViewModel
 import com.myapp.lexicon.main.SpeechViewModel
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.main.viewmodels.UserViewModel.State.ReceivedUserData
-import com.myapp.lexicon.main.viewmodels.UserViewModel.State.RevenueUpdated
+import com.myapp.lexicon.models.Revenue
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.to2DigitsScale
@@ -63,10 +65,13 @@ class TestModeDialog : DialogFragment() {
     }
 
     private lateinit var binding: STestModalFragmentBinding
+
     private val mainVM: MainViewModel by viewModels()
     private val speechVM: SpeechViewModel by viewModels()
-    private val userVM: UserViewModel by activityViewModels()
+    private val userVM: UserViewModel by viewModels()
     private val adsVM: AdsViewModel by activityViewModels()
+    private val revenueVM by activityViewModels<RevenueViewModel>()
+
     private var compareList: List<Word> = listOf()
     private var wordIsStudied = false
     private var words: List<Word> = listOf()
@@ -90,6 +95,10 @@ class TestModeDialog : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        if (savedInstanceState == null) {
+            userVM.getUserFromCloud()
+        }
 
         with(binding) {
 
@@ -174,11 +183,17 @@ class TestModeDialog : DialogFragment() {
                                 val user = state.user
                                 buildRewardText(user)
                             }
-                            is RevenueUpdated -> {
-                                val user = state.user
-                                buildRewardText(user)
-                            }
                             else -> {}
+                        }
+                    }
+                }
+                viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                    revenueVM.userRevenue.collect { result ->
+                        result.onSuccess<Revenue> { revenue ->
+                            buildRewardText(revenue)
+                        }
+                        result.onError { throwable ->
+                            (throwable as Exception).printStackTraceIfDebug()
                         }
                     }
                 }
@@ -221,6 +236,13 @@ class TestModeDialog : DialogFragment() {
 
         val userReward = user.userReward.to2DigitsScale()
         val text = "${getString(R.string.coins_bag)} $userReward ${user.currencySymbol}"
+        binding.tvReward.text = text
+    }
+
+    private fun buildRewardText(revenue: Revenue) {
+
+        val userReward = revenue.reward.to2DigitsScale()
+        val text = "${getString(R.string.coins_bag)} $userReward ${revenue.currencySymbol}"
         binding.tvReward.text = text
     }
 

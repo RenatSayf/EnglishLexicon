@@ -66,11 +66,9 @@ class AccountFragmentTest {
                 accountVMClass = MockAccountViewModel::class.java,
                 userVMClass = MockUserViewModel::class.java
             )
-            act.supportFragmentManager.beginTransaction()
+            act.supportFragmentManager
+                .beginTransaction()
                 .add(R.id.frameLayout, accountFragment, "XXX")
-                .runOnCommit {
-                    accountFragment.setAuthListener(act)
-                }
                 .commitNow()
 
             val tvFirstName = act.findViewById<AppCompatEditText>(R.id.tvFirstNameValue)

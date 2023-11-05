@@ -8,12 +8,14 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.BannerAdIds
 import com.myapp.lexicon.ads.InterstitialAdIds
-import com.myapp.lexicon.ads.intrefaces.AdEventListener
+import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.loadBanner
+import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.ads.showAd
 import com.myapp.lexicon.databinding.TranslateFragmentBinding
 import com.myapp.lexicon.main.MainActivity
@@ -31,15 +33,14 @@ class TranslateFragment : Fragment()
     private lateinit var mActivity: AppCompatActivity
     private var interstitialAd: InterstitialAd? = null
     private val adsVM: AdsViewModel by viewModels()
+    private val revenueVM: RevenueViewModel by activityViewModels()
 
     companion object
     {
         private var instance: TranslateFragment? = null
         private val javaScriptInterface = AppJavaScriptInterface()
-        private var adListener: AdEventListener? = null
-        fun getInstance(text: String, listener: AdEventListener?) : TranslateFragment = if (instance == null)
+        fun getInstance(text: String) : TranslateFragment = if (instance == null)
         {
-            this.adListener = listener
             TranslateFragment().apply {
                 arguments = Bundle().apply {
                     putString(TEXT, text)
@@ -141,7 +142,9 @@ class TranslateFragment : Fragment()
                         interstitialAd?.showAd(
                             requireActivity(),
                             onImpression = { data ->
-                                adListener?.onAdImpression(data)
+                                if (data is AdData) {
+                                    revenueVM.updateUserRevenueIntoCloud(data)
+                                }
                             },
                             onDismissed = {
                                 parentFragmentManager.popBackStack()
@@ -154,7 +157,9 @@ class TranslateFragment : Fragment()
                         interstitialAd?.showAd(
                             requireActivity(),
                             onImpression = { data ->
-                                adListener?.onAdImpression(data)
+                                if (data is AdData) {
+                                    revenueVM.updateUserRevenueIntoCloud(data)
+                                }
                             },
                             onDismissed = {
                                 requireActivity().finish()
@@ -176,7 +181,9 @@ class TranslateFragment : Fragment()
                     interstitialAd?.showAd(
                         requireActivity(),
                         onImpression = { data ->
-                            adListener?.onAdImpression(data)
+                            if (data is AdData) {
+                                revenueVM.updateUserRevenueIntoCloud(data)
+                            }
                         },
                         onDismissed = {
                             parentFragmentManager.popBackStack()
@@ -189,7 +196,9 @@ class TranslateFragment : Fragment()
                     interstitialAd?.showAd(
                         requireActivity(),
                         onImpression = { data ->
-                            adListener?.onAdImpression(data)
+                            if (data is AdData) {
+                                revenueVM.updateUserRevenueIntoCloud(data)
+                            }
                         },
                         onDismissed = {
                             requireActivity().finish()

@@ -1,7 +1,6 @@
 package com.myapp.lexicon.auth.account
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -17,10 +16,6 @@ class MockAccountViewModel: AccountViewModel() {
 
     override val state: LiveData<State>
         get() = super.state
-
-    override fun setState(state: State) {
-        super.setState(state)
-    }
 
     override val bankList: LiveData<Result<List<String>>>
         get() = super.bankList
@@ -45,5 +40,9 @@ class MockAccountViewModel: AccountViewModel() {
                 "Альфа банк"
             ))
         }
+    }
+
+    init {
+        this.getBankListFromCloud()
     }
 }

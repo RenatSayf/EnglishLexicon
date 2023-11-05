@@ -18,12 +18,15 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.BannerAdIds
+import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.loadBanner
 import com.myapp.lexicon.databinding.SRepeatModalFragmentBinding
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showToast
 import com.myapp.lexicon.interfaces.IModalFragment
 import com.myapp.lexicon.main.SpeechViewModel
 import com.myapp.lexicon.main.viewmodels.UserViewModel
+import com.myapp.lexicon.models.Revenue
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.models.toWordList
@@ -55,8 +58,9 @@ class RepeatDialog: DialogFragment() {
 
     private lateinit var binding: SRepeatModalFragmentBinding
     private val speechVM: SpeechViewModel by viewModels()
-    private val userVM: UserViewModel by activityViewModels()
-    private val adsVM: AdsViewModel by activityViewModels()
+    private val userVM by viewModels<UserViewModel>()
+    private val adsVM by activityViewModels<AdsViewModel>()
+    private val revenueVM by activityViewModels<RevenueViewModel>()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
 
@@ -77,6 +81,10 @@ class RepeatDialog: DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        if (savedInstanceState == null) {
+            userVM.getUserFromCloud()
+        }
 
         with(binding) {
 
@@ -157,17 +165,24 @@ class RepeatDialog: DialogFragment() {
 
             lifecycleScope.launch {
                 viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+
                     userVM.stateFlow.collect { state ->
                         when(state) {
                             is UserViewModel.State.ReceivedUserData -> {
                                 val user = state.user
                                 buildRewardText(user)
                             }
-                            is UserViewModel.State.RevenueUpdated -> {
-                                val user = state.user
-                                buildRewardText(user)
-                            }
                             else -> {}
+                        }
+                    }
+                }
+                viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                    revenueVM.userRevenue.collect { result ->
+                        result.onSuccess<Revenue> { revenue ->
+                            buildRewardText(revenue)
+                        }
+                        result.onError { throwable ->
+                            (throwable as Exception).printStackTraceIfDebug()
                         }
                     }
                 }
@@ -189,6 +204,12 @@ class RepeatDialog: DialogFragment() {
         binding.tvReward.text = text
     }
 
+    private fun buildRewardText(revenue: Revenue) {
+
+        val userReward = revenue.reward.to2DigitsScale()
+        val text = "${getString(R.string.coins_bag)} $userReward ${revenue.currencySymbol}"
+        binding.tvReward.text = text
+    }
     override fun onResume() {
         super.onResume()
 

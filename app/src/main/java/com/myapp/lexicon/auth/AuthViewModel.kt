@@ -9,12 +9,15 @@ import android.util.Patterns
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.myapp.lexicon.models.User
+import com.myapp.lexicon.common.mapToUser
 import com.myapp.lexicon.models.UserState
 import com.myapp.lexicon.settings.getAuthDataFromPref
 import com.parse.DeleteCallback
+import com.parse.GetCallback
 import com.parse.LogInCallback
 import com.parse.ParseException
+import com.parse.ParseObject
+import com.parse.ParseQuery
 import com.parse.ParseUser
 import com.parse.RequestPasswordResetCallback
 import com.parse.SignUpCallback
@@ -117,23 +120,45 @@ open class AuthViewModel @Inject constructor(
             password,
             object : LogInCallback {
                 override fun done(user: ParseUser?, e: ParseException?) {
-                    if (user is ParseUser) {
-                        val newState = UserState.SignIn(User(user.objectId).apply {
-                            this.email = email
-                            this.password = password
-                        })
-                        _state.value = newState
-                        _stateFlow.value = newState
-                    }
-                    else {
-                        ParseUser.logOut()
-                        if (e is ParseException && e.code == ParseException.OBJECT_NOT_FOUND) {
-                            _state.value = UserState.NotRegistered
-                            _stateFlow.value = UserState.NotRegistered
+
+                    when {
+                        user is ParseUser -> {
+                            _loadingState.value = LoadingState.Start
+                            val query = ParseQuery<ParseObject>("_User")
+                            query.getInBackground(user.objectId, object : GetCallback<ParseObject> {
+
+                                override fun done(obj: ParseObject?, e: ParseException?) {
+                                    when {
+                                        obj is ParseObject -> {
+                                            val userFromCloud = obj.mapToUser()
+                                            val newState = UserState.SignIn(userFromCloud.apply {
+                                                this.email = email
+                                                this.password = password
+                                            })
+                                            _state.value = newState
+                                            _stateFlow.value = newState
+                                        }
+
+                                        e is ParseException -> {
+                                            _state.value = UserState.Failure(Exception(e.message))
+                                            _stateFlow.value = UserState.Failure(Exception(e.message))
+                                        }
+                                    }
+                                    _loadingState.value = LoadingState.Complete
+                                }
+                            })
                         }
-                        else {
-                            _state.value = UserState.Failure(e?: Exception("Unknown error"))
-                            _stateFlow.value = UserState.Failure(e?: Exception("Unknown error"))
+                        e is ParseException -> {
+                            ParseUser.logOut()
+                            if (e.code == ParseException.OBJECT_NOT_FOUND) {
+
+                                _state.value = UserState.NotRegistered
+                                _stateFlow.value = UserState.NotRegistered
+                            } else {
+
+                                _state.value = UserState.Failure(Exception(e.message))
+                                _stateFlow.value = UserState.Failure(Exception(e.message))
+                            }
                         }
                     }
                     _loadingState.value = LoadingState.Complete

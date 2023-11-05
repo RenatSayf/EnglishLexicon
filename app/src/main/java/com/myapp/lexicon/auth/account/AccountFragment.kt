@@ -20,7 +20,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.auth.AuthFragment
-import com.myapp.lexicon.auth.AuthListener
 import com.myapp.lexicon.auth.AuthViewModel
 import com.myapp.lexicon.databinding.FragmentAccountBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
@@ -46,12 +45,10 @@ class AccountFragment : Fragment() {
         private lateinit var accountVMClass: Class<out ViewModel>
         private lateinit var userVMClass: Class<out ViewModel>
 
-        private var listener: AuthListener? = null
-
         fun newInstance(
             authVMClass: Class<out ViewModel> = AuthViewModel::class.java,
             accountVMClass: Class<out ViewModel> = AccountViewModel::class.java,
-            userVMClass: Class<out ViewModel> = UserViewModel::class.java,
+            userVMClass: Class<out ViewModel> = UserViewModel::class.java
         ): AccountFragment {
             this.authVMClass = authVMClass
             this.accountVMClass = accountVMClass
@@ -76,10 +73,6 @@ class AccountFragment : Fragment() {
 
     private val screenOrientation: LockOrientation by lazy {
         LockOrientation(requireActivity())
-    }
-
-    fun setAuthListener(listener: AuthListener) {
-        Companion.listener = listener
     }
 
     override fun onCreateView(
@@ -660,23 +653,10 @@ class AccountFragment : Fragment() {
     private fun goBack() {
         val user = userVM.user.value
         user?.let {
-            listener?.refreshAuthState(it)?: run {
-                throw NullPointerException("******** the listener is NULL, you must configure its method before *********")
-            }
+            authVM.setState(UserState.SignIn(it))
+            userVM.setState(UserViewModel.State.ReceivedUserData(it))
         }
         parentFragmentManager.beginTransaction().detach(this@AccountFragment).commit()
-    }
-
-    override fun onDestroy() {
-
-        listener = null
-        super.onDestroy()
-    }
-
-    override fun onDetach() {
-
-        listener = null
-        super.onDetach()
     }
 
 

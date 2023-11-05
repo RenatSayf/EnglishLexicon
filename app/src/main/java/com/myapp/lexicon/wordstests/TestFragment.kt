@@ -15,6 +15,7 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.jakewharton.rxbinding2.widget.RxTextView
@@ -22,13 +23,12 @@ import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.InterstitialAdIds
+import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.RewardedAdIds
-import com.myapp.lexicon.ads.intrefaces.AdEventListener
 import com.myapp.lexicon.ads.showAd
 import com.myapp.lexicon.databinding.TestFragmentBinding
 import com.myapp.lexicon.dialogs.DictListDialog
 import com.myapp.lexicon.helpers.*
-import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.SpeechViewModel
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.getTestStateFromPref
@@ -51,7 +51,6 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     companion object
     {
         val TAG = "${TestFragment::class.java.simpleName}.TAG"
-        private var adListener: AdEventListener? = null
         fun newInstance(): TestFragment {
             return TestFragment()
         }
@@ -67,6 +66,9 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         ViewModelProvider(this)[PageBackViewModel::class.java]
     }
     private val adsVM: AdsViewModel by viewModels()
+
+    private val revenueVM: RevenueViewModel by activityViewModels()
+
     private val composite = CompositeDisposable()
     private var dialogWarning: DialogWarning? = null
     private var interstitialAd: InterstitialAd? = null
@@ -90,7 +92,6 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         super.onViewCreated(view, savedInstanceState)
 
         lockOrientation.lock()
-        adListener = requireActivity() as MainActivity
 
         with(binding) {
             if (savedInstanceState == null) {
@@ -298,14 +299,18 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                         interstitialAd?.showAd(
                             requireActivity(),
                             onImpression = { data ->
-                                adListener?.onAdImpression(data)
+                                if (data != null) {
+                                    revenueVM.updateUserRevenueIntoCloud(data)
+                                }
                                 testVM.setState(TestViewModel.State.Init)
                             }
                         )
                         rewardedAd?.showAd(
                             requireActivity(),
                             onImpression = { data ->
-                                adListener?.onAdImpression(data)
+                                if (data != null) {
+                                    revenueVM.updateUserRevenueIntoCloud(data)
+                                }
                                 testVM.setState(TestViewModel.State.Init)
                             }
                         )
@@ -571,7 +576,6 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                     }
                 }
             }
-            adListener = null
         }
         super.onDetach()
     }

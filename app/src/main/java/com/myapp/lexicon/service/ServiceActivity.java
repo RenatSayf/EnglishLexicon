@@ -10,12 +10,12 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.ads.AdsViewModel;
 import com.myapp.lexicon.ads.AdsViewModelKt;
 import com.myapp.lexicon.ads.InterstitialAdIds;
+import com.myapp.lexicon.ads.RevenueViewModel;
 import com.myapp.lexicon.auth.AuthViewModel;
 import com.myapp.lexicon.databinding.ServiceDialogActivityBinding;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.interfaces.IModalFragment;
 import com.myapp.lexicon.main.MainViewModel;
-import com.myapp.lexicon.main.viewmodels.UserViewModel;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.models.WordKt;
 import com.myapp.lexicon.settings.SettingsExtKt;
@@ -37,9 +37,9 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
 {
     public static final String ARG_JSON = ServiceActivity.class.getCanonicalName() + ".ARG_JSON";
     private ServiceDialogActivityBinding binding;
-    private UserViewModel userVM;
     private AuthViewModel authVM;
     private AdsViewModel adsVM;
+    private RevenueViewModel revenueVM;
     private InterstitialAd interstitialAd;
 
     @Override
@@ -57,10 +57,11 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         setContentView(binding.getRoot());
 
         adsVM = new ViewModelProvider(this).get(AdsViewModel.class);
+        revenueVM = new ViewModelProvider(ServiceActivity.this).get(RevenueViewModel.class);
 
         ParseUser currentUser = ParseUser.getCurrentUser();
         if (currentUser != null) {
-            handleAdvertisingPayload(currentUser.getObjectId());
+            handleAdvertisingPayload();
         }
         else {
             authVM = new ViewModelProvider(this).get(AuthViewModel.class);
@@ -72,7 +73,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                         authVM.getState().observe(this, userState -> {
                             userState.onSignIn(
                                     user -> {
-                                        handleAdvertisingPayload(user.getId());
+                                        handleAdvertisingPayload();
                                         return null;
                                     }
                             );
@@ -144,12 +145,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         }
     }
 
-    private void handleAdvertisingPayload(String userId) {
-        userVM = new ViewModelProvider(ServiceActivity.this).get(UserViewModel.class);
-        if (!userId.isEmpty())
-        {
-            userVM.getUserFromCloud();
-        }
+    private void handleAdvertisingPayload() {
 
         adsVM.loadInterstitialAd(InterstitialAdIds.INTERSTITIAL_2);
         adsVM.getInterstitialAd().observe(this, result -> {
@@ -160,13 +156,10 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                         ServiceActivity.this,
                         () -> null,
                         adData -> {
-                            userVM.getState().observe(this, state -> {
-                                if (state instanceof UserViewModel.State.ReceivedUserData) {
-                                    if (adData != null) {
-                                        userVM.updateUserRevenueIntoCloud(adData);
-                                    }
-                                }
-                            });
+                            if (adData != null)
+                            {
+                                revenueVM.updateUserRevenueIntoCloud(adData);
+                            }
                             return null;
                         },
                         () -> null
