@@ -3,7 +3,6 @@ package com.myapp.lexicon.common
 import com.myapp.lexicon.models.Revenue
 import com.myapp.lexicon.models.User
 import com.parse.ParseObject
-import com.parse.ParseUser
 
 fun ParseObject.mapToUser(): User {
     return User(this.objectId).apply {
@@ -21,6 +20,12 @@ fun ParseObject.mapToUser(): User {
 
         value = this@mapToUser[User.KEY_CURRENCY]
         this.currency = if (value is String) value else this.currency
+
+        value = this@mapToUser[User.KEY_CURRENCY_SYMBOL]
+        this.currencySymbol = if (value is String) value else this.currencySymbol
+
+        value = this@mapToUser[User.KEY_CURRENCY_RATE]
+        this.currencyRate = if (value is Number) value.toDouble() else this.currencyRate
 
         value = this@mapToUser[User.KEY_EMAIL]
         this.email = if (value is String) value else this.email

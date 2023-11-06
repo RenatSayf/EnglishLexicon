@@ -34,40 +34,15 @@ data class User(
     var bankCard: String = ""
     var bankName: String = ""
     var revenueUSD: Double = 0.0
-        set(value) {
-            field = value
-            currencyRate = try {
-                totalRevenue / field
-            } catch (e: ArithmeticException) {
-                0.0
-            }
-        }
     var totalRevenue: Double = 0.0
-        set(value) {
-            field = value
-            currencyRate = try {
-                field / revenueUSD
-            } catch (e: ArithmeticException) {
-                0.0
-            }
-        }
     var userReward: Double = 0.0
     var currencyRate: Double = 0.0
-        private set
 
     var reservedPayment: Double = 0.0
         get() = BigDecimal(field).setScale(2, RoundingMode.DOWN).toDouble()
 
     var currency: String? = ""
-        set(value) {
-            field = value
-            if (!value.isNullOrEmpty() && value.length == 3) {
-                val instance = java.util.Currency.getInstance(field)
-                currencySymbol = instance.symbol
-            }
-        }
     var currencySymbol: String = ""
-        private set
 
     var message: String = ""
 
