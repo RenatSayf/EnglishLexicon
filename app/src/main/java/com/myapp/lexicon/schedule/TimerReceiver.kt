@@ -10,12 +10,14 @@ import androidx.preference.PreferenceManager
 import com.myapp.lexicon.R
 import com.myapp.lexicon.helpers.checkIsActivityShown
 import com.myapp.lexicon.helpers.goAsync
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showDebugNotification
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.toWordsString
 import com.myapp.lexicon.repository.DataRepositoryImpl
 import com.myapp.lexicon.service.ServiceActivity
 import com.myapp.lexicon.settings.getNotificationMode
+import com.myapp.lexicon.settings.getOrderPlay
 import com.myapp.lexicon.settings.getWordFromPref
 import com.myapp.lexicon.settings.saveWordToPref
 import dagger.hilt.android.AndroidEntryPoint
@@ -56,10 +58,18 @@ class TimerReceiver : BroadcastReceiver()
                             }
                         },
                         onSuccess = { word ->
-                            handleAlarm(context, scope,word)
+                            context.getOrderPlay(
+                                onCycle = {
+                                    handleAlarm(context, scope, word)
+                                },
+                                onRandom = {
+                                    val randomWord = word.apply { _id = -1 }
+                                    handleAlarm(context, scope, randomWord)
+                                }
+                            )
                         },
                         onFailure = {
-                            it.printStackTrace()
+                            it.printStackTraceIfDebug()
                         }
                     )
                 })
@@ -71,7 +81,14 @@ class TimerReceiver : BroadcastReceiver()
 
         try {
             scope.launch {
-                val words = repository.getEntriesByDictNameAsync(word.dictName, id = word._id.toLong(), limit = 2).await()
+
+                val words = if (word._id > 0) {
+                    repository.getEntriesByDictNameAsync(word.dictName, id = word._id.toLong(), limit = 2).await()
+                }
+                else {
+                    val randomWord = repository.getRandomEntriesFromDB(word.dictName, -1).await()
+                    listOf(randomWord, randomWord)
+                }
 
                 if (words.isNotEmpty()) {
                     val text = words.toWordsString()

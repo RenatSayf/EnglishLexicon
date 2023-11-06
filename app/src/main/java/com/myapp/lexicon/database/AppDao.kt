@@ -17,7 +17,7 @@ interface AppDao
     fun getEntriesById(id: List<Int>) : Single<MutableList<Word>>
 
     @Query("SELECT * FROM Words WHERE dict_name == :dict AND _id <> :id ORDER BY random() LIMIT 1")
-    fun getRandomEntries(dict: String, id: Int) : Single<Word>
+    fun getRandomEntries(dict: String, id: Int) : Word
 
     @Query("SELECT * FROM Words WHERE dict_name == :dict AND english like :like")
     fun getAllSimilarEntries(dict: String, like: String) : Single<MutableList<Word>>

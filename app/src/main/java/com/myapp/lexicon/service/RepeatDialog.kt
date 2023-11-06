@@ -29,6 +29,7 @@ import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.models.toWordList
 import com.myapp.lexicon.settings.AppSettings
 import com.myapp.lexicon.settings.disablePassiveWordsRepeat
+import com.myapp.lexicon.settings.getOrderPlay
 import com.myapp.lexicon.settings.isUserRegistered
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Locale
@@ -149,15 +150,14 @@ class RepeatDialog: DialogFragment() {
                 }
             }
 
-            val appSettings = AppSettings(requireContext())
-            when (appSettings.orderPlay) {
-                0 -> {
+            requireContext().getOrderPlay(
+                onCycle = {
                     orderPlayIconIvModal.setImageResource(R.drawable.ic_repeat_white)
-                }
-                1 -> {
+                },
+                onRandom = {
                     orderPlayIconIvModal.setImageResource(R.drawable.ic_shuffle_white)
                 }
-            }
+            )
 
             userVM.state.observe(viewLifecycleOwner) { state ->
                 when(state) {

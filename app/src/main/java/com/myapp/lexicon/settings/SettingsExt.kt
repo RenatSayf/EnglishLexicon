@@ -435,6 +435,24 @@ fun Context.goToAppStore() {
     startActivity(intent)
 }
 
+fun Context.saveOrderPlay(order: Int) {
+    appSettings.edit().putInt("KEY_ORDER_PLAY", order).apply()
+}
+
+fun Context.getOrderPlay(
+    onCycle: () -> Unit,
+    onRandom: () -> Unit
+): Int {
+    val value = appSettings.getInt("KEY_ORDER_PLAY", 0)
+    if (value == 0) {
+        onCycle.invoke()
+    }
+    else {
+        onRandom.invoke()
+    }
+    return value
+}
+
 
 
 

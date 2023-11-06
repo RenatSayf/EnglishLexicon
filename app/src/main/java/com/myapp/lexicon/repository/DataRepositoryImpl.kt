@@ -29,9 +29,13 @@ class DataRepositoryImpl @Inject constructor(
         return db.getEntriesById(ids)
     }
 
-    override fun getRandomEntriesFromDB(dictName: String, id: Int): Single<Word>
+    override suspend fun getRandomEntriesFromDB(dictName: String, id: Int): Deferred<Word>
     {
-        return db.getRandomEntries(dictName, id)
+        return coroutineScope {
+            async {
+                db.getRandomEntries(dictName, id)
+            }
+        }
     }
 
     override fun getAllSimilarEntriesFromDB(dictName: String, like: String): Single<MutableList<Word>>
@@ -81,16 +85,6 @@ class DataRepositoryImpl @Inject constructor(
     override fun goForward(words: List<Word>)
     {
         settings.goForward(words)
-    }
-
-    override fun getOrderPlay(): Int
-    {
-        return settings.orderPlay
-    }
-
-    override fun saveOrderPlay(order: Int)
-    {
-        settings.orderPlay = order
     }
 
     override fun saveWordsIdStringToPref(strIds: String)

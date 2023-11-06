@@ -150,7 +150,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         () -> null,
                         () -> {
                             boolean isFirstLaunch = SettingsExtKt.getCheckFirstLaunch(this);
-                            if (isFirstLaunch) {
+                            if (isFirstLaunch)
+                            {
                                 ExtensionsKt.showSignUpBenefitsDialog(
                                         this,
                                         () -> {
@@ -219,21 +220,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         orderPlayView = findViewById(R.id.order_play_icon_iv);
         orderPlayViewOnClick(orderPlayView);
-        mainViewModel.getOrderPlay().observe(this, order -> {
-            if (order == 0)
-            {
-                mainViewModel.sortWordsList();
-                orderPlayView.setImageResource(R.drawable.ic_repeat_white);
-            }
-            else if (order == 1)
-            {
-                mainViewModel.shuffleWordsList();
-                orderPlayView.setImageResource(R.drawable.ic_shuffle_white);
-            }
-        });
+        SettingsExtKt.getOrderPlay(
+                this,
+                () -> {
+                    mainViewModel.sortWordsList();
+                    orderPlayView.setImageResource(R.drawable.ic_repeat_white);
+                    return null;
+                },
+                () -> {
+                    mainViewModel.shuffleWordsList();
+                    orderPlayView.setImageResource(R.drawable.ic_shuffle_white);
+                    return null;
+                }
+        );
 
         mainViewPager = findViewById(R.id.mainViewPager);
-        mainViewModel.wordsList.observe(this, entries  -> {
+        mainViewModel.wordsList.observe(this, entries -> {
             if (entries != null && !entries.isEmpty())
             {
                 MainViewPagerAdapter pagerAdapter = new MainViewPagerAdapter(entries);
@@ -248,11 +250,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         int currentId = currentWord.get_id();
                         if (entriesId >= currentId)
                         {
-                            if (i == 0) {
+                            if (i == 0)
+                            {
                                 mainViewPager.setCurrentItem(entries.size() - 1, false);
                                 mainViewPager.setCurrentItem(i, true);
-                            }
-                            else {
+                            } else
+                            {
                                 mainViewPager.setCurrentItem(i, false);
                             }
                             break;
@@ -274,7 +277,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onPageSelected(int position)
             {
                 super.onPageSelected(position);
-                final MainViewPagerAdapter adapter = (MainViewPagerAdapter)mainViewPager.getAdapter();
+                final MainViewPagerAdapter adapter = (MainViewPagerAdapter) mainViewPager.getAdapter();
                 if (adapter != null)
                 {
                     Word item = adapter.getItem(position);
@@ -290,6 +293,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
 
             }
+
             @Override
             public void onPageScrollStateChanged(int state)
             {
@@ -329,8 +333,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     if (condition1)
                     {
                         list = adapter.getItems(position - wordsInterval, position - 1);
-                    }
-                    else if (condition2)
+                    } else if (condition2)
                     {
                         int lastIndex = adapter.getItemCount() - 1;
                         int firstIndex = -1;
@@ -411,7 +414,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         speechViewModel.getEnCheckboxEnable().observe(this, checkBoxEnView::setEnabled);
 
         CheckBox checkBoxRuSpeak = findViewById(R.id.check_box_ru_speak);
-        checkBoxRuSpeak.setOnClickListener( view -> {
+        checkBoxRuSpeak.setOnClickListener(view -> {
             CheckBox checkBox = (CheckBox) view;
             speechViewModel.setRuSpeech(checkBox.isChecked());
             if (checkBox.isChecked())
@@ -484,11 +487,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (isEnd)
             {
                 btnReplay.setVisibility(View.VISIBLE);
-            }
-            else btnReplay.setVisibility(View.INVISIBLE);
+            } else btnReplay.setVisibility(View.INVISIBLE);
         });
 
-        btnReplay.setOnClickListener( view -> mainViewPager.setCurrentItem(0, true));
+        btnReplay.setOnClickListener(view -> mainViewPager.setCurrentItem(0, true));
 
         MainFragment mainFragment = MainFragment.Companion.getInstance(this);
         getSupportFragmentManager().beginTransaction().add(R.id.frame_to_page_fragm, mainFragment).commit();
@@ -501,7 +503,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    public void buildRewardText(User user) {
+    public void buildRewardText(User user)
+    {
         Toolbar toolBar = root.findViewById(R.id.tool_bar);
         if (toolBar != null)
         {
@@ -518,14 +521,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 tvReward.setText(text);
                 tvReward.setVisibility(View.VISIBLE);
             }
-            toolBar.setOnClickListener( view -> {
+            toolBar.setOnClickListener(view -> {
                 DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
                 drawerLayout.open();
             });
         }
     }
 
-    private void buildRewardText2(Revenue revenue) {
+    private void buildRewardText2(Revenue revenue)
+    {
         Toolbar toolBar = root.findViewById(R.id.tool_bar);
         if (toolBar != null)
         {
@@ -542,14 +546,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 tvReward.setText(text);
                 tvReward.setVisibility(View.VISIBLE);
             }
-            toolBar.setOnClickListener( view -> {
+            toolBar.setOnClickListener(view -> {
                 DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
                 drawerLayout.open();
             });
         }
     }
 
-    private void handleSignOutAction() {
+    private void handleSignOutAction()
+    {
         navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_get_reward);
         buildRewardText(null);
     }
@@ -563,12 +568,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (wordList != null)
             {
                 int index = wordList.indexOf(currentWord);
-                if (index <= wordList.size()-1 && index >=0)
+                if (index <= wordList.size() - 1 && index >= 0)
                 {
                     int i = index + 1;
                     mainViewPager.setCurrentItem(i, false);
-                }
-                else mainViewPager.setCurrentItem(0, false);
+                } else mainViewPager.setCurrentItem(0, false);
                 mainViewModel.wordsIsEnded(index + 1 == mainViewModel.wordListSize() - 1);
             }
         }
@@ -583,11 +587,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (wordList != null && mainViewModel.getIntermediateIndex().getValue() != null)
             {
                 int newIndex = mainViewModel.getIntermediateIndex().getValue();
-                if (newIndex <= wordList.size()-1 && newIndex >= 0)
+                if (newIndex <= wordList.size() - 1 && newIndex >= 0)
                 {
                     mainViewPager.setCurrentItem(newIndex, true);
-                }
-                else mainViewPager.setCurrentItem(0, true);
+                } else mainViewPager.setCurrentItem(0, true);
             }
         }
         mainViewModel.setMainControlVisibility(View.VISIBLE);
@@ -637,13 +640,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void orderPlayViewOnClick(ImageView view)
     {
-        view.setOnClickListener( v -> {
-            Integer order = mainViewModel.getOrderPlay().getValue();
-            if (order != null)
-            {
-                OrderPlayDialog.Companion.getInstance(order, ord -> mainViewModel.setOrderPlay(ord))
-                        .show(getSupportFragmentManager(), OrderPlayDialog.Companion.getTAG());
-            }
+        view.setOnClickListener(v -> {
+
+            int oldOrder = SettingsExtKt.getOrderPlay(this, () -> null, () -> null);
+            OrderPlayDialog.Companion.getInstance(oldOrder, newOrder -> {
+                if (newOrder == 0) {
+                    mainViewModel.sortWordsList();
+                    orderPlayView.setImageResource(R.drawable.ic_repeat_white);
+                }
+                else {
+                    mainViewModel.shuffleWordsList();
+                    orderPlayView.setImageResource(R.drawable.ic_shuffle_white);
+                }
+                SettingsExtKt.saveOrderPlay(this, newOrder);
+            }).show(getSupportFragmentManager(), OrderPlayDialog.Companion.getTAG());
         });
     }
 
@@ -711,13 +721,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             new Share().doShare(this);
         }
-        if (id == R.id.cloud_storage) {
+        if (id == R.id.cloud_storage)
+        {
             showCloudDialog();
         }
         return super.onOptionsItemSelected(item);
     }
 
-    /** @noinspection Convert2Diamond*/
+    /**
+     * @noinspection Convert2Diamond
+     */
     ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             new ActivityResultCallback<ActivityResult>()
@@ -741,7 +754,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.setCustomAnimations(R.anim.from_right_to_left_anim, R.anim.from_left_to_right_anim);
         int itemId = item.getItemId();
-        if (itemId == R.id.nav_user_reward) {
+        if (itemId == R.id.nav_user_reward)
+        {
             SettingsExtKt.getAuthDataFromPref(
                     this,
                     () -> {
@@ -781,11 +795,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             TranslateFragment translateFragm = TranslateFragment.Companion.getInstance("");
             transaction.replace(R.id.frame_to_page_fragm, translateFragm).addToBackStack(null).commitAllowingStateLoss();
-        }
-        else if (itemId == R.id.nav_delete_dict)
+        } else if (itemId == R.id.nav_delete_dict)
         {
             mainViewModel.getDictList(list -> {
-                if (!list.isEmpty()) {
+                if (!list.isEmpty())
+                {
                     ExtensionsKt.showDialogAsSingleton(
                             this,
                             RemoveDictDialog.Companion.getInstance((ArrayList<String>) list, new RemoveDictDialog.Listener()
@@ -806,43 +820,36 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
                 return null;
             });
-        }
-        else if (itemId == R.id.nav_edit)
+        } else if (itemId == R.id.nav_edit)
         {
             Intent intent = new Intent(this, WordEditorActivity.class);
             Bundle bundle = new Bundle();
             bundle.putString(WordEditorActivity.KEY_EXTRA_DICT_NAME, btnViewDict.getText().toString());
             intent.replaceExtras(bundle);
             activityResultLauncher.launch(intent);
-        }
-        else if (itemId == R.id.nav_check_your_self)
+        } else if (itemId == R.id.nav_check_your_self)
         {
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.frame_to_page_fragm, TestFragment.Companion.newInstance())
                     .addToBackStack(null)
                     .commit();
-        }
-        else if (itemId == R.id.nav_settings)
+        } else if (itemId == R.id.nav_settings)
         {
             getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, new ContainerFragment()).addToBackStack(null).commit();
-        }
-        else if (itemId == R.id.nav_evaluate_app)
+        } else if (itemId == R.id.nav_evaluate_app)
         {
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setData(Uri.parse(getString(R.string.app_link)));
             startActivity(intent);
-        }
-        else if (itemId == R.id.nav_share)
+        } else if (itemId == R.id.nav_share)
         {
             new Share().doShare(this);
-        }
-        else if (itemId == R.id.nav_about_app)
+        } else if (itemId == R.id.nav_about_app)
         {
             AboutAppFragment aboutAppFragment = new AboutAppFragment();
             getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, aboutAppFragment).addToBackStack(null).commit();
-        }
-        else if (itemId == R.id.nav_exit)
+        } else if (itemId == R.id.nav_exit)
         {
             onAppFinish();
         }
@@ -871,45 +878,50 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @SuppressWarnings("CodeBlock2Expr")
-    private void showRemoveDictDialog(List<String> list) {
+    private void showRemoveDictDialog(List<String> list)
+    {
         ExtensionsKt.showDialogAsSingleton(
                 MainActivity.this,
                 ConfirmDialog.Companion.newInstance((dialog, binding) -> {
-            binding.tvMessage.setText(getString(R.string.dialog_are_you_sure));
-            binding.btnCancel.setOnClickListener(v -> {
-                dialog.dismiss();
-            });
-            binding.btnOk.setOnClickListener(v -> {
-                mainViewModel.deleteDicts(list, integer -> {
-                    if (integer > 0) {
-                        ExtensionsKt.showSnackBar(mainControlLayout, getString(R.string.msg_selected_dict_removed), Snackbar.LENGTH_LONG);
-                        boolean contains = list.contains(mainViewModel.currentDict.getValue());
-                        if (contains)
-                        {
-                            mainViewModel.refreshWordsList();
-                        }
-                    }
-                    dialog.dismiss();
+                    binding.tvMessage.setText(getString(R.string.dialog_are_you_sure));
+                    binding.btnCancel.setOnClickListener(v -> {
+                        dialog.dismiss();
+                    });
+                    binding.btnOk.setOnClickListener(v -> {
+                        mainViewModel.deleteDicts(list, integer -> {
+                            if (integer > 0)
+                            {
+                                ExtensionsKt.showSnackBar(mainControlLayout, getString(R.string.msg_selected_dict_removed), Snackbar.LENGTH_LONG);
+                                boolean contains = list.contains(mainViewModel.currentDict.getValue());
+                                if (contains)
+                                {
+                                    mainViewModel.refreshWordsList();
+                                }
+                            }
+                            dialog.dismiss();
+                            return null;
+                        }, dict -> {
+                            String message = getString(R.string.text_dict_not_found);
+                            ExtensionsKt.showSnackBar(mainControlLayout, message, Snackbar.LENGTH_LONG);
+                            return null;
+                        }, t -> {
+                            if (t.getMessage() != null)
+                            {
+                                ExtensionsKt.showSnackBar(mainControlLayout, t.getMessage(), Snackbar.LENGTH_LONG);
+                            }
+                            dialog.dismiss();
+                            return null;
+                        });
+                    });
                     return null;
-                }, dict -> {
-                    String message = getString(R.string.text_dict_not_found);
-                    ExtensionsKt.showSnackBar(mainControlLayout, message, Snackbar.LENGTH_LONG);
-                    return null;
-                }, t -> {
-                    if (t.getMessage() != null) {
-                        ExtensionsKt.showSnackBar(mainControlLayout, t.getMessage(), Snackbar.LENGTH_LONG);
-                    }
-                    dialog.dismiss();
-                    return null;
-                });
-            });
-            return null;
-        }), ConfirmDialog.Companion.getTAG());
+                }), ConfirmDialog.Companion.getTAG());
     }
 
-    private void showCloudDialog() {
-        BottomSheetDialogFragment dialog = (BottomSheetDialogFragment)getSupportFragmentManager().findFragmentByTag(StorageDialog.Companion.getTAG());
-        if (dialog == null) {
+    private void showCloudDialog()
+    {
+        BottomSheetDialogFragment dialog = (BottomSheetDialogFragment) getSupportFragmentManager().findFragmentByTag(StorageDialog.Companion.getTAG());
+        if (dialog == null)
+        {
             dialog = StorageDialog.Companion.newInstance(new StorageDialog.Listener()
             {
                 @Override
@@ -927,6 +939,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     binding.btnCloudEnable.setText(R.string.text_restore);
                     binding.btnCancel.setText(getString(R.string.btn_text_cancel));
                 }
+
                 @Override
                 public void onPositiveClick()
                 {
@@ -946,7 +959,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                                 try
                                                 {
                                                     AppDataBase dataBase = AppDataBase.Companion.getDataBase();
-                                                    if (dataBase != null) {
+                                                    if (dataBase != null)
+                                                    {
                                                         dataBase.close();
                                                     }
                                                     File file = getDatabasePath(getString(R.string.data_base_name));
@@ -956,8 +970,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                                     ExtensionsKt.showSnackBar(mainControlLayout, getString(R.string.text_dicts_restore_success), Snackbar.LENGTH_LONG);
                                                     toolBar.getMenu().findItem(R.id.cloud_storage).setVisible(false);
                                                     mainViewModel.refreshWordsList();
-                                                }
-                                                catch (Exception e)
+                                                } catch (Exception e)
                                                 {
                                                     e.printStackTrace();
                                                     ExtensionsKt.showSnackBar(mainControlLayout, getString(R.string.text_db_restore_error), Snackbar.LENGTH_LONG);
@@ -972,7 +985,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                                             @Override
                                             public void onComplete()
-                                            {}
+                                            {
+                                            }
                                         }
                                 );
                                 return null;
@@ -981,6 +995,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             () -> null
                     );
                 }
+
                 @Override
                 public void onCancelClick()
                 {
@@ -991,10 +1006,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private void configureOptionsMenu(Menu menu) {
+    private void configureOptionsMenu(Menu menu)
+    {
 
         boolean isCloudEnabled = SettingsExtKt.getCloudStorageEnabled(this);
-        if (isCloudEnabled) {
+        if (isCloudEnabled)
+        {
             SettingsExtKt.checkCloudToken(
                     this,
                     () -> null,
@@ -1009,7 +1026,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     public void onRequireDownSync(@NonNull String token)
                                     {
                                         boolean isFirstLaunch = SettingsExtKt.getCheckFirstLaunch(MainActivity.this);
-                                        if (isFirstLaunch) {
+                                        if (isFirstLaunch)
+                                        {
                                             showCloudDialog();
                                         }
                                         menu.findItem(R.id.cloud_storage).setVisible(true);
@@ -1028,15 +1046,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     () -> null,
                     () -> null
             );
-        }
-        else {
+        } else
+        {
             menu.findItem(R.id.cloud_storage).setVisible(false);
         }
     }
 
-    /** @noinspection deprecation*/
+    /**
+     * @noinspection deprecation
+     */
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
-    void onAppFinish() {
+    void onAppFinish()
+    {
 
         ExtensionsKt.alarmClockEnable(this);
 
@@ -1051,8 +1072,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 unlockedReceiver.getFilter(),
                                 Context.RECEIVER_NOT_EXPORTED
                         );
-                    }
-                    else {
+                    } else
+                    {
                         registerReceiver(
                                 unlockedReceiver,
                                 unlockedReceiver.getFilter()
@@ -1064,7 +1085,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         );
 
         boolean storageEnabled = SettingsExtKt.getCloudStorageEnabled(this);
-        if (storageEnabled) {
+        if (storageEnabled)
+        {
 
             SettingsExtKt.checkCloudToken(
                     this,
@@ -1091,7 +1113,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         boolean passiveModeEnabled = SettingsExtKt.checkPassiveModeEnabled(this);
-        if (passiveModeEnabled) {
+        if (passiveModeEnabled)
+        {
             PowerSettingsExtKt.checkBatterySettings(
                     this,
                     () -> {
@@ -1105,8 +1128,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         return null;
                     }
             );
-        }
-        else {
+        } else
+        {
             finish();
         }
     }
@@ -1123,31 +1146,39 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         wordsInterval = SettingsExtKt.getTestIntervalFromPref(this);
     }
 
-    private void onSettingsChange() {
+    private void onSettingsChange()
+    {
         SettingsViewModel viewModel = new ViewModelProvider(MainActivity.this).get(SettingsViewModel.class);
         viewModel.getStoragePrefHasChanged().observe(this, result -> {
-            if (result) {
+            if (result)
+            {
                 Menu menu = toolBar.getMenu();
                 configureOptionsMenu(menu);
             }
         });
     }
 
-    /** @noinspection unchecked*/
-    private void onRevenueUpdate() {
+    /**
+     * @noinspection unchecked
+     */
+    private void onRevenueUpdate()
+    {
 
         RevenueViewModel revenueVM = new ViewModelProvider(MainActivity.this).get(RevenueViewModel.class);
         revenueVM.getUserRevenueLD().observe(this, result -> {
-            if (result instanceof AppResult.Success<?>) {
+            if (result instanceof AppResult.Success<?>)
+            {
                 AppResult.Success<Revenue> castResult = (AppResult.Success<Revenue>) result;
                 Revenue revenue = castResult.getData();
                 buildRewardText2(revenue);
             }
-            if (result instanceof AppResult.Error error) {
+            if (result instanceof AppResult.Error error)
+            {
                 ExtensionsKt.printStackTraceIfDebug((Exception) error.getError());
             }
         });
     }
+
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig)
     {

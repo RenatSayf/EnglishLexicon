@@ -279,6 +279,7 @@
     <string name="text_account_has_been_deleted">Аккаунт удален</string>
     <string name="text_form_incorrect">Не все поля заполнены правильно.</string>
     <string name="text_session_has_expired">Сессия истекла. Войдите в аккаунт снова.</string>
+    <string name="text_battery_optimization_explain">Для стабильной работы приложения в режиме Пассивного изучения, необходимо отключить оптимизацию работы батареи. Это не повлияет на ее разряд</string>
 
 
 </resources>

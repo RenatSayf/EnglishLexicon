@@ -16,6 +16,7 @@ import com.myapp.lexicon.schedule.AppNotification
 import com.myapp.lexicon.settings.AppSettings
 import com.myapp.lexicon.settings.checkUnLockedBroadcast
 import com.myapp.lexicon.settings.getNotificationMode
+import com.myapp.lexicon.settings.getOrderPlay
 import com.myapp.lexicon.settings.getWordFromPref
 import com.myapp.lexicon.settings.saveWordToPref
 import dagger.hilt.android.AndroidEntryPoint
@@ -87,7 +88,16 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
                         }
                     },
                     onSuccess = { word ->
-                        handleBroadCast(context, scope, word)
+
+                        context.getOrderPlay(
+                            onCycle = {
+                                handleBroadCast(context, scope, word)
+                            },
+                            onRandom = {
+                                val randomWord = word.apply { _id = -1 }
+                                handleBroadCast(context, scope, randomWord)
+                            }
+                        )
                     },
                     onFailure = {
                         it.printStackTrace()
@@ -103,7 +113,14 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
 
         scope.launch {
             try {
-                val words = repository.getEntriesByDictNameAsync(word.dictName, id = word._id.toLong(), limit = 2).await()
+                val words = if (word._id > 0) {
+                    repository.getEntriesByDictNameAsync(word.dictName, id = word._id.toLong(), limit = 2).await()
+                }
+                else {
+                    val randomWord = repository.getRandomEntriesFromDB(word.dictName, -1).await()
+                    listOf(randomWord, randomWord)
+                }
+
                 if (words.isNotEmpty()) {
                     val notification = AppNotification(context)
                     val text = words.toWordsString()

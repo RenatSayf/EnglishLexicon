@@ -2,7 +2,10 @@ package com.myapp.lexicon.main
 
 import android.app.Application
 import android.view.View
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.repository.DataRepositoryImpl
 import com.myapp.lexicon.settings.getWordFromPref
@@ -11,6 +14,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -222,28 +226,13 @@ class MainViewModel @Inject constructor(
 
     fun getRandomWord(word: Word) : LiveData<Word>
     {
-        return _randomWord.apply {
+        viewModelScope.launch(Dispatchers.IO) {
             val dictName = word.dictName
             val id = word._id
-            composite.add(repository.getRandomEntriesFromDB(dictName, id)
-                    .subscribeOn(Schedulers.computation())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe({
-                        value = it
-                    }, { t ->
-                        t.printStackTrace()
-                    }))
+            val randomWord = repository.getRandomEntriesFromDB(dictName, id).await()
+            _randomWord.postValue(randomWord)
         }
-    }
-
-    private var _orderPlay = MutableLiveData<Int>().apply {
-        value = repository.getOrderPlay()
-    }
-    val orderPlay: LiveData<Int> = _orderPlay
-    fun setOrderPlay(order: Int)
-    {
-        _orderPlay.value = order
-        repository.saveOrderPlay(order)
+        return _randomWord
     }
 
     private var _mainControlVisibility = MutableLiveData<Int>().apply {

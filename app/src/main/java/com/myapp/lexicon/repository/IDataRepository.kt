@@ -12,7 +12,7 @@ interface IDataRepository
 
     fun getEntriesByIds(ids: List<Int>) : Single<MutableList<Word>>
 
-    fun getRandomEntriesFromDB(dictName: String, id: Int) : Single<Word>
+    suspend fun getRandomEntriesFromDB(dictName: String, id: Int) : Deferred<Word>
 
     fun getAllSimilarEntriesFromDB(dictName: String, like: String) : Single<MutableList<Word>>
 
@@ -33,10 +33,6 @@ interface IDataRepository
     fun getCountersFromDb(dictName: String, id: Int) : Single<List<Int>>
 
     fun goForward(words: List<Word>)
-
-    fun getOrderPlay() : Int
-
-    fun saveOrderPlay(order: Int)
 
     fun saveWordsIdStringToPref(strIds: String)
 

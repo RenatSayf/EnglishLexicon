@@ -34,8 +34,8 @@ import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.models.toWordList
-import com.myapp.lexicon.settings.AppSettings
 import com.myapp.lexicon.settings.disablePassiveWordsRepeat
+import com.myapp.lexicon.settings.getOrderPlay
 import com.myapp.lexicon.settings.isUserRegistered
 import com.myapp.lexicon.settings.saveWordToPref
 import dagger.hilt.android.AndroidEntryPoint
@@ -158,15 +158,14 @@ class TestModeDialog : DialogFragment() {
                 }
             }
 
-            val appSettings = AppSettings(requireContext())
-            when (appSettings.orderPlay) {
-                0 -> {
+            requireContext().getOrderPlay(
+                onCycle = {
                     orderPlayIconIvTestModal.setImageResource(R.drawable.ic_repeat_white)
-                }
-                1 -> {
+                },
+                onRandom = {
                     orderPlayIconIvTestModal.setImageResource(R.drawable.ic_shuffle_white)
                 }
-            }
+            )
 
             ruBtn1OnClick(ruBtn1)
             ruBtn2OnClick(ruBtn2)

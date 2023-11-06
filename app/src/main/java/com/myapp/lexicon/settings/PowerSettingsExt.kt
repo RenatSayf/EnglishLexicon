@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.PowerManager
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import com.myapp.lexicon.R
 import com.myapp.lexicon.dialogs.ConfirmDialog
 
 const val KEY_BATTERY_SETTINGS = "KEY_BATTERY_SETTINGS"
@@ -35,7 +36,7 @@ fun AppCompatActivity.checkBatterySettings(
             ConfirmDialog.newInstance(
                 onLaunch = {dialog, binding ->
                     with(binding) {
-                        val message = "Для стабильной работы приложения в режиме Пассивного изучения, необходимо отключить оптимизацию работы батареи"
+                        val message = this@checkBatterySettings.getString(R.string.text_battery_optimization_explain)
                         tvMessage.text = message
                         btnOk.apply {
                             text = "К настройкам"
