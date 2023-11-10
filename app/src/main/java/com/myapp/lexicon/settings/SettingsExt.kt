@@ -440,8 +440,8 @@ fun Context.saveOrderPlay(order: Int) {
 }
 
 fun Context.getOrderPlay(
-    onCycle: () -> Unit,
-    onRandom: () -> Unit
+    onCycle: () -> Unit = {},
+    onRandom: () -> Unit = {}
 ): Int {
     val value = appSettings.getInt("KEY_ORDER_PLAY", 0)
     if (value == 0) {

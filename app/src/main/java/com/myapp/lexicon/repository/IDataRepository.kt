@@ -55,4 +55,10 @@ interface IDataRepository
     suspend fun getFirstEntryAsync(): Deferred<Word>
 
     suspend fun deleteEntriesByDictNameAsync(dicts: List<String>): Deferred<Int>
+
+    /**
+     * @param dict - dict name
+     * @param order 1 -> order ASC, -1 -> order DESC, 0 -> random()
+     */
+    suspend fun getOrderedEntriesByDictNameAsync(dict: String, order: Int = 1): Deferred<List<Word>>
 }

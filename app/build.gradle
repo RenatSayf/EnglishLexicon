@@ -64,6 +64,7 @@ android {
             buildConfigField('String', 'ADS_SOURCE', '\"LOCAL_HOST\"')
         }
     }
+    testOptions.unitTests.includeAndroidResources = true
 
     namespace 'com.myapp.lexicon'
 }

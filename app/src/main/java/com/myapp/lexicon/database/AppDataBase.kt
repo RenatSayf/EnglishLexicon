@@ -8,15 +8,16 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
+import com.myapp.lexicon.database.models.WordToPlay
 import com.myapp.lexicon.helpers.getCRC32CheckSum
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.saveInitDbCheckSum
 
 
-private const val DB_VERSION = 1
+private const val DB_VERSION = 2
 
 
-@Database(entities = [Word::class], version = DB_VERSION, exportSchema = true)
+@Database(entities = [Word::class, WordToPlay::class], version = DB_VERSION, exportSchema = true)
 abstract class AppDataBase : RoomDatabase()
 {
     abstract fun appDao(): AppDao

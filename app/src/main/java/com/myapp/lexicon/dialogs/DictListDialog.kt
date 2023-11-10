@@ -11,6 +11,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.TitleAlertDialogBinding
+import com.myapp.lexicon.helpers.LockOrientation
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -19,6 +20,10 @@ class DictListDialog : DialogFragment()
 {
     private var _selectedItem = MutableLiveData("")
     var selectedItem: LiveData<String> = _selectedItem
+
+    private val locker: LockOrientation by lazy {
+        LockOrientation(requireActivity())
+    }
 
     companion object
     {
@@ -41,6 +46,11 @@ class DictListDialog : DialogFragment()
     interface ISelectItemListener
     {
         fun dictListItemOnSelected(dict: String)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        locker.lock()
     }
 
     @Suppress("ObjectLiteralToLambda")
@@ -75,5 +85,10 @@ class DictListDialog : DialogFragment()
         return builder.create().apply {
             this.window?.setBackgroundDrawableResource(R.drawable.bg_popup_dialog)
         }
+    }
+
+    override fun onDestroy() {
+        locker.unLock()
+        super.onDestroy()
     }
 }

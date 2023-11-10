@@ -20,6 +20,7 @@ import com.myapp.lexicon.helpers.showToast
 import com.myapp.lexicon.main.MainViewModel
 import com.myapp.lexicon.main.Speaker
 import com.myapp.lexicon.models.Word
+import com.myapp.lexicon.settings.getWordFromPref
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Locale
 
@@ -86,12 +87,16 @@ class AddWordDialog : DialogFragment(),
 
             mainVM.dictionaryList.observe(viewLifecycleOwner) { list ->
                 if (!list.isNullOrEmpty()) {
-                    mainVM.currentWord.observe(viewLifecycleOwner) { word ->
-                        if (word.dictName.isNotEmpty()) {
+
+                    val adapter = ArrayAdapter(requireContext(), R.layout.app_spinner_item, list.distinct())
+                    dictListSpinner.adapter = adapter
+
+                    requireContext().getWordFromPref(
+                        onInit = {},
+                        onSuccess = { word ->
+
                             val index = list.indexOf(word.dictName)
                             if (index >= 0) {
-                                val adapter = ArrayAdapter(requireContext(), R.layout.app_spinner_item, list.distinct())
-                                dictListSpinner.adapter = adapter
                                 when (newDictName) {
                                     null -> {
                                         dictListSpinner.setSelection(index)
@@ -102,8 +107,9 @@ class AddWordDialog : DialogFragment(),
                                     }
                                 }
                             }
-                        }
-                    }
+                        },
+                        onFailure = {}
+                    )
                 }
             }
 

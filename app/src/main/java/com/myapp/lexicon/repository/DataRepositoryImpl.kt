@@ -1,5 +1,6 @@
 package com.myapp.lexicon.repository
 
+import androidx.sqlite.db.SimpleSQLiteQuery
 import com.myapp.lexicon.database.AppDao
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.AppSettings
@@ -152,6 +153,29 @@ class DataRepositoryImpl @Inject constructor(
         return coroutineScope {
             async {
                 db.deleteEntriesByDictName(dicts)
+            }
+        }
+    }
+
+    override suspend fun getOrderedEntriesByDictNameAsync(
+        dict: String,
+        order: Int
+    ): Deferred<List<Word>> {
+        val orderStr = if (order > 0) {
+            "english ASC"
+        } else if (order < 0) {
+            "english DESC"
+        } else "random()"
+
+        val query3 = "INSERT INTO PlayList SELECT * FROM Words WHERE dict_name = '$dict' AND count_repeat > 0 ORDER BY $orderStr"
+
+        return coroutineScope {
+            async {
+
+                db.clearPlayList()
+                db.runTimeQuery(SimpleSQLiteQuery(query3))
+                val playList = db.getPlayList()
+                playList.map { it.toWord() }
             }
         }
     }
