@@ -138,7 +138,6 @@ class TranslateFragment : Fragment()
                 when(mActivity)
                 {
                     is MainActivity -> {
-                       (mActivity as MainActivity).refreshMainScreen(true)
                         interstitialAd?.showAd(
                             requireActivity(),
                             onImpression = { data ->
@@ -177,7 +176,6 @@ class TranslateFragment : Fragment()
             when(mActivity)
             {
                 is MainActivity -> {
-                    (mActivity as MainActivity).refreshMainScreen(true)
                     interstitialAd?.showAd(
                         requireActivity(),
                         onImpression = { data ->

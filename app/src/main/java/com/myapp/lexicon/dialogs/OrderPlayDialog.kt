@@ -1,3 +1,5 @@
+@file:Suppress("ObjectLiteralToLambda")
+
 package com.myapp.lexicon.dialogs
 
 import android.app.AlertDialog
@@ -6,6 +8,7 @@ import android.content.DialogInterface
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment
 import com.myapp.lexicon.R
+import com.myapp.lexicon.helpers.LockOrientation
 
 class OrderPlayDialog : DialogFragment()
 {
@@ -32,8 +35,13 @@ class OrderPlayDialog : DialogFragment()
         fun orderPlayDialogItemOnClick(order: Int)
     }
 
+    private val locker by lazy {
+        LockOrientation(requireActivity())
+    }
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog
     {
+        locker.lock()
         val builder = AlertDialog.Builder(requireContext()).apply {
             val stringArray = requireContext().resources.getStringArray(R.array.order_play_items)
             setSingleChoiceItems(stringArray, order, object : DialogInterface.OnClickListener
@@ -49,5 +57,11 @@ class OrderPlayDialog : DialogFragment()
         return builder.create().apply {
             window?.setBackgroundDrawableResource(R.drawable.bg_popup_dialog_white)
         }
+    }
+
+    override fun onDismiss(dialog: DialogInterface) {
+
+        locker.unLock()
+        super.onDismiss(dialog)
     }
 }

@@ -9,6 +9,7 @@ import android.provider.Settings
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.*
 import com.myapp.lexicon.BuildConfig
@@ -55,7 +56,7 @@ class SettingsFragment : PreferenceFragmentCompat()
                     {
                         value = newValue.toString()
                         summary = entry
-                        (requireActivity() as MainActivity).testIntervalOnChange(value.toInt())
+                        setFragmentResult(getString(R.string.KEY_TEST_INTERVAL_CHANGED), Bundle.EMPTY)
                         true
                     }
                     catch (e: Exception)

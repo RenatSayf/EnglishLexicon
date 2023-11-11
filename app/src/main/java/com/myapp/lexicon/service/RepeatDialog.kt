@@ -27,7 +27,6 @@ import com.myapp.lexicon.models.Revenue
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.models.toWordList
-import com.myapp.lexicon.settings.AppSettings
 import com.myapp.lexicon.settings.disablePassiveWordsRepeat
 import com.myapp.lexicon.settings.getOrderPlay
 import com.myapp.lexicon.settings.isUserRegistered

@@ -1,5 +1,6 @@
 package com.myapp.lexicon.repository
 
+import com.myapp.lexicon.database.models.WordToPlay
 import com.myapp.lexicon.models.Word
 import io.reactivex.Single
 import kotlinx.coroutines.Deferred
@@ -60,5 +61,9 @@ interface IDataRepository
      * @param dict - dict name
      * @param order 1 -> order ASC, -1 -> order DESC, 0 -> random()
      */
-    suspend fun getOrderedEntriesByDictNameAsync(dict: String, order: Int = 1): Deferred<List<Word>>
+    suspend fun getPlayListByDictNameAsync(dict: String, order: Int = 1): Deferred<List<Word>>
+
+    suspend fun getDictNameFromPlayList(): Deferred<List<String>>
+
+    suspend fun getPlayList(): Deferred<List<WordToPlay>>
 }

@@ -1,3 +1,5 @@
+@file:Suppress("RedundantSamConstructor")
+
 package com.myapp.lexicon.database
 
 import android.content.Context
@@ -31,7 +33,7 @@ abstract class AppDataBase : RoomDatabase()
             val dbName = context.getString(R.string.data_base_name)
             dataBase = Room.databaseBuilder(context, AppDataBase::class.java, dbName).apply {
                 createFromAsset("databases/$dbName")
-                //addMigrations(getMigration())
+                addMigrations(getMigrationFrom1To2())
             }.build().apply {
                 val checkSum = context.assets.open("databases/$dbName").readBytes().getCRC32CheckSum()
                 context.saveInitDbCheckSum(checkSum)
@@ -46,13 +48,20 @@ abstract class AppDataBase : RoomDatabase()
             dataBase?.close()
         }
 
-        private fun getMigration(): Migration
-        {
-            return object : Migration(DB_VERSION - 1, DB_VERSION)
-            {
-                override fun migrate(database: SupportSQLiteDatabase)
-                {
-                    //println("***************************** migrate to $DB_VERSION started *******************************")
+        private fun getMigrationFrom1To2(): Migration {
+            return object : Migration(1, 2) {
+                override fun migrate(database: SupportSQLiteDatabase) {
+                    val query = """CREATE TABLE "PlayList" (
+	"_id"	INTEGER NOT NULL,
+	"dict_name"	TEXT NOT NULL,
+	"english"	TEXT NOT NULL,
+	"translate"	TEXT NOT NULL,
+	"count_repeat"	INTEGER NOT NULL DEFAULT 1,
+	PRIMARY KEY("english")
+);"""
+                    Thread(Runnable {
+                        database.execSQL(query)
+                    }).start()
                 }
             }
         }

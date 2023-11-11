@@ -60,17 +60,17 @@ interface AppDao
     @Query("DELETE FROM Words WHERE dict_name IN(:dicts)")
     suspend fun deleteEntriesByDictName(dicts: List<String>): Int
 
-    @Query("DELETE FROM PlayList")
-    fun clearPlayList(): Int
+    @Query("SELECT dict_name FROM PlayList LIMIT 1")
+    suspend fun getDictNameFromPlayList(): List<String>
 
-    @Query("INSERT INTO PlayList SELECT * FROM Words WHERE dict_name == :dict AND count_repeat > 0 ORDER BY :order")
-    fun insertIntoPlayList(dict: String, order: String)
+    @Query("DELETE FROM PlayList")
+    suspend fun clearPlayList(): Int
 
     @Query("SELECT * FROM PlayList")
-    fun getPlayList(): List<WordToPlay>
+    suspend fun getPlayList(): List<WordToPlay>
 
     @RawQuery
-    fun runTimeQuery(query: SimpleSQLiteQuery): List<Any>
+    suspend fun runTimeQuery(query: SimpleSQLiteQuery): List<Any>
 
 }
 

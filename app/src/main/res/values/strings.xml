@@ -223,8 +223,8 @@
     </string-array>
     <string-array name="order_play_items">
         <item value="0">По порядку</item>
-        <!--<item>В обратном порядке</item>-->
-        <item value="1">Случайный выбор</item>
+        <item value="1">В обратном порядке</item>
+        <item value="2">Случайный выбор</item>
     </string-array>
 
     <string-array name="display_mode">
@@ -280,6 +280,7 @@
     <string name="text_form_incorrect">Не все поля заполнены правильно.</string>
     <string name="text_session_has_expired">Сессия истекла. Войдите в аккаунт снова.</string>
     <string name="text_battery_optimization_explain">Для стабильной работы приложения в режиме Пассивного изучения, необходимо отключить оптимизацию работы батареи. Это не повлияет на ее разряд</string>
+    <string name="KEY_TEST_INTERVAL_CHANGED">TEST_INTERVAL_CHANGED</string>
 
 
 </resources>

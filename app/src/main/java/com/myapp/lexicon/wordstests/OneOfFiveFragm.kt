@@ -187,13 +187,13 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 mActivity.supportFragmentManager.popBackStack()
-                mActivity.mainViewModel.setMainControlVisibility(View.VISIBLE)
+                mActivity.mainVM.setMainControlVisibility(View.VISIBLE)
             }
         })
 
         binding.toolBar.setNavigationOnClickListener {
             parentFragmentManager.popBackStack()
-            mActivity.mainViewModel.setMainControlVisibility(View.VISIBLE)
+            mActivity.mainVM.setMainControlVisibility(View.VISIBLE)
         }
     }
 

@@ -86,6 +86,7 @@ import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.FragmentResultListener;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
@@ -94,7 +95,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
-        MainFragment.Listener
+        MainFragment.Listener, FragmentResultListener
 {
     private View root;
     private NavigationView navView;
@@ -108,9 +109,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private final String KEY_TV_WORDS_COUNTER = "tv_words_counter";
 
-    public MainViewModel mainViewModel;
+    public MainViewModel mainVM;
     private SpeechViewModel speechViewModel;
-    private int wordsInterval = 10;
     public BackgroundFragm backgroundFragm = null;
     @Nullable
     private AccountFragment accountFragment;
@@ -138,7 +138,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         scheduler.cancel(AlarmScheduler.ONE_SHOOT_ACTION);
 
-        mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        getSupportFragmentManager().setFragmentResultListener(getString(R.string.KEY_NEED_REFRESH), this, this);
+        getSupportFragmentManager().setFragmentResultListener(getString(R.string.KEY_TEST_INTERVAL_CHANGED), this, this);
+
+        mainVM = new ViewModelProvider(this).get(MainViewModel.class);
         speechViewModel = new ViewModelProvider(this).get(SpeechViewModel.class);
         AuthViewModel authVM = new ViewModelProvider(this).get(AuthViewModel.class);
 
@@ -204,7 +207,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         btnViewDictOnClick(btnViewDict);
 
         orderPlayView = findViewById(R.id.order_play_icon_iv);
-        orderPlayViewOnClick(orderPlayView);
+        btnOrderPlayOnClick(orderPlayView);
 
         tvWordsCounter = findViewById(R.id.tv_words_counter);
 
@@ -212,26 +215,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mainViewPager.setAdapter(pagerAdapter);
         mainViewPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
 
-        mainViewModel.wordsList.observe(this, list -> {
+        mainVM.wordsList.observe(this, list -> {
             if (list != null && !list.isEmpty())
             {
-                mainViewModel.isSortedById(
-                        list,
-                        () -> {
-                            orderPlayView.setImageResource(R.drawable.ic_repeat_white);
-                            return null;
-                        },
-                        () -> {
-                            orderPlayView.setImageResource(R.drawable.ic_repeat_white);
-                            return null;
-                        },
-                        () -> {
-                            orderPlayView.setImageResource(R.drawable.ic_shuffle_white);
-                            return null;
-                        }
-                );
+                int order = mainVM.getOrderPlay();
+                if (order == 0 || order == 1) {
+                    orderPlayView.setImageResource(R.drawable.ic_repeat_white);
+                }
+                else {
+                    orderPlayView.setImageResource(R.drawable.ic_shuffle_white);
+                }
                 pagerAdapter.setItems(list);
-                mainViewPager.setCurrentItem(mainViewModel.getDisplayedWordIndex(), true);
+                int displayedWordIndex = mainVM.getDisplayedWordIndex();
+                mainViewPager.setCurrentItem(displayedWordIndex, true);
                 btnViewDict.setText(list.get(0).getDictName());
             }
         });
@@ -241,12 +237,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             private int state = -1;
             private int position = -1;
             private Word word;
+            private final MainViewPagerAdapter adapter = (MainViewPagerAdapter) mainViewPager.getAdapter();
 
             @Override
             public void onPageSelected(int position)
             {
                 super.onPageSelected(position);
-                final MainViewPagerAdapter adapter = (MainViewPagerAdapter) mainViewPager.getAdapter();
                 if (adapter != null)
                 {
                     word = adapter.getItem(position);
@@ -254,9 +250,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     String concatText = (position + 1) + " / " + totalWords;
                     tvWordsCounter.setText(concatText);
                 }
-                if (position < mainViewModel.wordListSize() - 1)
+                if (position < mainVM.wordListSize() - 1)
                 {
-                    mainViewModel.wordsIsEnded(false);
+                    mainVM.wordsIsEnded(false);
                 }
             }
 
@@ -268,15 +264,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if (speechViewModel.isEnSpeech().getValue() != null)
                 {
                     Boolean isEnSpeech = speechViewModel.isEnSpeech().getValue();
-                    if (state == 1 && isEnSpeech != null && isEnSpeech)
+                    if (state == 1 && isEnSpeech != null && isEnSpeech && adapter != null)
                     {
-                        Word displayedWord = mainViewModel.getDisplayedWord();
-                        if (displayedWord != null && !displayedWord.getEnglish().equals(""))
+                        Word displayedWord = adapter.getItem(mainViewPager.getCurrentItem());
+                        if (!displayedWord.getEnglish().equals(""))
                         {
                             speechViewModel.setSpeechProgressVisibility(View.VISIBLE);
                         }
                     }
-                    Integer mControlVisibility = mainViewModel.getMainControlVisibility().getValue();
+                    Integer mControlVisibility = mainVM.getMainControlVisibility().getValue();
                     if (isEnSpeech != null && isEnSpeech && word != null && state == 0 && mControlVisibility != null && mControlVisibility == View.VISIBLE)
                     {
                         speechViewModel.doSpeech(word.getEnglish(), Locale.US);
@@ -288,52 +284,48 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels)
             {
                 super.onPageScrolled(position, positionOffset, positionOffsetPixels);
-                int remainder = position % wordsInterval;
+                int remainder = position % mainVM.getWordsInterval();
                 int testIntervalIndex = position - remainder;
-                mainViewModel.setIntermediateIndex(testIntervalIndex);
-                MainViewPagerAdapter adapter = (MainViewPagerAdapter) mainViewPager.getAdapter();
+                mainVM.setIntermediateIndex(testIntervalIndex);
                 List<Word> list = new ArrayList<>();
-                if (adapter != null)
+                boolean condition1 = (state == 2 && remainder == 0 && position != 0 && position > this.position);
+                boolean condition2 = (state == ViewPager2.SCROLL_STATE_DRAGGING && position == mainVM.wordListSize() - 1);
+                if (condition1)
                 {
-                    boolean condition1 = (state == 2 && remainder == 0 && position != 0 && position > this.position);
-                    boolean condition2 = (state == ViewPager2.SCROLL_STATE_DRAGGING && position == mainViewModel.wordListSize() - 1);
-                    if (condition1)
+                    list = pagerAdapter.getItems(position - mainVM.getWordsInterval(), position - 1);
+                } else if (condition2)
+                {
+                    int lastIndex = pagerAdapter.getItemCount() - 1;
+                    int firstIndex = -1;
+                    if (mainVM.getIntermediateIndex().getValue() != null)
                     {
-                        list = adapter.getItems(position - wordsInterval, position - 1);
-                    } else if (condition2)
-                    {
-                        int lastIndex = adapter.getItemCount() - 1;
-                        int firstIndex = -1;
-                        if (mainViewModel.getIntermediateIndex().getValue() != null)
-                        {
-                            firstIndex = mainViewModel.getIntermediateIndex().getValue();
-                        }
-                        if (firstIndex < 0) firstIndex = 0;
-                        list = adapter.getItems(firstIndex, lastIndex);
+                        firstIndex = mainVM.getIntermediateIndex().getValue();
                     }
-                    if ((condition1 || condition2) && list.size() > 1)
-                    {
-                        speechViewModel.stopSpeech();
-                        mainViewModel.setIntermediateIndex(position);
-                        mainViewModel.setMainControlVisibility(View.INVISIBLE);
-                        speechViewModel.setSpeechProgressVisibility(View.INVISIBLE);
-                        Toast.makeText(MainActivity.this, getString(R.string.text_test_knowledge), Toast.LENGTH_LONG).show();
-                        OneOfFiveFragm testFragment = OneOfFiveFragm.newInstance(list);
-                        getSupportFragmentManager()
-                                .beginTransaction()
-                                .setCustomAnimations(R.anim.from_right_to_left_anim, R.anim.from_left_to_right_anim)
-                                .addToBackStack(null)
-                                .add(R.id.frame_to_page_fragm, testFragment)
-                                .commit();
-                        mainViewPager.setCurrentItem(position - 1);
-                        return;
-                    }
+                    if (firstIndex < 0) firstIndex = 0;
+                    list = pagerAdapter.getItems(firstIndex, lastIndex);
+                }
+                if ((condition1 || condition2) && list.size() > 1)
+                {
+                    speechViewModel.stopSpeech();
+                    mainVM.setIntermediateIndex(position);
+                    mainVM.setMainControlVisibility(View.INVISIBLE);
+                    speechViewModel.setSpeechProgressVisibility(View.INVISIBLE);
+                    Toast.makeText(MainActivity.this, getString(R.string.text_test_knowledge), Toast.LENGTH_LONG).show();
+                    OneOfFiveFragm testFragment = OneOfFiveFragm.newInstance(list);
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            .setCustomAnimations(R.anim.from_right_to_left_anim, R.anim.from_left_to_right_anim)
+                            .addToBackStack(null)
+                            .add(R.id.frame_to_page_fragm, testFragment)
+                            .commit();
+                    mainViewPager.setCurrentItem(position - 1);
+                    return;
                 }
                 this.position = position;
             }
         });
 
-        mainViewModel.getMainControlVisibility().observe(this, visibility -> {
+        mainVM.getMainControlVisibility().observe(this, visibility -> {
             mainControlLayout = findViewById(R.id.main_control_layout);
             if (mainControlLayout != null)
             {
@@ -409,12 +401,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         speechViewModel.getSpeechDoneId().observe(MainActivity.this, utteranceId ->
         {
-            speechViewModel.setSpeechProgressVisibility(View.INVISIBLE);
-            Boolean isRu = speechViewModel.isRuSpeech().getValue();
-            Word word = mainViewModel.getDisplayedWord();
-            if (utteranceId.equals("En") && isRu != null && isRu && word != null)
+            if (!utteranceId.isEmpty())
             {
-                speechViewModel.doSpeech(word.getTranslate(), Locale.getDefault());
+                speechViewModel.setSpeechProgressVisibility(View.INVISIBLE);
+                Boolean isRu = speechViewModel.isRuSpeech().getValue();
+                Word word = pagerAdapter.getItem(mainViewPager.getCurrentItem());
+                if (utteranceId.equals("En") && isRu != null && isRu)
+                {
+                    speechViewModel.doSpeech(word.getTranslate(), Locale.getDefault());
+                }
             }
         });
 
@@ -436,9 +431,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         btnSpeak.setOnClickListener(view -> {
             int position = mainViewPager.getCurrentItem();
             Boolean isEnSpeech = speechViewModel.isEnSpeech().getValue();
-            if (mainViewModel.wordsList.getValue() != null)
+            if (mainVM.wordsList.getValue() != null)
             {
-                Word word = mainViewModel.wordsList.getValue().get(position);
+                Word word = mainVM.wordsList.getValue().get(position);
                 String enText = word.getEnglish();
                 if (isEnSpeech != null)
                 {
@@ -450,7 +445,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
 
         AppCompatImageButton btnReplay = findViewById(R.id.btnReplay);
-        mainViewModel.isEndWordList.observe(this, isEnd -> {
+        mainVM.isEndWordList.observe(this, isEnd -> {
             if (isEnd)
             {
                 btnReplay.setVisibility(View.VISIBLE);
@@ -536,41 +531,37 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void testPassed()
     {
-        Word displayedWord = mainViewModel.getDisplayedWord();
-        if (displayedWord != null)
+        Word displayedWord = pagerAdapter.getItem(mainViewPager.getCurrentItem());
+        mainVM.saveCurrentWordToPref(displayedWord);
+        List<Word> wordList = mainVM.wordsList.getValue();
+        if (wordList != null)
         {
-            mainViewModel.saveCurrentWordToPref(displayedWord);
-            List<Word> wordList = mainViewModel.wordsList.getValue();
-            if (wordList != null)
+            int index = wordList.indexOf(displayedWord);
+            if (index <= wordList.size() - 1 && index >= 0)
             {
-                int index = wordList.indexOf(displayedWord);
-                if (index <= wordList.size() - 1 && index >= 0)
-                {
-                    int i = index + 1;
-                    mainViewPager.setCurrentItem(i, false);
-                } else mainViewPager.setCurrentItem(0, false);
-                mainViewModel.wordsIsEnded(index + 1 == mainViewModel.wordListSize() - 1);
-            }
+                int i = index + 1;
+                mainViewPager.setCurrentItem(i, false);
+            } else mainViewPager.setCurrentItem(0, false);
+            mainVM.wordsIsEnded(index + 1 == mainVM.wordListSize() - 1);
         }
-        mainViewModel.setMainControlVisibility(View.VISIBLE);
+        mainVM.setMainControlVisibility(View.VISIBLE);
     }
 
     public void testFailed(int errors)
     {
-        Word displayedWord = mainViewModel.getDisplayedWord();
-        if (displayedWord != null && errors > 0)
+        if (errors > 0)
         {
-            List<Word> wordList = mainViewModel.wordsList.getValue();
-            if (wordList != null && mainViewModel.getIntermediateIndex().getValue() != null)
+            List<Word> wordList = mainVM.wordsList.getValue();
+            if (wordList != null && mainVM.getIntermediateIndex().getValue() != null)
             {
-                int newIndex = mainViewModel.getIntermediateIndex().getValue();
+                int newIndex = mainVM.getIntermediateIndex().getValue();
                 if (newIndex <= wordList.size() - 1 && newIndex >= 0)
                 {
                     mainViewPager.setCurrentItem(newIndex, true);
                 } else mainViewPager.setCurrentItem(0, true);
             }
         }
-        mainViewModel.setMainControlVisibility(View.VISIBLE);
+        mainVM.setMainControlVisibility(View.VISIBLE);
     }
 
     @SuppressWarnings("Convert2Lambda")
@@ -581,7 +572,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onClick(View view)
             {
-                mainViewModel.getDictList(list -> {
+                mainVM.getDictList(list -> {
 
                     String buttonText = button.getText().toString();
                     int index = list.indexOf(buttonText);
@@ -597,9 +588,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 @Override
                                 public void dictListItemOnSelected(@NonNull String dict)
                                 {
+                                    int orderPlay = mainVM.getOrderPlay();
                                     Word word = new Word(1, dict, "", "", 1);
-                                    mainViewModel.setWordsList(word, 1);
-                                    mainViewModel.saveCurrentWordToPref(word);
+                                    mainVM.setNewPlayList(word, orderPlay);
+                                    mainVM.saveCurrentWordToPref(word);
                                 }
                             }),
                             DictListDialog.Companion.getTAG()
@@ -613,21 +605,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
-    private void orderPlayViewOnClick(ImageView view)
+    private void btnOrderPlayOnClick(ImageView view)
     {
         view.setOnClickListener(v -> {
 
-            int oldOrder = SettingsExtKt.getOrderPlay(this, () -> null, () -> null);
+            Word word = pagerAdapter.getItem(mainViewPager.getCurrentItem());
+            int oldOrder = mainVM.getOrderPlay();
             OrderPlayDialog.Companion.getInstance(oldOrder, newOrder -> {
-                if (newOrder == 0) {
-                    mainViewModel.sortWordsList();
-                    orderPlayView.setImageResource(R.drawable.ic_repeat_white);
+                if (oldOrder != newOrder)
+                {
+                    mainVM.setNewPlayList(word, newOrder);
                 }
                 else {
-                    mainViewModel.shuffleWordsList();
-                    orderPlayView.setImageResource(R.drawable.ic_shuffle_white);
+                    mainVM.restorePlayList(word);
                 }
-                SettingsExtKt.saveOrderPlay(this, newOrder);
             }).show(getSupportFragmentManager(), OrderPlayDialog.Companion.getTAG());
         });
     }
@@ -642,13 +633,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onStop()
     {
-        List<Word> wordList = mainViewModel.wordsList.getValue();
-        if (wordList != null) {
-            Word currentWord = wordList.get(mainViewPager.getCurrentItem());
-            if (currentWord != null) {
-                mainViewModel.saveCurrentWordToPref(currentWord);
-            }
-        }
+        Word word = pagerAdapter.getItem(mainViewPager.getCurrentItem());
+        mainVM.saveCurrentWordToPref(word);
         super.onStop();
     }
 
@@ -667,17 +653,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = item.getItemId();
         if (id == R.id.edit_word)
         {
-            Word word = mainViewModel.getDisplayedWord();
-            Intent intent = new Intent(this, WordEditorActivity.class);
-            Bundle bundle = new Bundle();
-            bundle.putString(WordEditorActivity.KEY_EXTRA_DICT_NAME, btnViewDict.getText().toString());
-            if (word != null)
-            {
-                bundle.putString(WordEditorActivity.KEY_EXTRA_EN_WORD, word.getEnglish());
-                bundle.putString(WordEditorActivity.KEY_EXTRA_RU_WORD, word.getTranslate());
+            List<Word> words = mainVM.wordsList.getValue();
+            if (words != null && !words.isEmpty()) {
+                Word currentWord = words.get(mainViewPager.getCurrentItem());
+                Intent intent = new Intent(this, WordEditorActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString(WordEditorActivity.KEY_EXTRA_DICT_NAME, btnViewDict.getText().toString());
+                if (currentWord != null)
+                {
+                    bundle.putString(WordEditorActivity.KEY_EXTRA_EN_WORD, currentWord.getEnglish());
+                    bundle.putString(WordEditorActivity.KEY_EXTRA_RU_WORD, currentWord.getTranslate());
+                }
+                intent.replaceExtras(bundle);
+                activityResultLauncher.launch(intent);
             }
-            intent.replaceExtras(bundle);
-            activityResultLauncher.launch(intent);
         }
         if (id == R.id.edit_speech_data)
         {
@@ -716,7 +705,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     int resultCode = result.getResultCode();
                     if (resultCode == WordEditorActivity.requestCode)
                     {
-                        mainViewModel.refreshWordsList();
+                        mainVM.initPlayList();
                     }
                 }
             });
@@ -772,7 +761,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             transaction.replace(R.id.frame_to_page_fragm, translateFragm).addToBackStack(null).commitAllowingStateLoss();
         } else if (itemId == R.id.nav_delete_dict)
         {
-            mainViewModel.getDictList(list -> {
+            mainVM.getDictList(list -> {
                 if (!list.isEmpty())
                 {
                     ExtensionsKt.showDialogAsSingleton(
@@ -845,14 +834,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    public void testIntervalOnChange(int value)
-    {
-        wordsInterval = value;
-    }
-
     @SuppressWarnings("CodeBlock2Expr")
     private void showRemoveDictDialog(List<String> list)
     {
+        LockOrientation locker = new LockOrientation(this);
         ExtensionsKt.showDialogAsSingleton(
                 MainActivity.this,
                 ConfirmDialog.Companion.newInstance((dialog, binding) -> {
@@ -861,14 +846,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         dialog.dismiss();
                     });
                     binding.btnOk.setOnClickListener(v -> {
-                        mainViewModel.deleteDicts(list, integer -> {
+                        locker.lock();
+                        mainVM.deleteDicts(list, integer -> {
                             if (integer > 0)
                             {
                                 ExtensionsKt.showSnackBar(mainControlLayout, getString(R.string.msg_selected_dict_removed), Snackbar.LENGTH_LONG);
                                 boolean contains = list.contains(btnViewDict.getText().toString());
                                 if (contains)
                                 {
-                                    mainViewModel.refreshWordsList();
+                                    mainVM.initPlayList();
                                 }
                             }
                             dialog.dismiss();
@@ -878,10 +864,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             ExtensionsKt.showSnackBar(mainControlLayout, message, Snackbar.LENGTH_LONG);
                             return null;
                         }, t -> {
-                            if (t.getMessage() != null)
+                            if (t != null && t.getMessage() != null)
                             {
                                 ExtensionsKt.showSnackBar(mainControlLayout, t.getMessage(), Snackbar.LENGTH_LONG);
                             }
+                            locker.unLock();
                             dialog.dismiss();
                             return null;
                         });
@@ -942,7 +929,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                                     fileOutputStream.close();
                                                     ExtensionsKt.showSnackBar(mainControlLayout, getString(R.string.text_dicts_restore_success), Snackbar.LENGTH_LONG);
                                                     toolBar.getMenu().findItem(R.id.cloud_storage).setVisible(false);
-                                                    mainViewModel.refreshWordsList();
+                                                    mainVM.initPlayList();
                                                 } catch (Exception e)
                                                 {
                                                     e.printStackTrace();
@@ -1108,15 +1095,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public void refreshMainScreen(boolean isAdShow)
-    {
-        mainViewModel.refreshWordsList();
-    }
-
-    @Override
     public void onVisibleMainScreen()
     {
-        wordsInterval = SettingsExtKt.getTestIntervalFromPref(this);
     }
 
     private void onSettingsChange()
@@ -1158,6 +1138,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onConfigurationChanged(newConfig);
     }
 
+    @Override
+    public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result)
+    {
+        if (requestKey.equals(getString(R.string.KEY_NEED_REFRESH))) {
+            mainVM.initPlayList();
+        }
+        if (requestKey.equals(getString(R.string.KEY_TEST_INTERVAL_CHANGED))) {
+            mainVM.getWordsInterval();
+        }
+    }
 }
 
 

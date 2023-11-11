@@ -6,12 +6,13 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.myapp.lexicon.helpers.checkSorting
+import com.myapp.lexicon.helpers.throwIfDebug
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.repository.DataRepositoryImpl
-import com.myapp.lexicon.settings.getOrderPlay
 import com.myapp.lexicon.settings.getWordFromPref
-import com.myapp.lexicon.settings.saveOrderPlay
 import com.myapp.lexicon.settings.saveWordToPref
+import com.myapp.lexicon.settings.testIntervalFromPref
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -30,108 +31,69 @@ class MainViewModel @Inject constructor(
     private val composite = CompositeDisposable()
 
     var displayedWordIndex: Int = 0
+        private set
 
-    val displayedWord: Word?
+    var orderPlay: Int = 0
+        private set
+
+    val wordsInterval: Int
         get() {
-            return if (!_wordsList.value.isNullOrEmpty()) {
-                _wordsList.value!![displayedWordIndex]
-            }
-            else null
+            return app.testIntervalFromPref
         }
 
     init {
-        refreshWordsList()
+        initPlayList()
     }
 
     private var _wordsList = MutableLiveData<List<Word>>()
     @JvmField
     var wordsList: LiveData<List<Word>> = _wordsList
 
-    fun refreshWordsList()
+    fun initPlayList()
     {
         app.getWordFromPref(
             onInit = {
                 viewModelScope.launch {
                     val word = repository.getFirstEntryAsync().await()
-                    setWordsList(word)
+                    setNewPlayList(word, 0)
                 }
             },
             onSuccess = { word ->
-                setWordsList(word)
+                restorePlayList(word)
             },
-            onFailure = {}
+            onFailure = { exception ->
+                exception.throwIfDebug()
+            }
         )
     }
 
-    fun setWordsList(word: Word, repeat: Int = 1)
+    fun setNewPlayList(word: Word, order: Int)
     {
-        composite.add(repository.getEntriesFromDbByDictName(word.dictName, 1, repeat, Int.MAX_VALUE)
-                .subscribeOn(Schedulers.computation())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ list ->
-                    val index = list.indexOfFirst {
-                        it._id == word._id
-                    }
-                    displayedWordIndex = index
-                    app.getOrderPlay(
-                        onCycle = {
-                            _wordsList.value = list
-                        },
-                        onRandom = {
-                            _wordsList.value = list.shuffled()
-                        }
-                    )
-                }, { t ->
-                    t.message
-                    t.printStackTrace()
-                    _wordsList.value = listOf()
-                }))
+        viewModelScope.launch {
+            val wordList = repository.getPlayListByDictNameAsync(word.dictName, order).await()
+            orderPlay = wordList.checkSorting()
+            displayedWordIndex = 0
+            _wordsList.value = wordList
+        }
     }
 
-    fun List<Word>.isSortedById(
-        onASC: () -> Unit = {},
-        onDESC: () -> Unit = {},
-        onNotSorted: () -> Unit = {}
-    ) {
-        var res = this.zipWithNext { a, b ->
-            a._id > b._id
-        }.all { it }
-        if (res) {
-            onASC.invoke()
-            return
+    fun restorePlayList(word: Word) {
+        viewModelScope.launch {
+            val playList = repository.getPlayList().await()
+            displayedWordIndex = playList.indexOfFirst { it._id == word._id }
+            val wordList = playList.map { it.toWord() }
+            orderPlay = wordList.checkSorting()
+            _wordsList.value = wordList
         }
-
-        res = this.zipWithNext { a, b ->
-            a._id < b._id
-        }.all { it }
-        if (res) {
-            onDESC.invoke()
-            return
-        }
-        onNotSorted.invoke()
     }
+
     fun wordListSize(): Int = _wordsList.value?.size ?: 0
-
-    fun shuffleWordsList()
-    {
-        val shuffledList = _wordsList.value?.toMutableList()?.shuffled()?: listOf()
-        _wordsList.value = shuffledList
-        app.saveOrderPlay(1)
-        return
-    }
-    fun sortWordsList()
-    {
-        val sortedList = _wordsList.value?.toMutableList()?.sortedBy { word: Word -> word._id }?: listOf()
-        _wordsList.value = sortedList
-        app.saveOrderPlay(0)
-        return
-    }
 
     fun deleteDicts(
         dictList: List<String>,
         onSuccess: (Int) -> Unit,
         onNotFound: (String) -> Unit,
-        onFailure: (Throwable) -> Unit
+        onComplete: (Throwable?) -> Unit
     ) {
         viewModelScope.launch {
             try {
@@ -142,8 +104,12 @@ class MainViewModel @Inject constructor(
                 else {
                     onNotFound.invoke("Not found")
                 }
-            } catch (e: Exception) {
-                onFailure.invoke(e)
+            }
+            catch (e: Exception) {
+                onComplete.invoke(e)
+            }
+            finally {
+                onComplete.invoke(null)
             }
         }
     }
@@ -180,11 +146,6 @@ class MainViewModel @Inject constructor(
     fun saveCurrentWordToPref(word: Word)
     {
         app.saveWordToPref(word)
-    }
-
-    fun goForward(words: List<Word>)
-    {
-        repository.goForward(words)
     }
 
     private var _wordCounters = MutableLiveData<List<Int>>().apply {

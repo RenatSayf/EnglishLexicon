@@ -205,7 +205,11 @@ fun Context.saveWordToPref(word: Word) {
     appSettings.edit().putString("KEY_CURRENT_WORD", word.toString()).apply()
 }
 
-fun Context.getWordFromPref(onInit: () -> Unit, onSuccess: (Word) -> Unit, onFailure: (Exception) -> Unit) {
+fun Context.getWordFromPref(
+    onInit: () -> Unit = {},
+    onSuccess: (Word) -> Unit = {},
+    onFailure: (Exception) -> Unit = {}
+) {
     val string = appSettings.getString("KEY_CURRENT_WORD", null)
     string?.let {
         try {
@@ -444,7 +448,7 @@ fun Context.getOrderPlay(
     onRandom: () -> Unit = {}
 ): Int {
     val value = appSettings.getInt("KEY_ORDER_PLAY", 0)
-    if (value == 0) {
+    if (value == 0 || value == 1) {
         onCycle.invoke()
     }
     else {

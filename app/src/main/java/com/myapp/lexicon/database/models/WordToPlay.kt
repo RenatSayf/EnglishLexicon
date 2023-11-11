@@ -1,5 +1,3 @@
-@file:Suppress("PropertyName")
-
 package com.myapp.lexicon.database.models
 
 import androidx.room.ColumnInfo

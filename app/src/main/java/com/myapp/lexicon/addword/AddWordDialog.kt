@@ -10,10 +10,12 @@ import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.AddWordDialogBinding
 import com.myapp.lexicon.dialogs.NewDictDialog
+import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.hideKeyboard
 import com.myapp.lexicon.helpers.showKeyboard
 import com.myapp.lexicon.helpers.showToast
@@ -59,9 +61,13 @@ class AddWordDialog : DialogFragment(),
     private lateinit var mainVM: MainViewModel
     private lateinit var speaker: Speaker
     private var newDictName: String? = null
+    private val locker by lazy {
+        LockOrientation(requireActivity())
+    }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog
     {
+        locker.lock()
         addWordVM = ViewModelProvider(this)[AddWordViewModel::class.java]
         mainVM = ViewModelProvider(this)[MainViewModel::class.java]
         speaker = Speaker(requireActivity(), this)
@@ -213,7 +219,9 @@ class AddWordDialog : DialogFragment(),
     }
 
     override fun onDismiss(dialog: DialogInterface) {
+
         listener?.onDismiss()
+        locker.unLock()
         super.onDismiss(dialog)
     }
 

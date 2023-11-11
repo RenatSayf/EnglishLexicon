@@ -57,7 +57,7 @@ class DataRepositoryImplTest {
     fun getOrderedEntriesByDictNameAsync_order_ASC() {
 
         runBlocking {
-            val wordList = repository.getOrderedEntriesByDictNameAsync("Test Set", order = 1).await()
+            val wordList = repository.getPlayListByDictNameAsync("Test Set", order = 0).await()
             val actualFirst = wordList.firstOrNull()?.english
             val actualLast = wordList.lastOrNull()?.english
 
@@ -70,7 +70,7 @@ class DataRepositoryImplTest {
     fun getOrderedEntriesByDictNameAsync_order_DESC() {
 
         runBlocking {
-            val wordList = repository.getOrderedEntriesByDictNameAsync("Test Set", order = -1).await()
+            val wordList = repository.getPlayListByDictNameAsync("Test Set", order = 1).await()
             val actualFirst = wordList.firstOrNull()?.english
             val actualLast = wordList.lastOrNull()?.english
 
@@ -83,7 +83,7 @@ class DataRepositoryImplTest {
     fun getOrderedEntriesByDictNameAsync_order_RANDOM() {
 
         runBlocking {
-            val wordList = repository.getOrderedEntriesByDictNameAsync("Test Set", order = 0).await()
+            val wordList = repository.getPlayListByDictNameAsync("Test Set", order = 2).await()
             val actualFirst = wordList.firstOrNull()?.english
             val actualLast = wordList.lastOrNull()?.english
 

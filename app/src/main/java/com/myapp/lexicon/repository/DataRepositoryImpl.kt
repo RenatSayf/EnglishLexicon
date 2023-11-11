@@ -2,6 +2,7 @@ package com.myapp.lexicon.repository
 
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.myapp.lexicon.database.AppDao
+import com.myapp.lexicon.database.models.WordToPlay
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.AppSettings
 import io.reactivex.Single
@@ -157,25 +158,44 @@ class DataRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getOrderedEntriesByDictNameAsync(
+    override suspend fun getPlayListByDictNameAsync(
         dict: String,
         order: Int
     ): Deferred<List<Word>> {
-        val orderStr = if (order > 0) {
-            "english ASC"
-        } else if (order < 0) {
-            "english DESC"
-        } else "random()"
+        val orderStr = when (order) {
+            0 -> {
+                "lower(english) ASC"
+            }
+            1 -> {
+                "lower(english) DESC"
+            }
+            else -> "random()"
+        }
 
-        val query3 = "INSERT INTO PlayList SELECT * FROM Words WHERE dict_name = '$dict' AND count_repeat > 0 ORDER BY $orderStr"
+        val query = "INSERT OR replace INTO PlayList SELECT * FROM Words WHERE dict_name = '$dict' AND count_repeat > 0 ORDER BY $orderStr"
 
         return coroutineScope {
             async {
-
                 db.clearPlayList()
-                db.runTimeQuery(SimpleSQLiteQuery(query3))
+                db.runTimeQuery(SimpleSQLiteQuery(query))
                 val playList = db.getPlayList()
                 playList.map { it.toWord() }
+            }
+        }
+    }
+
+    override suspend fun getDictNameFromPlayList(): Deferred<List<String>> {
+        return coroutineScope {
+            async {
+                db.getDictNameFromPlayList()
+            }
+        }
+    }
+
+    override suspend fun getPlayList(): Deferred<List<WordToPlay>> {
+        return coroutineScope {
+            async {
+                db.getPlayList()
             }
         }
     }

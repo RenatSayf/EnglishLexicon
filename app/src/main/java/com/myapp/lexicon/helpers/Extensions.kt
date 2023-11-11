@@ -263,6 +263,12 @@ fun Exception.printStackTraceIfDebug() {
     }
 }
 
+fun Exception.throwIfDebug() {
+    if (BuildConfig.DEBUG) {
+        throw this
+    }
+}
+
 fun Context.isNetworkAvailable(): Boolean {
     val manager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     return when {
@@ -339,6 +345,45 @@ fun AppCompatActivity.showSignUpBenefitsDialog(
             }
         }).show(this.supportFragmentManager, ConfirmDialog.TAG)
     }
+}
+
+fun List<Word>.checkSorting(
+    onASC: () -> Unit = {},
+    onDESC: () -> Unit = {},
+    onNotSorted: () -> Unit = {}
+) {
+    var res = this.asSequence().zipWithNext { a, b ->
+        a.english.lowercase() <= b.english.lowercase()
+    }.all { it }
+    if (res) {
+        onASC.invoke()
+        return
+    }
+
+    res = this.asSequence().zipWithNext { a, b ->
+        a.english.lowercase() >= b.english.lowercase()
+    }.all { it }
+    if (res) {
+        onDESC.invoke()
+        return
+    }
+    onNotSorted.invoke()
+}
+
+fun List<Word>.checkSorting(): Int {
+    var result = -1
+    this.checkSorting(
+        onASC = {
+            result = 0
+        },
+        onDESC = {
+            result = 1
+        },
+        onNotSorted = {
+            result = 2
+        }
+    )
+    return result
 }
 
 
