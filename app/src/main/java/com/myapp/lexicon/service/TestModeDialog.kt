@@ -37,7 +37,6 @@ import com.myapp.lexicon.models.toWordList
 import com.myapp.lexicon.settings.disablePassiveWordsRepeat
 import com.myapp.lexicon.settings.getOrderPlay
 import com.myapp.lexicon.settings.isUserRegistered
-import com.myapp.lexicon.settings.saveWordToPref
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Date
 import java.util.Locale
@@ -159,8 +158,15 @@ class TestModeDialog : DialogFragment() {
             }
 
             requireContext().getOrderPlay(
-                onCycle = {
-                    orderPlayIconIvTestModal.setImageResource(R.drawable.ic_repeat_white)
+                onCycle = { value ->
+                    when (value) {
+                        0 -> {
+                            orderPlayIconIvTestModal.setImageResource(R.drawable.ic_repeat_white)
+                        }
+                        1 -> {
+                            orderPlayIconIvTestModal.setImageResource(R.drawable.ic_repeat_white)
+                        }
+                    }
                 },
                 onRandom = {
                     orderPlayIconIvTestModal.setImageResource(R.drawable.ic_shuffle_white)
@@ -341,24 +347,4 @@ class TestModeDialog : DialogFragment() {
         button.startAnimation(animNotRight)
     }
 
-    override fun onDetach() {
-
-        when (words.size) {
-            2 -> {
-                requireContext().saveWordToPref(words[1])
-            }
-            1 -> {
-                requireContext().saveWordToPref(
-                    Word(
-                        _id = 0,
-                        dictName = words[0].dictName,
-                        english = words[0].english,
-                        translate = words[0].translate,
-                        countRepeat = 1
-                    )
-                )
-            }
-        }
-        super.onDetach()
-    }
 }

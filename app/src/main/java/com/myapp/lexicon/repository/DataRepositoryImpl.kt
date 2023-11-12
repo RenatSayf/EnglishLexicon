@@ -186,7 +186,7 @@ class DataRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getDictNameFromPlayList(): Deferred<List<String>> {
+    override suspend fun getDictNameFromPlayListAsync(): Deferred<List<String>> {
         return coroutineScope {
             async {
                 db.getDictNameFromPlayList()
@@ -194,10 +194,28 @@ class DataRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getPlayList(): Deferred<List<WordToPlay>> {
+    override suspend fun getPlayListAsync(): Deferred<List<WordToPlay>> {
         return coroutineScope {
             async {
                 db.getPlayList()
+            }
+        }
+    }
+
+    override suspend fun getWordPairFromPlayListAsync(id: Int): Deferred<List<Word>> {
+        return coroutineScope {
+            async {
+                val wordPair = db.getWordPairFromPlayList(id)
+                wordPair.map { it.toWord() }
+            }
+        }
+    }
+
+    override suspend fun getFirstFromPlayListAsync(): Deferred<List<Word>> {
+        return coroutineScope {
+            async {
+                val first = db.getFirstFromPlayList()
+                first.map { it.toWord() }
             }
         }
     }

@@ -150,8 +150,15 @@ class RepeatDialog: DialogFragment() {
             }
 
             requireContext().getOrderPlay(
-                onCycle = {
-                    orderPlayIconIvModal.setImageResource(R.drawable.ic_repeat_white)
+                onCycle = { value ->
+                    when (value) {
+                        0 -> {
+                            orderPlayIconIvModal.setImageResource(R.drawable.ic_repeat_white)
+                        }
+                        1 -> {
+                            orderPlayIconIvModal.setImageResource(R.drawable.ic_repeat_white)
+                        }
+                    }
                 },
                 onRandom = {
                     orderPlayIconIvModal.setImageResource(R.drawable.ic_shuffle_white)

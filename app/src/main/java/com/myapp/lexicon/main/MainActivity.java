@@ -632,12 +632,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState)
     {
-        Word word = pagerAdapter.getItem(mainViewPager.getCurrentItem());
-        mainVM.saveCurrentWordToPref(word);
-        SettingsExtKt.saveOrderPlay(this, mainVM.getOrderPlay());
         outState.putString(KEY_TV_WORDS_COUNTER, tvWordsCounter.getText().toString());
         super.onSaveInstanceState(outState);
     }
+
+    @Override
+    protected void onStop()
+    {
+        Word word = pagerAdapter.getItem(mainViewPager.getCurrentItem());
+        mainVM.saveCurrentWordToPref(word);
+        SettingsExtKt.saveOrderPlay(this, mainVM.getOrderPlay());
+        super.onStop();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {

@@ -81,7 +81,7 @@ class MainViewModel @Inject constructor(
 
     fun restorePlayList(word: Word) {
         viewModelScope.launch {
-            val playList = repository.getPlayList().await()
+            val playList = repository.getPlayListAsync().await()
             displayedWordIndex = playList.indexOfFirst { it._id == word._id }
             val wordList = playList.map { it.toWord() }
             orderPlay = wordList.checkSorting()
@@ -93,7 +93,7 @@ class MainViewModel @Inject constructor(
         app.getWordFromPref(
             onSuccess = { word ->
                 viewModelScope.launch {
-                    val dicts = repository.getDictNameFromPlayList().await()
+                    val dicts = repository.getDictNameFromPlayListAsync().await()
                     val dictName = dicts.firstOrNull()
                     if (!dictName.isNullOrEmpty()) {
                         val playList = repository.getPlayListByDictNameAsync(dictName, orderPlay).await()

@@ -8,6 +8,7 @@ import android.content.IntentFilter
 import com.myapp.lexicon.database.AppDataBase
 import com.myapp.lexicon.helpers.checkIsActivityShown
 import com.myapp.lexicon.helpers.goAsync
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showDebugNotification
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.toWordsString
@@ -16,7 +17,6 @@ import com.myapp.lexicon.schedule.AppNotification
 import com.myapp.lexicon.settings.AppSettings
 import com.myapp.lexicon.settings.checkUnLockedBroadcast
 import com.myapp.lexicon.settings.getNotificationMode
-import com.myapp.lexicon.settings.getOrderPlay
 import com.myapp.lexicon.settings.getWordFromPref
 import com.myapp.lexicon.settings.saveWordToPref
 import dagger.hilt.android.AndroidEntryPoint
@@ -77,30 +77,11 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
             if (action != null && action == actionScreenOff)
             {
                 context.getWordFromPref(
-                    onInit = {
-                        scope.launch {
-                            try {
-                                val word = repository.getFirstEntryAsync().await()
-                                handleBroadCast(context, scope, word)
-                            } catch (e: Exception) {
-                                context.showDebugNotification(e.message)
-                            }
-                        }
-                    },
                     onSuccess = { word ->
-
-                        context.getOrderPlay(
-                            onCycle = {
-                                handleBroadCast(context, scope, word)
-                            },
-                            onRandom = {
-                                val randomWord = word.apply { _id = -1 }
-                                handleBroadCast(context, scope, randomWord)
-                            }
-                        )
+                        handleBroadCast(context, scope, word)
                     },
                     onFailure = {
-                        it.printStackTrace()
+                        it.printStackTraceIfDebug()
                         context.showDebugNotification(it.message)
                     }
                 )
@@ -113,20 +94,13 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
 
         scope.launch {
             try {
-                val words = if (word._id > 0) {
-                    repository.getEntriesByDictNameAsync(word.dictName, id = word._id.toLong(), limit = 2).await()
-                }
-                else {
-                    val randomWord = repository.getRandomEntriesFromDB(word.dictName, -1).await()
-                    listOf(randomWord, randomWord)
-                }
+                val words = repository.getWordPairFromPlayListAsync(word._id).await()
 
                 if (words.isNotEmpty()) {
                     val notification = AppNotification(context)
                     val text = words.toWordsString()
                     context.getNotificationMode(
                         onRepeatMode = {
-                            saveCurrentStep(context, scope, words)
                             context.checkIsActivityShown(
                                 ServiceActivity::class.java,
                                 onInvisible = {
@@ -151,6 +125,7 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
                             )
                         }
                     )
+                    saveCurrentStep(context, scope, words)
                 }
             } catch (e: Exception) {
                 context.showDebugNotification(e.message)
@@ -167,7 +142,7 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
             }
             1 -> {
                 scope.launch {
-                    val list = repository.getEntriesByDictNameAsync(dict = words[0].dictName, id = 1, limit = 1).await()
+                    val list = repository.getFirstFromPlayListAsync().await()
                     context.saveWordToPref(list[0])
                 }
             }

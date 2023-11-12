@@ -17,7 +17,6 @@ import com.myapp.lexicon.models.toWordsString
 import com.myapp.lexicon.repository.DataRepositoryImpl
 import com.myapp.lexicon.service.ServiceActivity
 import com.myapp.lexicon.settings.getNotificationMode
-import com.myapp.lexicon.settings.getOrderPlay
 import com.myapp.lexicon.settings.getWordFromPref
 import com.myapp.lexicon.settings.saveWordToPref
 import dagger.hilt.android.AndroidEntryPoint
@@ -51,22 +50,8 @@ class TimerReceiver : BroadcastReceiver()
 
                 this.goAsync(CoroutineScope(Dispatchers.IO), block = { scope ->
                     context.getWordFromPref(
-                        onInit = {
-                            scope.launch {
-                                val word = repository.getFirstEntryAsync().await()
-                                handleAlarm(context, scope, word)
-                            }
-                        },
                         onSuccess = { word ->
-                            context.getOrderPlay(
-                                onCycle = {
-                                    handleAlarm(context, scope, word)
-                                },
-                                onRandom = {
-                                    val randomWord = word.apply { _id = -1 }
-                                    handleAlarm(context, scope, randomWord)
-                                }
-                            )
+                            handleAlarm(context, scope, word)
                         },
                         onFailure = {
                             it.printStackTraceIfDebug()
@@ -82,20 +67,13 @@ class TimerReceiver : BroadcastReceiver()
         try {
             scope.launch {
 
-                val words = if (word._id > 0) {
-                    repository.getEntriesByDictNameAsync(word.dictName, id = word._id.toLong(), limit = 2).await()
-                }
-                else {
-                    val randomWord = repository.getRandomEntriesFromDB(word.dictName, -1).await()
-                    listOf(randomWord, randomWord)
-                }
+                val words = repository.getWordPairFromPlayListAsync(word._id).await()
 
                 if (words.isNotEmpty()) {
                     val text = words.toWordsString()
                     val notification = AppNotification(context)
                     context.getNotificationMode(
                         onRepeatMode = {
-                            saveCurrentStep(context, scope, words)
                             context.checkIsActivityShown(
                                 ServiceActivity::class.java,
                                 onInvisible = {
@@ -120,6 +98,7 @@ class TimerReceiver : BroadcastReceiver()
                             )
                         }
                     )
+                    saveCurrentStep(context, scope, words)
                 }
             }
         } catch (e: Exception) {
@@ -136,7 +115,7 @@ class TimerReceiver : BroadcastReceiver()
             }
             1 -> {
                 scope.launch {
-                    val list = repository.getEntriesByDictNameAsync(dict = words[0].dictName, id = 1, limit = 1).await()
+                    val list = repository.getFirstFromPlayListAsync().await()
                     context.saveWordToPref(list[0])
                 }
             }

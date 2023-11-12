@@ -63,7 +63,11 @@ interface IDataRepository
      */
     suspend fun getPlayListByDictNameAsync(dict: String, order: Int = 1): Deferred<List<Word>>
 
-    suspend fun getDictNameFromPlayList(): Deferred<List<String>>
+    suspend fun getDictNameFromPlayListAsync(): Deferred<List<String>>
 
-    suspend fun getPlayList(): Deferred<List<WordToPlay>>
+    suspend fun getPlayListAsync(): Deferred<List<WordToPlay>>
+
+    suspend fun getWordPairFromPlayListAsync(id: Int): Deferred<List<Word>>
+
+    suspend fun getFirstFromPlayListAsync(): Deferred<List<Word>>
 }

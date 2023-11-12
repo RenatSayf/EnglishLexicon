@@ -72,5 +72,11 @@ interface AppDao
     @RawQuery
     suspend fun runTimeQuery(query: SimpleSQLiteQuery): List<Any>
 
+    @Query("SELECT * FROM PlayList WHERE ROWID >= (SELECT ROWID FROM PlayList WHERE _id = :id) ORDER BY ROWID ASC LIMIT 2")
+    suspend fun getWordPairFromPlayList(id: Int): List<WordToPlay>
+
+    @Query("SELECT * FROM PlayList WHERE ROWID == 1")
+    suspend fun getFirstFromPlayList(): List<WordToPlay>
+
 }
 
