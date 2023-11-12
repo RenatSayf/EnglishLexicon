@@ -35,7 +35,8 @@ class DataRepositoryImpl @Inject constructor(
     {
         return coroutineScope {
             async {
-                db.getRandomEntries(dictName, id)
+                val wordToPlay = db.getRandomEntries(dictName, id)
+                wordToPlay.toWord()
             }
         }
     }
@@ -137,7 +138,8 @@ class DataRepositoryImpl @Inject constructor(
     ): Deferred<List<Word>> {
         return coroutineScope {
             async {
-                db.getEntriesByDictName(dict, id, repeat, limit)
+                val playList = db.getEntriesByDictName(dict, id, repeat, limit)
+                playList.map { it.toWord() }
             }
         }
     }

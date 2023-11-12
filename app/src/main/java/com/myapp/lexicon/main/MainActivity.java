@@ -705,7 +705,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     int resultCode = result.getResultCode();
                     if (resultCode == WordEditorActivity.requestCode)
                     {
-                        mainVM.initPlayList();
+                        mainVM.updatePlayList();
                     }
                 }
             });

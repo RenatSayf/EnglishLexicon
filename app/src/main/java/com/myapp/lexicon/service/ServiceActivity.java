@@ -14,6 +14,7 @@ import com.myapp.lexicon.ads.RevenueViewModel;
 import com.myapp.lexicon.auth.AuthViewModel;
 import com.myapp.lexicon.databinding.ServiceDialogActivityBinding;
 import com.myapp.lexicon.helpers.ExtensionsKt;
+import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.interfaces.IModalFragment;
 import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.models.Word;
@@ -41,6 +42,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
     private AdsViewModel adsVM;
     private RevenueViewModel revenueVM;
     private InterstitialAd interstitialAd;
+    private LockOrientation locker;
 
     @Override
     public void openApp()
@@ -53,6 +55,10 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
     protected void onCreate(@Nullable Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
+        locker = new LockOrientation(this);
+        locker.lock();
+
         binding = ServiceDialogActivityBinding.inflate(getLayoutInflater(), new LinearLayout(this), false);
         setContentView(binding.getRoot());
 
@@ -168,6 +174,12 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         });
     }
 
+    @Override
+    protected void onDestroy()
+    {
+        locker.unLock();
+        super.onDestroy();
+    }
 }
 
 

@@ -18,8 +18,8 @@ interface AppDao
     @Query("SELECT * FROM Words WHERE _id IN(:id)")
     fun getEntriesById(id: List<Int>) : Single<MutableList<Word>>
 
-    @Query("SELECT * FROM Words WHERE dict_name == :dict AND _id <> :id ORDER BY random() LIMIT 1")
-    fun getRandomEntries(dict: String, id: Int) : Word
+    @Query("SELECT * FROM PlayList WHERE dict_name == :dict AND _id <> :id ORDER BY random() LIMIT 1")
+    fun getRandomEntries(dict: String, id: Int) : WordToPlay
 
     @Query("SELECT * FROM Words WHERE dict_name == :dict AND english like :like")
     fun getAllSimilarEntries(dict: String, like: String) : Single<MutableList<Word>>
@@ -33,7 +33,7 @@ interface AppDao
     @Query("UPDATE Words SET count_repeat = :countRepeat WHERE _id >= :minId AND _id <= :maxId")
     fun updateCountRepeat(countRepeat: Int, minId: Int, maxId: Int) : Single<Int>
 
-    @Insert
+    @Insert(entity = Word::class, onConflict = OnConflictStrategy.REPLACE)
     fun insert(word: Word): Single<Long>
 
     @Insert(entity = Word::class, onConflict = OnConflictStrategy.REPLACE)
@@ -45,14 +45,14 @@ interface AppDao
     @Query("SELECT count() FROM Words WHERE _id <= :id AND dict_name == :dict AND count_repeat > 0 UNION ALL SELECT count() FROM Words WHERE dict_name == :dict UNION ALL SELECT count() FROM Words WHERE dict_name == :dict AND count_repeat <= 0")
     fun getCounters(dict: String, id: Int) : Single<List<Int>>
 
-    @Delete
+    @Delete(entity = Word::class)
     fun delete(word: Word) : Single<Int>
 
     @Query("DELETE FROM Words WHERE dict_name == :dict")
     fun deleteEntriesByDictName(dict: String) : Single<Int>
 
-    @Query("SELECT * FROM Words WHERE dict_name == :dict AND _id >= :id AND count_repeat >= :repeat LIMIT :limit")
-    suspend fun getEntriesByDictName(dict: String, id: Long, repeat: Int, limit: Int): List<Word>
+    @Query("SELECT * FROM PlayList WHERE dict_name == :dict AND _id >= :id AND count_repeat >= :repeat LIMIT :limit")
+    suspend fun getEntriesByDictName(dict: String, id: Long, repeat: Int, limit: Int): List<WordToPlay>
 
     @Query("SELECT * FROM Words WHERE _id >= 1 LIMIT 1")
     suspend fun getFirstEntry(): Word

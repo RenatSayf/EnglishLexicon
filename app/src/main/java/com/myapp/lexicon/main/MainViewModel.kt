@@ -1,3 +1,5 @@
+@file:Suppress("UNNECESSARY_SAFE_CALL")
+
 package com.myapp.lexicon.main
 
 import android.app.Application
@@ -73,7 +75,7 @@ class MainViewModel @Inject constructor(
             val wordList = repository.getPlayListByDictNameAsync(word.dictName, order).await()
             orderPlay = wordList.checkSorting()
             displayedWordIndex = 0
-            _wordsList.value = wordList
+            _wordsList?.value = wordList
         }
     }
 
@@ -83,7 +85,18 @@ class MainViewModel @Inject constructor(
             displayedWordIndex = playList.indexOfFirst { it._id == word._id }
             val wordList = playList.map { it.toWord() }
             orderPlay = wordList.checkSorting()
-            _wordsList.value = wordList
+            _wordsList?.value = wordList
+        }
+    }
+
+    fun updatePlayList() {
+        viewModelScope.launch {
+            val dicts = repository.getDictNameFromPlayList().await()
+            val dictName = dicts.firstOrNull()
+            if (!dictName.isNullOrEmpty()) {
+                val playList = repository.getPlayListByDictNameAsync(dictName, orderPlay).await()
+                _wordsList?.value = playList
+            }
         }
     }
 
