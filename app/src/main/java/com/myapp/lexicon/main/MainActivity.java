@@ -632,18 +632,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState)
     {
-        super.onSaveInstanceState(outState);
-        outState.putString(KEY_TV_WORDS_COUNTER, tvWordsCounter.getText().toString());
-    }
-
-    @Override
-    protected void onStop()
-    {
         Word word = pagerAdapter.getItem(mainViewPager.getCurrentItem());
         mainVM.saveCurrentWordToPref(word);
-        super.onStop();
+        SettingsExtKt.saveOrderPlay(this, mainVM.getOrderPlay());
+        outState.putString(KEY_TV_WORDS_COUNTER, tvWordsCounter.getText().toString());
+        super.onSaveInstanceState(outState);
     }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
@@ -847,12 +841,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ExtensionsKt.showDialogAsSingleton(
                 MainActivity.this,
                 ConfirmDialog.Companion.newInstance((dialog, binding) -> {
+                    locker.lock();
                     binding.tvMessage.setText(getString(R.string.dialog_are_you_sure));
                     binding.btnCancel.setOnClickListener(v -> {
                         dialog.dismiss();
                     });
                     binding.btnOk.setOnClickListener(v -> {
-                        locker.lock();
                         mainVM.deleteDicts(list, integer -> {
                             if (integer > 0)
                             {
@@ -1148,7 +1142,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result)
     {
         if (requestKey.equals(getString(R.string.KEY_NEED_REFRESH))) {
-            mainVM.initPlayList();
+            mainVM.updatePlayList();
         }
         if (requestKey.equals(getString(R.string.KEY_TEST_INTERVAL_CHANGED))) {
             mainVM.getWordsInterval();
