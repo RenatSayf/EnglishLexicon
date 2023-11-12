@@ -227,7 +227,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
                 pagerAdapter.setItems(list);
                 int displayedWordIndex = mainVM.getDisplayedWordIndex();
-                mainViewPager.setCurrentItem(displayedWordIndex, displayedWordIndex == 0);
+                if (displayedWordIndex >= 0)
+                {
+                    mainViewPager.setCurrentItem(displayedWordIndex, displayedWordIndex == 0);
+                }
+                else {
+                    mainViewPager.setCurrentItem(0, true);
+                }
                 btnViewDict.setText(list.get(0).getDictName());
             }
         });

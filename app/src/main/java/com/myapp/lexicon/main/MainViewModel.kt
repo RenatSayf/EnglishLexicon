@@ -90,14 +90,22 @@ class MainViewModel @Inject constructor(
     }
 
     fun updatePlayList() {
-        viewModelScope.launch {
-            val dicts = repository.getDictNameFromPlayList().await()
-            val dictName = dicts.firstOrNull()
-            if (!dictName.isNullOrEmpty()) {
-                val playList = repository.getPlayListByDictNameAsync(dictName, orderPlay).await()
-                _wordsList?.value = playList
+        app.getWordFromPref(
+            onSuccess = { word ->
+                viewModelScope.launch {
+                    val dicts = repository.getDictNameFromPlayList().await()
+                    val dictName = dicts.firstOrNull()
+                    if (!dictName.isNullOrEmpty()) {
+                        val playList = repository.getPlayListByDictNameAsync(dictName, orderPlay).await()
+                        displayedWordIndex = playList.indexOfFirst { it._id == word._id }
+                        _wordsList?.value = playList
+                    }
+                }
+            },
+            onFailure = { exception ->
+                exception.throwIfDebug()
             }
-        }
+        )
     }
 
     fun wordListSize(): Int = _wordsList.value?.size ?: 0
