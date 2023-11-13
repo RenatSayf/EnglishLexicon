@@ -114,22 +114,6 @@ class TestViewModel @Inject constructor(
         return result
     }
 
-    fun getWordsByIds(ids: List<Int>)
-    {
-        composite.add(
-            repository.getEntriesByIds(ids)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ list ->
-                    _wordsList.value = list
-                    _wordsCount.value = list.size
-                    _wordIndex.value = 0
-                }, { t ->
-                    t.printStackTrace()
-                })
-        )
-    }
-
     private var _similarWords = MutableLiveData<MutableList<Word>>(arrayListOf())
     var similarWords: LiveData<MutableList<Word>> = _similarWords
 
