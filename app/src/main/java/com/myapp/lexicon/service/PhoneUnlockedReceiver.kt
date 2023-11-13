@@ -95,7 +95,6 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
         scope.launch {
             try {
                 val words = repository.getWordPairFromPlayListAsync(word._id).await()
-
                 if (words.isNotEmpty()) {
                     val notification = AppNotification(context)
                     val text = words.toWordsString()

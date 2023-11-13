@@ -47,13 +47,9 @@ class TestModeDialog : DialogFragment() {
 
     companion object {
         val TAG = "${TestModeDialog::class.java.simpleName}.TAG"
-        private var json: String = ""
-        private var counters: List<Int> = listOf()
         private var listener: IModalFragment? = null
 
-        fun newInstance(json: String, counters: List<Int>, listener: IModalFragment): TestModeDialog {
-            this.json = json
-            this.counters = counters
+        fun newInstance(listener: IModalFragment): TestModeDialog {
             this.listener = listener
             return TestModeDialog()
         }
@@ -99,24 +95,41 @@ class TestModeDialog : DialogFragment() {
 
             bannerView.loadBanner(BannerAdIds.BANNER_3)
 
-            words = json.toWordList()
-            if (words.isNotEmpty()) {
-                enTextView.text = words[0].english
-                nameDictTvTestModal.text = words[0].dictName
+            val extra = requireActivity().intent.getStringExtra(ServiceActivity.ARG_JSON)
+            if (extra != null) {
+                words = extra.toWordList()?: listOf()
+                if (words.isNotEmpty()) {
+                    enTextView.text = words[0].english
+                    nameDictTvTestModal.text = words[0].dictName
 
-                mainVM.getRandomWord(words[0]).observe(viewLifecycleOwner) { word ->
-                    val wordList = listOf<Word>(words[0], word)
-                    val numberGenerator = RandomNumberGenerator(2, Date().time.toInt())
-                    val i = numberGenerator.generate()
-                    val j = numberGenerator.generate()
-                    ruBtn1.text = wordList[i].translate
-                    ruBtn2.text = wordList[j].translate
-                    compareList = wordList
+                    mainVM.getRandomWord(words[0]).observe(viewLifecycleOwner) { word ->
+                        val wordList = listOf<Word>(words[0], word)
+                        val numberGenerator = RandomNumberGenerator(2, Date().time.toInt())
+                        val i = numberGenerator.generate()
+                        val j = numberGenerator.generate()
+                        ruBtn1.text = wordList[i].translate
+                        ruBtn2.text = wordList[j].translate
+                        compareList = wordList
+                    }
+                    if (savedInstanceState == null) {
+                        mainVM.getCountersById(words[0]._id)
+                    }
+                }
+                else {
+                    showToast("${TestModeDialog::class.simpleName}: Json error")
+                    requireActivity().finish()
                 }
             }
-            if (counters.size >= 3) {
-                val concatText = "${counters[0]} / ${counters[1]} ${getString(R.string.text_studied)} ${counters[2]}"
-                wordsNumberTvTestModal.text = concatText
+            else {
+                showToast("${TestModeDialog::class.simpleName}: Json error")
+                requireActivity().finish()
+            }
+
+            mainVM.counters.observe(viewLifecycleOwner) { result ->
+                result.onSuccess { counters ->
+                    val concatText = "${counters.rowNum} / ${counters.count} ${getString(R.string.text_studied)} ${counters.unUsed}"
+                    wordsNumberTvTestModal.text = concatText
+                }
             }
 
             btnSoundModal.setOnClickListener {

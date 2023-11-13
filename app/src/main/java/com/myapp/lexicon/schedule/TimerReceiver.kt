@@ -68,7 +68,6 @@ class TimerReceiver : BroadcastReceiver()
             scope.launch {
 
                 val words = repository.getWordPairFromPlayListAsync(word._id).await()
-
                 if (words.isNotEmpty()) {
                     val text = words.toWordsString()
                     val notification = AppNotification(context)

@@ -21,6 +21,7 @@ import com.myapp.lexicon.databinding.SRepeatModalFragmentBinding
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showToast
 import com.myapp.lexicon.interfaces.IModalFragment
+import com.myapp.lexicon.main.MainViewModel
 import com.myapp.lexicon.main.SpeechViewModel
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.Revenue
@@ -40,19 +41,16 @@ class RepeatDialog: DialogFragment() {
     companion object {
         val TAG = "${RepeatDialog::class.java.simpleName}.TAG"
 
-        private var json: String = ""
-        private var counters: List<Int> = listOf()
         private var listener: IModalFragment? = null
 
-        fun newInstance(json: String, counters: List<Int>, listener: IModalFragment): RepeatDialog {
-            this.json = json
-            this.counters = counters
+        fun newInstance(listener: IModalFragment): RepeatDialog {
             this.listener = listener
             return RepeatDialog()
         }
     }
 
     private lateinit var binding: SRepeatModalFragmentBinding
+    private val mainVM: MainViewModel by viewModels()
     private val speechVM: SpeechViewModel by viewModels()
     private val userVM by viewModels<UserViewModel>()
     private val adsVM by activityViewModels<AdsViewModel>()
@@ -86,16 +84,33 @@ class RepeatDialog: DialogFragment() {
 
             bannerView.loadBanner(BannerAdIds.BANNER_3)
 
-            val words = json.toWordList()
-            if (words.isNotEmpty()) {
-                nameDictTv.text = words[0].dictName
-                enTextView.text = words[0].english
-                ruTextView.text = words[0].translate
+            val extra = requireActivity().intent.getStringExtra(ServiceActivity.ARG_JSON)
+            if (extra != null) {
+                val words = extra.toWordList()
+                if (!words.isNullOrEmpty()) {
+                    nameDictTv.text = words[0].dictName
+                    enTextView.text = words[0].english
+                    ruTextView.text = words[0].translate
+
+                    if (savedInstanceState == null) {
+                        mainVM.getCountersById(words[0]._id)
+                    }
+                }
+                else {
+                    showToast("${TestModeDialog::class.simpleName}: Json error")
+                    requireActivity().finish()
+                }
+            }
+            else {
+                showToast("${TestModeDialog::class.simpleName}: Json error")
+                requireActivity().finish()
             }
 
-            if (counters.size > 2) {
-                val text = "${counters[0]} / ${counters[1]} ${getString(R.string.text_studied)} ${counters[2]}"
-                wordsNumberTvModalSv.text = text
+            mainVM.counters.observe(viewLifecycleOwner) { result ->
+                result.onSuccess { counters ->
+                    val concatText = "${counters.rowNum} / ${counters.count} ${getString(R.string.text_studied)} ${counters.unUsed}"
+                    wordsNumberTvModalSv.text = concatText
+                }
             }
 
             btnStopService.setOnClickListener {

@@ -1,7 +1,9 @@
 package com.myapp.lexicon.database
 
+import android.database.Cursor
 import androidx.room.*
 import androidx.sqlite.db.SimpleSQLiteQuery
+import com.myapp.lexicon.database.models.Counters
 import com.myapp.lexicon.database.models.WordToPlay
 import com.myapp.lexicon.models.Word
 import io.reactivex.Single
@@ -77,6 +79,12 @@ interface AppDao
 
     @Query("SELECT * FROM PlayList WHERE ROWID == 1")
     suspend fun getFirstFromPlayList(): List<WordToPlay>
+
+    @Query("""SELECT ROWID AS row_num,
+(SELECT count() FROM Words WHERE dict_name = (SELECT dict_name FROM PlayList LIMIT 1)) AS total_count,
+(SELECT count() FROM Words WHERE dict_name = (SELECT dict_name FROM PlayList LIMIT 1) AND count_repeat <> 1) AS unused
+ FROM PlayList WHERE _id = :id;""")
+    suspend fun getCountersById(id: Int): List<Counters>
 
 }
 

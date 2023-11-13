@@ -296,10 +296,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 List<Word> list = new ArrayList<>();
                 boolean condition1 = (state == 2 && remainder == 0 && position != 0 && position > this.position);
                 boolean condition2 = (state == ViewPager2.SCROLL_STATE_DRAGGING && position == mainVM.wordListSize() - 1);
-                if (condition1)
+                if (condition1 && pagerAdapter.getItemCount() > 1)
                 {
                     list = pagerAdapter.getItems(position - mainVM.getWordsInterval(), position - 1);
-                } else if (condition2)
+                } else if (condition2 && pagerAdapter.getItemCount() > 1)
                 {
                     int lastIndex = pagerAdapter.getItemCount() - 1;
                     int firstIndex = -1;

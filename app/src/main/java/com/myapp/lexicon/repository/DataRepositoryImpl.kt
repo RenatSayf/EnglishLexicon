@@ -1,7 +1,9 @@
 package com.myapp.lexicon.repository
 
+import android.database.Cursor
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.myapp.lexicon.database.AppDao
+import com.myapp.lexicon.database.models.Counters
 import com.myapp.lexicon.database.models.WordToPlay
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.AppSettings
@@ -216,6 +218,14 @@ class DataRepositoryImpl @Inject constructor(
             async {
                 val first = db.getFirstFromPlayList()
                 first.map { it.toWord() }
+            }
+        }
+    }
+
+    override suspend fun getCountersByIdAsync(id: Int): Deferred<List<Counters>> {
+        return coroutineScope {
+            async {
+                db.getCountersById(id)
             }
         }
     }

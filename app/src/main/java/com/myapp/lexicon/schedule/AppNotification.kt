@@ -13,7 +13,6 @@ import androidx.preference.PreferenceManager
 import com.myapp.lexicon.R
 import com.myapp.lexicon.models.toWordList
 import com.myapp.lexicon.service.ServiceActivity
-import com.myapp.lexicon.splash.SplashActivity
 
 
 class AppNotification constructor(private val context: Context) : Notification()
@@ -42,7 +41,7 @@ class AppNotification constructor(private val context: Context) : Notification()
 
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val displayMode = preferences.getString(context.getString(R.string.key_list_display_mode), "0").toString()
-            if (words.isNotEmpty())
+            if (!words.isNullOrEmpty())
             {
                 setContentTitle(words[0].english)
                 if (displayMode == "1")
@@ -70,16 +69,7 @@ class AppNotification constructor(private val context: Context) : Notification()
             }
             else
             {
-                setContentTitle(context.getString(R.string.text_all_words_learned))
-                setContentText(context.getString(R.string.text_select_other_dict))
-                val intent = Intent(context, SplashActivity::class.java)
-                val activity = PendingIntent.getActivity(
-                    context,
-                    0,
-                    intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                )
-                setContentIntent(activity)
+                throw Exception("********** ${AppNotification::class.simpleName}: Words is null or empty ************")
             }
         }.build()
 

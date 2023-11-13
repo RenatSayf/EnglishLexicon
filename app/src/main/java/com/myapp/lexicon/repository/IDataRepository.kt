@@ -1,5 +1,7 @@
 package com.myapp.lexicon.repository
 
+import android.database.Cursor
+import com.myapp.lexicon.database.models.Counters
 import com.myapp.lexicon.database.models.WordToPlay
 import com.myapp.lexicon.models.Word
 import io.reactivex.Single
@@ -70,4 +72,6 @@ interface IDataRepository
     suspend fun getWordPairFromPlayListAsync(id: Int): Deferred<List<Word>>
 
     suspend fun getFirstFromPlayListAsync(): Deferred<List<Word>>
+
+    suspend fun getCountersByIdAsync(id: Int): Deferred<List<Counters>>
 }

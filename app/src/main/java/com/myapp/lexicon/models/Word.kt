@@ -1,3 +1,5 @@
+@file:Suppress("PropertyName", "UnnecessaryVariable")
+
 package com.myapp.lexicon.models
 
 import android.os.Parcel
@@ -5,9 +7,14 @@ import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.serializer
 import org.json.JSONObject
 
 @Entity(tableName = "Words")
+@Serializable
 data class Word(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
@@ -104,17 +111,16 @@ fun String.toWord(): Word {
 }
 
 fun List<Word>.toWordsString(): String {
-    var string = ""
-    this.forEach { word ->
-        string += "$word+"
-    }
-    return string.trim { it.toString() == "+" }
+    val json = Json.encodeToString(serializer(), this)
+    return json
 }
 
-fun String.toWordList(): List<Word> {
-    val stringList = this.split("+")
-    val wordList = stringList.map {
-        it.toWord()
+fun String.toWordList(): List<Word>? {
+    val wordList = try {
+        Json.decodeFromString<List<Word>>(this)
+    } catch (e: Exception) {
+        e.printStackTraceIfDebug()
+        null
     }
     return wordList
 }

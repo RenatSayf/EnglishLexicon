@@ -8,7 +8,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.myapp.lexicon.database.models.Counters
 import com.myapp.lexicon.helpers.checkSorting
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.throwIfDebug
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.repository.DataRepositoryImpl
@@ -169,35 +171,20 @@ class MainViewModel @Inject constructor(
         app.saveWordToPref(word)
     }
 
-    private var _wordCounters = MutableLiveData<List<Int>>().apply {
+    private var _counters = MutableLiveData<Result<Counters>>()
+    val counters: LiveData<Result<Counters>> = _counters
 
-        if (!_wordsList.value.isNullOrEmpty()) {
-            composite.add(
-                repository.getCountersFromDb(_wordsList.value!![0].dictName)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe({ list ->
-                        this.value = list
-                    }, { t ->
-                        t.printStackTrace()
-                    })
-            )
+    fun getCountersById(id: Int) {
+        viewModelScope.launch {
+            try {
+                val maps = repository.getCountersByIdAsync(id).await()
+                val counters = maps.first()
+                _counters.value = Result.success(counters)
+            } catch (e: Exception) {
+                e.printStackTraceIfDebug()
+                _counters.value = Result.failure(e)
+            }
         }
-    }
-    var wordCounters: LiveData<List<Int>> = _wordCounters
-
-    fun getCountersById(dictName: String, id: Int)
-    {
-        composite.add(
-            repository.getCountersFromDb(dictName, id)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ list ->
-                     _wordCounters.value = list
-                }, { t ->
-                    t.printStackTrace()
-                })
-        )
     }
 
     private var _randomWord = MutableLiveData<Word>()
