@@ -100,6 +100,7 @@ class MainViewModel @Inject constructor(
                     if (!dictName.isNullOrEmpty()) {
                         val playList = repository.getPlayListByDictNameAsync(dictName, orderPlay).await()
                         displayedWordIndex = playList.indexOfFirst { it._id == word._id }
+                        if (displayedWordIndex < 0) displayedWordIndex = 0
                         _wordsList?.value = playList
                     }
                 }
