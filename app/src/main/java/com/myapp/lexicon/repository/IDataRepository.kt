@@ -35,8 +35,6 @@ interface IDataRepository
 
     fun getCountersFromDb(dictName: String, id: Int) : Single<List<Int>>
 
-    fun goForward(words: List<Word>)
-
     fun saveWordsIdStringToPref(strIds: String)
 
     fun getWordsIdStringFromPref() : String

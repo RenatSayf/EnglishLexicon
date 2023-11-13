@@ -12,6 +12,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.TitleAlertDialogBinding
+import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.main.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -20,6 +21,9 @@ import dagger.hilt.android.AndroidEntryPoint
 class RemoveDictDialog : DialogFragment()
 {
     private lateinit var viewModel: MainViewModel
+    private val locker by lazy {
+        LockOrientation(requireActivity())
+    }
 
     companion object
     {
@@ -54,6 +58,7 @@ class RemoveDictDialog : DialogFragment()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog
     {
+        locker.lock()
         val inputArray: Array<String> = arguments?.getStringArray(ARG_INPUT) as Array<String>
         val deleteItems = ArrayList<String>()
         val choice = BooleanArray(inputArray.size)
@@ -82,6 +87,11 @@ class RemoveDictDialog : DialogFragment()
             .create().apply {
                     this.window?.setBackgroundDrawableResource(R.drawable.bg_popup_dialog)
             }
+    }
+
+    override fun onDestroyView() {
+        locker.unLock()
+        super.onDestroyView()
     }
 
 }

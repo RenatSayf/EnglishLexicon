@@ -201,7 +201,7 @@ fun Context.checkOnStartSpeech(onEnabled: () -> Unit, onDisabled: () -> Unit) {
     }
 }
 
-fun Context.saveWordToPref(word: Word) {
+fun Context.saveWordToPref(word: Word?) {
     appSettings.edit().putString("KEY_CURRENT_WORD", word.toString()).apply()
 }
 

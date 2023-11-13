@@ -2,7 +2,6 @@ package com.myapp.lexicon.wordeditor;
 
 import android.app.SearchManager;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,12 +21,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.addword.AddWordViewModel;
 import com.myapp.lexicon.ads.AdsViewModelKt;
 import com.myapp.lexicon.ads.BannerAdIds;
 import com.myapp.lexicon.dialogs.ConfirmDialog;
-import com.myapp.lexicon.helpers.AppBus;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SpeechViewModel;
@@ -55,7 +54,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
     public static final String KEY_EXTRA_DICT_NAME = "wordeditor_dict_name";
     public static final String KEY_EXTRA_EN_WORD = "KEY_EXTRA_EN_WORD";
     public static final String KEY_EXTRA_RU_WORD = "KEY_EXTRA_RU_WORD";
-    public static final int requestCode = 2654789;
+    public static final int NEED_UPDATE_PLAY_LIST = 2654789;
 
     private Spinner dictListSpinner;
     private SearchView searchView;
@@ -75,7 +74,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
     private MainViewModel mainVM;
     private EditorViewModel editorVM;
     private AddWordViewModel addWordVM;
-    private SpeechViewModel spechVM;
+    private SpeechViewModel speechVM;
 
     private void initViews()
     {
@@ -137,7 +136,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
         mainVM = new ViewModelProvider(this).get(MainViewModel.class);
         editorVM = new ViewModelProvider(this).get(EditorViewModel.class);
         addWordVM = new ViewModelProvider(WordEditorActivity.this).get(AddWordViewModel.class);
-        spechVM = new ViewModelProvider(this).get(SpeechViewModel.class);
+        speechVM = new ViewModelProvider(this).get(SpeechViewModel.class);
 
         initViews();
 
@@ -207,13 +206,14 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             {
                 if (editorVM.selectedWord != null)
                 {
-                    Toast.makeText(this, "Слово удалено", Toast.LENGTH_SHORT).show();
+                    ExtensionsKt.showSnackBar(switcher, getString(R.string.text_word_deleted), Snackbar.LENGTH_LONG);
                     editorVM.getAllWordsByDictName(editorVM.selectedWord.getDictName());
+                    setResult(NEED_UPDATE_PLAY_LIST);
                 }
             }
             else if (id < 0)
             {
-                Toast.makeText(WordEditorActivity.this, getString(R.string.msg_data_base_error), Toast.LENGTH_SHORT).show();
+                ExtensionsKt.showSnackBar(switcher, getString(R.string.msg_data_base_error), Snackbar.LENGTH_LONG);
             }
         });
 
@@ -267,15 +267,16 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             if (isUpdated != null && isUpdated)
             {
                 editorVM.getAllWordsByDictName(dictListSpinner.getSelectedItem().toString());
-                AppBus.INSTANCE.updateWords(true);
-                Toast.makeText(getApplicationContext(), R.string.text_dict_is_updated, Toast.LENGTH_LONG).show();
+                ExtensionsKt.showSnackBar(switcher, getString(R.string.text_dict_is_updated), Snackbar.LENGTH_LONG);
+                setResult(NEED_UPDATE_PLAY_LIST);
             }
         });
 
         addWordVM.getInsertedId().observe(this, id -> {
             if (id > 0)
             {
-                Toast.makeText(getApplicationContext(), R.string.text_dict_is_updated, Toast.LENGTH_LONG).show();
+                ExtensionsKt.showSnackBar(switcher, getString(R.string.text_dict_is_updated), Snackbar.LENGTH_LONG);
+                setResult(NEED_UPDATE_PLAY_LIST);
             }
         });
 
@@ -283,7 +284,6 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             if (id != null && id > 0)
             {
                 editorVM.getAllWordsByDictName(dictListSpinner.getSelectedItem().toString());
-                AppBus.INSTANCE.updateWords(true);
             }
         });
 
@@ -316,7 +316,6 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
                     switcher.showPrevious();
                 } else
                 {
-                    setResult(requestCode, new Intent());
                     finish();
                 }
             }
@@ -500,7 +499,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
         {
             try
             {
-                spechVM.doSpeech(text, Locale.US);
+                speechVM.doSpeech(text, Locale.US);
             } catch (Exception e)
             {
                 e.printStackTrace();

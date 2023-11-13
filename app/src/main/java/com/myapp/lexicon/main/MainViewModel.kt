@@ -120,8 +120,14 @@ class MainViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             try {
+                val currentDicts = repository.getDictNameFromPlayListAsync().await()
+                val currentDict = currentDicts.firstOrNull()
                 val quantity = repository.deleteEntriesByDictNameAsync(dictList).await()
                 if (quantity > 0) {
+                    if (dictList.contains(currentDict)) {
+                        app.saveWordToPref(null)
+                        initPlayList()
+                    }
                     onSuccess.invoke(quantity)
                 }
                 else {

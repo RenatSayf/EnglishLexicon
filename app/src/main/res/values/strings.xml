@@ -281,6 +281,7 @@
     <string name="text_session_has_expired">Сессия истекла. Войдите в аккаунт снова.</string>
     <string name="text_battery_optimization_explain">Для стабильной работы приложения в режиме Пассивного изучения, необходимо отключить оптимизацию работы батареи. Это не повлияет на ее разряд</string>
     <string name="KEY_TEST_INTERVAL_CHANGED">TEST_INTERVAL_CHANGED</string>
+    <string name="text_word_deleted">Слово удалено</string>
 
 
 </resources>

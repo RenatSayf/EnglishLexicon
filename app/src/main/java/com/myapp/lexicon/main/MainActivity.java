@@ -686,7 +686,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 public void onActivityResult(ActivityResult result)
                 {
                     int resultCode = result.getResultCode();
-                    if (resultCode == WordEditorActivity.requestCode)
+                    if (resultCode == WordEditorActivity.NEED_UPDATE_PLAY_LIST)
                     {
                         mainVM.updatePlayList();
                     }

@@ -87,11 +87,6 @@ class DataRepositoryImpl @Inject constructor(
         return db.getCounters(dictName, id)
     }
 
-    override fun goForward(words: List<Word>)
-    {
-        settings.goForward(words)
-    }
-
     override fun saveWordsIdStringToPref(strIds: String)
     {
         settings.saveWordsIdAsString(strIds)
