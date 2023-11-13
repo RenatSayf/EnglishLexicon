@@ -1,8 +1,8 @@
 package com.myapp.lexicon.repository
 
-import android.database.Cursor
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.myapp.lexicon.database.AppDao
+import com.myapp.lexicon.database.AppDataBase
 import com.myapp.lexicon.database.models.Counters
 import com.myapp.lexicon.database.models.WordToPlay
 import com.myapp.lexicon.models.Word
@@ -181,6 +181,7 @@ class DataRepositoryImpl @Inject constructor(
         return coroutineScope {
             async {
                 db.clearPlayList()
+                AppDataBase.execVacuum()
                 db.runTimeQuery(SimpleSQLiteQuery(query))
                 val playList = db.getPlayList()
                 playList.map { it.toWord() }

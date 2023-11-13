@@ -50,7 +50,6 @@ import com.myapp.lexicon.helpers.Share;
 import com.myapp.lexicon.main.viewmodels.UserViewModel;
 import com.myapp.lexicon.models.AppResult;
 import com.myapp.lexicon.models.Revenue;
-import com.myapp.lexicon.models.User;
 import com.myapp.lexicon.models.UserKt;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.schedule.AlarmScheduler;
@@ -188,7 +187,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             });
             result.onSignIn(user -> {
                 navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_account);
-                buildRewardText(user);
+                buildRewardText(new Revenue(user.getUserReward(), user.getReservedPayment(), user.getCurrency(), user.getCurrencySymbol()));
                 return null;
             });
             result.onSignOut(() -> {
@@ -226,14 +225,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     orderPlayView.setImageResource(R.drawable.ic_shuffle_white);
                 }
                 pagerAdapter.setItems(list);
-                int displayedWordIndex = mainVM.getDisplayedWordIndex();
-                if (displayedWordIndex >= 0)
+                int pagerPosition = mainVM.getDisplayedWordIndex();
+                if (pagerPosition >= 0)
                 {
-                    mainViewPager.setCurrentItem(displayedWordIndex, displayedWordIndex == 0);
+                    mainViewPager.setCurrentItem(pagerPosition, pagerPosition == 0);
                 }
                 else {
                     mainViewPager.setCurrentItem(0, true);
                 }
+                buildCountersText(pagerPosition);
                 btnViewDict.setText(list.get(0).getDictName());
             }
         });
@@ -243,19 +243,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             private int state = -1;
             private int position = -1;
             private Word word;
-            private final MainViewPagerAdapter adapter = (MainViewPagerAdapter) mainViewPager.getAdapter();
 
             @Override
             public void onPageSelected(int position)
             {
                 super.onPageSelected(position);
-                if (adapter != null)
-                {
-                    word = adapter.getItem(position);
-                    int totalWords = adapter.getItemCount();
-                    String concatText = (position + 1) + " / " + totalWords;
-                    tvWordsCounter.setText(concatText);
-                }
+                word = pagerAdapter.getItem(position);
+                buildCountersText(position);
                 if (position < mainVM.wordListSize() - 1)
                 {
                     mainVM.wordsIsEnded(false);
@@ -270,9 +264,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if (speechViewModel.isEnSpeech().getValue() != null)
                 {
                     Boolean isEnSpeech = speechViewModel.isEnSpeech().getValue();
-                    if (state == 1 && isEnSpeech != null && isEnSpeech && adapter != null)
+                    if (state == 1 && isEnSpeech != null && isEnSpeech)
                     {
-                        Word displayedWord = adapter.getItem(mainViewPager.getCurrentItem());
+                        Word displayedWord = pagerAdapter.getItem(mainViewPager.getCurrentItem());
                         if (!displayedWord.getEnglish().equals(""))
                         {
                             speechViewModel.setSpeechProgressVisibility(View.VISIBLE);
@@ -474,37 +468,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onPause()
     {
-        //mainViewModel.setDisplayedWordIndex(mainViewPager.getCurrentItem());
-
         super.onPause();
     }
 
-    public void buildRewardText(User user)
-    {
-        Toolbar toolBar = root.findViewById(R.id.tool_bar);
-        if (toolBar != null)
-        {
-            double rewardToDisplay = (user != null) ? UserKt.to2DigitsScale(user.getUserReward()) : 0.0;
-            String text = getString(R.string.coins_bag).concat(" ")
-                    .concat(getString(R.string.text_your_reward)).concat(" ")
-                    .concat(String.valueOf(rewardToDisplay)).concat(" ")
-                    .concat((user != null) ? user.getCurrencySymbol() : Currency.getInstance("RUB").getSymbol());
-            toolBar.setSubtitle(text);
-
-            TextView tvReward = root.findViewById(R.id.tvReward);
-            if (tvReward != null)
-            {
-                tvReward.setText(text);
-                tvReward.setVisibility(View.VISIBLE);
-            }
-            toolBar.setOnClickListener(view -> {
-                DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
-                drawerLayout.open();
-            });
-        }
-    }
-
-    private void buildRewardText2(Revenue revenue)
+    private void buildRewardText(Revenue revenue)
     {
         Toolbar toolBar = root.findViewById(R.id.tool_bar);
         if (toolBar != null)
@@ -526,6 +493,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
                 drawerLayout.open();
             });
+        }
+    }
+
+    private void buildCountersText(int position) {
+        if (pagerAdapter != null)
+        {
+            int totalWords = pagerAdapter.getItemCount();
+            String concatText = (position + 1) + " / " + totalWords;
+            tvWordsCounter.setText(concatText);
         }
     }
 
@@ -1130,7 +1106,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             {
                 AppResult.Success<Revenue> castResult = (AppResult.Success<Revenue>) result;
                 Revenue revenue = castResult.getData();
-                buildRewardText2(revenue);
+                buildRewardText(revenue);
             }
             if (result instanceof AppResult.Error error)
             {
