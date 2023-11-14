@@ -99,9 +99,30 @@ class MainViewModel @Inject constructor(
                     val dictName = dicts.firstOrNull()
                     if (!dictName.isNullOrEmpty()) {
                         val playList = repository.getPlayListByDictNameAsync(dictName, orderPlay).await()
-                        displayedWordIndex = playList.indexOfFirst { it._id == word._id }
-                        if (displayedWordIndex < 0) displayedWordIndex = 0
+                        val foundIndex = playList.indexOfFirst { it._id == word._id }
+
+                        if (foundIndex < 0) {
+                            while (displayedWordIndex > 0) {
+                                displayedWordIndex--
+                                try {
+                                    val previousWord = playList[displayedWordIndex]
+                                    app.saveWordToPref(previousWord).also {
+                                        displayedWordIndex = playList.indexOf(previousWord)
+                                    }
+                                    break
+                                } catch (e: IndexOutOfBoundsException) {
+                                    displayedWordIndex = 0
+                                    val startWord = playList[0]
+                                    app.saveWordToPref(startWord)
+                                    break
+                                }
+                            }
+                        }
                         _wordsList?.value = playList
+                    }
+                    else {
+                        app.saveWordToPref(null)
+                        initPlayList()
                     }
                 }
             },

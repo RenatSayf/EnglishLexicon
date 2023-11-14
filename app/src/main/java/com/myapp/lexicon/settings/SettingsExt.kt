@@ -23,6 +23,7 @@ import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.toWord
 import com.parse.ParseUser
+import kotlinx.serialization.SerializationException
 
 val Context.appSettings: SharedPreferences
     get() {
@@ -202,7 +203,8 @@ fun Context.checkOnStartSpeech(onEnabled: () -> Unit, onDisabled: () -> Unit) {
 }
 
 fun Context.saveWordToPref(word: Word?) {
-    appSettings.edit().putString("KEY_CURRENT_WORD", word.toString()).apply()
+    val strToSave = word?.toString()
+    appSettings.edit().putString("KEY_CURRENT_WORD", strToSave).apply()
 }
 
 fun Context.getWordFromPref(
@@ -213,9 +215,17 @@ fun Context.getWordFromPref(
     val string = appSettings.getString("KEY_CURRENT_WORD", null)
     string?.let {
         try {
-            val word = it.toWord()
-            onSuccess.invoke(word)
-        } catch (e: Exception) {
+            val word = try {
+                it.toWord()
+            } catch (e: SerializationException) {
+                null
+            }
+            if (word != null) {
+                onSuccess.invoke(word)
+            }
+            else onInit.invoke()
+        }
+        catch (e: Exception) {
             onFailure.invoke(e)
         }
     }?: run {

@@ -10,7 +10,6 @@ import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
-import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.AddWordDialogBinding
@@ -142,28 +141,23 @@ class AddWordDialog : DialogFragment(),
             }
 
 
-            btnOk.setOnClickListener {
+            btnAdd.setOnClickListener {
                 val dictName = (dictListSpinner.selectedView as TextView).text.toString()
-                (!translateTV.text.isNullOrEmpty()).run {
-                    if (this)
-                    {
-                        val enWord = inputWordTV.text.toString()
-                        val ruWord = translateTV.text.toString()
-                        val word = Word(0, dictName, enWord, ruWord, 1)
-                        addWordVM.insertedId.observe(viewLifecycleOwner) {
-                            if (it > 0) {
-                                val message =
-                                    getString(R.string.in_dictionary) + dictName + getString(
-                                        R.string.new_word_is_added
-                                    )
-                                showToast(message)
-                                setFragmentResult(getString(R.string.KEY_NEED_REFRESH), Bundle.EMPTY)
-                            }
+                if (!translateTV.text.isNullOrEmpty()) {
+                    val enWord = inputWordTV.text.toString()
+                    val ruWord = translateTV.text.toString()
+                    val word = Word(0, dictName, enWord, ruWord, 1)
+                    addWordVM.insertedId.observe(viewLifecycleOwner) {
+                        if (it > 0) {
+                            val message =
+                                "${getString(R.string.in_dictionary)}  $dictName  ${getString(R.string.new_word_is_added)}"
+                            showToast(message)
+                            setFragmentResult(getString(R.string.KEY_NEED_REFRESH), Bundle.EMPTY)
                         }
-                        addWordVM.insertEntryAsync(word)
-                        dismiss()
                     }
+                    addWordVM.insertEntryAsync(word)
                 }
+                dismiss()
             }
 
             btnCancel.setOnClickListener {
