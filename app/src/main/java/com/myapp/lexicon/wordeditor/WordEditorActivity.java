@@ -31,6 +31,7 @@ import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SpeechViewModel;
 import com.myapp.lexicon.models.Word;
+import com.myapp.lexicon.models.WordKt;
 import com.myapp.lexicon.viewmodels.EditorSearchViewModel;
 import com.yandex.mobile.ads.banner.BannerAdView;
 
@@ -52,8 +53,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class WordEditorActivity extends AppCompatActivity implements ListViewAdapter.IListViewAdapter
 {
     public static final String KEY_EXTRA_DICT_NAME = "wordeditor_dict_name";
-    public static final String KEY_EXTRA_EN_WORD = "KEY_EXTRA_EN_WORD";
-    public static final String KEY_EXTRA_RU_WORD = "KEY_EXTRA_RU_WORD";
+    public static final String KEY_EXTRA_WORD = "KEY_EXTRA_WORD";
     public static final int NEED_UPDATE_PLAY_LIST = 2654789;
 
     private Spinner dictListSpinner;
@@ -299,12 +299,13 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
 
 
 
-        String enWord = getIntent().getStringExtra(KEY_EXTRA_EN_WORD);
-        String ruWord = getIntent().getStringExtra(KEY_EXTRA_RU_WORD);
-        if (enWord != null && ruWord != null)
+        String jsonWord = getIntent().getStringExtra(KEY_EXTRA_WORD);
+        if (jsonWord != null)
         {
-            editorVM.setEnWord(enWord);
-            editorVM.setRuWord(ruWord);
+            Word word = WordKt.toWord(jsonWord);
+            editorVM.setEnWord(word.getEnglish());
+            editorVM.setRuWord(word.getTranslate());
+            editorVM.selectedWord = word;
             switcher.showNext();
         }
 

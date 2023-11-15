@@ -646,8 +646,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 bundle.putString(WordEditorActivity.KEY_EXTRA_DICT_NAME, btnViewDict.getText().toString());
                 if (currentWord != null)
                 {
-                    bundle.putString(WordEditorActivity.KEY_EXTRA_EN_WORD, currentWord.getEnglish());
-                    bundle.putString(WordEditorActivity.KEY_EXTRA_RU_WORD, currentWord.getTranslate());
+                    bundle.putString(WordEditorActivity.KEY_EXTRA_WORD, currentWord.toString());
                 }
                 intent.replaceExtras(bundle);
                 activityResultLauncher.launch(intent);
