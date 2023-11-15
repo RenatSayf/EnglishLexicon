@@ -130,7 +130,7 @@ class EditorViewModel @Inject constructor(
                     getAllWordsByDictName(word.dictName)
                 }
             },
-            onSuccess = { word ->
+            onSuccess = { word, _ ->
                 getAllWordsByDictName(word.dictName)
             },
             onFailure = {}

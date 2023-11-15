@@ -65,7 +65,7 @@ class DataRepositoryImplTest {
             }
 
             val dictName = "Тестовый словарь"
-            subscribe = repository.insertEntry(
+            subscribe = repository.insertWordAsync(
                 Word(0, dictName, "Asdfghjk", "Фывапрод", 1)
             ).subscribe({ id ->
                 Assert.assertTrue("******* id = $id *************", id > 0)

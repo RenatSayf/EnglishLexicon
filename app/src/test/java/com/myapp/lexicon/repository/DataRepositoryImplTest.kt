@@ -37,13 +37,13 @@ class DataRepositoryImplTest {
         repository = DataRepositoryImpl(dao, AppSettings(context))
 
         runBlocking {
-            repository.insertEntry(
+            repository.insertWordListAsync(
                 listOf(
                     Word(dictName = "Test Set", english = "small", translate = "маленький", countRepeat = 1, _id = 0),
                     Word(dictName = "Test Set", english = "big", translate = "большой", countRepeat = 1, _id = 0),
                     Word(dictName = "Test Set", english = "fast", translate = "быстрый", countRepeat = 1, _id = 0)
                 )
-            )
+            ).await()
             delay(2000)
         }
     }

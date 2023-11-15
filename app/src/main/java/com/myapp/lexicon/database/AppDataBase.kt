@@ -52,7 +52,7 @@ abstract class AppDataBase : RoomDatabase()
 
         private fun getMigrationFrom1To2(): Migration {
             return object : Migration(1, 2) {
-                override fun migrate(database: SupportSQLiteDatabase) {
+                override fun migrate(db: SupportSQLiteDatabase) {
                     val query = """CREATE TABLE IF NOT EXISTS "PlayList" (
 	"_id"	INTEGER NOT NULL,
 	"dict_name"	TEXT NOT NULL,
@@ -62,7 +62,7 @@ abstract class AppDataBase : RoomDatabase()
 	PRIMARY KEY("english")
 );"""
                     Thread(Runnable {
-                        database.execSQL(query)
+                        db.execSQL(query)
                     }).start()
                 }
             }

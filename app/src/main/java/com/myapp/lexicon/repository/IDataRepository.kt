@@ -1,6 +1,5 @@
 package com.myapp.lexicon.repository
 
-import android.database.Cursor
 import com.myapp.lexicon.database.models.Counters
 import com.myapp.lexicon.database.models.WordToPlay
 import com.myapp.lexicon.models.Word
@@ -21,9 +20,9 @@ interface IDataRepository
 
     fun updateCountRepeat(countRepeat: Int, minId: Int, maxId: Int) : Single<Int>
 
-    fun insertEntry(word: Word): Single<Long>
+    fun insertWordAsync(word: Word): Single<Long>
 
-    fun insertEntry(list: List<Word>): List<Long>
+    suspend fun insertWordListAsync(list: List<Word>): Deferred<List<Long>>
 
     fun updateEntries(words: List<Word>) : Single<Int>
 

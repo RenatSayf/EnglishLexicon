@@ -202,17 +202,19 @@ fun Context.checkOnStartSpeech(onEnabled: () -> Unit, onDisabled: () -> Unit) {
     }
 }
 
-fun Context.saveWordToPref(word: Word?) {
+fun Context.saveWordToPref(word: Word?, bookmark: Int) {
     val strToSave = word?.toString()
     appSettings.edit().putString("KEY_CURRENT_WORD", strToSave).apply()
+    appSettings.edit().putInt("KEY_BOOKMARK", bookmark).apply()
 }
 
 fun Context.getWordFromPref(
     onInit: () -> Unit = {},
-    onSuccess: (Word) -> Unit = {},
+    onSuccess: (Word, Int) -> Unit = {_,_->},
     onFailure: (Exception) -> Unit = {}
 ) {
     val string = appSettings.getString("KEY_CURRENT_WORD", null)
+    val bookmark = appSettings.getInt("KEY_BOOKMARK", -1)
     string?.let {
         try {
             val word = try {
@@ -221,7 +223,7 @@ fun Context.getWordFromPref(
                 null
             }
             if (word != null) {
-                onSuccess.invoke(word)
+                onSuccess.invoke(word, bookmark)
             }
             else onInit.invoke()
         }

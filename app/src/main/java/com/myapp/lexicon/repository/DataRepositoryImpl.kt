@@ -53,14 +53,18 @@ class DataRepositoryImpl @Inject constructor(
         return db.updateCountRepeat(countRepeat, minId, maxId)
     }
 
-    override fun insertEntry(word: Word): Single<Long>
+    override fun insertWordAsync(word: Word): Single<Long>
     {
         return db.insert(word)
     }
 
-    override fun insertEntry(list: List<Word>): List<Long>
+    override suspend fun insertWordListAsync(list: List<Word>): Deferred<List<Long>>
     {
-        return db.insert(list)
+        return coroutineScope {
+            async {
+                db.insert(list)
+            }
+        }
     }
 
     override fun updateEntries(words: List<Word>): Single<Int>

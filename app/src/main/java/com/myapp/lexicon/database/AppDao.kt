@@ -1,6 +1,5 @@
 package com.myapp.lexicon.database
 
-import android.database.Cursor
 import androidx.room.*
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.myapp.lexicon.database.models.Counters
@@ -39,7 +38,7 @@ interface AppDao
     fun insert(word: Word): Single<Long>
 
     @Insert(entity = Word::class, onConflict = OnConflictStrategy.REPLACE)
-    fun insert(list: List<Word>): List<Long>
+    suspend fun insert(list: List<Word>): List<Long>
 
     @Query("SELECT count() FROM Words WHERE dict_name = :dict AND count_repeat <= 0 UNION SELECT count() FROM Words WHERE dict_name = :dict")
     fun getCounters(dict: String) : Single<List<Int>>

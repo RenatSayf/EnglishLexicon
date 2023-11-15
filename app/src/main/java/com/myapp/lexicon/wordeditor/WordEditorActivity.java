@@ -272,11 +272,21 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             }
         });
 
-        addWordVM.getInsertedId().observe(this, id -> {
-            if (id > 0)
+        addWordVM.getInsertedWord().observe(this, pair -> {
+            Word word = pair.getFirst();
+            Throwable throwable = pair.getSecond();
+            if (word != null)
             {
                 ExtensionsKt.showSnackBar(switcher, getString(R.string.text_dict_is_updated), Snackbar.LENGTH_LONG);
                 setResult(NEED_UPDATE_PLAY_LIST);
+            }
+            else if (throwable != null) {
+                String message = (throwable.getMessage() != null) ? throwable.getMessage() : getString(R.string.text_unknown_error_message);
+                ExtensionsKt.showSnackBar(
+                        switcher,
+                        message,
+                        Snackbar.LENGTH_LONG
+                );
             }
         });
 
@@ -393,11 +403,11 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
                     word.setDictName(otherDict);
                     if (checkCopy.isChecked())
                     {
-                        addWordVM.insertEntryAsync(word);
+                        addWordVM.insertWord(word);
                     }
                     else
                     {
-                        addWordVM.insertEntryAsync(word);
+                        addWordVM.insertWord(word);
                         editorVM.deleteWordFromDb(editorVM.selectedWord);
                     }
                 }

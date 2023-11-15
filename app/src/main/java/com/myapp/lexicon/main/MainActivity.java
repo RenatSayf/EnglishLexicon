@@ -52,6 +52,7 @@ import com.myapp.lexicon.models.AppResult;
 import com.myapp.lexicon.models.Revenue;
 import com.myapp.lexicon.models.UserKt;
 import com.myapp.lexicon.models.Word;
+import com.myapp.lexicon.models.WordList;
 import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.service.PhoneUnlockedReceiver;
 import com.myapp.lexicon.settings.ContainerFragment;
@@ -139,6 +140,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         getSupportFragmentManager().setFragmentResultListener(getString(R.string.KEY_NEED_REFRESH), this, this);
         getSupportFragmentManager().setFragmentResultListener(getString(R.string.KEY_TEST_INTERVAL_CHANGED), this, this);
+        getSupportFragmentManager().setFragmentResultListener(TranslateFragment.Companion.getKEY_FRAGMENT_START(), this, this);
 
         mainVM = new ViewModelProvider(this).get(MainViewModel.class);
         speechViewModel = new ViewModelProvider(this).get(SpeechViewModel.class);
@@ -215,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mainViewPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
 
         mainVM.wordsList.observe(this, list -> {
-            if (list != null && !list.isEmpty())
+            if (list != null && !list.getWords().isEmpty())
             {
                 int order = mainVM.getOrderPlay();
                 if (order == 0 || order == 1) {
@@ -224,8 +226,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 else {
                     orderPlayView.setImageResource(R.drawable.ic_shuffle_white);
                 }
-                pagerAdapter.setItems(list);
-                int pagerPosition = mainVM.getDisplayedWordIndex();
+                pagerAdapter.setItems(list.getWords());
+                int pagerPosition = list.getBookmark();
                 if (pagerPosition >= 0)
                 {
                     mainViewPager.setCurrentItem(pagerPosition, pagerPosition == 0);
@@ -234,7 +236,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     mainViewPager.setCurrentItem(0, true);
                 }
                 buildCountersText(pagerPosition);
-                btnViewDict.setText(list.get(0).getDictName());
+                btnViewDict.setText(list.getWords().get(0).getDictName());
             }
         });
 
@@ -433,7 +435,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Boolean isEnSpeech = speechViewModel.isEnSpeech().getValue();
             if (mainVM.wordsList.getValue() != null)
             {
-                Word word = mainVM.wordsList.getValue().get(position);
+                Word word = mainVM.wordsList.getValue().getWords().get(position);
                 String enText = word.getEnglish();
                 if (isEnSpeech != null)
                 {
@@ -514,30 +516,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void testPassed()
     {
         Word displayedWord = pagerAdapter.getItem(mainViewPager.getCurrentItem());
-        mainVM.saveCurrentWordToPref(displayedWord);
-        List<Word> wordList = mainVM.wordsList.getValue();
+        mainVM.saveCurrentWordToPref(displayedWord, mainViewPager.getCurrentItem());
+        WordList wordList = mainVM.wordsList.getValue();
         if (wordList != null)
         {
-            int index = wordList.indexOf(displayedWord);
-            if (index <= wordList.size() - 1 && index >= 0)
+            int index = wordList.getWords().indexOf(displayedWord);
+            if (index <= wordList.getWords().size() - 1 && index >= 0)
             {
                 int i = index + 1;
                 mainViewPager.setCurrentItem(i, false);
             } else mainViewPager.setCurrentItem(0, false);
             mainVM.wordsIsEnded(index + 1 == mainVM.wordListSize() - 1);
+            mainVM.setMainControlVisibility(View.VISIBLE);
         }
-        mainVM.setMainControlVisibility(View.VISIBLE);
     }
 
     public void testFailed(int errors)
     {
         if (errors > 0)
         {
-            List<Word> wordList = mainVM.wordsList.getValue();
+            WordList wordList = mainVM.wordsList.getValue();
             if (wordList != null && mainVM.getIntermediateIndex().getValue() != null)
             {
                 int newIndex = mainVM.getIntermediateIndex().getValue();
-                if (newIndex <= wordList.size() - 1 && newIndex >= 0)
+                if (newIndex <= wordList.getWords().size() - 1 && newIndex >= 0)
                 {
                     mainViewPager.setCurrentItem(newIndex, true);
                 } else mainViewPager.setCurrentItem(0, true);
@@ -573,7 +575,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     int orderPlay = mainVM.getOrderPlay();
                                     Word word = new Word(1, dict, "", "", 1);
                                     mainVM.setNewPlayList(word, orderPlay);
-                                    mainVM.saveCurrentWordToPref(word);
+                                    mainVM.saveCurrentWordToPref(word, mainViewPager.getCurrentItem());
                                 }
                             }),
                             DictListDialog.Companion.getTAG()
@@ -616,7 +618,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onStop()
     {
         Word word = pagerAdapter.getItem(mainViewPager.getCurrentItem());
-        mainVM.saveCurrentWordToPref(word);
+        mainVM.saveCurrentWordToPref(word, mainViewPager.getCurrentItem());
         SettingsExtKt.saveOrderPlay(this, mainVM.getOrderPlay());
         super.onStop();
     }
@@ -636,9 +638,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = item.getItemId();
         if (id == R.id.edit_word)
         {
-            List<Word> words = mainVM.wordsList.getValue();
-            if (words != null && !words.isEmpty()) {
-                Word currentWord = words.get(mainViewPager.getCurrentItem());
+            WordList wordList = mainVM.wordsList.getValue();
+            if (wordList != null && !wordList.getWords().isEmpty()) {
+                Word currentWord = wordList.getWords().get(mainViewPager.getCurrentItem());
                 Intent intent = new Intent(this, WordEditorActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putString(WordEditorActivity.KEY_EXTRA_DICT_NAME, btnViewDict.getText().toString());
@@ -1129,6 +1131,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         if (requestKey.equals(getString(R.string.KEY_TEST_INTERVAL_CHANGED))) {
             mainVM.getWordsInterval();
+        }
+        if (requestKey.equals(TranslateFragment.Companion.getKEY_FRAGMENT_START())) {
+            int currentIndex = mainViewPager.getCurrentItem();
+            Word word = pagerAdapter.getItem(currentIndex);
+            mainVM.saveCurrentWordToPref(word, currentIndex);
+            SettingsExtKt.saveOrderPlay(this, mainVM.getOrderPlay());
         }
     }
 }

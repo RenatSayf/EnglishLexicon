@@ -77,7 +77,7 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
             if (action != null && action == actionScreenOff)
             {
                 context.getWordFromPref(
-                    onSuccess = { word ->
+                    onSuccess = { word, _ ->
                         handleBroadCast(context, scope, word)
                     },
                     onFailure = {
@@ -137,12 +137,12 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
 
         when(words.size) {
             2 -> {
-                context.saveWordToPref(words[1])
+                context.saveWordToPref(words[1], words.indexOf(words[1]))
             }
             1 -> {
                 scope.launch {
                     val list = repository.getFirstFromPlayListAsync().await()
-                    context.saveWordToPref(list[0])
+                    context.saveWordToPref(list[0], words.indexOf(words[1]))
                 }
             }
         }

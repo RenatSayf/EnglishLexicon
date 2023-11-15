@@ -52,12 +52,13 @@ class TestViewModel @Inject constructor(
                     value = repository.getFirstEntryAsync().await()
                 }
             },
-            onSuccess = { word ->
+            onSuccess = { word, _ ->
                 value = word
             },
             onFailure = {}
         )
     }
+
     var currentWord: LiveData<Word> = _currentWord
 
     private var _dictList = MutableLiveData<List<String>>(listOf()).apply {

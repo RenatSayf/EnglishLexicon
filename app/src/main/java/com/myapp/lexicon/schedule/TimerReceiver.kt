@@ -50,7 +50,7 @@ class TimerReceiver : BroadcastReceiver()
 
                 this.goAsync(CoroutineScope(Dispatchers.IO), block = { scope ->
                     context.getWordFromPref(
-                        onSuccess = { word ->
+                        onSuccess = { word, _ ->
                             handleAlarm(context, scope, word)
                         },
                         onFailure = {
@@ -110,12 +110,12 @@ class TimerReceiver : BroadcastReceiver()
 
         when(words.size) {
             2 -> {
-                context.saveWordToPref(words[1])
+                context.saveWordToPref(words[1], words.indexOf(words[1]))
             }
             1 -> {
                 scope.launch {
                     val list = repository.getFirstFromPlayListAsync().await()
-                    context.saveWordToPref(list[0])
+                    context.saveWordToPref(list[0], words.indexOf(words[0]))
                 }
             }
         }

@@ -13,6 +13,7 @@ import com.myapp.lexicon.helpers.checkSorting
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.throwIfDebug
 import com.myapp.lexicon.models.Word
+import com.myapp.lexicon.models.WordList
 import com.myapp.lexicon.repository.DataRepositoryImpl
 import com.myapp.lexicon.settings.getWordFromPref
 import com.myapp.lexicon.settings.saveWordToPref
@@ -34,9 +35,6 @@ class MainViewModel @Inject constructor(
 {
     private val composite = CompositeDisposable()
 
-    var displayedWordIndex: Int = 0
-        private set
-
     var orderPlay: Int = 0
         private set
 
@@ -49,9 +47,9 @@ class MainViewModel @Inject constructor(
         initPlayList()
     }
 
-    private var _wordsList = MutableLiveData<List<Word>>()
+    private var _wordsList = MutableLiveData<WordList>()
     @JvmField
-    var wordsList: LiveData<List<Word>> = _wordsList
+    var wordsList: LiveData<WordList> = _wordsList
 
     fun initPlayList()
     {
@@ -62,7 +60,7 @@ class MainViewModel @Inject constructor(
                     setNewPlayList(word, 0)
                 }
             },
-            onSuccess = { word ->
+            onSuccess = { word, mark ->
                 restorePlayList(word)
             },
             onFailure = { exception ->
@@ -76,52 +74,56 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             val wordList = repository.getPlayListByDictNameAsync(word.dictName, order).await()
             orderPlay = wordList.checkSorting()
-            displayedWordIndex = 0
-            _wordsList?.value = wordList
+            app.saveWordToPref(word, 0)
+            _wordsList?.value = WordList(wordList, 0)
         }
     }
 
     fun restorePlayList(word: Word) {
         viewModelScope.launch {
             val playList = repository.getPlayListAsync().await()
-            displayedWordIndex = playList.indexOfFirst { it._id == word._id }
+            val bookmark = playList.indexOfFirst { it._id == word._id }
+            app.saveWordToPref(word, bookmark)
             val wordList = playList.map { it.toWord() }
             orderPlay = wordList.checkSorting()
-            _wordsList?.value = wordList
+            _wordsList?.value = WordList(wordList, bookmark)
         }
     }
 
     fun updatePlayList() {
         app.getWordFromPref(
-            onSuccess = { word ->
+            onSuccess = { word, bookmark ->
                 viewModelScope.launch {
                     val dicts = repository.getDictNameFromPlayListAsync().await()
                     val dictName = dicts.firstOrNull()
                     if (!dictName.isNullOrEmpty()) {
                         val playList = repository.getPlayListByDictNameAsync(dictName, orderPlay).await()
-                        val foundIndex = playList.indexOfFirst { it._id == word._id }
+                        var foundIndex = playList.indexOfFirst { it._id == word._id }
 
                         if (foundIndex < 0) {
-                            while (displayedWordIndex > 0) {
-                                displayedWordIndex--
+                            var i = bookmark
+                            while (bookmark > 0) {
+                                i--
                                 try {
-                                    val previousWord = playList[displayedWordIndex]
-                                    app.saveWordToPref(previousWord).also {
-                                        displayedWordIndex = playList.indexOf(previousWord)
-                                    }
+                                    val previousWord = playList[i]
+                                    foundIndex = i
+                                    app.saveWordToPref(previousWord, i)
                                     break
                                 } catch (e: IndexOutOfBoundsException) {
-                                    displayedWordIndex = 0
                                     val startWord = playList[0]
-                                    app.saveWordToPref(startWord)
+                                    foundIndex = 0
+                                    app.saveWordToPref(startWord, 0)
                                     break
                                 }
                             }
                         }
-                        _wordsList?.value = playList
+                        else {
+                            app.saveWordToPref(word, foundIndex)
+                        }
+                        _wordsList?.value = WordList(playList, foundIndex)
                     }
                     else {
-                        app.saveWordToPref(null)
+                        app.saveWordToPref(null, -1)
                         initPlayList()
                     }
                 }
@@ -132,7 +134,7 @@ class MainViewModel @Inject constructor(
         )
     }
 
-    fun wordListSize(): Int = _wordsList.value?.size ?: 0
+    fun wordListSize(): Int = _wordsList.value?.words?.size ?: 0
 
     fun deleteDicts(
         dictList: List<String>,
@@ -147,7 +149,7 @@ class MainViewModel @Inject constructor(
                 val quantity = repository.deleteEntriesByDictNameAsync(dictList).await()
                 if (quantity > 0) {
                     if (dictList.contains(currentDict)) {
-                        app.saveWordToPref(null)
+                        app.saveWordToPref(null, -1)
                         initPlayList()
                     }
                     onSuccess.invoke(quantity)
@@ -194,9 +196,9 @@ class MainViewModel @Inject constructor(
         _dictionaryList.value = list
     }
 
-    fun saveCurrentWordToPref(word: Word)
+    fun saveCurrentWordToPref(word: Word, bookmark: Int)
     {
-        app.saveWordToPref(word)
+        app.saveWordToPref(word, bookmark)
     }
 
     private var _counters = MutableLiveData<Result<Counters>>()
