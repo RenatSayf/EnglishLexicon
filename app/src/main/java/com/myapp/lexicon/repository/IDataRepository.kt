@@ -1,5 +1,6 @@
 package com.myapp.lexicon.repository
 
+import com.myapp.lexicon.common.OrderBy
 import com.myapp.lexicon.database.models.Counters
 import com.myapp.lexicon.database.models.WordToPlay
 import com.myapp.lexicon.models.Word
@@ -10,7 +11,7 @@ interface IDataRepository
 {
     fun getDictListFromDb() : Single<MutableList<String>>
 
-    fun getEntriesFromDbByDictName(dictName: String, id: Int = 1, repeat: Int, limit: Int = 2) : Single<MutableList<Word>>
+    fun getEntriesFromDbByDictName(dictName: String, id: Int = 1, repeat: Int, orderBy: OrderBy = OrderBy.ASC, limit: Int = 2) : Single<MutableList<Word>>
 
     fun getEntriesByIds(ids: List<Int>) : Single<MutableList<Word>>
 

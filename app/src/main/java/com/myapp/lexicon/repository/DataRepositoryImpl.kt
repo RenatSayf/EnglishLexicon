@@ -1,6 +1,7 @@
 package com.myapp.lexicon.repository
 
 import androidx.sqlite.db.SimpleSQLiteQuery
+import com.myapp.lexicon.common.OrderBy
 import com.myapp.lexicon.database.AppDao
 import com.myapp.lexicon.database.AppDataBase
 import com.myapp.lexicon.database.models.Counters
@@ -23,9 +24,10 @@ class DataRepositoryImpl @Inject constructor(
         return db.getDictList()
     }
 
-    override fun getEntriesFromDbByDictName(dictName: String, id: Int, repeat: Int, limit: Int): Single<MutableList<Word>>
+    override fun getEntriesFromDbByDictName(dictName: String, id: Int, repeat: Int, orderBy: OrderBy, limit: Int): Single<MutableList<Word>>
     {
-        return db.getEntriesByDictName(dictName, id, repeat, limit)
+        val query = "SELECT * FROM Words WHERE dict_name == '$dictName' AND _id >= $id AND count_repeat >= $repeat ORDER BY ${orderBy.value} LIMIT $limit"
+        return db.getOrderedWordsByDictName(SimpleSQLiteQuery(query))
     }
 
     override fun getEntriesByIds(ids: List<Int>): Single<MutableList<Word>>
@@ -167,12 +169,12 @@ class DataRepositoryImpl @Inject constructor(
     ): Deferred<List<Word>> {
         val orderStr = when (order) {
             0 -> {
-                "lower(english) ASC"
+                OrderBy.ASC.value
             }
             1 -> {
-                "lower(english) DESC"
+                OrderBy.DESC.value
             }
-            else -> "random()"
+            else -> OrderBy.RANDOM.value
         }
 
         val query = "INSERT OR replace INTO PlayList SELECT * FROM Words WHERE dict_name = '$dict' AND count_repeat > 0 ORDER BY $orderStr"

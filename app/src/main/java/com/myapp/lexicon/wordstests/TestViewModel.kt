@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.myapp.lexicon.common.OrderBy
 import com.myapp.lexicon.models.TestState
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.repository.DataRepositoryImpl
@@ -82,14 +83,14 @@ class TestViewModel @Inject constructor(
     {
         val result = MutableLiveData<Result<List<Word>>>(Result.failure(Throwable()))
         composite.add(
-            repository.getEntriesFromDbByDictName(dict, 1, 1, Int.MAX_VALUE)
+            repository.getEntriesFromDbByDictName(dictName = dict, id = 1, repeat = 1, orderBy = OrderBy.RANDOM, limit = Int.MAX_VALUE)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ list ->
                     val filteredList = list.filter {
                         !testState.studiedWordIds.contains(it._id)
                     }.toMutableList()
-                    filteredList.shuffle()
+                    //filteredList.shuffle()
                     _wordsList.value = filteredList
                     result.value = Result.success(filteredList)
 
