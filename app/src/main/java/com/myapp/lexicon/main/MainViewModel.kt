@@ -1,4 +1,4 @@
-@file:Suppress("UNNECESSARY_SAFE_CALL")
+@file:Suppress("UNNECESSARY_SAFE_CALL", "UNUSED_ANONYMOUS_PARAMETER")
 
 package com.myapp.lexicon.main
 
@@ -101,8 +101,13 @@ class MainViewModel @Inject constructor(
                         var foundIndex = playList.indexOfFirst { it._id == word._id }
 
                         if (foundIndex < 0) {
+                            if (bookmark == 0 && playList.isNotEmpty()) {
+                                app.saveWordToPref(playList[0], 0)
+                                _wordsList?.value = WordList(playList, 0)
+                                return@launch
+                            }
                             var i = bookmark
-                            while (bookmark > 0) {
+                            while (i > 0) {
                                 i--
                                 try {
                                     val previousWord = playList[i]

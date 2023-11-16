@@ -90,7 +90,6 @@ class TestViewModel @Inject constructor(
                     val filteredList = list.filter {
                         !testState.studiedWordIds.contains(it._id)
                     }.toMutableList()
-                    //filteredList.shuffle()
                     _wordsList.value = filteredList
                     result.value = Result.success(filteredList)
 
