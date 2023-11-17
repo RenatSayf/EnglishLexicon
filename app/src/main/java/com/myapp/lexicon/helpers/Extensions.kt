@@ -352,7 +352,7 @@ fun List<Word>.checkSorting(
     onDESC: () -> Unit = {},
     onNotSorted: () -> Unit = {}
 ) {
-    var res = this.asSequence().zipWithNext { a, b ->
+    var res = this.zipWithNext { a, b ->
         a.english.lowercase() <= b.english.lowercase()
     }.all { it }
     if (res) {
@@ -360,7 +360,7 @@ fun List<Word>.checkSorting(
         return
     }
 
-    res = this.asSequence().zipWithNext { a, b ->
+    res = this.zipWithNext { a, b ->
         a.english.lowercase() >= b.english.lowercase()
     }.all { it }
     if (res) {

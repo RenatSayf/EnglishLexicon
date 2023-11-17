@@ -468,6 +468,11 @@ fun Context.getOrderPlay(
     }
     return value
 }
+val Context.orderPlayFromPref: Int
+    get() {
+        return this.getOrderPlay()
+    }
+
 
 
 

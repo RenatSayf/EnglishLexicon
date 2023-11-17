@@ -219,7 +219,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mainVM.wordsList.observe(this, list -> {
             if (list != null && !list.getWords().isEmpty())
             {
-                int order = mainVM.getOrderPlay();
+                int order = ExtensionsKt.checkSorting(list.getWords());
+                SettingsExtKt.saveOrderPlay(this, order);
                 if (order == 0 || order == 1) {
                     orderPlayView.setImageResource(R.drawable.ic_repeat_white);
                 }
@@ -235,6 +236,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 else {
                     mainViewPager.setCurrentItem(0, true);
                 }
+                Word word = pagerAdapter.getItem(pagerPosition);
+                SettingsExtKt.saveWordToPref(MainActivity.this, word, pagerPosition);
                 buildCountersText(pagerPosition);
                 btnViewDict.setText(list.getWords().get(0).getDictName());
             }
@@ -467,12 +470,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    @Override
-    protected void onPause()
-    {
-        super.onPause();
-    }
-
     private void buildRewardText(Revenue revenue)
     {
         Toolbar toolBar = root.findViewById(R.id.tool_bar);
@@ -516,7 +513,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void testPassed()
     {
         Word displayedWord = pagerAdapter.getItem(mainViewPager.getCurrentItem());
-        mainVM.saveCurrentWordToPref(displayedWord, mainViewPager.getCurrentItem());
+        SettingsExtKt.saveWordToPref(this, displayedWord, mainViewPager.getCurrentItem());
         WordList wordList = mainVM.wordsList.getValue();
         if (wordList != null)
         {
@@ -575,7 +572,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     int orderPlay = mainVM.getOrderPlay();
                                     Word word = new Word(1, dict, "", "", 1);
                                     mainVM.setNewPlayList(word, orderPlay);
-                                    mainVM.saveCurrentWordToPref(word, mainViewPager.getCurrentItem());
                                 }
                             }),
                             DictListDialog.Companion.getTAG()
@@ -594,7 +590,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         view.setOnClickListener(v -> {
 
             Word word = pagerAdapter.getItem(mainViewPager.getCurrentItem());
-            int oldOrder = mainVM.getOrderPlay();
+            int oldOrder = SettingsExtKt.getOrderPlayFromPref(MainActivity.this);
             OrderPlayDialog.Companion.getInstance(oldOrder, newOrder -> {
                 if (oldOrder != newOrder)
                 {
@@ -618,8 +614,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onStop()
     {
         Word word = pagerAdapter.getItem(mainViewPager.getCurrentItem());
-        mainVM.saveCurrentWordToPref(word, mainViewPager.getCurrentItem());
-        SettingsExtKt.saveOrderPlay(this, mainVM.getOrderPlay());
+        SettingsExtKt.saveWordToPref(this, word, mainViewPager.getCurrentItem());
         super.onStop();
     }
 
@@ -689,7 +684,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     int resultCode = result.getResultCode();
                     if (resultCode == WordEditorActivity.NEED_UPDATE_PLAY_LIST)
                     {
-                        mainVM.updatePlayList();
+                        SettingsExtKt.getWordFromPref(
+                                MainActivity.this,
+                                () -> null,
+                                (word, mark) -> {
+                                    int orderPlay = SettingsExtKt.getOrderPlayFromPref(MainActivity.this);
+                                    mainVM.updatePlayList(word, mark, orderPlay);
+                                    return null;
+                                },
+                                e -> null
+                        );
                     }
                 }
             });
@@ -838,6 +842,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 boolean contains = list.contains(btnViewDict.getText().toString());
                                 if (contains)
                                 {
+                                    SettingsExtKt.saveWordToPref(MainActivity.this, null, -1);
                                     mainVM.initPlayList();
                                 }
                             }
@@ -1126,16 +1131,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result)
     {
         if (requestKey.equals(getString(R.string.KEY_NEED_REFRESH))) {
-            mainVM.updatePlayList();
+            SettingsExtKt.getWordFromPref(
+                    MainActivity.this,
+                    () -> null,
+                    (word, mark) -> {
+                        int orderPlay = SettingsExtKt.getOrderPlayFromPref(MainActivity.this);
+                        mainVM.updatePlayList(word, mark, orderPlay);
+                        return null;
+                    },
+                    e -> null
+            );
         }
+
         if (requestKey.equals(getString(R.string.KEY_TEST_INTERVAL_CHANGED))) {
             mainVM.getWordsInterval();
         }
+
         if (requestKey.equals(TranslateFragment.Companion.getKEY_FRAGMENT_START())) {
             int currentIndex = mainViewPager.getCurrentItem();
             Word word = pagerAdapter.getItem(currentIndex);
-            mainVM.saveCurrentWordToPref(word, currentIndex);
-            SettingsExtKt.saveOrderPlay(this, mainVM.getOrderPlay());
+            SettingsExtKt.saveWordToPref(this, word, mainViewPager.getCurrentItem());
         }
     }
 }
