@@ -55,7 +55,7 @@ class MainViewModel @Inject constructor(
             onInit = {
                 viewModelScope.launch {
                     val word = repository.getFirstEntryAsync().await()
-                    setNewPlayList(word, 0)
+                    setNewPlayList(word.dictName, 0)
                 }
             },
             onSuccess = { word, mark ->
@@ -67,59 +67,71 @@ class MainViewModel @Inject constructor(
         )
     }
 
-    fun setNewPlayList(word: Word, order: Int)
+    fun setNewPlayList(dictName: String, order: Int)
     {
         viewModelScope.launch {
-            val wordList = repository.getPlayListByDictNameAsync(word.dictName, order).await()
-            _wordsList?.value = WordList(wordList, 0)
+            try {
+                val wordList = repository.getPlayListByDictNameAsync(dictName, order).await()
+                _wordsList?.value = WordList(wordList, 0)
+            } catch (e: Exception) {
+                e.printStackTraceIfDebug()
+            }
         }
     }
 
     fun restorePlayList(word: Word) {
         viewModelScope.launch {
-            val playList = repository.getPlayListAsync().await()
-            if (playList.isNotEmpty()) {
-                val bookmark = playList.indexOfFirst { it._id == word._id }
-                val wordList = playList.map { it.toWord() }
-                if (bookmark < 0) {
-                    _wordsList?.value = WordList(wordList, 0)
-                } else {
-                    _wordsList?.value = WordList(wordList, bookmark)
+            try {
+                val playList = repository.getPlayListAsync().await()
+                if (playList.isNotEmpty()) {
+                    val bookmark = playList.indexOfFirst { it._id == word._id }
+                    val wordList = playList.map { it.toWord() }
+                    if (bookmark < 0) {
+                        _wordsList?.value = WordList(wordList, 0)
+                    } else {
+                        _wordsList?.value = WordList(wordList, bookmark)
+                    }
                 }
+            } catch (e: Exception) {
+                e.printStackTraceIfDebug()
             }
         }
     }
 
     fun updatePlayList(word: Word, bookmark: Int, order: Int) {
         viewModelScope.launch {
-            val dicts = repository.getDictNameFromPlayListAsync().await()
-            val dictName = dicts.firstOrNull()
-            if (!dictName.isNullOrEmpty()) {
-                val playList = repository.getPlayListByDictNameAsync(dictName, order).await()
-                var foundIndex = playList.indexOfFirst { it._id == word._id }
+            try {
+                val dicts = repository.getDictNameFromPlayListAsync().await()
+                val dictName = dicts.firstOrNull()
+                if (!dictName.isNullOrEmpty()) {
+                    val playList = repository.getPlayListByDictNameAsync(dictName, order).await()
+                    var foundIndex = playList.indexOfFirst { it._id == word._id }
 
-                if (foundIndex < 0) {
-                    if (bookmark == 0 && playList.isNotEmpty()) {
-                        _wordsList?.value = WordList(playList, 0)
-                        return@launch
-                    }
-                    var i = bookmark
-                    while (i > 0) {
-                        i--
-                        try {
-                            playList[i]
-                            foundIndex = i
-                            break
-                        } catch (e: IndexOutOfBoundsException) {
-                            foundIndex = 0
-                            break
+                    if (foundIndex < 0) {
+                        if (bookmark == 0 && playList.isNotEmpty()) {
+                            _wordsList?.value = WordList(playList, 0)
+                            return@launch
+                        }
+                        var i = bookmark
+                        while (i > 0) {
+                            i--
+                            try {
+                                playList[i]
+                                foundIndex = i
+                                break
+                            } catch (e: IndexOutOfBoundsException) {
+                                foundIndex = 0
+                                break
+                            }
                         }
                     }
+                    _wordsList?.value = WordList(playList, foundIndex)
                 }
-                _wordsList?.value = WordList(playList, foundIndex)
-            }
-            else {
-                initPlayList()
+                else {
+                    initPlayList()
+                }
+            } catch (e: Exception) {
+                e.printStackTraceIfDebug()
             }
         }
     }

@@ -570,8 +570,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 public void dictListItemOnSelected(@NonNull String dict)
                                 {
                                     int orderPlay = mainVM.getOrderPlay();
-                                    Word word = new Word(1, dict, "", "", 1);
-                                    mainVM.setNewPlayList(word, orderPlay);
+                                    mainVM.setNewPlayList(dict, orderPlay);
                                 }
                             }),
                             DictListDialog.Companion.getTAG()
@@ -594,7 +593,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             OrderPlayDialog.Companion.getInstance(oldOrder, newOrder -> {
                 if (oldOrder != newOrder)
                 {
-                    mainVM.setNewPlayList(word, newOrder);
+                    mainVM.setNewPlayList(word.getDictName(), newOrder);
                 }
                 else {
                     mainVM.restorePlayList(word);
@@ -622,14 +621,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onCreateOptionsMenu(Menu menu)
     {
         getMenuInflater().inflate(R.menu.a_up_menu_main, menu);
+        if (BuildConfig.DEBUG) {
+            menu.add(getString(R.string.test_crash));
+        }
         configureOptionsMenu(menu);
 
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item)
+    public boolean onOptionsItemSelected(@NonNull MenuItem item)
     {
+        if (BuildConfig.DEBUG)
+        {
+            CharSequence title = item.getTitle();
+            if (title != null && title.equals(getString(R.string.test_crash))) {
+                throw new RuntimeException("Test Crash");
+            }
+        }
         int id = item.getItemId();
         if (id == R.id.edit_word)
         {

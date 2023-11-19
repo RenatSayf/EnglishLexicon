@@ -3,7 +3,9 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'dagger.hilt.android.plugin' // Hint Hilt step 2
-apply plugin: "org.jetbrains.kotlin.plugin.serialization"
+apply plugin: 'org.jetbrains.kotlin.plugin.serialization'
+apply plugin: 'com.google.firebase.crashlytics'
+
 
 android {
     compileSdk 34
@@ -109,6 +111,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-config-ktx'
     implementation 'com.google.firebase:firebase-messaging-ktx'
     implementation 'com.google.firebase:firebase-analytics-ktx'
+    implementation 'com.google.firebase:firebase-crashlytics'
 
     implementation 'androidx.browser:browser:1.6.0'
 
