@@ -8,6 +8,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.myapp.lexicon.database.AppDataBase
 import com.myapp.lexicon.database.models.Counters
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.throwIfDebug
@@ -33,16 +34,22 @@ class MainViewModel @Inject constructor(
 {
     private val composite = CompositeDisposable()
 
-    var orderPlay: Int = 0
-        private set
-
     val wordsInterval: Int
         get() {
             return app.testIntervalFromPref
         }
 
     init {
-        initPlayList()
+        //region Hint This code is required to initialize the database after being forcibly closed in MainActivity
+        val open = AppDataBase.dataBase?.isOpen
+        if (open == true) {
+            initPlayList()
+        }
+        else {
+            AppDataBase.buildDataBase(app.applicationContext)
+            initPlayList()
+        }
+        //endregion
     }
 
     private var _wordsList = MutableLiveData<WordList>()
@@ -74,7 +81,7 @@ class MainViewModel @Inject constructor(
                 val wordList = repository.getPlayListByDictNameAsync(dictName, order).await()
                 _wordsList?.value = WordList(wordList, 0)
             } catch (e: Exception) {
-                e.printStackTraceIfDebug()
+                throw e
             }
         }
     }
@@ -93,7 +100,7 @@ class MainViewModel @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
-                e.printStackTraceIfDebug()
+                throw e
             }
         }
     }
@@ -131,7 +138,7 @@ class MainViewModel @Inject constructor(
                     initPlayList()
                 }
             } catch (e: Exception) {
-                e.printStackTraceIfDebug()
+                throw e
             }
         }
     }

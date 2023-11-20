@@ -569,7 +569,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 @Override
                                 public void dictListItemOnSelected(@NonNull String dict)
                                 {
-                                    int orderPlay = mainVM.getOrderPlay();
+                                    int orderPlay = SettingsExtKt.getOrderPlayFromPref(MainActivity.this);
                                     mainVM.setNewPlayList(dict, orderPlay);
                                 }
                             }),
@@ -1016,7 +1016,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     void onAppFinish()
     {
-
         ExtensionsKt.alarmClockEnable(this);
 
         SettingsExtKt.checkUnLockedBroadcast(
@@ -1045,7 +1044,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         boolean storageEnabled = SettingsExtKt.getCloudStorageEnabled(this);
         if (storageEnabled)
         {
-
             SettingsExtKt.checkCloudToken(
                     this,
                     () -> null,
@@ -1059,7 +1057,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     @Override
                                     public void onBeforeChecking(@NonNull String dbName)
                                     {
+                                        //region Hint forced closing of the database in order to commit changes and send them to the cloud storage
                                         AppDataBase.Companion.dbClose();
+                                        //endregion
                                     }
                                 }
                         );
