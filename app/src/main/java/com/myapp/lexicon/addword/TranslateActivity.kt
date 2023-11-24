@@ -6,9 +6,8 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import com.myapp.lexicon.R
 import com.myapp.lexicon.addword.TranslateFragment.Companion.getInstance
-import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint
+
 class TranslateActivity : AppCompatActivity() {
 
     private var translateFragment: TranslateFragment? = null

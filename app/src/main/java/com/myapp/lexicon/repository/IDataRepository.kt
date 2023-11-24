@@ -72,4 +72,8 @@ interface IDataRepository
     suspend fun getFirstFromPlayListAsync(): Deferred<List<Word>>
 
     suspend fun getCountersByIdAsync(id: Int): Deferred<List<Counters>>
+
+    fun dbClose()
+
+    fun dbOpen()
 }

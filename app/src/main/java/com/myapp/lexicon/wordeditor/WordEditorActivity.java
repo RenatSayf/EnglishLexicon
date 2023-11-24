@@ -32,6 +32,7 @@ import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SpeechViewModel;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.models.WordKt;
+import com.myapp.lexicon.settings.SettingsExtKt;
 import com.myapp.lexicon.viewmodels.EditorSearchViewModel;
 import com.yandex.mobile.ads.banner.BannerAdView;
 
@@ -41,15 +42,14 @@ import java.util.List;
 import java.util.Locale;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
-import dagger.hilt.android.AndroidEntryPoint;
 
 
 @SuppressWarnings("CodeBlock2Expr")
-@AndroidEntryPoint
 public class WordEditorActivity extends AppCompatActivity implements ListViewAdapter.IListViewAdapter
 {
     public static final String KEY_EXTRA_DICT_NAME = "wordeditor_dict_name";
@@ -133,10 +133,10 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        mainVM = new ViewModelProvider(this).get(MainViewModel.class);
-        editorVM = new ViewModelProvider(this).get(EditorViewModel.class);
-        addWordVM = new ViewModelProvider(WordEditorActivity.this).get(AddWordViewModel.class);
-        speechVM = new ViewModelProvider(this).get(SpeechViewModel.class);
+        mainVM = createMainViewModel();
+        editorVM = createEditorViewModel();
+        addWordVM = createAddWordViewModel();
+        speechVM = createSpeechViewModel();
 
         initViews();
 
@@ -209,6 +209,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
                     ExtensionsKt.showSnackBar(switcher, getString(R.string.text_word_deleted), Snackbar.LENGTH_LONG);
                     editorVM.getAllWordsByDictName(editorVM.selectedWord.getDictName());
                     setResult(NEED_UPDATE_PLAY_LIST);
+                    SettingsExtKt.setCloudUpdateRequired(this, true);
                 }
             }
             else if (id < 0)
@@ -269,6 +270,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
                 editorVM.getAllWordsByDictName(dictListSpinner.getSelectedItem().toString());
                 ExtensionsKt.showSnackBar(switcher, getString(R.string.text_dict_is_updated), Snackbar.LENGTH_LONG);
                 setResult(NEED_UPDATE_PLAY_LIST);
+                SettingsExtKt.setCloudUpdateRequired(this, true);
             }
         });
 
@@ -279,6 +281,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             {
                 ExtensionsKt.showSnackBar(switcher, getString(R.string.text_dict_is_updated), Snackbar.LENGTH_LONG);
                 setResult(NEED_UPDATE_PLAY_LIST);
+                SettingsExtKt.setCloudUpdateRequired(this, true);
             }
             else if (throwable != null) {
                 String message = (throwable.getMessage() != null) ? throwable.getMessage() : getString(R.string.text_unknown_error_message);
@@ -309,6 +312,29 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             switcher.showNext();
         }
 
+    }
+
+    private AddWordViewModel createAddWordViewModel()
+    {
+        AddWordViewModel.Factory factory = new AddWordViewModel.Factory(this.getApplicationContext());
+        return new ViewModelProvider(this, factory).get(AddWordViewModel.class);
+    }
+
+    private SpeechViewModel createSpeechViewModel()
+    {
+        SpeechViewModel.Factory factory = new SpeechViewModel.Factory(this.getApplicationContext());
+        return new ViewModelProvider(this, factory).get(SpeechViewModel.class);
+    }
+
+    @NonNull
+    private MainViewModel createMainViewModel() {
+        MainViewModel.Factory factory = new MainViewModel.Factory(this.getApplication());
+        return new ViewModelProvider(this, factory).get(MainViewModel.class);
+    }
+
+    private EditorViewModel createEditorViewModel() {
+        EditorViewModel.Factory factory = new EditorViewModel.Factory(this.getApplication());
+        return new ViewModelProvider(this, factory).get(EditorViewModel.class);
     }
 
     @Override

@@ -2,7 +2,6 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.google.gms.google-services'
-apply plugin: 'dagger.hilt.android.plugin' // Hint Hilt step 2
 apply plugin: 'org.jetbrains.kotlin.plugin.serialization'
 apply plugin: 'com.google.firebase.crashlytics'
 
@@ -113,13 +112,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation 'com.google.firebase:firebase-crashlytics'
 
-    implementation 'androidx.browser:browser:1.6.0'
-
-    //Hint Hilt step 3
-    implementation 'com.google.dagger:hilt-android:2.48.1'
-    kapt 'com.google.dagger:hilt-compiler:2.48.1'
-    // When using Kotlin.
-    kapt 'androidx.hilt:hilt-compiler:1.1.0'
+    implementation 'androidx.browser:browser:1.7.0'
 
     //region Room
     implementation 'androidx.room:room-runtime:2.6.0'
@@ -139,12 +132,12 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.16.2'
 
     //region Hint Activity Result API. Runtime permission Step 1
-    implementation 'androidx.activity:activity-ktx:1.8.0'
+    implementation 'androidx.activity:activity-ktx:1.8.1'
     implementation 'androidx.fragment:fragment-ktx:1.6.2'
     //endregion
 
     //Google Play Billing Library
-    implementation 'com.android.billingclient:billing-ktx:6.0.1'
+    implementation 'com.android.billingclient:billing-ktx:6.1.0'
 
     //WorkManager library
     def work_version = "2.8.1"
@@ -156,7 +149,7 @@ dependencies {
     testImplementation "androidx.work:work-testing:$work_version"
 
     // Yandex Mobile Ads SDK
-    implementation 'com.yandex.android:mobileads:6.1.0'
+    implementation 'com.yandex.android:mobileads:6.2.0'
 
     // Yandex AppMetrica SDK.
     implementation 'com.yandex.android:mobmetricalib:5.3.0'

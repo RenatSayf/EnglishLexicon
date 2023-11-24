@@ -14,6 +14,7 @@ import com.myapp.lexicon.helpers.getCRC32CheckSum
 import com.myapp.lexicon.helpers.printLogIfDebug
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.saveInitDbCheckSum
+import java.io.File
 
 
 private const val DB_VERSION = 2
@@ -26,14 +27,31 @@ abstract class AppDataBase : RoomDatabase()
 
     companion object
     {
-        var dataBase: AppDataBase? = null
+        private var dataBase: AppDataBase? = null
 
-        fun buildDataBase(context: Context): AppDataBase
+        fun getDbInstance(context: Context): AppDataBase {
+            return if (dataBase == null) {
+                dataBase = buildDataBase(context)
+                dataBase!!
+            }
+            else {
+                dataBase!!
+            }
+        }
+
+        private fun buildDataBase(context: Context): AppDataBase
         {
             val dbName = context.getString(R.string.data_base_name)
             dataBase = Room.databaseBuilder(context, AppDataBase::class.java, dbName).apply {
-                createFromAsset("databases/$dbName")
-                addMigrations(getMigrationFrom1To2())
+
+                val dbFile = context.getDatabasePath(dbName)
+                if (dbFile.exists()) {
+                    createFromFile(dbFile)
+                }
+                else {
+                    createFromAsset("databases/$dbName")
+                    addMigrations(getMigrationFrom1To2())
+                }
             }.build().apply {
                 val checkSum = context.assets.open("databases/$dbName").readBytes().getCRC32CheckSum()
                 context.saveInitDbCheckSum(checkSum)
@@ -42,12 +60,27 @@ abstract class AppDataBase : RoomDatabase()
             return dataBase as AppDataBase
         }
 
+        fun buildDataBaseFromFile(context: Context, dbFile: File): AppDataBase {
+            val dbName = context.getString(R.string.data_base_name)
+            dataBase = Room.databaseBuilder(context, AppDataBase::class.java, dbName).apply {
+                createFromFile(dbFile)
+            }.build().apply {
+                val checkSum = dbFile.readBytes().getCRC32CheckSum()
+                printLogIfDebug("************** Database init check sum = $checkSum **********************")
+            }
+            return dataBase!!
+        }
+
         fun execVacuum() {
             dataBase?.openHelper?.writableDatabase?.execSQL("VACUUM")
         }
 
         fun dbClose() {
             dataBase?.close()
+        }
+
+        fun dbOpen() {
+
         }
 
         private fun getMigrationFrom1To2(): Migration {

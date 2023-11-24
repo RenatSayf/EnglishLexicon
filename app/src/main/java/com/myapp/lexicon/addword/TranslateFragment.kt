@@ -14,6 +14,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.BannerAdIds
@@ -27,21 +28,24 @@ import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.toWord
+import com.myapp.lexicon.settings.cloudUpdateRequired
 import com.yandex.mobile.ads.interstitial.InterstitialAd
-import dagger.hilt.android.AndroidEntryPoint
 import java.net.URLDecoder
 
 
 private const val TEXT = "translate_text"
 
-@AndroidEntryPoint
+
 class TranslateFragment : Fragment()
 {
     private lateinit var binding: TranslateFragmentBinding
     private lateinit var mActivity: AppCompatActivity
     private var interstitialAd: InterstitialAd? = null
     private val adsVM: AdsViewModel by viewModels()
-    private val addWordVM: AddWordViewModel by viewModels()
+    private val addWordVM: AddWordViewModel by lazy {
+        val factory = AddWordViewModel.Factory(requireContext())
+        ViewModelProvider(this, factory)[AddWordViewModel::class.java]
+    }
     private val revenueVM: RevenueViewModel by activityViewModels()
 
     companion object
@@ -144,6 +148,7 @@ class TranslateFragment : Fragment()
                     val message = "${getString(R.string.in_dictionary)}  ${pair.first?.dictName}  ${getString(R.string.new_word_is_added)}"
                     showSnackBar(message)
                     setFragmentResult(getString(R.string.KEY_NEED_REFRESH), Bundle.EMPTY)
+                    requireContext().cloudUpdateRequired = true
                 }
                 else if (pair.second is Throwable) {
                     showSnackBar(pair.second?.message?: getString(R.string.text_unknown_error_message))

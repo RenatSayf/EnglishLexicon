@@ -85,11 +85,12 @@ class SplashActivity : AppCompatActivity() {
 
                     override fun onExistsCloudToken(token: String) {
                         this@SplashActivity.saveCloudToken(token)
+                        this@SplashActivity.cloudStorageEnabled = true
                         cloudChecked = true
                     }
 
                     override fun onEmptyCloudToken() {
-                        this@SplashActivity.saveCloudToken("")
+                        this@SplashActivity.cloudStorageEnabled = false
                         cloudChecked = true
                     }
                 })

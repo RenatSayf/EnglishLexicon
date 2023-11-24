@@ -21,11 +21,9 @@ import com.myapp.lexicon.main.MainViewModel
 import com.myapp.lexicon.main.Speaker
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.getWordFromPref
-import dagger.hilt.android.AndroidEntryPoint
 import java.util.Locale
 
 
-@AndroidEntryPoint
 class AddWordDialog : DialogFragment(),
     NewDictDialog.Listener,
     Speaker.Listener

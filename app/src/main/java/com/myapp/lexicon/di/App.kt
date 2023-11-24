@@ -15,14 +15,12 @@ import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.parse.Parse
-import com.parse.ParseConfig
 import com.yandex.metrica.YandexMetrica
 import com.yandex.metrica.YandexMetricaConfig
 import com.yandex.mobile.ads.common.InitializationListener
 import com.yandex.mobile.ads.common.MobileAds
-import dagger.hilt.android.HiltAndroidApp
 
-@HiltAndroidApp
+
 class App : Application(), Configuration.Provider {
 
     override fun attachBaseContext(base: Context?) {

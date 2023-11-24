@@ -21,13 +21,11 @@ import com.parse.ParseQuery
 import com.parse.ParseUser
 import com.parse.RequestPasswordResetCallback
 import com.parse.SignUpCallback
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 
-@HiltViewModel
 open class AuthViewModel @Inject constructor(
     app: Application
 ) : AndroidViewModel(app) {

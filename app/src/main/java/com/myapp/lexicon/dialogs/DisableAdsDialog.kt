@@ -10,10 +10,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.DialogDisableAdsBinding
 import com.myapp.lexicon.helpers.LockOrientation
-import dagger.hilt.android.AndroidEntryPoint
 
 
-@AndroidEntryPoint
 class DisableAdsDialog : BottomSheetDialogFragment()
 {
     companion object {

@@ -8,10 +8,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.DialogStorageBinding
-import dagger.hilt.android.AndroidEntryPoint
 
 
-@AndroidEntryPoint
 class StorageDialog : BottomSheetDialogFragment()
 {
     companion object

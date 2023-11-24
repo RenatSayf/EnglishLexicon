@@ -10,10 +10,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import com.myapp.lexicon.R
 import com.myapp.lexicon.models.Word
-import dagger.hilt.android.AndroidEntryPoint
 
 
-@AndroidEntryPoint
 class HintDialogFragment : DialogFragment()
 {
     companion object

@@ -53,8 +53,10 @@ import com.myapp.lexicon.models.Revenue;
 import com.myapp.lexicon.models.UserKt;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.models.WordList;
+import com.myapp.lexicon.repository.DataRepositoryImpl;
 import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.service.PhoneUnlockedReceiver;
+import com.myapp.lexicon.settings.AppSettings;
 import com.myapp.lexicon.settings.ContainerFragment;
 import com.myapp.lexicon.settings.PowerSettingsExtKt;
 import com.myapp.lexicon.settings.SettingsExtKt;
@@ -72,8 +74,6 @@ import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
 
-import javax.inject.Inject;
-
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
@@ -90,10 +90,9 @@ import androidx.fragment.app.FragmentResultListener;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
-import dagger.hilt.android.AndroidEntryPoint;
 
 
-@AndroidEntryPoint
+
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         MainFragment.Listener, FragmentResultListener
 {
@@ -114,8 +113,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public BackgroundFragm backgroundFragm = null;
     @Nullable
     private AccountFragment accountFragment;
-    @Inject
-    AlarmScheduler scheduler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -136,13 +133,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             nmg.cancelAll();
         }
+        AlarmScheduler scheduler = new AlarmScheduler(this);
         scheduler.cancel(AlarmScheduler.ONE_SHOOT_ACTION);
 
         getSupportFragmentManager().setFragmentResultListener(getString(R.string.KEY_NEED_REFRESH), this, this);
         getSupportFragmentManager().setFragmentResultListener(getString(R.string.KEY_TEST_INTERVAL_CHANGED), this, this);
         getSupportFragmentManager().setFragmentResultListener(TranslateFragment.Companion.getKEY_FRAGMENT_START(), this, this);
 
-        mainVM = new ViewModelProvider(this).get(MainViewModel.class);
+        mainVM = createMainViewModel();
+        speechViewModel = createSpeechViewModel();
         speechViewModel = new ViewModelProvider(this).get(SpeechViewModel.class);
         AuthViewModel authVM = new ViewModelProvider(this).get(AuthViewModel.class);
 
@@ -468,6 +467,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         onRevenueUpdate();
         onSettingsChange();
 
+    }
+
+    private SpeechViewModel createSpeechViewModel()
+    {
+        SpeechViewModel.Factory factory = new SpeechViewModel.Factory(this.getApplicationContext());
+        return new ViewModelProvider(this, factory).get(SpeechViewModel.class);
+    }
+
+    @NonNull
+    private MainViewModel createMainViewModel() {
+        MainViewModel.Factory factory = new MainViewModel.Factory(this.getApplication());
+        return new ViewModelProvider(this, factory).get(MainViewModel.class);
     }
 
     private void buildRewardText(Revenue revenue)
@@ -904,11 +915,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     SettingsExtKt.checkCloudToken(
                             MainActivity.this,
                             () -> null,
-                            userId -> {
+                            token -> {
                                 DownloadDbWorker.Companion.downloadDbFromCloud(
                                         MainActivity.this,
                                         getString(R.string.data_base_name),
-                                        userId,
+                                        token,
                                         new DownloadDbWorker.Listener()
                                         {
                                             @Override
@@ -916,18 +927,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                             {
                                                 try
                                                 {
-                                                    AppDataBase dataBase = AppDataBase.Companion.getDataBase();
-                                                    if (dataBase != null)
-                                                    {
-                                                        dataBase.close();
-                                                    }
-                                                    File file = getDatabasePath(getString(R.string.data_base_name));
-                                                    FileOutputStream fileOutputStream = new FileOutputStream(file);
+                                                    AppDataBase.Companion.dbClose();
+                                                    File dbFile = getDatabasePath(getString(R.string.data_base_name));
+                                                    FileOutputStream fileOutputStream = new FileOutputStream(dbFile);
                                                     fileOutputStream.write(bytes);
                                                     fileOutputStream.close();
+
+                                                    DataRepositoryImpl repository = new DataRepositoryImpl(
+                                                            AppDataBase.Companion.buildDataBaseFromFile(MainActivity.this, dbFile).appDao(),
+                                                            new AppSettings(MainActivity.this)
+                                                    );
+                                                    mainVM.injectDependencies(repository);
+
                                                     ExtensionsKt.showSnackBar(mainControlLayout, getString(R.string.text_dicts_restore_success), Snackbar.LENGTH_LONG);
                                                     toolBar.getMenu().findItem(R.id.cloud_storage).setVisible(false);
-                                                    mainVM.initPlayList();
+                                                    SettingsExtKt.setCloudUpdateRequired(MainActivity.this, false);
                                                 } catch (Exception e)
                                                 {
                                                     e.printStackTrace();
@@ -973,10 +987,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             SettingsExtKt.checkCloudToken(
                     this,
                     () -> null,
-                    userId -> {
+                    tokenId -> {
                         CloudCheckWorker.Companion.check(
                                 this,
-                                userId,
+                                tokenId,
                                 getString(R.string.data_base_name),
                                 new CloudCheckWorker.Listener()
                                 {
@@ -1047,10 +1061,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             SettingsExtKt.checkCloudToken(
                     this,
                     () -> null,
-                    userId -> {
+                    token -> {
                         CloudCheckWorker.Companion.check(
                                 this,
-                                userId,
+                                token,
                                 getString(R.string.data_base_name),
                                 new CloudCheckWorker.Listener()
                                 {

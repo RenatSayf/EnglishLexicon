@@ -25,10 +25,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
-import dagger.hilt.android.AndroidEntryPoint;
 
 
-@AndroidEntryPoint
+
 public class ServiceActivity extends AppCompatActivity implements IModalFragment
 {
     public static final String ARG_JSON = ServiceActivity.class.getCanonicalName() + ".ARG_JSON";

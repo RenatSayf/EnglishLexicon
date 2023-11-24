@@ -14,7 +14,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import javax.inject.Inject
 
-class DataRepositoryImpl @Inject constructor(
+class DataRepositoryImpl constructor(
     private val db: AppDao,
     private var settings: AppSettings
 ) : IDataRepository
@@ -230,6 +230,14 @@ class DataRepositoryImpl @Inject constructor(
                 db.getCountersById(id)
             }
         }
+    }
+
+    override fun dbClose() {
+        AppDataBase.dbClose()
+    }
+
+    override fun dbOpen() {
+        AppDataBase.dbOpen()
     }
 
 }

@@ -4,25 +4,37 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.myapp.lexicon.common.OrderBy
+import com.myapp.lexicon.database.AppDataBase
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.repository.DataRepositoryImpl
+import com.myapp.lexicon.settings.AppSettings
 import com.myapp.lexicon.settings.getWordFromPref
-import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 
-@HiltViewModel
-class EditorViewModel @Inject constructor(
+class EditorViewModel constructor(
     private val repository: DataRepositoryImpl,
     app: Application
 ) : AndroidViewModel(app)
 {
+    class Factory(private val app: Application): ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            require(modelClass == EditorViewModel::class.java)
+            return EditorViewModel(
+                repository = DataRepositoryImpl(AppDataBase.getDbInstance(app.applicationContext).appDao(), AppSettings(app.applicationContext)),
+                app
+            ) as T
+        }
+    }
+
     private val composite = CompositeDisposable()
 
     private var _wordsList = MutableLiveData(mutableListOf<Word>())

@@ -1,30 +1,42 @@
 package com.myapp.lexicon.main
 
-import android.app.Application
+import android.content.Context
 import android.view.View
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import com.myapp.lexicon.database.AppDataBase
 import com.myapp.lexicon.repository.DataRepositoryImpl
-import dagger.hilt.android.lifecycle.HiltViewModel
+import com.myapp.lexicon.settings.AppSettings
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import java.util.*
-import javax.inject.Inject
 
-@HiltViewModel
-class SpeechViewModel @Inject constructor(app: Application, private val repository: DataRepositoryImpl) : AndroidViewModel(app),
+
+class SpeechViewModel constructor(context: Context, private val repository: DataRepositoryImpl) : ViewModel(),
     Speaker.Listener
 {
+    class Factory(private val context: Context): ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            require(modelClass == SpeechViewModel::class.java)
+            return SpeechViewModel(
+                context,
+                repository = DataRepositoryImpl(AppDataBase.getDbInstance(context).appDao(), AppSettings(context))
+            ) as T
+        }
+    }
+
     private var _enCheckboxEnable = MutableLiveData(true)
     var enCheckboxEnable: LiveData<Boolean> = _enCheckboxEnable
 
     private var _ruCheckboxEnable = MutableLiveData(true)
     var ruCheckboxEnable: LiveData<Boolean> = _ruCheckboxEnable
 
-    private var speaker: Speaker = Speaker(app, this)
+    private var speaker: Speaker = Speaker(context, this)
     private val composite = CompositeDisposable()
 
     override fun onSuccessInit() {

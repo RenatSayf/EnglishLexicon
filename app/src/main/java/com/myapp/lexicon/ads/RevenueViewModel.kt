@@ -19,12 +19,10 @@ import com.parse.ParseObject
 import com.parse.ParseQuery
 import com.parse.ParseUser
 import com.parse.SaveCallback
-import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.Currency
 import javax.inject.Inject
 
 
-@HiltViewModel
 class RevenueViewModel @Inject constructor(
     app: Application
 ): UserViewModel(app) {

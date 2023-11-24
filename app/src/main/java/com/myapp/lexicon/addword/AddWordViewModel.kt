@@ -1,19 +1,29 @@
 package com.myapp.lexicon.addword
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.myapp.lexicon.database.AppDataBase
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.repository.DataRepositoryImpl
-import dagger.hilt.android.lifecycle.HiltViewModel
+import com.myapp.lexicon.settings.AppSettings
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 
-@HiltViewModel
-class AddWordViewModel @Inject constructor(private val repository: DataRepositoryImpl) : ViewModel()
+class AddWordViewModel constructor(private val repository: DataRepositoryImpl) : ViewModel()
 {
+    class Factory constructor(private val context: Context) : ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            require(modelClass == AddWordViewModel::class.java)
+            return AddWordViewModel(
+                repository = DataRepositoryImpl(AppDataBase.getDbInstance(context).appDao(), AppSettings(context))
+            ) as T
+        }
+    }
 
     private val _spinnerSelectedIndex = MutableLiveData<Int>()
     fun spinnerSelectedIndex(): LiveData<Int>

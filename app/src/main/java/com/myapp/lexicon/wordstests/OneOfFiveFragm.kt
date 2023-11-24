@@ -33,13 +33,12 @@ import com.myapp.lexicon.settings.testIntervalFromPref
 import com.parse.ParseUser
 import com.yandex.mobile.ads.interstitial.InterstitialAd
 import com.yandex.mobile.ads.rewarded.RewardedAd
-import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
 const val ROWS: Int = 5
 
 
-@AndroidEntryPoint
+
 class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdapter.ITestAdapterListener
 {
     private lateinit var binding: OneOfFiveFragmNewBinding

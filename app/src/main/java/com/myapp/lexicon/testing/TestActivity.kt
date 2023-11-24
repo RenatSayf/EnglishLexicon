@@ -4,10 +4,8 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.myapp.lexicon.databinding.ActivityTestBinding
-import dagger.hilt.android.AndroidEntryPoint
 
 
-@AndroidEntryPoint
 open class TestActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityTestBinding

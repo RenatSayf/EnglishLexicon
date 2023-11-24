@@ -19,13 +19,11 @@ import com.myapp.lexicon.settings.checkUnLockedBroadcast
 import com.myapp.lexicon.settings.getNotificationMode
 import com.myapp.lexicon.settings.getWordFromPref
 import com.myapp.lexicon.settings.saveWordToPref
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
-@AndroidEntryPoint
 class PhoneUnlockedReceiver : BroadcastReceiver()
 {
     companion object {
@@ -66,7 +64,7 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
         }
 
         this.goAsync(CoroutineScope(Dispatchers.IO), block = { scope ->
-            val dao = AppDataBase.buildDataBase(context).appDao()
+            val dao = AppDataBase.getDbInstance(context).appDao()
             val appSettings = AppSettings(context)
             repository = DataRepositoryImpl(dao, appSettings)
 

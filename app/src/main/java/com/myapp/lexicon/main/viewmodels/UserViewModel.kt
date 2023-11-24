@@ -26,7 +26,6 @@ import com.parse.ParseObject
 import com.parse.ParseQuery
 import com.parse.ParseUser
 import com.parse.SaveCallback
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.onCompletion
@@ -36,7 +35,6 @@ import java.util.Currency
 import javax.inject.Inject
 
 
-@HiltViewModel
 open class UserViewModel @Inject constructor(
     private val app: Application
 ) : AndroidViewModel(app) {

@@ -203,6 +203,16 @@ fun Long.toStringTime(locale: Locale = Locale.getDefault()): String {
     return strDate
 }
 
+fun String.toLongTime(locale: Locale = Locale.getDefault()): Long {
+    val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", locale)
+    val date = try {
+        formatter.parse(this)
+    } catch (e: ParseException) {
+        Date(0)
+    }
+    return date.time
+}
+
 fun View.showCustomSnackBar(
     message: String,
     onLaunch: (SnackBarTestBinding) -> Unit = {}

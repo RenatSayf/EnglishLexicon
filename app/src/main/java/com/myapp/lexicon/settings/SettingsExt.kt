@@ -18,6 +18,9 @@ import com.google.firebase.storage.ktx.storage
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.helpers.getCRC32CheckSum
+import com.myapp.lexicon.helpers.printLogIfDebug
+import com.myapp.lexicon.helpers.toLongTime
+import com.myapp.lexicon.helpers.toStringTime
 import com.myapp.lexicon.models.TestState
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.Word
@@ -134,12 +137,8 @@ var Context.checkFirstLaunch: Boolean
 private const val KEY_CLOUD_TOKEN = "KEY_CLOUD_TOKEN_777"
 
 fun Context.saveCloudToken(token: String) {
-    if (token.isNotEmpty()) {
-        val tokenCheckSum = token.getCRC32CheckSum().toString()
-        appSettings.edit().putString(KEY_CLOUD_TOKEN, tokenCheckSum).apply()
-    } else {
-        appSettings.edit().putString(KEY_CLOUD_TOKEN, "").apply()
-    }
+    val tokenCheckSum = token.getCRC32CheckSum().toString()
+    appSettings.edit().putString(KEY_CLOUD_TOKEN, tokenCheckSum).apply()
 }
 
 interface PurchasesTokenListener {
@@ -160,38 +159,20 @@ fun Context.checkPurchasesTokens(listener: PurchasesTokenListener) {
 
 fun Context.checkCloudToken(
     onInit: () -> Unit = {},
-    onExists: (userId: String) -> Unit,
+    onExists: (token: String) -> Unit,
     onEmpty: () -> Unit = {},
     onFailure: () -> Unit = {}
 ) {
-    getAuthDataFromPref(
-        onNotRegistered = {
-            onEmpty.invoke()
-        },
-        onSuccess = { _, _ ->
-            val token = appSettings.getString(KEY_CLOUD_TOKEN, null)
-            try {
-                when {
-                    token == null -> onInit.invoke()
-                    token.isNotEmpty() -> {
-                        val currentUser = ParseUser.getCurrentUser()
-                        if (currentUser != null) {
-                            onExists.invoke(currentUser.objectId)
-                        }
-                        else {
-                            onEmpty.invoke()
-                        }
-                    }
-                    token.isEmpty() -> onEmpty.invoke()
-                }
-            } catch (e: Exception) {
-                onFailure.invoke()
-            }
-        },
-        onFailure = {
-            onFailure.invoke()
+    val token = appSettings.getString(KEY_CLOUD_TOKEN, null)
+    try {
+        when {
+            token == null -> onInit.invoke()
+            token.isNotEmpty() -> onExists.invoke(token)
+            token.isEmpty() -> onEmpty.invoke()
         }
-    )
+    } catch (e: Exception) {
+        onFailure.invoke()
+    }
 }
 
 fun Context.checkOnStartSpeech(onEnabled: () -> Unit, onDisabled: () -> Unit) {
@@ -255,6 +236,23 @@ val Context.initDbCheckSum: Long
         return appSettings.getLong("KEY_INIT_DB_CHECK_SUM", 0L)
     }
 
+var Context.cloudUpdateRequired: Boolean
+    get() {
+        return appSettings.getBoolean("KEY_CLOUD_UPDATE_REQUIRED", false)
+    }
+    set(value) {
+        lastUpdateTimeDB = System.currentTimeMillis()
+        appSettings.edit().putBoolean("KEY_CLOUD_UPDATE_REQUIRED", value).apply()
+    }
+
+var Context.lastUpdateTimeDB: Long
+    get() {
+        return appSettings.getLong("KEY_LAST_UPDATE_TIME_DB", 0)
+    }
+    private set(value) {
+        appSettings.edit().putLong("KEY_LAST_UPDATE_TIME_DB", value).apply()
+    }
+
 fun Context.checkCloudStorage(
     userId: String,
     fileName: String = getString(R.string.data_base_name),
@@ -262,26 +260,19 @@ fun Context.checkCloudStorage(
     onRequireDownSync: (String) -> Unit,
     onNotRequireSync: () -> Unit
 ) {
-    val dbFile = getDatabasePath(fileName)
-    val localCheckSum = dbFile.readBytes().getCRC32CheckSum()
-    if (BuildConfig.DEBUG) {
-        println("************** localCheckSum = $localCheckSum ****************")
-        println("************** initDbCheckSum = ${this.initDbCheckSum} ****************")
-    }
-
     val storageRef: StorageReference = Firebase.storage.reference.child("/users/$userId/${fileName}")
 
     storageRef.metadata.addOnSuccessListener { metadata ->
 
-        val remoteCheckSum = metadata.getCustomMetadata("CHECK_SUM") ?: "0"
-        if (BuildConfig.DEBUG) {
-            println("************** remoteCheckSum = $remoteCheckSum ****************")
-        }
+        val remoteModifiedTime = metadata.getCustomMetadata("LAST_MODIFIED_TIME").toString().toLong()
+        val localModifiedTime = this.lastUpdateTimeDB
+        printLogIfDebug("************** remoteModifiedTime = ${remoteModifiedTime.toStringTime()} ****************")
+        printLogIfDebug("************** localCreationTime = ${localModifiedTime.toStringTime()} ****************")
 
-        if (localCheckSum.toString() != remoteCheckSum && localCheckSum == this.initDbCheckSum) {
+        if (remoteModifiedTime > localModifiedTime && localModifiedTime == 0L) {
             onRequireDownSync.invoke(userId)
         }
-        else if (localCheckSum.toString() != remoteCheckSum && localCheckSum != this.initDbCheckSum) {
+        else if (this.cloudUpdateRequired) {
             onRequireUpSync.invoke(userId)
         }
         else {
@@ -291,7 +282,7 @@ fun Context.checkCloudStorage(
 
         if (ex is StorageException) {
             if (ex.errorCode == StorageException.ERROR_OBJECT_NOT_FOUND) {
-                if (localCheckSum != this.initDbCheckSum) {
+                if (this.cloudUpdateRequired) {
                     onRequireUpSync.invoke(userId)
                     return@addOnFailureListener
                 }

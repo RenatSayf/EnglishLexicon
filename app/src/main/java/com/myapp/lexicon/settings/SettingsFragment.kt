@@ -20,12 +20,9 @@ import com.myapp.lexicon.databinding.DialogStorageBinding
 import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.schedule.AlarmScheduler
-import com.parse.ParseUser
-import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
 
-@AndroidEntryPoint
 class SettingsFragment : PreferenceFragmentCompat()
 {
     private lateinit var listDisplayModePref: ListPreference
@@ -157,41 +154,25 @@ class SettingsFragment : PreferenceFragmentCompat()
         val cloudStorageCategory = findPreference<PreferenceCategory>("cloudStorageCategory")
         val cloudStorageSwitch = findPreference<SwitchPreferenceCompat>(getString(R.string.KEY_CLOUD_STORAGE))
 
-        val currentUser = ParseUser.getCurrentUser()
-        if (currentUser == null) {
-            cloudStorageCategory?.isVisible = false
-            cloudStorageSwitch?.apply {
-                isChecked = false
-                isEnabled = false
+        if (cloudStorageSwitch?.isChecked == true) {
+            cloudStorageSwitch.let { switch ->
+                switch.isChecked = true
+                switch.isEnabled = false
+                val title = switch.title
+                val newTitle = "$title (${getString(R.string.text_enabled)})"
+                switch.title = newTitle
             }
         }
         else {
-            requireContext().checkCloudToken(
-                onInit = {
-                    cloudStorageSwitch?.apply {
-                        isEnabled = true
-                        isChecked = false
-                    }
-                },
-                onExists = {
-                    cloudStorageCategory?.isVisible = true
-                    cloudStorageSwitch?.apply {
-                        isEnabled = false
-                        isChecked = true
-                    }
-                },
-                onEmpty = {
-                    cloudStorageCategory?.isVisible = true
-                    cloudStorageSwitch?.apply {
-                        isEnabled = true
-                        isChecked = false
-                    }
-                }
-            )
+            cloudStorageSwitch?.let { switch ->
+                switch.isChecked = false
+                switch.isEnabled = true
+                switch.title = getString(R.string.text_save_my_dicts)
+            }
         }
 
         billingVM.cloudStorageProduct.observe(viewLifecycleOwner) { res ->
-            if (res.isSuccess && currentUser != null) {
+            if (res.isSuccess) {
                 res.onSuccess { details ->
                     cloudStorageCategory?.isVisible = true
                     cloudStorageCategory?.isEnabled = !requireContext().cloudStorageEnabled

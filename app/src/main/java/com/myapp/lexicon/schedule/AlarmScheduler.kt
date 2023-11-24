@@ -5,11 +5,9 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import javax.inject.Inject
 
 
-
-class AlarmScheduler @Inject constructor(private val context: Context)
+class AlarmScheduler constructor(private val context: Context)
 {
     companion object
     {

@@ -14,10 +14,8 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.TitleAlertDialogBinding
 import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.main.MainViewModel
-import dagger.hilt.android.AndroidEntryPoint
 
 
-@AndroidEntryPoint
 class RemoveDictDialog : DialogFragment()
 {
     private lateinit var viewModel: MainViewModel

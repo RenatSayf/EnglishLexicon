@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
 import com.myapp.lexicon.R
+import com.myapp.lexicon.database.AppDataBase
 import com.myapp.lexicon.helpers.checkIsActivityShown
 import com.myapp.lexicon.helpers.goAsync
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
@@ -16,21 +17,18 @@ import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.toWordsString
 import com.myapp.lexicon.repository.DataRepositoryImpl
 import com.myapp.lexicon.service.ServiceActivity
+import com.myapp.lexicon.settings.AppSettings
 import com.myapp.lexicon.settings.getNotificationMode
 import com.myapp.lexicon.settings.getWordFromPref
 import com.myapp.lexicon.settings.saveWordToPref
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 
-@AndroidEntryPoint
 class TimerReceiver : BroadcastReceiver()
 {
-    @Inject
-    lateinit var repository: DataRepositoryImpl
+    private lateinit var repository: DataRepositoryImpl
 
     private var preferences: SharedPreferences? = null
 
@@ -38,6 +36,7 @@ class TimerReceiver : BroadcastReceiver()
     {
         if (context != null && intent != null)
         {
+            repository = DataRepositoryImpl(AppDataBase.getDbInstance(context).appDao(), AppSettings(context))
 
             preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val strInterval = preferences?.getString(context.getString(R.string.key_show_intervals), "0")

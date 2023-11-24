@@ -7,6 +7,8 @@ import android.view.View
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.myapp.lexicon.database.AppDataBase
 import com.myapp.lexicon.database.models.Counters
@@ -15,23 +17,33 @@ import com.myapp.lexicon.helpers.throwIfDebug
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.WordList
 import com.myapp.lexicon.repository.DataRepositoryImpl
+import com.myapp.lexicon.settings.AppSettings
 import com.myapp.lexicon.settings.getWordFromPref
 import com.myapp.lexicon.settings.testIntervalFromPref
-import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 
-@HiltViewModel
-class MainViewModel @Inject constructor(
-    private val repository: DataRepositoryImpl,
-    private val app: Application
+
+class MainViewModel constructor(
+    private var repository: DataRepositoryImpl,
+    val app: Application
 ) : AndroidViewModel(app)
 {
+    class Factory constructor(private val context: Application) : ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            require(modelClass == MainViewModel::class.java)
+            return MainViewModel(
+                repository = DataRepositoryImpl(AppDataBase.getDbInstance(context).appDao(), AppSettings(context)),
+                app = context
+            ) as T
+        }
+    }
+
     private val composite = CompositeDisposable()
 
     val wordsInterval: Int
@@ -41,15 +53,22 @@ class MainViewModel @Inject constructor(
 
     init {
         //region Hint This code is required to initialize the database after being forcibly closed in MainActivity
-        val open = AppDataBase.dataBase?.isOpen
-        if (open == true) {
-            initPlayList()
-        }
-        else {
-            AppDataBase.buildDataBase(app.applicationContext)
-            initPlayList()
-        }
+//        val open = AppDataBase.dataBase?.isOpen
+//        if (open == true) {
+//            initPlayList()
+//        }
+//        else {
+//            AppDataBase.buildDataBase(app.applicationContext)
+//            initPlayList()
+//
+//        }
         //endregion
+        //repository.dbOpen()
+        initPlayList()
+    }
+
+    fun injectDependencies(repository: DataRepositoryImpl) {
+        this.repository = repository
     }
 
     private var _wordsList = MutableLiveData<WordList>()
@@ -98,6 +117,9 @@ class MainViewModel @Inject constructor(
                     } else {
                         _wordsList?.value = WordList(wordList, bookmark)
                     }
+                }
+                else {
+                    initPlayList()
                 }
             } catch (e: Exception) {
                 throw e
@@ -266,6 +288,14 @@ class MainViewModel @Inject constructor(
     fun wordsIsEnded(isEnd:Boolean)
     {
         _isEndWordList.value = isEnd
+    }
+
+    fun stopRepository() {
+        repository.dbClose()
+    }
+
+    fun startRepository() {
+        repository.dbOpen()
     }
 
     override fun onCleared()

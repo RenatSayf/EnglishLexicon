@@ -12,10 +12,8 @@ import androidx.lifecycle.MutableLiveData
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.TitleAlertDialogBinding
 import com.myapp.lexicon.helpers.LockOrientation
-import dagger.hilt.android.AndroidEntryPoint
 
 
-@AndroidEntryPoint
 class DictListDialog : DialogFragment()
 {
     private var _selectedItem = MutableLiveData("")

@@ -15,6 +15,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.BannerAdIds
@@ -37,12 +38,10 @@ import com.myapp.lexicon.models.toWordList
 import com.myapp.lexicon.settings.disablePassiveWordsRepeat
 import com.myapp.lexicon.settings.getOrderPlay
 import com.myapp.lexicon.settings.isUserRegistered
-import dagger.hilt.android.AndroidEntryPoint
 import java.util.Date
 import java.util.Locale
 
 
-@AndroidEntryPoint
 class TestModeDialog : DialogFragment() {
 
     companion object {
@@ -57,8 +56,14 @@ class TestModeDialog : DialogFragment() {
 
     private lateinit var binding: STestModalFragmentBinding
 
-    private val mainVM: MainViewModel by viewModels()
-    private val speechVM: SpeechViewModel by viewModels()
+    private val mainVM: MainViewModel by lazy {
+        val factory = MainViewModel.Factory(requireActivity().application)
+        ViewModelProvider(this, factory)[MainViewModel::class.java]
+    }
+    private val speechVM: SpeechViewModel by lazy {
+        val factory = SpeechViewModel.Factory(requireContext())
+        ViewModelProvider(this, factory)[SpeechViewModel::class.java]
+    }
     private val userVM: UserViewModel by viewModels()
     private val adsVM: AdsViewModel by activityViewModels()
     private val revenueVM by activityViewModels<RevenueViewModel>()

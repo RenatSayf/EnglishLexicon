@@ -37,13 +37,11 @@ import com.myapp.lexicon.viewmodels.AnimViewModel
 import com.myapp.lexicon.viewmodels.PageBackViewModel
 import com.yandex.mobile.ads.interstitial.InterstitialAd
 import com.yandex.mobile.ads.rewarded.RewardedAd
-import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.disposables.CompositeDisposable
 import java.util.*
 import java.util.concurrent.TimeUnit
 
 
-@AndroidEntryPoint
 class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectItemListener,
     DialogWarning.Listener,
     DialogTestComplete.Listener
@@ -57,11 +55,17 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     }
 
     private lateinit var binding: TestFragmentBinding
+
     private val testVM: TestViewModel by lazy {
-        ViewModelProvider(this)[TestViewModel::class.java]
+        val factory = TestViewModel.Factory(requireActivity().application)
+        ViewModelProvider(this, factory)[TestViewModel::class.java]
     }
     private val animVM: AnimViewModel by viewModels()
-    private val speechVM: SpeechViewModel by viewModels()
+
+    private val speechVM: SpeechViewModel by lazy {
+        val factory = SpeechViewModel.Factory(requireContext())
+        ViewModelProvider(this, factory)[SpeechViewModel::class.java]
+    }
     private val pageBackVM: PageBackViewModel by lazy {
         ViewModelProvider(this)[PageBackViewModel::class.java]
     }
