@@ -19,13 +19,11 @@ import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.helpers.getCRC32CheckSum
 import com.myapp.lexicon.helpers.printLogIfDebug
-import com.myapp.lexicon.helpers.toLongTime
 import com.myapp.lexicon.helpers.toStringTime
 import com.myapp.lexicon.models.TestState
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.toWord
-import com.parse.ParseUser
 import kotlinx.serialization.SerializationException
 
 val Context.appSettings: SharedPreferences

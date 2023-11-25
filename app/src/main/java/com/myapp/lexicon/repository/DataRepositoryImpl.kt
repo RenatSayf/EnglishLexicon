@@ -236,8 +236,5 @@ class DataRepositoryImpl constructor(
         AppDataBase.dbClose()
     }
 
-    override fun dbOpen() {
-        AppDataBase.dbOpen()
-    }
 
 }

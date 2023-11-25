@@ -75,5 +75,4 @@ interface IDataRepository
 
     fun dbClose()
 
-    fun dbOpen()
 }

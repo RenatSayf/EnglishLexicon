@@ -10,7 +10,7 @@ import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.AddWordDialogBinding
 import com.myapp.lexicon.dialogs.NewDictDialog
@@ -53,8 +53,14 @@ class AddWordDialog : DialogFragment(),
     private lateinit var binding: AddWordDialogBinding
 
     private var inputList: ArrayList<String> = arrayListOf()
-    private val addWordVM: AddWordViewModel by viewModels()
-    private val mainVM: MainViewModel by viewModels()
+    private val addWordVM: AddWordViewModel by lazy {
+        val factory = AddWordViewModel.Factory(requireContext())
+        ViewModelProvider(this, factory)[AddWordViewModel::class.java]
+    }
+    private val mainVM: MainViewModel by lazy {
+        val factory = MainViewModel.Factory(requireActivity().application)
+        ViewModelProvider(this, factory)[MainViewModel::class.java]
+    }
     private val speaker: Speaker by lazy {
         Speaker(requireContext(), this)
     }

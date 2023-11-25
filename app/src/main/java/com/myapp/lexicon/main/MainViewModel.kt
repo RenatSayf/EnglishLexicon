@@ -290,14 +290,6 @@ class MainViewModel constructor(
         _isEndWordList.value = isEnd
     }
 
-    fun stopRepository() {
-        repository.dbClose()
-    }
-
-    fun startRepository() {
-        repository.dbOpen()
-    }
-
     override fun onCleared()
     {
         composite.dispose()

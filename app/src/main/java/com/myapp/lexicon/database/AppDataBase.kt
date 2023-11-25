@@ -77,10 +77,7 @@ abstract class AppDataBase : RoomDatabase()
 
         fun dbClose() {
             dataBase?.close()
-        }
-
-        fun dbOpen() {
-
+            dataBase = null
         }
 
         private fun getMigrationFrom1To2(): Migration {
