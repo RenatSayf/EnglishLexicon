@@ -276,7 +276,9 @@ fun BannerAdView.loadBanner(adId: BannerAdIds? = null) {
     val isBannerEnabled = Firebase.remoteConfig.getBoolean("is_banner_enabled")
     if (isBannerEnabled) {
         val width = (this.context.resources.displayMetrics.widthPixels / context.resources.displayMetrics.density).roundToInt()
-        val stickySize = BannerAdSize.stickySize(this.context, width)
+        val height = (144 / context.resources.displayMetrics.density).roundToInt()
+        //val stickySize = BannerAdSize.stickySize(this.context, width)
+        val fixedSize = BannerAdSize.fixedSize(this.context, width, height)
         this.apply {
             val id = if (BuildConfig.DEBUG) {
                 "demo-banner-yandex"
@@ -284,7 +286,7 @@ fun BannerAdView.loadBanner(adId: BannerAdIds? = null) {
                 adId?.id ?: BannerAdIds.values().random().id
             }
             setAdUnitId(id)
-            setAdSize(stickySize)
+            setAdSize(fixedSize)
         }.loadAd(AdRequest.Builder().build())
     }
 }
