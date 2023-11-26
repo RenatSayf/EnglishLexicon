@@ -34,6 +34,10 @@ abstract class AppDataBase : RoomDatabase()
                 dataBase = buildDataBase(context)
                 dataBase!!
             }
+            else if (dataBase!!.openHelper.writableDatabase.version < DB_VERSION) {
+                dataBase = buildDataBase(context)
+                dataBase!!
+            }
             else {
                 dataBase!!
             }
@@ -47,6 +51,7 @@ abstract class AppDataBase : RoomDatabase()
                 val dbFile = context.getDatabasePath(dbName)
                 if (dbFile.exists()) {
                     createFromFile(dbFile)
+                    addMigrations(getMigrationFrom1To2())
                 }
                 else {
                     createFromAsset("databases/$dbName")
