@@ -15,10 +15,10 @@ import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.parse.Parse
-import com.yandex.metrica.YandexMetrica
-import com.yandex.metrica.YandexMetricaConfig
 import com.yandex.mobile.ads.common.InitializationListener
 import com.yandex.mobile.ads.common.MobileAds
+import io.appmetrica.analytics.AppMetrica
+import io.appmetrica.analytics.AppMetricaConfig
 
 
 class App : Application(), Configuration.Provider {
@@ -47,9 +47,8 @@ class App : Application(), Configuration.Provider {
         }
 
         val apiKey = getString(R.string.ya_metrica_api_key)
-        val config = YandexMetricaConfig.newConfigBuilder(apiKey).build()
-        YandexMetrica.activate(applicationContext, config)
-        YandexMetrica.enableActivityAutoTracking(this)
+        val config = AppMetricaConfig.newConfigBuilder(apiKey).build()
+        AppMetrica.activate(this, config)
 
         MobileAds.initialize(this, object : InitializationListener {
             override fun onInitializationCompleted() {

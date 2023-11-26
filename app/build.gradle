@@ -105,7 +105,7 @@ dependencies {
     implementation "androidx.viewpager2:viewpager2:1.0.0"
 
     //firebase
-    implementation platform('com.google.firebase:firebase-bom:32.5.0')
+    implementation platform('com.google.firebase:firebase-bom:32.6.0')
     implementation 'com.google.firebase:firebase-storage-ktx'
     implementation 'com.google.firebase:firebase-config-ktx'
     implementation 'com.google.firebase:firebase-messaging-ktx'
@@ -152,13 +152,13 @@ dependencies {
     implementation 'com.yandex.android:mobileads:6.2.0'
 
     // Yandex AppMetrica SDK.
-    implementation 'com.yandex.android:mobmetricalib:5.3.0'
+    implementation 'io.appmetrica.analytics:analytics:6.0.0'
 
     //FormatEditText
     implementation 'com.github.dkzwm:fet-core:0.2.1'
 
     //Kotlin Serialization
-    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.6.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.6.1'
 
     //back4app
     implementation "com.github.parse-community.Parse-SDK-Android:parse:4.2.1"
