@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -58,7 +57,6 @@ import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.service.PhoneUnlockedReceiver;
 import com.myapp.lexicon.settings.AppSettings;
 import com.myapp.lexicon.settings.ContainerFragment;
-import com.myapp.lexicon.settings.PowerSettingsExtKt;
 import com.myapp.lexicon.settings.SettingsExtKt;
 import com.myapp.lexicon.settings.SettingsViewModel;
 import com.myapp.lexicon.wordeditor.WordEditorActivity;
@@ -832,16 +830,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)
-    {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PowerSettingsExtKt.BATTERY_SETTINGS)
-        {
-            finish();
-        }
-    }
-
     @SuppressWarnings("CodeBlock2Expr")
     private void showRemoveDictDialog(List<String> list)
     {
@@ -1024,9 +1012,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    /**
-     * @noinspection deprecation
-     */
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     void onAppFinish()
     {
@@ -1082,26 +1067,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     () -> null,
                     () -> null
             );
+            finish();
         }
-
-        boolean passiveModeEnabled = SettingsExtKt.checkPassiveModeEnabled(this);
-        if (passiveModeEnabled)
-        {
-            PowerSettingsExtKt.checkBatterySettings(
-                    this,
-                    () -> {
-                        Intent intent = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
-                        intent.putExtra(PowerSettingsExtKt.KEY_BATTERY_SETTINGS, PowerSettingsExtKt.BATTERY_SETTINGS);
-                        startActivityForResult(intent, PowerSettingsExtKt.BATTERY_SETTINGS);
-                        return null;
-                    },
-                    () -> {
-                        finish();
-                        return null;
-                    }
-            );
-        } else
-        {
+        else {
             finish();
         }
     }

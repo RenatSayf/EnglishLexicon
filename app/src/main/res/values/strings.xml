@@ -283,6 +283,9 @@
     <string name="KEY_TEST_INTERVAL_CHANGED">TEST_INTERVAL_CHANGED</string>
     <string name="text_word_deleted">Слово удалено</string>
     <string name="test_crash">Test Crash</string>
+    <string name="text_battery_saving_enabled">Экономия заряда включена</string>
+    <string name="text_battery_saving_disabled">Экономия заряда отключена</string>
+    <string name="text_battery_saving_summary_enable">Операционная система может блокировать работу Пассивного режима при определенном уровне разряда батареи.</string>
 
 
 </resources>
