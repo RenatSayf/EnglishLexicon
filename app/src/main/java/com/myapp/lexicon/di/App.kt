@@ -14,6 +14,7 @@ import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
+import com.myapp.lexicon.helpers.printLogIfDebug
 import com.parse.Parse
 import com.yandex.mobile.ads.common.InitializationListener
 import com.yandex.mobile.ads.common.MobileAds
@@ -52,9 +53,7 @@ class App : Application(), Configuration.Provider {
 
         MobileAds.initialize(this, object : InitializationListener {
             override fun onInitializationCompleted() {
-                if (BuildConfig.DEBUG) {
-                    println("*************** MobileAds initialization successful ***************")
-                }
+                printLogIfDebug("*************** MobileAds initialization successful ***************")
             }
         })
 
