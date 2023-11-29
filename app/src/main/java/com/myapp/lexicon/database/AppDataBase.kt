@@ -97,7 +97,9 @@ abstract class AppDataBase : RoomDatabase()
 	PRIMARY KEY("english")
 );"""
                     Thread(Runnable {
-                        db.execSQL(query)
+                        if (db.isOpen) {
+                            db.execSQL(query)
+                        }
                     }).start()
                 }
             }

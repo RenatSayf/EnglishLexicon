@@ -269,7 +269,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     if (state == 1 && isEnSpeech != null && isEnSpeech)
                     {
                         Word displayedWord = pagerAdapter.getItem(mainViewPager.getCurrentItem());
-                        if (!displayedWord.getEnglish().equals(""))
+                        if (displayedWord != null && !displayedWord.getEnglish().equals(""))
                         {
                             speechViewModel.setSpeechProgressVisibility(View.VISIBLE);
                         }
@@ -408,7 +408,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 speechViewModel.setSpeechProgressVisibility(View.INVISIBLE);
                 Boolean isRu = speechViewModel.isRuSpeech().getValue();
                 Word word = pagerAdapter.getItem(mainViewPager.getCurrentItem());
-                if (utteranceId.equals("En") && isRu != null && isRu)
+                if (word != null && utteranceId.equals("En") && isRu != null && isRu)
                 {
                     speechViewModel.doSpeech(word.getTranslate(), Locale.getDefault());
                 }
@@ -598,16 +598,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         view.setOnClickListener(v -> {
 
             Word word = pagerAdapter.getItem(mainViewPager.getCurrentItem());
-            int oldOrder = SettingsExtKt.getOrderPlayFromPref(MainActivity.this);
-            OrderPlayDialog.Companion.getInstance(oldOrder, newOrder -> {
-                if (oldOrder != newOrder)
-                {
-                    mainVM.setNewPlayList(word.getDictName(), newOrder);
-                }
-                else {
-                    mainVM.restorePlayList(word);
-                }
-            }).show(getSupportFragmentManager(), OrderPlayDialog.Companion.getTAG());
+            if (word != null)
+            {
+                int oldOrder = SettingsExtKt.getOrderPlayFromPref(MainActivity.this);
+                OrderPlayDialog.Companion.getInstance(oldOrder, newOrder -> {
+                    if (oldOrder != newOrder)
+                    {
+                        mainVM.setNewPlayList(word.getDictName(), newOrder);
+                    }
+                    else {
+                        mainVM.restorePlayList(word);
+                    }
+                }).show(getSupportFragmentManager(), OrderPlayDialog.Companion.getTAG());
+            }
         });
     }
 

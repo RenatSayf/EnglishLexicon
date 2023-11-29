@@ -42,9 +42,13 @@ class MainViewPagerAdapter: RecyclerView.Adapter<PagerViewHolder>()
         return list.size
     }
 
-    fun getItem(position: Int) : Word
+    fun getItem(position: Int) : Word?
     {
-        return list[position]
+        return try {
+            list[position]
+        } catch (e: IndexOutOfBoundsException) {
+            null
+        }
     }
 
     fun getItems() : List<Word>
