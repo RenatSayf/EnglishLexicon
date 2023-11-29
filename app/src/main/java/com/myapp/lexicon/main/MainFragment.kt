@@ -8,7 +8,6 @@ import androidx.fragment.app.Fragment
 import com.myapp.lexicon.R
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.settings.askForPermission
-import com.parse.ParseUser
 
 class MainFragment : Fragment() {
 
@@ -63,14 +62,6 @@ class MainFragment : Fragment() {
         }
 
 
-    }
-
-    override fun onDetach() {
-        val currentUser = ParseUser.getCurrentUser()
-        if (currentUser != null) {
-            ParseUser.logOut()
-        }
-        super.onDetach()
     }
 
 }
