@@ -12,7 +12,7 @@ android {
         applicationId "com.myapp.lexicon"
         minSdkVersion 26
         targetSdkVersion 34
-        versionName '5.0'   //Hint last versionName in store is 4.3
+        versionName '4.3'   //Hint last versionName in store is 4.3
         versionCode 69      //Hint last versionCode in store is 68
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
