@@ -34,10 +34,6 @@ abstract class AppDataBase : RoomDatabase()
                 dataBase = buildDataBase(context)
                 dataBase!!
             }
-            else if (dataBase!!.openHelper.writableDatabase.version < DB_VERSION) {
-                dataBase = buildDataBase(context)
-                dataBase!!
-            }
             else {
                 dataBase!!
             }
