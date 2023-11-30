@@ -31,7 +31,6 @@ import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.models.toWordList
 import com.myapp.lexicon.settings.disablePassiveWordsRepeat
 import com.myapp.lexicon.settings.getOrderPlay
-import com.myapp.lexicon.settings.isRuSpeech
 import com.myapp.lexicon.settings.isUserRegistered
 import java.util.Locale
 
@@ -150,7 +149,7 @@ class RepeatDialog: DialogFragment() {
 
             checkBoxRuSpeakModal.setOnCheckedChangeListener(object : CompoundButton.OnCheckedChangeListener {
                 override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
-                    requireContext().isRuSpeech = isChecked
+                    speechVM.enableRuSpeech(isChecked)
                 }
             })
 

@@ -9,10 +9,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.settings.isEngSpeech
 import com.myapp.lexicon.settings.isRuSpeech
-import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import java.util.*
 
 
@@ -25,9 +21,7 @@ class SpeechViewModel(
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             require(modelClass == SpeechViewModel::class.java)
-            return SpeechViewModel(
-                app
-            ) as T
+            return SpeechViewModel(app) as T
         }
     }
 
@@ -38,11 +32,8 @@ class SpeechViewModel(
     var ruCheckboxEnable: LiveData<Boolean> = _ruCheckboxEnable
 
     private var speaker: Speaker = Speaker(app, this)
-    private val composite = CompositeDisposable()
 
-    override fun onSuccessInit() {
-
-    }
+    override fun onSuccessInit() {}
 
     override fun onSpeechStart(id: String)
     {
@@ -103,28 +94,7 @@ class SpeechViewModel(
 
     fun doSpeech(text: String, locale: Locale)
     {
-        composite.add(doSpeechAsync(text, locale)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    _speechError.value = it
-                }, { t ->
-                    t.printStackTrace()
-                }))
-    }
-
-    private fun doSpeechAsync(text: String, locale: Locale) : Single<Int>
-    {
-        return Single.create {
-            try
-            {
-                it.onSuccess(speaker.doSpeech(text, locale))
-            }
-            catch (e: Exception)
-            {
-                it.onError(e)
-            }
-        }
+        speaker.doSpeech(text, locale)
     }
 
     fun stopSpeech() : Int
@@ -134,9 +104,15 @@ class SpeechViewModel(
 
     private var _isEnSpeech = MutableLiveData(app.isEngSpeech)
     var isEnSpeech: LiveData<Boolean> = _isEnSpeech
+    fun enableEnSpeech(flag: Boolean) {
+        _isEnSpeech.value = flag
+    }
 
     private var _isRuSpeech = MutableLiveData(app.isRuSpeech)
     var isRuSpeech: LiveData<Boolean> = _isRuSpeech
+    fun enableRuSpeech(flag: Boolean) {
+        _isRuSpeech.value = flag
+    }
 
     private var _speechProgressVisibility = MutableLiveData(View.INVISIBLE)
     var speechProgressVisibility: LiveData<Int> = _speechProgressVisibility
@@ -147,10 +123,8 @@ class SpeechViewModel(
 
     override fun onCleared()
     {
+        app.isEngSpeech = _isEnSpeech.value?: true
+        app.isRuSpeech = _isRuSpeech.value?: false
         super.onCleared()
-        composite.run {
-            dispose()
-            clear()
-        }
     }
 }

@@ -9,14 +9,13 @@ import com.myapp.lexicon.R;
 import java.util.HashMap;
 import java.util.Locale;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class Speaker
 {
 
     private final TextToSpeech speaker;
 
-    @NonNull
     private final Listener listener;
 
     private final Context context;
@@ -26,7 +25,7 @@ public class Speaker
     private boolean isRuSpeech = true;
 
     @SuppressWarnings({"Convert2Lambda", "Anonymous2MethodRef"})
-    public Speaker(Context context, @NonNull Listener listener)
+    public Speaker(Context context, @Nullable Listener listener)
     {
         this.context = context;
         this.listener = listener;

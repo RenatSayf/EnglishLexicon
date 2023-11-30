@@ -51,18 +51,6 @@ class MainViewModel constructor(
         }
 
     init {
-        //region Hint This code is required to initialize the database after being forcibly closed in MainActivity
-//        val open = AppDataBase.dataBase?.isOpen
-//        if (open == true) {
-//            initPlayList()
-//        }
-//        else {
-//            AppDataBase.buildDataBase(app.applicationContext)
-//            initPlayList()
-//
-//        }
-        //endregion
-        //repository.dbOpen()
         initPlayList()
     }
 
@@ -82,10 +70,14 @@ class MainViewModel constructor(
                     val word = try {
                         repository.getFirstEntryAsync().await()
                     } catch (e: Exception) {
+                        e.throwIfDebug()
                         null
                     }
                     if (word != null) {
                         setNewPlayList(word.dictName, 0)
+                    }
+                    else {
+                        setNewPlayList("Наречия", 0)
                     }
                 }
             },

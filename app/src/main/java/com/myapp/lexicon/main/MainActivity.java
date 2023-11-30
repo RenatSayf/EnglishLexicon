@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private final String KEY_TV_WORDS_COUNTER = "tv_words_counter";
 
     public MainViewModel mainVM;
-    private SpeechViewModel speechViewModel;
+    private SpeechViewModel speechVM;
     public BackgroundFragm backgroundFragm = null;
     @Nullable
     private AccountFragment accountFragment;
@@ -138,8 +138,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getSupportFragmentManager().setFragmentResultListener(TranslateFragment.Companion.getKEY_FRAGMENT_START(), this, this);
 
         mainVM = createMainViewModel();
-        speechViewModel = createSpeechViewModel();
-        speechViewModel = new ViewModelProvider(this).get(SpeechViewModel.class);
+        speechVM = createSpeechViewModel();
+        speechVM = new ViewModelProvider(this).get(SpeechViewModel.class);
         AuthViewModel authVM = new ViewModelProvider(this).get(AuthViewModel.class);
 
         authVM.getState().observe(this, result -> {
@@ -262,21 +262,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             {
                 super.onPageScrollStateChanged(state);
                 this.state = state;
-                if (speechViewModel.isEnSpeech().getValue() != null)
+                if (speechVM.isEnSpeech().getValue() != null)
                 {
-                    Boolean isEnSpeech = speechViewModel.isEnSpeech().getValue();
+                    Boolean isEnSpeech = speechVM.isEnSpeech().getValue();
                     if (state == 1 && isEnSpeech != null && isEnSpeech)
                     {
                         Word displayedWord = pagerAdapter.getItem(mainViewPager.getCurrentItem());
                         if (displayedWord != null && !displayedWord.getEnglish().equals(""))
                         {
-                            speechViewModel.setSpeechProgressVisibility(View.VISIBLE);
+                            speechVM.setSpeechProgressVisibility(View.VISIBLE);
                         }
                     }
                     Integer mControlVisibility = mainVM.getMainControlVisibility().getValue();
                     if (isEnSpeech != null && isEnSpeech && word != null && state == 0 && mControlVisibility != null && mControlVisibility == View.VISIBLE)
                     {
-                        speechViewModel.doSpeech(word.getEnglish(), Locale.US);
+                        speechVM.doSpeech(word.getEnglish(), Locale.US);
                     }
                 }
             }
@@ -307,10 +307,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
                 if ((condition1 || condition2) && list.size() > 1)
                 {
-                    speechViewModel.stopSpeech();
+                    speechVM.stopSpeech();
                     mainVM.setIntermediateIndex(position);
                     mainVM.setMainControlVisibility(View.INVISIBLE);
-                    speechViewModel.setSpeechProgressVisibility(View.INVISIBLE);
+                    speechVM.setSpeechProgressVisibility(View.INVISIBLE);
                     Toast.makeText(MainActivity.this, getString(R.string.text_test_knowledge), Toast.LENGTH_LONG).show();
                     OneOfFiveFragm testFragment = OneOfFiveFragm.newInstance(list);
                     getSupportFragmentManager()
@@ -360,23 +360,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         CheckBox checkBoxEnView = findViewById(R.id.check_box_en_speak);
         //noinspection CodeBlock2Expr
         checkBoxEnView.setOnCheckedChangeListener((compoundButton, b) -> {
-            SettingsExtKt.setEngSpeech(this, b);
+            speechVM.enableEnSpeech(b);
         });
 
-        speechViewModel.isEnSpeech().observe(this, checked -> {
+        speechVM.isEnSpeech().observe(this, checked -> {
             checkBoxEnView.setChecked(checked);
             if (!checked)
             {
-                speechViewModel.setSpeechProgressVisibility(View.INVISIBLE);
+                speechVM.setSpeechProgressVisibility(View.INVISIBLE);
             }
         });
 
-        speechViewModel.getEnCheckboxEnable().observe(this, checkBoxEnView::setEnabled);
+        speechVM.getEnCheckboxEnable().observe(this, checkBoxEnView::setEnabled);
 
         CheckBox checkBoxRuSpeak = findViewById(R.id.check_box_ru_speak);
         checkBoxRuSpeak.setOnClickListener(view -> {
             CheckBox checkBox = (CheckBox) view;
-            SettingsExtKt.setRuSpeech(this, checkBox.isChecked());
+            speechVM.enableRuSpeech(checkBox.isChecked());
             if (checkBox.isChecked())
             {
                 Toast.makeText(MainActivity.this, R.string.text_ru_speech_on, Toast.LENGTH_SHORT).show();
@@ -386,42 +386,42 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        speechViewModel.isRuSpeech().observe(this, checked -> {
+        speechVM.isRuSpeech().observe(this, checked -> {
             //noinspection Convert2MethodRef
             checkBoxRuSpeak.setChecked(checked);
         });
 
-        speechViewModel.getRuCheckboxEnable().observe(this, checkBoxRuSpeak::setEnabled);
+        speechVM.getRuCheckboxEnable().observe(this, checkBoxRuSpeak::setEnabled);
 
         ProgressBar speechProgress = findViewById(R.id.speechProgress);
         //noinspection CodeBlock2Expr
-        speechViewModel.getSpeechStartId().observe(MainActivity.this, utteranceId ->
+        speechVM.getSpeechStartId().observe(MainActivity.this, utteranceId ->
         {
-            speechViewModel.setSpeechProgressVisibility(View.INVISIBLE);
+            speechVM.setSpeechProgressVisibility(View.INVISIBLE);
         });
 
-        speechViewModel.getSpeechDoneId().observe(MainActivity.this, utteranceId ->
+        speechVM.getSpeechDoneId().observe(MainActivity.this, utteranceId ->
         {
             if (!utteranceId.isEmpty())
             {
-                speechViewModel.setSpeechProgressVisibility(View.INVISIBLE);
-                Boolean isRu = speechViewModel.isRuSpeech().getValue();
+                speechVM.setSpeechProgressVisibility(View.INVISIBLE);
+                Boolean isRu = speechVM.isRuSpeech().getValue();
                 Word word = pagerAdapter.getItem(mainViewPager.getCurrentItem());
                 if (word != null && utteranceId.equals("En") && isRu != null && isRu)
                 {
-                    speechViewModel.doSpeech(word.getTranslate(), Locale.getDefault());
+                    speechVM.doSpeech(word.getTranslate(), Locale.getDefault());
                 }
             }
         });
 
         //noinspection CodeBlock2Expr
-        speechViewModel.getSpeechError().observe(this, err -> {
-            speechViewModel.setSpeechProgressVisibility(View.INVISIBLE);
+        speechVM.getSpeechError().observe(this, err -> {
+            speechVM.setSpeechProgressVisibility(View.INVISIBLE);
         });
 
 
         ImageButton btnSpeak = findViewById(R.id.btn_speak);
-        speechViewModel.getSpeechProgressVisibility().observe(this, v -> {
+        speechVM.getSpeechProgressVisibility().observe(this, v -> {
             speechProgress.setVisibility(v);
             if (v == View.VISIBLE)
                 btnSpeak.setVisibility(View.INVISIBLE);
@@ -431,15 +431,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         btnSpeak.setOnClickListener(view -> {
             int position = mainViewPager.getCurrentItem();
-            Boolean isEnSpeech = speechViewModel.isEnSpeech().getValue();
+            Boolean isEnSpeech = speechVM.isEnSpeech().getValue();
             if (mainVM.wordsList.getValue() != null)
             {
                 Word word = mainVM.wordsList.getValue().getWords().get(position);
                 String enText = word.getEnglish();
                 if (isEnSpeech != null)
                 {
-                    speechViewModel.doSpeech(enText, Locale.US);
-                    speechViewModel.setSpeechProgressVisibility(View.VISIBLE);
+                    speechVM.doSpeech(enText, Locale.US);
+                    speechVM.setSpeechProgressVisibility(View.VISIBLE);
                 }
 
             }
