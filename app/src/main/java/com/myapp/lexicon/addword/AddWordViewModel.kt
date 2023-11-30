@@ -9,7 +9,6 @@ import androidx.lifecycle.viewModelScope
 import com.myapp.lexicon.database.AppDataBase
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.repository.DataRepositoryImpl
-import com.myapp.lexicon.settings.AppSettings
 import kotlinx.coroutines.launch
 
 
@@ -20,7 +19,7 @@ class AddWordViewModel constructor(private val repository: DataRepositoryImpl) :
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             require(modelClass == AddWordViewModel::class.java)
             return AddWordViewModel(
-                repository = DataRepositoryImpl(AppDataBase.getDbInstance(context).appDao(), AppSettings(context))
+                repository = DataRepositoryImpl(AppDataBase.getDbInstance(context).appDao())
             ) as T
         }
     }

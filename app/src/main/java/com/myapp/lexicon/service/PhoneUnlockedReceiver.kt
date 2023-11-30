@@ -14,7 +14,6 @@ import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.toWordsString
 import com.myapp.lexicon.repository.DataRepositoryImpl
 import com.myapp.lexicon.schedule.AppNotification
-import com.myapp.lexicon.settings.AppSettings
 import com.myapp.lexicon.settings.checkUnLockedBroadcast
 import com.myapp.lexicon.settings.getNotificationMode
 import com.myapp.lexicon.settings.getWordFromPref
@@ -65,8 +64,7 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
 
         this.goAsync(CoroutineScope(Dispatchers.IO), block = { scope ->
             val dao = AppDataBase.getDbInstance(context).appDao()
-            val appSettings = AppSettings(context)
-            repository = DataRepositoryImpl(dao, appSettings)
+            repository = DataRepositoryImpl(dao)
 
             val action = intent.action
 

@@ -12,7 +12,6 @@ import com.myapp.lexicon.database.AppDataBase
 import com.myapp.lexicon.models.TestState
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.repository.DataRepositoryImpl
-import com.myapp.lexicon.settings.AppSettings
 import com.myapp.lexicon.settings.getWordFromPref
 import com.myapp.lexicon.settings.testIntervalFromPref
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -31,7 +30,7 @@ class TestViewModel constructor(
             require(modelClass == TestViewModel::class.java)
             return TestViewModel(
                 app,
-                repository = DataRepositoryImpl(AppDataBase.getDbInstance(app.applicationContext).appDao(), AppSettings(app.applicationContext))
+                repository = DataRepositoryImpl(AppDataBase.getDbInstance(app.applicationContext).appDao())
             ) as T
         }
     }

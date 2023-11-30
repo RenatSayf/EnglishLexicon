@@ -63,7 +63,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     private val animVM: AnimViewModel by viewModels()
 
     private val speechVM: SpeechViewModel by lazy {
-        val factory = SpeechViewModel.Factory(requireContext())
+        val factory = SpeechViewModel.Factory(requireActivity().application)
         ViewModelProvider(this, factory)[SpeechViewModel::class.java]
     }
     private val pageBackVM: PageBackViewModel by lazy {

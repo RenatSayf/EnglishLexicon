@@ -17,7 +17,6 @@ import com.myapp.lexicon.helpers.throwIfDebug
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.WordList
 import com.myapp.lexicon.repository.DataRepositoryImpl
-import com.myapp.lexicon.settings.AppSettings
 import com.myapp.lexicon.settings.getWordFromPref
 import com.myapp.lexicon.settings.testIntervalFromPref
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -38,7 +37,7 @@ class MainViewModel constructor(
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             require(modelClass == MainViewModel::class.java)
             return MainViewModel(
-                repository = DataRepositoryImpl(AppDataBase.getDbInstance(context).appDao(), AppSettings(context)),
+                repository = DataRepositoryImpl(AppDataBase.getDbInstance(context).appDao()),
                 app = context
             ) as T
         }
@@ -80,8 +79,14 @@ class MainViewModel constructor(
         app.getWordFromPref(
             onInit = {
                 viewModelScope.launch {
-                    val word = repository.getFirstEntryAsync().await()
-                    setNewPlayList(word.dictName, 0)
+                    val word = try {
+                        repository.getFirstEntryAsync().await()
+                    } catch (e: Exception) {
+                        null
+                    }
+                    if (word != null) {
+                        setNewPlayList(word.dictName, 0)
+                    }
                 }
             },
             onSuccess = { word, mark ->

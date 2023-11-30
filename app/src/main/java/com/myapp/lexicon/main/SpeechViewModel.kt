@@ -1,14 +1,14 @@
 package com.myapp.lexicon.main
 
-import android.content.Context
+import android.app.Application
 import android.view.View
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.myapp.lexicon.database.AppDataBase
-import com.myapp.lexicon.repository.DataRepositoryImpl
-import com.myapp.lexicon.settings.AppSettings
+import com.myapp.lexicon.settings.isEngSpeech
+import com.myapp.lexicon.settings.isRuSpeech
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -16,16 +16,17 @@ import io.reactivex.schedulers.Schedulers
 import java.util.*
 
 
-class SpeechViewModel constructor(context: Context, private val repository: DataRepositoryImpl) : ViewModel(),
+class SpeechViewModel(
+    private val app: Application
+) : AndroidViewModel(app),
     Speaker.Listener
 {
-    class Factory(private val context: Context): ViewModelProvider.Factory {
+    class Factory(private val app: Application): ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             require(modelClass == SpeechViewModel::class.java)
             return SpeechViewModel(
-                context,
-                repository = DataRepositoryImpl(AppDataBase.getDbInstance(context).appDao(), AppSettings(context))
+                app
             ) as T
         }
     }
@@ -36,7 +37,7 @@ class SpeechViewModel constructor(context: Context, private val repository: Data
     private var _ruCheckboxEnable = MutableLiveData(true)
     var ruCheckboxEnable: LiveData<Boolean> = _ruCheckboxEnable
 
-    private var speaker: Speaker = Speaker(context, this)
+    private var speaker: Speaker = Speaker(app, this)
     private val composite = CompositeDisposable()
 
     override fun onSuccessInit() {
@@ -63,7 +64,6 @@ class SpeechViewModel constructor(context: Context, private val repository: Data
     {
         if (status < 0)
         {
-            repository.enableSpeech(false)
             _enCheckboxEnable?.value = false
             _ruCheckboxEnable?.value = false
         }
@@ -72,14 +72,14 @@ class SpeechViewModel constructor(context: Context, private val repository: Data
     @Suppress("UNNECESSARY_SAFE_CALL")
     override fun onEngLangNotSupported(status: Int)
     {
-        setEnSpeech(false)
+        app.isEngSpeech = false
         _enCheckboxEnable?.value = false
     }
 
     @Suppress("UNNECESSARY_SAFE_CALL")
     override fun onRusLangNotSupported(status: Int)
     {
-        setRuSpeech(false)
+        app.isRuSpeech = false
         _ruCheckboxEnable?.value = false
     }
 
@@ -132,21 +132,11 @@ class SpeechViewModel constructor(context: Context, private val repository: Data
         return speaker.stop()
     }
 
-    private var _isEnSpeech = MutableLiveData(repository.isEngSpeech())
+    private var _isEnSpeech = MutableLiveData(app.isEngSpeech)
     var isEnSpeech: LiveData<Boolean> = _isEnSpeech
-    fun setEnSpeech(isSpeech: Boolean)
-    {
-        _isEnSpeech.value = isSpeech
-        repository.setEngSpeech(isSpeech)
-    }
 
-    private var _isRuSpeech = MutableLiveData(repository.isRusSpeech())
+    private var _isRuSpeech = MutableLiveData(app.isRuSpeech)
     var isRuSpeech: LiveData<Boolean> = _isRuSpeech
-    fun setRuSpeech(isSpeech: Boolean)
-    {
-        _isRuSpeech.value = isSpeech
-        repository.setRusSpeech(isSpeech)
-    }
 
     private var _speechProgressVisibility = MutableLiveData(View.INVISIBLE)
     var speechProgressVisibility: LiveData<Int> = _speechProgressVisibility

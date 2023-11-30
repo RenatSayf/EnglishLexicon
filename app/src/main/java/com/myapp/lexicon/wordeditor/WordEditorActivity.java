@@ -316,13 +316,13 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
 
     private AddWordViewModel createAddWordViewModel()
     {
-        AddWordViewModel.Factory factory = new AddWordViewModel.Factory(this.getApplicationContext());
+        AddWordViewModel.Factory factory = new AddWordViewModel.Factory(this.getApplication());
         return new ViewModelProvider(this, factory).get(AddWordViewModel.class);
     }
 
     private SpeechViewModel createSpeechViewModel()
     {
-        SpeechViewModel.Factory factory = new SpeechViewModel.Factory(this.getApplicationContext());
+        SpeechViewModel.Factory factory = new SpeechViewModel.Factory(this.getApplication());
         return new ViewModelProvider(this, factory).get(SpeechViewModel.class);
     }
 

@@ -31,6 +31,7 @@ import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.models.toWordList
 import com.myapp.lexicon.settings.disablePassiveWordsRepeat
 import com.myapp.lexicon.settings.getOrderPlay
+import com.myapp.lexicon.settings.isRuSpeech
 import com.myapp.lexicon.settings.isUserRegistered
 import java.util.Locale
 
@@ -54,7 +55,7 @@ class RepeatDialog: DialogFragment() {
         ViewModelProvider(this, factory)[MainViewModel::class.java]
     }
     private val speechVM: SpeechViewModel by lazy {
-        val factory = SpeechViewModel.Factory(requireContext())
+        val factory = SpeechViewModel.Factory(requireActivity().application)
         ViewModelProvider(this, factory)[SpeechViewModel::class.java]
     }
     private val userVM by viewModels<UserViewModel>()
@@ -149,7 +150,7 @@ class RepeatDialog: DialogFragment() {
 
             checkBoxRuSpeakModal.setOnCheckedChangeListener(object : CompoundButton.OnCheckedChangeListener {
                 override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
-                    speechVM.setRuSpeech(isChecked)
+                    requireContext().isRuSpeech = isChecked
                 }
             })
 

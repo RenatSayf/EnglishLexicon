@@ -7,16 +7,14 @@ import com.myapp.lexicon.database.AppDataBase
 import com.myapp.lexicon.database.models.Counters
 import com.myapp.lexicon.database.models.WordToPlay
 import com.myapp.lexicon.models.Word
-import com.myapp.lexicon.settings.AppSettings
 import io.reactivex.Single
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import javax.inject.Inject
+import kotlin.jvm.Throws
 
-class DataRepositoryImpl constructor(
-    private val db: AppDao,
-    private var settings: AppSettings
+class DataRepositoryImpl(
+    private val db: AppDao
 ) : IDataRepository
 {
     override fun getDictListFromDb(): Single<MutableList<String>>
@@ -93,46 +91,6 @@ class DataRepositoryImpl constructor(
         return db.getCounters(dictName, id)
     }
 
-    override fun saveWordsIdStringToPref(strIds: String)
-    {
-        settings.saveWordsIdAsString(strIds)
-    }
-
-    override fun getWordsIdStringFromPref(): String
-    {
-        return settings.wordsIdsAsString
-    }
-
-    override fun isSpeechEnable(): Boolean
-    {
-        return settings.isSpeech
-    }
-
-    override fun enableSpeech(isEnable: Boolean)
-    {
-        settings.enableSpeech(isEnable)
-    }
-
-    override fun isEngSpeech(): Boolean
-    {
-        return settings.isEngSpeech
-    }
-
-    override fun setEngSpeech(isSpeech: Boolean)
-    {
-        settings.isEngSpeech = isSpeech
-    }
-
-    override fun isRusSpeech(): Boolean
-    {
-        return settings.isRusSpeech
-    }
-
-    override fun setRusSpeech(isSpeech: Boolean)
-    {
-        settings.isRusSpeech = isSpeech
-    }
-
     override suspend fun getEntriesByDictNameAsync(
         dict: String,
         id: Long,
@@ -147,6 +105,7 @@ class DataRepositoryImpl constructor(
         }
     }
 
+    @Throws(Exception::class)
     override suspend fun getFirstEntryAsync(): Deferred<Word> {
         return coroutineScope {
             async {
@@ -234,6 +193,10 @@ class DataRepositoryImpl constructor(
 
     override fun dbClose() {
         AppDataBase.dbClose()
+    }
+
+    override fun reInitDataBase() {
+
     }
 
 

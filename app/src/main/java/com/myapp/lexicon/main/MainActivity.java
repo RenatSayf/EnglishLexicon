@@ -55,7 +55,6 @@ import com.myapp.lexicon.models.WordList;
 import com.myapp.lexicon.repository.DataRepositoryImpl;
 import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.service.PhoneUnlockedReceiver;
-import com.myapp.lexicon.settings.AppSettings;
 import com.myapp.lexicon.settings.ContainerFragment;
 import com.myapp.lexicon.settings.SettingsExtKt;
 import com.myapp.lexicon.settings.SettingsViewModel;
@@ -361,7 +360,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         CheckBox checkBoxEnView = findViewById(R.id.check_box_en_speak);
         //noinspection CodeBlock2Expr
         checkBoxEnView.setOnCheckedChangeListener((compoundButton, b) -> {
-            speechViewModel.setEnSpeech(b);
+            SettingsExtKt.setEngSpeech(this, b);
         });
 
         speechViewModel.isEnSpeech().observe(this, checked -> {
@@ -377,7 +376,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         CheckBox checkBoxRuSpeak = findViewById(R.id.check_box_ru_speak);
         checkBoxRuSpeak.setOnClickListener(view -> {
             CheckBox checkBox = (CheckBox) view;
-            speechViewModel.setRuSpeech(checkBox.isChecked());
+            SettingsExtKt.setRuSpeech(this, checkBox.isChecked());
             if (checkBox.isChecked())
             {
                 Toast.makeText(MainActivity.this, R.string.text_ru_speech_on, Toast.LENGTH_SHORT).show();
@@ -469,7 +468,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private SpeechViewModel createSpeechViewModel()
     {
-        SpeechViewModel.Factory factory = new SpeechViewModel.Factory(this.getApplicationContext());
+        SpeechViewModel.Factory factory = new SpeechViewModel.Factory(this.getApplication());
         return new ViewModelProvider(this, factory).get(SpeechViewModel.class);
     }
 
@@ -925,8 +924,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                                     fileOutputStream.close();
 
                                                     DataRepositoryImpl repository = new DataRepositoryImpl(
-                                                            AppDataBase.Companion.buildDataBaseFromFile(MainActivity.this, dbFile).appDao(),
-                                                            new AppSettings(MainActivity.this)
+                                                            AppDataBase.Companion.buildDataBaseFromFile(MainActivity.this, dbFile).appDao()
                                                     );
                                                     mainVM.injectDependencies(repository);
 

@@ -6,6 +6,7 @@ import com.myapp.lexicon.database.models.WordToPlay
 import com.myapp.lexicon.models.Word
 import io.reactivex.Single
 import kotlinx.coroutines.Deferred
+import kotlin.jvm.Throws
 
 interface IDataRepository
 {
@@ -35,24 +36,9 @@ interface IDataRepository
 
     fun getCountersFromDb(dictName: String, id: Int) : Single<List<Int>>
 
-    fun saveWordsIdStringToPref(strIds: String)
-
-    fun getWordsIdStringFromPref() : String
-
-    fun isSpeechEnable() : Boolean
-
-    fun enableSpeech(isEnable: Boolean)
-
-    fun isEngSpeech() : Boolean
-
-    fun setEngSpeech(isSpeech: Boolean)
-
-    fun isRusSpeech() : Boolean
-
-    fun setRusSpeech(isSpeech: Boolean)
-
     suspend fun getEntriesByDictNameAsync(dict: String, id: Long, repeat: Int = 1, limit: Int = 2): Deferred<List<Word>>
 
+    @Throws(Exception::class)
     suspend fun getFirstEntryAsync(): Deferred<Word>
 
     suspend fun deleteEntriesByDictNameAsync(dicts: List<String>): Deferred<Int>
@@ -74,5 +60,7 @@ interface IDataRepository
     suspend fun getCountersByIdAsync(id: Int): Deferred<List<Counters>>
 
     fun dbClose()
+
+    fun reInitDataBase()
 
 }

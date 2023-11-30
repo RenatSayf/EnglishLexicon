@@ -462,6 +462,22 @@ val Context.orderPlayFromPref: Int
         return this.getOrderPlay()
     }
 
+var Context.isEngSpeech: Boolean
+    get() {
+        return appSettings.getBoolean("KEY_ENG_SPEECH", true)
+    }
+    set(value) {
+        appSettings.edit().putBoolean("KEY_ENG_SPEECH", value).apply()
+    }
+
+var Context.isRuSpeech: Boolean
+    get() {
+        return appSettings.getBoolean("KEY_RUS_SPEECH", false)
+    }
+    set(value) {
+        appSettings.edit().putBoolean("KEY_RUS_SPEECH", value).apply()
+    }
+
 
 
 

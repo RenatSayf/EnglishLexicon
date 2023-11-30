@@ -61,7 +61,7 @@ class TestModeDialog : DialogFragment() {
         ViewModelProvider(this, factory)[MainViewModel::class.java]
     }
     private val speechVM: SpeechViewModel by lazy {
-        val factory = SpeechViewModel.Factory(requireContext())
+        val factory = SpeechViewModel.Factory(requireActivity().application)
         ViewModelProvider(this, factory)[SpeechViewModel::class.java]
     }
     private val userVM: UserViewModel by viewModels()

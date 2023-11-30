@@ -17,7 +17,6 @@ import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.toWordsString
 import com.myapp.lexicon.repository.DataRepositoryImpl
 import com.myapp.lexicon.service.ServiceActivity
-import com.myapp.lexicon.settings.AppSettings
 import com.myapp.lexicon.settings.getNotificationMode
 import com.myapp.lexicon.settings.getWordFromPref
 import com.myapp.lexicon.settings.saveWordToPref
@@ -36,7 +35,7 @@ class TimerReceiver : BroadcastReceiver()
     {
         if (context != null && intent != null)
         {
-            repository = DataRepositoryImpl(AppDataBase.getDbInstance(context).appDao(), AppSettings(context))
+            repository = DataRepositoryImpl(AppDataBase.getDbInstance(context).appDao())
 
             preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val strInterval = preferences?.getString(context.getString(R.string.key_show_intervals), "0")

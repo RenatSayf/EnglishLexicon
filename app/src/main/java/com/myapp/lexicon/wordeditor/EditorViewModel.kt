@@ -11,7 +11,6 @@ import com.myapp.lexicon.common.OrderBy
 import com.myapp.lexicon.database.AppDataBase
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.repository.DataRepositoryImpl
-import com.myapp.lexicon.settings.AppSettings
 import com.myapp.lexicon.settings.getWordFromPref
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -29,7 +28,7 @@ class EditorViewModel constructor(
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             require(modelClass == EditorViewModel::class.java)
             return EditorViewModel(
-                repository = DataRepositoryImpl(AppDataBase.getDbInstance(app.applicationContext).appDao(), AppSettings(app.applicationContext)),
+                repository = DataRepositoryImpl(AppDataBase.getDbInstance(app.applicationContext).appDao()),
                 app
             ) as T
         }

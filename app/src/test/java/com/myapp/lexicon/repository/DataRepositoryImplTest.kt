@@ -6,7 +6,6 @@ import androidx.test.core.app.ApplicationProvider
 import com.myapp.lexicon.database.AppDao
 import com.myapp.lexicon.database.AppDataBase
 import com.myapp.lexicon.models.Word
-import com.myapp.lexicon.settings.AppSettings
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -34,7 +33,7 @@ class DataRepositoryImplTest {
             .allowMainThreadQueries()
             .build()
         dao = db.appDao()
-        repository = DataRepositoryImpl(dao, AppSettings(context))
+        repository = DataRepositoryImpl(dao)
 
         runBlocking {
             repository.insertWordListAsync(
