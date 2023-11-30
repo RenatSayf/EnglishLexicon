@@ -9,16 +9,13 @@ import android.os.Bundle
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.TitleAlertDialogBinding
 import com.myapp.lexicon.helpers.LockOrientation
-import com.myapp.lexicon.main.MainViewModel
 
 
 class RemoveDictDialog : DialogFragment()
 {
-    private lateinit var viewModel: MainViewModel
     private val locker by lazy {
         LockOrientation(requireActivity())
     }
@@ -28,30 +25,24 @@ class RemoveDictDialog : DialogFragment()
         const val TAG = "remove_dict_dialog"
         const val ARG_INPUT = "arg_input_list"
         private var instance: RemoveDictDialog? = null
-        private lateinit var listener: Listener
+        private var listener: Listener? = null
 
-        fun getInstance(list: ArrayList<String>, listener: Listener) : RemoveDictDialog = if (instance == null)
+        fun getInstance(list: ArrayList<String>, listener: Listener) : RemoveDictDialog
         {
             this.listener = listener
-            RemoveDictDialog().apply {
+            instance = RemoveDictDialog().apply {
                 arguments = Bundle().apply {
                     val array : Array<out String> = list.toArray(emptyArray())
                     putStringArray(ARG_INPUT, array)
                 }
             }
+            return instance!!
         }
-        else instance!!
     }
 
     interface Listener
     {
         fun onRemoveButtonClick(list: MutableList<String>)
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?)
-    {
-        super.onCreate(savedInstanceState)
-        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog
@@ -79,7 +70,7 @@ class RemoveDictDialog : DialogFragment()
                    fun(dialog: DialogInterface, which: Int)
                    {
                        if (deleteItems.size <= 0) return
-                       listener.onRemoveButtonClick(deleteItems)
+                       listener?.onRemoveButtonClick(deleteItems)
                    })
                 .setNegativeButton(R.string.button_text_cancel, null)
             .create().apply {
@@ -88,7 +79,9 @@ class RemoveDictDialog : DialogFragment()
     }
 
     override fun onDestroyView() {
+        listener = null
         locker.unLock()
+        instance = null
         super.onDestroyView()
     }
 
