@@ -2,9 +2,11 @@
 <data-extraction-rules>
 
     <cloud-backup disableIfNoEncryptionCapabilities="false">
-        <include
-            domain="sharedpref"
-            path="string" />
+        <include domain="sharedpref" path="string" />
+        <include domain="file" path="string"/>
+        <include domain="database" path="string"/>
+        <include domain="external" path="string"/>
+        <include domain="root" path="string"/>
 
     </cloud-backup>
 

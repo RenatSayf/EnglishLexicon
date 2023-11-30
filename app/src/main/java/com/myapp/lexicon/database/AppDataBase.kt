@@ -10,10 +10,9 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.myapp.lexicon.R
 import com.myapp.lexicon.database.models.WordToPlay
-import com.myapp.lexicon.helpers.getCRC32CheckSum
-import com.myapp.lexicon.helpers.printLogIfDebug
 import com.myapp.lexicon.models.Word
-import com.myapp.lexicon.settings.saveInitDbCheckSum
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.internal.synchronized
 import java.io.File
 
 
@@ -27,11 +26,15 @@ abstract class AppDataBase : RoomDatabase()
 
     companion object
     {
+        @Volatile
         private var dataBase: AppDataBase? = null
 
+        @OptIn(InternalCoroutinesApi::class)
         fun getDbInstance(context: Context): AppDataBase {
             return if (dataBase == null) {
-                dataBase = buildDataBase(context)
+                dataBase = synchronized(this){
+                    buildDataBase(context)
+                }
                 dataBase!!
             }
             else {
@@ -42,33 +45,26 @@ abstract class AppDataBase : RoomDatabase()
         private fun buildDataBase(context: Context): AppDataBase
         {
             val dbName = context.getString(R.string.data_base_name)
+
             dataBase = Room.databaseBuilder(context, AppDataBase::class.java, dbName).apply {
 
+                addMigrations(getMigrationFrom1To2())
                 val dbFile = context.getDatabasePath(dbName)
                 if (dbFile.exists()) {
                     createFromFile(dbFile)
-                    addMigrations(getMigrationFrom1To2())
                 }
                 else {
                     createFromAsset("databases/$dbName")
-                    addMigrations(getMigrationFrom1To2())
                 }
-            }.build().apply {
-                val checkSum = context.assets.open("databases/$dbName").readBytes().getCRC32CheckSum()
-                context.saveInitDbCheckSum(checkSum)
-                printLogIfDebug("************** Database init check sum = $checkSum **********************")
-            }
-            return dataBase as AppDataBase
+            }.build()
+            return dataBase!!
         }
 
         fun buildDataBaseFromFile(context: Context, dbFile: File): AppDataBase {
             val dbName = context.getString(R.string.data_base_name)
             dataBase = Room.databaseBuilder(context, AppDataBase::class.java, dbName).apply {
                 createFromFile(dbFile)
-            }.build().apply {
-                val checkSum = dbFile.readBytes().getCRC32CheckSum()
-                printLogIfDebug("************** Database init check sum = $checkSum **********************")
-            }
+            }.build()
             return dataBase!!
         }
 
