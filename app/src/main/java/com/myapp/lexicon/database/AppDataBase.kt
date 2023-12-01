@@ -49,6 +49,7 @@ abstract class AppDataBase : RoomDatabase()
             dataBase = Room.databaseBuilder(context, AppDataBase::class.java, dbName).apply {
 
                 addMigrations(getMigrationFrom1To2())
+                allowMainThreadQueries()
                 val dbFile = context.getDatabasePath(dbName)
                 if (dbFile.exists()) {
                     createFromFile(dbFile)
@@ -63,6 +64,7 @@ abstract class AppDataBase : RoomDatabase()
         fun buildDataBaseFromFile(context: Context, dbFile: File): AppDataBase {
             val dbName = context.getString(R.string.data_base_name)
             dataBase = Room.databaseBuilder(context, AppDataBase::class.java, dbName).apply {
+                allowMainThreadQueries()
                 createFromFile(dbFile)
             }.build()
             return dataBase!!
@@ -88,11 +90,9 @@ abstract class AppDataBase : RoomDatabase()
 	"count_repeat"	INTEGER NOT NULL DEFAULT 1,
 	PRIMARY KEY("english")
 );"""
-                    Thread(Runnable {
-                        if (db.isOpen) {
-                            db.execSQL(query)
-                        }
-                    }).start()
+                    if (db.isOpen) {
+                        db.execSQL(query)
+                    }
                 }
             }
         }
