@@ -289,7 +289,7 @@ class SettingsFragment : PreferenceFragmentCompat()
                 switch.apply {
                     isChecked = true
                     title = getString(R.string.text_battery_saving_enabled)
-                    summary = getString(R.string.text_battery_saving_summary_enable)
+                    summary = getString(R.string.text_battery_optimization_explain)
                 }
             },
             onNotUse = {

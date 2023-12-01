@@ -6,6 +6,7 @@ import com.myapp.lexicon.database.AppDao
 import com.myapp.lexicon.database.AppDataBase
 import com.myapp.lexicon.database.models.Counters
 import com.myapp.lexicon.database.models.WordToPlay
+import com.myapp.lexicon.helpers.throwIfDebug
 import com.myapp.lexicon.models.Word
 import io.reactivex.Single
 import kotlinx.coroutines.Deferred
@@ -104,12 +105,15 @@ class DataRepositoryImpl(
             }
         }
     }
-
-    @Throws(Exception::class)
-    override suspend fun getFirstEntryAsync(): Deferred<Word> {
+    override suspend fun getFirstEntryAsync(): Deferred<Word?> {
         return coroutineScope {
             async {
-                db.getFirstEntry()
+                try {
+                    db.getFirstEntry()
+                } catch (e: Exception) {
+                    e.throwIfDebug()
+                    null
+                }
             }
         }
     }

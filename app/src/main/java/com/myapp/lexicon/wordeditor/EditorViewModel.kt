@@ -139,7 +139,12 @@ class EditorViewModel constructor(
             onInit = {
                 viewModelScope.launch {
                     val word = repository.getFirstEntryAsync().await()
-                    getAllWordsByDictName(word.dictName)
+                    if (word != null) {
+                        getAllWordsByDictName(word.dictName)
+                    }
+                    else {
+                        getAllWordsByDictName("Наречия")
+                    }
                 }
             },
             onSuccess = { word, _ ->

@@ -38,8 +38,7 @@ interface IDataRepository
 
     suspend fun getEntriesByDictNameAsync(dict: String, id: Long, repeat: Int = 1, limit: Int = 2): Deferred<List<Word>>
 
-    @Throws(Exception::class)
-    suspend fun getFirstEntryAsync(): Deferred<Word>
+    suspend fun getFirstEntryAsync(): Deferred<Word?>
 
     suspend fun deleteEntriesByDictNameAsync(dicts: List<String>): Deferred<Int>
 

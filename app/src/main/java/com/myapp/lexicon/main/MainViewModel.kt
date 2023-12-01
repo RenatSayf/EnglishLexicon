@@ -67,12 +67,7 @@ class MainViewModel constructor(
         app.getWordFromPref(
             onInit = {
                 viewModelScope.launch {
-                    val word = try {
-                        repository.getFirstEntryAsync().await()
-                    } catch (e: Exception) {
-                        e.throwIfDebug()
-                        null
-                    }
+                    val word = repository.getFirstEntryAsync().await()
                     if (word != null) {
                         setNewPlayList(word.dictName, 0)
                     }
