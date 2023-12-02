@@ -82,4 +82,16 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory
+        android:title="Настройки энергопотребления"
+        android:summary="@string/text_battery_saving_summary_enable"
+        >
+        <SwitchPreferenceCompat
+            android:key="swBatterySaving"
+            android:title="@string/text_battery_saving_enabled"
+            android:summary="@string/text_battery_optimization_explain"
+            android:defaultValue="true"
+            />
+    </PreferenceCategory>
+
 </PreferenceScreen>

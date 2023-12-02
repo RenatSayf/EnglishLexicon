@@ -12,51 +12,54 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.BannerAdIds
+import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.loadBanner
 import com.myapp.lexicon.databinding.SRepeatModalFragmentBinding
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showToast
 import com.myapp.lexicon.interfaces.IModalFragment
+import com.myapp.lexicon.main.MainViewModel
 import com.myapp.lexicon.main.SpeechViewModel
 import com.myapp.lexicon.main.viewmodels.UserViewModel
+import com.myapp.lexicon.models.Revenue
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.models.toWordList
-import com.myapp.lexicon.settings.AppSettings
 import com.myapp.lexicon.settings.disablePassiveWordsRepeat
+import com.myapp.lexicon.settings.getOrderPlay
 import com.myapp.lexicon.settings.isUserRegistered
-import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import java.util.Locale
 
 
-@AndroidEntryPoint
 class RepeatDialog: DialogFragment() {
 
     companion object {
         val TAG = "${RepeatDialog::class.java.simpleName}.TAG"
 
-        private var json: String = ""
-        private var counters: List<Int> = listOf()
         private var listener: IModalFragment? = null
 
-        fun newInstance(json: String, counters: List<Int>, listener: IModalFragment): RepeatDialog {
-            this.json = json
-            this.counters = counters
+        fun newInstance(listener: IModalFragment): RepeatDialog {
             this.listener = listener
             return RepeatDialog()
         }
     }
 
     private lateinit var binding: SRepeatModalFragmentBinding
-    private val speechVM: SpeechViewModel by viewModels()
-    private val userVM: UserViewModel by activityViewModels()
-    private val adsVM: AdsViewModel by activityViewModels()
+    private val mainVM: MainViewModel by lazy {
+        val factory = MainViewModel.Factory(requireActivity().application)
+        ViewModelProvider(this, factory)[MainViewModel::class.java]
+    }
+    private val speechVM: SpeechViewModel by lazy {
+        val factory = SpeechViewModel.Factory(requireActivity().application)
+        ViewModelProvider(this, factory)[SpeechViewModel::class.java]
+    }
+    private val userVM by viewModels<UserViewModel>()
+    private val adsVM by activityViewModels<AdsViewModel>()
+    private val revenueVM by activityViewModels<RevenueViewModel>()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
 
@@ -78,20 +81,41 @@ class RepeatDialog: DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        if (savedInstanceState == null) {
+            userVM.getUserFromCloud()
+        }
+
         with(binding) {
 
             bannerView.loadBanner(BannerAdIds.BANNER_3)
 
-            val words = json.toWordList()
-            if (words.isNotEmpty()) {
-                nameDictTv.text = words[0].dictName
-                enTextView.text = words[0].english
-                ruTextView.text = words[0].translate
+            val extra = requireActivity().intent.getStringExtra(ServiceActivity.ARG_JSON)
+            if (extra != null) {
+                val words = extra.toWordList()
+                if (!words.isNullOrEmpty()) {
+                    nameDictTv.text = words[0].dictName
+                    enTextView.text = words[0].english
+                    ruTextView.text = words[0].translate
+
+                    if (savedInstanceState == null) {
+                        mainVM.getCountersById(words[0]._id)
+                    }
+                }
+                else {
+                    showToast("${TestModeDialog::class.simpleName}: Json error")
+                    requireActivity().finish()
+                }
+            }
+            else {
+                showToast("${TestModeDialog::class.simpleName}: Json error")
+                requireActivity().finish()
             }
 
-            if (counters.size > 2) {
-                val text = "${counters[0]} / ${counters[1]} ${getString(R.string.text_studied)} ${counters[2]}"
-                wordsNumberTvModalSv.text = text
+            mainVM.counters.observe(viewLifecycleOwner) { result ->
+                result.onSuccess { counters ->
+                    val concatText = "${counters.rowNum} / ${counters.count} ${getString(R.string.text_studied)} ${counters.unUsed}"
+                    wordsNumberTvModalSv.text = concatText
+                }
             }
 
             btnStopService.setOnClickListener {
@@ -125,7 +149,7 @@ class RepeatDialog: DialogFragment() {
 
             checkBoxRuSpeakModal.setOnCheckedChangeListener(object : CompoundButton.OnCheckedChangeListener {
                 override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
-                    speechVM.setRuSpeech(isChecked)
+                    speechVM.enableRuSpeech(isChecked)
                 }
             })
 
@@ -145,31 +169,38 @@ class RepeatDialog: DialogFragment() {
                 }
             }
 
-            val appSettings = AppSettings(requireContext())
-            when (appSettings.orderPlay) {
-                0 -> {
-                    orderPlayIconIvModal.setImageResource(R.drawable.ic_repeat_white)
-                }
-                1 -> {
+            requireContext().getOrderPlay(
+                onCycle = { value ->
+                    when (value) {
+                        0 -> {
+                            orderPlayIconIvModal.setImageResource(R.drawable.ic_repeat_white)
+                        }
+                        1 -> {
+                            orderPlayIconIvModal.setImageResource(R.drawable.ic_repeat_white)
+                        }
+                    }
+                },
+                onRandom = {
                     orderPlayIconIvModal.setImageResource(R.drawable.ic_shuffle_white)
+                }
+            )
+
+            userVM.state.observe(viewLifecycleOwner) { state ->
+                when(state) {
+                    is UserViewModel.State.ReceivedUserData -> {
+                        val user = state.user
+                        buildRewardText(user)
+                    }
+                    else -> {}
                 }
             }
 
-            lifecycleScope.launch {
-                viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                    userVM.stateFlow.collect { state ->
-                        when(state) {
-                            is UserViewModel.State.ReceivedUserData -> {
-                                val user = state.user
-                                buildRewardText(user)
-                            }
-                            is UserViewModel.State.RevenueUpdated -> {
-                                val user = state.user
-                                buildRewardText(user)
-                            }
-                            else -> {}
-                        }
-                    }
+            revenueVM.userRevenueLD.observe(viewLifecycleOwner) { result ->
+                result.onSuccess<Revenue> { revenue ->
+                    buildRewardText(revenue)
+                }
+                result.onError { throwable ->
+                    (throwable as Exception).printStackTraceIfDebug()
                 }
             }
 
@@ -189,6 +220,12 @@ class RepeatDialog: DialogFragment() {
         binding.tvReward.text = text
     }
 
+    private fun buildRewardText(revenue: Revenue) {
+
+        val userReward = revenue.reward.to2DigitsScale()
+        val text = "${getString(R.string.coins_bag)} $userReward ${revenue.currencySymbol}"
+        binding.tvReward.text = text
+    }
     override fun onResume() {
         super.onResume()
 

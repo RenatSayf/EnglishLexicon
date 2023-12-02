@@ -13,14 +13,12 @@ import androidx.lifecycle.viewModelScope
 import com.android.billingclient.api.*
 import com.myapp.lexicon.R
 import com.myapp.lexicon.models.UserPurchase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
-@HiltViewModel
 class BillingViewModel @Inject constructor(app: Application) : AndroidViewModel(app), PurchasesUpdatedListener {
 
     private var productIdNoAds: String

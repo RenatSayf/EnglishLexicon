@@ -6,6 +6,12 @@
         android:id="@+id/menu_edit"
         android:title="@string/text_change_data"
         android:icon="@drawable/ic_mode_edit"
-        app:showAsAction="always"/>
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/menu_delete"
+        android:title="@string/text_account_delete"
+        android:icon="@drawable/icon_delete"
+        app:showAsAction="never"/>
 
 </menu>

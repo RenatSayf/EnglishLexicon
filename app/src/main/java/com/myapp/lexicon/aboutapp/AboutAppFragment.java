@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.main.MainActivity;
+import com.myapp.lexicon.settings.SettingsExtKt;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -23,6 +24,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
 
+/** @noinspection CodeBlock2Expr*/
 public class AboutAppFragment extends Fragment
 {
     private View fragment_view = null;
@@ -62,9 +64,7 @@ public class AboutAppFragment extends Fragment
 
         Button buttonEvaluate = fragment_view.findViewById(R.id.btn_evaluate);
         buttonEvaluate.setOnClickListener( view -> {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse(getString(R.string.app_link)));
-            startActivity(intent);
+            SettingsExtKt.goToAppStore(requireContext());
         });
 
         final TextView tvLinkPrivacyPolicy = fragment_view.findViewById(R.id.tvLinkPrivacyPolicy);

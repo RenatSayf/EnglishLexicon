@@ -6,5 +6,6 @@ const val APP_STORE_LINK = "https://play.google.com/store/apps/details?id=com.my
 
 enum class AdsSource {
     TEST_AD,
-    ALIVE_AD
+    ALIVE_AD,
+    LOCAL_HOST
 }

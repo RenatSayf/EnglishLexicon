@@ -3,17 +3,15 @@
 package com.myapp.lexicon.settings
 
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
+import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.*
-import com.google.firebase.auth.FirebaseAuth
+import androidx.preference.Preference.OnPreferenceChangeListener
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.billing.BillingViewModel
@@ -22,11 +20,9 @@ import com.myapp.lexicon.databinding.DialogStorageBinding
 import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.schedule.AlarmScheduler
-import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
 
-@AndroidEntryPoint
 class SettingsFragment : PreferenceFragmentCompat()
 {
     private lateinit var listDisplayModePref: ListPreference
@@ -49,7 +45,7 @@ class SettingsFragment : PreferenceFragmentCompat()
 
         findPreference<ListPreference>(requireContext().getString(R.string.key_test_interval))?.apply {
             summary = this.entry
-            onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener
+            onPreferenceChangeListener = object : OnPreferenceChangeListener
             {
                 override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean
                 {
@@ -57,7 +53,7 @@ class SettingsFragment : PreferenceFragmentCompat()
                     {
                         value = newValue.toString()
                         summary = entry
-                        (requireActivity() as MainActivity).testIntervalOnChange(value.toInt())
+                        setFragmentResult(getString(R.string.KEY_TEST_INTERVAL_CHANGED), Bundle.EMPTY)
                         true
                     }
                     catch (e: Exception)
@@ -72,7 +68,7 @@ class SettingsFragment : PreferenceFragmentCompat()
         listDisplayModePref = findPreference(requireContext().getString(R.string.key_list_display_mode))!!
         // при новом создании экрана заполняем summary значением настройки
         listDisplayModePref.summary = listDisplayModePref.entry
-        listDisplayModePref.onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener{
+        listDisplayModePref.onPreferenceChangeListener = object : OnPreferenceChangeListener{
             override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean
             {
                 listDisplayModePref.value = newValue.toString()
@@ -82,7 +78,7 @@ class SettingsFragment : PreferenceFragmentCompat()
         }
 
         serviceCheckBoxPref = findPreference(requireContext().getString(R.string.key_service))!!
-        serviceCheckBoxPref.onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener{
+        serviceCheckBoxPref.onPreferenceChangeListener = object : OnPreferenceChangeListener{
             override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean
             {
                 listDisplayModePref.isEnabled = (newValue as? Boolean)?: false
@@ -107,7 +103,7 @@ class SettingsFragment : PreferenceFragmentCompat()
 
         showIntervalsPref = findPreference(requireContext().getString(R.string.key_show_intervals))!!
         showIntervalsPref.summary = showIntervalsPref.entry
-        showIntervalsPref.onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener{
+        showIntervalsPref.onPreferenceChangeListener = object : OnPreferenceChangeListener{
             override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean
             {
                 showIntervalsPref.value = newValue as String
@@ -123,14 +119,6 @@ class SettingsFragment : PreferenceFragmentCompat()
                     serviceCheckBoxPref.isChecked = false
                     listDisplayModePref.isEnabled = true
                     //view?.let { redirectIfXiaomiDevice() }
-
-                    (requireActivity() as AppCompatActivity).checkBatterySettings(
-                        onGoToSettings = {
-                            val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
-                            startActivity(intent)
-                        },
-                        onFinish = {}
-                    )
                 }
                 else
                 {
@@ -158,41 +146,25 @@ class SettingsFragment : PreferenceFragmentCompat()
         val cloudStorageCategory = findPreference<PreferenceCategory>("cloudStorageCategory")
         val cloudStorageSwitch = findPreference<SwitchPreferenceCompat>(getString(R.string.KEY_CLOUD_STORAGE))
 
-        val currentUser = FirebaseAuth.getInstance().currentUser
-        if (currentUser == null) {
-            cloudStorageCategory?.isVisible = false
-            cloudStorageSwitch?.apply {
-                isChecked = false
-                isEnabled = false
+        if (cloudStorageSwitch?.isChecked == true) {
+            cloudStorageSwitch.let { switch ->
+                switch.isChecked = true
+                switch.isEnabled = false
+                val title = switch.title
+                val newTitle = "$title (${getString(R.string.text_enabled)})"
+                switch.title = newTitle
             }
         }
         else {
-            requireContext().checkCloudToken(
-                onInit = {
-                    cloudStorageSwitch?.apply {
-                        isEnabled = true
-                        isChecked = false
-                    }
-                },
-                onExists = {
-                    cloudStorageCategory?.isVisible = true
-                    cloudStorageSwitch?.apply {
-                        isEnabled = false
-                        isChecked = true
-                    }
-                },
-                onEmpty = {
-                    cloudStorageCategory?.isVisible = true
-                    cloudStorageSwitch?.apply {
-                        isEnabled = true
-                        isChecked = false
-                    }
-                }
-            )
+            cloudStorageSwitch?.let { switch ->
+                switch.isChecked = false
+                switch.isEnabled = true
+                switch.title = getString(R.string.text_save_my_dicts)
+            }
         }
 
         billingVM.cloudStorageProduct.observe(viewLifecycleOwner) { res ->
-            if (res.isSuccess && currentUser != null) {
+            if (res.isSuccess) {
                 res.onSuccess { details ->
                     cloudStorageCategory?.isVisible = true
                     cloudStorageCategory?.isEnabled = !requireContext().cloudStorageEnabled
@@ -204,7 +176,7 @@ class SettingsFragment : PreferenceFragmentCompat()
                         cloudStorageSwitch.title = newTitle
                     }
                     cloudStorageSwitch?.let { switch ->
-                        switch.onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener {
+                        switch.onPreferenceChangeListener = object : OnPreferenceChangeListener {
                             override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean {
 
                                 if (newValue == true) {
@@ -285,6 +257,49 @@ class SettingsFragment : PreferenceFragmentCompat()
             }
         }
 
+        val swBatterySaving = findPreference<SwitchPreferenceCompat>("swBatterySaving")
+        if (swBatterySaving != null) {
+            configurePowerSettings(swBatterySaving)
+
+            swBatterySaving.onPreferenceChangeListener = object : OnPreferenceChangeListener {
+                override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean {
+                    val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS).apply {
+                        putExtra(KEY_BATTERY_SETTINGS, BATTERY_SETTINGS)
+                    }
+                    startActivityForResult(intent, BATTERY_SETTINGS)
+                    return true
+                }
+            }
+        }
+
+    }
+
+    @Suppress("OVERRIDE_DEPRECATION")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        val switch = findPreference<SwitchPreferenceCompat>("swBatterySaving")
+        if (requestCode == BATTERY_SETTINGS && switch != null) {
+            configurePowerSettings(switch)
+        }
+    }
+
+    private fun configurePowerSettings(switch: SwitchPreferenceCompat) {
+        requireContext().isIgnoringBatteryOptimizations(
+            onOptimizingUse = {
+                switch.apply {
+                    isChecked = true
+                    title = getString(R.string.text_battery_saving_enabled)
+                    summary = getString(R.string.text_battery_optimization_explain)
+                }
+            },
+            onNotUse = {
+                switch.apply {
+                    isChecked = false
+                    title = getString(R.string.text_battery_saving_disabled)
+                    summary = ""
+                }
+            }
+        )
     }
 
     private fun redirectIfXiaomiDevice()

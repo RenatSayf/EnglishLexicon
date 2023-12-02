@@ -8,8 +8,10 @@ import android.content.Intent
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
 import com.myapp.lexicon.R
+import com.myapp.lexicon.database.AppDataBase
 import com.myapp.lexicon.helpers.checkIsActivityShown
 import com.myapp.lexicon.helpers.goAsync
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showDebugNotification
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.toWordsString
@@ -18,18 +20,14 @@ import com.myapp.lexicon.service.ServiceActivity
 import com.myapp.lexicon.settings.getNotificationMode
 import com.myapp.lexicon.settings.getWordFromPref
 import com.myapp.lexicon.settings.saveWordToPref
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 
-@AndroidEntryPoint
 class TimerReceiver : BroadcastReceiver()
 {
-    @Inject
-    lateinit var repository: DataRepositoryImpl
+    private lateinit var repository: DataRepositoryImpl
 
     private var preferences: SharedPreferences? = null
 
@@ -37,6 +35,7 @@ class TimerReceiver : BroadcastReceiver()
     {
         if (context != null && intent != null)
         {
+            repository = DataRepositoryImpl(AppDataBase.getDbInstance(context).appDao())
 
             preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val strInterval = preferences?.getString(context.getString(R.string.key_show_intervals), "0")
@@ -49,17 +48,11 @@ class TimerReceiver : BroadcastReceiver()
 
                 this.goAsync(CoroutineScope(Dispatchers.IO), block = { scope ->
                     context.getWordFromPref(
-                        onInit = {
-                            scope.launch {
-                                val word = repository.getFirstEntryAsync().await()
-                                handleAlarm(context, scope, word)
-                            }
-                        },
-                        onSuccess = { word ->
-                            handleAlarm(context, scope,word)
+                        onSuccess = { word, _ ->
+                            handleAlarm(context, scope, word)
                         },
                         onFailure = {
-                            it.printStackTrace()
+                            it.printStackTraceIfDebug()
                         }
                     )
                 })
@@ -71,14 +64,13 @@ class TimerReceiver : BroadcastReceiver()
 
         try {
             scope.launch {
-                val words = repository.getEntriesByDictNameAsync(word.dictName, id = word._id.toLong(), limit = 2).await()
 
+                val words = repository.getWordPairFromPlayListAsync(word._id).await()
                 if (words.isNotEmpty()) {
                     val text = words.toWordsString()
                     val notification = AppNotification(context)
                     context.getNotificationMode(
                         onRepeatMode = {
-                            saveCurrentStep(context, scope, words)
                             context.checkIsActivityShown(
                                 ServiceActivity::class.java,
                                 onInvisible = {
@@ -103,6 +95,7 @@ class TimerReceiver : BroadcastReceiver()
                             )
                         }
                     )
+                    saveCurrentStep(context, scope, words)
                 }
             }
         } catch (e: Exception) {
@@ -115,12 +108,12 @@ class TimerReceiver : BroadcastReceiver()
 
         when(words.size) {
             2 -> {
-                context.saveWordToPref(words[1])
+                context.saveWordToPref(words[1], words.indexOf(words[1]))
             }
             1 -> {
                 scope.launch {
-                    val list = repository.getEntriesByDictNameAsync(dict = words[0].dictName, id = 1, limit = 1).await()
-                    context.saveWordToPref(list[0])
+                    val list = repository.getFirstFromPlayListAsync().await()
+                    context.saveWordToPref(list[0], words.indexOf(words[0]))
                 }
             }
         }

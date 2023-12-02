@@ -34,8 +34,11 @@
             android:theme="@style/AppToolbarStyle"
             app:titleTextColor="@color/colorWhite"
             app:title="@string/app_name"
+            tools:subtitle="💰 Ваша награда 30 Р"
+            app:subtitleTextColor="@android:color/holo_green_light"
             app:navigationIcon="@drawable/ic_hamburger_white"
-            android:background="@drawable/bg_tool_bar"/>
+            android:background="@drawable/bg_tool_bar"
+            />
 
         <LinearLayout
             android:layout_width="match_parent"

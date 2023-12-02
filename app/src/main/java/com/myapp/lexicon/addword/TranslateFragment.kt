@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED_ANONYMOUS_PARAMETER")
+
 package com.myapp.lexicon.addword
 
 import android.annotation.SuppressLint
@@ -8,47 +10,58 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
+import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.BannerAdIds
 import com.myapp.lexicon.ads.InterstitialAdIds
-import com.myapp.lexicon.ads.intrefaces.AdEventListener
+import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.loadBanner
+import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.ads.showAd
 import com.myapp.lexicon.databinding.TranslateFragmentBinding
+import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.main.MainActivity
+import com.myapp.lexicon.models.Word
+import com.myapp.lexicon.models.toWord
+import com.myapp.lexicon.settings.cloudUpdateRequired
 import com.yandex.mobile.ads.interstitial.InterstitialAd
-import dagger.hilt.android.AndroidEntryPoint
 import java.net.URLDecoder
 
 
 private const val TEXT = "translate_text"
 
-@AndroidEntryPoint
+
 class TranslateFragment : Fragment()
 {
     private lateinit var binding: TranslateFragmentBinding
     private lateinit var mActivity: AppCompatActivity
     private var interstitialAd: InterstitialAd? = null
     private val adsVM: AdsViewModel by viewModels()
+    private val addWordVM: AddWordViewModel by lazy {
+        val factory = AddWordViewModel.Factory(requireContext())
+        ViewModelProvider(this, factory)[AddWordViewModel::class.java]
+    }
+    private val revenueVM: RevenueViewModel by activityViewModels()
 
     companion object
     {
-        private var instance: TranslateFragment? = null
+        val KEY_FRAGMENT_START = "${TranslateFragment::class.simpleName}.fragment_start"
+        const val KEY_ADD_WORD = "add_word_key"
+        const val KEY_NEW_WORD = "new_word_key"
+
         private val javaScriptInterface = AppJavaScriptInterface()
-        private var adListener: AdEventListener? = null
-        fun getInstance(text: String, listener: AdEventListener?) : TranslateFragment = if (instance == null)
+        fun getInstance(text: String) : TranslateFragment
         {
-            this.adListener = listener
-            TranslateFragment().apply {
+            return TranslateFragment().apply {
                 arguments = Bundle().apply {
                     putString(TEXT, text)
                 }
             }
-        }
-        else
-        {
-            instance as TranslateFragment
         }
     }
 
@@ -122,6 +135,26 @@ class TranslateFragment : Fragment()
                 loadProgress.visibility = View.GONE
             }
 
+            setFragmentResultListener(KEY_ADD_WORD, listener = {requestKey, bundle ->
+                val json = bundle.getString(KEY_NEW_WORD)
+                val newWord = json?.toWord()
+                if (newWord is Word) {
+                    addWordVM.insertWord(newWord)
+                }
+            })
+
+            addWordVM.insertedWord.observe(viewLifecycleOwner) { pair ->
+                if (pair.first is Word) {
+                    val message = "${getString(R.string.in_dictionary)}  ${pair.first?.dictName}  ${getString(R.string.new_word_is_added)}"
+                    showSnackBar(message)
+                    setFragmentResult(getString(R.string.KEY_NEED_REFRESH), Bundle.EMPTY)
+                    requireContext().cloudUpdateRequired = true
+                }
+                else if (pair.second is Throwable) {
+                    showSnackBar(pair.second?.message?: getString(R.string.text_unknown_error_message))
+                }
+            }
+
             bannerView.loadBanner(adId = BannerAdIds.BANNER_1)
         }
 
@@ -130,6 +163,8 @@ class TranslateFragment : Fragment()
     override fun onResume()
     {
         super.onResume()
+
+        setFragmentResult(KEY_FRAGMENT_START, Bundle.EMPTY)
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true)
         {
             override fun handleOnBackPressed()
@@ -137,11 +172,12 @@ class TranslateFragment : Fragment()
                 when(mActivity)
                 {
                     is MainActivity -> {
-                       (mActivity as MainActivity).refreshMainScreen(true)
                         interstitialAd?.showAd(
                             requireActivity(),
                             onImpression = { data ->
-                                adListener?.onAdImpression(data)
+                                if (data is AdData) {
+                                    revenueVM.updateUserRevenueIntoCloud(data)
+                                }
                             },
                             onDismissed = {
                                 parentFragmentManager.popBackStack()
@@ -154,7 +190,9 @@ class TranslateFragment : Fragment()
                         interstitialAd?.showAd(
                             requireActivity(),
                             onImpression = { data ->
-                                adListener?.onAdImpression(data)
+                                if (data is AdData) {
+                                    revenueVM.updateUserRevenueIntoCloud(data)
+                                }
                             },
                             onDismissed = {
                                 requireActivity().finish()
@@ -172,11 +210,12 @@ class TranslateFragment : Fragment()
             when(mActivity)
             {
                 is MainActivity -> {
-                    (mActivity as MainActivity).refreshMainScreen(true)
                     interstitialAd?.showAd(
                         requireActivity(),
                         onImpression = { data ->
-                            adListener?.onAdImpression(data)
+                            if (data is AdData) {
+                                revenueVM.updateUserRevenueIntoCloud(data)
+                            }
                         },
                         onDismissed = {
                             parentFragmentManager.popBackStack()
@@ -189,7 +228,9 @@ class TranslateFragment : Fragment()
                     interstitialAd?.showAd(
                         requireActivity(),
                         onImpression = { data ->
-                            adListener?.onAdImpression(data)
+                            if (data is AdData) {
+                                revenueVM.updateUserRevenueIntoCloud(data)
+                            }
                         },
                         onDismissed = {
                             requireActivity().finish()

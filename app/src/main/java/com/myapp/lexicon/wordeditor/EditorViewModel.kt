@@ -4,34 +4,48 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.myapp.lexicon.common.OrderBy
+import com.myapp.lexicon.database.AppDataBase
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.repository.DataRepositoryImpl
 import com.myapp.lexicon.settings.getWordFromPref
-import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 
-@HiltViewModel
-class EditorViewModel @Inject constructor(
+class EditorViewModel constructor(
     private val repository: DataRepositoryImpl,
     app: Application
 ) : AndroidViewModel(app)
 {
+    class Factory(private val app: Application): ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            require(modelClass == EditorViewModel::class.java)
+            return EditorViewModel(
+                repository = DataRepositoryImpl(AppDataBase.getDbInstance(app.applicationContext).appDao()),
+                app
+            ) as T
+        }
+    }
+
     private val composite = CompositeDisposable()
 
     private var _wordsList = MutableLiveData(mutableListOf<Word>())
     @JvmField
     val wordsList: LiveData<MutableList<Word>> = _wordsList
 
+    var switcherChildIndex = 0
+
     fun getAllWordsByDictName(dict: String)
     {
         composite.add(
-            repository.getEntriesFromDbByDictName(dict, 1, -1, Int.MAX_VALUE)
+            repository.getEntriesFromDbByDictName(dictName = dict, id = 1, repeat = -1, orderBy = OrderBy.ASC, limit = Int.MAX_VALUE)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ list ->
@@ -125,10 +139,15 @@ class EditorViewModel @Inject constructor(
             onInit = {
                 viewModelScope.launch {
                     val word = repository.getFirstEntryAsync().await()
-                    getAllWordsByDictName(word.dictName)
+                    if (word != null) {
+                        getAllWordsByDictName(word.dictName)
+                    }
+                    else {
+                        getAllWordsByDictName("Наречия")
+                    }
                 }
             },
-            onSuccess = { word ->
+            onSuccess = { word, _ ->
                 getAllWordsByDictName(word.dictName)
             },
             onFailure = {}

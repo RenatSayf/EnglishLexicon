@@ -1,7 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="first_app_name">English</string>
-    <string name="last_app_name">Lexicon</string>
-    <string name="app_name">English Lexicon</string>
+    <string name="first_app_name">Английский</string>
+    <string name="last_app_name">Лексикон</string>
+    <string name="app_name">Английский Лексикон</string>
     <string name="app_link">https://play.google.com/store/apps/details?id=</string>
 
     <string name="admob_app_id">ca-app-pub-1615119435047194~1180910418</string>
@@ -174,7 +174,7 @@
     <string name="text_your_reward">Ваша награда: </string>
     <string name="text_account">Аккаунт</string>
     <string name="text_get_reward">Получать вознаграждение</string>
-    <string name="explaining_about_revenue_getting">Для того, что бы получать доход, необходимо зарегистрироваться в приложении.</string>
+    <string name="explaining_about_revenue_getting">Для того, что бы получать вознаграждение, необходимо зарегистрироваться либо войти, если Вы уже были зарегистрированы раннее.</string>
     <string name="text_hint_email">your-email@domain.com</string>
     <string name="text_enter_email">Введите свой адрес электронной почты</string>
     <string name="text_hint_password">your password</string>
@@ -216,14 +216,15 @@
     <string name="text_you_are_signed_out">Вы вышли из аккаунта</string>
     <string name="ya_metrica_api_key" tools:ignore="TypographyDashes">c94c303b-4981-4be6-890f-a9c6a7d09d6b</string>
     <string name="text_bank_name">Банк СБП</string>
+    <string name="text_go_over">Перейти</string>
 
     <string-array name="not_move">
         <item>Не перемещать</item>
     </string-array>
     <string-array name="order_play_items">
         <item value="0">По порядку</item>
-        <!--<item>В обратном порядке</item>-->
-        <item value="1">Случайный выбор</item>
+        <item value="1">В обратном порядке</item>
+        <item value="2">Случайный выбор</item>
     </string-array>
 
     <string-array name="display_mode">
@@ -267,6 +268,24 @@
         <item>50</item>
         <item>10000000</item>
     </string-array>
+
+    <string name="back4app_server_url">https://parseapi.back4app.com/</string>
+
+    <!-- Paste BOTH strings as required -->
+    <string name="back4app_app_id">eq7Pyaz0P4xDBxocQ17M36x3HyvRrFZ9Vz8oF2wq</string>
+    <string name="back4app_client_key">DXLo1hciYQDrkPHyxmS51BUkgTjtJP5X5Lh2xjr4</string>
+    <string name="text_account_delete">Удалить аккаунт</string>
+    <string name="text_warning_account_delete">Вы действительно хотите удалить аккаунт. После этого действия Вы не сможете получать вознаграждение.</string>
+    <string name="text_account_has_been_deleted">Аккаунт удален</string>
+    <string name="text_form_incorrect">Не все поля заполнены правильно.</string>
+    <string name="text_session_has_expired">Сессия истекла. Войдите в аккаунт снова.</string>
+    <string name="text_battery_optimization_explain">Для стабильной работы приложения в режиме Пассивного изучения, необходимо отключить оптимизацию работы батареи. Это не повлияет на ее разряд</string>
+    <string name="KEY_TEST_INTERVAL_CHANGED">TEST_INTERVAL_CHANGED</string>
+    <string name="text_word_deleted">Слово удалено</string>
+    <string name="test_crash">Test Crash</string>
+    <string name="text_battery_saving_enabled">Экономия заряда включена</string>
+    <string name="text_battery_saving_disabled">Экономия заряда отключена</string>
+    <string name="text_battery_saving_summary_enable">Операционная система может блокировать работу Пассивного режима при определенном уровне разряда батареи.</string>
 
 
 </resources>

@@ -1,5 +1,6 @@
 package com.myapp.lexicon.main
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,9 +9,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.myapp.lexicon.R
 import com.myapp.lexicon.models.Word
 
-class MainViewPagerAdapter constructor(private val list: MutableList<Word>) : RecyclerView.Adapter<PagerViewHolder>()
+class MainViewPagerAdapter: RecyclerView.Adapter<PagerViewHolder>()
 {
+    private val list: MutableList<Word> = mutableListOf()
 
+    @SuppressLint("NotifyDataSetChanged")
+    fun setItems(list: List<Word>) {
+        this.list.clear()
+        this.list.addAll(list)
+        notifyDataSetChanged()
+    }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PagerViewHolder
     {
         val itemView = LayoutInflater.from(parent.context).inflate(R.layout.a_page_layout, parent, false)
@@ -34,19 +42,23 @@ class MainViewPagerAdapter constructor(private val list: MutableList<Word>) : Re
         return list.size
     }
 
-    fun getItem(position: Int) : Word
+    fun getItem(position: Int) : Word?
     {
-        return list[position]
+        return try {
+            list[position]
+        } catch (e: IndexOutOfBoundsException) {
+            null
+        }
     }
 
-    fun getItems() : MutableList<Word>
+    fun getItems() : List<Word>
     {
         return list
     }
 
-    fun getItems(start: Int, end: Int) : MutableList<Word>
+    fun getItems(start: Int, end: Int) : List<Word>
     {
-        return list.filterIndexed { index, _ -> index in start..end } as MutableList<Word>
+        return list.filterIndexed { index, _ -> index in start..end }
     }
 
 }

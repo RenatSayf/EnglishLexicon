@@ -27,13 +27,11 @@ import com.yandex.mobile.ads.rewarded.RewardedAd
 import com.yandex.mobile.ads.rewarded.RewardedAdEventListener
 import com.yandex.mobile.ads.rewarded.RewardedAdLoadListener
 import com.yandex.mobile.ads.rewarded.RewardedAdLoader
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
 
-@HiltViewModel
 class AdsViewModel @Inject constructor(
     private val app: Application
 ): AndroidViewModel(app) {
@@ -150,7 +148,7 @@ fun InterstitialAd.showAd(
                         }
                     )
                 }?: run {
-                    if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
+                    if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name || BuildConfig.ADS_SOURCE == AdsSource.LOCAL_HOST.name) {
                         TEST_INTERSTITIAL_DATA.toAdData(
                             onSuccess = { data ->
                                 onImpression.invoke(data)
@@ -205,7 +203,7 @@ fun RewardedAd.showAd(
                         }
                     )
                 }?: run {
-                    if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
+                    if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name || BuildConfig.ADS_SOURCE == AdsSource.LOCAL_HOST.name) {
                         TEST_REWARDED_DATA.toAdData(
                             onSuccess = { data ->
                                 onImpression.invoke(data)
@@ -243,9 +241,9 @@ fun String.toAdData(
 
 private const val TEST_INTERSTITIAL_DATA = """{
   "currency": "RUB",
-  "revenueUSD": "0.2051",
+  "revenueUSD": "0.30051",
   "precision": "estimated",
-  "revenue": "20.0",
+  "revenue": "30.0",
   "requestId": "1694954665976270-617871108186477874100342-demo-interstitial-yandex",
   "blockId": "demo-interstitial-yandex",
   "adType": "interstitial",
@@ -259,9 +257,9 @@ private const val TEST_INTERSTITIAL_DATA = """{
 
 private const val TEST_REWARDED_DATA = """{
   "currency": "RUB",
-  "revenueUSD": "0.4051",
+  "revenueUSD": "0.50051",
   "precision": "estimated",
-  "revenue": "40.0",
+  "revenue": "50.0",
   "requestId": "1694954665976270-617871108186477874100342-demo-rewarded-yandex",
   "blockId": "demo-rewarded-yandex",
   "adType": "interstitial",
@@ -278,7 +276,9 @@ fun BannerAdView.loadBanner(adId: BannerAdIds? = null) {
     val isBannerEnabled = Firebase.remoteConfig.getBoolean("is_banner_enabled")
     if (isBannerEnabled) {
         val width = (this.context.resources.displayMetrics.widthPixels / context.resources.displayMetrics.density).roundToInt()
-        val stickySize = BannerAdSize.stickySize(this.context, width)
+        val height = (144 / context.resources.displayMetrics.density).roundToInt()
+        //val stickySize = BannerAdSize.stickySize(this.context, width)
+        val fixedSize = BannerAdSize.fixedSize(this.context, width, height)
         this.apply {
             val id = if (BuildConfig.DEBUG) {
                 "demo-banner-yandex"
@@ -286,7 +286,7 @@ fun BannerAdView.loadBanner(adId: BannerAdIds? = null) {
                 adId?.id ?: BannerAdIds.values().random().id
             }
             setAdUnitId(id)
-            setAdSize(stickySize)
+            setAdSize(fixedSize)
         }.loadAd(AdRequest.Builder().build())
     }
 }

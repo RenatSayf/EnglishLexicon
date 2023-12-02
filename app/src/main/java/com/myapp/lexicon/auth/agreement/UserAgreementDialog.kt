@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.DialogUserAgreementBinding
+import com.myapp.lexicon.helpers.LockOrientation
 
 class UserAgreementDialog: DialogFragment() {
 
@@ -30,6 +31,9 @@ class UserAgreementDialog: DialogFragment() {
     }
 
     private lateinit var binding: DialogUserAgreementBinding
+    private val locker: LockOrientation by lazy {
+        LockOrientation(requireActivity())
+    }
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -68,7 +72,14 @@ class UserAgreementDialog: DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        locker.lock()
         return binding.root
+    }
+
+    override fun onDestroyView() {
+
+        locker.unLock()
+        super.onDestroyView()
     }
 
 

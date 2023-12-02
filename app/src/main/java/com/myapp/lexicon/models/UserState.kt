@@ -8,6 +8,7 @@ sealed class UserState {
     object AlreadyExists: UserState()
     object PasswordReset: UserState()
     object SignOut: UserState()
+    object AccountDeleted: UserState()
     data class SignUp(val user: User): UserState()
     data class SignIn(val user: User): UserState()
     data class Failure(val error: Exception): UserState()
@@ -69,6 +70,12 @@ sealed class UserState {
     fun onPasswordReset(onReset: () -> Unit) {
         if (this is PasswordReset) {
             onReset.invoke()
+        }
+    }
+
+    fun onAccountDeleted(onDeleted: () -> Unit) {
+        if (this is AccountDeleted) {
+            onDeleted.invoke()
         }
     }
 }

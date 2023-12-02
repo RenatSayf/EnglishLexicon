@@ -8,23 +8,21 @@ import android.content.IntentFilter
 import com.myapp.lexicon.database.AppDataBase
 import com.myapp.lexicon.helpers.checkIsActivityShown
 import com.myapp.lexicon.helpers.goAsync
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showDebugNotification
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.toWordsString
 import com.myapp.lexicon.repository.DataRepositoryImpl
 import com.myapp.lexicon.schedule.AppNotification
-import com.myapp.lexicon.settings.AppSettings
 import com.myapp.lexicon.settings.checkUnLockedBroadcast
 import com.myapp.lexicon.settings.getNotificationMode
 import com.myapp.lexicon.settings.getWordFromPref
 import com.myapp.lexicon.settings.saveWordToPref
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
-@AndroidEntryPoint
 class PhoneUnlockedReceiver : BroadcastReceiver()
 {
     companion object {
@@ -65,9 +63,8 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
         }
 
         this.goAsync(CoroutineScope(Dispatchers.IO), block = { scope ->
-            val dao = AppDataBase.buildDataBase(context).appDao()
-            val appSettings = AppSettings(context)
-            repository = DataRepositoryImpl(dao, appSettings)
+            val dao = AppDataBase.getDbInstance(context).appDao()
+            repository = DataRepositoryImpl(dao)
 
             val action = intent.action
 
@@ -76,21 +73,11 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
             if (action != null && action == actionScreenOff)
             {
                 context.getWordFromPref(
-                    onInit = {
-                        scope.launch {
-                            try {
-                                val word = repository.getFirstEntryAsync().await()
-                                handleBroadCast(context, scope, word)
-                            } catch (e: Exception) {
-                                context.showDebugNotification(e.message)
-                            }
-                        }
-                    },
-                    onSuccess = { word ->
+                    onSuccess = { word, _ ->
                         handleBroadCast(context, scope, word)
                     },
                     onFailure = {
-                        it.printStackTrace()
+                        it.printStackTraceIfDebug()
                         context.showDebugNotification(it.message)
                     }
                 )
@@ -103,13 +90,12 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
 
         scope.launch {
             try {
-                val words = repository.getEntriesByDictNameAsync(word.dictName, id = word._id.toLong(), limit = 2).await()
+                val words = repository.getWordPairFromPlayListAsync(word._id).await()
                 if (words.isNotEmpty()) {
                     val notification = AppNotification(context)
                     val text = words.toWordsString()
                     context.getNotificationMode(
                         onRepeatMode = {
-                            saveCurrentStep(context, scope, words)
                             context.checkIsActivityShown(
                                 ServiceActivity::class.java,
                                 onInvisible = {
@@ -134,6 +120,7 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
                             )
                         }
                     )
+                    saveCurrentStep(context, scope, words)
                 }
             } catch (e: Exception) {
                 context.showDebugNotification(e.message)
@@ -146,12 +133,12 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
 
         when(words.size) {
             2 -> {
-                context.saveWordToPref(words[1])
+                context.saveWordToPref(words[1], words.indexOf(words[1]))
             }
             1 -> {
                 scope.launch {
-                    val list = repository.getEntriesByDictNameAsync(dict = words[0].dictName, id = 1, limit = 1).await()
-                    context.saveWordToPref(list[0])
+                    val list = repository.getFirstFromPlayListAsync().await()
+                    context.saveWordToPref(list[0], words.indexOf(words[1]))
                 }
             }
         }

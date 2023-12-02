@@ -6,12 +6,17 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.FragmentSettingsContainerBinding
 
 class ContainerFragment: Fragment() {
 
     private lateinit var binding: FragmentSettingsContainerBinding
+
+    private val settingsVM: SettingsViewModel by lazy {
+        ViewModelProvider(requireActivity())[SettingsViewModel::class.java]
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -24,6 +29,8 @@ class ContainerFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        settingsVM // view model initialization
 
         parentFragmentManager.beginTransaction()
             .add(R.id.setting_container, SettingsFragment::class.java, null, null)

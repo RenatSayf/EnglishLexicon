@@ -44,7 +44,7 @@ class AuthViewModelTest {
 
         scenario.onActivity { activity ->
 
-            authVM.registerWithEmailAndPassword("renatsayf@gmail.com", "123456")
+            authVM.registerWithEmailAndPassword("english.lexicon@yandex.ru", "123456")
 
             authVM.state.observe(activity) { state ->
                 state.onSignUp {
@@ -81,7 +81,7 @@ class AuthViewModelTest {
         var isRunning = true
 
         scenario.onActivity { activity ->
-            authVM.signInWithEmailAndPassword("renatsayf@gmail.com", "123456")
+            authVM.signInWithEmailAndPassword("english.lexicon@yandex.ru", "123456")
 
             authVM.state.observe(activity) { state ->
                 state.onSignIn {
@@ -106,7 +106,7 @@ class AuthViewModelTest {
 
         scenario.onActivity { activity ->
 
-            authVM.resetPassword("renatsayf@gmail.com")
+            authVM.resetPassword("english.lexicon@yandex.ru")
             authVM.state.observe(activity) { state ->
                 isRunning = when(state) {
                     is UserState.Failure -> {

@@ -14,17 +14,16 @@ import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.AddWordDialogBinding
 import com.myapp.lexicon.dialogs.NewDictDialog
+import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.hideKeyboard
 import com.myapp.lexicon.helpers.showKeyboard
-import com.myapp.lexicon.helpers.showToast
 import com.myapp.lexicon.main.MainViewModel
 import com.myapp.lexicon.main.Speaker
 import com.myapp.lexicon.models.Word
-import dagger.hilt.android.AndroidEntryPoint
+import com.myapp.lexicon.settings.getWordFromPref
 import java.util.Locale
 
 
-@AndroidEntryPoint
 class AddWordDialog : DialogFragment(),
     NewDictDialog.Listener,
     Speaker.Listener
@@ -54,17 +53,25 @@ class AddWordDialog : DialogFragment(),
     private lateinit var binding: AddWordDialogBinding
 
     private var inputList: ArrayList<String> = arrayListOf()
-    private lateinit var addWordVM: AddWordViewModel
-    private lateinit var mainVM: MainViewModel
-    private lateinit var speaker: Speaker
+    private val addWordVM: AddWordViewModel by lazy {
+        val factory = AddWordViewModel.Factory(requireContext())
+        ViewModelProvider(this, factory)[AddWordViewModel::class.java]
+    }
+    private val mainVM: MainViewModel by lazy {
+        val factory = MainViewModel.Factory(requireActivity().application)
+        ViewModelProvider(this, factory)[MainViewModel::class.java]
+    }
+    private val speaker: Speaker by lazy {
+        Speaker(requireContext(), this)
+    }
     private var newDictName: String? = null
+    private val locker by lazy {
+        LockOrientation(requireActivity())
+    }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog
     {
-        addWordVM = ViewModelProvider(this)[AddWordViewModel::class.java]
-        mainVM = ViewModelProvider(this)[MainViewModel::class.java]
-        speaker = Speaker(requireActivity(), this)
-
+        locker.lock()
         setStyle(STYLE_NO_TITLE, R.style.AppAlertDialog)
         isCancelable = false
         return super.onCreateDialog(savedInstanceState).apply {
@@ -86,12 +93,16 @@ class AddWordDialog : DialogFragment(),
 
             mainVM.dictionaryList.observe(viewLifecycleOwner) { list ->
                 if (!list.isNullOrEmpty()) {
-                    mainVM.currentWord.observe(viewLifecycleOwner) { word ->
-                        if (word.dictName.isNotEmpty()) {
+
+                    val adapter = ArrayAdapter(requireContext(), R.layout.app_spinner_item, list.distinct())
+                    dictListSpinner.adapter = adapter
+
+                    requireContext().getWordFromPref(
+                        onInit = {},
+                        onSuccess = { word, _ ->
+
                             val index = list.indexOf(word.dictName)
                             if (index >= 0) {
-                                val adapter = ArrayAdapter(requireContext(), R.layout.app_spinner_item, list.distinct())
-                                dictListSpinner.adapter = adapter
                                 when (newDictName) {
                                     null -> {
                                         dictListSpinner.setSelection(index)
@@ -102,8 +113,9 @@ class AddWordDialog : DialogFragment(),
                                     }
                                 }
                             }
-                        }
-                    }
+                        },
+                        onFailure = {}
+                    )
                 }
             }
 
@@ -130,28 +142,17 @@ class AddWordDialog : DialogFragment(),
             }
 
 
-            btnOk.setOnClickListener {
+            btnAdd.setOnClickListener {
                 val dictName = (dictListSpinner.selectedView as TextView).text.toString()
-                (!translateTV.text.isNullOrEmpty()).run {
-                    if (this)
-                    {
-                        val enWord = inputWordTV.text.toString()
-                        val ruWord = translateTV.text.toString()
-                        val word = Word(0, dictName, enWord, ruWord, 1)
-                        addWordVM.insertedId.observe(viewLifecycleOwner) {
-                            if (it > 0) {
-                                val message =
-                                    getString(R.string.in_dictionary) + dictName + getString(
-                                        R.string.new_word_is_added
-                                    )
-                                showToast(message)
-                                setFragmentResult(getString(R.string.KEY_NEED_REFRESH), Bundle.EMPTY)
-                            }
-                        }
-                        addWordVM.insertEntryAsync(word)
-                        dismiss()
-                    }
+                if (!translateTV.text.isNullOrEmpty()) {
+                    val enWord = inputWordTV.text.toString()
+                    val ruWord = translateTV.text.toString()
+                    val word = Word(0, dictName, enWord, ruWord, 1)
+                    setFragmentResult(TranslateFragment.KEY_ADD_WORD, Bundle().apply {
+                        putString(TranslateFragment.KEY_NEW_WORD, word.toString())
+                    })
                 }
+                dismiss()
             }
 
             btnCancel.setOnClickListener {
@@ -207,7 +208,9 @@ class AddWordDialog : DialogFragment(),
     }
 
     override fun onDismiss(dialog: DialogInterface) {
+
         listener?.onDismiss()
+        locker.unLock()
         super.onDismiss(dialog)
     }
 

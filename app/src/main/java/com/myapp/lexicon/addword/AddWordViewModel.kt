@@ -1,21 +1,28 @@
 package com.myapp.lexicon.addword
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import com.myapp.lexicon.database.AppDataBase
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.repository.DataRepositoryImpl
-import dagger.hilt.android.lifecycle.HiltViewModel
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
-import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 
-@HiltViewModel
-class AddWordViewModel @Inject constructor(private val repository: DataRepositoryImpl) : ViewModel()
+class AddWordViewModel constructor(private val repository: DataRepositoryImpl) : ViewModel()
 {
-    private val composite = CompositeDisposable()
+    class Factory constructor(private val context: Context) : ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            require(modelClass == AddWordViewModel::class.java)
+            return AddWordViewModel(
+                repository = DataRepositoryImpl(AppDataBase.getDbInstance(context).appDao())
+            ) as T
+        }
+    }
 
     private val _spinnerSelectedIndex = MutableLiveData<Int>()
     fun spinnerSelectedIndex(): LiveData<Int>
@@ -28,31 +35,24 @@ class AddWordViewModel @Inject constructor(private val repository: DataRepositor
         _spinnerSelectedIndex.value = index
     }
 
-    private var _insertedId = MutableLiveData<Long>().apply {
-        value = 0
-    }
-    var insertedId: LiveData<Long> = _insertedId
+    private var _insertedWord = MutableLiveData<Pair<Word?, Throwable?>>(Pair(null, null))
+    var insertedWord: LiveData<Pair<Word?, Throwable?>> = _insertedWord
 
-    fun insertEntryAsync(word: Word)
+    fun insertWord(word: Word)
     {
-
-        composite.add(repository.insertEntry(word)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ id ->
-                    _insertedId.value = id
-                }, { t ->
-                    t.printStackTrace()
-                }))
-
-    }
-
-    override fun onCleared()
-    {
-        super.onCleared()
-        composite.run {
-            dispose()
-            clear()
+        viewModelScope.launch {
+            try {
+                val ids = repository.insertWordListAsync(listOf(word)).await()
+                try {
+                    val id = ids.first()
+                    _insertedWord.value = Pair(word.apply { this._id = id.toInt() }, null)
+                } catch (e: NoSuchElementException) {
+                    _insertedWord.value = Pair(null, Throwable("***** Database error ****"))
+                }
+            } catch (e: Exception) {
+                _insertedWord.value = Pair(null, e)
+            }
         }
     }
+
 }

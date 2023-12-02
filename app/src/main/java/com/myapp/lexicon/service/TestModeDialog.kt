@@ -15,58 +15,59 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.BannerAdIds
+import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.loadBanner
 import com.myapp.lexicon.databinding.STestModalFragmentBinding
 import com.myapp.lexicon.helpers.RandomNumberGenerator
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showToast
 import com.myapp.lexicon.interfaces.IModalFragment
 import com.myapp.lexicon.main.MainViewModel
 import com.myapp.lexicon.main.SpeechViewModel
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.main.viewmodels.UserViewModel.State.ReceivedUserData
-import com.myapp.lexicon.main.viewmodels.UserViewModel.State.RevenueUpdated
+import com.myapp.lexicon.models.Revenue
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.models.toWordList
-import com.myapp.lexicon.settings.AppSettings
 import com.myapp.lexicon.settings.disablePassiveWordsRepeat
+import com.myapp.lexicon.settings.getOrderPlay
 import com.myapp.lexicon.settings.isUserRegistered
-import com.myapp.lexicon.settings.saveWordToPref
-import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import java.util.Date
 import java.util.Locale
 
 
-@AndroidEntryPoint
 class TestModeDialog : DialogFragment() {
 
     companion object {
         val TAG = "${TestModeDialog::class.java.simpleName}.TAG"
-        private var json: String = ""
-        private var counters: List<Int> = listOf()
         private var listener: IModalFragment? = null
 
-        fun newInstance(json: String, counters: List<Int>, listener: IModalFragment): TestModeDialog {
-            this.json = json
-            this.counters = counters
+        fun newInstance(listener: IModalFragment): TestModeDialog {
             this.listener = listener
             return TestModeDialog()
         }
     }
 
     private lateinit var binding: STestModalFragmentBinding
-    private val mainVM: MainViewModel by viewModels()
-    private val speechVM: SpeechViewModel by viewModels()
-    private val userVM: UserViewModel by activityViewModels()
+
+    private val mainVM: MainViewModel by lazy {
+        val factory = MainViewModel.Factory(requireActivity().application)
+        ViewModelProvider(this, factory)[MainViewModel::class.java]
+    }
+    private val speechVM: SpeechViewModel by lazy {
+        val factory = SpeechViewModel.Factory(requireActivity().application)
+        ViewModelProvider(this, factory)[SpeechViewModel::class.java]
+    }
+    private val userVM: UserViewModel by viewModels()
     private val adsVM: AdsViewModel by activityViewModels()
+    private val revenueVM by activityViewModels<RevenueViewModel>()
+
     private var compareList: List<Word> = listOf()
     private var wordIsStudied = false
     private var words: List<Word> = listOf()
@@ -91,28 +92,49 @@ class TestModeDialog : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        if (savedInstanceState == null) {
+            userVM.getUserFromCloud()
+        }
+
         with(binding) {
 
             bannerView.loadBanner(BannerAdIds.BANNER_3)
 
-            words = json.toWordList()
-            if (words.isNotEmpty()) {
-                enTextView.text = words[0].english
-                nameDictTvTestModal.text = words[0].dictName
+            val extra = requireActivity().intent.getStringExtra(ServiceActivity.ARG_JSON)
+            if (extra != null) {
+                words = extra.toWordList()?: listOf()
+                if (words.isNotEmpty()) {
+                    enTextView.text = words[0].english
+                    nameDictTvTestModal.text = words[0].dictName
 
-                mainVM.getRandomWord(words[0]).observe(viewLifecycleOwner) { word ->
-                    val wordList = listOf<Word>(words[0], word)
-                    val numberGenerator = RandomNumberGenerator(2, Date().time.toInt())
-                    val i = numberGenerator.generate()
-                    val j = numberGenerator.generate()
-                    ruBtn1.text = wordList[i].translate
-                    ruBtn2.text = wordList[j].translate
-                    compareList = wordList
+                    mainVM.getRandomWord(words[0]).observe(viewLifecycleOwner) { word ->
+                        val wordList = listOf<Word>(words[0], word)
+                        val numberGenerator = RandomNumberGenerator(2, Date().time.toInt())
+                        val i = numberGenerator.generate()
+                        val j = numberGenerator.generate()
+                        ruBtn1.text = wordList[i].translate
+                        ruBtn2.text = wordList[j].translate
+                        compareList = wordList
+                    }
+                    if (savedInstanceState == null) {
+                        mainVM.getCountersById(words[0]._id)
+                    }
+                }
+                else {
+                    showToast("${TestModeDialog::class.simpleName}: Json error")
+                    requireActivity().finish()
                 }
             }
-            if (counters.size >= 3) {
-                val concatText = "${counters[0]} / ${counters[1]} ${getString(R.string.text_studied)} ${counters[2]}"
-                wordsNumberTvTestModal.text = concatText
+            else {
+                showToast("${TestModeDialog::class.simpleName}: Json error")
+                requireActivity().finish()
+            }
+
+            mainVM.counters.observe(viewLifecycleOwner) { result ->
+                result.onSuccess { counters ->
+                    val concatText = "${counters.rowNum} / ${counters.count} ${getString(R.string.text_studied)} ${counters.unUsed}"
+                    wordsNumberTvTestModal.text = concatText
+                }
             }
 
             btnSoundModal.setOnClickListener {
@@ -153,34 +175,41 @@ class TestModeDialog : DialogFragment() {
                 }
             }
 
-            val appSettings = AppSettings(requireContext())
-            when (appSettings.orderPlay) {
-                0 -> {
-                    orderPlayIconIvTestModal.setImageResource(R.drawable.ic_repeat_white)
-                }
-                1 -> {
+            requireContext().getOrderPlay(
+                onCycle = { value ->
+                    when (value) {
+                        0 -> {
+                            orderPlayIconIvTestModal.setImageResource(R.drawable.ic_repeat_white)
+                        }
+                        1 -> {
+                            orderPlayIconIvTestModal.setImageResource(R.drawable.ic_repeat_white)
+                        }
+                    }
+                },
+                onRandom = {
                     orderPlayIconIvTestModal.setImageResource(R.drawable.ic_shuffle_white)
                 }
-            }
+            )
 
             ruBtn1OnClick(ruBtn1)
             ruBtn2OnClick(ruBtn2)
 
-            lifecycleScope.launch {
-                viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                    userVM.stateFlow.collect { state ->
-                        when(state) {
-                            is ReceivedUserData -> {
-                                val user = state.user
-                                buildRewardText(user)
-                            }
-                            is RevenueUpdated -> {
-                                val user = state.user
-                                buildRewardText(user)
-                            }
-                            else -> {}
-                        }
+            userVM.state.observe(viewLifecycleOwner) { state ->
+                when(state) {
+                    is ReceivedUserData -> {
+                        val user = state.user
+                        buildRewardText(user)
                     }
+                    else -> {}
+                }
+            }
+
+            revenueVM.userRevenueLD.observe(viewLifecycleOwner) { result ->
+                result.onSuccess<Revenue> { revenue ->
+                    buildRewardText(revenue)
+                }
+                result.onError { throwable ->
+                    (throwable as Exception).printStackTraceIfDebug()
                 }
             }
 
@@ -221,6 +250,13 @@ class TestModeDialog : DialogFragment() {
 
         val userReward = user.userReward.to2DigitsScale()
         val text = "${getString(R.string.coins_bag)} $userReward ${user.currencySymbol}"
+        binding.tvReward.text = text
+    }
+
+    private fun buildRewardText(revenue: Revenue) {
+
+        val userReward = revenue.reward.to2DigitsScale()
+        val text = "${getString(R.string.coins_bag)} $userReward ${revenue.currencySymbol}"
         binding.tvReward.text = text
     }
 
@@ -329,24 +365,4 @@ class TestModeDialog : DialogFragment() {
         button.startAnimation(animNotRight)
     }
 
-    override fun onDetach() {
-
-        when (words.size) {
-            2 -> {
-                requireContext().saveWordToPref(words[1])
-            }
-            1 -> {
-                requireContext().saveWordToPref(
-                    Word(
-                        _id = 0,
-                        dictName = words[0].dictName,
-                        english = words[0].english,
-                        translate = words[0].translate,
-                        countRepeat = 1
-                    )
-                )
-            }
-        }
-        super.onDetach()
-    }
 }

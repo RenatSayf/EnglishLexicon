@@ -9,7 +9,6 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.google.firebase.firestore.FirebaseFirestoreException
 import com.myapp.lexicon.R
 import com.myapp.lexicon.auth.account.AccountFragment
 import com.myapp.lexicon.auth.agreement.UserAgreementDialog
@@ -17,26 +16,23 @@ import com.myapp.lexicon.databinding.FragmentAuthBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.isItEmail
 import com.myapp.lexicon.helpers.showSnackBar
-import com.myapp.lexicon.main.MainActivity
-import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserState
+import com.myapp.lexicon.settings.getAuthDataFromPref
+import com.myapp.lexicon.settings.saveUserToPref
 
 class AuthFragment : Fragment() {
 
     companion object {
 
         val TAG = "${AuthFragment::class.java.simpleName}.TAG"
-        private var listener: AuthListener? = null
-        fun newInstance(listener: AuthListener): AuthFragment {
-            this.listener = listener
+        fun newInstance(): AuthFragment {
             return AuthFragment()
         }
     }
 
     private lateinit var binding: FragmentAuthBinding
     private val authVM: AuthViewModel by viewModels()
-    private val userVM: UserViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,6 +46,43 @@ class AuthFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         with(binding) {
+
+            authVM.screenState.observe(viewLifecycleOwner) { state ->
+                when(state) {
+                    AuthViewModel.ScreenState.Init -> {
+                        requireContext().getAuthDataFromPref(
+                            onSuccess = {email, password ->
+                                etEmail.setText(email)
+                                etPassword.setText(password)
+                            }
+                        )
+                    }
+                    is AuthViewModel.ScreenState.Current -> {
+                        etEmail.apply {
+                            setText(state.emailText)
+                            if (state.emailIsFocused) {
+                                requestFocus()
+                                setSelection(text?.length?: 0)
+                            }
+                            background = state.emailBackground
+                        }
+                        etPassword.apply {
+                            setText(state.passwordText)
+                            if (state.passwordIsFocused) {
+                                requestFocus()
+                                setSelection(text?.length?: 0)
+                            }
+                            background = state.passwordBackground
+                        }
+                        btnSignIn.apply {
+                            isEnabled = state.btnSignInEnable
+                        }
+                        btnRegistration.apply {
+                            isEnabled = state.btnSignUpEnable
+                        }
+                    }
+                }
+            }
 
             btnRegistration.setOnClickListener {
                 validateEmailAndPassword(
@@ -73,18 +106,22 @@ class AuthFragment : Fragment() {
             }
 
             etEmail.doOnTextChanged { text, _, _, _ ->
-                val result = authVM.isValidEmail(text.toString())
-                if (result) {
-                    authVM.setState(UserState.EmailValid(true))
+                if (!text.isNullOrBlank()) {
+                    val result = authVM.isValidEmail(text.toString())
+                    if (result) {
+                        authVM.setState(UserState.EmailValid(true))
+                    }
+                    else authVM.setState(UserState.EmailValid(false))
                 }
-                else authVM.setState(UserState.EmailValid(false))
             }
             etPassword.doOnTextChanged { text, _, _, _ ->
-                if (text.toString().length >= 6) {
-                    authVM.setState(UserState.PasswordValid(true))
-                }
-                else {
-                    authVM.setState(UserState.PasswordValid(false))
+                if (!text.isNullOrBlank()) {
+                    if (text.toString().length >= 6) {
+                        authVM.setState(UserState.PasswordValid(true))
+                    }
+                    else {
+                        authVM.setState(UserState.PasswordValid(false))
+                    }
                 }
             }
 
@@ -105,25 +142,31 @@ class AuthFragment : Fragment() {
             }
 
             tvResetPassword.setOnClickListener {
-                ConfirmDialog.newInstance(
-                    onLaunch = { dialog, binding ->
-                        with(binding) {
-                            tvEmoji.visibility = View.GONE
-                            tvEmoji2.visibility = View.GONE
-                            tvMessage.text = getString(R.string.text_email_will_be_sent_to)
-                            btnCancel.setOnClickListener {
-                                dialog.dismiss()
-                            }
-                            btnOk.setOnClickListener {
-                                val text = etEmail.text.toString()
-                                if (text.isItEmail) {
-                                    authVM.resetPassword(text)
+                val isValidEmail = authVM.isValidEmail(etEmail.text.toString())
+                if (isValidEmail) {
+                    ConfirmDialog.newInstance(
+                        onLaunch = { dialog, binding ->
+                            with(binding) {
+                                tvEmoji.visibility = View.GONE
+                                tvEmoji2.visibility = View.GONE
+                                tvMessage.text = getString(R.string.text_email_will_be_sent_to)
+                                btnCancel.setOnClickListener {
+                                    dialog.dismiss()
                                 }
-                                dialog.dismiss()
+                                btnOk.setOnClickListener {
+                                    val text = etEmail.text.toString()
+                                    if (text.isItEmail) {
+                                        authVM.resetPassword(text)
+                                    }
+                                    dialog.dismiss()
+                                }
                             }
                         }
-                    }
-                ).show(parentFragmentManager, ConfirmDialog.TAG)
+                    ).show(parentFragmentManager, ConfirmDialog.TAG)
+                }
+                else {
+                    etEmail.background = ResourcesCompat.getDrawable(resources, R.drawable.bg_horizontal_oval_error, null)
+                }
             }
 
             authVM.loadingState.observe(viewLifecycleOwner) { state ->
@@ -145,11 +188,11 @@ class AuthFragment : Fragment() {
                 }
                 state.onSignUp { user ->
                     showSnackBar(getString(R.string.text_user_is_registered))
-                    handleAuthorization(user, isNew = true)
+                    handleAuthorization(user)
                 }
                 state.onSignIn { user ->
                     showSnackBar(getString(R.string.text_login_completed))
-                    handleAuthorization(user, isNew = false)
+                    handleAuthorization(user)
                 }
                 state.onEmailValid { flag ->
                     if (flag) {
@@ -173,6 +216,7 @@ class AuthFragment : Fragment() {
                     showSnackBar(getString(R.string.text_check_email))
                 }
                 state.onNotRegistered {
+                    etPassword.text?.clear()
                     btnRegistration.visibility = View.VISIBLE
                     showSnackBar(getString(R.string.text_user_not_found))
                 }
@@ -184,39 +228,26 @@ class AuthFragment : Fragment() {
         }
     }
 
-    private fun handleAuthorization(user: User, isNew: Boolean) {
+    private fun handleAuthorization(user: User) {
         with(binding) {
-            progressBar.visibility = View.VISIBLE
-            listener?.refreshAuthState(user)
-            userVM.addUserToStorage(
-                user.id,
-                mapOf(User.KEY_EMAIL to etEmail.text.toString().trim()),
-                isNew
-            ).observe(viewLifecycleOwner) { result ->
-                result.onSuccess { id ->
-                    progressBar.visibility = View.GONE
-                    val password = etPassword.text.toString().trim()
-                    val accountFragment = AccountFragment.newInstance(id, password, (requireActivity() as MainActivity))
-                    parentFragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, accountFragment).addToBackStack(null).commit()
-                }
-                result.onFailure { exception ->
-                    val fireStoreException = exception as FirebaseFirestoreException
-                    if (fireStoreException.code == FirebaseFirestoreException.Code.NOT_FOUND) {
-                        handleAuthorization(user, isNew = true)
-                    }
-                    else {
-                        progressBar.visibility = View.GONE
-                        showSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
-                    }
-                }
-            }
+
+            val password = etPassword.text.toString()
+            requireContext().saveUserToPref(user.apply {
+                this.password = password
+            })
+
+            val accountFragment = AccountFragment.newInstance()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.frame_to_page_fragm, accountFragment)
+                .addToBackStack(null)
+                .commit()
         }
     }
 
     private fun validateEmailAndPassword(
         onSuccess: (String, String) -> Unit,
         onEmailNotValid: (String) -> Unit,
-        onPasswordNotValid: (String) -> Unit
+        onPasswordNotValid: (String) -> Unit = {}
     ) {
         with(binding) {
             val email = etEmail.text.toString()
@@ -242,6 +273,25 @@ class AuthFragment : Fragment() {
         }
     }
 
+    override fun onPause() {
+
+        with(binding) {
+            authVM.setScreenState(
+                AuthViewModel.ScreenState.Current(
+                    emailText = etEmail.text.toString(),
+                    emailIsFocused = etEmail.isFocused,
+                    emailBackground = etEmail.background,
+                    passwordText = etPassword.text.toString(),
+                    passwordIsFocused = etPassword.isFocused,
+                    passwordBackground = etPassword.background,
+                    btnSignInEnable = btnSignIn.isEnabled,
+                    btnSignUpEnable = btnRegistration.isEnabled
+                )
+            )
+        }
+        super.onPause()
+    }
+
     override fun onResume() {
         super.onResume()
 
@@ -255,12 +305,6 @@ class AuthFragment : Fragment() {
                     parentFragmentManager.popBackStack()
                 }
             })
-    }
-
-    override fun onDetach() {
-
-        listener = null
-        super.onDetach()
     }
 
 }

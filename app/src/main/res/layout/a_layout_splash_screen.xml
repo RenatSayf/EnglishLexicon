@@ -8,7 +8,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/side_nav_bar"
+        android:background="@color/color_3B5E91"
         android:gravity="center"
         android:orientation="vertical">
 
@@ -22,13 +22,19 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="@android:color/holo_orange_light"
             android:textSize="35sp"
-            android:textStyle="normal|bold" />
+            android:textStyle="normal|bold"
+            android:shadowColor="@color/colorDarkOrange"
+            android:shadowDy="-3"
+            android:shadowDx="1"
+            android:shadowRadius="1"
+
+            />
 
         <ImageView
             android:layout_width="150dp"
             android:layout_height="150dp"
-            android:layout_marginBottom="-7dp"
-            android:src="@drawable/icon_lexicon"
+            android:layout_marginTop="4dp"
+            android:src="@drawable/ic_logo_rounded_corners"
             android:contentDescription="@string/content_describt" />
 
         <TextView
@@ -41,7 +47,11 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="@android:color/holo_orange_light"
             android:textSize="35sp"
-            android:textStyle="normal|bold" />
+            android:textStyle="normal|bold"
+            android:shadowColor="@color/colorDarkOrange"
+            android:shadowDy="-3"
+            android:shadowDx="1"
+            android:shadowRadius="1"/>
 
         <ProgressBar
             android:id="@+id/progressBar2"

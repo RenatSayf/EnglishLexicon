@@ -1,48 +1,61 @@
-@file:Suppress("RedundantSamConstructor", "MoveVariableDeclarationIntoWhen")
+@file:Suppress("RedundantSamConstructor", "MoveVariableDeclarationIntoWhen", "PropertyName",
+    "ObjectLiteralToLambda"
+)
 
 package com.myapp.lexicon.auth.account
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
-import com.myapp.lexicon.models.User
+import com.parse.GetCallback
+import com.parse.ParseException
+import com.parse.ParseObject
+import com.parse.ParseQuery
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.serializer
 import org.jsoup.Jsoup
 import java.io.BufferedInputStream
 import java.net.HttpURLConnection
 import java.net.URL
 
-class AccountViewModel : ViewModel() {
+open class AccountViewModel : ViewModel() {
 
     sealed class State {
         object ReadOnly: State()
         object Editing: State()
-        data class OnSave(val user: User): State()
-        data class OnValid(
-            var phone: Boolean = true,
-            var bankName: Boolean = true,
-            var card: Boolean = true,
-            var firstName: Boolean = true,
-            var lastName: Boolean = true
-        ): State()
     }
+
+    open val paymentThreshold: Double = Firebase.remoteConfig.getDouble("payment_threshold")
+    open val paymentDays: Int = Firebase.remoteConfig.getDouble("payment_days").toInt()
+    open val explainMessage: String = Firebase.remoteConfig.getString("reward_explain_message")
 
     private var thread: Thread? = null
 
     private var _state = MutableLiveData<State>().apply {
         value = State.ReadOnly
     }
-    val state: LiveData<State> = _state
+    open val state: LiveData<State> = _state
 
-    fun setState(state: State) {
+    open fun setState(state: State) {
         _state.value = state
     }
 
-    fun fetchBankList(): LiveData<Result<List<String>>> {
+    private var _screenState = MutableLiveData<AccountScreenState>(AccountScreenState.Init)
+    open val screenState: LiveData<AccountScreenState> = _screenState
+    fun saveScreenState(state: AccountScreenState) {
+        _screenState.value = state
+    }
 
-        val result = MutableLiveData<Result<List<String>>>()
+    protected var _bankList = MutableLiveData<Result<List<String>>>()
+    open val bankList: LiveData<Result<List<String>>> = _bankList
+
+    open fun fetchBankListFromNet() {
+
         thread = Thread(Runnable {
-            val url = "https://sbp.nspk.ru/participants/"
+            val url = "https://life-pay.ru/blog/biznes/sistema-bystryh-platezhej-spisok-bankov/"
             try {
                 val urlConnection = URL(url).openConnection() as HttpURLConnection
                 val inputStream = BufferedInputStream(urlConnection.inputStream)
@@ -51,30 +64,54 @@ class AccountViewModel : ViewModel() {
                 when(code) {
                     200 -> {
                         val document = Jsoup.parse(responseText)
-                        val elements = document.select(".bank-name")
-                        val list = elements.map {
+                        val elements = document.select(".wp-block-table > table > tbody > tr > td:nth-child(1)")
+                        val bankList = elements.map {
                             it.text()
                         }
-                        result.postValue(Result.success(list))
+                        val json = Json.encodeToString(serializer(), bankList)
+                        _bankList.postValue(Result.success(bankList))
                     }
                     else -> {
-                        result.postValue(Result.failure(Exception("********* ${AccountViewModel::class.simpleName}.fetchBankList() - Http response code - $code **************")))
+                        _bankList.postValue(Result.failure(Exception("********* ${AccountViewModel::class.simpleName}.fetchBankList() - Http response code - $code **************")))
                     }
                 }
             } catch (e: Exception) {
                 if (BuildConfig.DEBUG) {
                     e.printStackTrace()
                 }
-                result.postValue(Result.failure(e))
+                _bankList.postValue(Result.failure(e))
             }
         })
         thread?.start()
+    }
 
-        return result
+    open fun getBankListFromCloud() {
+        val query = ParseQuery.getQuery<ParseObject>("Banks")
+        query.getFirstInBackground(object : GetCallback<ParseObject> {
+            override fun done(obj: ParseObject?, e: ParseException?) {
+                when {
+                    obj is ParseObject -> {
+                        val strJson = obj["Names"].toString()
+                        val bankList = Json.decodeFromString<List<String>>(strJson)
+                        _bankList.value = Result.success(bankList)
+                    }
+                    e is ParseException -> {
+                        if (BuildConfig.DEBUG) {
+                            e.printStackTrace()
+                        }
+                        _bankList.value = Result.failure(e)
+                    }
+                }
+            }
+        })
     }
 
     override fun onCleared() {
         thread?.interrupt()
         super.onCleared()
+    }
+
+    init {
+        this.getBankListFromCloud()
     }
 }

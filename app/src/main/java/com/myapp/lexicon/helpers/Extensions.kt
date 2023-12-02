@@ -23,9 +23,12 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.SnackBarTestBinding
+import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.schedule.AlarmScheduler
 import com.myapp.lexicon.schedule.AppNotification
@@ -200,6 +203,16 @@ fun Long.toStringTime(locale: Locale = Locale.getDefault()): String {
     return strDate
 }
 
+fun String.toLongTime(locale: Locale = Locale.getDefault()): Long {
+    val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", locale)
+    val date = try {
+        formatter.parse(this)
+    } catch (e: ParseException) {
+        Date(0)
+    }
+    return date.time
+}
+
 fun View.showCustomSnackBar(
     message: String,
     onLaunch: (SnackBarTestBinding) -> Unit = {}
@@ -254,6 +267,18 @@ fun printLogIfDebug(message: String) {
     }
 }
 
+fun Exception.printStackTraceIfDebug() {
+    if (BuildConfig.DEBUG) {
+        this.printStackTrace()
+    }
+}
+
+fun Exception.throwIfDebug() {
+    if (BuildConfig.DEBUG) {
+        throw this
+    }
+}
+
 fun Context.isNetworkAvailable(): Boolean {
     val manager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     return when {
@@ -298,6 +323,78 @@ fun List<Word>.findItemWithoutRemainder(
     }
 }
 
+fun AppCompatActivity.showSignUpBenefitsDialog(
+    onPositiveClick: () -> Unit,
+    onCancel: () -> Unit = {}
+) {
+    val explainMessage = Firebase.remoteConfig.getString("sign_up_benefits_message")
+    if (explainMessage.isNotEmpty()) {
+        ConfirmDialog.newInstance(onLaunch = { dialog, binding ->
+            with(binding) {
+                dialog.isCancelable = false
+                ivIcon.visibility = View.INVISIBLE
+                tvEmoji2.visibility = View.GONE
+                tvEmoji.apply {
+                    visibility = View.VISIBLE
+                    text = getString(R.string.coins_bag)
+                }
+                tvMessage.text = explainMessage
+                btnCancel.apply {
+                    visibility = View.VISIBLE
+                    setOnClickListener {
+                        dialog.dismiss()
+                        onCancel.invoke()
+                    }
+                }
+                btnOk.apply {
+                    text = this@showSignUpBenefitsDialog.getString(R.string.text_go_over)
+                }.setOnClickListener {
+                    dialog.dismiss()
+                    onPositiveClick.invoke()
+                }
+            }
+        }).show(this.supportFragmentManager, ConfirmDialog.TAG)
+    }
+}
+
+fun List<Word>.checkSorting(
+    onASC: () -> Unit = {},
+    onDESC: () -> Unit = {},
+    onNotSorted: () -> Unit = {}
+) {
+    var res = this.zipWithNext { a, b ->
+        a.english.lowercase() <= b.english.lowercase()
+    }.all { it }
+    if (res) {
+        onASC.invoke()
+        return
+    }
+
+    res = this.zipWithNext { a, b ->
+        a.english.lowercase() >= b.english.lowercase()
+    }.all { it }
+    if (res) {
+        onDESC.invoke()
+        return
+    }
+    onNotSorted.invoke()
+}
+
+fun List<Word>.checkSorting(): Int {
+    var result = -1
+    this.checkSorting(
+        onASC = {
+            result = 0
+        },
+        onDESC = {
+            result = 1
+        },
+        onNotSorted = {
+            result = 2
+        }
+    )
+    return result
+}
 
 
 

@@ -1,17 +1,21 @@
 package com.myapp.lexicon.repository
 
+import androidx.sqlite.db.SimpleSQLiteQuery
+import com.myapp.lexicon.common.OrderBy
 import com.myapp.lexicon.database.AppDao
+import com.myapp.lexicon.database.AppDataBase
+import com.myapp.lexicon.database.models.Counters
+import com.myapp.lexicon.database.models.WordToPlay
+import com.myapp.lexicon.helpers.throwIfDebug
 import com.myapp.lexicon.models.Word
-import com.myapp.lexicon.settings.AppSettings
 import io.reactivex.Single
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import javax.inject.Inject
+import kotlin.jvm.Throws
 
-class DataRepositoryImpl @Inject constructor(
-    private val db: AppDao,
-    private var settings: AppSettings
+class DataRepositoryImpl(
+    private val db: AppDao
 ) : IDataRepository
 {
     override fun getDictListFromDb(): Single<MutableList<String>>
@@ -19,9 +23,10 @@ class DataRepositoryImpl @Inject constructor(
         return db.getDictList()
     }
 
-    override fun getEntriesFromDbByDictName(dictName: String, id: Int, repeat: Int, limit: Int): Single<MutableList<Word>>
+    override fun getEntriesFromDbByDictName(dictName: String, id: Int, repeat: Int, orderBy: OrderBy, limit: Int): Single<MutableList<Word>>
     {
-        return db.getEntriesByDictName(dictName, id, repeat, limit)
+        val query = "SELECT * FROM Words WHERE dict_name == '$dictName' AND _id >= $id AND count_repeat >= $repeat ORDER BY ${orderBy.value} LIMIT $limit"
+        return db.getOrderedWordsByDictName(SimpleSQLiteQuery(query))
     }
 
     override fun getEntriesByIds(ids: List<Int>): Single<MutableList<Word>>
@@ -29,9 +34,14 @@ class DataRepositoryImpl @Inject constructor(
         return db.getEntriesById(ids)
     }
 
-    override fun getRandomEntriesFromDB(dictName: String, id: Int): Single<Word>
+    override suspend fun getRandomEntriesFromDB(dictName: String, id: Int): Deferred<Word>
     {
-        return db.getRandomEntries(dictName, id)
+        return coroutineScope {
+            async {
+                val wordToPlay = db.getRandomEntries(dictName, id)
+                wordToPlay.toWord()
+            }
+        }
     }
 
     override fun getAllSimilarEntriesFromDB(dictName: String, like: String): Single<MutableList<Word>>
@@ -44,14 +54,18 @@ class DataRepositoryImpl @Inject constructor(
         return db.updateCountRepeat(countRepeat, minId, maxId)
     }
 
-    override fun insertEntry(word: Word): Single<Long>
+    override fun insertWordAsync(word: Word): Single<Long>
     {
         return db.insert(word)
     }
 
-    override fun insertEntry(list: List<Word>): List<Long>
+    override suspend fun insertWordListAsync(list: List<Word>): Deferred<List<Long>>
     {
-        return db.insert(list)
+        return coroutineScope {
+            async {
+                db.insert(list)
+            }
+        }
     }
 
     override fun updateEntries(words: List<Word>): Single<Int>
@@ -78,61 +92,6 @@ class DataRepositoryImpl @Inject constructor(
         return db.getCounters(dictName, id)
     }
 
-    override fun goForward(words: List<Word>)
-    {
-        settings.goForward(words)
-    }
-
-    override fun getOrderPlay(): Int
-    {
-        return settings.orderPlay
-    }
-
-    override fun saveOrderPlay(order: Int)
-    {
-        settings.orderPlay = order
-    }
-
-    override fun saveWordsIdStringToPref(strIds: String)
-    {
-        settings.saveWordsIdAsString(strIds)
-    }
-
-    override fun getWordsIdStringFromPref(): String
-    {
-        return settings.wordsIdsAsString
-    }
-
-    override fun isSpeechEnable(): Boolean
-    {
-        return settings.isSpeech
-    }
-
-    override fun enableSpeech(isEnable: Boolean)
-    {
-        settings.enableSpeech(isEnable)
-    }
-
-    override fun isEngSpeech(): Boolean
-    {
-        return settings.isEngSpeech
-    }
-
-    override fun setEngSpeech(isSpeech: Boolean)
-    {
-        settings.isEngSpeech = isSpeech
-    }
-
-    override fun isRusSpeech(): Boolean
-    {
-        return settings.isRusSpeech
-    }
-
-    override fun setRusSpeech(isSpeech: Boolean)
-    {
-        settings.isRusSpeech = isSpeech
-    }
-
     override suspend fun getEntriesByDictNameAsync(
         dict: String,
         id: Long,
@@ -141,15 +100,20 @@ class DataRepositoryImpl @Inject constructor(
     ): Deferred<List<Word>> {
         return coroutineScope {
             async {
-                db.getEntriesByDictName(dict, id, repeat, limit)
+                val playList = db.getEntriesByDictName(dict, id, repeat, limit)
+                playList.map { it.toWord() }
             }
         }
     }
-
-    override suspend fun getFirstEntryAsync(): Deferred<Word> {
+    override suspend fun getFirstEntryAsync(): Deferred<Word?> {
         return coroutineScope {
             async {
-                db.getFirstEntry()
+                try {
+                    db.getFirstEntry()
+                } catch (e: Exception) {
+                    e.throwIfDebug()
+                    null
+                }
             }
         }
     }
@@ -161,5 +125,83 @@ class DataRepositoryImpl @Inject constructor(
             }
         }
     }
+
+    override suspend fun getPlayListByDictNameAsync(
+        dict: String,
+        order: Int
+    ): Deferred<List<Word>> {
+        val orderStr = when (order) {
+            0 -> {
+                OrderBy.ASC.value
+            }
+            1 -> {
+                OrderBy.DESC.value
+            }
+            else -> OrderBy.RANDOM.value
+        }
+
+        val query = "INSERT OR replace INTO PlayList SELECT * FROM Words WHERE dict_name = '$dict' AND count_repeat > 0 ORDER BY $orderStr"
+
+        return coroutineScope {
+            async {
+                db.clearPlayList()
+                AppDataBase.execVacuum()
+                db.runTimeQuery(SimpleSQLiteQuery(query))
+                val playList = db.getPlayList()
+                playList.map { it.toWord() }
+            }
+        }
+    }
+
+    override suspend fun getDictNameFromPlayListAsync(): Deferred<List<String>> {
+        return coroutineScope {
+            async {
+                db.getDictNameFromPlayList()
+            }
+        }
+    }
+
+    override suspend fun getPlayListAsync(): Deferred<List<WordToPlay>> {
+        return coroutineScope {
+            async {
+                db.getPlayList()
+            }
+        }
+    }
+
+    override suspend fun getWordPairFromPlayListAsync(id: Int): Deferred<List<Word>> {
+        return coroutineScope {
+            async {
+                val wordPair = db.getWordPairFromPlayList(id)
+                wordPair.map { it.toWord() }
+            }
+        }
+    }
+
+    override suspend fun getFirstFromPlayListAsync(): Deferred<List<Word>> {
+        return coroutineScope {
+            async {
+                val first = db.getFirstFromPlayList()
+                first.map { it.toWord() }
+            }
+        }
+    }
+
+    override suspend fun getCountersByIdAsync(id: Int): Deferred<List<Counters>> {
+        return coroutineScope {
+            async {
+                db.getCountersById(id)
+            }
+        }
+    }
+
+    override fun dbClose() {
+        AppDataBase.dbClose()
+    }
+
+    override fun reInitDataBase() {
+
+    }
+
 
 }

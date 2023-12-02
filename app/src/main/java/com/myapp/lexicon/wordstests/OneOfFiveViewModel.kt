@@ -11,10 +11,6 @@ import kotlin.collections.ArrayList
 
 class OneOfFiveViewModel : ViewModel()
 {
-    init
-    {
-        println("********************** init() **************************")
-    }
 
     private var _wordsList = MutableLiveData<ArrayList<Word>>()
     var wordsList: LiveData<ArrayList<Word>> = _wordsList
@@ -75,12 +71,6 @@ class OneOfFiveViewModel : ViewModel()
     {
         _wrongAnswerCount.value = _wrongAnswerCount.value?.plus(1)
         return
-    }
-
-    override fun onCleared()
-    {
-        super.onCleared()
-        println("********************** onCleared() **************************")
     }
 
 }

@@ -8,7 +8,6 @@ import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner
 import com.myapp.lexicon.R
 import com.myapp.lexicon.database.AppDataBase
 import com.myapp.lexicon.models.Word
-import com.myapp.lexicon.settings.AppSettings
 import com.myapp.lexicon.testing.TestActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -41,7 +40,7 @@ class DataRepositoryImplTest {
                 .allowMainThreadQueries()
                 .build().appDao()
 
-            repository = DataRepositoryImpl(dataBase, AppSettings(it))
+            repository = DataRepositoryImpl(dataBase)
         }
     }
 
@@ -65,7 +64,7 @@ class DataRepositoryImplTest {
             }
 
             val dictName = "Тестовый словарь"
-            subscribe = repository.insertEntry(
+            subscribe = repository.insertWordAsync(
                 Word(0, dictName, "Asdfghjk", "Фывапрод", 1)
             ).subscribe({ id ->
                 Assert.assertTrue("******* id = $id *************", id > 0)

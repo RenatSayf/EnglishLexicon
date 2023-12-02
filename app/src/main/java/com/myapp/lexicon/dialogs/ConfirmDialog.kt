@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.DialogConfirmationBinding
+import com.myapp.lexicon.helpers.LockOrientation
 
 class ConfirmDialog : DialogFragment() {
 
@@ -23,6 +24,9 @@ class ConfirmDialog : DialogFragment() {
     }
 
     private lateinit var binding: DialogConfirmationBinding
+    private val locker: LockOrientation by lazy {
+        LockOrientation(requireActivity())
+    }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
 
@@ -37,6 +41,8 @@ class ConfirmDialog : DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
+        locker.lock()
         binding = DialogConfirmationBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -45,6 +51,12 @@ class ConfirmDialog : DialogFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         onLaunch.invoke(this, this.binding)
+    }
+
+    override fun onDestroyView() {
+
+        locker.unLock()
+        super.onDestroyView()
     }
 
 

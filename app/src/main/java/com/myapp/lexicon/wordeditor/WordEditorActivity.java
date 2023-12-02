@@ -2,7 +2,6 @@ package com.myapp.lexicon.wordeditor;
 
 import android.app.SearchManager;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,16 +21,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.addword.AddWordViewModel;
 import com.myapp.lexicon.ads.AdsViewModelKt;
 import com.myapp.lexicon.ads.BannerAdIds;
 import com.myapp.lexicon.dialogs.ConfirmDialog;
-import com.myapp.lexicon.helpers.AppBus;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SpeechViewModel;
 import com.myapp.lexicon.models.Word;
+import com.myapp.lexicon.models.WordKt;
+import com.myapp.lexicon.settings.SettingsExtKt;
 import com.myapp.lexicon.viewmodels.EditorSearchViewModel;
 import com.yandex.mobile.ads.banner.BannerAdView;
 
@@ -40,21 +41,20 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
-import dagger.hilt.android.AndroidEntryPoint;
 
 
 @SuppressWarnings("CodeBlock2Expr")
-@AndroidEntryPoint
 public class WordEditorActivity extends AppCompatActivity implements ListViewAdapter.IListViewAdapter
 {
     public static final String KEY_EXTRA_DICT_NAME = "wordeditor_dict_name";
-    public static final String KEY_EXTRA_EN_WORD = "KEY_EXTRA_EN_WORD";
-    public static final String KEY_EXTRA_RU_WORD = "KEY_EXTRA_RU_WORD";
-    public static final int requestCode = 2654789;
+    public static final String KEY_EXTRA_WORD = "KEY_EXTRA_WORD";
+    public static final int NEED_UPDATE_PLAY_LIST = 2654789;
 
     private Spinner dictListSpinner;
     private SearchView searchView;
@@ -74,7 +74,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
     private MainViewModel mainVM;
     private EditorViewModel editorVM;
     private AddWordViewModel addWordVM;
-    private SpeechViewModel spechVM;
+    private SpeechViewModel speechVM;
 
     private void initViews()
     {
@@ -88,6 +88,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
                 android.R.anim.slide_out_right);
         switcher.setInAnimation(slide_in_left);
         switcher.setOutAnimation(slide_out_right);
+        switcher.setDisplayedChild(editorVM.getSwitcherChildIndex());
         
         buttonWrite = findViewById(R.id.btn_write);
         if (buttonWrite != null)
@@ -132,10 +133,10 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        mainVM = new ViewModelProvider(this).get(MainViewModel.class);
-        editorVM = new ViewModelProvider(this).get(EditorViewModel.class);
-        addWordVM = new ViewModelProvider(WordEditorActivity.this).get(AddWordViewModel.class);
-        spechVM = new ViewModelProvider(this).get(SpeechViewModel.class);
+        mainVM = createMainViewModel();
+        editorVM = createEditorViewModel();
+        addWordVM = createAddWordViewModel();
+        speechVM = createSpeechViewModel();
 
         initViews();
 
@@ -205,13 +206,15 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             {
                 if (editorVM.selectedWord != null)
                 {
-                    Toast.makeText(this, "Слово удалено", Toast.LENGTH_SHORT).show();
+                    ExtensionsKt.showSnackBar(switcher, getString(R.string.text_word_deleted), Snackbar.LENGTH_LONG);
                     editorVM.getAllWordsByDictName(editorVM.selectedWord.getDictName());
+                    setResult(NEED_UPDATE_PLAY_LIST);
+                    SettingsExtKt.setCloudUpdateRequired(this, true);
                 }
             }
             else if (id < 0)
             {
-                Toast.makeText(WordEditorActivity.this, getString(R.string.msg_data_base_error), Toast.LENGTH_SHORT).show();
+                ExtensionsKt.showSnackBar(switcher, getString(R.string.msg_data_base_error), Snackbar.LENGTH_LONG);
             }
         });
 
@@ -265,15 +268,28 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             if (isUpdated != null && isUpdated)
             {
                 editorVM.getAllWordsByDictName(dictListSpinner.getSelectedItem().toString());
-                AppBus.INSTANCE.updateWords(true);
-                Toast.makeText(getApplicationContext(), R.string.text_dict_is_updated, Toast.LENGTH_LONG).show();
+                ExtensionsKt.showSnackBar(switcher, getString(R.string.text_dict_is_updated), Snackbar.LENGTH_LONG);
+                setResult(NEED_UPDATE_PLAY_LIST);
+                SettingsExtKt.setCloudUpdateRequired(this, true);
             }
         });
 
-        addWordVM.getInsertedId().observe(this, id -> {
-            if (id > 0)
+        addWordVM.getInsertedWord().observe(this, pair -> {
+            Word word = pair.getFirst();
+            Throwable throwable = pair.getSecond();
+            if (word != null)
             {
-                Toast.makeText(getApplicationContext(), R.string.text_dict_is_updated, Toast.LENGTH_LONG).show();
+                ExtensionsKt.showSnackBar(switcher, getString(R.string.text_dict_is_updated), Snackbar.LENGTH_LONG);
+                setResult(NEED_UPDATE_PLAY_LIST);
+                SettingsExtKt.setCloudUpdateRequired(this, true);
+            }
+            else if (throwable != null) {
+                String message = (throwable.getMessage() != null) ? throwable.getMessage() : getString(R.string.text_unknown_error_message);
+                ExtensionsKt.showSnackBar(
+                        switcher,
+                        message,
+                        Snackbar.LENGTH_LONG
+                );
             }
         });
 
@@ -281,38 +297,75 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             if (id != null && id > 0)
             {
                 editorVM.getAllWordsByDictName(dictListSpinner.getSelectedItem().toString());
-                AppBus.INSTANCE.updateWords(true);
             }
         });
 
-        String enWord = getIntent().getStringExtra(KEY_EXTRA_EN_WORD);
-        String ruWord = getIntent().getStringExtra(KEY_EXTRA_RU_WORD);
-        if (enWord != null && ruWord != null)
+
+
+        String jsonWord = getIntent().getStringExtra(KEY_EXTRA_WORD);
+        if (jsonWord != null)
         {
-            editorVM.setEnWord(enWord);
-            editorVM.setRuWord(ruWord);
+            Word word = WordKt.toWord(jsonWord);
+            editorVM.setEnWord(word.getEnglish());
+            editorVM.setRuWord(word.getTranslate());
+            editorVM.selectedWord = word;
             switcher.showNext();
         }
 
     }
 
-    @Override
-    public void onBackPressed()
+    private AddWordViewModel createAddWordViewModel()
     {
-        int index = switcher.getDisplayedChild();
-        if (index > 0) {
-            switcher.showPrevious();
-        }
-        else {
-            setResult(requestCode, new Intent());
-            finish();
-        }
+        AddWordViewModel.Factory factory = new AddWordViewModel.Factory(this.getApplication());
+        return new ViewModelProvider(this, factory).get(AddWordViewModel.class);
+    }
+
+    private SpeechViewModel createSpeechViewModel()
+    {
+        SpeechViewModel.Factory factory = new SpeechViewModel.Factory(this.getApplication());
+        return new ViewModelProvider(this, factory).get(SpeechViewModel.class);
+    }
+
+    @NonNull
+    private MainViewModel createMainViewModel() {
+        MainViewModel.Factory factory = new MainViewModel.Factory(this.getApplication());
+        return new ViewModelProvider(this, factory).get(MainViewModel.class);
+    }
+
+    private EditorViewModel createEditorViewModel() {
+        EditorViewModel.Factory factory = new EditorViewModel.Factory(this.getApplication());
+        return new ViewModelProvider(this, factory).get(EditorViewModel.class);
     }
 
     @Override
-    protected void onDestroy()
+    protected void onResume()
     {
-        super.onDestroy();
+        super.onResume();
+
+        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true)
+        {
+            @Override
+            public void handleOnBackPressed()
+            {
+                int index = switcher.getDisplayedChild();
+                if (index > 0)
+                {
+                    switcher.showPrevious();
+                } else
+                {
+                    finish();
+                }
+            }
+        });
+    }
+
+    @Override
+    protected void onPause()
+    {
+        View currentView = switcher.getCurrentView();
+        int index = switcher.indexOfChild(currentView);
+        editorVM.setSwitcherChildIndex(index);
+        super.onPause();
     }
 
     private void buttonCancel_OnClick()
@@ -377,11 +430,11 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
                     word.setDictName(otherDict);
                     if (checkCopy.isChecked())
                     {
-                        addWordVM.insertEntryAsync(word);
+                        addWordVM.insertWord(word);
                     }
                     else
                     {
-                        addWordVM.insertEntryAsync(word);
+                        addWordVM.insertWord(word);
                         editorVM.deleteWordFromDb(editorVM.selectedWord);
                     }
                 }
@@ -440,7 +493,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
         }
         if (id == android.R.id.home)
         {
-            onBackPressed();
+            getOnBackPressedDispatcher().onBackPressed();
         }
         return true;
     }
@@ -483,7 +536,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
         {
             try
             {
-                spechVM.doSpeech(text, Locale.US);
+                speechVM.doSpeech(text, Locale.US);
             } catch (Exception e)
             {
                 e.printStackTrace();

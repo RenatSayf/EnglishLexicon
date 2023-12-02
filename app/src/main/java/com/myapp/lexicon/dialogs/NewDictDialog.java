@@ -49,7 +49,10 @@ public class NewDictDialog extends DialogFragment
         setStyle(STYLE_NO_TITLE, R.style.AppAlertDialog);
         setCancelable(false);
         Dialog dialog = super.onCreateDialog(savedInstanceState);
-        dialog.getWindow().setBackgroundDrawableResource(R.drawable.bg_popup_dialog);
+        if (dialog.getWindow() != null)
+        {
+            dialog.getWindow().setBackgroundDrawableResource(R.drawable.bg_popup_dialog);
+        }
         return dialog;
     }
 

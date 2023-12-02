@@ -4,14 +4,21 @@ package com.myapp.lexicon.cloudstorage
 
 import android.content.Context
 import android.net.Uri
-import androidx.work.*
+import androidx.work.Constraints
+import androidx.work.CoroutineWorker
+import androidx.work.Data
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
+import androidx.work.WorkerParameters
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageMetadata
 import com.google.firebase.storage.ktx.storage
-import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
-import com.myapp.lexicon.database.AppDataBase
-import com.myapp.lexicon.helpers.getCRC32CheckSum
+import com.myapp.lexicon.helpers.printLogIfDebug
+import com.myapp.lexicon.settings.cloudUpdateRequired
+import com.myapp.lexicon.settings.lastUpdateTimeDB
 import kotlinx.coroutines.delay
 
 
@@ -61,25 +68,23 @@ class UploadDbWorker(
 
         var result = Result.failure(Data.EMPTY)
         var isWorked = true
-        AppDataBase.dataBase?.close()
 
         try {
             val mainDbFile = context.getDatabasePath(dbName)
             val userFile = Uri.fromFile(mainDbFile)
-            val checkSum = mainDbFile.readBytes().getCRC32CheckSum()
 
-            if (BuildConfig.DEBUG) {
-                println("************* ${UploadDbWorker::class.simpleName}.doWork() Database check sum: $checkSum ******************")
-            }
+            printLogIfDebug("************* ${UploadDbWorker::class.simpleName}.doWork() Database update time: ${context.lastUpdateTimeDB} ******************")
+
             val storageRef = Firebase.storage.reference
             val customMetadata = StorageMetadata.Builder().apply {
-                setCustomMetadata("CHECK_SUM", checkSum.toString())
+                setCustomMetadata("LAST_MODIFIED_TIME", context.lastUpdateTimeDB.toString())
             }.build()
             val uploadTask = storageRef.child("/users/$userId/${userFile.lastPathSegment}").putFile(userFile, customMetadata)
 
             uploadTask
                 .addOnSuccessListener { task ->
                     task.storage.downloadUrl.addOnSuccessListener { uri ->
+                        context.cloudUpdateRequired = false
                         listener?.onSuccess(uri)
                         result = Result.success()
                     }.addOnFailureListener { e ->
