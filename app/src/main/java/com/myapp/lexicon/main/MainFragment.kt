@@ -5,14 +5,21 @@ import android.os.Build
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.myapp.lexicon.R
 import com.myapp.lexicon.dialogs.ConfirmDialog
+import com.myapp.lexicon.helpers.registerFinishReceiver
+import com.myapp.lexicon.main.viewmodels.FinishViewModel
+import com.myapp.lexicon.service.FinishReceiver
 import com.myapp.lexicon.settings.askForPermission
+import kotlinx.coroutines.launch
 
 class MainFragment : Fragment() {
 
     companion object {
 
+        val TAG = "${MainFragment::class.java.simpleName}.TAG235489"
         private var instance: MainFragment? = null
         private var listener: Listener? = null
 
@@ -32,6 +39,9 @@ class MainFragment : Fragment() {
     interface Listener {
         fun onVisibleMainScreen()
     }
+
+    val finishVM: FinishViewModel by viewModels()
+    private var finishReceiver: FinishReceiver? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,7 +71,32 @@ class MainFragment : Fragment() {
             )
         }
 
+        lifecycleScope.launch {
+            finishVM.timeIsUp.collect { result ->
+                result.onSuccess { value ->
+                    if (value) {
+                        (requireActivity() as MainActivity).onAppFinish()
+                    }
+                }
+            }
+        }
 
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        finishVM.cancelTimer()
+        finishReceiver = FinishReceiver(requireActivity() as MainActivity)
+        requireContext().registerFinishReceiver(finishReceiver!!)
+    }
+
+    override fun onStop() {
+
+        finishReceiver?.let {
+            requireContext().unregisterReceiver(it)
+        }
+        super.onStop()
     }
 
 }

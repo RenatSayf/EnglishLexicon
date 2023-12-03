@@ -102,9 +102,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ViewPager2 mainViewPager;
     private final MainViewPagerAdapter pagerAdapter = new MainViewPagerAdapter();
     private Toolbar toolBar;
-
-    private final String KEY_TV_WORDS_COUNTER = "tv_words_counter";
-
     public MainViewModel mainVM;
     private SpeechViewModel speechVM;
     public BackgroundFragm backgroundFragm = null;
@@ -122,16 +119,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setSupportActionBar(toolBar);
 
         navView = root.findViewById(R.id.nav_view);
-
-        PhoneUnlockedReceiver.Companion.disableBroadcast();
-
-        NotificationManager nmg = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        if (nmg != null)
-        {
-            nmg.cancelAll();
-        }
-        AlarmScheduler scheduler = new AlarmScheduler(this);
-        scheduler.cancel(AlarmScheduler.ONE_SHOOT_ACTION);
 
         getSupportFragmentManager().setFragmentResultListener(getString(R.string.KEY_NEED_REFRESH), this, this);
         getSupportFragmentManager().setFragmentResultListener(getString(R.string.KEY_TEST_INTERVAL_CHANGED), this, this);
@@ -350,11 +337,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (navigationView != null)
         {
             navigationView.setNavigationItemSelectedListener(this);
-        }
-
-        if (savedInstanceState != null)
-        {
-            tvWordsCounter.setText(savedInstanceState.getString(KEY_TV_WORDS_COUNTER));
         }
 
         CheckBox checkBoxEnView = findViewById(R.id.check_box_en_speak);
@@ -613,11 +595,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState)
+    protected void onStart()
     {
-        outState.putString(KEY_TV_WORDS_COUNTER, tvWordsCounter.getText().toString());
-        super.onSaveInstanceState(outState);
+        super.onStart();
+
+        PhoneUnlockedReceiver.Companion.disableBroadcast();
+
+        NotificationManager nmg = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (nmg != null)
+        {
+            nmg.cancelAll();
+        }
+        AlarmScheduler scheduler = new AlarmScheduler(this);
+        scheduler.cancel(AlarmScheduler.ONE_SHOOT_ACTION);
+
+        AppDataBase dataBase = AppDataBase.Companion.getDataBase();
+        if (dataBase == null) {
+            AppDataBase dbInstance = AppDataBase.Companion.getDbInstance(this);
+            DataRepositoryImpl repository = new DataRepositoryImpl(dbInstance.appDao());
+            mainVM.injectDependencies(repository);
+        }
     }
 
     @Override
@@ -625,6 +624,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         Word word = pagerAdapter.getItem(mainViewPager.getCurrentItem());
         SettingsExtKt.saveWordToPref(this, word, mainViewPager.getCurrentItem());
+
         super.onStop();
     }
 
@@ -997,7 +997,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     @Override
                                     public void onNotRequireSync()
                                     {
-                                        //SettingsExtKt.setCheckFirstLaunch(MainActivity.this, false);
                                         menu.findItem(R.id.cloud_storage).setVisible(false);
                                     }
                                 }
@@ -1014,7 +1013,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
-    void onAppFinish()
+    public void onAppFinish()
     {
         ExtensionsKt.alarmClockEnable(this);
 
