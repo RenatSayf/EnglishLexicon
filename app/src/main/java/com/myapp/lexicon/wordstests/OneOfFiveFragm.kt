@@ -30,7 +30,6 @@ import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.adsIsEnabled
 import com.myapp.lexicon.settings.testIntervalFromPref
-import com.parse.ParseUser
 import com.yandex.mobile.ads.interstitial.InterstitialAd
 import com.yandex.mobile.ads.rewarded.RewardedAd
 import java.util.*
@@ -297,12 +296,10 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
     ) {
         if (this.adsIsEnabled) {
 
-            val currentUser = ParseUser.getCurrentUser()
-
             interstitialAd?.showAd(
                 requireActivity(),
                 onImpression = { data ->
-                    if (currentUser != null && data != null) {
+                    if (data != null) {
                         revenueVM.updateUserRevenueIntoCloud(data)
                     }
                 }, onDismissed = {
@@ -313,7 +310,7 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
             rewardedAd?.showAd(
                 requireActivity(),
                 onImpression = { data ->
-                    if (currentUser != null && data != null) {
+                    if (data != null) {
                         revenueVM.updateUserRevenueIntoCloud(data)
                     }
                 }, onDismissed = {
