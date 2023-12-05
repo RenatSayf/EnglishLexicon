@@ -43,7 +43,10 @@ class OneFiveTestAdapter constructor(private val list: MutableList<Word>) : Recy
             }
             catch (e: IndexOutOfBoundsException)
             {
-                listener.onItemClickListener(0, list[0], answerView)
+                val word = list.firstOrNull()
+                if (word != null) {
+                    listener.onItemClickListener(0, word, answerView)
+                }
             }
         }
     }

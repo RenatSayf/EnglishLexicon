@@ -65,9 +65,9 @@ class App : Application(), Configuration.Provider {
             }.build()
         )
     }
-
-    override fun getWorkManagerConfiguration(): Configuration {
-        return Configuration.Builder().setMinimumLoggingLevel(Log.DEBUG).build()
-    }
+    override val workManagerConfiguration: Configuration
+        get() {
+            return Configuration.Builder().setMinimumLoggingLevel(Log.DEBUG).build()
+        }
 
 }

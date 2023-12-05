@@ -133,12 +133,13 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
 
         when(words.size) {
             2 -> {
-                context.saveWordToPref(words[1], words.indexOf(words[1]))
+                context.saveWordToPref(words[1], 1)
             }
             1 -> {
                 scope.launch {
                     val list = repository.getFirstFromPlayListAsync().await()
-                    context.saveWordToPref(list[0], words.indexOf(words[1]))
+                    val word = list.firstOrNull()
+                    context.saveWordToPref(word, 0)
                 }
             }
         }

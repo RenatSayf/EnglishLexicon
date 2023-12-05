@@ -27,7 +27,8 @@ abstract class AppDataBase : RoomDatabase()
     companion object
     {
         @Volatile
-        private var dataBase: AppDataBase? = null
+        var dataBase: AppDataBase? = null
+            private set
 
         @OptIn(InternalCoroutinesApi::class)
         fun getDbInstance(context: Context): AppDataBase {

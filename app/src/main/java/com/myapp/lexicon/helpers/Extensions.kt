@@ -1,9 +1,12 @@
 package com.myapp.lexicon.helpers
 
+import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
@@ -32,6 +35,7 @@ import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.schedule.AlarmScheduler
 import com.myapp.lexicon.schedule.AppNotification
+import com.myapp.lexicon.service.FinishReceiver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
@@ -394,6 +398,18 @@ fun List<Word>.checkSorting(): Int {
         }
     )
     return result
+}
+
+@SuppressLint("UnspecifiedRegisterReceiverFlag")
+fun Context.registerFinishReceiver(receiver: FinishReceiver) {
+
+    val intentFilter = IntentFilter(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        this.registerReceiver(receiver, intentFilter, Context.RECEIVER_NOT_EXPORTED)
+    }
+    else {
+        this.registerReceiver(receiver, intentFilter)
+    }
 }
 
 

@@ -11,6 +11,8 @@ import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.common.AdsSource
 import com.myapp.lexicon.helpers.printLogIfDebug
+import com.myapp.lexicon.helpers.screenHeight
+import com.myapp.lexicon.helpers.screenWidth
 import com.yandex.mobile.ads.banner.BannerAdSize
 import com.yandex.mobile.ads.banner.BannerAdView
 import com.yandex.mobile.ads.common.AdError
@@ -275,10 +277,9 @@ fun BannerAdView.loadBanner(adId: BannerAdIds? = null) {
 
     val isBannerEnabled = Firebase.remoteConfig.getBoolean("is_banner_enabled")
     if (isBannerEnabled) {
-        val width = (this.context.resources.displayMetrics.widthPixels / context.resources.displayMetrics.density).roundToInt()
-        val height = (144 / context.resources.displayMetrics.density).roundToInt()
-        //val stickySize = BannerAdSize.stickySize(this.context, width)
-        val fixedSize = BannerAdSize.fixedSize(this.context, width, height)
+        val adWidth = this.context.screenWidth
+        val adHeight = (this.context.screenHeight * 0.08).roundToInt()
+        val fixedSize = BannerAdSize.fixedSize(this.context, adWidth, adHeight)
         this.apply {
             val id = if (BuildConfig.DEBUG) {
                 "demo-banner-yandex"

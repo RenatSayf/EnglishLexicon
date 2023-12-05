@@ -154,6 +154,20 @@
         <receiver android:name=".schedule.TimerReceiver">
         </receiver>
 
+        <receiver android:name=".service.PhoneUnlockedReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.USER_PRESENT" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".service.FinishReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.CLOSE_SYSTEM_DIALOGS" />
+            </intent-filter>
+        </receiver>
+
         <service
             android:name=".push.MessagingService"
             android:exported="false">
