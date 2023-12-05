@@ -15,7 +15,7 @@ class FinishViewModel : ViewModel() {
         TimeUnit.SECONDS.toMillis(30)
     }
     else {
-        TimeUnit.SECONDS.toMillis(300)
+        TimeUnit.SECONDS.toMillis(180)
     }
     private val countDownInterval: Long = TimeUnit.SECONDS.toMillis(30)
 
