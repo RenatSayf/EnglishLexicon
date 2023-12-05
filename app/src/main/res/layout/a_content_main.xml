@@ -63,7 +63,8 @@
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:textColor="@drawable/selector_white_to_black"
                     android:background="@drawable/semitransparent_background"
-                    tools:text="XXXXXXXXXXXXXXXXXXXXXXXXXXX" />
+                    android:text="@string/text_dictionary"
+                    />
             </FrameLayout>
 
             <FrameLayout android:layout_width="0dp"
