@@ -2,8 +2,11 @@ package com.myapp.lexicon.main.viewmodels
 
 import android.os.CountDownTimer
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.myapp.lexicon.BuildConfig
+import com.myapp.lexicon.helpers.printLogIfDebug
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
@@ -17,15 +20,19 @@ class FinishViewModel : ViewModel() {
     else {
         TimeUnit.SECONDS.toMillis(180)
     }
+    private var job: Job? = null
     private val countDownInterval: Long = TimeUnit.SECONDS.toMillis(30)
 
     private val timer = object : CountDownTimer(millisInFuture, countDownInterval) {
         override fun onTick(p0: Long) {}
 
         override fun onFinish() {
-            viewModelScope.launch {
+            printLogIfDebug("************ CountDownTimer finish **************")
+            //region: If use the viewmodelscope, then this code snippet will only work once. For some reason...
+            job = CoroutineScope(Dispatchers.Main).launch {
                 _timeIsUp.emit(Result.success(true))
             }
+            //endregion
         }
     }
 
@@ -39,4 +46,11 @@ class FinishViewModel : ViewModel() {
 
     private var _timeIsUp = MutableSharedFlow<Result<Boolean>>()
     val timeIsUp: SharedFlow<Result<Boolean>> = _timeIsUp
+
+    override fun onCleared() {
+
+        job?.cancel()
+        super.onCleared()
+    }
+
 }
