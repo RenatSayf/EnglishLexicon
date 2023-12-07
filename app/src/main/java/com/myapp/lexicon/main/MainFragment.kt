@@ -7,10 +7,14 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import com.google.firebase.messaging.FirebaseMessaging
 import com.myapp.lexicon.R
 import com.myapp.lexicon.dialogs.ConfirmDialog
+import com.myapp.lexicon.helpers.printLogIfDebug
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.registerFinishReceiver
 import com.myapp.lexicon.main.viewmodels.FinishViewModel
+import com.myapp.lexicon.push.MessagingService
 import com.myapp.lexicon.service.FinishReceiver
 import com.myapp.lexicon.settings.askForPermission
 import kotlinx.coroutines.launch
@@ -79,6 +83,12 @@ class MainFragment : Fragment() {
                     }
                 }
             }
+        }
+
+        FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
+            printLogIfDebug("********** ${MessagingService::class.simpleName} token = $token ***************")
+        }.addOnFailureListener { exception ->
+            exception.printStackTraceIfDebug()
         }
 
     }

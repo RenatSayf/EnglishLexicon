@@ -1,13 +1,17 @@
 package com.myapp.lexicon.push
 
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.myapp.lexicon.BuildConfig
+import com.myapp.lexicon.helpers.printLogIfDebug
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.User
 import com.parse.ParseUser
 
 class MessagingService : FirebaseMessagingService() {
+
     override fun onNewToken(token: String) {
         val currentUser = ParseUser.getCurrentUser()
         if (currentUser != null) {

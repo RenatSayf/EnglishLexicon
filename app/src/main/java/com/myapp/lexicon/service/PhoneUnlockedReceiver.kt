@@ -10,6 +10,7 @@ import com.myapp.lexicon.helpers.checkIsActivityShown
 import com.myapp.lexicon.helpers.goAsync
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showDebugNotification
+import com.myapp.lexicon.helpers.throwIfDebug
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.toWordsString
 import com.myapp.lexicon.repository.DataRepositoryImpl
@@ -51,14 +52,22 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
         context.checkUnLockedBroadcast(
             onEnabled = {},
             onDisabled = {
-                context.unregisterReceiver(this)
+                try {
+                    context.unregisterReceiver(this)
+                } catch (e: Exception) {
+                    e.throwIfDebug()
+                }
                 isRegister = false
             }
         )
         if (!isRegister) return
 
         if (!isBroadcast) {
-            context.unregisterReceiver(this)
+            try {
+                context.unregisterReceiver(this)
+            } catch (e: Exception) {
+                e.throwIfDebug()
+            }
             return
         }
 
