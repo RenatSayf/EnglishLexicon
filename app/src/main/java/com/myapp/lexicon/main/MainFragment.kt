@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.messaging.FirebaseMessaging
+import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.printLogIfDebug
@@ -85,10 +86,12 @@ class MainFragment : Fragment() {
             }
         }
 
-        FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
-            printLogIfDebug("********** ${MessagingService::class.simpleName} token = $token ***************")
-        }.addOnFailureListener { exception ->
-            exception.printStackTraceIfDebug()
+        if (BuildConfig.DEBUG) {
+            FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
+                printLogIfDebug("********** ${MessagingService::class.simpleName} token = $token ***************")
+            }.addOnFailureListener { exception ->
+                exception.printStackTraceIfDebug()
+            }
         }
 
     }
