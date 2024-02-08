@@ -54,7 +54,7 @@ class WordTest {
 
         val inputString = "id=1|dict=Xxxx|en=test|tr=тест|count=1+id=2|dict=Yyyy|en=test|tr=тест|count=1"
         val wordList = inputString.toWordList()
-        Assert.assertEquals(1, wordList[0]._id)
+        Assert.assertEquals(1, wordList!![0]._id)
         Assert.assertEquals(2, wordList[1]._id)
     }
 
