@@ -149,7 +149,7 @@ dependencies {
     testImplementation "androidx.work:work-testing:$work_version"
 
     // Yandex Mobile Ads SDK
-    implementation 'com.yandex.android:mobileads:6.3.0'
+    implementation 'com.yandex.android:mobileads:6.4.0'
 
     // Yandex AppMetrica SDK.
     implementation 'io.appmetrica.analytics:analytics:6.1.0'
@@ -163,13 +163,11 @@ dependencies {
     //back4app
     implementation "com.github.parse-community.Parse-SDK-Android:parse:4.2.1"
 
-    // ExoPlayer
-    implementation "androidx.media3:media3-exoplayer:1.2.1"
-    implementation "androidx.media3:media3-exoplayer-dash:1.2.1"
-    implementation "androidx.media3:media3-ui:1.2.1"
-
     // Picasso
     implementation 'com.squareup.picasso:picasso:2.8'
+
+    //android-youtube-player
+    implementation 'com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.0'
 
 }
 

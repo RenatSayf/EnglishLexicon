@@ -1,14 +1,11 @@
 package com.myapp.lexicon.video
 
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.media3.common.MediaItem
-import androidx.media3.exoplayer.ExoPlayer
-import com.myapp.lexicon.R
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.databinding.FragmentVideoPlayerBinding
 
 class VideoPlayerFragment : Fragment() {
@@ -44,13 +41,7 @@ class VideoPlayerFragment : Fragment() {
 
         with(binding) {
 
-            val player = ExoPlayer.Builder(requireContext()).build()
-            playerView.player = player
-            val mediaItem = MediaItem.fromUri(playerVM.getVideoUri())
-            player.apply {
-                setMediaItem(mediaItem)
-                prepare()
-            }.play()
+
         }
     }
 

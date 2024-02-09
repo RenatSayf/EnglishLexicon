@@ -3,6 +3,7 @@ package com.myapp.lexicon.video
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.myapp.lexicon.common.VIDEO_BASE_URL
 
 class VideoPlayerViewModel(
     private val videoId: String?
@@ -16,10 +17,8 @@ class VideoPlayerViewModel(
         }
     }
 
-    private val youTubeBaseUrl = "https://www.youtube.com/watch"
-
     fun getVideoUri(): Uri {
-        return Uri.parse("$youTubeBaseUrl?v=$videoId")
+        return Uri.parse("$VIDEO_BASE_URL$videoId")
     }
 
 

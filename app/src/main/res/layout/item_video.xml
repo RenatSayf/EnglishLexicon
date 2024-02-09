@@ -13,6 +13,12 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
+            android:id="@+id/playerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="invisible" />
+
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/ivPlaceHolder"
             android:layout_width="match_parent"
@@ -20,12 +26,6 @@
             android:scaleType="centerCrop"
             android:src="@drawable/ic_smart_display"
             tools:ignore="ImageContrastCheck" />
-
-        <androidx.media3.ui.PlayerView
-            android:id="@+id/playerView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone" />
 
         <ProgressBar
             android:id="@+id/progressBar"

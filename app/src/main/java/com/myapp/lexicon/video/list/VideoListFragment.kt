@@ -7,17 +7,23 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.RecyclerView
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.FragmentVideoListBinding
 import com.myapp.lexicon.helpers.showToastIfDebug
 import com.myapp.lexicon.repository.network.INetRepository
 import com.myapp.lexicon.repository.network.NetRepository
 import com.myapp.lexicon.video.models.VideoSearchResult
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerCallback
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 
 class VideoListFragment private constructor(): Fragment() {
 
@@ -71,6 +77,23 @@ class VideoListFragment private constructor(): Fragment() {
                         }
                     }
                 })
+
+                addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+
+                        val views = recyclerView.children.toList()
+                        if (views.isNotEmpty()) {
+                            val playerView = views[0].findViewById<YouTubePlayerView>(R.id.playerView)
+                            val videoId = views[0].findViewById<TextView>(R.id.tvTitle).tag.toString()
+                            playerView.getYouTubePlayerWhenReady(object : YouTubePlayerCallback {
+                                override fun onYouTubePlayer(youTubePlayer: YouTubePlayer) {
+                                    youTubePlayer.loadVideo(videoId, 0.0f)
+                                }
+                            })
+                        }
+                    }
+                })
+
             }
 
             videoListVM.searchResult.observe(viewLifecycleOwner) { result ->
