@@ -20,16 +20,13 @@ import com.myapp.lexicon.adapters.OneFiveTestAdapter
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.InterstitialAdIds
 import com.myapp.lexicon.ads.RevenueViewModel
-import com.myapp.lexicon.ads.RewardedAdIds
 import com.myapp.lexicon.ads.showAd
 import com.myapp.lexicon.databinding.OneOfFiveFragmNewBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.RandomNumberGenerator
-import com.myapp.lexicon.helpers.findItemWithoutRemainder
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.adsIsEnabled
-import com.myapp.lexicon.settings.testIntervalFromPref
 import com.yandex.mobile.ads.interstitial.InterstitialAd
 import com.yandex.mobile.ads.rewarded.RewardedAd
 import java.util.*
@@ -87,26 +84,12 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
 
         if (!wordList.isNullOrEmpty()) vm.initTest(wordList!!.toList())
 
-        val wordsInterval = requireContext().testIntervalFromPref
-        wordList?.findItemWithoutRemainder(
-            wordsInterval * 5,
-            isRemainder = {
-                adsVM.loadInterstitialAd(InterstitialAdIds.INTERSTITIAL_3)
-                adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
-                    result.onSuccess { ad ->
-                        interstitialAd = ad
-                    }
-                }
-            },
-            noRemainder = {
-                adsVM.loadRewardedAd(RewardedAdIds.REWARDED_1)
-                adsVM.rewardedAd.observe(viewLifecycleOwner) { result ->
-                    result.onSuccess { ad ->
-                        rewardedAd = ad
-                    }
-                }
+        adsVM.loadInterstitialAd(InterstitialAdIds.INTERSTITIAL_2)
+        adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
+            result.onSuccess { ad ->
+                interstitialAd = ad
             }
-        )
+        }
 
         vm.adapterList.observe(viewLifecycleOwner) {
             binding.answersRecyclerView.apply {
