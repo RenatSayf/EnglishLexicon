@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".video.VideoPlayerFragment">
 
-    <androidx.media3.ui.PlayerView
+    <com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
         android:id="@+id/playerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
