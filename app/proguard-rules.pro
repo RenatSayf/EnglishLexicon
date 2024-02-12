@@ -40,5 +40,6 @@
 -dontwarn org.openjsse.javax.net.ssl.SSLSocket
 -dontwarn org.openjsse.net.ssl.OpenJSSE
 
+# Yandex AppMetrica SDK.
 -keep class com.yandex.metrica.** { *; }
 -dontwarn com.yandex.metrica.**
