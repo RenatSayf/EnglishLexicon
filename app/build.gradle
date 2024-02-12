@@ -163,14 +163,6 @@ dependencies {
     //back4app
     implementation "com.github.parse-community.Parse-SDK-Android:parse:4.2.1"
 
-    // Picasso
-    implementation 'com.squareup.picasso:picasso:2.8'
-
-    //android-youtube-player
-    implementation 'com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.0'
-
-    implementation 'com.google.android.gms:play-services-auth:20.7.0'
-
 }
 
 
