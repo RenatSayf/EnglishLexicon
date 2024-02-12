@@ -1,11 +1,8 @@
-@file:Suppress("ObjectLiteralToLambda")
-
 package com.myapp.lexicon.main
 
 import android.Manifest
 import android.os.Build
 import android.os.Bundle
-import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -54,11 +51,7 @@ class MainFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val launcher = this.registerForActivityResult(ActivityResultContracts.RequestPermission(), object : ActivityResultCallback<Boolean> {
-            override fun onActivityResult(result: Boolean) {
-
-            }
-        })
+        val launcher = this.registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             askForPermission(

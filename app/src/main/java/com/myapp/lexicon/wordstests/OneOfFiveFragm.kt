@@ -28,7 +28,6 @@ import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.adsIsEnabled
 import com.yandex.mobile.ads.interstitial.InterstitialAd
-import com.yandex.mobile.ads.rewarded.RewardedAd
 import java.util.*
 
 const val ROWS: Int = 5
@@ -43,7 +42,6 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
     private val adsVM: AdsViewModel by viewModels()
     private val revenueVM: RevenueViewModel by activityViewModels()
     private var interstitialAd: InterstitialAd? = null
-    private var rewardedAd: RewardedAd? = null
 
 
     companion object
@@ -289,19 +287,7 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
                     onComplete.invoke()
                 }
             )
-
-            rewardedAd?.showAd(
-                requireActivity(),
-                onImpression = { data ->
-                    if (data != null) {
-                        revenueVM.updateUserRevenueIntoCloud(data)
-                    }
-                }, onDismissed = {
-                    onComplete.invoke()
-                }
-            )
-
-            if (interstitialAd == null && rewardedAd == null) {
+            if (interstitialAd == null) {
                 onComplete.invoke()
             }
         }
