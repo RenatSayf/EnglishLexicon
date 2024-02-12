@@ -286,7 +286,6 @@
     <string name="text_battery_saving_enabled">Экономия заряда включена</string>
     <string name="text_battery_saving_disabled">Экономия заряда отключена</string>
     <string name="text_battery_saving_summary_enable">Операционная система может блокировать работу Пассивного режима при определенном уровне разряда батареи.</string>
-    <string name="text_video">Видео</string>
 
 
 </resources>

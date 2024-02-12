@@ -9,5 +9,3 @@ enum class AdsSource {
     ALIVE_AD,
     LOCAL_HOST
 }
-
-const val VIDEO_BASE_URL = "https://www.youtube.com/watch?v="

@@ -24,11 +24,6 @@ import io.appmetrica.analytics.AppMetricaConfig
 
 class App : Application(), Configuration.Provider {
 
-    companion object {
-        lateinit var INSTANCE: App
-            private set
-    }
-
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
         MultiDex.install(this)
@@ -36,8 +31,6 @@ class App : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
-
-        INSTANCE = this
 
         FirebaseApp.initializeApp(this)
         val remoteConfig: FirebaseRemoteConfig = Firebase.remoteConfig
