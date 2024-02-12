@@ -107,15 +107,22 @@ class TestModeDialog : DialogFragment() {
                     enTextView.text = words[0].english
                     nameDictTvTestModal.text = words[0].dictName
 
-                    mainVM.getRandomWord(words[0]).observe(viewLifecycleOwner) { word ->
-                        val wordList = listOf<Word>(words[0], word)
-                        val numberGenerator = RandomNumberGenerator(2, Date().time.toInt())
-                        val i = numberGenerator.generate()
-                        val j = numberGenerator.generate()
-                        ruBtn1.text = wordList[i].translate
-                        ruBtn2.text = wordList[j].translate
-                        compareList = wordList
+                    if (words.size > 1) {
+                        mainVM.getRandomWord(words[0]).observe(viewLifecycleOwner) { word ->
+                            val wordList = listOf<Word>(words[0], word)
+                            val numberGenerator = RandomNumberGenerator(2, Date().time.toInt())
+                            val i = numberGenerator.generate()
+                            val j = numberGenerator.generate()
+                            ruBtn1.text = wordList[i].translate
+                            ruBtn2.text = wordList[j].translate
+                            compareList = wordList
+                        }
+                    } else {
+                        ruBtn1.text = words[0].translate
+                        ruBtn2.text = words[0].translate
+                        compareList = words
                     }
+
                     if (savedInstanceState == null) {
                         mainVM.getCountersById(words[0]._id)
                     }

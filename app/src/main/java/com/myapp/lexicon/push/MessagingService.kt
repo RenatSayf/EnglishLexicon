@@ -8,6 +8,7 @@ import com.myapp.lexicon.models.User
 import com.parse.ParseUser
 
 class MessagingService : FirebaseMessagingService() {
+
     override fun onNewToken(token: String) {
         val currentUser = ParseUser.getCurrentUser()
         if (currentUser != null) {

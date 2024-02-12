@@ -51,14 +51,22 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
         context.checkUnLockedBroadcast(
             onEnabled = {},
             onDisabled = {
-                context.unregisterReceiver(this)
+                try {
+                    context.unregisterReceiver(this)
+                } catch (e: Exception) {
+                    e.printStackTraceIfDebug()
+                }
                 isRegister = false
             }
         )
         if (!isRegister) return
 
         if (!isBroadcast) {
-            context.unregisterReceiver(this)
+            try {
+                context.unregisterReceiver(this)
+            } catch (e: Exception) {
+                e.printStackTraceIfDebug()
+            }
             return
         }
 

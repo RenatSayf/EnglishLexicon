@@ -4,7 +4,11 @@ import android.animation.Animator
 import android.content.Intent
 import android.os.Bundle
 import android.speech.RecognizerIntent
-import android.view.*
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.ViewPropertyAnimator
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
@@ -24,11 +28,14 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.InterstitialAdIds
 import com.myapp.lexicon.ads.RevenueViewModel
-import com.myapp.lexicon.ads.RewardedAdIds
 import com.myapp.lexicon.ads.showAd
 import com.myapp.lexicon.databinding.TestFragmentBinding
 import com.myapp.lexicon.dialogs.DictListDialog
-import com.myapp.lexicon.helpers.*
+import com.myapp.lexicon.helpers.LockOrientation
+import com.myapp.lexicon.helpers.UiState
+import com.myapp.lexicon.helpers.hideKeyboard
+import com.myapp.lexicon.helpers.showCustomSnackBar
+import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.main.SpeechViewModel
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.getTestStateFromPref
@@ -36,9 +43,8 @@ import com.myapp.lexicon.settings.saveTestStateToPref
 import com.myapp.lexicon.viewmodels.AnimViewModel
 import com.myapp.lexicon.viewmodels.PageBackViewModel
 import com.yandex.mobile.ads.interstitial.InterstitialAd
-import com.yandex.mobile.ads.rewarded.RewardedAd
 import io.reactivex.disposables.CompositeDisposable
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 
@@ -76,7 +82,6 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     private val composite = CompositeDisposable()
     private var dialogWarning: DialogWarning? = null
     private var interstitialAd: InterstitialAd? = null
-    private var rewardedAd: RewardedAd? = null
     private val lockOrientation: LockOrientation by lazy {
         LockOrientation(requireActivity())
     }
@@ -277,39 +282,15 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 }
             }
 
-            adsVM.rewardedAd.observe(viewLifecycleOwner) { result ->
-                result.onSuccess { ad ->
-                    rewardedAd = ad
-                }
-            }
-
             testVM.state.observe(viewLifecycleOwner) { state ->
                 when (state) {
                     TestViewModel.State.Init -> {
-                        val currentWord = testVM.currentWord.value
-                        currentWord?.let { word ->
-                            if (word._id % 5 == 0) {
-                                interstitialAd = null
-                                adsVM.loadRewardedAd(RewardedAdIds.values().randomOrNull())
-                            } else {
-                                rewardedAd = null
-                                adsVM.loadInterstitialAd(InterstitialAdIds.values().randomOrNull())
-                            }
-                        }
+                        adsVM.loadInterstitialAd(InterstitialAdIds.values().randomOrNull())
                     }
 
                     TestViewModel.State.NotShowAd -> {}
                     TestViewModel.State.ShowAd -> {
                         interstitialAd?.showAd(
-                            requireActivity(),
-                            onImpression = { data ->
-                                if (data != null) {
-                                    revenueVM.updateUserRevenueIntoCloud(data)
-                                }
-                                testVM.setState(TestViewModel.State.Init)
-                            }
-                        )
-                        rewardedAd?.showAd(
                             requireActivity(),
                             onImpression = { data ->
                                 if (data != null) {
