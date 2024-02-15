@@ -30,7 +30,10 @@ class VideoListAdapter private constructor(): ListAdapter<VideoItem, VideoListAd
 ){
     companion object {
         private var instance: VideoListAdapter? = null
-        fun getInstance(): VideoListAdapter {
+        private var onItemClick: (videoId: String) -> Unit = {}
+        fun getInstance(onItemClick: (videoId: String) -> Unit = {}): VideoListAdapter {
+
+            this.onItemClick = onItemClick
             return if (instance == null) {
                 instance = VideoListAdapter()
                 instance!!
@@ -128,8 +131,11 @@ class VideoListAdapter private constructor(): ListAdapter<VideoItem, VideoListAd
                     ) {
 
                     }
-
                 })
+
+                root.setOnClickListener {
+                    onItemClick.invoke(item.id.videoId)
+                }
 
             }
         }
