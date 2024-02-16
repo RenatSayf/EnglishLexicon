@@ -22,7 +22,7 @@ import java.io.File
 
 class VideoPlayerViewModel(
     private val app: Application,
-    private val videoId: String?,
+    val videoId: String?,
     private val repository: INetRepository
 ) : AndroidViewModel(app) {
 
@@ -36,6 +36,8 @@ class VideoPlayerViewModel(
             return VideoPlayerViewModel(app = App.INSTANCE, videoId = this.videoId, repository = this.repository) as T
         }
     }
+
+    var videoTimeMarker: Float = 0.0f
 
     private var _authToken = MutableLiveData<Result<String>>()
     val authToken: LiveData<Result<String>> = _authToken

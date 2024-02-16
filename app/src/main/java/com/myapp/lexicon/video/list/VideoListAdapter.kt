@@ -4,6 +4,7 @@ import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -13,7 +14,9 @@ import com.myapp.lexicon.databinding.ItemVideoBinding
 import com.myapp.lexicon.video.models.VideoItem
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerCallback
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 
@@ -30,8 +33,8 @@ class VideoListAdapter private constructor(): ListAdapter<VideoItem, VideoListAd
 ){
     companion object {
         private var instance: VideoListAdapter? = null
-        private var onItemClick: (videoId: String) -> Unit = {}
-        fun getInstance(onItemClick: (videoId: String) -> Unit = {}): VideoListAdapter {
+        private var onItemClick: (videoItem: VideoItem) -> Unit = {}
+        fun getInstance(onItemClick: (videoId: VideoItem) -> Unit = {}): VideoListAdapter {
 
             this.onItemClick = onItemClick
             return if (instance == null) {
@@ -48,6 +51,19 @@ class VideoListAdapter private constructor(): ListAdapter<VideoItem, VideoListAd
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(currentList[position])
+    }
+
+    override fun onViewDetachedFromWindow(holder: ViewHolder) {
+        super.onViewDetachedFromWindow(holder)
+
+        val playerView = holder.itemView.findViewById<YouTubePlayerView>(R.id.playerView)
+        val imageView = holder.itemView.findViewById<AppCompatImageView>(R.id.ivPlaceHolder)
+        playerView.getYouTubePlayerWhenReady(object : YouTubePlayerCallback {
+            override fun onYouTubePlayer(youTubePlayer: YouTubePlayer) {
+                youTubePlayer.pause()
+            }
+        })
+        imageView.visibility = View.VISIBLE
     }
 
     inner class ViewHolder(private val binding: ViewBinding): RecyclerView.ViewHolder(binding.root) {
@@ -104,7 +120,7 @@ class VideoListAdapter private constructor(): ListAdapter<VideoItem, VideoListAd
                     }
 
                     override fun onReady(youTubePlayer: YouTubePlayer) {
-
+                        playerView.visibility = View.VISIBLE
                     }
 
                     override fun onStateChange(
@@ -133,8 +149,8 @@ class VideoListAdapter private constructor(): ListAdapter<VideoItem, VideoListAd
                     }
                 })
 
-                root.setOnClickListener {
-                    onItemClick.invoke(item.id.videoId)
+                layoutRoot.setOnClickListener {
+                    onItemClick.invoke(item)
                 }
 
             }

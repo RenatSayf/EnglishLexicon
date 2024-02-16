@@ -11,7 +11,6 @@ import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
@@ -20,13 +19,14 @@ import com.myapp.lexicon.databinding.FragmentVideoListBinding
 import com.myapp.lexicon.di.NetRepositoryModule
 import com.myapp.lexicon.helpers.showToastIfDebug
 import com.myapp.lexicon.repository.network.INetRepository
-import com.myapp.lexicon.repository.network.NetRepository
 import com.myapp.lexicon.video.VideoPlayerFragment
 import com.myapp.lexicon.video.VideoPlayerViewModel
+import com.myapp.lexicon.video.models.VideoItem
 import com.myapp.lexicon.video.models.VideoSearchResult
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerCallback
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
+import kotlinx.serialization.json.Json
 
 class VideoListFragment private constructor(): Fragment() {
 
@@ -44,9 +44,10 @@ class VideoListFragment private constructor(): Fragment() {
     private lateinit var videoListVM: VideoListViewModel
 
     private val videoListAdapter: VideoListAdapter by lazy {
-        VideoListAdapter.getInstance( onItemClick = { videoId ->
+        VideoListAdapter.getInstance( onItemClick = { item ->
             parentFragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, VideoPlayerFragment::class.java, Bundle().apply {
-                putString(VideoPlayerFragment.ARG_VIDEO_ID, videoId)
+                val jsonStr = Json.encodeToJsonElement(VideoItem.serializer(), item).toString()
+                putString(VideoPlayerFragment.ARG_VIDEO_ITEM, jsonStr)
             }).addToBackStack(null).commit()
         })
     }
@@ -91,21 +92,24 @@ class VideoListFragment private constructor(): Fragment() {
                 })
 
                 addOnScrollListener(object : RecyclerView.OnScrollListener() {
+
+                    private var oldVideoId = ""
+
                     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
 
-                        val views = recyclerView.children.toList()
-                        if (views.isNotEmpty()) {
-                            val playerView = views[0].findViewById<YouTubePlayerView>(R.id.playerView)
-                            val videoId = views[0].findViewById<TextView>(R.id.tvTitle).tag.toString()
-                            playerView.getYouTubePlayerWhenReady(object : YouTubePlayerCallback {
+                        val topView = recyclerView.findChildViewUnder(0f, 0f)
+                        val playerView = topView?.findViewById<YouTubePlayerView>(R.id.playerView)
+                        val newVideoId = topView?.findViewById<TextView>(R.id.tvTitle)?.tag.toString()
+                        if (oldVideoId != newVideoId) {
+                            playerView?.getYouTubePlayerWhenReady(object : YouTubePlayerCallback {
                                 override fun onYouTubePlayer(youTubePlayer: YouTubePlayer) {
-                                    youTubePlayer.loadVideo(videoId, 0.0f)
+                                    youTubePlayer.loadVideo(newVideoId, 0.0f)
                                 }
                             })
+                            oldVideoId = newVideoId
                         }
                     }
                 })
-
             }
 
             videoListVM.searchResult.observe(viewLifecycleOwner) { result ->
