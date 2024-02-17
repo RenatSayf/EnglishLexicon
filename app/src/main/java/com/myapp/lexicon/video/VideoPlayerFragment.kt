@@ -16,6 +16,7 @@ import com.google.android.gms.auth.GoogleAuthUtil
 import com.google.android.gms.common.AccountPicker
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.FragmentVideoPlayerBinding
+import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.printLogIfDebug
 import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.video.models.VideoItem
@@ -40,6 +41,15 @@ class VideoPlayerFragment : Fragment() {
 
     private lateinit var binding: FragmentVideoPlayerBinding
     private lateinit var playerVM: VideoPlayerViewModel
+    private val locker: LockOrientation by lazy {
+        LockOrientation(requireActivity())
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        locker.lock()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -174,7 +184,7 @@ class VideoPlayerFragment : Fragment() {
                 }
 
                 override fun onVideoDuration(youTubePlayer: YouTubePlayer, duration: Float) {
-
+                    youTubePlayer.seekTo(0f)
                 }
 
                 override fun onVideoId(youTubePlayer: YouTubePlayer, videoId: String) {}
@@ -212,6 +222,8 @@ class VideoPlayerFragment : Fragment() {
     override fun onDestroy() {
 
         binding.playerView.release()
+        locker.unLock()
+
         super.onDestroy()
     }
 

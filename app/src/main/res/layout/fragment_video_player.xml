@@ -20,14 +20,14 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
             app:enableAutomaticInitialization="false"
-            android:visibility="visible"
-            />
+            android:visibility="visible">
+        </com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView>
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/ivPlaceHolder"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="centerCrop"
+            android:scaleType="fitCenter"
             android:src="@drawable/ic_smart_display"
             tools:ignore="ImageContrastCheck" />
 
@@ -40,6 +40,8 @@
             />
 
     </FrameLayout>
+
+
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tvSubtitles"
@@ -64,5 +66,43 @@
         android:text="Получить субтитры"
         android:textAllCaps="false"
         android:visibility="gone"/>
+
+    <androidx.appcompat.widget.AppCompatSeekBar
+        android:id="@+id/seekbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/btnGetSubtitles"
+        android:padding="6dp"
+        android:indeterminateTint="@color/colorLightGrey"
+        android:background="@color/color_2B4B78"
+        android:progressTint="@color/colorWhite"
+        android:progressBackgroundTint="@color/colorWhite"
+        android:thumbTint="@color/colorWhite"
+        />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/seekbar"
+        android:padding="4dp"
+        android:gravity="center"
+        android:textSize="16sp"
+        tools:text="Marshmello &amp; Anne-Marie - FRIENDS (Music Video) *OFFICIAL FRIENDZONE ANTHEM*"
+        android:textColor="@color/colorWhite"
+        android:background="@color/color_2B4B78"
+        />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutControlPane"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle"
+        android:padding="12dp"
+        android:background="@color/color_2B4B78">
+
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

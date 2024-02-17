@@ -56,17 +56,18 @@ class VideoListAdapter private constructor(): ListAdapter<VideoItem, VideoListAd
     override fun onViewDetachedFromWindow(holder: ViewHolder) {
         super.onViewDetachedFromWindow(holder)
 
-        val playerView = holder.itemView.findViewById<YouTubePlayerView>(R.id.playerView)
-        val imageView = holder.itemView.findViewById<AppCompatImageView>(R.id.ivPlaceHolder)
-        playerView.getYouTubePlayerWhenReady(object : YouTubePlayerCallback {
-            override fun onYouTubePlayer(youTubePlayer: YouTubePlayer) {
-                youTubePlayer.pause()
-            }
-        })
-        imageView.visibility = View.VISIBLE
+        val binding = holder.binding as ItemVideoBinding
+        with(binding) {
+            playerView.getYouTubePlayerWhenReady(object : YouTubePlayerCallback {
+                override fun onYouTubePlayer(youTubePlayer: YouTubePlayer) {
+                    youTubePlayer.pause()
+                }
+            })
+            ivPlaceHolder.visibility = View.VISIBLE
+        }
     }
 
-    inner class ViewHolder(private val binding: ViewBinding): RecyclerView.ViewHolder(binding.root) {
+    inner class ViewHolder(val binding: ViewBinding): RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: VideoItem) {
             with(binding as ItemVideoBinding) {
