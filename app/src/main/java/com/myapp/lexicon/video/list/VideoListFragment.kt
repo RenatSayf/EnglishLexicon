@@ -18,6 +18,7 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.FragmentVideoListBinding
 import com.myapp.lexicon.di.NetRepositoryModule
 import com.myapp.lexicon.helpers.showToastIfDebug
+import com.myapp.lexicon.helpers.throwIfDebug
 import com.myapp.lexicon.repository.network.INetRepository
 import com.myapp.lexicon.video.VideoPlayerFragment
 import com.myapp.lexicon.video.VideoPlayerViewModel
@@ -27,6 +28,7 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerCallback
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
 
 class VideoListFragment private constructor(): Fragment() {
 
@@ -48,6 +50,17 @@ class VideoListFragment private constructor(): Fragment() {
             parentFragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, VideoPlayerFragment::class.java, Bundle().apply {
                 val jsonStr = Json.encodeToJsonElement(VideoItem.serializer(), item).toString()
                 putString(VideoPlayerFragment.ARG_VIDEO_ITEM, jsonStr)
+
+                val result = videoListVM.searchResult.value
+                result?.onSuccess { value ->
+                    val searchResultStr = try {
+                        Json.encodeToJsonElement(value).toString()
+                    } catch (e: Exception) {
+                        e.throwIfDebug()
+                        null
+                    }
+                    putString(VideoPlayerFragment.ARG_SEARCH_RESULT, searchResultStr)
+                }
             }).addToBackStack(null).commit()
         })
     }

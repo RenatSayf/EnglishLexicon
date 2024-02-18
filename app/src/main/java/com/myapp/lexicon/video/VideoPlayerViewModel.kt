@@ -15,6 +15,7 @@ import com.myapp.lexicon.di.App
 import com.myapp.lexicon.di.NetRepositoryModule
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.repository.network.INetRepository
+import com.myapp.lexicon.video.models.VideoSearchResult
 import com.myapp.lexicon.video.models.captions.CaptionList
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
@@ -92,6 +93,18 @@ class VideoPlayerViewModel(
                 exception
             }
         }
+    }
+
+    private var _searchResult = MutableLiveData<Result<VideoSearchResult>>()
+    val searchResult: LiveData<Result<VideoSearchResult>> = _searchResult
+
+    fun setSearchResult(result: VideoSearchResult) {
+        val modifiedResult = result.copy(videoItems = result.videoItems.filter { it.id.videoId != videoId })
+        _searchResult.value = Result.success(modifiedResult)
+    }
+
+    fun getSearchResult() {
+
     }
 
 }

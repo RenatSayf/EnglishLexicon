@@ -4,7 +4,6 @@ import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -16,7 +15,6 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstan
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerCallback
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 
@@ -34,7 +32,7 @@ class VideoListAdapter private constructor(): ListAdapter<VideoItem, VideoListAd
     companion object {
         private var instance: VideoListAdapter? = null
         private var onItemClick: (videoItem: VideoItem) -> Unit = {}
-        fun getInstance(onItemClick: (videoId: VideoItem) -> Unit = {}): VideoListAdapter {
+        fun getInstance(onItemClick: (videoItem: VideoItem) -> Unit = {}): VideoListAdapter {
 
             this.onItemClick = onItemClick
             return if (instance == null) {
