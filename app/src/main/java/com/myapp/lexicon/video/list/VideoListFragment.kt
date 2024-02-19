@@ -30,6 +30,7 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTube
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 
+
 class VideoListFragment private constructor(): Fragment() {
 
     companion object {
@@ -46,23 +47,7 @@ class VideoListFragment private constructor(): Fragment() {
     private lateinit var videoListVM: VideoListViewModel
 
     private val videoListAdapter: VideoListAdapter by lazy {
-        VideoListAdapter.getInstance( onItemClick = { item ->
-            parentFragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, VideoPlayerFragment::class.java, Bundle().apply {
-                val jsonStr = Json.encodeToJsonElement(VideoItem.serializer(), item).toString()
-                putString(VideoPlayerFragment.ARG_VIDEO_ITEM, jsonStr)
-
-                val result = videoListVM.searchResult.value
-                result?.onSuccess { value ->
-                    val searchResultStr = try {
-                        Json.encodeToJsonElement(value).toString()
-                    } catch (e: Exception) {
-                        e.throwIfDebug()
-                        null
-                    }
-                    putString(VideoPlayerFragment.ARG_SEARCH_RESULT, searchResultStr)
-                }
-            }).addToBackStack(null).commit()
-        })
+        VideoListAdapter.getInstance()
     }
     private lateinit var videoPlayerVM: VideoPlayerViewModel
 
@@ -80,13 +65,30 @@ class VideoListFragment private constructor(): Fragment() {
         val listFactory = VideoListViewModel.Factory(repository!!)
         videoListVM = ViewModelProvider(this, listFactory)[VideoListViewModel::class.java]
 
-        val playerFactory = VideoPlayerViewModel.Factory("")
+        val playerFactory = VideoPlayerViewModel.Factory()
         videoPlayerVM = ViewModelProvider(this, playerFactory)[VideoPlayerViewModel::class.java]
 
         with(binding!!) {
 
             rvVideoList.apply {
                 adapter = videoListAdapter
+                videoListAdapter.setItemClickCallback { videoItem: VideoItem ->
+                    parentFragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, VideoPlayerFragment::class.java, Bundle().apply {
+                        val jsonStr = Json.encodeToJsonElement(VideoItem.serializer(), videoItem).toString()
+                        putString(VideoPlayerFragment.ARG_VIDEO_ITEM, jsonStr)
+
+                        val result = videoListVM.searchResult.value
+                        result?.onSuccess { value ->
+                            val searchResultStr = try {
+                                Json.encodeToJsonElement(value).toString()
+                            } catch (e: Exception) {
+                                e.throwIfDebug()
+                                null
+                            }
+                            putString(VideoPlayerFragment.ARG_SEARCH_RESULT, searchResultStr)
+                        }
+                    }).addToBackStack(null).commit()
+                }
                 setOnScrollChangeListener(object : View.OnScrollChangeListener {
                     override fun onScrollChange(view: View?, scrollX: Int, scrollY: Int, oldScrollX: Int, oldScrollY: Int) {
 
@@ -152,6 +154,7 @@ class VideoListFragment private constructor(): Fragment() {
     }
 
     override fun onDestroyView() {
+
         binding = null
         super.onDestroyView()
     }

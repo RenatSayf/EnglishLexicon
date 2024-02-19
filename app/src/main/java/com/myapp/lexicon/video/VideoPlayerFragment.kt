@@ -1,7 +1,10 @@
+@file:Suppress("ObjectLiteralToLambda")
+
 package com.myapp.lexicon.video
 
 import android.accounts.Account
 import android.accounts.AccountManager
+import android.animation.ValueAnimator
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -9,6 +12,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -20,6 +24,7 @@ import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.printLogIfDebug
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showSnackBar
+import com.myapp.lexicon.helpers.throwIfDebug
 import com.myapp.lexicon.repository.network.MockNetRepository
 import com.myapp.lexicon.video.list.VideoListAdapter
 import com.myapp.lexicon.video.models.VideoItem
@@ -51,9 +56,7 @@ class VideoPlayerFragment : Fragment() {
     }
 
     private val videoListAdapter: VideoListAdapter by lazy {
-        VideoListAdapter.getInstance(onItemClick = { videoItem: VideoItem ->
-
-        })
+        VideoListAdapter.getInstance()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,15 +81,53 @@ class VideoPlayerFragment : Fragment() {
         if (videoItemStr == null) {
             showSnackBar("Видео недоступно ${getString(R.string.confused_face)}")
             parentFragmentManager.popBackStack()
+            Exception("******** videoItemStr is NULL **********").throwIfDebug()
         }
-        val videoItem = Json.decodeFromString<VideoItem>(videoItemStr!!)
-        val factory = VideoPlayerViewModel.Factory(videoItem.id.videoId, repository = MockNetRepository())
-        playerVM = ViewModelProvider(this, factory)[VideoPlayerViewModel::class.java]
+        val videoItem = try {
+            Json.decodeFromString<VideoItem>(videoItemStr!!)
+        } catch (e: Exception) {
+            e.throwIfDebug()
+            null
+        }
+        videoItem?.let {
+            val factory = VideoPlayerViewModel.Factory(repository = MockNetRepository())
+            playerVM = ViewModelProvider(this, factory)[VideoPlayerViewModel::class.java]
+            playerVM.setSelectedVideo(it)
+        }?: run {
+            showSnackBar("Видео недоступно ${getString(R.string.confused_face)}")
+            parentFragmentManager.popBackStack()
+            Exception("******** videoItem is NULL **********").throwIfDebug()
+        }
+
+        val searchResultStr = arguments?.getString(ARG_SEARCH_RESULT)
+        searchResultStr?.let {
+            try {
+                val searchResult = Json.decodeFromString<VideoSearchResult>(it)
+                playerVM.setSearchResult(searchResult)
+            } catch (e: Exception) {
+                e.printStackTraceIfDebug()
+            }
+        }
 
         with(binding) {
 
             rvVideoList.apply {
                 adapter = videoListAdapter
+
+                setOnScrollChangeListener(object : View.OnScrollChangeListener {
+                    override fun onScrollChange(view: View?, scrollX: Int, scrollY: Int, oldScrollX: Int, oldScrollY: Int) {
+                        when {
+                            oldScrollY > scrollY -> {
+                                layoutControlPane.changeTopMarginAnimatedly(0)
+                            }
+                            else -> {
+                                if (oldScrollY != scrollY) {
+                                    layoutControlPane.changeTopMarginAnimatedly()
+                                }
+                            }
+                        }
+                    }
+                })
             }
 
             btnGetSubtitles.setOnClickListener {
@@ -105,18 +146,27 @@ class VideoPlayerFragment : Fragment() {
                 this@VideoPlayerFragment.startActivityForResult(accountIntent, 9933)
             }
 
-            val thumbnailUri = Uri.parse(videoItem.snippet.thumbnails.high.url)
-            Picasso.get().load(thumbnailUri)
-                .placeholder(R.drawable.ic_smart_display)
-                .into(ivPlaceHolder, object : Callback {
-                    override fun onSuccess() {
-                        progressBar.visibility = View.GONE
-                    }
+            playerVM.selectedVideo.observe(viewLifecycleOwner) { result ->
+                result.onSuccess { value: VideoItem ->
+                    val thumbnailUri = Uri.parse(value.snippet.thumbnails.high.url)
+                    Picasso.get().load(thumbnailUri)
+                        .placeholder(R.drawable.ic_smart_display)
+                        .into(ivPlaceHolder, object : Callback {
+                            override fun onSuccess() {
+                                progressBar.visibility = View.GONE
+                            }
 
-                    override fun onError(e: Exception?) {
-                        progressBar.visibility = View.GONE
-                    }
-                })
+                            override fun onError(e: Exception?) {
+                                progressBar.visibility = View.GONE
+                            }
+                        })
+
+                    tvTitle.text = value.snippet.title
+                }
+                result.onFailure { exception ->
+                    exception.throwIfDebug()
+                }
+            }
 
             playerVM.authToken.observe(viewLifecycleOwner) { result ->
                 result.onSuccess { token: String ->
@@ -151,7 +201,7 @@ class VideoPlayerFragment : Fragment() {
             }
 
             val playerOptions = IFramePlayerOptions.Builder().apply {
-                controls(1)
+                controls(0)
                 ccLoadPolicy(1)
             }.build()
             viewLifecycleOwner.lifecycle.addObserver(playerView)
@@ -182,10 +232,14 @@ class VideoPlayerFragment : Fragment() {
                 }
 
                 override fun onReady(youTubePlayer: YouTubePlayer) {
-                    playerVM.videoId?.let { id ->
-                        youTubePlayer.cueVideo(id, playerVM.videoTimeMarker)
+                    val result = playerVM.selectedVideo.value
+                    result?.onSuccess { value: VideoItem ->
+                        youTubePlayer.cueVideo(value.id.videoId, playerVM.videoTimeMarker)
                     }?: run {
-                        printLogIfDebug("****** Video ID is NULL **********")
+                        Exception("****** Result.VideoItem is NULL **********").throwIfDebug()
+                    }
+                    result?.onFailure { tr ->
+                        tr.throwIfDebug()
                     }
                 }
 
@@ -210,20 +264,14 @@ class VideoPlayerFragment : Fragment() {
                 ) {}
             }, true, playerOptions)
 
-            val searchResultStr = arguments?.getString(ARG_SEARCH_RESULT)
-            searchResultStr?.let {
-                try {
-                    val searchResult = Json.decodeFromString<VideoSearchResult>(it)
-                    playerVM.setSearchResult(searchResult)
-                } catch (e: Exception) {
-                    e.printStackTraceIfDebug()
-                }
-            }
-
             playerVM.searchResult.observe(viewLifecycleOwner) { result ->
                 result.onSuccess { value: VideoSearchResult ->
                     videoListAdapter.submitList(value.videoItems)
                 }
+            }
+
+            btnPlay.setOnClickListener {
+
             }
 
         }
@@ -237,6 +285,21 @@ class VideoPlayerFragment : Fragment() {
             val accountName = data?.getStringExtra(AccountManager.KEY_ACCOUNT_NAME)
             val account = Account(accountName, GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE)
             playerVM.getAuthToken(account)
+        }
+    }
+
+    fun ConstraintLayout.changeTopMarginAnimatedly(value: Int = -this.height) {
+        if (this.id == R.id.layoutControlPane) {
+            val layoutParams = this@changeTopMarginAnimatedly.layoutParams as ConstraintLayout.LayoutParams
+            val initBottomMargin = layoutParams.topMargin
+            ValueAnimator.ofInt(initBottomMargin, value).apply {
+                addUpdateListener(object : ValueAnimator.AnimatorUpdateListener {
+                    override fun onAnimationUpdate(animator: ValueAnimator) {
+                        layoutParams.topMargin = animator.animatedValue as Int
+                        this@changeTopMarginAnimatedly.layoutParams = layoutParams
+                    }
+                })
+            }.setDuration(300).start()
         }
     }
 

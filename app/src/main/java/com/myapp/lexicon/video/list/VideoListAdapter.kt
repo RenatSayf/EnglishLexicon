@@ -31,16 +31,21 @@ class VideoListAdapter private constructor(): ListAdapter<VideoItem, VideoListAd
 ){
     companion object {
         private var instance: VideoListAdapter? = null
-        private var onItemClick: (videoItem: VideoItem) -> Unit = {}
-        fun getInstance(onItemClick: (videoItem: VideoItem) -> Unit = {}): VideoListAdapter {
 
-            this.onItemClick = onItemClick
+        fun getInstance(): VideoListAdapter {
+
             return if (instance == null) {
                 instance = VideoListAdapter()
                 instance!!
             }
             else instance!!
         }
+    }
+
+    private var onItemClick: (videoItem: VideoItem) -> Unit = {}
+
+    fun setItemClickCallback(onItemClick: (videoItem: VideoItem) -> Unit) {
+        this.onItemClick = onItemClick
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = ItemVideoBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -119,6 +124,7 @@ class VideoListAdapter private constructor(): ListAdapter<VideoItem, VideoListAd
                     }
 
                     override fun onReady(youTubePlayer: YouTubePlayer) {
+                        youTubePlayer.mute()
                         playerView.visibility = View.VISIBLE
                     }
 
