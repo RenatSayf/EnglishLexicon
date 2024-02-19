@@ -2,10 +2,7 @@
 
 package com.myapp.lexicon.video
 
-import android.accounts.Account
-import android.accounts.AccountManager
 import android.animation.ValueAnimator
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -15,13 +12,9 @@ import androidx.activity.OnBackPressedCallback
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
-import com.google.android.gms.auth.GoogleAuthUtil
-import com.google.android.gms.common.AccountPicker
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.FragmentVideoPlayerBinding
 import com.myapp.lexicon.helpers.LockOrientation
-import com.myapp.lexicon.helpers.printLogIfDebug
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.helpers.throwIfDebug
@@ -29,14 +22,12 @@ import com.myapp.lexicon.repository.network.MockNetRepository
 import com.myapp.lexicon.video.list.VideoListAdapter
 import com.myapp.lexicon.video.models.VideoItem
 import com.myapp.lexicon.video.models.VideoSearchResult
-import com.myapp.lexicon.video.models.captions.CaptionList
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.options.IFramePlayerOptions
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
-import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
 class VideoPlayerFragment : Fragment() {
@@ -73,7 +64,6 @@ class VideoPlayerFragment : Fragment() {
         return binding.root
     }
 
-    @Suppress("DEPRECATION")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -130,22 +120,6 @@ class VideoPlayerFragment : Fragment() {
                 })
             }
 
-            btnGetSubtitles.setOnClickListener {
-                val accountIntent =
-                    AccountPicker.newChooseAccountIntent(
-                        AccountPicker.AccountChooserOptions.Builder()
-                            .apply {
-                                this.setAlwaysShowAccountPicker(true)
-                                setAllowableAccountsTypes(
-                                    listOf(
-                                        GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE
-                                    )
-                                )
-                            }.build()
-                    )
-                this@VideoPlayerFragment.startActivityForResult(accountIntent, 9933)
-            }
-
             playerVM.selectedVideo.observe(viewLifecycleOwner) { result ->
                 result.onSuccess { value: VideoItem ->
                     val thumbnailUri = Uri.parse(value.snippet.thumbnails.high.url)
@@ -166,38 +140,6 @@ class VideoPlayerFragment : Fragment() {
                 result.onFailure { exception ->
                     exception.throwIfDebug()
                 }
-            }
-
-            playerVM.authToken.observe(viewLifecycleOwner) { result ->
-                result.onSuccess { token: String ->
-                    playerVM.getCaptionsList(token)
-                    showSnackBar("Token successful")
-                }
-                result.onFailure { exception ->
-                    printLogIfDebug(exception.message?: getString(R.string.text_unknown_error_message))
-                    showSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
-                }
-            }
-
-            lifecycleScope.launch {
-                playerVM.captionListResult.collect(collector = { result ->
-                    result.onSuccess { list: CaptionList ->
-                        if (list.items.isNotEmpty()) {
-                            val captionsId = list.items.find { it.snippet.language == "en" }?.id
-                            if (!captionsId.isNullOrEmpty()) {
-                                val authToken = list.authToken
-                                playerVM.loadCaptions(captionsId, authToken)
-                            }
-                            else {
-                                showSnackBar("Caption id is NULL")
-                            }
-                        }
-                    }
-                    result.onFailure { exception ->
-                        val message = exception.message ?: getString(R.string.text_unknown_error_message)
-                        showSnackBar(message)
-                    }
-                })
             }
 
             val playerOptions = IFramePlayerOptions.Builder().apply {
@@ -274,17 +216,6 @@ class VideoPlayerFragment : Fragment() {
 
             }
 
-        }
-    }
-
-    @Suppress("OVERRIDE_DEPRECATION", "DEPRECATION")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == 9933) {
-            val accountName = data?.getStringExtra(AccountManager.KEY_ACCOUNT_NAME)
-            val account = Account(accountName, GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE)
-            playerVM.getAuthToken(account)
         }
     }
 
