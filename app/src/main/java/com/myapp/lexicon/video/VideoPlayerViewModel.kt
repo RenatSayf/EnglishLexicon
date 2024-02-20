@@ -30,9 +30,6 @@ class VideoPlayerViewModel(
         }
     }
 
-    var videoId: String = ""
-        private set
-
     var videoTimeMarker: Float = 0.0f
 
     private var _searchResult = MutableLiveData<Result<VideoSearchResult>>()
@@ -56,6 +53,39 @@ class VideoPlayerViewModel(
 
     fun setSelectedVideo(videoItem: VideoItem) {
         _selectedVideo.value = Result.success(videoItem)
+        _screenState.value = _screenState.value?.copy(videoId = videoItem.id.videoId)
+    }
+
+    private var _screenState = MutableLiveData<ScreenState>().apply {
+        value = ScreenState.getInstance()
+    }
+    val screenState: LiveData<ScreenState> = _screenState
+
+    fun setScreenState(state: ScreenState?) {
+        state?.let {
+            _screenState.value = it
+        }
+    }
+
+    @Suppress("DataClassPrivateConstructor")
+    data class ScreenState private constructor(
+        var videoId: String = "",
+        var isPlay: Boolean = false,
+        var volume: Int = 100,
+        var videoProgress: Float = 0f,
+        var duration: Float = 0f
+    ) {
+        companion object {
+
+            private var instance: ScreenState? = null
+            fun getInstance(): ScreenState {
+                return if (instance == null) {
+                    instance = ScreenState()
+                    instance!!
+                }
+                else instance!!
+            }
+        }
     }
 
 }

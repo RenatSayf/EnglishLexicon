@@ -50,6 +50,8 @@ class VideoPlayerFragment : Fragment() {
         VideoListAdapter.getInstance()
     }
 
+    private var youTubePlayer: YouTubePlayer? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -151,7 +153,9 @@ class VideoPlayerFragment : Fragment() {
                 override fun onApiChange(youTubePlayer: YouTubePlayer) {}
 
                 override fun onCurrentSecond(youTubePlayer: YouTubePlayer, second: Float) {
-                    playerVM.videoTimeMarker = second
+                    playerVM.screenState.value?.copy(videoProgress = second)?.let { state ->
+                        playerVM.setScreenState(state)
+                    }
                 }
 
                 override fun onError(
@@ -174,6 +178,7 @@ class VideoPlayerFragment : Fragment() {
                 }
 
                 override fun onReady(youTubePlayer: YouTubePlayer) {
+                    this@VideoPlayerFragment.youTubePlayer = youTubePlayer
                     val result = playerVM.selectedVideo.value
                     result?.onSuccess { value: VideoItem ->
                         youTubePlayer.cueVideo(value.id.videoId, playerVM.videoTimeMarker)
@@ -195,7 +200,7 @@ class VideoPlayerFragment : Fragment() {
                 }
 
                 override fun onVideoDuration(youTubePlayer: YouTubePlayer, duration: Float) {
-                    youTubePlayer.seekTo(0f)
+                    playerVM.setScreenState(playerVM.screenState.value?.copy(duration = duration))
                 }
 
                 override fun onVideoId(youTubePlayer: YouTubePlayer, videoId: String) {}
@@ -212,8 +217,26 @@ class VideoPlayerFragment : Fragment() {
                 }
             }
 
-            btnPlay.setOnClickListener {
+            playerVM.screenState.observe(viewLifecycleOwner) { state ->
+                if (state != null) {
+                    if (state.isPlay) {
+                        youTubePlayer?.play()
+                        btnPlay.visibility = View.INVISIBLE
+                        btnPause.visibility = View.VISIBLE
+                    } else {
+                        youTubePlayer?.pause()
+                        btnPlay.visibility = View.VISIBLE
+                        btnPause.visibility = View.INVISIBLE
+                    }
 
+                }
+            }
+
+            btnPlay.setOnClickListener {
+                playerVM.setScreenState(playerVM.screenState.value?.copy(isPlay = true))
+            }
+            btnPause.setOnClickListener {
+                playerVM.setScreenState(playerVM.screenState.value?.copy(isPlay = false))
             }
 
         }
