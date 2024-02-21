@@ -133,7 +133,8 @@
             app:layout_constraintBottom_toBottomOf="@id/btnSoundOff"
             android:progressBackgroundTint="@color/colorWhite"
             android:progressTint="@color/colorLightRed"
-            android:thumbTint="@color/colorWhite"
+            android:thumbTint="@color/colorLightRed"
+            style="?android:attr/progressBarStyleHorizontal"
             android:progress="100"/>
 
         <androidx.appcompat.widget.AppCompatImageView
@@ -143,8 +144,10 @@
             app:layout_constraintStart_toEndOf="@+id/seekBarSound"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@id/barrier1"
+            android:padding="8dp"
             android:layout_marginTop="12dp"
-            android:src="@drawable/icon_sound_white"/>
+            android:src="@drawable/ic_volume_up"
+            android:background="@drawable/bg_ripple_transparent"/>
 
         <View
             android:id="@+id/barrier1"

@@ -182,6 +182,14 @@ class VideoPlayerFragment : Fragment() {
 
             playerVM.volume.observe(viewLifecycleOwner) { value ->
                 seekBarSound.progress = value
+                when(value) {
+                    in 0..10 -> {
+                        btnSoundOff.setImageResource(R.drawable.ic_volume_mute)
+                    }
+                    else -> {
+                        btnSoundOff.setImageResource(R.drawable.ic_volume_up)
+                    }
+                }
                 youTubePlayer?.setVolume(value)
             }
 
@@ -234,6 +242,15 @@ class VideoPlayerFragment : Fragment() {
                     }
                 }
             })
+            btnSoundOff.setOnClickListener {
+                val volume = seekBarSound.progress
+                if (volume > 0) {
+                    playerVM.volume.value = 0
+                }
+                else {
+                    playerVM.volume.value = 100
+                }
+            }
 
 
         }
@@ -283,6 +300,7 @@ class VideoPlayerFragment : Fragment() {
                 result?.onFailure { tr ->
                     tr.throwIfDebug()
                 }
+                playerView
             }
 
             override fun onStateChange(
