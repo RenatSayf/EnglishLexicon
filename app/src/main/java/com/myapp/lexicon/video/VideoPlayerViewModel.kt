@@ -1,4 +1,4 @@
-@file:Suppress("ObjectLiteralToLambda", "MoveVariableDeclarationIntoWhen")
+@file:Suppress("ObjectLiteralToLambda", "MoveVariableDeclarationIntoWhen", "UnnecessaryVariable")
 
 package com.myapp.lexicon.video
 
@@ -53,39 +53,37 @@ class VideoPlayerViewModel(
 
     fun setSelectedVideo(videoItem: VideoItem) {
         _selectedVideo.value = Result.success(videoItem)
-        _screenState.value = _screenState.value?.copy(videoId = videoItem.id.videoId)
     }
 
-    private var _screenState = MutableLiveData<ScreenState>().apply {
-        value = ScreenState.getInstance()
-    }
-    val screenState: LiveData<ScreenState> = _screenState
+    private var _videoCued = MutableLiveData(false)
+    val videoCued: LiveData<Boolean> = _videoCued
 
-    fun setScreenState(state: ScreenState?) {
-        state?.let {
-            _screenState.value = it
-        }
+    fun setVideoCued(value: Boolean) {
+        _videoCued.value = value
     }
 
-    @Suppress("DataClassPrivateConstructor")
-    data class ScreenState private constructor(
-        var videoId: String = "",
-        var isPlay: Boolean = false,
-        var volume: Int = 100,
-        var videoProgress: Float = 0f,
-        var duration: Float = 0f
-    ) {
-        companion object {
+    private var _isPlaying = MutableLiveData(false)
+    val isPlaying: LiveData<Boolean> = _isPlaying
 
-            private var instance: ScreenState? = null
-            fun getInstance(): ScreenState {
-                return if (instance == null) {
-                    instance = ScreenState()
-                    instance!!
-                }
-                else instance!!
-            }
-        }
+    fun setPlaying(value: Boolean) {
+        _isPlaying.value = value
     }
+
+    var volume = MutableLiveData(100)
+    var videoProgress = MutableLiveData(0)
+    var isVideoProgressManualChanged = false
+    var duration = MutableLiveData(Float.MAX_VALUE)
+    var currentSecond = MutableLiveData(0f)
+
+    fun getProgressInPercentages(second: Float): Int {
+        val progress = (100 / this.duration.value!! * second).toInt()
+        return progress
+    }
+
+    fun getProgressInSeconds(progress: Int): Float {
+        val second = (progress * this.duration.value!!) / 100
+        return second - 1
+    }
+
 
 }

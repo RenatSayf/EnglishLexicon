@@ -6,6 +6,7 @@
     <color name="colorWhiteOpacity">#dcffffff</color>
     <color name="colorBlack">#FF000000</color>
     <color name="colorBlackTransparent">#33000000</color>
+    <color name="colorBlackTransparent80">#CC000000</color>
     <color name="colorDarkOrange">#FDD83603</color>
     <color name="colorGreen">#42ed8a</color>
     <color name="colorDarkGreen">#0D8841</color>

@@ -66,45 +66,62 @@
         android:visibility="gone"/>
 
     <androidx.appcompat.widget.AppCompatSeekBar
-        android:id="@+id/seekbar"
+        android:id="@+id/seekbar_video"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/layoutPlayer"
-        android:paddingTop="6dp"
-        android:paddingStart="24dp"
-        android:paddingEnd="24dp"
-        android:paddingBottom="6dp"
+        app:layout_constraintTop_toBottomOf="@+id/layoutPlayer"
+        app:layout_constraintBottom_toBottomOf="@id/layoutPlayer"
+        android:paddingTop="0dp"
+        android:paddingStart="0dp"
+        android:paddingEnd="0dp"
+        android:paddingBottom="0dp"
         android:indeterminateTint="@color/colorLightGrey"
-        android:background="@color/color_2B4B78"
         android:progressTint="@color/colorLightRed"
         android:progressBackgroundTint="@color/colorWhite"
-        android:thumbTint="@color/colorWhite"
+        android:thumbTint="@color/colorLightRed"
+        tools:progress="50"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:elevation="1dp"
+        />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/layoutPlayer"
+        android:padding="12dp"
+        android:gravity="center"
+        android:textSize="16sp"
+        tools:text="Marshmello &amp; Anne-Marie - FRIENDS (Music Video) *OFFICIAL FRIENDZONE ANTHEM*"
+        android:textColor="@color/colorWhite"
+        android:background="@color/colorBlack"
         />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layoutControlPane"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/seekbar"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle"
         android:layout_marginTop="0dp"
         android:elevation="-2dp"
         android:paddingStart="12dp"
+        android:paddingTop="0dp"
         android:paddingEnd="12dp"
         android:paddingBottom="12dp"
-        android:background="@color/color_2B4B78">
+        android:background="@color/colorBlackTransparent80">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvTitle"
+
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/groupPlayerControl"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/btnSoundOff"
-            android:padding="0dp"
-            android:gravity="center"
-            android:textSize="16sp"
-            tools:text="Marshmello &amp; Anne-Marie - FRIENDS (Music Video) *OFFICIAL FRIENDZONE ANTHEM*"
-            android:textColor="@color/colorWhite"
-            android:background="@color/color_2B4B78"
+            app:constraint_referenced_ids="seekBarSound, btnSoundOff, btnFastBack,
+             btnStepBack, btnPlay, btnPause, btnStepForward, btnFastForward"
+            android:visibility="gone"
+            tools:visibility="visible"
             />
 
         <androidx.appcompat.widget.AppCompatSeekBar
@@ -124,7 +141,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toEndOf="@+id/seekBarSound"
-            app:layout_constraintTop_toBottomOf="@id/tvTitle"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@id/barrier1"
             android:layout_marginTop="12dp"
             android:src="@drawable/icon_sound_white"/>
@@ -164,13 +181,14 @@
             android:id="@+id/btnPause"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/barrier1"
-            app:layout_constraintStart_toEndOf="@+id/btnStepBack"
-            app:layout_constraintEnd_toStartOf="@id/btnStepForward"
+            android:background="@drawable/bg_ripple_transparent"
             android:padding="8dp"
             android:src="@drawable/ic_pause"
-            android:background="@drawable/bg_ripple_transparent"
-            android:visibility="invisible"/>
+            app:layout_constraintEnd_toStartOf="@id/btnStepForward"
+            app:layout_constraintStart_toEndOf="@+id/btnStepBack"
+            app:layout_constraintTop_toBottomOf="@id/barrier1"
+            android:visibility="gone"
+            tools:ignore="DuplicateClickableBoundsCheck,SpeakableTextPresentCheck" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/btnPlay"
@@ -215,8 +233,9 @@
         android:id="@+id/rvVideoList"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/layoutControlPane"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle"
         app:layout_constraintBottom_toBottomOf="parent"
+        android:elevation="-3dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         tools:itemCount="3"
         tools:listitem="@layout/item_video" />

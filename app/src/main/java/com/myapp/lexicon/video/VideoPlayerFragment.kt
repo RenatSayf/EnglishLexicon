@@ -8,8 +8,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.SeekBar
 import androidx.activity.OnBackPressedCallback
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
@@ -124,6 +126,7 @@ class VideoPlayerFragment : Fragment() {
 
             playerVM.selectedVideo.observe(viewLifecycleOwner) { result ->
                 result.onSuccess { value: VideoItem ->
+
                     val thumbnailUri = Uri.parse(value.snippet.thumbnails.high.url)
                     Picasso.get().load(thumbnailUri)
                         .placeholder(R.drawable.ic_smart_display)
@@ -136,80 +139,61 @@ class VideoPlayerFragment : Fragment() {
                                 progressBar.visibility = View.GONE
                             }
                         })
-
                     tvTitle.text = value.snippet.title
+                    videoPlayerInitialize()
                 }
                 result.onFailure { exception ->
                     exception.throwIfDebug()
                 }
             }
 
-            val playerOptions = IFramePlayerOptions.Builder().apply {
-                controls(0)
-                ccLoadPolicy(1)
-            }.build()
-            viewLifecycleOwner.lifecycle.addObserver(playerView)
-            playerView.initialize(object : YouTubePlayerListener {
-                override fun onApiChange(youTubePlayer: YouTubePlayer) {}
+            playerVM.videoCued.observe(viewLifecycleOwner) { value ->
+                if (value) {
+                    ivPlaceHolder.visibility = View.GONE
+                    groupPlayerControl.visibility = View.VISIBLE
+                    btnPause.visibility = View.INVISIBLE
+                }
+                else {
+                    ivPlaceHolder.visibility = View.VISIBLE
+                    groupPlayerControl.visibility = View.GONE
+                    seekbarVideo.visibility = View.GONE
+                }
 
-                override fun onCurrentSecond(youTubePlayer: YouTubePlayer, second: Float) {
-                    playerVM.screenState.value?.copy(videoProgress = second)?.let { state ->
-                        playerVM.setScreenState(state)
+            }
+
+            playerVM.isPlaying.observe(viewLifecycleOwner) { value ->
+                when (value) {
+                    true -> {
+                        btnPlay.visibility = View.INVISIBLE
+                        btnPause.visibility = View.VISIBLE
+                        seekbarVideo.visibility = View.VISIBLE
+                    }
+                    null -> {
+                        return@observe
+                    }
+                    else -> {
+                        if (groupPlayerControl.isVisible) {
+                            btnPlay.visibility = View.VISIBLE
+                            btnPause.visibility = View.INVISIBLE
+                        }
                     }
                 }
+            }
 
-                override fun onError(
-                    youTubePlayer: YouTubePlayer,
-                    error: PlayerConstants.PlayerError
-                ) {
+            playerVM.volume.observe(viewLifecycleOwner) { value ->
+                seekBarSound.progress = value
+                youTubePlayer?.setVolume(value)
+            }
 
+            playerVM.videoProgress.observe(viewLifecycleOwner) { value ->
+                if (!playerVM.isVideoProgressManualChanged) {
+                    seekbarVideo.progress = value
                 }
+            }
 
-                override fun onPlaybackQualityChange(
-                    youTubePlayer: YouTubePlayer,
-                    playbackQuality: PlayerConstants.PlaybackQuality
-                ) {}
-
-                override fun onPlaybackRateChange(
-                    youTubePlayer: YouTubePlayer,
-                    playbackRate: PlayerConstants.PlaybackRate
-                ) {
-
-                }
-
-                override fun onReady(youTubePlayer: YouTubePlayer) {
-                    this@VideoPlayerFragment.youTubePlayer = youTubePlayer
-                    val result = playerVM.selectedVideo.value
-                    result?.onSuccess { value: VideoItem ->
-                        youTubePlayer.cueVideo(value.id.videoId, playerVM.videoTimeMarker)
-                    }?: run {
-                        Exception("****** Result.VideoItem is NULL **********").throwIfDebug()
-                    }
-                    result?.onFailure { tr ->
-                        tr.throwIfDebug()
-                    }
-                }
-
-                override fun onStateChange(
-                    youTubePlayer: YouTubePlayer,
-                    state: PlayerConstants.PlayerState
-                ) {
-                    if (state == PlayerConstants.PlayerState.VIDEO_CUED) {
-                        ivPlaceHolder.visibility = View.GONE
-                    }
-                }
-
-                override fun onVideoDuration(youTubePlayer: YouTubePlayer, duration: Float) {
-                    playerVM.setScreenState(playerVM.screenState.value?.copy(duration = duration))
-                }
-
-                override fun onVideoId(youTubePlayer: YouTubePlayer, videoId: String) {}
-
-                override fun onVideoLoadedFraction(
-                    youTubePlayer: YouTubePlayer,
-                    loadedFraction: Float
-                ) {}
-            }, true, playerOptions)
+            playerVM.currentSecond.observe(viewLifecycleOwner) { value ->
+                playerVM.videoProgress.value = playerVM.getProgressInPercentages(value)
+            }
 
             playerVM.searchResult.observe(viewLifecycleOwner) { result ->
                 result.onSuccess { value: VideoSearchResult ->
@@ -217,29 +201,123 @@ class VideoPlayerFragment : Fragment() {
                 }
             }
 
-            playerVM.screenState.observe(viewLifecycleOwner) { state ->
-                if (state != null) {
-                    if (state.isPlay) {
-                        youTubePlayer?.play()
-                        btnPlay.visibility = View.INVISIBLE
-                        btnPause.visibility = View.VISIBLE
-                    } else {
-                        youTubePlayer?.pause()
-                        btnPlay.visibility = View.VISIBLE
-                        btnPause.visibility = View.INVISIBLE
-                    }
+            btnPlay.setOnClickListener {
+                youTubePlayer?.play()
+            }
+            btnPause.setOnClickListener {
+                youTubePlayer?.pause()
+            }
 
+            seekbarVideo.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, p2: Boolean) {
+                    playerVM.isVideoProgressManualChanged = p2
+                }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                    val progress = seekBar?.progress
+                    if (progress != null) {
+                        youTubePlayer?.seekTo(playerVM.getProgressInSeconds(progress))
+                    }
+                }
+            })
+            seekBarSound.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {}
+
+                override fun onStartTrackingTouch(p0: SeekBar?) {}
+
+                override fun onStopTrackingTouch(p0: SeekBar?) {
+                    val progress = p0?.progress
+                    if (progress != null) {
+                        playerVM.volume.value = progress
+                    }
+                }
+            })
+
+
+        }
+    }
+
+    private fun FragmentVideoPlayerBinding.videoPlayerInitialize() {
+        val playerOptions = IFramePlayerOptions.Builder().apply {
+            controls(0)
+            ccLoadPolicy(1)
+        }.build()
+        viewLifecycleOwner.lifecycle.addObserver(playerView)
+        playerView.initialize(object : YouTubePlayerListener {
+            override fun onApiChange(youTubePlayer: YouTubePlayer) {}
+
+            override fun onCurrentSecond(youTubePlayer: YouTubePlayer, second: Float) {
+                playerVM.currentSecond.value = second
+            }
+
+            override fun onError(
+                youTubePlayer: YouTubePlayer,
+                error: PlayerConstants.PlayerError
+            ) {
+
+            }
+
+            override fun onPlaybackQualityChange(
+                youTubePlayer: YouTubePlayer,
+                playbackQuality: PlayerConstants.PlaybackQuality
+            ) {
+            }
+
+            override fun onPlaybackRateChange(
+                youTubePlayer: YouTubePlayer,
+                playbackRate: PlayerConstants.PlaybackRate
+            ) {
+
+            }
+
+            override fun onReady(youTubePlayer: YouTubePlayer) {
+                this@VideoPlayerFragment.youTubePlayer = youTubePlayer
+                val result = playerVM.selectedVideo.value
+                result?.onSuccess { value: VideoItem ->
+                    youTubePlayer.cueVideo(value.id.videoId, playerVM.videoTimeMarker)
+                } ?: run {
+                    Exception("****** Result.VideoItem is NULL **********").throwIfDebug()
+                }
+                result?.onFailure { tr ->
+                    tr.throwIfDebug()
                 }
             }
 
-            btnPlay.setOnClickListener {
-                playerVM.setScreenState(playerVM.screenState.value?.copy(isPlay = true))
-            }
-            btnPause.setOnClickListener {
-                playerVM.setScreenState(playerVM.screenState.value?.copy(isPlay = false))
+            override fun onStateChange(
+                youTubePlayer: YouTubePlayer,
+                state: PlayerConstants.PlayerState
+            ) {
+                when (state) {
+                    PlayerConstants.PlayerState.VIDEO_CUED -> {
+                        playerVM.setVideoCued(true)
+                    }
+
+                    PlayerConstants.PlayerState.PLAYING, PlayerConstants.PlayerState.BUFFERING -> {
+                        playerVM.setPlaying(true)
+                    }
+
+                    PlayerConstants.PlayerState.PAUSED -> {
+                        playerVM.setPlaying(false)
+                    }
+
+                    else -> {}
+                }
             }
 
-        }
+            override fun onVideoDuration(youTubePlayer: YouTubePlayer, duration: Float) {
+                playerVM.duration.value = duration
+            }
+
+            override fun onVideoId(youTubePlayer: YouTubePlayer, videoId: String) {}
+
+            override fun onVideoLoadedFraction(
+                youTubePlayer: YouTubePlayer,
+                loadedFraction: Float
+            ) {
+            }
+        }, true, playerOptions)
     }
 
     fun ConstraintLayout.changeTopMarginAnimatedly(value: Int = -this.height) {
