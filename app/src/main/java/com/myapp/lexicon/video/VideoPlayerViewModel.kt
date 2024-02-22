@@ -14,6 +14,8 @@ import com.myapp.lexicon.helpers.throwIfDebug
 import com.myapp.lexicon.repository.network.INetRepository
 import com.myapp.lexicon.video.models.VideoItem
 import com.myapp.lexicon.video.models.VideoSearchResult
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 class VideoPlayerViewModel(
     private val app: Application,
@@ -62,8 +64,8 @@ class VideoPlayerViewModel(
         _videoCued.value = value
     }
 
-    private var _isPlaying = MutableLiveData(false)
-    val isPlaying: LiveData<Boolean> = _isPlaying
+    private var _isPlaying = MutableStateFlow(false)
+    val isPlaying: StateFlow<Boolean> = _isPlaying
 
     fun setPlaying(value: Boolean) {
         _isPlaying.value = value
