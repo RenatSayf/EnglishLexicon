@@ -14,8 +14,6 @@ import com.myapp.lexicon.helpers.throwIfDebug
 import com.myapp.lexicon.repository.network.INetRepository
 import com.myapp.lexicon.video.models.VideoItem
 import com.myapp.lexicon.video.models.VideoSearchResult
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 
 class VideoPlayerViewModel(
     private val app: Application,
@@ -57,33 +55,19 @@ class VideoPlayerViewModel(
         _selectedVideo.value = Result.success(videoItem)
     }
 
-    private var _videoCued = MutableLiveData(false)
-    val videoCued: LiveData<Boolean> = _videoCued
-
-    fun setVideoCued(value: Boolean) {
-        _videoCued.value = value
-    }
-
-    private var _isPlaying = MutableStateFlow(false)
-    val isPlaying: StateFlow<Boolean> = _isPlaying
-
-    fun setPlaying(value: Boolean) {
-        _isPlaying.value = value
-    }
-
     var volume = MutableLiveData(100)
-    var videoProgress = MutableLiveData(0)
+    var videoProgress = 0
     var isVideoProgressManualChanged = false
-    var duration = MutableLiveData(Float.MAX_VALUE)
-    var currentSecond = MutableLiveData(0f)
+    var duration = Float.MAX_VALUE
+    var currentSecond: Float = 0f
 
     fun getProgressInPercentages(second: Float): Int {
-        val progress = (100 / this.duration.value!! * second).toInt()
+        val progress = (100 / this.duration * second).toInt()
         return progress
     }
 
     fun getProgressInSeconds(progress: Int): Float {
-        val second = (progress * this.duration.value!!) / 100
+        val second = (progress * this.duration) / 100
         return second - 1
     }
 

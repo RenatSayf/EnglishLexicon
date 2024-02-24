@@ -28,6 +28,7 @@
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_smart_display"
+            android:background="@color/colorWhite"
             tools:ignore="ImageContrastCheck" />
 
         <ProgressBar
