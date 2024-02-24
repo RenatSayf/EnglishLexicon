@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.res.Resources
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
@@ -417,6 +418,14 @@ fun Context.registerFinishReceiver(receiver: FinishReceiver) {
         this.registerReceiver(receiver, intentFilter)
     }
 }
+
+val Float.toPx get() = this * Resources.getSystem().displayMetrics.density
+
+val Float.toDp get() = this / Resources.getSystem().displayMetrics.density
+
+val Int.toPx get() = (this * Resources.getSystem().displayMetrics.density).toInt()
+
+val Int.toDp get() = (this / Resources.getSystem().displayMetrics.density).toInt()
 
 
 

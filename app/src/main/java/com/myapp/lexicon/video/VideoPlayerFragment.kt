@@ -9,9 +9,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
+import android.widget.Toolbar.LayoutParams
 import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.marginBottom
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.FragmentVideoPlayerBinding
@@ -38,6 +42,8 @@ class VideoPlayerFragment : Fragment() {
         val TAG = "${VideoPlayerViewModel::class.simpleName}.tag358855"
         const val ARG_VIDEO_ITEM = "ARG_VIDEO_ID"
         const val ARG_SEARCH_RESULT = "ARG_SEARCH_RESULT"
+        const val KEY_CALLBACK_REQUEST = "KEY_CALLBACK_REQUEST"
+
         fun newInstance() = VideoPlayerFragment()
     }
 
@@ -105,10 +111,12 @@ class VideoPlayerFragment : Fragment() {
                         when {
                             oldScrollY > scrollY -> {
                                 layoutControlPane.changeTopMarginAnimatedly(0)
+                                layoutSearch.changeBottomMarginAnimatedly(0)
                             }
                             else -> {
                                 if (oldScrollY != scrollY) {
                                     layoutControlPane.changeTopMarginAnimatedly()
+                                    layoutSearch.changeBottomMarginAnimatedly(-layoutSearch.height)
                                 }
                             }
                         }
@@ -235,6 +243,18 @@ class VideoPlayerFragment : Fragment() {
                 }
             }
 
+            svSearch.apply {
+                setOnCloseListener {
+                    if (this.query.toString().isEmpty()) {
+                        this.layoutParams.width = LayoutParams.WRAP_CONTENT
+                    }
+                    else {
+                        this.setQuery("", false)
+                    }
+                    false
+                }
+            }
+
 
         }
     }
@@ -354,6 +374,19 @@ class VideoPlayerFragment : Fragment() {
         }
     }
 
+    fun LinearLayoutCompat.changeBottomMarginAnimatedly(value: Int = this.marginBottom) {
+        val layoutParams = this@changeBottomMarginAnimatedly.layoutParams as ConstraintLayout.LayoutParams
+        val paramToAnimate = layoutParams.bottomMargin
+        ValueAnimator.ofInt((paramToAnimate), value).apply {
+            addUpdateListener(object : ValueAnimator.AnimatorUpdateListener {
+                override fun onAnimationUpdate(animator: ValueAnimator) {
+                    layoutParams.bottomMargin = animator.animatedValue as Int
+                    this@changeBottomMarginAnimatedly.layoutParams = layoutParams
+                }
+            })
+        }.setDuration(300).start()
+    }
+
     override fun onResume() {
         super.onResume()
 
@@ -361,6 +394,10 @@ class VideoPlayerFragment : Fragment() {
             override fun handleOnBackPressed() {
                 parentFragmentManager.popBackStack()
             }
+        })
+
+        setFragmentResult(KEY_CALLBACK_REQUEST, Bundle().apply {
+
         })
     }
 

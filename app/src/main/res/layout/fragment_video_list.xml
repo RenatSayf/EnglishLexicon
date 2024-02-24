@@ -42,7 +42,8 @@
             android:gravity="center_vertical"
             android:layout_gravity="center_vertical"
             android:layout_margin="8dp"
-            android:background="@drawable/bg_horizontal_oval"/>
+            android:background="@drawable/bg_horizontal_oval"
+            />
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 
