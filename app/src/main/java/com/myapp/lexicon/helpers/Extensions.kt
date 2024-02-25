@@ -278,6 +278,10 @@ fun Exception.printStackTraceIfDebug() {
     }
 }
 
+fun Throwable.printStackTraceIfDebug() {
+    (this as Exception).printStackTraceIfDebug()
+}
+
 fun Exception.throwIfDebug() {
     if (BuildConfig.DEBUG) {
         throw this

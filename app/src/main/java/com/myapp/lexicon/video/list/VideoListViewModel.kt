@@ -9,6 +9,7 @@ import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.repository.network.INetRepository
 import com.myapp.lexicon.video.models.VideoSearchResult
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 class VideoListViewModel(
     private val repository: INetRepository
@@ -37,6 +38,14 @@ class VideoListViewModel(
                 _searchResult.postValue(Result.failure(e))
             }
         }
+    }
+
+    fun fetchSuggestions(query: String, lang: String = Locale.getDefault().language): LiveData<Result<List<String>>> {
+        val result = MutableLiveData<Result<List<String>>>()
+        viewModelScope.launch {
+            result.value = repository.fetchSuggestions(query, lang).await()
+        }
+        return result
     }
 
     init {

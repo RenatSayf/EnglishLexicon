@@ -3,25 +3,33 @@
 package com.myapp.lexicon.video.list
 
 import android.animation.ValueAnimator
+import android.app.SearchManager
+import android.database.MatrixCursor
 import android.os.Bundle
+import android.provider.BaseColumns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.LinearLayoutCompat
+import androidx.appcompat.widget.SearchView.OnQueryTextListener
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.cursoradapter.widget.CursorAdapter
+import androidx.cursoradapter.widget.SimpleCursorAdapter
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.FragmentVideoListBinding
 import com.myapp.lexicon.di.NetRepositoryModule
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showToastIfDebug
 import com.myapp.lexicon.helpers.throwIfDebug
 import com.myapp.lexicon.repository.network.INetRepository
 import com.myapp.lexicon.video.VideoPlayerFragment
 import com.myapp.lexicon.video.VideoPlayerViewModel
+import com.myapp.lexicon.video.extensions.createAdapter
 import com.myapp.lexicon.video.models.VideoItem
 import com.myapp.lexicon.video.models.VideoSearchResult
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
@@ -135,6 +143,36 @@ class VideoListFragment private constructor(): Fragment() {
                     showToastIfDebug(exception.message)
                 }
             }
+
+            val simpleCursorAdapter = svSearch.createAdapter()
+            svSearch.suggestionsAdapter = simpleCursorAdapter
+
+            svSearch.setOnQueryTextListener(object : OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    return false
+                }
+
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    if (newText != null) {
+                        videoListVM.fetchSuggestions(newText).observe(viewLifecycleOwner) { result ->
+                            result.onSuccess { list: List<String> ->
+                                val cursor = MatrixCursor(
+                                    arrayOf(BaseColumns._ID, SearchManager.SUGGEST_COLUMN_TEXT_1)
+                                )
+                                list.forEachIndexed { index, text ->
+                                    cursor.addRow(arrayOf(index, text))
+                                }
+                                simpleCursorAdapter.changeCursor(cursor)
+                            }
+                            result.onFailure { exception ->
+                                exception.printStackTraceIfDebug()
+                            }
+                        }
+                    }
+                    return true
+                }
+            })
+
         }
     }
 
