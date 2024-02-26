@@ -39,6 +39,7 @@ import com.myapp.lexicon.cloudstorage.DownloadDbWorker;
 import com.myapp.lexicon.cloudstorage.StorageDialog;
 import com.myapp.lexicon.database.AppDataBase;
 import com.myapp.lexicon.databinding.DialogStorageBinding;
+import com.myapp.lexicon.di.NetRepositoryModule;
 import com.myapp.lexicon.dialogs.ConfirmDialog;
 import com.myapp.lexicon.dialogs.DictListDialog;
 import com.myapp.lexicon.dialogs.OrderPlayDialog;
@@ -53,7 +54,6 @@ import com.myapp.lexicon.models.UserKt;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.models.WordList;
 import com.myapp.lexicon.repository.DataRepositoryImpl;
-import com.myapp.lexicon.repository.network.MockNetRepository;
 import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.service.PhoneUnlockedReceiver;
 import com.myapp.lexicon.settings.ContainerFragment;
@@ -767,7 +767,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         if (itemId == R.id.nav_video_list)
         {
-            VideoListFragment videoListFragment = VideoListFragment.Companion.newInstance(new MockNetRepository());
+            VideoListFragment videoListFragment = VideoListFragment.Companion.newInstance(NetRepositoryModule.INSTANCE.provideNetRepository());
             transaction.replace(R.id.frame_to_page_fragm, videoListFragment).addToBackStack(null).commit();
         }
         if (itemId == R.id.nav_add_word)

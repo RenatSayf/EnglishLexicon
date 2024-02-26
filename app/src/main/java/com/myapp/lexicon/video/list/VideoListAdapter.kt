@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.ItemVideoBinding
+import com.myapp.lexicon.helpers.throwIfDebug
 import com.myapp.lexicon.video.models.VideoItem
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
@@ -67,6 +68,17 @@ class VideoListAdapter private constructor(): ListAdapter<VideoItem, VideoListAd
                 }
             })
             ivPlaceHolder.visibility = View.VISIBLE
+        }
+    }
+
+    fun addItemsToCurrentList(list: List<VideoItem>) {
+        if (currentList.isNotEmpty()) {
+            val existsList = currentList.toMutableList()
+            existsList.addAll(list)
+            this.submitList(existsList)
+        }
+        else {
+            Exception("To add a new list, use the submitList() method").throwIfDebug()
         }
     }
 

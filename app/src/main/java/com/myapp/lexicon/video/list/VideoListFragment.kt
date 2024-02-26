@@ -3,10 +3,7 @@
 package com.myapp.lexicon.video.list
 
 import android.animation.ValueAnimator
-import android.app.SearchManager
-import android.database.MatrixCursor
 import android.os.Bundle
-import android.provider.BaseColumns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,11 +11,11 @@ import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.appcompat.widget.SearchView.OnQueryTextListener
+import androidx.appcompat.widget.SearchView.OnSuggestionListener
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.cursoradapter.widget.CursorAdapter
-import androidx.cursoradapter.widget.SimpleCursorAdapter
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.FragmentVideoListBinding
@@ -30,6 +27,8 @@ import com.myapp.lexicon.repository.network.INetRepository
 import com.myapp.lexicon.video.VideoPlayerFragment
 import com.myapp.lexicon.video.VideoPlayerViewModel
 import com.myapp.lexicon.video.extensions.createAdapter
+import com.myapp.lexicon.video.extensions.getSelectedSuggestion
+import com.myapp.lexicon.video.extensions.updateAdapter
 import com.myapp.lexicon.video.models.VideoItem
 import com.myapp.lexicon.video.models.VideoSearchResult
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
@@ -131,47 +130,72 @@ class VideoListFragment private constructor(): Fragment() {
                             })
                             oldVideoId = newVideoId
                         }
+
+                        val lastVisibleItemPosition = (recyclerView.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
+                        if (lastVisibleItemPosition == videoListAdapter.itemCount - 1) {
+                            val searchResult = videoListVM.searchResult.value?.getOrNull()
+                            if (searchResult != null) {
+                                videoListVM.fetchSearchResult(query = searchResult.query, pageToken = searchResult.nextPageToken)
+                            }
+                        }
                     }
                 })
             }
 
             videoListVM.searchResult.observe(viewLifecycleOwner) { result ->
                 result.onSuccess { value: VideoSearchResult ->
-                    videoListAdapter.submitList(value.videoItems)
+                    if (value.prevPageToken == null) {
+                        videoListAdapter.submitList(value.videoItems)
+                    }
+                    else {
+                        videoListAdapter.addItemsToCurrentList(value.videoItems)
+                    }
                 }
                 result.onFailure { exception ->
                     showToastIfDebug(exception.message)
+                    exception.printStackTraceIfDebug()
                 }
             }
 
-            val simpleCursorAdapter = svSearch.createAdapter()
-            svSearch.suggestionsAdapter = simpleCursorAdapter
+            svSearch.apply {
+                suggestionsAdapter = svSearch.createAdapter()
 
-            svSearch.setOnQueryTextListener(object : OnQueryTextListener {
-                override fun onQueryTextSubmit(query: String?): Boolean {
-                    return false
-                }
+                setOnQueryTextListener(object : OnQueryTextListener {
+                    override fun onQueryTextSubmit(query: String?): Boolean {
+                        return false
+                    }
 
-                override fun onQueryTextChange(newText: String?): Boolean {
-                    if (newText != null) {
-                        videoListVM.fetchSuggestions(newText).observe(viewLifecycleOwner) { result ->
-                            result.onSuccess { list: List<String> ->
-                                val cursor = MatrixCursor(
-                                    arrayOf(BaseColumns._ID, SearchManager.SUGGEST_COLUMN_TEXT_1)
-                                )
-                                list.forEachIndexed { index, text ->
-                                    cursor.addRow(arrayOf(index, text))
+                    override fun onQueryTextChange(newText: String?): Boolean {
+                        if (newText != null) {
+                            videoListVM.fetchSuggestions(newText).observe(viewLifecycleOwner) { result ->
+                                result.onSuccess { list: List<String> ->
+                                    svSearch.updateAdapter(list)
                                 }
-                                simpleCursorAdapter.changeCursor(cursor)
-                            }
-                            result.onFailure { exception ->
-                                exception.printStackTraceIfDebug()
+                                result.onFailure { exception ->
+                                    exception.printStackTraceIfDebug()
+                                }
                             }
                         }
+                        return true
                     }
-                    return true
-                }
-            })
+                })
+
+                setOnSuggestionListener(object : OnSuggestionListener {
+                    override fun onSuggestionSelect(position: Int): Boolean {
+                        return false
+                    }
+
+                    override fun onSuggestionClick(position: Int): Boolean {
+                        svSearch.getSelectedSuggestion(
+                            position = position,
+                            onSelection = { selection ->
+                                videoListVM.fetchSearchResult(query = selection, pageToken = "")
+                            }
+                        )
+                        return true
+                    }
+                })
+            }
 
         }
     }

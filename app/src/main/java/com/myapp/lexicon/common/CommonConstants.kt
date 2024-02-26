@@ -1,5 +1,6 @@
 package com.myapp.lexicon.common
 
+import com.google.firebase.ktx.BuildConfig
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
@@ -21,3 +22,4 @@ val USER_AGENT = try {
     e.printStackTraceIfDebug()
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
 }
+

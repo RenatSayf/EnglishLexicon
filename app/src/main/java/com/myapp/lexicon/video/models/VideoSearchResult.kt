@@ -10,7 +10,10 @@ data class VideoSearchResult(
     @SerialName("items")
     val videoItems: List<VideoItem>,
     val kind: String,
+    val prevPageToken: String? = null,
     val nextPageToken: String,
     val pageInfo: PageInfo,
     val regionCode: String
-)
+) {
+    var query: String = ""
+}

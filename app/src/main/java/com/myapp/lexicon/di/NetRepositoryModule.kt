@@ -8,16 +8,15 @@ import com.myapp.lexicon.repository.network.NetRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.engine.cio.endpoint
-import io.ktor.client.plugins.logging.ANDROID
-import io.ktor.client.plugins.logging.DEFAULT
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 
 object NetRepositoryModule {
 
-    fun provideNetRepository(
-        httpClient: HttpClient = HttpClient(CIO, block = {
+    fun provideNetRepository(): INetRepository {
+
+        val httpClient = HttpClient(CIO, block = {
             install(Logging, configure = {
                 logger = object : Logger {
                     override fun log(message: String) {
@@ -40,7 +39,6 @@ object NetRepositoryModule {
                 }
             }
         })
-    ): INetRepository {
         return NetRepository(httpClient)
     }
 }

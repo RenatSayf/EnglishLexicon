@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.repository.network.INetRepository
 import com.myapp.lexicon.video.models.VideoSearchResult
@@ -25,17 +26,36 @@ class VideoListViewModel(
         }
     }
 
+    private var isSearchResultLoading = false
     private var _searchResult = MutableLiveData<Result<VideoSearchResult>>()
     val searchResult: LiveData<Result<VideoSearchResult>> = _searchResult
 
-    fun fetchSearchResult(searchString: String) {
-        viewModelScope.launch {
-            try {
-                val result = repository.getSearchResult(searchString).await()
-                _searchResult.postValue(if (result != null) Result.success(result) else Result.failure(Exception("Search result is NULL")))
-            } catch (e: Exception) {
-                e.printStackTraceIfDebug()
-                _searchResult.postValue(Result.failure(e))
+    fun fetchSearchResult(
+        query: String,
+        pageToken: String,
+        subtitles: Boolean = true,
+        maxResults: Int = if (BuildConfig.DEBUG) 3 else 10
+    ) {
+        if (!isSearchResultLoading) {
+            viewModelScope.launch {
+                isSearchResultLoading = true
+                try {
+                    val result = repository.getSearchResult(query, pageToken, maxResults, subtitles).await()
+                    result.onSuccess { value: VideoSearchResult ->
+                        _searchResult.postValue(Result.success(value.apply {
+                            this.query = query
+                        }))
+                    }
+                    result.onFailure { exception ->
+                        _searchResult.postValue(Result.failure(exception))
+                    }
+
+                } catch (e: Exception) {
+                    e.printStackTraceIfDebug()
+                    _searchResult.postValue(Result.failure(e))
+                } finally {
+                    isSearchResultLoading = false
+                }
             }
         }
     }
@@ -49,7 +69,7 @@ class VideoListViewModel(
     }
 
     init {
-        fetchSearchResult("")
+        fetchSearchResult(query = "friends", pageToken = "")
     }
 
 }

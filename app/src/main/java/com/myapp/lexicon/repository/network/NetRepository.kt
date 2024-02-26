@@ -1,5 +1,6 @@
 package com.myapp.lexicon.repository.network
 
+import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.video.models.VideoSearchResult
 import com.myapp.lexicon.video.models.captions.CaptionList
 import io.ktor.client.HttpClient
@@ -22,10 +23,40 @@ open class NetRepository(
 
     private val jsonDecoder = Json { ignoreUnknownKeys }
 
-    override suspend fun getSearchResult(searchString: String): Deferred<VideoSearchResult?> {
+    override suspend fun getSearchResult(
+        query: String,
+        pageToken: String,
+        maxResults: Int,
+        subtitles: Boolean
+    ): Deferred<Result<VideoSearchResult>> {
         return coroutineScope {
             async {
-                null
+                val httpResponse = httpClient.get(
+                    urlString = "https://www.googleapis.com/youtube/v3/search",
+                    block = {
+                        parameter("part", "snippet")
+                        parameter("key", BuildConfig.YOUTUBE_API_KEY)
+                        parameter("q", query)
+                        parameter("maxResults", "$maxResults")
+                        parameter("pageToken", pageToken)
+                        if (subtitles) {
+                            parameter("videoCaption", "closedCaption")
+                            parameter("type", "video")
+                        }
+                    })
+                val statusCode = httpResponse.status
+                val result = when (statusCode.value) {
+                    200 -> {
+                        val bodyStr = httpResponse.body<String>()
+                        val decodeFromString = jsonDecoder.decodeFromString<VideoSearchResult>(bodyStr)
+                        Result.success(decodeFromString)
+                    }
+
+                    else -> {
+                        Result.failure(Throwable("********** Error description: ${statusCode.description}. Code: ${statusCode.value} ************"))
+                    }
+                }
+                result
             }
         }
     }

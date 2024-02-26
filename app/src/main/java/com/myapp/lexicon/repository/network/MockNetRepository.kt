@@ -8,11 +8,16 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.json.Json
 
 class MockNetRepository: NetRepository(HttpClient()) {
-    override suspend fun getSearchResult(searchString: String): Deferred<VideoSearchResult?> {
+    override suspend fun getSearchResult(
+        query: String,
+        pageToken: String,
+        maxResults: Int,
+        subtitles: Boolean
+    ): Deferred<Result<VideoSearchResult>> {
         return coroutineScope {
             async {
                 val result = Json.decodeFromString<VideoSearchResult>(TEST_VIDEO_LIST)
-                result
+                Result.success(result)
             }
         }
     }

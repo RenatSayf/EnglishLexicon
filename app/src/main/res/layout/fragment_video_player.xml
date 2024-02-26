@@ -191,7 +191,7 @@
             app:layout_constraintEnd_toStartOf="@id/btnStepForward"
             app:layout_constraintStart_toEndOf="@+id/btnStepBack"
             app:layout_constraintTop_toBottomOf="@id/barrier1"
-            android:visibility="gone"
+            android:visibility="invisible"
             tools:ignore="DuplicateClickableBoundsCheck,SpeakableTextPresentCheck" />
 
         <androidx.appcompat.widget.AppCompatImageButton
@@ -204,7 +204,8 @@
             app:layout_constraintEnd_toStartOf="@id/btnStepForward"
             app:layout_constraintStart_toEndOf="@+id/btnStepBack"
             app:layout_constraintTop_toBottomOf="@id/barrier1"
-            tools:ignore="SpeakableTextPresentCheck" />
+            tools:ignore="SpeakableTextPresentCheck"
+            android:visibility="visible"/>
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/btnStepForward"

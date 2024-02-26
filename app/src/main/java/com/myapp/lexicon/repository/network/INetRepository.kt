@@ -7,7 +7,12 @@ import kotlinx.coroutines.Deferred
 import java.io.File
 
 interface INetRepository {
-    suspend fun getSearchResult(searchString: String): Deferred<VideoSearchResult?>
+    suspend fun getSearchResult(
+        query: String,
+        pageToken: String,
+        maxResults: Int,
+        subtitles: Boolean = true
+    ): Deferred<Result<VideoSearchResult>>
 
     suspend fun fetchCaptionsList(videoId: String, authToken: String): Deferred<Result<CaptionList?>>
 

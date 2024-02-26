@@ -327,13 +327,13 @@ class VideoPlayerFragment : Fragment() {
                         btnPause.visibility = View.INVISIBLE
                     }
                     PlayerConstants.PlayerState.PLAYING, PlayerConstants.PlayerState.BUFFERING -> {
-                        btnPlay.visibility = View.GONE
+                        btnPlay.visibility = View.INVISIBLE
                         btnPause.visibility = View.VISIBLE
                     }
                     PlayerConstants.PlayerState.PAUSED -> {
 
                         btnPlay.visibility = View.VISIBLE
-                        btnPause.visibility = View.GONE
+                        btnPause.visibility = View.INVISIBLE
                     }
                     PlayerConstants.PlayerState.ENDED -> {
                         ivPlaceHolder.visibility = View.VISIBLE

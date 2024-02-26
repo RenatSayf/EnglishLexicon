@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED_ANONYMOUS_PARAMETER")
+
 package com.myapp.lexicon.repository.network
 
 import com.myapp.lexicon.video.models.VideoSearchResult
@@ -66,6 +68,29 @@ class NetRepositoryTest {
                 Assert.assertEquals(14, value.size)
             }
             result.onFailure { exception ->
+                exception.printStackTrace()
+                Assert.assertTrue(exception.message, false)
+            }
+        }
+    }
+
+    @Test
+    fun getSearchResult_success() {
+        runBlocking {
+            mockEngine = MockEngine(handler = { requestData ->
+                if (requestData.url.parameters.contains("q", "friends"))
+                    respond(content = TEST_VIDEO_LIST, status = HttpStatusCode.OK)
+                else
+                    respond(content = "")
+            })
+
+            repository = NetRepository(HttpClient(mockEngine))
+
+            val actualResult = repository.getSearchResult(query = "friends", pageToken = "", maxResults = 5).await()
+            actualResult.onSuccess { value: VideoSearchResult ->
+                Assert.assertTrue(value.videoItems.isNotEmpty())
+            }
+            actualResult.onFailure { exception ->
                 exception.printStackTrace()
                 Assert.assertTrue(exception.message, false)
             }
