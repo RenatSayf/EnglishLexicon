@@ -17,13 +17,16 @@ import androidx.core.view.marginBottom
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.OnScrollListener
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.FragmentVideoPlayerBinding
+import com.myapp.lexicon.di.NetRepositoryModule
 import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.helpers.throwIfDebug
-import com.myapp.lexicon.repository.network.MockNetRepository
 import com.myapp.lexicon.video.list.VideoListAdapter
 import com.myapp.lexicon.video.models.VideoItem
 import com.myapp.lexicon.video.models.VideoSearchResult
@@ -41,7 +44,8 @@ class VideoPlayerFragment : Fragment() {
 
         val TAG = "${VideoPlayerViewModel::class.simpleName}.tag358855"
         const val ARG_VIDEO_ITEM = "ARG_VIDEO_ID"
-        const val ARG_SEARCH_RESULT = "ARG_SEARCH_RESULT"
+        const val ARG_SEARCH_QUERY = "ARG_SEARCH_RESULT"
+        const val ARG_PAGE_TOKEN = "ARG_PAGE_TOKEN"
         const val KEY_CALLBACK_REQUEST = "KEY_CALLBACK_REQUEST"
 
         fun newInstance() = VideoPlayerFragment()
@@ -55,6 +59,10 @@ class VideoPlayerFragment : Fragment() {
 
     private val videoListAdapter: VideoListAdapter by lazy {
         VideoListAdapter.getInstance()
+    }
+
+    private val jsonDecoder: Json by lazy {
+        Json { ignoreUnknownKeys }
     }
 
     private var youTubePlayer: YouTubePlayer? = null
@@ -83,13 +91,13 @@ class VideoPlayerFragment : Fragment() {
             Exception("******** videoItemStr is NULL **********").throwIfDebug()
         }
         val videoItem = try {
-            Json.decodeFromString<VideoItem>(videoItemStr!!)
+            jsonDecoder.decodeFromString<VideoItem>(videoItemStr!!)
         } catch (e: Exception) {
             e.throwIfDebug()
             null
         }
         videoItem?.let {
-            val factory = VideoPlayerViewModel.Factory(repository = MockNetRepository())
+            val factory = VideoPlayerViewModel.Factory(repository = NetRepositoryModule.provideNetRepository())
             playerVM = ViewModelProvider(this, factory)[VideoPlayerViewModel::class.java]
             playerVM.setSelectedVideo(it)
         }?: run {
@@ -122,6 +130,19 @@ class VideoPlayerFragment : Fragment() {
                         }
                     }
                 })
+
+                addOnScrollListener(object : OnScrollListener() {
+                    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+
+                        val lastVisibleItemPosition = (recyclerView.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
+                        if (lastVisibleItemPosition == videoListAdapter.itemCount - 1) {
+                            val searchResult = playerVM.searchResult.value?.getOrNull()
+                            if (searchResult != null) {
+                                playerVM.fetchSearchResult(query = searchResult.query, pageToken = searchResult.nextPageToken)
+                            }
+                        }
+                    }
+                })
             }
 
             playerVM.selectedVideo.observe(viewLifecycleOwner) { result ->
@@ -141,14 +162,12 @@ class VideoPlayerFragment : Fragment() {
                         })
                     tvTitle.text = value.snippet.title
 
-                    val searchResultStr = arguments?.getString(ARG_SEARCH_RESULT)
-                    searchResultStr?.let {
-                        try {
-                            val searchResult = Json.decodeFromString<VideoSearchResult>(it)
-                            playerVM.setSearchResult(searchResult)
-                        } catch (e: Exception) {
-                            e.printStackTraceIfDebug()
-                        }
+                    val searchQuery = arguments?.getString(ARG_SEARCH_QUERY)
+                    searchQuery?.let {
+                        playerVM.fetchSearchResult(
+                            query = it,
+                            pageToken = arguments?.getString(ARG_PAGE_TOKEN)?: ""
+                        )
                     }
 
                     if (youTubePlayer == null) {
@@ -180,7 +199,14 @@ class VideoPlayerFragment : Fragment() {
 
             playerVM.searchResult.observe(viewLifecycleOwner) { result ->
                 result.onSuccess { value: VideoSearchResult ->
-                    videoListAdapter.submitList(value.videoItems)
+                    if (value.prevPageToken == null) {
+                        videoListAdapter.submitList(value.videoItems)
+                    } else {
+                        videoListAdapter.addItemsToCurrentList(value.videoItems)
+                    }
+                }
+                result.onFailure { exception ->
+                    exception.printStackTraceIfDebug()
                 }
             }
 

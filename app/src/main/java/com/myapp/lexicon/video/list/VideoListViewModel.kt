@@ -1,3 +1,5 @@
+@file:Suppress("PropertyName")
+
 package com.myapp.lexicon.video.list
 
 import androidx.lifecycle.LiveData
@@ -12,7 +14,7 @@ import com.myapp.lexicon.video.models.VideoSearchResult
 import kotlinx.coroutines.launch
 import java.util.Locale
 
-class VideoListViewModel(
+open class VideoListViewModel(
     private val repository: INetRepository
 ) : ViewModel() {
 
@@ -26,11 +28,11 @@ class VideoListViewModel(
         }
     }
 
-    private var isSearchResultLoading = false
-    private var _searchResult = MutableLiveData<Result<VideoSearchResult>>()
-    val searchResult: LiveData<Result<VideoSearchResult>> = _searchResult
+    protected var isSearchResultLoading = false
+    protected var _searchResult = MutableLiveData<Result<VideoSearchResult>>()
+    open val searchResult: LiveData<Result<VideoSearchResult>> = _searchResult
 
-    fun fetchSearchResult(
+    open fun fetchSearchResult(
         query: String,
         pageToken: String,
         subtitles: Boolean = true,

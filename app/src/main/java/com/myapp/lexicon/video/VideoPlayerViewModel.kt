@@ -2,23 +2,22 @@
 
 package com.myapp.lexicon.video
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.myapp.lexicon.di.App
+import androidx.lifecycle.viewModelScope
 import com.myapp.lexicon.di.NetRepositoryModule
-import com.myapp.lexicon.helpers.throwIfDebug
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.repository.network.INetRepository
+import com.myapp.lexicon.video.list.VideoListViewModel
 import com.myapp.lexicon.video.models.VideoItem
 import com.myapp.lexicon.video.models.VideoSearchResult
+import kotlinx.coroutines.launch
 
 class VideoPlayerViewModel(
-    private val app: Application,
     private val repository: INetRepository
-) : AndroidViewModel(app) {
+) : VideoListViewModel(repository) {
 
     class Factory(
         private val repository: INetRepository = NetRepositoryModule.provideNetRepository()
@@ -26,26 +25,42 @@ class VideoPlayerViewModel(
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             require(modelClass == VideoPlayerViewModel::class.java)
-            return VideoPlayerViewModel(app = App.INSTANCE, repository = this.repository) as T
+            return VideoPlayerViewModel(repository = this.repository) as T
         }
     }
 
     var videoTimeMarker: Float = 0.0f
 
-    private var _searchResult = MutableLiveData<Result<VideoSearchResult>>()
-    val searchResult: LiveData<Result<VideoSearchResult>> = _searchResult
+    override val searchResult: LiveData<Result<VideoSearchResult>> = super._searchResult
 
-    fun setSearchResult(result: VideoSearchResult) {
-        _selectedVideo.value?.onSuccess { value: VideoItem ->
-            val modifiedResult = result.copy(videoItems = result.videoItems.filter { it.id.videoId != value.id.videoId })
-            _searchResult.value = Result.success(modifiedResult)
-        }?: run {
-            Exception("******** _selectedVideo.value is NULL ***************").throwIfDebug()
+    override fun fetchSearchResult(
+        query: String,
+        pageToken: String,
+        subtitles: Boolean,
+        maxResults: Int
+    ) {
+        if (!super.isSearchResultLoading) {
+            viewModelScope.launch {
+                super.isSearchResultLoading = true
+                try {
+                    val result = repository.getSearchResult(query, pageToken, maxResults, subtitles).await()
+                    result.onSuccess { res: VideoSearchResult ->
+                        _selectedVideo.value?.onSuccess { item: VideoItem ->
+                            val modifiedResult = res.copy(videoItems = res.videoItems.filter { it.id.videoId != item.id.videoId })
+                            super._searchResult.value = Result.success(modifiedResult)
+                        }
+                    }
+                    result.onFailure { exception ->
+                        super._searchResult.value = Result.failure(exception)
+                    }
+                } catch (e: Exception) {
+                    e.printStackTraceIfDebug()
+                    super._searchResult.value = Result.failure(e)
+                } finally {
+                    super.isSearchResultLoading = false
+                }
+            }
         }
-    }
-
-    fun getSearchResult() {
-
     }
 
     private var _selectedVideo = MutableLiveData<Result<VideoItem>>()
