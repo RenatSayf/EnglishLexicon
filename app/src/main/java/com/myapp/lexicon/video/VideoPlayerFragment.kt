@@ -9,7 +9,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
-import android.widget.Toolbar.LayoutParams
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -30,6 +29,7 @@ import com.myapp.lexicon.helpers.throwIfDebug
 import com.myapp.lexicon.video.list.VideoListAdapter
 import com.myapp.lexicon.video.models.VideoItem
 import com.myapp.lexicon.video.models.VideoSearchResult
+import com.myapp.lexicon.video.search.SearchFragment
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener
@@ -119,12 +119,12 @@ class VideoPlayerFragment : Fragment() {
                         when {
                             oldScrollY > scrollY -> {
                                 layoutControlPane.changeTopMarginAnimatedly(0)
-                                layoutSearch.changeBottomMarginAnimatedly(0)
+                                bottomBar.changeBottomMarginAnimatedly(0)
                             }
                             else -> {
                                 if (oldScrollY != scrollY) {
                                     layoutControlPane.changeTopMarginAnimatedly()
-                                    layoutSearch.changeBottomMarginAnimatedly(-layoutSearch.height)
+                                    bottomBar.changeBottomMarginAnimatedly(-bottomBar.height)
                                 }
                             }
                         }
@@ -269,18 +269,12 @@ class VideoPlayerFragment : Fragment() {
                 }
             }
 
-            svSearch.apply {
-                setOnCloseListener {
-                    if (this.query.toString().isEmpty()) {
-                        this.layoutParams.width = LayoutParams.WRAP_CONTENT
-                    }
-                    else {
-                        this.setQuery("", false)
-                    }
-                    false
-                }
+            btnSearch.setOnClickListener {
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.frame_to_page_fragm, SearchFragment.newInstance())
+                    .addToBackStack(null)
+                    .commit()
             }
-
 
         }
     }
@@ -305,7 +299,12 @@ class VideoPlayerFragment : Fragment() {
                     seekbarVideo.progress = progressInPercentages
                     playerVM.currentSecond = second
                     if (progressInPercentages > 5) {
-                        playerVM.saveVideoToHistory()
+
+                        playerVM.saveSelectedVideoToHistory(
+                            onStart = { locker.lock() },
+                            onComplete = { locker.unLock() },
+                            onFailure = { e: Exception -> e.printStackTraceIfDebug() }
+                        )
                     }
                 }
             }
@@ -424,6 +423,10 @@ class VideoPlayerFragment : Fragment() {
                 parentFragmentManager.popBackStack()
             }
         })
+
+        binding.btnBack.setOnClickListener {
+            parentFragmentManager.popBackStack()
+        }
 
         setFragmentResult(KEY_CALLBACK_REQUEST, Bundle().apply {
 

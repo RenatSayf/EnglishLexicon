@@ -11,15 +11,16 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.myapp.lexicon.R
 import com.myapp.lexicon.database.models.WordToPlay
 import com.myapp.lexicon.models.Word
+import com.myapp.lexicon.video.models.query.HistoryQuery
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.internal.synchronized
 import java.io.File
 
 
-private const val DB_VERSION = 2
+private const val DB_VERSION = 3
 
 
-@Database(entities = [Word::class, WordToPlay::class], version = DB_VERSION, exportSchema = true)
+@Database(entities = [Word::class, WordToPlay::class, HistoryQuery::class], version = DB_VERSION, exportSchema = true)
 abstract class AppDataBase : RoomDatabase()
 {
     abstract fun appDao(): AppDao
@@ -50,6 +51,7 @@ abstract class AppDataBase : RoomDatabase()
             dataBase = Room.databaseBuilder(context, AppDataBase::class.java, dbName).apply {
 
                 addMigrations(getMigrationFrom1To2())
+                addMigrations(getMigrationFrom2To3())
                 allowMainThreadQueries()
                 val dbFile = context.getDatabasePath(dbName)
                 if (dbFile.exists()) {
@@ -90,6 +92,24 @@ abstract class AppDataBase : RoomDatabase()
 	"translate"	TEXT NOT NULL,
 	"count_repeat"	INTEGER NOT NULL DEFAULT 1,
 	PRIMARY KEY("english")
+);"""
+                    if (db.isOpen) {
+                        db.execSQL(query)
+                    }
+                }
+            }
+        }
+
+        private fun getMigrationFrom2To3(): Migration {
+            return object : Migration(2, 3) {
+                override fun migrate(db: SupportSQLiteDatabase) {
+                    val query = """CREATE TABLE IF NOT EXISTS "History" (
+	"video_id"	TEXT NOT NULL,
+	"viewing_time"	INTEGER NOT NULL,
+	"text"	TEXT NOT NULL,
+	"thumbnail_url"	TEXT NOT NULL,
+	"page_token"	TEXT NOT NULL,
+	PRIMARY KEY("video_id")
 );"""
                     if (db.isOpen) {
                         db.execSQL(query)

@@ -3,8 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
+    android:padding="12dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/ic_launcher_background"
     tools:context=".video.search.SearchFragment">
 
     <androidx.appcompat.widget.LinearLayoutCompat
@@ -23,19 +24,40 @@
             android:src="@drawable/ic_arrow_back_white"
             android:background="@drawable/bg_ripple_transparent"/>
 
-        <androidx.appcompat.widget.AppCompatEditText
-            android:id="@+id/etQuery"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:padding="12dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            tools:ignore="SpeakableTextPresentCheck"
-            android:background="@drawable/bg_horizontal_oval"
-            android:backgroundTint="@color/color_F5F5F5"
-            android:hint="@string/text_enter_request"
-            />
+            android:layout_weight="1">
+
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/etQuery"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="12dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="48dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                tools:ignore="SpeakableTextPresentCheck"
+                android:background="@drawable/bg_horizontal_oval"
+                android:backgroundTint="@color/color_F5F5F5"
+                android:hint="@string/text_enter_request"
+                />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/btnClear"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="@+id/etQuery"
+                app:layout_constraintEnd_toEndOf="@+id/etQuery"
+                app:layout_constraintBottom_toBottomOf="@id/etQuery"
+                android:padding="8dp"
+                android:src="@drawable/ic_close_red"
+                android:foreground="?attr/selectableItemBackground"
+                tools:visibility="visible"
+                android:visibility="gone"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/btnMicrophone"
@@ -43,7 +65,8 @@
             android:layout_height="wrap_content"
             android:padding="8dp"
             android:src="@drawable/icon_microphone_blue"
-            android:background="@drawable/bg_ripple_transparent"/>
+            android:background="@drawable/bg_ripple_transparent"
+            tools:visibility="visible"/>
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 

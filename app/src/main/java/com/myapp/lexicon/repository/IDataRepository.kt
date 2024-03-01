@@ -4,9 +4,9 @@ import com.myapp.lexicon.common.OrderBy
 import com.myapp.lexicon.database.models.Counters
 import com.myapp.lexicon.database.models.WordToPlay
 import com.myapp.lexicon.models.Word
+import com.myapp.lexicon.video.models.query.HistoryQuery
 import io.reactivex.Single
 import kotlinx.coroutines.Deferred
-import kotlin.jvm.Throws
 
 interface IDataRepository
 {
@@ -57,6 +57,10 @@ interface IDataRepository
     suspend fun getFirstFromPlayListAsync(): Deferred<List<Word>>
 
     suspend fun getCountersByIdAsync(id: Int): Deferred<List<Counters>>
+
+    suspend fun addVideoToHistory(item: HistoryQuery): Deferred<Result<Long>>
+
+    suspend fun getVideoHistory(): Deferred<Result<List<HistoryQuery>>>
 
     fun dbClose()
 

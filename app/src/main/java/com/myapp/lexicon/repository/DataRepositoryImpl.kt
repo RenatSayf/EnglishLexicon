@@ -8,6 +8,7 @@ import com.myapp.lexicon.database.models.Counters
 import com.myapp.lexicon.database.models.WordToPlay
 import com.myapp.lexicon.helpers.throwIfDebug
 import com.myapp.lexicon.models.Word
+import com.myapp.lexicon.video.models.query.HistoryQuery
 import io.reactivex.Single
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
@@ -191,6 +192,22 @@ class DataRepositoryImpl(
         return coroutineScope {
             async {
                 db.getCountersById(id)
+            }
+        }
+    }
+
+    override suspend fun addVideoToHistory(item: HistoryQuery): Deferred<Result<Long>> {
+        return coroutineScope {
+            async {
+                runCatching { db.insertInToHistory(item) }
+            }
+        }
+    }
+
+    override suspend fun getVideoHistory(): Deferred<Result<List<HistoryQuery>>> {
+        return coroutineScope {
+            async {
+                runCatching { db.getAllFromHistory() }
             }
         }
     }

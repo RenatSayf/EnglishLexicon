@@ -5,6 +5,7 @@ import androidx.sqlite.db.SimpleSQLiteQuery
 import com.myapp.lexicon.database.models.Counters
 import com.myapp.lexicon.database.models.WordToPlay
 import com.myapp.lexicon.models.Word
+import com.myapp.lexicon.video.models.query.HistoryQuery
 import io.reactivex.Single
 
 @Dao
@@ -84,6 +85,12 @@ interface AppDao
 (SELECT count() FROM Words WHERE dict_name = (SELECT dict_name FROM PlayList LIMIT 1) AND count_repeat <> 1) AS unused
  FROM PlayList WHERE _id = :id;""")
     suspend fun getCountersById(id: Int): List<Counters>
+
+    @Insert(entity = HistoryQuery::class, onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertInToHistory(item: HistoryQuery): Long
+
+    @Query("SELECT * FROM History ORDER BY viewing_time DESC")
+    suspend fun getAllFromHistory(): List<HistoryQuery>
 
 }
 

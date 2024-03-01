@@ -1,10 +1,10 @@
 package com.myapp.lexicon.video.search
 
 import android.net.Uri
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -71,11 +71,16 @@ class SearchQueryAdapter : ListAdapter<ISearchItem, SearchQueryAdapter.ViewHolde
                 when (item) {
                     is ErrorItem -> {
                         ivThumbnail.visibility = View.GONE
-                        tvSuggestion.setCompoundDrawables(null, null, null, null)
+                        ivFirstIcon.visibility = View.GONE
+                        tvSuggestion.gravity = Gravity.CENTER
                     }
                     is SearchQuery -> {
                         ivThumbnail.visibility = View.GONE
-                        tvSuggestion.setCompoundDrawables(ResourcesCompat.getDrawable(itemView.resources, R.drawable.ic_search_black, null), null, null, null)
+                        tvSuggestion.gravity = Gravity.START and Gravity.CENTER_VERTICAL
+                        ivFirstIcon.apply {
+                            visibility = View.VISIBLE
+                            setImageResource(R.drawable.ic_search_black)
+                        }
                         layoutQuery.setOnClickListener {
                             this@SearchQueryAdapter.onQueryItemClick?.invoke(item)?: run { Exception("***** onQueryItemClick not registered *******").throwIfDebug()}
                         }
@@ -83,7 +88,11 @@ class SearchQueryAdapter : ListAdapter<ISearchItem, SearchQueryAdapter.ViewHolde
 
                     is HistoryQuery -> {
                         ivThumbnail.visibility = View.VISIBLE
-                        tvSuggestion.setCompoundDrawables(ResourcesCompat.getDrawable(itemView.resources, R.drawable.ic_refresh, null), null, null, null)
+                        ivFirstIcon.apply {
+                            visibility = View.VISIBLE
+                            setImageResource(R.drawable.ic_refresh)
+                        }
+                        tvSuggestion.gravity = Gravity.START and Gravity.CENTER_VERTICAL
                         val thumbnailUri = Uri.parse(item.thumbnailUrl)
                         Picasso.get().load(thumbnailUri)
                             .placeholder(R.drawable.ic_smart_display)

@@ -17,6 +17,7 @@ import com.myapp.lexicon.repository.network.INetRepository
 import com.myapp.lexicon.video.list.VideoListViewModel
 import com.myapp.lexicon.video.models.VideoItem
 import com.myapp.lexicon.video.models.VideoSearchResult
+import com.myapp.lexicon.video.models.query.HistoryQuery
 import kotlinx.coroutines.launch
 
 class VideoPlayerViewModel(
@@ -37,6 +38,11 @@ class VideoPlayerViewModel(
 
     var videoTimeMarker: Float = 0.0f
 
+    var searchQuery: String = ""
+        private set
+    var pageToken: String = ""
+        private set
+
     override val searchResult: LiveData<Result<VideoSearchResult>> = super._searchResult
 
     override fun fetchSearchResult(
@@ -51,6 +57,10 @@ class VideoPlayerViewModel(
                 try {
                     val result = netRepository.getSearchResult(query, pageToken, maxResults, subtitles).await()
                     result.onSuccess { res: VideoSearchResult ->
+
+                        this@VideoPlayerViewModel.searchQuery = query
+                        this@VideoPlayerViewModel.pageToken = pageToken
+
                         _selectedVideo.value?.onSuccess { item: VideoItem ->
                             val modifiedResult = res.copy(videoItems = res.videoItems.filter { it.id.videoId != item.id.videoId })
                             super._searchResult.value = Result.success(modifiedResult)
@@ -92,10 +102,37 @@ class VideoPlayerViewModel(
         return second - 1
     }
 
-    fun saveVideoToHistory() {
+    fun saveSelectedVideoToHistory(
+        onStart: () -> Unit = {},
+        onComplete: () -> Unit = {},
+        onSuccess: (id: Long) -> Unit = {},
+        onFailure: (e: Exception) -> Unit = {}
+    ) {
+        onStart.invoke()
         val videoItem = _selectedVideo.value?.getOrNull()
         videoItem?.let { item ->
-
+            val historyQuery = HistoryQuery(
+                videoId = item.id.videoId,
+                viewingTime = System.currentTimeMillis(),
+                text = item.snippet.title,
+                thumbnailUrl = item.snippet.thumbnails.default.url,
+                pageToken = this.pageToken
+            )
+            viewModelScope.launch {
+                try {
+                    val result = dbRepository.addVideoToHistory(historyQuery).await()
+                    result.onSuccess { value: Long ->
+                        onSuccess.invoke(value)
+                    }
+                    result.onFailure { exception ->
+                        onFailure.invoke(exception as Exception)
+                    }
+                } finally {
+                    onComplete.invoke()
+                }
+            }
+        }?: run {
+            onComplete.invoke()
         }
     }
 

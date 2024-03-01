@@ -245,33 +245,42 @@
         tools:listitem="@layout/item_video" />
 
     <androidx.appcompat.widget.LinearLayoutCompat
-        android:id="@+id/layoutSearch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:id="@+id/bottomBar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:gravity="center"
-        android:padding="12dp"
-        >
+        android:layout_marginBottom="0dp"
+        android:orientation="horizontal"
+        android:background="@color/colorSemitransparent">
 
-        <androidx.appcompat.widget.SearchView
-            android:id="@+id/svSearch"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_marginEnd="12dp"
-            android:gravity="center_vertical"
-            android:layout_gravity="center_vertical"
-            android:background="@drawable/bg_horizontal_oval"
-            android:animateLayoutChanges="true"
-            android:inputType="textAutoComplete"
-            android:visibility="visible"
-            tools:visibility="visible"
-            android:backgroundTint="@color/color_F5F5F5"
-            app:closeIcon="@drawable/ic_close_red"
-            />
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/btnBack"
+            android:layout_width="?attr/actionBarSize"
+            android:layout_height="match_parent"
+            android:foreground="?android:selectableItemBackground"
+            android:padding="8dp"
+            android:src="@drawable/ic_arrow_back_white"
+            tools:ignore="ImageContrastCheck" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvReward"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textColor="@color/colorYellowDark"
+            android:textStyle="bold"
+            tools:ignore="TextContrastCheck"
+            tools:text="@string/text_your_reward" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/btnSearch"
+            android:layout_width="?attr/actionBarSize"
+            android:layout_height="match_parent"
+            android:foreground="?android:selectableItemBackground"
+            android:padding="8dp"
+            android:src="@drawable/icon_search"
+            tools:ignore="ImageContrastCheck" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 

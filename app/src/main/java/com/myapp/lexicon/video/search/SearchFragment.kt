@@ -8,11 +8,13 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.core.widget.doOnTextChanged
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.FragmentSearchBinding
 import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
+import com.myapp.lexicon.video.models.query.ErrorItem
 import com.myapp.lexicon.video.models.query.HistoryQuery
 import com.myapp.lexicon.video.models.query.SearchQuery
 
@@ -54,27 +56,72 @@ class SearchFragment : Fragment() {
                 adapter = searchAdapter
             }
 
-            etQuery.doOnTextChanged { text, start, before, count ->
-                searchVM.fetchSuggestions(
-                    query = text.toString(),
-                    onStart = {
-                        locker.lock()
-                    },
-                    onComplete =  {
+            if (savedInstanceState == null) {
+                searchVM.getVideoHistory(
+                    onStart = { locker.lock() },
+                    onComplete = {t: Throwable? ->
                         locker.unLock()
+                        t?.printStackTraceIfDebug()
                     },
-                    onResult = { result: Result<List<SearchQuery>> ->
-                        result.onSuccess { value: List<SearchQuery> ->
-                            searchAdapter.submitList(value)
+                    onSuccess = {list: List<HistoryQuery> ->
+                        if (list.isNotEmpty()) {
+                            searchAdapter.submitList(list)
+                        } else {
+                            val errorItem = ErrorItem(getString(R.string.text_video_histori_is_empty))
+                            searchAdapter.submitList(listOf(errorItem))
                         }
-                        result.onFailure { exception ->
-                            exception.printStackTraceIfDebug()
-                        }
-                    },
-                    onFailure = { e: Exception ->
-                        e.printStackTraceIfDebug()
                     }
                 )
+            }
+
+            etQuery.doOnTextChanged { text, start, before, count ->
+
+                if (text.toString().isNotEmpty()) {
+                    btnClear.visibility = View.VISIBLE
+                    btnMicrophone.visibility = View.GONE
+
+                    searchVM.fetchSuggestions(
+                        query = text.toString(),
+                        onStart = {
+                            locker.lock()
+                        },
+                        onResult = { result: Result<List<SearchQuery>> ->
+                            result.onSuccess { value: List<SearchQuery> ->
+                                searchAdapter.submitList(value)
+                            }
+                            result.onFailure { exception ->
+                                exception.printStackTraceIfDebug()
+                            }
+                        },
+                        onComplete = {
+                            locker.unLock()
+                        }
+                    )
+                }
+                else {
+                    btnClear.visibility = View.GONE
+                    btnMicrophone.visibility = View.VISIBLE
+
+                    searchVM.getVideoHistory(
+                        onStart = { locker.lock() },
+                        onComplete = { t: Throwable? ->
+                            locker.unLock()
+                            t?.printStackTraceIfDebug()
+                        },
+                        onSuccess = {list: List<HistoryQuery> ->
+                            if (list.isNotEmpty()) {
+                                searchAdapter.submitList(list)
+                            } else {
+                                val errorItem = ErrorItem(getString(R.string.text_video_histori_is_empty))
+                                searchAdapter.submitList(listOf(errorItem))
+                            }
+                        }
+                    )
+                }
+            }
+
+            btnClear.setOnClickListener {
+                etQuery.setText("")
             }
 
             searchAdapter.setOnQueryItemClick { item: SearchQuery ->
@@ -85,6 +132,22 @@ class SearchFragment : Fragment() {
 
             }
 
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                parentFragmentManager.popBackStack()
+            }
+        })
+
+        with(binding!!) {
+            btnBack.setOnClickListener {
+                parentFragmentManager.popBackStack()
+            }
         }
     }
 

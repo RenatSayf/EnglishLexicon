@@ -289,6 +289,7 @@
     <string name="text_video">Видео</string>
     <string name="text_get_subtitles">Получить субтитры</string>
     <string name="text_enter_request">Введите запрос</string>
+    <string name="text_video_histori_is_empty">История просмотров пока пуста</string>
 
 
 </resources>
