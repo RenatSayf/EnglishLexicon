@@ -97,7 +97,7 @@ class VideoPlayerFragment : Fragment() {
             null
         }
         videoItem?.let {
-            val factory = VideoPlayerViewModel.Factory(repository = NetRepositoryModule.provideNetRepository())
+            val factory = VideoPlayerViewModel.Factory(netRepository = NetRepositoryModule.provideNetRepository())
             playerVM = ViewModelProvider(this, factory)[VideoPlayerViewModel::class.java]
             playerVM.setSelectedVideo(it)
         }?: run {
@@ -304,6 +304,9 @@ class VideoPlayerFragment : Fragment() {
                     val progressInPercentages = playerVM.getProgressInPercentages(second)
                     seekbarVideo.progress = progressInPercentages
                     playerVM.currentSecond = second
+                    if (progressInPercentages > 5) {
+                        playerVM.saveVideoToHistory()
+                    }
                 }
             }
 

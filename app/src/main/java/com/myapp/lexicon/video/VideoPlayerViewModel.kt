@@ -7,8 +7,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.myapp.lexicon.di.App
+import com.myapp.lexicon.di.AppRoomDbModule
+import com.myapp.lexicon.di.DataRepositoryModule
 import com.myapp.lexicon.di.NetRepositoryModule
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
+import com.myapp.lexicon.repository.IDataRepository
 import com.myapp.lexicon.repository.network.INetRepository
 import com.myapp.lexicon.video.list.VideoListViewModel
 import com.myapp.lexicon.video.models.VideoItem
@@ -16,16 +20,18 @@ import com.myapp.lexicon.video.models.VideoSearchResult
 import kotlinx.coroutines.launch
 
 class VideoPlayerViewModel(
-    private val repository: INetRepository
-) : VideoListViewModel(repository) {
+    private val netRepository: INetRepository,
+    private val dbRepository: IDataRepository
+) : VideoListViewModel(netRepository) {
 
     class Factory(
-        private val repository: INetRepository = NetRepositoryModule.provideNetRepository()
+        private val netRepository: INetRepository = NetRepositoryModule.provideNetRepository(),
+        private val dbRepository: IDataRepository = DataRepositoryModule.provideDataRepository(AppRoomDbModule.provideAppRoomDb(App.INSTANCE))
     ): ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             require(modelClass == VideoPlayerViewModel::class.java)
-            return VideoPlayerViewModel(repository = this.repository) as T
+            return VideoPlayerViewModel(netRepository = this.netRepository, dbRepository = this.dbRepository) as T
         }
     }
 
@@ -43,7 +49,7 @@ class VideoPlayerViewModel(
             viewModelScope.launch {
                 super.isSearchResultLoading = true
                 try {
-                    val result = repository.getSearchResult(query, pageToken, maxResults, subtitles).await()
+                    val result = netRepository.getSearchResult(query, pageToken, maxResults, subtitles).await()
                     result.onSuccess { res: VideoSearchResult ->
                         _selectedVideo.value?.onSuccess { item: VideoItem ->
                             val modifiedResult = res.copy(videoItems = res.videoItems.filter { it.id.videoId != item.id.videoId })
@@ -84,6 +90,13 @@ class VideoPlayerViewModel(
     fun getProgressInSeconds(progress: Int): Float {
         val second = (progress * this.duration) / 100
         return second - 1
+    }
+
+    fun saveVideoToHistory() {
+        val videoItem = _selectedVideo.value?.getOrNull()
+        videoItem?.let { item ->
+
+        }
     }
 
 

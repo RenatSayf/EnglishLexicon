@@ -35,15 +35,25 @@
             android:src="@drawable/ic_arrow_back_white"
             tools:ignore="ImageContrastCheck" />
 
-        <androidx.appcompat.widget.SearchView
-            android:id="@+id/svSearch"
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvReward"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:layout_gravity="center_vertical"
-            android:layout_margin="8dp"
-            android:background="@drawable/bg_horizontal_oval"
-            />
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textColor="@color/colorYellowDark"
+            android:textStyle="bold"
+            tools:ignore="TextContrastCheck"
+            tools:text="@string/text_your_reward" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/btnSearch"
+            android:layout_width="?attr/actionBarSize"
+            android:layout_height="match_parent"
+            android:foreground="?android:selectableItemBackground"
+            android:padding="8dp"
+            android:src="@drawable/icon_search"
+            tools:ignore="ImageContrastCheck" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 

@@ -30,6 +30,7 @@ import com.myapp.lexicon.video.extensions.getSelectedSuggestion
 import com.myapp.lexicon.video.extensions.updateAdapter
 import com.myapp.lexicon.video.models.VideoItem
 import com.myapp.lexicon.video.models.VideoSearchResult
+import com.myapp.lexicon.video.search.SearchFragment
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerCallback
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
@@ -149,44 +150,11 @@ class VideoListFragment private constructor(): Fragment() {
                 }
             }
 
-            svSearch.apply {
-                suggestionsAdapter = svSearch.createAdapter()
-
-                setOnQueryTextListener(object : OnQueryTextListener {
-                    override fun onQueryTextSubmit(query: String?): Boolean {
-                        return false
-                    }
-
-                    override fun onQueryTextChange(newText: String?): Boolean {
-                        if (newText != null) {
-                            videoListVM.fetchSuggestions(newText).observe(viewLifecycleOwner) { result ->
-                                result.onSuccess { list: List<String> ->
-                                    svSearch.updateAdapter(list)
-                                }
-                                result.onFailure { exception ->
-                                    exception.printStackTraceIfDebug()
-                                }
-                            }
-                        }
-                        return true
-                    }
-                })
-
-                setOnSuggestionListener(object : OnSuggestionListener {
-                    override fun onSuggestionSelect(position: Int): Boolean {
-                        return false
-                    }
-
-                    override fun onSuggestionClick(position: Int): Boolean {
-                        svSearch.getSelectedSuggestion(
-                            position = position,
-                            onSelection = { selection ->
-                                videoListVM.fetchSearchResult(query = selection, pageToken = "")
-                            }
-                        )
-                        return true
-                    }
-                })
+            btnSearch.setOnClickListener {
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.frame_to_page_fragm, SearchFragment.newInstance())
+                    .addToBackStack(null)
+                    .commit()
             }
 
         }
