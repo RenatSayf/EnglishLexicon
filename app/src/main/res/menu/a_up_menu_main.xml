@@ -14,14 +14,6 @@
         android:title="@string/text_speech_settings"
         app:showAsAction="never"/>
 
-    <item android:id="@+id/cloud_storage"
-        android:orderInCategory="100"
-        android:title="@string/cloud_storage_text"
-        app:showAsAction="never"
-        android:visible="false"
-        tools:visible="true"
-        />
-
     <item
         android:id="@+id/menu_item_share"
         android:icon="@drawable/icon_share_white_24dp"

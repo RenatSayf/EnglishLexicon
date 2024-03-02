@@ -14,7 +14,6 @@ import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.video.models.query.HistoryQuery
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.internal.synchronized
-import java.io.File
 
 
 private const val DB_VERSION = 3
@@ -64,15 +63,6 @@ abstract class AppDataBase : RoomDatabase()
             return dataBase!!
         }
 
-        fun buildDataBaseFromFile(context: Context, dbFile: File): AppDataBase {
-            val dbName = context.getString(R.string.data_base_name)
-            dataBase = Room.databaseBuilder(context, AppDataBase::class.java, dbName).apply {
-                allowMainThreadQueries()
-                createFromFile(dbFile)
-            }.build()
-            return dataBase!!
-        }
-
         fun execVacuum() {
             dataBase?.openHelper?.writableDatabase?.execSQL("VACUUM")
         }
@@ -85,16 +75,8 @@ abstract class AppDataBase : RoomDatabase()
         private fun getMigrationFrom1To2(): Migration {
             return object : Migration(1, 2) {
                 override fun migrate(db: SupportSQLiteDatabase) {
-                    val query = """CREATE TABLE IF NOT EXISTS "PlayList" (
-	"_id"	INTEGER NOT NULL,
-	"dict_name"	TEXT NOT NULL,
-	"english"	TEXT NOT NULL,
-	"translate"	TEXT NOT NULL,
-	"count_repeat"	INTEGER NOT NULL DEFAULT 1,
-	PRIMARY KEY("english")
-);"""
                     if (db.isOpen) {
-                        db.execSQL(query)
+                        db.execSQL(queryMigrationFrom1To2)
                     }
                 }
             }
@@ -103,20 +85,31 @@ abstract class AppDataBase : RoomDatabase()
         private fun getMigrationFrom2To3(): Migration {
             return object : Migration(2, 3) {
                 override fun migrate(db: SupportSQLiteDatabase) {
-                    val query = """CREATE TABLE IF NOT EXISTS "History" (
+                    if (db.isOpen) {
+                        db.execSQL(queryMigrationFrom2To3)
+                    }
+                }
+            }
+        }
+
+        private const val queryMigrationFrom1To2 = """CREATE TABLE IF NOT EXISTS "PlayList" (
+	"_id"	INTEGER NOT NULL,
+	"dict_name"	TEXT NOT NULL,
+	"english"	TEXT NOT NULL,
+	"translate"	TEXT NOT NULL,
+	"count_repeat"	INTEGER NOT NULL DEFAULT 1,
+	PRIMARY KEY("english")
+);"""
+
+        private const val queryMigrationFrom2To3 = """CREATE TABLE IF NOT EXISTS "History" (
 	"video_id"	TEXT NOT NULL,
 	"viewing_time"	INTEGER NOT NULL,
 	"text"	TEXT NOT NULL,
 	"thumbnail_url"	TEXT NOT NULL,
 	"page_token"	TEXT NOT NULL,
+    "search_query"	TEXT,
 	PRIMARY KEY("video_id")
 );"""
-                    if (db.isOpen) {
-                        db.execSQL(query)
-                    }
-                }
-            }
-        }
 
     }
 

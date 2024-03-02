@@ -62,6 +62,8 @@ interface IDataRepository
 
     suspend fun getVideoHistory(): Deferred<Result<List<HistoryQuery>>>
 
+    suspend fun getLatestVideoFromHistory(): Deferred<Result<HistoryQuery?>>
+
     fun dbClose()
 
     fun reInitDataBase()

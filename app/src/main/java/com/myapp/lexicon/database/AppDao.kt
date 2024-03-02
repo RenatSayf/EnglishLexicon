@@ -92,5 +92,8 @@ interface AppDao
     @Query("SELECT * FROM History ORDER BY viewing_time DESC")
     suspend fun getAllFromHistory(): List<HistoryQuery>
 
+    @Query("SELECT * FROM History ORDER BY viewing_time DESC LIMIT 1")
+    suspend fun getLatestEntryFromHistory(): HistoryQuery?
+
 }
 

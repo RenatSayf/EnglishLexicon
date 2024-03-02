@@ -43,7 +43,7 @@ class VideoListFragmentTest {
 
         scenario.onActivity { act ->
             runBlocking {
-                val fragment = VideoListFragment.newInstance(repository)
+                val fragment = VideoListFragment.newInstance()
                 act.supportFragmentManager.beginTransaction().add(R.id.frameLayout, fragment, "XXX").commitNow()
 
                 delay(40000)

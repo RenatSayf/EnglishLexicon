@@ -212,6 +212,14 @@ class DataRepositoryImpl(
         }
     }
 
+    override suspend fun getLatestVideoFromHistory(): Deferred<Result<HistoryQuery?>> {
+        return coroutineScope {
+            async {
+                runCatching { db.getLatestEntryFromHistory() }
+            }
+        }
+    }
+
     override fun dbClose() {
         AppDataBase.dbClose()
     }

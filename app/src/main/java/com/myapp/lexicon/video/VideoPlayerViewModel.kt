@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
 class VideoPlayerViewModel(
     private val netRepository: INetRepository,
     private val dbRepository: IDataRepository
-) : VideoListViewModel(netRepository) {
+) : VideoListViewModel(netRepository, dbRepository) {
 
     class Factory(
         private val netRepository: INetRepository = NetRepositoryModule.provideNetRepository(),
@@ -116,7 +116,8 @@ class VideoPlayerViewModel(
                 viewingTime = System.currentTimeMillis(),
                 text = item.snippet.title,
                 thumbnailUrl = item.snippet.thumbnails.default.url,
-                pageToken = this.pageToken
+                pageToken = this.pageToken,
+                searchQuery = this.searchQuery
             )
             viewModelScope.launch {
                 try {

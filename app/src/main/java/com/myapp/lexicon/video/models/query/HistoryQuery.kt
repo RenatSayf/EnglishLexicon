@@ -24,6 +24,9 @@ data class HistoryQuery(
     val thumbnailUrl: String,
 
     @ColumnInfo(name = "page_token")
-    val pageToken: String
+    val pageToken: String,
+
+    @ColumnInfo(name = "search_query")
+    val searchQuery: String?
 
 ): ISearchItem

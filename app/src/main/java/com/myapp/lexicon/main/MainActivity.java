@@ -20,7 +20,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.myapp.lexicon.BuildConfig;
@@ -34,12 +33,7 @@ import com.myapp.lexicon.auth.AuthFragment;
 import com.myapp.lexicon.auth.AuthViewModel;
 import com.myapp.lexicon.auth.account.AccountFragment;
 import com.myapp.lexicon.auth.account.AccountViewModel;
-import com.myapp.lexicon.cloudstorage.CloudCheckWorker;
-import com.myapp.lexicon.cloudstorage.DownloadDbWorker;
-import com.myapp.lexicon.cloudstorage.StorageDialog;
 import com.myapp.lexicon.database.AppDataBase;
-import com.myapp.lexicon.databinding.DialogStorageBinding;
-import com.myapp.lexicon.di.NetRepositoryModule;
 import com.myapp.lexicon.dialogs.ConfirmDialog;
 import com.myapp.lexicon.dialogs.DictListDialog;
 import com.myapp.lexicon.dialogs.OrderPlayDialog;
@@ -58,7 +52,6 @@ import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.service.PhoneUnlockedReceiver;
 import com.myapp.lexicon.settings.ContainerFragment;
 import com.myapp.lexicon.settings.SettingsExtKt;
-import com.myapp.lexicon.settings.SettingsViewModel;
 import com.myapp.lexicon.video.list.VideoListFragment;
 import com.myapp.lexicon.wordeditor.WordEditorActivity;
 import com.myapp.lexicon.wordstests.OneOfFiveFragm;
@@ -66,8 +59,6 @@ import com.myapp.lexicon.wordstests.TestFragment;
 import com.parse.ParseUser;
 import com.yandex.mobile.ads.banner.BannerAdView;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Currency;
 import java.util.List;
@@ -103,7 +94,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ImageView orderPlayView;
     private ViewPager2 mainViewPager;
     private final MainViewPagerAdapter pagerAdapter = new MainViewPagerAdapter();
-    private Toolbar toolBar;
     public MainViewModel mainVM;
     private SpeechViewModel speechVM;
     public BackgroundFragm backgroundFragm = null;
@@ -117,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         root = LayoutInflater.from(this).inflate(R.layout.a_navig_main, new DrawerLayout(this));
         setContentView(root);
 
-        toolBar = findViewById(R.id.tool_bar);
+        Toolbar toolBar = findViewById(R.id.tool_bar);
         setSupportActionBar(toolBar);
 
         navView = root.findViewById(R.id.nav_view);
@@ -446,7 +436,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         AdsViewModelKt.loadBanner(bannerView, BannerAdIds.BANNER_2);
 
         onRevenueUpdate();
-        onSettingsChange();
 
     }
 
@@ -637,7 +626,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (BuildConfig.DEBUG) {
             menu.add(getString(R.string.test_crash));
         }
-        configureOptionsMenu(menu);
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -685,10 +673,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (id == R.id.menu_item_share)
         {
             new Share().doShare(this);
-        }
-        if (id == R.id.cloud_storage)
-        {
-            showCloudDialog();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -767,7 +751,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         if (itemId == R.id.nav_video_list)
         {
-            VideoListFragment videoListFragment = VideoListFragment.Companion.newInstance(NetRepositoryModule.INSTANCE.provideNetRepository());
+            VideoListFragment videoListFragment = VideoListFragment.Companion.newInstance();
             transaction.replace(R.id.frame_to_page_fragm, videoListFragment).addToBackStack(null).commit();
         }
         if (itemId == R.id.nav_add_word)
@@ -883,142 +867,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }), ConfirmDialog.Companion.getTAG());
     }
 
-    private void showCloudDialog()
-    {
-        BottomSheetDialogFragment dialog = (BottomSheetDialogFragment) getSupportFragmentManager().findFragmentByTag(StorageDialog.Companion.getTAG());
-        if (dialog == null)
-        {
-            dialog = StorageDialog.Companion.newInstance(new StorageDialog.Listener()
-            {
-                @Override
-                public void onDestroy()
-                {
-                    new LockOrientation(MainActivity.this).unLock();
-                }
-
-                @Override
-                public void onLaunch(@NonNull DialogStorageBinding binding)
-                {
-                    new LockOrientation(MainActivity.this).lock();
-                    binding.tvProductName.setText(getString(R.string.text_cloud_storage));
-                    binding.tvPriceTitle.setText(R.string.text_dicts_have_been_found);
-                    binding.btnCloudEnable.setText(R.string.text_restore);
-                    binding.btnCancel.setText(getString(R.string.btn_text_cancel));
-                }
-
-                @Override
-                public void onPositiveClick()
-                {
-                    SettingsExtKt.checkCloudToken(
-                            MainActivity.this,
-                            () -> null,
-                            token -> {
-                                DownloadDbWorker.Companion.downloadDbFromCloud(
-                                        MainActivity.this,
-                                        getString(R.string.data_base_name),
-                                        token,
-                                        new DownloadDbWorker.Listener()
-                                        {
-                                            @Override
-                                            public void onSuccess(@NonNull byte[] bytes)
-                                            {
-                                                try
-                                                {
-                                                    AppDataBase.Companion.dbClose();
-                                                    File dbFile = getDatabasePath(getString(R.string.data_base_name));
-                                                    FileOutputStream fileOutputStream = new FileOutputStream(dbFile);
-                                                    fileOutputStream.write(bytes);
-                                                    fileOutputStream.close();
-
-                                                    DataRepositoryImpl repository = new DataRepositoryImpl(
-                                                            AppDataBase.Companion.buildDataBaseFromFile(MainActivity.this, dbFile).appDao()
-                                                    );
-                                                    mainVM.injectDependencies(repository);
-
-                                                    ExtensionsKt.showSnackBar(mainControlLayout, getString(R.string.text_dicts_restore_success), Snackbar.LENGTH_LONG);
-                                                    toolBar.getMenu().findItem(R.id.cloud_storage).setVisible(false);
-                                                    SettingsExtKt.setCloudUpdateRequired(MainActivity.this, false);
-                                                } catch (Exception e)
-                                                {
-                                                    e.printStackTrace();
-                                                    ExtensionsKt.showSnackBar(mainControlLayout, getString(R.string.text_db_restore_error), Snackbar.LENGTH_LONG);
-                                                }
-                                            }
-
-                                            @Override
-                                            public void onFailure(@NonNull String error)
-                                            {
-                                                ExtensionsKt.showSnackBar(mainControlLayout, error, Snackbar.LENGTH_LONG);
-                                            }
-
-                                            @Override
-                                            public void onComplete()
-                                            {
-                                            }
-                                        }
-                                );
-                                return null;
-                            },
-                            () -> null,
-                            () -> null
-                    );
-                }
-
-                @Override
-                public void onCancelClick()
-                {
-                    toolBar.getMenu().findItem(R.id.cloud_storage).setVisible(true);
-                }
-            });
-            dialog.show(getSupportFragmentManager(), StorageDialog.Companion.getTAG());
-        }
-    }
-
-    private void configureOptionsMenu(Menu menu)
-    {
-
-        boolean isCloudEnabled = SettingsExtKt.getCloudStorageEnabled(this);
-        if (isCloudEnabled)
-        {
-            SettingsExtKt.checkCloudToken(
-                    this,
-                    () -> null,
-                    tokenId -> {
-                        CloudCheckWorker.Companion.check(
-                                this,
-                                tokenId,
-                                getString(R.string.data_base_name),
-                                new CloudCheckWorker.Listener()
-                                {
-                                    @Override
-                                    public void onRequireDownSync(@NonNull String token)
-                                    {
-                                        boolean isFirstLaunch = SettingsExtKt.getCheckFirstLaunch(MainActivity.this);
-                                        if (isFirstLaunch)
-                                        {
-                                            showCloudDialog();
-                                        }
-                                        menu.findItem(R.id.cloud_storage).setVisible(true);
-                                    }
-
-                                    @Override
-                                    public void onNotRequireSync()
-                                    {
-                                        menu.findItem(R.id.cloud_storage).setVisible(false);
-                                    }
-                                }
-                        );
-                        return null;
-                    },
-                    () -> null,
-                    () -> null
-            );
-        } else
-        {
-            menu.findItem(R.id.cloud_storage).setVisible(false);
-        }
-    }
-
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     public void onAppFinish()
     {
@@ -1046,56 +894,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 },
                 () -> null
         );
-
-        boolean storageEnabled = SettingsExtKt.getCloudStorageEnabled(this);
-        if (storageEnabled)
-        {
-            SettingsExtKt.checkCloudToken(
-                    this,
-                    () -> null,
-                    token -> {
-                        CloudCheckWorker.Companion.check(
-                                this,
-                                token,
-                                getString(R.string.data_base_name),
-                                new CloudCheckWorker.Listener()
-                                {
-                                    @Override
-                                    public void onBeforeChecking(@NonNull String dbName)
-                                    {
-                                        //region Hint forced closing of the database in order to commit changes and send them to the cloud storage
-                                        AppDataBase.Companion.dbClose();
-                                        //endregion
-                                    }
-                                }
-                        );
-                        return null;
-                    },
-                    () -> null,
-                    () -> null
-            );
-            finish();
-        }
-        else {
-            finish();
-        }
+        finish();
     }
 
     @Override
     public void onVisibleMainScreen()
     {
-    }
-
-    private void onSettingsChange()
-    {
-        SettingsViewModel viewModel = new ViewModelProvider(MainActivity.this).get(SettingsViewModel.class);
-        viewModel.getStoragePrefHasChanged().observe(this, result -> {
-            if (result)
-            {
-                Menu menu = toolBar.getMenu();
-                configureOptionsMenu(menu);
-            }
-        });
     }
 
     /**

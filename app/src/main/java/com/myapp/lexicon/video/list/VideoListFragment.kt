@@ -10,8 +10,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.LinearLayoutCompat
-import androidx.appcompat.widget.SearchView.OnQueryTextListener
-import androidx.appcompat.widget.SearchView.OnSuggestionListener
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -19,17 +17,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.FragmentVideoListBinding
-import com.myapp.lexicon.di.NetRepositoryModule
+import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showToastIfDebug
-import com.myapp.lexicon.repository.network.INetRepository
 import com.myapp.lexicon.video.VideoPlayerFragment
 import com.myapp.lexicon.video.VideoPlayerViewModel
-import com.myapp.lexicon.video.extensions.createAdapter
-import com.myapp.lexicon.video.extensions.getSelectedSuggestion
-import com.myapp.lexicon.video.extensions.updateAdapter
 import com.myapp.lexicon.video.models.VideoItem
 import com.myapp.lexicon.video.models.VideoSearchResult
+import com.myapp.lexicon.video.models.query.HistoryQuery
 import com.myapp.lexicon.video.search.SearchFragment
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerCallback
@@ -41,10 +36,8 @@ class VideoListFragment private constructor(): Fragment() {
 
     companion object {
 
-        private var repository: INetRepository? = null
-        fun newInstance(repository: INetRepository = NetRepositoryModule.provideNetRepository()): VideoListFragment {
+        fun newInstance(): VideoListFragment {
 
-            this.repository = repository
             return VideoListFragment()
         }
     }
@@ -57,6 +50,10 @@ class VideoListFragment private constructor(): Fragment() {
     }
     private lateinit var videoPlayerVM: VideoPlayerViewModel
 
+    private val locker: LockOrientation by lazy {
+        LockOrientation(requireActivity())
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -68,7 +65,7 @@ class VideoListFragment private constructor(): Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val listFactory = VideoListViewModel.Factory(repository!!)
+        val listFactory = VideoListViewModel.Factory()
         videoListVM = ViewModelProvider(this, listFactory)[VideoListViewModel::class.java]
 
         val playerFactory = VideoPlayerViewModel.Factory()
@@ -133,6 +130,26 @@ class VideoListFragment private constructor(): Fragment() {
                         }
                     }
                 })
+            }
+
+            if (savedInstanceState == null) {
+                videoListVM.getLastVideoFromHistory(
+                    onResult = {item: HistoryQuery? ->
+                        if (item != null) {
+                            videoListVM.fetchSearchResult(query = item.searchQuery?: "", pageToken = item.pageToken)
+                        }
+                        else {
+                            val array = resources.getStringArray(R.array.query_english_serials)
+                            videoListVM.fetchSearchResult(query = array.random(), pageToken = "")
+                        }
+                    },
+                    onStart = {
+                        locker.lock()
+                    },
+                    onComplete = {
+                        locker.unLock()
+                    }
+                )
             }
 
             videoListVM.searchResult.observe(viewLifecycleOwner) { result ->

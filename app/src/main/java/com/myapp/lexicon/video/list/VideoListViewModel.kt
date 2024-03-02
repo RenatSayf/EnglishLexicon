@@ -8,23 +8,30 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.myapp.lexicon.BuildConfig
+import com.myapp.lexicon.di.App
+import com.myapp.lexicon.di.AppRoomDbModule
+import com.myapp.lexicon.di.DataRepositoryModule
+import com.myapp.lexicon.di.NetRepositoryModule
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
+import com.myapp.lexicon.repository.IDataRepository
 import com.myapp.lexicon.repository.network.INetRepository
 import com.myapp.lexicon.video.models.VideoSearchResult
+import com.myapp.lexicon.video.models.query.HistoryQuery
 import kotlinx.coroutines.launch
-import java.util.Locale
 
 open class VideoListViewModel(
-    private val repository: INetRepository
+    private val netRepository: INetRepository,
+    private val dbRepository: IDataRepository
 ) : ViewModel() {
 
     class Factory(
-        private val repository: INetRepository
+        private val netRepository: INetRepository = NetRepositoryModule.provideNetRepository(),
+        private val dbRepository: IDataRepository = DataRepositoryModule.provideDataRepository(AppRoomDbModule.provideAppRoomDb(App.INSTANCE))
     ): ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             require(modelClass == VideoListViewModel::class.java)
-            return VideoListViewModel(repository) as T
+            return VideoListViewModel(netRepository = this.netRepository, dbRepository = this.dbRepository) as T
         }
     }
 
@@ -42,7 +49,7 @@ open class VideoListViewModel(
             viewModelScope.launch {
                 isSearchResultLoading = true
                 try {
-                    val result = repository.getSearchResult(query, pageToken, maxResults, subtitles).await()
+                    val result = netRepository.getSearchResult(query, pageToken, maxResults, subtitles).await()
                     result.onSuccess { value: VideoSearchResult ->
                         _searchResult.postValue(Result.success(value.apply {
                             this.query = query
@@ -62,16 +69,28 @@ open class VideoListViewModel(
         }
     }
 
-    fun fetchSuggestions(query: String, lang: String = Locale.getDefault().language): LiveData<Result<List<String>>> {
-        val result = MutableLiveData<Result<List<String>>>()
+    fun getLastVideoFromHistory(
+        onResult: (item: HistoryQuery?) -> Unit,
+        onStart: () -> Unit = {},
+        onComplete: (t: Throwable?) -> Unit = {}
+    ) {
+        onStart.invoke()
         viewModelScope.launch {
-            result.value = repository.fetchSuggestions(query, lang).await()
+            try {
+                val result = dbRepository.getLatestVideoFromHistory().await()
+                result.onSuccess { value: HistoryQuery? ->
+                    onResult.invoke(value)
+                }
+                result.onFailure { exception ->
+                    onComplete.invoke(exception)
+                    return@launch
+                }
+            } finally {
+                onComplete.invoke(null)
+            }
         }
-        return result
     }
 
-    init {
-        fetchSearchResult(query = "friends", pageToken = "")
-    }
+
 
 }
