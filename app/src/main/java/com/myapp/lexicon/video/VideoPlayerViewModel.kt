@@ -18,6 +18,7 @@ import com.myapp.lexicon.video.list.VideoListViewModel
 import com.myapp.lexicon.video.models.VideoItem
 import com.myapp.lexicon.video.models.VideoSearchResult
 import com.myapp.lexicon.video.models.query.HistoryQuery
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
 import kotlinx.coroutines.launch
 
 class VideoPlayerViewModel(
@@ -84,6 +85,7 @@ class VideoPlayerViewModel(
 
     fun setSelectedVideo(videoItem: VideoItem) {
         _selectedVideo.value = Result.success(videoItem)
+        screenState.videoId = videoItem.id.videoId
     }
 
     var volume = MutableLiveData(100)
@@ -104,9 +106,8 @@ class VideoPlayerViewModel(
 
     fun saveSelectedVideoToHistory(
         onStart: () -> Unit = {},
-        onComplete: () -> Unit = {},
-        onSuccess: (id: Long) -> Unit = {},
-        onFailure: (e: Exception) -> Unit = {}
+        onComplete: (t: Throwable?) -> Unit = {},
+        onSuccess: (id: Long) -> Unit = {}
     ) {
         onStart.invoke()
         val videoItem = _selectedVideo.value?.getOrNull()
@@ -120,20 +121,38 @@ class VideoPlayerViewModel(
                 searchQuery = this.searchQuery
             )
             viewModelScope.launch {
-                try {
-                    val result = dbRepository.addVideoToHistory(historyQuery).await()
-                    result.onSuccess { value: Long ->
-                        onSuccess.invoke(value)
-                    }
-                    result.onFailure { exception ->
-                        onFailure.invoke(exception as Exception)
-                    }
-                } finally {
-                    onComplete.invoke()
+                val result = dbRepository.addVideoToHistory(historyQuery).await()
+                result.onSuccess { value: Long ->
+                    onSuccess.invoke(value)
+                }
+                result.onFailure { exception ->
+                    onComplete.invoke(exception as Exception)
                 }
             }
         }?: run {
-            onComplete.invoke()
+            onComplete.invoke(null)
+        }
+    }
+
+    val screenState = State("")
+
+    data class State(var videoId: String) {
+
+        var player: Player = Player()
+        class Player {
+            var currentSecond: Float = 0f
+            var error: PlayerConstants.PlayerError? = null
+            var playbackQuality: PlayerConstants.PlaybackQuality = PlayerConstants.PlaybackQuality.DEFAULT
+            var playbackRate: PlayerConstants.PlaybackRate = PlayerConstants.PlaybackRate.RATE_1
+            var state: PlayerConstants.PlayerState = PlayerConstants.PlayerState.UNSTARTED
+            var duration: Float = Float.MAX_VALUE
+            var progress: Int = getProgressInPercentages(currentSecond)
+            var volume: Int = 100
+
+            private fun getProgressInPercentages(second: Float): Int {
+                val progress = (100 / this.duration * second).toInt()
+                return progress
+            }
         }
     }
 

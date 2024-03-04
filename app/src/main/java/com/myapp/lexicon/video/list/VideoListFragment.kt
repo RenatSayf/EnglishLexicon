@@ -32,7 +32,7 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTube
 import kotlinx.serialization.json.Json
 
 
-class VideoListFragment private constructor(): Fragment() {
+class VideoListFragment : Fragment() {
 
     companion object {
 
@@ -169,7 +169,7 @@ class VideoListFragment private constructor(): Fragment() {
 
             btnSearch.setOnClickListener {
                 parentFragmentManager.beginTransaction()
-                    .replace(R.id.frame_to_page_fragm, SearchFragment.newInstance())
+                    .add(R.id.frame_to_page_fragm, SearchFragment.newInstance())
                     .addToBackStack(null)
                     .commit()
             }
