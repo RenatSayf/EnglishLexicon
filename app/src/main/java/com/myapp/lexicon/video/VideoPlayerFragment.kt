@@ -3,6 +3,7 @@
 package com.myapp.lexicon.video
 
 import android.animation.ValueAnimator
+import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -21,8 +22,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.FragmentVideoPlayerBinding
-import com.myapp.lexicon.di.NetRepositoryModule
 import com.myapp.lexicon.helpers.LockOrientation
+import com.myapp.lexicon.helpers.checkOrientation
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.helpers.throwIfDebug
@@ -51,7 +52,7 @@ class VideoPlayerFragment : Fragment() {
         fun newInstance() = VideoPlayerFragment()
     }
 
-    private lateinit var binding: FragmentVideoPlayerBinding
+    private var binding: FragmentVideoPlayerBinding? = null
     private lateinit var playerVM: VideoPlayerViewModel
     private val locker: LockOrientation by lazy {
         LockOrientation(requireActivity())
@@ -67,18 +68,12 @@ class VideoPlayerFragment : Fragment() {
 
     private var youTubePlayer: YouTubePlayer? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        locker.lock()
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentVideoPlayerBinding.inflate(inflater, container, false)
-        return binding.root
+        return binding!!.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -86,7 +81,11 @@ class VideoPlayerFragment : Fragment() {
 
         val videoItemStr = arguments?.getString(ARG_VIDEO_ITEM)
         if (videoItemStr == null) {
-            showSnackBar("Видео недоступно ${getString(R.string.confused_face)}")
+            showSnackBar(
+                getString(
+                    R.string.text_video_unavailable,
+                    getString(R.string.confused_face)
+                ))
             parentFragmentManager.popBackStack()
             Exception("******** videoItemStr is NULL **********").throwIfDebug()
         }
@@ -97,8 +96,8 @@ class VideoPlayerFragment : Fragment() {
             null
         }
         videoItem?.let {
-            val factory = VideoPlayerViewModel.Factory(netRepository = NetRepositoryModule.provideNetRepository())
-            playerVM = ViewModelProvider(this, factory)[VideoPlayerViewModel::class.java]
+            val factory = VideoPlayerViewModel.Factory()
+            playerVM = ViewModelProvider(requireActivity(), factory)[VideoPlayerViewModel::class.java]
             playerVM.setSelectedVideo(it)
         }?: run {
             showSnackBar("Видео недоступно ${getString(R.string.confused_face)}")
@@ -106,7 +105,7 @@ class VideoPlayerFragment : Fragment() {
             Exception("******** videoItem is NULL **********").throwIfDebug()
         }
 
-        with(binding) {
+        with(binding!!) {
 
             if (savedInstanceState != null) {
                 restoreScreenState(playerVM.screenState)
@@ -279,6 +278,10 @@ class VideoPlayerFragment : Fragment() {
                     .add(R.id.frame_to_page_fragm, SearchFragment.newInstance())
                     .addToBackStack(null)
                     .commit()
+            }
+
+            btnFullScreen.setOnClickListener {
+                requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
             }
 
         }
@@ -466,12 +469,26 @@ class VideoPlayerFragment : Fragment() {
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                parentFragmentManager.popBackStack()
+                requireContext().checkOrientation(
+                    onLandscape = {
+                        requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                    },
+                    onPortrait = {
+                        parentFragmentManager.popBackStack()
+                    }
+                )
             }
         })
 
-        binding.btnBack.setOnClickListener {
-            parentFragmentManager.popBackStack()
+        binding?.btnBack?.setOnClickListener {
+            requireContext().checkOrientation(
+                onLandscape = {
+                    requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                },
+                onPortrait = {
+                    parentFragmentManager.popBackStack()
+                }
+            )
         }
 
         setFragmentResult(KEY_CALLBACK_REQUEST, Bundle().apply {
@@ -479,12 +496,9 @@ class VideoPlayerFragment : Fragment() {
         })
     }
 
-
     override fun onDestroy() {
 
-        binding.playerView.release()
-        locker.unLock()
-
+        binding?.playerView?.release()
         super.onDestroy()
     }
 

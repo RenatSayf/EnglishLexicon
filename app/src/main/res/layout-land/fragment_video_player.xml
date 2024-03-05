@@ -131,8 +131,6 @@
         android:paddingBottom="12dp"
         android:background="@color/colorBlackTransparent80">
 
-
-
         <androidx.constraintlayout.widget.Group
             android:id="@+id/groupPlayerControl"
             android:layout_width="match_parent"
@@ -260,7 +258,8 @@
         android:elevation="-3dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         tools:itemCount="3"
-        tools:listitem="@layout/item_video" />
+        tools:listitem="@layout/item_video"
+        android:visibility="gone"/>
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:id="@+id/bottomBar"

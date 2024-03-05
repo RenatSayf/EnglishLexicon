@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.res.Configuration
 import android.content.res.Resources
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -430,6 +431,21 @@ val Float.toDp get() = this / Resources.getSystem().displayMetrics.density
 val Int.toPx get() = (this * Resources.getSystem().displayMetrics.density).toInt()
 
 val Int.toDp get() = (this / Resources.getSystem().displayMetrics.density).toInt()
+
+fun Context.checkOrientation(
+    onLandscape: () -> Unit,
+    onPortrait: () -> Unit
+) {
+    when (this.resources.configuration.orientation) {
+        Configuration.ORIENTATION_LANDSCAPE -> {
+            onLandscape.invoke()
+        }
+        Configuration.ORIENTATION_PORTRAIT -> {
+            onPortrait.invoke()
+        }
+        else -> {}
+    }
+}
 
 
 
