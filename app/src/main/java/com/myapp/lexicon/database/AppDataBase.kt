@@ -80,6 +80,15 @@ abstract class AppDataBase : RoomDatabase()
             }
         }
 
+        private const val queryMigrationFrom1To2 = """CREATE TABLE IF NOT EXISTS "PlayList" (
+	"_id"	INTEGER NOT NULL,
+	"dict_name"	TEXT NOT NULL,
+	"english"	TEXT NOT NULL,
+	"translate"	TEXT NOT NULL,
+	"count_repeat"	INTEGER NOT NULL DEFAULT 1,
+	PRIMARY KEY("english")
+);"""
+
     }
 
 }
