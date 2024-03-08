@@ -51,7 +51,13 @@ open class NetRepository(
                         val decodeFromString = jsonDecoder.decodeFromString<VideoSearchResult>(bodyStr)
                         Result.success(decodeFromString)
                     }
-
+                    403 -> {
+                        val bodyStr = httpResponse.body<String>()
+                        if (bodyStr.contains("quotaExceeded")) {
+                            Result.failure(Throwable("quotaExceeded"))
+                        }
+                        else Result.failure(Throwable("********** Error description: ${statusCode.description}. Code: ${statusCode.value} ************"))
+                    }
                     else -> {
                         Result.failure(Throwable("********** Error description: ${statusCode.description}. Code: ${statusCode.value} ************"))
                     }

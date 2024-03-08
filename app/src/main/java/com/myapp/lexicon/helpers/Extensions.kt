@@ -280,7 +280,9 @@ fun Exception.printStackTraceIfDebug() {
 }
 
 fun Throwable.printStackTraceIfDebug() {
-    (this as Exception).printStackTraceIfDebug()
+    if (BuildConfig.DEBUG) {
+        this.printStackTrace()
+    }
 }
 
 fun Exception.throwIfDebug() {
@@ -445,6 +447,12 @@ fun Context.checkOrientation(
         }
         else -> {}
     }
+}
+
+fun View?.removeSelf() {
+    this ?: return
+    val parentView = parent as? ViewGroup ?: return
+    parentView.removeView(this)
 }
 
 

@@ -20,8 +20,9 @@ import com.myapp.lexicon.databinding.FragmentVideoListBinding
 import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showToastIfDebug
-import com.myapp.lexicon.video.VideoPlayerFragment
-import com.myapp.lexicon.video.VideoPlayerViewModel
+import com.myapp.lexicon.repository.network.MockNetRepository
+import com.myapp.lexicon.video.viewing.VideoPlayerFragment
+import com.myapp.lexicon.video.viewing.VideoPlayerViewModel
 import com.myapp.lexicon.video.models.VideoItem
 import com.myapp.lexicon.video.models.VideoSearchResult
 import com.myapp.lexicon.video.models.query.HistoryQuery
@@ -65,8 +66,8 @@ class VideoListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val listFactory = VideoListViewModel.Factory()
-        videoListVM = ViewModelProvider(this, listFactory)[VideoListViewModel::class.java]
+        val listFactory = VideoListViewModel.Factory(MockNetRepository())
+        videoListVM = ViewModelProvider(requireActivity(), listFactory)[VideoListViewModel::class.java]
 
         val playerFactory = VideoPlayerViewModel.Factory()
         videoPlayerVM = ViewModelProvider(this, playerFactory)[VideoPlayerViewModel::class.java]

@@ -1,6 +1,6 @@
 @file:Suppress("ObjectLiteralToLambda", "MoveVariableDeclarationIntoWhen", "UnnecessaryVariable")
 
-package com.myapp.lexicon.video
+package com.myapp.lexicon.video.viewing
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -11,12 +11,10 @@ import com.myapp.lexicon.di.App
 import com.myapp.lexicon.di.AppRoomDbModule
 import com.myapp.lexicon.di.DataRepositoryModule
 import com.myapp.lexicon.di.NetRepositoryModule
-import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.repository.IDataRepository
 import com.myapp.lexicon.repository.network.INetRepository
 import com.myapp.lexicon.video.list.VideoListViewModel
 import com.myapp.lexicon.video.models.VideoItem
-import com.myapp.lexicon.video.models.VideoSearchResult
 import com.myapp.lexicon.video.models.query.HistoryQuery
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
 import kotlinx.coroutines.launch
@@ -37,48 +35,10 @@ class VideoPlayerViewModel(
         }
     }
 
-    var videoTimeMarker: Float = 0.0f
-
     var searchQuery: String = ""
         private set
     var pageToken: String = ""
         private set
-
-    override val searchResult: LiveData<Result<VideoSearchResult>> = super._searchResult
-
-    override fun fetchSearchResult(
-        query: String,
-        pageToken: String,
-        subtitles: Boolean,
-        maxResults: Int
-    ) {
-        if (!super.isSearchResultLoading) {
-            viewModelScope.launch {
-                super.isSearchResultLoading = true
-                try {
-                    val result = netRepository.getSearchResult(query, pageToken, maxResults, subtitles).await()
-                    result.onSuccess { res: VideoSearchResult ->
-
-                        this@VideoPlayerViewModel.searchQuery = query
-                        this@VideoPlayerViewModel.pageToken = pageToken
-
-                        _selectedVideo.value?.onSuccess { item: VideoItem ->
-                            val modifiedResult = res.copy(videoItems = res.videoItems.filter { it.id.videoId != item.id.videoId })
-                            super._searchResult.value = Result.success(modifiedResult)
-                        }
-                    }
-                    result.onFailure { exception ->
-                        super._searchResult.value = Result.failure(exception)
-                    }
-                } catch (e: Exception) {
-                    e.printStackTraceIfDebug()
-                    super._searchResult.value = Result.failure(e)
-                } finally {
-                    super.isSearchResultLoading = false
-                }
-            }
-        }
-    }
 
     private var _selectedVideo = MutableLiveData<Result<VideoItem>>()
     val selectedVideo: LiveData<Result<VideoItem>> = _selectedVideo
@@ -140,6 +100,7 @@ class VideoPlayerViewModel(
 
         var player: Player = Player()
         class Player {
+            var isInit = false
             var currentSecond: Float = 0f
             var error: PlayerConstants.PlayerError? = null
             var playbackQuality: PlayerConstants.PlaybackQuality = PlayerConstants.PlaybackQuality.DEFAULT

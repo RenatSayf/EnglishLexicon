@@ -35,11 +35,11 @@ open class VideoListViewModel(
         }
     }
 
-    protected var isSearchResultLoading = false
-    protected var _searchResult = MutableLiveData<Result<VideoSearchResult>>()
-    open val searchResult: LiveData<Result<VideoSearchResult>> = _searchResult
+    private var isSearchResultLoading = false
+    private var _searchResult = MutableLiveData<Result<VideoSearchResult>>()
+    val searchResult: LiveData<Result<VideoSearchResult>> = _searchResult
 
-    open fun fetchSearchResult(
+    fun fetchSearchResult(
         query: String,
         pageToken: String,
         subtitles: Boolean = true,

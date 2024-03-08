@@ -1,6 +1,6 @@
-@file:Suppress("ObjectLiteralToLambda")
+@file:Suppress("ObjectLiteralToLambda", "UNUSED_ANONYMOUS_PARAMETER")
 
-package com.myapp.lexicon.video
+package com.myapp.lexicon.video.viewing
 
 import android.animation.ValueAnimator
 import android.content.pm.ActivityInfo
@@ -25,21 +25,28 @@ import com.myapp.lexicon.databinding.FragmentVideoPlayerBinding
 import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.checkOrientation
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
+import com.myapp.lexicon.helpers.removeSelf
 import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.helpers.throwIfDebug
+import com.myapp.lexicon.repository.network.MockNetRepository
+import com.myapp.lexicon.video.extensions.youTubePlayerView
 import com.myapp.lexicon.video.list.VideoListAdapter
+import com.myapp.lexicon.video.list.VideoListViewModel
 import com.myapp.lexicon.video.models.VideoItem
 import com.myapp.lexicon.video.models.VideoSearchResult
 import com.myapp.lexicon.video.search.SearchFragment
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.FullscreenListener
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerCallback
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.options.IFramePlayerOptions
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import kotlinx.serialization.json.Json
 
-class VideoPlayerFragment : Fragment() {
+open class VideoPlayerFragment : Fragment() {
 
     companion object {
 
@@ -54,6 +61,12 @@ class VideoPlayerFragment : Fragment() {
 
     private var binding: FragmentVideoPlayerBinding? = null
     private lateinit var playerVM: VideoPlayerViewModel
+
+    private val videoListVM: VideoListViewModel by lazy {
+        val factory = VideoListViewModel.Factory(netRepository = MockNetRepository())
+        ViewModelProvider(requireActivity(), factory)[VideoListViewModel::class.java]
+    }
+
     private val locker: LockOrientation by lazy {
         LockOrientation(requireActivity())
     }
@@ -64,6 +77,13 @@ class VideoPlayerFragment : Fragment() {
 
     private val jsonDecoder: Json by lazy {
         Json { ignoreUnknownKeys }
+    }
+
+    private val playerView: YouTubePlayerView by lazy {
+        val youTubePlayerView = requireContext().youTubePlayerView()
+        youTubePlayerView.apply {
+            enableAutomaticInitialization = false
+        }
     }
 
     private var youTubePlayer: YouTubePlayer? = null
@@ -96,7 +116,7 @@ class VideoPlayerFragment : Fragment() {
             null
         }
         videoItem?.let {
-            val factory = VideoPlayerViewModel.Factory()
+            val factory = VideoPlayerViewModel.Factory(netRepository = MockNetRepository())
             playerVM = ViewModelProvider(requireActivity(), factory)[VideoPlayerViewModel::class.java]
             playerVM.setSelectedVideo(it)
         }?: run {
@@ -107,9 +127,8 @@ class VideoPlayerFragment : Fragment() {
 
         with(binding!!) {
 
-            if (savedInstanceState != null) {
-                restoreScreenState(playerVM.screenState)
-            }
+            playerView.removeSelf()
+            layoutPlayer.addView(playerView, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
 
             rvVideoList.apply {
                 videoListAdapter.setItemClickCallback { videoItem: VideoItem ->
@@ -139,7 +158,7 @@ class VideoPlayerFragment : Fragment() {
 
                         val lastVisibleItemPosition = (recyclerView.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
                         if (lastVisibleItemPosition == videoListAdapter.itemCount - 1) {
-                            val searchResult = playerVM.searchResult.value?.getOrNull()
+                            val searchResult = videoListVM.searchResult.value?.getOrNull()
                             if (searchResult != null) {
                                 playerVM.fetchSearchResult(query = searchResult.query, pageToken = searchResult.nextPageToken)
                             }
@@ -149,9 +168,9 @@ class VideoPlayerFragment : Fragment() {
             }
 
             playerVM.selectedVideo.observe(viewLifecycleOwner) { result ->
-                result.onSuccess { value: VideoItem ->
+                result.onSuccess { selectedItem: VideoItem ->
 
-                    val thumbnailUri = Uri.parse(value.snippet.thumbnails.high.url)
+                    val thumbnailUri = Uri.parse(selectedItem.snippet.thumbnails.high.url)
                     Picasso.get().load(thumbnailUri)
                         .placeholder(R.drawable.ic_smart_display)
                         .into(ivPlaceHolder, object : Callback {
@@ -163,24 +182,35 @@ class VideoPlayerFragment : Fragment() {
                                 progressBar.visibility = View.GONE
                             }
                         })
-                    tvTitle.text = value.snippet.title
+                    tvTitle.text = selectedItem.snippet.title
 
-                    val searchQuery = arguments?.getString(ARG_SEARCH_QUERY)
-                    searchQuery?.let {
-                        playerVM.fetchSearchResult(
-                            query = it,
-                            pageToken = arguments?.getString(ARG_PAGE_TOKEN)?: ""
-                        )
+                    videoListVM.searchResult.observe(viewLifecycleOwner) { result ->
+                        result.onSuccess { searchResult: VideoSearchResult ->
+                            val filteredList = searchResult.videoItems.filter { thisItem -> thisItem.id.videoId != selectedItem.id.videoId }
+                            if (searchResult.prevPageToken == null) {
+                                videoListAdapter.submitList(filteredList)
+                            } else {
+                                videoListAdapter.addItemsToCurrentList(filteredList)
+                            }
+                        }
+                        result.onFailure { exception ->
+                            exception.printStackTraceIfDebug()
+                        }
                     }
 
-                    if (youTubePlayer == null) {
+                    try {
                         videoPlayerInitialize()
+                    } catch (e: IllegalStateException) {
+                        if (e.message?.contains("This YouTubePlayerView has already been initialized") == true) {
+                            this@VideoPlayerFragment.playerView.getYouTubePlayerWhenReady(object : YouTubePlayerCallback {
+                                override fun onYouTubePlayer(youTubePlayer: YouTubePlayer) {
+                                    this@VideoPlayerFragment.youTubePlayer = youTubePlayer
+                                    restoreScreenState(playerVM.screenState)
+                                }
+                            })
+                        }
                     }
-                    else {
-                        youTubePlayer?.cueVideo(value.id.videoId, 0f)
-                        seekbarVideo.progress = 0
-                        playerVM.currentSecond = 0f
-                    }
+
                 }
                 result.onFailure { exception ->
                     exception.throwIfDebug()
@@ -199,19 +229,6 @@ class VideoPlayerFragment : Fragment() {
                 }
                 youTubePlayer?.setVolume(value)
                 playerVM.screenState.player.volume = value
-            }
-
-            playerVM.searchResult.observe(viewLifecycleOwner) { result ->
-                result.onSuccess { value: VideoSearchResult ->
-                    if (value.prevPageToken == null) {
-                        videoListAdapter.submitList(value.videoItems)
-                    } else {
-                        videoListAdapter.addItemsToCurrentList(value.videoItems)
-                    }
-                }
-                result.onFailure { exception ->
-                    exception.printStackTraceIfDebug()
-                }
             }
 
             btnPlay.setOnClickListener {
@@ -283,12 +300,11 @@ class VideoPlayerFragment : Fragment() {
             btnFullScreen.setOnClickListener {
                 requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
             }
-
         }
     }
 
     private fun skipVideoOn(seconds: Float) {
-        val currentSecond = playerVM.currentSecond
+        val currentSecond = playerVM.screenState.player.currentSecond
         youTubePlayer?.seekTo(currentSecond + seconds)
     }
 
@@ -298,8 +314,8 @@ class VideoPlayerFragment : Fragment() {
             ccLoadPolicy(1)
             fullscreen(0)
         }.build()
-        viewLifecycleOwner.lifecycle.addObserver(playerView)
-        playerView.initialize(object : YouTubePlayerListener {
+        viewLifecycleOwner.lifecycle.addObserver(this@VideoPlayerFragment.playerView)
+        this@VideoPlayerFragment.playerView.initialize(object : YouTubePlayerListener {
             override fun onApiChange(youTubePlayer: YouTubePlayer) {}
 
             override fun onCurrentSecond(youTubePlayer: YouTubePlayer, second: Float) {
@@ -342,10 +358,10 @@ class VideoPlayerFragment : Fragment() {
 
             override fun onReady(youTubePlayer: YouTubePlayer) {
                 this@VideoPlayerFragment.youTubePlayer = youTubePlayer
+                playerVM.screenState.player.isInit = true
                 val result = playerVM.selectedVideo.value
                 result?.onSuccess { value: VideoItem ->
-                    youTubePlayer.cueVideo(value.id.videoId, playerVM.videoTimeMarker)
-                    seekbarVideo.progress = playerVM.getProgressInPercentages(playerVM.videoTimeMarker)
+                    restoreScreenState(playerVM.screenState)
                 } ?: run {
                     Exception("****** Result.VideoItem is NULL **********").throwIfDebug()
                 }
@@ -360,10 +376,15 @@ class VideoPlayerFragment : Fragment() {
             ) {
                 when (state) {
                     PlayerConstants.PlayerState.VIDEO_CUED -> {
+
                         seekbarVideo.visibility = View.VISIBLE
                         ivPlaceHolder.visibility = View.GONE
                         groupPlayerControl.visibility = View.VISIBLE
                         btnPause.visibility = View.INVISIBLE
+
+                        if (playerVM.screenState.player.state == PlayerConstants.PlayerState.PLAYING) {
+                            youTubePlayer.play()
+                        }
                     }
                     PlayerConstants.PlayerState.PLAYING, PlayerConstants.PlayerState.BUFFERING -> {
                         btnPlay.visibility = View.INVISIBLE
@@ -376,6 +397,11 @@ class VideoPlayerFragment : Fragment() {
                     }
                     PlayerConstants.PlayerState.ENDED -> {
                         ivPlaceHolder.visibility = View.VISIBLE
+                    }
+                    PlayerConstants.PlayerState.UNSTARTED -> {
+                        if (playerVM.screenState.player.state == PlayerConstants.PlayerState.PLAYING) {
+                            youTubePlayer.cueVideo(playerVM.screenState.videoId, playerVM.screenState.player.currentSecond)
+                        }
                     }
                     else -> {}
                 }
@@ -435,10 +461,11 @@ class VideoPlayerFragment : Fragment() {
                 ivPlaceHolder.visibility = View.VISIBLE
             }
             PlayerConstants.PlayerState.PLAYING, PlayerConstants.PlayerState.BUFFERING -> {
+                groupPlayerControl.visibility = View.VISIBLE
                 btnPlay.visibility = View.INVISIBLE
                 btnPause.visibility = View.VISIBLE
-                youTubePlayer?.apply {
-                    seekTo(state.player.currentSecond)
+                youTubePlayer?.run {
+                    //seekTo(state.player.currentSecond)
                     play()
                 }
             }
@@ -446,7 +473,7 @@ class VideoPlayerFragment : Fragment() {
                 btnPlay.visibility = View.VISIBLE
                 btnPause.visibility = View.INVISIBLE
                 youTubePlayer?.apply {
-                    seekTo(state.player.currentSecond)
+                    //seekTo(state.player.currentSecond)
                     pause()
                 }
             }
@@ -456,7 +483,12 @@ class VideoPlayerFragment : Fragment() {
                 groupPlayerControl.visibility = View.VISIBLE
                 btnPause.visibility = View.INVISIBLE
             }
-            else -> {}
+            PlayerConstants.PlayerState.UNSTARTED -> {
+                youTubePlayer?.cueVideo(playerVM.screenState.videoId, playerVM.screenState.player.currentSecond)
+            }
+            else -> {
+
+            }
         }
         youTubePlayer?.apply {
             setVolume(player.volume)
@@ -498,7 +530,9 @@ class VideoPlayerFragment : Fragment() {
 
     override fun onDestroy() {
 
-        binding?.playerView?.release()
+        //binding?.playerView?.release()
+        binding = null
+
         super.onDestroy()
     }
 

@@ -1,12 +1,16 @@
 package com.myapp.lexicon.video.extensions
 
 import android.app.SearchManager
+import android.content.Context
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.provider.BaseColumns
+import android.util.AttributeSet
+import android.widget.Toolbar.LayoutParams
 import androidx.appcompat.widget.SearchView
 import androidx.cursoradapter.widget.CursorAdapter
 import androidx.cursoradapter.widget.SimpleCursorAdapter
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 
 
 fun SearchView.createAdapter(): SimpleCursorAdapter {
@@ -38,5 +42,17 @@ fun SearchView.getSelectedSuggestion(
         val selection = cursor.getString(columnIndex)
         this.setQuery(selection, false)
         onSelection.invoke(selection)
+    }
+}
+
+
+private var playerInstance: YouTubePlayerView? = null
+fun Context.youTubePlayerView(): YouTubePlayerView {
+    if (playerInstance == null) {
+        playerInstance = YouTubePlayerView(this)
+    }
+    return playerInstance!!.apply {
+        enableAutomaticInitialization = false
+
     }
 }
