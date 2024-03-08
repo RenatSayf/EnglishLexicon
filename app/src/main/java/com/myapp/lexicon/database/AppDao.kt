@@ -85,5 +85,8 @@ interface AppDao
  FROM PlayList WHERE _id = :id;""")
     suspend fun getCountersById(id: Int): List<Counters>
 
+    @Query("INSERT OR replace INTO PlayList SELECT * FROM Words WHERE dict_name = :dict AND count_repeat > 0 ORDER BY :orderStr")
+    suspend fun updatePlayListTable(dict: String, orderStr: String): Long
+
 }
 

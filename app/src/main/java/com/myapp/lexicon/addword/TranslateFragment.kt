@@ -24,11 +24,14 @@ import com.myapp.lexicon.ads.loadBanner
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.ads.showAd
 import com.myapp.lexicon.databinding.TranslateFragmentBinding
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.main.MainActivity
+import com.myapp.lexicon.main.MainViewModel
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.toWord
-import com.myapp.lexicon.settings.cloudUpdateRequired
+import com.myapp.lexicon.settings.getWordFromPref
+import com.myapp.lexicon.settings.orderPlayFromPref
 import com.yandex.mobile.ads.interstitial.InterstitialAd
 import java.net.URLDecoder
 
@@ -45,6 +48,10 @@ class TranslateFragment : Fragment()
     private val addWordVM: AddWordViewModel by lazy {
         val factory = AddWordViewModel.Factory(requireContext())
         ViewModelProvider(this, factory)[AddWordViewModel::class.java]
+    }
+    private val mainVM: MainViewModel by lazy {
+        val factory = MainViewModel.Factory(requireActivity().application)
+        ViewModelProvider(this, factory)[MainViewModel::class.java]
     }
     private val revenueVM: RevenueViewModel by activityViewModels()
 
@@ -145,10 +152,19 @@ class TranslateFragment : Fragment()
 
             addWordVM.insertedWord.observe(viewLifecycleOwner) { pair ->
                 if (pair.first is Word) {
+                    requireContext().getWordFromPref(
+                        onSuccess = { word, i ->
+                            if (pair?.first?.dictName == word.dictName) {
+                                val playOrder = requireContext().orderPlayFromPref
+                                mainVM.updatePlayList(word, i, playOrder)
+                            }
+                        },
+                        onFailure = { exception ->
+                            exception.printStackTraceIfDebug()
+                        }
+                    )
                     val message = "${getString(R.string.in_dictionary)}  ${pair.first?.dictName}  ${getString(R.string.new_word_is_added)}"
                     showSnackBar(message)
-                    setFragmentResult(getString(R.string.KEY_NEED_REFRESH), Bundle.EMPTY)
-                    requireContext().cloudUpdateRequired = true
                 }
                 else if (pair.second is Throwable) {
                     showSnackBar(pair.second?.message?: getString(R.string.text_unknown_error_message))

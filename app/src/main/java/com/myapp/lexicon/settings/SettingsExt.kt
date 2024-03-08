@@ -172,22 +172,6 @@ fun Context.checkUnLockedBroadcast(onEnabled: () -> Unit, onDisabled: () -> Unit
     }
 }
 
-var Context.cloudUpdateRequired: Boolean
-    get() {
-        return appSettings.getBoolean("KEY_CLOUD_UPDATE_REQUIRED", false)
-    }
-    set(value) {
-        lastUpdateTimeDB = System.currentTimeMillis()
-        appSettings.edit().putBoolean("KEY_CLOUD_UPDATE_REQUIRED", value).apply()
-    }
-
-var Context.lastUpdateTimeDB: Long
-    get() {
-        return appSettings.getLong("KEY_LAST_UPDATE_TIME_DB", 0)
-    }
-    private set(value) {
-        appSettings.edit().putLong("KEY_LAST_UPDATE_TIME_DB", value).apply()
-    }
 
 private const val LEARNING_MODE_VALUE = 5
 

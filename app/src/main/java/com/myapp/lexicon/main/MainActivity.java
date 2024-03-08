@@ -926,19 +926,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result)
     {
-        if (requestKey.equals(getString(R.string.KEY_NEED_REFRESH))) {
-            SettingsExtKt.getWordFromPref(
-                    MainActivity.this,
-                    () -> null,
-                    (word, mark) -> {
-                        int orderPlay = SettingsExtKt.getOrderPlayFromPref(MainActivity.this);
-                        mainVM.updatePlayList(word, mark, orderPlay);
-                        return null;
-                    },
-                    e -> null
-            );
-        }
-
         if (requestKey.equals(getString(R.string.KEY_TEST_INTERVAL_CHANGED))) {
             mainVM.getWordsInterval();
         }
