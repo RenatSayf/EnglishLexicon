@@ -120,7 +120,7 @@ open class AccountViewModel : ViewModel() {
         val chatId = BuildConfig.CHAT_ID
 
         val message = "User ${user.firstName} ${user.lastName} wants to receive a reward\n" +
-                "Reserved payment: $payout ${user.currencySymbol}\n" +
+                "Amount: $payout ${user.currencySymbol}\n" +
                 "Phone: ${user.phone}\n" +
                 "Email: ${user.email}\n" +
                 "Bank card: ${user.bankCard}\n" +
