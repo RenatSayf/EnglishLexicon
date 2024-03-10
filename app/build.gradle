@@ -25,6 +25,12 @@ android {
                         "room.expandProjection":"true"]
             }
         }
+
+        Properties properties = new Properties()
+        properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+        buildConfigField "String", "BOT_TOKEN", "\"${properties.getProperty("BOT_TOKEN")}\""
+        buildConfigField "String", "CHAT_ID", "\"${properties.getProperty("CHAT_ID")}\""
     }
     buildTypes {
         debug {
