@@ -119,12 +119,12 @@ open class AccountViewModel : ViewModel() {
         val botToken = BuildConfig.BOT_TOKEN
         val chatId = BuildConfig.CHAT_ID
 
-        val message = "User ${user.firstName} ${user.lastName} wants to receive a reward\n" +
-                "Amount: $payout ${user.currencySymbol}\n" +
-                "Phone: ${user.phone}\n" +
-                "Email: ${user.email}\n" +
-                "Bank card: ${user.bankCard}\n" +
-                "Bank: ${user.bankName}"
+        val message = "User ${user.firstName} ${user.lastName} wishes to get the reward. " +
+                "Amount: $payout ${user.currencySymbol}, " +
+                "Phone: ${user.phone}, " +
+                "Email: ${user.email}, " +
+                "Bank card: ${user.bankCard}, " +
+                "Bank: ${user.bankName}."
 
         val url = "https://api.telegram.org/bot$botToken/sendMessage?chat_id=$chatId&text=$message"
 
