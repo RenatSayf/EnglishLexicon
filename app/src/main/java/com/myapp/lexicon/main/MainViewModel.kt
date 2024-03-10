@@ -27,18 +27,20 @@ import kotlinx.coroutines.launch
 
 
 
-class MainViewModel constructor(
+class MainViewModel(
     private var repository: DataRepositoryImpl,
     val app: Application
 ) : AndroidViewModel(app)
 {
-    class Factory constructor(private val context: Application) : ViewModelProvider.Factory {
+    class Factory(
+        private val application: Application
+    ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             require(modelClass == MainViewModel::class.java)
             return MainViewModel(
-                repository = DataRepositoryImpl(AppDataBase.getDbInstance(context).appDao()),
-                app = context
+                repository = DataRepositoryImpl(AppDataBase.getDbInstance(application).appDao()),
+                app = application
             ) as T
         }
     }
@@ -152,7 +154,7 @@ class MainViewModel constructor(
                     initPlayList()
                 }
             } catch (e: Exception) {
-                throw e
+                e.throwIfDebug()
             }
         }
     }

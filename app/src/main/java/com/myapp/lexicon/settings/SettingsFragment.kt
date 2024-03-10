@@ -9,18 +9,16 @@ import android.provider.Settings
 import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.setFragmentResult
-import androidx.lifecycle.ViewModelProvider
-import androidx.preference.*
+import androidx.preference.CheckBoxPreference
+import androidx.preference.ListPreference
+import androidx.preference.Preference
 import androidx.preference.Preference.OnPreferenceChangeListener
-import com.myapp.lexicon.BuildConfig
+import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.SwitchPreferenceCompat
 import com.myapp.lexicon.R
-import com.myapp.lexicon.billing.BillingViewModel
-import com.myapp.lexicon.cloudstorage.StorageDialog
-import com.myapp.lexicon.databinding.DialogStorageBinding
-import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.schedule.AlarmScheduler
-import java.util.*
+import java.util.Locale
 
 
 class SettingsFragment : PreferenceFragmentCompat()
@@ -28,10 +26,6 @@ class SettingsFragment : PreferenceFragmentCompat()
     private lateinit var listDisplayModePref: ListPreference
     private lateinit var serviceCheckBoxPref: CheckBoxPreference
     private lateinit var showIntervalsPref: ListPreference
-
-    private val billingVM: BillingViewModel by lazy {
-        ViewModelProvider(this)[BillingViewModel::class.java]
-    }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?)
     {
@@ -142,120 +136,6 @@ class SettingsFragment : PreferenceFragmentCompat()
     {
         super.onViewCreated(view, savedInstanceState)
         view.setBackgroundColor(resources.getColor(R.color.colorWhite))
-
-        val cloudStorageCategory = findPreference<PreferenceCategory>("cloudStorageCategory")
-        val cloudStorageSwitch = findPreference<SwitchPreferenceCompat>(getString(R.string.KEY_CLOUD_STORAGE))
-
-        if (cloudStorageSwitch?.isChecked == true) {
-            cloudStorageSwitch.let { switch ->
-                switch.isChecked = true
-                switch.isEnabled = false
-                val title = switch.title
-                val newTitle = "$title (${getString(R.string.text_enabled)})"
-                switch.title = newTitle
-            }
-        }
-        else {
-            cloudStorageSwitch?.let { switch ->
-                switch.isChecked = false
-                switch.isEnabled = true
-                switch.title = getString(R.string.text_save_my_dicts)
-            }
-        }
-
-        billingVM.cloudStorageProduct.observe(viewLifecycleOwner) { res ->
-            if (res.isSuccess) {
-                res.onSuccess { details ->
-                    cloudStorageCategory?.isVisible = true
-                    cloudStorageCategory?.isEnabled = !requireContext().cloudStorageEnabled
-                    cloudStorageSwitch?.isChecked = requireContext().cloudStorageEnabled
-                    if (cloudStorageSwitch?.isChecked == true) {
-                        cloudStorageSwitch.isEnabled = false
-                        val title = cloudStorageSwitch.title
-                        val newTitle = "$title (${getString(R.string.text_enabled)})"
-                        cloudStorageSwitch.title = newTitle
-                    }
-                    cloudStorageSwitch?.let { switch ->
-                        switch.onPreferenceChangeListener = object : OnPreferenceChangeListener {
-                            override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean {
-
-                                if (newValue == true) {
-
-                                    StorageDialog.newInstance(listener = object : StorageDialog.Listener {
-                                        private val locker = LockOrientation(requireActivity())
-                                        override fun onLaunch(binding: DialogStorageBinding) {
-                                            locker.lock()
-                                            with(binding) {
-                                                tvProductName.text = details.name
-                                                tvPriceTitle.text = getString(R.string.text_price)
-                                                tvPriceValue.text =
-                                                    details.oneTimePurchaseOfferDetails?.formattedPrice
-                                            }
-                                        }
-
-                                        override fun onDestroy() {
-                                            locker.unLock()
-                                        }
-
-                                        override fun onPositiveClick() {
-                                            billingVM.purchaseProduct(requireActivity(), details)
-                                        }
-
-                                        override fun onCancelClick() {
-                                            switch.isChecked = false
-                                        }
-                                    }).show(parentFragmentManager, StorageDialog.TAG)
-                                }
-                                return true
-                            }
-                        }
-                    }
-                }
-            }
-            if (res.isFailure) {
-                res.onFailure { exception ->
-                    if (BuildConfig.DEBUG) {
-                        exception.printStackTrace()
-                    }
-                    cloudStorageCategory?.isVisible = false
-                }
-            }
-        }
-
-        billingVM.cloudStorageToken.observe(viewLifecycleOwner) { res ->
-            res.onSuccess { token ->
-                when {
-                    token.isNotEmpty() -> {
-                        cloudStorageSwitch?.let { switch ->
-                            switch.isChecked = true
-                            switch.isEnabled = false
-                            val title = switch.title
-                            val newTitle = "$title (${getString(R.string.text_enabled)})"
-                            switch.title = newTitle
-                        }
-                        requireContext().saveCloudToken(token)
-                    }
-                    else -> {
-                        cloudStorageSwitch?.let { switch ->
-                            switch.isChecked = false
-                            switch.isEnabled = true
-                            switch.title = getString(R.string.text_save_my_dicts)
-                        }
-                    }
-                }
-            }
-        }
-
-        billingVM.wasCancelled.observe(viewLifecycleOwner) { res ->
-            res.onSuccess { details ->
-                when(details.productId) {
-                    getString(R.string.id_cloud_storage) -> {
-                        cloudStorageSwitch?.isChecked = false
-                        cloudStorageSwitch?.isEnabled = true
-                    }
-                }
-            }
-        }
 
         val swBatterySaving = findPreference<SwitchPreferenceCompat>("swBatterySaving")
         if (swBatterySaving != null) {

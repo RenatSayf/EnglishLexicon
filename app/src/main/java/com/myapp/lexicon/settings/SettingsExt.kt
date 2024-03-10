@@ -11,15 +11,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.StorageException
-import com.google.firebase.storage.StorageReference
-import com.google.firebase.storage.ktx.storage
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
-import com.myapp.lexicon.helpers.getCRC32CheckSum
-import com.myapp.lexicon.helpers.printLogIfDebug
-import com.myapp.lexicon.helpers.toStringTime
 import com.myapp.lexicon.models.TestState
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.Word
@@ -116,14 +109,6 @@ val Fragment.adsIsEnabled: Boolean
         return requireContext().adsIsEnabled
     }
 
-var Context.cloudStorageEnabled: Boolean
-    get() {
-        return appSettings.getBoolean(getString(R.string.KEY_CLOUD_STORAGE), false)
-    }
-    set(value) {
-        appSettings.edit().putBoolean(getString(R.string.KEY_CLOUD_STORAGE), value).apply()
-    }
-
 var Context.checkFirstLaunch: Boolean
     get() {
         return appSettings.getBoolean(getString(R.string.KEY_FIRST_LAUNCH), true)
@@ -131,47 +116,6 @@ var Context.checkFirstLaunch: Boolean
     set(value) {
         appSettings.edit().putBoolean(getString(R.string.KEY_FIRST_LAUNCH), value).apply()
     }
-
-private const val KEY_CLOUD_TOKEN = "KEY_CLOUD_TOKEN_777"
-
-fun Context.saveCloudToken(token: String) {
-    val tokenCheckSum = token.getCRC32CheckSum().toString()
-    appSettings.edit().putString(KEY_CLOUD_TOKEN, tokenCheckSum).apply()
-}
-
-interface PurchasesTokenListener {
-    fun onInit()
-    fun onCheckComplete()
-}
-
-fun Context.checkPurchasesTokens(listener: PurchasesTokenListener) {
-    val cloudToken = appSettings.getString(KEY_CLOUD_TOKEN, null)
-    if (cloudToken == null) {
-        listener.onInit()
-    }
-    else {
-        this.cloudStorageEnabled = cloudToken.isNotEmpty()
-        listener.onCheckComplete()
-    }
-}
-
-fun Context.checkCloudToken(
-    onInit: () -> Unit = {},
-    onExists: (token: String) -> Unit,
-    onEmpty: () -> Unit = {},
-    onFailure: () -> Unit = {}
-) {
-    val token = appSettings.getString(KEY_CLOUD_TOKEN, null)
-    try {
-        when {
-            token == null -> onInit.invoke()
-            token.isNotEmpty() -> onExists.invoke(token)
-            token.isEmpty() -> onEmpty.invoke()
-        }
-    } catch (e: Exception) {
-        onFailure.invoke()
-    }
-}
 
 fun Context.checkOnStartSpeech(onEnabled: () -> Unit, onDisabled: () -> Unit) {
     val isSpeech = appSettings.getBoolean(getString(R.string.KEY_ON_START_SPEECH), true)
@@ -228,80 +172,6 @@ fun Context.checkUnLockedBroadcast(onEnabled: () -> Unit, onDisabled: () -> Unit
     }
 }
 
-fun Context.saveInitDbCheckSum(sum: Long) {
-    val long = appSettings.getLong("KEY_INIT_DB_CHECK_SUM", 0)
-    if (long == 0L) {
-        appSettings.edit().putLong("KEY_INIT_DB_CHECK_SUM", sum).apply()
-    }
-}
-
-val Context.initDbCheckSum: Long
-    get() {
-        return appSettings.getLong("KEY_INIT_DB_CHECK_SUM", 0L)
-    }
-
-var Context.cloudUpdateRequired: Boolean
-    get() {
-        return appSettings.getBoolean("KEY_CLOUD_UPDATE_REQUIRED", false)
-    }
-    set(value) {
-        lastUpdateTimeDB = System.currentTimeMillis()
-        appSettings.edit().putBoolean("KEY_CLOUD_UPDATE_REQUIRED", value).apply()
-    }
-
-var Context.lastUpdateTimeDB: Long
-    get() {
-        return appSettings.getLong("KEY_LAST_UPDATE_TIME_DB", 0)
-    }
-    private set(value) {
-        appSettings.edit().putLong("KEY_LAST_UPDATE_TIME_DB", value).apply()
-    }
-
-fun Context.checkCloudStorage(
-    userId: String,
-    fileName: String = getString(R.string.data_base_name),
-    onRequireUpSync: (String) -> Unit,
-    onRequireDownSync: (String) -> Unit,
-    onNotRequireSync: () -> Unit
-) {
-    val storageRef: StorageReference = Firebase.storage.reference.child("/users/$userId/${fileName}")
-
-    storageRef.metadata.addOnSuccessListener { metadata ->
-
-        val remoteModifiedTime = metadata.getCustomMetadata("LAST_MODIFIED_TIME").toString().toLong()
-        val localModifiedTime = this.lastUpdateTimeDB
-        printLogIfDebug("************** remoteModifiedTime = ${remoteModifiedTime.toStringTime()} ****************")
-        printLogIfDebug("************** localCreationTime = ${localModifiedTime.toStringTime()} ****************")
-
-        if (remoteModifiedTime > localModifiedTime && localModifiedTime == 0L) {
-            onRequireDownSync.invoke(userId)
-        }
-        else if (this.cloudUpdateRequired) {
-            onRequireUpSync.invoke(userId)
-        }
-        else {
-            onNotRequireSync.invoke()
-        }
-    }.addOnFailureListener { ex ->
-
-        if (ex is StorageException) {
-            if (ex.errorCode == StorageException.ERROR_OBJECT_NOT_FOUND) {
-                if (this.cloudUpdateRequired) {
-                    onRequireUpSync.invoke(userId)
-                    return@addOnFailureListener
-                }
-                else {
-                    onNotRequireSync.invoke()
-                    return@addOnFailureListener
-                }
-            }
-            else {
-                if (BuildConfig.DEBUG) ex.printStackTrace()
-            }
-        }
-        onNotRequireSync.invoke()
-    }
-}
 
 private const val LEARNING_MODE_VALUE = 5
 

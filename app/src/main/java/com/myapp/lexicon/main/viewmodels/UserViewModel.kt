@@ -61,7 +61,7 @@ open class UserViewModel @Inject constructor(
         data class ReceivedUserData(val user: User): State()
         object PersonalDataUpdated: State()
         data class RevenueUpdated(val bonus: Double, val user: User): State()
-        object PaymentRequestSent: State()
+        data class PaymentRequestSent(val user: User, val payout: Int, val remainder: Double): State()
         data class Error(val message: String): State()
     }
 

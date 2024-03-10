@@ -25,6 +25,7 @@ import com.myapp.lexicon.databinding.FragmentAccountBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.LuhnAlgorithm
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.User
@@ -213,6 +214,20 @@ class AccountFragment : Fragment() {
                         showConfirmDialog()
                         if (currentUser != null) {
                             userVM.getUserFromCloud()
+                            accountVM.sendPaymentInfoToTGChannel(
+                                user = state.user,
+                                payout = state.payout,
+                                onStart = {
+                                    screenOrientation.lock()
+                                },
+                                onComplete = { exception ->
+                                    exception?.printStackTraceIfDebug()
+                                    screenOrientation.unLock()
+                                },
+                                onSuccess = {
+                                    showSnackBar(getString(R.string.text_request_sented))
+                                }
+                            )
                         }
                     }
                     is UserViewModel.State.Error -> {
@@ -390,7 +405,7 @@ class AccountFragment : Fragment() {
                             screenOrientation.lock()
                         },
                         onSuccess = {payout: Int, remainder: Double ->
-                            userVM.setState(UserViewModel.State.PaymentRequestSent)
+                            userVM.setState(UserViewModel.State.PaymentRequestSent(user, payout, remainder))
                         },
                         onNotEnough = {
                             showSnackBar(getString(R.string.text_not_money))

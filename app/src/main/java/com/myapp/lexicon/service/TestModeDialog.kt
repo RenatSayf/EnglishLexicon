@@ -214,9 +214,11 @@ class TestModeDialog : DialogFragment() {
             revenueVM.userRevenueLD.observe(viewLifecycleOwner) { result ->
                 result.onSuccess<Revenue> { revenue ->
                     buildRewardText(revenue)
+                    adProgress.visibility = View.GONE
                 }
                 result.onError { throwable ->
-                    (throwable as Exception).printStackTraceIfDebug()
+                    throwable.printStackTraceIfDebug()
+                    adProgress.visibility = View.GONE
                 }
             }
 

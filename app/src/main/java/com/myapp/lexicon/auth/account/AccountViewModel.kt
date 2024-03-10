@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
+import com.myapp.lexicon.models.User
 import com.parse.GetCallback
 import com.parse.ParseException
 import com.parse.ParseObject
@@ -33,6 +34,7 @@ open class AccountViewModel : ViewModel() {
     open val explainMessage: String = Firebase.remoteConfig.getString("reward_explain_message")
 
     private var thread: Thread? = null
+    private var payoutThread: Thread? = null
 
     private var _state = MutableLiveData<State>().apply {
         value = State.ReadOnly
@@ -106,8 +108,51 @@ open class AccountViewModel : ViewModel() {
         })
     }
 
+    fun sendPaymentInfoToTGChannel(
+        user: User,
+        payout: Int,
+        onStart: () -> Unit = {},
+        onSuccess: () -> Unit = {},
+        onComplete: (Exception?) -> Unit = {}
+    ) {
+        onStart.invoke()
+        val botToken = BuildConfig.BOT_TOKEN
+        val chatId = BuildConfig.CHAT_ID
+
+        val message = "User ${user.firstName} ${user.lastName} wishes to get the reward. " +
+                "Amount: $payout ${user.currencySymbol}, " +
+                "Phone: ${user.phone}, " +
+                "Email: ${user.email}, " +
+                "Bank card: ${user.bankCard}, " +
+                "Bank: ${user.bankName}."
+
+        val url = "https://api.telegram.org/bot$botToken/sendMessage?chat_id=$chatId&text=$message"
+
+        try {
+            payoutThread = Thread(Runnable {
+                val urlConnection = URL(url).openConnection() as HttpURLConnection
+                val code = urlConnection.responseCode
+                when(code) {
+                    200 -> {
+                        onSuccess.invoke()
+                    }
+                    else -> {
+                        val exception = Exception(urlConnection.responseMessage)
+                        onComplete.invoke(exception)
+                    }
+                }
+            })
+        } catch (e: Exception) {
+            onComplete.invoke(e)
+        } finally {
+            onComplete.invoke(null)
+        }
+        payoutThread?.start()
+    }
+
     override fun onCleared() {
         thread?.interrupt()
+        payoutThread?.interrupt()
         super.onCleared()
     }
 

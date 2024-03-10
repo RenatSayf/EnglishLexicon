@@ -13,7 +13,6 @@ import com.myapp.lexicon.database.models.WordToPlay
 import com.myapp.lexicon.models.Word
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.internal.synchronized
-import java.io.File
 
 
 private const val DB_VERSION = 2
@@ -62,15 +61,6 @@ abstract class AppDataBase : RoomDatabase()
             return dataBase!!
         }
 
-        fun buildDataBaseFromFile(context: Context, dbFile: File): AppDataBase {
-            val dbName = context.getString(R.string.data_base_name)
-            dataBase = Room.databaseBuilder(context, AppDataBase::class.java, dbName).apply {
-                allowMainThreadQueries()
-                createFromFile(dbFile)
-            }.build()
-            return dataBase!!
-        }
-
         fun execVacuum() {
             dataBase?.openHelper?.writableDatabase?.execSQL("VACUUM")
         }
@@ -83,7 +73,14 @@ abstract class AppDataBase : RoomDatabase()
         private fun getMigrationFrom1To2(): Migration {
             return object : Migration(1, 2) {
                 override fun migrate(db: SupportSQLiteDatabase) {
-                    val query = """CREATE TABLE IF NOT EXISTS "PlayList" (
+                    if (db.isOpen) {
+                        db.execSQL(queryMigrationFrom1To2)
+                    }
+                }
+            }
+        }
+
+        private const val queryMigrationFrom1To2 = """CREATE TABLE IF NOT EXISTS "PlayList" (
 	"_id"	INTEGER NOT NULL,
 	"dict_name"	TEXT NOT NULL,
 	"english"	TEXT NOT NULL,
@@ -91,12 +88,6 @@ abstract class AppDataBase : RoomDatabase()
 	"count_repeat"	INTEGER NOT NULL DEFAULT 1,
 	PRIMARY KEY("english")
 );"""
-                    if (db.isOpen) {
-                        db.execSQL(query)
-                    }
-                }
-            }
-        }
 
     }
 

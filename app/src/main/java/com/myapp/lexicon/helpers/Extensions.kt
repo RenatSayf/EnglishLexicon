@@ -283,6 +283,12 @@ fun Exception.throwIfDebug() {
     }
 }
 
+fun Throwable.printStackTraceIfDebug() {
+    if (BuildConfig.DEBUG) {
+        this.printStackTrace()
+    }
+}
+
 fun Context.isNetworkAvailable(): Boolean {
     val manager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     return when {
