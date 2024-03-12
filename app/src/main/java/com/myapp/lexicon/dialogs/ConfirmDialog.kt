@@ -30,6 +30,7 @@ class ConfirmDialog : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
 
+        isCancelable = false
         setStyle(STYLE_NO_TITLE, R.style.AppAlertDialog)
         isCancelable = false
         return super.onCreateDialog(savedInstanceState).apply {

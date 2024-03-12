@@ -13,7 +13,6 @@ import io.reactivex.Single
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlin.jvm.Throws
 
 class DataRepositoryImpl(
     private val db: AppDao
@@ -141,13 +140,11 @@ class DataRepositoryImpl(
             else -> OrderBy.RANDOM.value
         }
 
-        val query = "INSERT OR replace INTO PlayList SELECT * FROM Words WHERE dict_name = '$dict' AND count_repeat > 0 ORDER BY $orderStr"
-
         return coroutineScope {
             async {
                 db.clearPlayList()
                 AppDataBase.execVacuum()
-                db.runTimeQuery(SimpleSQLiteQuery(query))
+                db.updatePlayListTable(dict, orderStr)
                 val playList = db.getPlayList()
                 playList.map { it.toWord() }
             }

@@ -32,7 +32,6 @@ import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SpeechViewModel;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.models.WordKt;
-import com.myapp.lexicon.settings.SettingsExtKt;
 import com.myapp.lexicon.viewmodels.EditorSearchViewModel;
 import com.yandex.mobile.ads.banner.BannerAdView;
 
@@ -209,7 +208,6 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
                     ExtensionsKt.showSnackBar(switcher, getString(R.string.text_word_deleted), Snackbar.LENGTH_LONG);
                     editorVM.getAllWordsByDictName(editorVM.selectedWord.getDictName());
                     setResult(NEED_UPDATE_PLAY_LIST);
-                    SettingsExtKt.setCloudUpdateRequired(this, true);
                 }
             }
             else if (id < 0)
@@ -270,7 +268,6 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
                 editorVM.getAllWordsByDictName(dictListSpinner.getSelectedItem().toString());
                 ExtensionsKt.showSnackBar(switcher, getString(R.string.text_dict_is_updated), Snackbar.LENGTH_LONG);
                 setResult(NEED_UPDATE_PLAY_LIST);
-                SettingsExtKt.setCloudUpdateRequired(this, true);
             }
         });
 
@@ -281,7 +278,6 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             {
                 ExtensionsKt.showSnackBar(switcher, getString(R.string.text_dict_is_updated), Snackbar.LENGTH_LONG);
                 setResult(NEED_UPDATE_PLAY_LIST);
-                SettingsExtKt.setCloudUpdateRequired(this, true);
             }
             else if (throwable != null) {
                 String message = (throwable.getMessage() != null) ? throwable.getMessage() : getString(R.string.text_unknown_error_message);

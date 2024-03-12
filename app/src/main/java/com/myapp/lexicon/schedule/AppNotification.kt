@@ -15,7 +15,7 @@ import com.myapp.lexicon.models.toWordList
 import com.myapp.lexicon.service.ServiceActivity
 
 
-class AppNotification constructor(private val context: Context) : Notification()
+class AppNotification(private val context: Context) : Notification()
 {
     companion object
     {
@@ -35,9 +35,11 @@ class AppNotification constructor(private val context: Context) : Notification()
             color = ContextCompat.getColor(context, R.color.colorAccent)
             setLargeIcon(BitmapFactory.decodeResource(context.resources, R.drawable.ic_lexicon))
             setAutoCancel(true)
-            priority = NotificationCompat.PRIORITY_HIGH
+            priority = NotificationCompat.PRIORITY_LOW
             setChannelId(CHANNEL_ID)
-            setDefaults(DEFAULT_ALL)
+            //setDefaults(DEFAULT_ALL)
+            setSound(null)
+            setVibrate(null)
 
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val displayMode = preferences.getString(context.getString(R.string.key_list_display_mode), "0").toString()
@@ -79,6 +81,7 @@ class AppNotification constructor(private val context: Context) : Notification()
         val importance = NotificationManager.IMPORTANCE_HIGH
         val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
             description = descriptionText
+            setSound(null, null)
         }
         notificationManager.createNotificationChannel(channel)
 

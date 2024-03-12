@@ -76,9 +76,9 @@ class PhoneUnlockedReceiver : BroadcastReceiver()
 
             val action = intent.action
 
-            //String actionUserPresent = Intent.ACTION_USER_PRESENT;
-            val actionScreenOff = Intent.ACTION_SCREEN_OFF
-            if (action != null && action == actionScreenOff)
+            val actionUserPresent = Intent.ACTION_USER_PRESENT
+            //val actionScreenOff = Intent.ACTION_SCREEN_ON
+            if (action != null && action == actionUserPresent)
             {
                 context.getWordFromPref(
                     onSuccess = { word, _ ->

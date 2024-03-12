@@ -24,8 +24,7 @@ abstract class AppDataBase : RoomDatabase()
 {
     abstract fun appDao(): AppDao
 
-    companion object
-    {
+    companion object {
         @Volatile
         var dataBase: AppDataBase? = null
             private set
@@ -33,18 +32,16 @@ abstract class AppDataBase : RoomDatabase()
         @OptIn(InternalCoroutinesApi::class)
         fun getDbInstance(context: Context): AppDataBase {
             return if (dataBase == null) {
-                dataBase = synchronized(this){
+                dataBase = synchronized(this) {
                     buildDataBase(context)
                 }
                 dataBase!!
-            }
-            else {
+            } else {
                 dataBase!!
             }
         }
 
-        private fun buildDataBase(context: Context): AppDataBase
-        {
+        private fun buildDataBase(context: Context): AppDataBase {
             val dbName = context.getString(R.string.data_base_name)
 
             dataBase = Room.databaseBuilder(context, AppDataBase::class.java, dbName).apply {
@@ -55,8 +52,7 @@ abstract class AppDataBase : RoomDatabase()
                 val dbFile = context.getDatabasePath(dbName)
                 if (dbFile.exists()) {
                     createFromFile(dbFile)
-                }
-                else {
+                } else {
                     createFromAsset("databases/$dbName")
                 }
             }.build()
@@ -110,7 +106,6 @@ abstract class AppDataBase : RoomDatabase()
     "search_query"	TEXT,
 	PRIMARY KEY("video_id")
 );"""
-
     }
 
 }

@@ -12,9 +12,9 @@ import com.myapp.lexicon.repository.DataRepositoryImpl
 import kotlinx.coroutines.launch
 
 
-class AddWordViewModel constructor(private val repository: DataRepositoryImpl) : ViewModel()
+class AddWordViewModel(private val repository: DataRepositoryImpl) : ViewModel()
 {
-    class Factory constructor(private val context: Context) : ViewModelProvider.Factory {
+    class Factory(private val context: Context) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             require(modelClass == AddWordViewModel::class.java)

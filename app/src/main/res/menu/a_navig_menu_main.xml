@@ -9,11 +9,6 @@
             android:title="@string/text_get_reward"/>
 
         <item
-            android:id="@+id/nav_video_list"
-            android:icon="@drawable/ic_video"
-            android:title="@string/text_video" />
-
-        <item
             android:id="@+id/nav_add_word"
             android:icon="@drawable/ic_add_word"
             android:title="@string/add_word"/>

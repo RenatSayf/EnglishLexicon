@@ -68,7 +68,7 @@
     <string name="text_about_app">О программе</string>
     <string name="content_describt">image_view</string>
     <string name="text_developer_name">Разработка: RenatSayf</string>
-    <string name="text_developer_email">E-mail: english.lexicon@yandex.ru</string>
+    <string name="text_developer_email">E-mail: english.lexicon.team@gmail.com</string>
     <string name="text_evaluate">Оценить</string>
     <string name="you_have_uncompleted_test">У Вас есть незавершенный тест. Вы хотите продолжить проверку или начать тест с начала</string>
     <string name="text_speech_settings">Голосовые настройки</string>
@@ -297,6 +297,7 @@
         <item>сериал карточный домик</item>
         <item>сериал игра престолов</item>
     </string-array>
+    <string name="text_request_sented">Ваша заявка отправлена</string>
 
 
 </resources>

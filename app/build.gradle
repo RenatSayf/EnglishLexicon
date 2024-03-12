@@ -30,6 +30,8 @@ android {
         properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
         buildConfigField "String", "YOUTUBE_API_KEY", "\"${properties.getProperty("YOUTUBE_API_KEY")}\""
+        buildConfigField "String", "BOT_TOKEN", "\"${properties.getProperty("BOT_TOKEN")}\""
+        buildConfigField "String", "CHAT_ID", "\"${properties.getProperty("CHAT_ID")}\""
     }
     buildTypes {
         debug {
