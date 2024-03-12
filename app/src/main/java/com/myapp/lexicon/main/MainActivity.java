@@ -47,7 +47,6 @@ import com.myapp.lexicon.models.Revenue;
 import com.myapp.lexicon.models.UserKt;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.models.WordList;
-import com.myapp.lexicon.repository.DataRepositoryImpl;
 import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.service.PhoneUnlockedReceiver;
 import com.myapp.lexicon.settings.ContainerFragment;
@@ -56,6 +55,7 @@ import com.myapp.lexicon.video.list.VideoListFragment;
 import com.myapp.lexicon.wordeditor.WordEditorActivity;
 import com.myapp.lexicon.wordstests.OneOfFiveFragm;
 import com.myapp.lexicon.wordstests.TestFragment;
+import com.myapp.lexicon.repository.DataRepositoryImpl;
 import com.parse.ParseUser;
 import com.yandex.mobile.ads.banner.BannerAdView;
 

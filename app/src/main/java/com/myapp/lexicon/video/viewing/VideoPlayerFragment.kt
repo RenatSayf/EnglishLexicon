@@ -1,4 +1,4 @@
-@file:Suppress("ObjectLiteralToLambda", "UNUSED_ANONYMOUS_PARAMETER")
+@file:Suppress("ObjectLiteralToLambda")
 
 package com.myapp.lexicon.video.viewing
 
@@ -25,11 +25,9 @@ import com.myapp.lexicon.databinding.FragmentVideoPlayerBinding
 import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.checkOrientation
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
-import com.myapp.lexicon.helpers.removeSelf
 import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.helpers.throwIfDebug
 import com.myapp.lexicon.repository.network.MockNetRepository
-import com.myapp.lexicon.video.extensions.youTubePlayerView
 import com.myapp.lexicon.video.list.VideoListAdapter
 import com.myapp.lexicon.video.list.VideoListViewModel
 import com.myapp.lexicon.video.models.VideoItem
@@ -37,11 +35,9 @@ import com.myapp.lexicon.video.models.VideoSearchResult
 import com.myapp.lexicon.video.search.SearchFragment
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.FullscreenListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerCallback
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.options.IFramePlayerOptions
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import kotlinx.serialization.json.Json
@@ -79,19 +75,15 @@ open class VideoPlayerFragment : Fragment() {
         Json { ignoreUnknownKeys }
     }
 
-    private val playerView: YouTubePlayerView by lazy {
-        val youTubePlayerView = requireContext().youTubePlayerView()
-        youTubePlayerView.apply {
-            enableAutomaticInitialization = false
-        }
-    }
-
     private var youTubePlayer: YouTubePlayer? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
+        locker.lock()
+
         binding = FragmentVideoPlayerBinding.inflate(inflater, container, false)
         return binding!!.root
     }
@@ -118,7 +110,7 @@ open class VideoPlayerFragment : Fragment() {
         videoItem?.let {
             val factory = VideoPlayerViewModel.Factory(netRepository = MockNetRepository())
             playerVM = ViewModelProvider(requireActivity(), factory)[VideoPlayerViewModel::class.java]
-            playerVM.setSelectedVideo(it)
+            binding?.setSelectedVideo(it)
         }?: run {
             showSnackBar("Видео недоступно ${getString(R.string.confused_face)}")
             parentFragmentManager.popBackStack()
@@ -127,12 +119,10 @@ open class VideoPlayerFragment : Fragment() {
 
         with(binding!!) {
 
-            playerView.removeSelf()
-            layoutPlayer.addView(playerView, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
-
             rvVideoList.apply {
                 videoListAdapter.setItemClickCallback { videoItem: VideoItem ->
-                    playerVM.setSelectedVideo(videoItem)
+                    playerVM.resetScreenState()
+                    setSelectedVideo(videoItem)
                 }
                 adapter = videoListAdapter
 
@@ -165,56 +155,6 @@ open class VideoPlayerFragment : Fragment() {
                         }
                     }
                 })
-            }
-
-            playerVM.selectedVideo.observe(viewLifecycleOwner) { result ->
-                result.onSuccess { selectedItem: VideoItem ->
-
-                    val thumbnailUri = Uri.parse(selectedItem.snippet.thumbnails.high.url)
-                    Picasso.get().load(thumbnailUri)
-                        .placeholder(R.drawable.ic_smart_display)
-                        .into(ivPlaceHolder, object : Callback {
-                            override fun onSuccess() {
-                                progressBar.visibility = View.GONE
-                            }
-
-                            override fun onError(e: Exception?) {
-                                progressBar.visibility = View.GONE
-                            }
-                        })
-                    tvTitle.text = selectedItem.snippet.title
-
-                    videoListVM.searchResult.observe(viewLifecycleOwner) { result ->
-                        result.onSuccess { searchResult: VideoSearchResult ->
-                            val filteredList = searchResult.videoItems.filter { thisItem -> thisItem.id.videoId != selectedItem.id.videoId }
-                            if (searchResult.prevPageToken == null) {
-                                videoListAdapter.submitList(filteredList)
-                            } else {
-                                videoListAdapter.addItemsToCurrentList(filteredList)
-                            }
-                        }
-                        result.onFailure { exception ->
-                            exception.printStackTraceIfDebug()
-                        }
-                    }
-
-                    try {
-                        videoPlayerInitialize()
-                    } catch (e: IllegalStateException) {
-                        if (e.message?.contains("This YouTubePlayerView has already been initialized") == true) {
-                            this@VideoPlayerFragment.playerView.getYouTubePlayerWhenReady(object : YouTubePlayerCallback {
-                                override fun onYouTubePlayer(youTubePlayer: YouTubePlayer) {
-                                    this@VideoPlayerFragment.youTubePlayer = youTubePlayer
-                                    restoreScreenState(playerVM.screenState)
-                                }
-                            })
-                        }
-                    }
-
-                }
-                result.onFailure { exception ->
-                    exception.throwIfDebug()
-                }
             }
 
             playerVM.volume.observe(viewLifecycleOwner) { value ->
@@ -255,8 +195,8 @@ open class VideoPlayerFragment : Fragment() {
 
             seekbarVideo.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar?, progress: Int, p2: Boolean) {
-                    playerVM.isVideoProgressManualChanged = p2
-                    playerVM.videoProgress = progress
+                    playerVM.screenState.player.isVideoProgressManualChanged = p2
+                    playerVM.screenState.player.progress = progress
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar?) {}
@@ -264,7 +204,7 @@ open class VideoPlayerFragment : Fragment() {
                 override fun onStopTrackingTouch(seekBar: SeekBar?) {
                     val progress = seekBar?.progress
                     if (progress != null) {
-                        youTubePlayer?.seekTo(playerVM.getProgressInSeconds(progress))
+                        youTubePlayer?.seekTo(playerVM.screenState.player.getProgressInSeconds(progress))
                     }
                 }
             })
@@ -298,8 +238,55 @@ open class VideoPlayerFragment : Fragment() {
             }
 
             btnFullScreen.setOnClickListener {
+                locker.unLock()
                 requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
             }
+        }
+    }
+
+    private fun FragmentVideoPlayerBinding.setSelectedVideo(video: VideoItem) {
+
+        val thumbnailUri = Uri.parse(video.snippet.thumbnails.high.url)
+        Picasso.get().load(thumbnailUri)
+            .placeholder(R.drawable.ic_smart_display)
+            .into(ivPlaceHolder, object : Callback {
+                override fun onSuccess() {
+                    progressBar.visibility = View.GONE
+                }
+
+                override fun onError(e: Exception?) {
+                    progressBar.visibility = View.GONE
+                }
+            })
+        tvTitle.text = video.snippet.title
+
+        videoListVM.searchResult.observe(viewLifecycleOwner) { result ->
+            result.onSuccess { searchResult: VideoSearchResult ->
+                val filteredList = searchResult.videoItems.filter { thisItem -> thisItem.id.videoId != video.id.videoId }
+                if (searchResult.prevPageToken == null) {
+                    videoListAdapter.submitList(filteredList)
+                } else {
+                    videoListAdapter.addItemsToCurrentList(filteredList)
+                }
+            }
+            result.onFailure { exception ->
+                exception.printStackTraceIfDebug()
+            }
+        }
+
+        try {
+            videoPlayerInitialize(video)
+        } catch (e: IllegalStateException) {
+            e.printStackTraceIfDebug()
+            if (e.message?.contains("This YouTubePlayerView has already been initialized") == true) {
+                playerView.getYouTubePlayerWhenReady(object : YouTubePlayerCallback {
+                    override fun onYouTubePlayer(youTubePlayer: YouTubePlayer) {
+                        youTubePlayer.cueVideo(video.id.videoId, playerVM.screenState.player.currentSecond)
+                    }
+                })
+            }
+        } catch (e: Exception) {
+            e.printStackTraceIfDebug()
         }
     }
 
@@ -308,26 +295,32 @@ open class VideoPlayerFragment : Fragment() {
         youTubePlayer?.seekTo(currentSecond + seconds)
     }
 
-    private fun FragmentVideoPlayerBinding.videoPlayerInitialize() {
+    private fun FragmentVideoPlayerBinding.videoPlayerInitialize(video: VideoItem) {
+
+        playerVM.screenState.player.videoId = video.id.videoId
+
         val playerOptions = IFramePlayerOptions.Builder().apply {
             controls(0)
             ccLoadPolicy(1)
             fullscreen(0)
         }.build()
-        viewLifecycleOwner.lifecycle.addObserver(this@VideoPlayerFragment.playerView)
-        this@VideoPlayerFragment.playerView.initialize(object : YouTubePlayerListener {
+
+        viewLifecycleOwner.lifecycle.addObserver(playerView)
+
+        playerView.initialize(object : YouTubePlayerListener {
             override fun onApiChange(youTubePlayer: YouTubePlayer) {}
 
             override fun onCurrentSecond(youTubePlayer: YouTubePlayer, second: Float) {
-                if (!playerVM.isVideoProgressManualChanged) {
-                    val progressInPercentages = playerVM.getProgressInPercentages(second)
+                if (!playerVM.screenState.player.isVideoProgressManualChanged) {
+                    val progressInPercentages = playerVM.screenState.player.getProgressInPercentages(second)
                     seekbarVideo.progress = progressInPercentages
-                    playerVM.currentSecond = second
+                    playerVM.screenState.player.currentSecond = second
 
                     playerVM.screenState.player.currentSecond = second
 
                     if (progressInPercentages > 5) {
                         playerVM.saveSelectedVideoToHistory(
+                            video,
                             onStart = { locker.lock() },
                             onComplete = { locker.unLock() }
                         )
@@ -358,16 +351,7 @@ open class VideoPlayerFragment : Fragment() {
 
             override fun onReady(youTubePlayer: YouTubePlayer) {
                 this@VideoPlayerFragment.youTubePlayer = youTubePlayer
-                playerVM.screenState.player.isInit = true
-                val result = playerVM.selectedVideo.value
-                result?.onSuccess { value: VideoItem ->
-                    restoreScreenState(playerVM.screenState)
-                } ?: run {
-                    Exception("****** Result.VideoItem is NULL **********").throwIfDebug()
-                }
-                result?.onFailure { tr ->
-                    tr.throwIfDebug()
-                }
+                restoreScreenState(playerVM.screenState)
             }
 
             override fun onStateChange(
@@ -400,7 +384,7 @@ open class VideoPlayerFragment : Fragment() {
                     }
                     PlayerConstants.PlayerState.UNSTARTED -> {
                         if (playerVM.screenState.player.state == PlayerConstants.PlayerState.PLAYING) {
-                            youTubePlayer.cueVideo(playerVM.screenState.videoId, playerVM.screenState.player.currentSecond)
+                            youTubePlayer.cueVideo(video.id.videoId, playerVM.screenState.player.currentSecond)
                         }
                     }
                     else -> {}
@@ -409,7 +393,6 @@ open class VideoPlayerFragment : Fragment() {
             }
 
             override fun onVideoDuration(youTubePlayer: YouTubePlayer, duration: Float) {
-                playerVM.duration = duration
                 playerVM.screenState.player.duration = duration
             }
 
@@ -484,7 +467,11 @@ open class VideoPlayerFragment : Fragment() {
                 btnPause.visibility = View.INVISIBLE
             }
             PlayerConstants.PlayerState.UNSTARTED -> {
-                youTubePlayer?.cueVideo(playerVM.screenState.videoId, playerVM.screenState.player.currentSecond)
+                youTubePlayer?.cueVideo(playerVM.screenState.player.videoId, playerVM.screenState.player.currentSecond)
+                if (groupPlayerControl.visibility == View.VISIBLE) {
+                    btnPlay.visibility = View.VISIBLE
+                    btnPause.visibility = View.INVISIBLE
+                }
             }
             else -> {
 
@@ -503,6 +490,7 @@ open class VideoPlayerFragment : Fragment() {
             override fun handleOnBackPressed() {
                 requireContext().checkOrientation(
                     onLandscape = {
+                        locker.unLock()
                         requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
                     },
                     onPortrait = {
@@ -515,6 +503,7 @@ open class VideoPlayerFragment : Fragment() {
         binding?.btnBack?.setOnClickListener {
             requireContext().checkOrientation(
                 onLandscape = {
+                    locker.unLock()
                     requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
                 },
                 onPortrait = {
@@ -530,8 +519,9 @@ open class VideoPlayerFragment : Fragment() {
 
     override fun onDestroy() {
 
-        //binding?.playerView?.release()
+        binding?.playerView?.release()
         binding = null
+        locker.unLock()
 
         super.onDestroy()
     }

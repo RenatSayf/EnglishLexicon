@@ -3,9 +3,7 @@ package com.myapp.lexicon.service;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.myapp.lexicon.R;
@@ -133,10 +131,6 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                         adData -> {
                             if (adData != null)
                             {
-                                ProgressBar adProgress = findViewById(R.id.adProgress);
-                                if (adProgress != null) {
-                                    adProgress.setVisibility(View.VISIBLE);
-                                }
                                 revenueVM.updateUserRevenueIntoCloud(adData);
                             }
                             return null;

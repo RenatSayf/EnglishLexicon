@@ -2,7 +2,6 @@
 
 package com.myapp.lexicon.video.viewing
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -40,43 +39,22 @@ class VideoPlayerViewModel(
     var pageToken: String = ""
         private set
 
-    private var _selectedVideo = MutableLiveData<Result<VideoItem>>()
-    val selectedVideo: LiveData<Result<VideoItem>> = _selectedVideo
-
-    fun setSelectedVideo(videoItem: VideoItem) {
-        _selectedVideo.value = Result.success(videoItem)
-        screenState.videoId = videoItem.id.videoId
-    }
-
     var volume = MutableLiveData(100)
-    var videoProgress = 0
-    var isVideoProgressManualChanged = false
-    var duration = Float.MAX_VALUE
-    var currentSecond: Float = 0f
-
-    fun getProgressInPercentages(second: Float): Int {
-        val progress = (100 / this.duration * second).toInt()
-        return progress
-    }
-
-    fun getProgressInSeconds(progress: Int): Float {
-        val second = (progress * this.duration) / 100
-        return second - 1
-    }
 
     fun saveSelectedVideoToHistory(
+        video: VideoItem,
         onStart: () -> Unit = {},
         onComplete: (t: Throwable?) -> Unit = {},
         onSuccess: (id: Long) -> Unit = {}
     ) {
         onStart.invoke()
-        val videoItem = _selectedVideo.value?.getOrNull()
-        videoItem?.let { item ->
+
+        try {
             val historyQuery = HistoryQuery(
-                videoId = item.id.videoId,
+                videoId = video.id.videoId,
                 viewingTime = System.currentTimeMillis(),
-                text = item.snippet.title,
-                thumbnailUrl = item.snippet.thumbnails.default.url,
+                text = video.snippet.title,
+                thumbnailUrl = video.snippet.thumbnails.default.url,
                 pageToken = this.pageToken,
                 searchQuery = this.searchQuery
             )
@@ -89,18 +67,25 @@ class VideoPlayerViewModel(
                     onComplete.invoke(exception as Exception)
                 }
             }
-        }?: run {
+        } finally {
             onComplete.invoke(null)
         }
     }
 
-    val screenState = State("")
+    var screenState: State = State()
+        private set
+    fun resetScreenState() {
+        screenState = State()
+    }
 
-    data class State(var videoId: String) {
+    data class State(var stateId: Long = System.currentTimeMillis()) {
 
         var player: Player = Player()
         class Player {
-            var isInit = false
+            var videoId: String = ""
+                get() {
+                    return field.ifEmpty { throw IllegalStateException("******** Property videoId must be set primarily *********") }
+                }
             var currentSecond: Float = 0f
             var error: PlayerConstants.PlayerError? = null
             var playbackQuality: PlayerConstants.PlaybackQuality = PlayerConstants.PlaybackQuality.DEFAULT
@@ -109,10 +94,16 @@ class VideoPlayerViewModel(
             var duration: Float = Float.MAX_VALUE
             var progress: Int = getProgressInPercentages(currentSecond)
             var volume: Int = 100
+            var isVideoProgressManualChanged = false
 
-            private fun getProgressInPercentages(second: Float): Int {
+            fun getProgressInPercentages(second: Float): Int {
                 val progress = (100 / this.duration * second).toInt()
                 return progress
+            }
+
+            fun getProgressInSeconds(progress: Int): Float {
+                val second = (progress * this.duration) / 100
+                return second - 1
             }
         }
     }
