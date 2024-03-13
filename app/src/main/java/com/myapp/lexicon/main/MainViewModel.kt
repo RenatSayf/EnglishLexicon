@@ -22,9 +22,7 @@ import com.myapp.lexicon.settings.testIntervalFromPref
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-
 
 
 class MainViewModel(
@@ -231,17 +229,28 @@ class MainViewModel(
         }
     }
 
-    private var _randomWord = MutableLiveData<Word>()
-
-    fun getRandomWord(word: Word) : LiveData<Word>
-    {
-        viewModelScope.launch(Dispatchers.IO) {
-            val dictName = word.dictName
-            val id = word._id
-            val randomWord = repository.getRandomEntriesFromDB(dictName, id).await()
-            _randomWord.postValue(randomWord)
+    fun getRandomWord(
+        word: Word,
+        onStart: () -> Unit = {},
+        onComplete: (Throwable?) -> Unit = {},
+        onSuccess: (word: Word) -> Unit
+    ) {
+        viewModelScope.launch {
+            onStart.invoke()
+            try {
+                val dictName = word.dictName
+                val id = word._id
+                val randomWord = repository.getRandomEntriesFromDB(dictName, id).await()
+                if (randomWord == null) {
+                    onSuccess.invoke(word)
+                }
+                else onSuccess.invoke(randomWord)
+            } catch (e: Exception) {
+                onComplete.invoke(e)
+            } finally {
+                onComplete.invoke(null)
+            }
         }
-        return _randomWord
     }
 
     private var _mainControlVisibility = MutableLiveData<Int>().apply {

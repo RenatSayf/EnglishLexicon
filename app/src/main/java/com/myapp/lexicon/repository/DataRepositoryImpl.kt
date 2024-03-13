@@ -33,12 +33,12 @@ class DataRepositoryImpl(
         return db.getEntriesById(ids)
     }
 
-    override suspend fun getRandomEntriesFromDB(dictName: String, id: Int): Deferred<Word>
+    override suspend fun getRandomEntriesFromDB(dictName: String, id: Int): Deferred<Word?>
     {
         return coroutineScope {
             async {
                 val wordToPlay = db.getRandomEntries(dictName, id)
-                wordToPlay.toWord()
+                wordToPlay?.toWord()
             }
         }
     }
