@@ -14,7 +14,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
-import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.BannerAdIds
 import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.loadBanner
@@ -58,7 +57,6 @@ class RepeatDialog: DialogFragment() {
         ViewModelProvider(this, factory)[SpeechViewModel::class.java]
     }
     private val userVM by viewModels<UserViewModel>()
-    private val adsVM by activityViewModels<AdsViewModel>()
     private val revenueVM by activityViewModels<RevenueViewModel>()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -202,12 +200,6 @@ class RepeatDialog: DialogFragment() {
                 }
                 result.onError { throwable ->
                     throwable.printStackTraceIfDebug()
-                    adProgress.visibility = View.GONE
-                }
-            }
-
-            adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
-                if (result != null) {
                     adProgress.visibility = View.GONE
                 }
             }

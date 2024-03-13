@@ -16,7 +16,7 @@ interface IDataRepository
 
     fun getEntriesByIds(ids: List<Int>) : Single<MutableList<Word>>
 
-    suspend fun getRandomEntriesFromDB(dictName: String, id: Int) : Deferred<Word>
+    suspend fun getRandomEntriesFromDB(dictName: String, id: Int) : Deferred<Word?>
 
     fun getAllSimilarEntriesFromDB(dictName: String, like: String) : Single<MutableList<Word>>
 

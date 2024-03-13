@@ -11,6 +11,7 @@ import com.myapp.lexicon.ads.AdsViewModel;
 import com.myapp.lexicon.ads.AdsViewModelKt;
 import com.myapp.lexicon.ads.InterstitialAdIds;
 import com.myapp.lexicon.ads.RevenueViewModel;
+import com.myapp.lexicon.ads.models.AdData;
 import com.myapp.lexicon.auth.AuthViewModel;
 import com.myapp.lexicon.databinding.ServiceDialogActivityBinding;
 import com.myapp.lexicon.helpers.ExtensionsKt;
@@ -132,6 +133,10 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                             if (adData != null)
                             {
                                 revenueVM.updateUserRevenueIntoCloud(adData);
+                            }
+                            else {
+                                AdData emptyAdData = new AdData("", "", "", "", null, "", "", 0.0, 0.0);
+                                revenueVM.updateUserRevenueIntoCloud(emptyAdData);
                             }
                             return null;
                         },
