@@ -5,7 +5,6 @@ package com.myapp.lexicon.ads
 import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.common.mapToRevenue
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
@@ -81,11 +80,8 @@ class RevenueViewModel @Inject constructor(
                 })
             }
             else {
-                if (BuildConfig.DEBUG) {
-                    val message =
-                        "******************** A zero revenue value cannot be sent: ${adData.revenue} ************"
-                    Throwable(message).printStackTrace()
-                }
+                val exception = Exception("******************** A zero revenue value cannot be sent: ${adData.revenue} ************")
+                _userRevenueLD.value = AppResult.Error(Exception(exception))
             }
         }
     }
