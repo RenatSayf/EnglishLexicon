@@ -20,7 +20,7 @@ interface AppDao
     fun getEntriesById(id: List<Int>) : Single<MutableList<Word>>
 
     @Query("SELECT * FROM PlayList WHERE dict_name == :dict AND _id <> :id ORDER BY random() LIMIT 1")
-    fun getRandomEntries(dict: String, id: Int) : WordToPlay
+    fun getRandomEntries(dict: String, id: Int) : WordToPlay?
 
     @Query("SELECT * FROM Words WHERE dict_name == :dict AND english like :like")
     fun getAllSimilarEntries(dict: String, like: String) : Single<MutableList<Word>>
@@ -85,6 +85,7 @@ interface AppDao
  FROM PlayList WHERE _id = :id;""")
     suspend fun getCountersById(id: Int): List<Counters>
 
+    // Such a request does not work correctly, for some reason
     @Query("INSERT OR replace INTO PlayList SELECT * FROM Words WHERE dict_name = :dict AND count_repeat > 0 ORDER BY :orderStr")
     suspend fun updatePlayListTable(dict: String, orderStr: String): Long
 

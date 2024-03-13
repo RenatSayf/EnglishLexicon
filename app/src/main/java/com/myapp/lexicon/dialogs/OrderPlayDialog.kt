@@ -23,11 +23,7 @@ class OrderPlayDialog : DialogFragment()
         {
             this.order = order
             this.listener = listener
-            return if (instance == null)
-            {
-                OrderPlayDialog()
-            }
-            else instance as OrderPlayDialog
+            return OrderPlayDialog()
         }
     }
     interface IDialogListener

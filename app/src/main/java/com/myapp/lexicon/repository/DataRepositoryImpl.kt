@@ -33,12 +33,12 @@ class DataRepositoryImpl(
         return db.getEntriesById(ids)
     }
 
-    override suspend fun getRandomEntriesFromDB(dictName: String, id: Int): Deferred<Word>
+    override suspend fun getRandomEntriesFromDB(dictName: String, id: Int): Deferred<Word?>
     {
         return coroutineScope {
             async {
                 val wordToPlay = db.getRandomEntries(dictName, id)
-                wordToPlay.toWord()
+                wordToPlay?.toWord()
             }
         }
     }
@@ -139,11 +139,14 @@ class DataRepositoryImpl(
             else -> OrderBy.RANDOM.value
         }
 
+        // Do not change!!! See the comment in the AppDao.kt.updatePlayListTable(...)
+        val query = "INSERT OR replace INTO PlayList SELECT * FROM Words WHERE dict_name = '$dict' AND count_repeat > 0 ORDER BY $orderStr"
+
         return coroutineScope {
             async {
                 db.clearPlayList()
                 AppDataBase.execVacuum()
-                db.updatePlayListTable(dict, orderStr)
+                db.runTimeQuery(SimpleSQLiteQuery(query))
                 val playList = db.getPlayList()
                 playList.map { it.toWord() }
             }

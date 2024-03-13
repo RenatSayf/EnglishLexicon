@@ -17,7 +17,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
-import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.BannerAdIds
 import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.loadBanner
@@ -65,7 +64,6 @@ class TestModeDialog : DialogFragment() {
         ViewModelProvider(this, factory)[SpeechViewModel::class.java]
     }
     private val userVM: UserViewModel by viewModels()
-    private val adsVM: AdsViewModel by activityViewModels()
     private val revenueVM by activityViewModels<RevenueViewModel>()
 
     private var compareList: List<Word> = listOf()
@@ -107,9 +105,13 @@ class TestModeDialog : DialogFragment() {
                     enTextView.text = words[0].english
                     nameDictTvTestModal.text = words[0].dictName
 
-                    if (words.size > 1) {
-                        mainVM.getRandomWord(words[0]).observe(viewLifecycleOwner) { word ->
-                            val wordList = listOf<Word>(words[0], word)
+                    mainVM.getRandomWord(
+                        word = words[0],
+                        onComplete = { throwable: Throwable? ->
+                            throwable?.printStackTraceIfDebug()
+                        },
+                        onSuccess = { word: Word ->
+                            val wordList = listOf(words[0], word)
                             val numberGenerator = RandomNumberGenerator(2, Date().time.toInt())
                             val i = numberGenerator.generate()
                             val j = numberGenerator.generate()
@@ -117,11 +119,7 @@ class TestModeDialog : DialogFragment() {
                             ruBtn2.text = wordList[j].translate
                             compareList = wordList
                         }
-                    } else {
-                        ruBtn1.text = words[0].translate
-                        ruBtn2.text = words[0].translate
-                        compareList = words
-                    }
+                    )
 
                     if (savedInstanceState == null) {
                         mainVM.getCountersById(words[0]._id)
@@ -218,12 +216,6 @@ class TestModeDialog : DialogFragment() {
                 }
                 result.onError { throwable ->
                     throwable.printStackTraceIfDebug()
-                    adProgress.visibility = View.GONE
-                }
-            }
-
-            adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
-                if (result != null) {
                     adProgress.visibility = View.GONE
                 }
             }
