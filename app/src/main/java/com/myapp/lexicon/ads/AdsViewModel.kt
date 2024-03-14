@@ -11,6 +11,7 @@ import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.common.AdsSource
 import com.myapp.lexicon.helpers.printLogIfDebug
+import com.myapp.lexicon.helpers.logIfDebug
 import com.myapp.lexicon.helpers.screenHeight
 import com.myapp.lexicon.helpers.screenWidth
 import com.yandex.mobile.ads.banner.BannerAdSize
@@ -128,7 +129,7 @@ fun InterstitialAd.showAd(
             }
 
             override fun onAdFailedToShow(p0: AdError) {
-                printLogIfDebug("${this::class.simpleName} - ${p0.description}")
+                "${this::class.simpleName} - ${p0.description}".logIfDebug()
                 onDismissed.invoke()
             }
 

@@ -47,15 +47,15 @@ import com.myapp.lexicon.models.Revenue;
 import com.myapp.lexicon.models.UserKt;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.models.WordList;
+import com.myapp.lexicon.repository.DataRepositoryImpl;
 import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.service.PhoneUnlockedReceiver;
 import com.myapp.lexicon.settings.ContainerFragment;
 import com.myapp.lexicon.settings.SettingsExtKt;
-import com.myapp.lexicon.video.list.VideoListFragment;
+import com.myapp.lexicon.video.web.YouTubeFragment;
 import com.myapp.lexicon.wordeditor.WordEditorActivity;
 import com.myapp.lexicon.wordstests.OneOfFiveFragm;
 import com.myapp.lexicon.wordstests.TestFragment;
-import com.myapp.lexicon.repository.DataRepositoryImpl;
 import com.parse.ParseUser;
 import com.yandex.mobile.ads.banner.BannerAdView;
 
@@ -751,7 +751,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         if (itemId == R.id.nav_video_list)
         {
-            VideoListFragment videoListFragment = VideoListFragment.Companion.newInstance();
+            YouTubeFragment videoListFragment = YouTubeFragment.Companion.newInstance();
             transaction.replace(R.id.frame_to_page_fragm, videoListFragment).addToBackStack(null).commit();
         }
         if (itemId == R.id.nav_add_word)

@@ -273,6 +273,12 @@ fun printLogIfDebug(message: String) {
     }
 }
 
+fun String.logIfDebug() {
+    if (BuildConfig.DEBUG) {
+        println("*************** $this *********************")
+    }
+}
+
 fun Exception.printStackTraceIfDebug() {
     if (BuildConfig.DEBUG) {
         this.printStackTrace()
