@@ -19,7 +19,6 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdFragment
 import com.myapp.lexicon.common.MOBILE_YOUTUBE_URL
 import com.myapp.lexicon.databinding.FragmentYouTubeBinding
-import java.util.concurrent.TimeUnit
 
 
 private const val WEB_VIEW_BUNDLE = "WEB_VIEW_BUNDLE"
@@ -28,7 +27,6 @@ class YouTubeFragment : Fragment() {
     companion object {
 
         const val KEY_AD_DISMISSED = "KEY_AD_DISMISSED_2548"
-        const val KEY_AD_LOADED = "KEY_AD_LOADED_52347"
 
         @JvmStatic
         fun newInstance() = YouTubeFragment()
@@ -44,8 +42,7 @@ class YouTubeFragment : Fragment() {
         super.onCreate(savedInstanceState)
 
         if (savedInstanceState == null) {
-            youTubeVM.startAdTimer(TimeUnit.MINUTES.toMillis(1))
-            parentFragmentManager.beginTransaction().replace(R.id.fragmentAdLayout, AdFragment.newInstance()).commit()
+            youTubeVM.startAdTimer()
         }
     }
 
@@ -83,10 +80,8 @@ class YouTubeFragment : Fragment() {
                     }
 
                     override fun onLoadResource(view: WebView?, url: String?) {
-                        if (url?.contains("static/favicon.ico") == true && youTubeVM.canAdShow && youTubeVM.adIsLoaded) {
-                            youTubeVM.startAdTimer(TimeUnit.MINUTES.toMillis(1))
-                            fragmentAdLayout.visibility = View.VISIBLE
-                            webView.visibility = View.INVISIBLE
+                        if (url?.contains("static/favicon.ico") == true) {
+
                         }
                     }
                 }
@@ -95,8 +90,6 @@ class YouTubeFragment : Fragment() {
                         return
                     }
                 })
-
-
             }
             CookieManager.getInstance().apply {
                 acceptCookie()
@@ -114,23 +107,19 @@ class YouTubeFragment : Fragment() {
             youTubeVM.timerState.observe(viewLifecycleOwner) { state ->
                 when(state) {
                     YouTubeViewModel.TimerState.Finish -> {
-
+                        parentFragmentManager.beginTransaction().add(R.id.frame_to_page_fragm, AdFragment.newInstance()).commit()
                     }
                     YouTubeViewModel.TimerState.Start -> {
-                        youTubeVM.adIsLoaded = false
-                        parentFragmentManager.beginTransaction().replace(R.id.fragmentAdLayout, AdFragment.newInstance()).commit()
+
                     }
                     else -> {}
                 }
             }
 
             setFragmentResultListener(KEY_AD_DISMISSED, listener = {requestKey, bundle ->
-                fragmentAdLayout.visibility = View.INVISIBLE
-                webView.visibility = View.VISIBLE
+                youTubeVM.startAdTimer()
             })
-            setFragmentResultListener(KEY_AD_LOADED, listener = {requestKey, bundle ->
-                youTubeVM.adIsLoaded = true
-            })
+
         }
     }
 

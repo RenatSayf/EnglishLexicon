@@ -24,7 +24,6 @@ class AdFragment : Fragment() {
     private val adsVM: AdsViewModel by lazy {
         ViewModelProvider(this)[AdsViewModel::class.java]
     }
-    private var interstitialAd: InterstitialAd? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,8 +31,15 @@ class AdFragment : Fragment() {
         adsVM.loadInterstitialAd(InterstitialAdIds.INTERSTITIAL_2)
         adsVM.interstitialAd.observe(this) { result ->
             result.onSuccess { ad: InterstitialAd ->
-                interstitialAd = ad
-                setFragmentResult(YouTubeFragment.KEY_AD_LOADED, Bundle.EMPTY)
+                ad.showAd(
+                    requireActivity(),
+                    onImpression = {data: AdData? ->
+                        "********** ${data.toString()} ***********".logIfDebug()
+                    },
+                    onDismissed = {
+                        setFragmentResult(YouTubeFragment.KEY_AD_DISMISSED, Bundle.EMPTY)
+                    }
+                )
             }
         }
     }
@@ -44,20 +50,6 @@ class AdFragment : Fragment() {
     ): View {
         binding = FragmentAdBinding.inflate(inflater, container, false)
         return binding!!.root
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        interstitialAd?.showAd(
-            requireActivity(),
-            onImpression = {data: AdData? ->
-                "********** ${data.toString()} ***********".logIfDebug()
-            },
-            onDismissed = {
-                setFragmentResult(YouTubeFragment.KEY_AD_DISMISSED, Bundle.EMPTY)
-            }
-        )
     }
 
     override fun onDestroy() {

@@ -4,29 +4,28 @@ import android.os.CountDownTimer
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.myapp.lexicon.BuildConfig
 import java.util.concurrent.TimeUnit
 
 class YouTubeViewModel: ViewModel() {
 
-    var canAdShow = true
-    var adIsLoaded = false
+    private val adShowInterval = if (BuildConfig.DEBUG) {
+        TimeUnit.SECONDS.toMillis(30)
+    } else {
+        TimeUnit.MINUTES.toMillis(3)
+    }
 
-    private var timeInMillis = TimeUnit.MINUTES.toMillis(1)
-
-    private val timer = object : CountDownTimer(timeInMillis, timeInMillis) {
+    private val timer = object : CountDownTimer(adShowInterval, adShowInterval) {
         override fun onTick(p0: Long) {
-            canAdShow = false
             _timerState.value = TimerState.Start
         }
 
         override fun onFinish() {
-            canAdShow = true
             _timerState.value = TimerState.Finish
         }
     }
 
-    fun startAdTimer(timeInMillis: Long) {
-        this.timeInMillis = timeInMillis
+    fun startAdTimer() {
         timer.start()
     }
 
@@ -37,5 +36,11 @@ class YouTubeViewModel: ViewModel() {
         object Init: TimerState()
         object Start: TimerState()
         object Finish: TimerState()
+    }
+
+    override fun onCleared() {
+
+        timer.cancel()
+        super.onCleared()
     }
 }
