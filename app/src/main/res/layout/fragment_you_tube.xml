@@ -19,6 +19,17 @@
         android:layout_height="match_parent"
         />
 
+    <View
+        android:id="@+id/vPopAnchor"
+        android:layout_width="100dp"
+        android:layout_height="1dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintVertical_bias="0.8"
+        tools:background="@color/colorWhite"/>
+
     <ProgressBar
         android:id="@+id/pbLoadPage"
         android:layout_width="wrap_content"

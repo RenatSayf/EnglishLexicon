@@ -17,6 +17,7 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdFragment
+import com.myapp.lexicon.ads.ext.showAdPopup
 import com.myapp.lexicon.common.MOBILE_YOUTUBE_URL
 import com.myapp.lexicon.databinding.FragmentYouTubeBinding
 
@@ -107,10 +108,14 @@ class YouTubeFragment : Fragment() {
             youTubeVM.timerState.observe(viewLifecycleOwner) { state ->
                 when(state) {
                     YouTubeViewModel.TimerState.Finish -> {
-                        parentFragmentManager.beginTransaction().add(R.id.frame_to_page_fragm, AdFragment.newInstance()).commit()
-                    }
-                    YouTubeViewModel.TimerState.Start -> {
-
+                        vPopAnchor.showAdPopup(
+                            onClick = {
+                                parentFragmentManager.beginTransaction().add(R.id.frame_to_page_fragm, AdFragment.newInstance()).commit()
+                            },
+                            onDismissed = {
+                                youTubeVM.startAdTimer()
+                            }
+                        )
                     }
                     else -> {}
                 }

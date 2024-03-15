@@ -300,6 +300,7 @@
     <string name="text_request_sented">Ваша заявка отправлена</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="text_show_ad">Показать рекламу</string>
 
 
 </resources>
