@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.PopupWindow
+import androidx.core.content.res.ResourcesCompat
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.PopupLayoutBinding
 import java.util.concurrent.TimeUnit
@@ -25,7 +26,7 @@ fun View.showAdPopup(
         height = LinearLayout.LayoutParams.WRAP_CONTENT
         isFocusable = true
 
-        //setBackgroundDrawable(ColorDrawable())
+        setBackgroundDrawable(ResourcesCompat.getDrawable(resources, R.drawable.bg_popup_dialog, null))
         animationStyle = R.style.popupWindowAnimation
         showAsDropDown(this@showAdPopup)
 

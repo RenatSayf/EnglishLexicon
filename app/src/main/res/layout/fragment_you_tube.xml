@@ -27,7 +27,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintVertical_bias="0.8"
+        app:layout_constraintVertical_bias="0.85"
         tools:background="@color/colorWhite"/>
 
     <ProgressBar
@@ -40,5 +40,12 @@
         app:layout_constraintBottom_toBottomOf="parent"
         android:indeterminateTint="@color/color_3B5E91"/>
 
+    <Button
+        android:id="@+id/btnTest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:text="Test"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

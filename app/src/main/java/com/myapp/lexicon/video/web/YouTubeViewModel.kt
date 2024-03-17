@@ -12,7 +12,8 @@ class YouTubeViewModel: ViewModel() {
     private val adShowInterval = if (BuildConfig.DEBUG) {
         TimeUnit.SECONDS.toMillis(30)
     } else {
-        TimeUnit.MINUTES.toMillis(3)
+        val randomInterval = (180..300).random()
+        TimeUnit.SECONDS.toMillis(randomInterval.toLong())
     }
 
     private val timer = object : CountDownTimer(adShowInterval, adShowInterval) {

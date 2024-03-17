@@ -9,6 +9,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.CookieManager
+import android.webkit.ValueCallback
+import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.OnBackPressedCallback
@@ -17,6 +19,7 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdFragment
+import com.myapp.lexicon.ads.ext.WebJavaInterface
 import com.myapp.lexicon.ads.ext.showAdPopup
 import com.myapp.lexicon.common.MOBILE_YOUTUBE_URL
 import com.myapp.lexicon.databinding.FragmentYouTubeBinding
@@ -38,6 +41,7 @@ class YouTubeFragment : Fragment() {
     private val youTubeVM: YouTubeViewModel by lazy {
         ViewModelProvider(this)[YouTubeViewModel::class.java]
     }
+    private val webJavaInterface = WebJavaInterface()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,6 +74,7 @@ class YouTubeFragment : Fragment() {
                     javaScriptCanOpenWindowsAutomatically = true
                     allowContentAccess = true
                     allowFileAccess = true
+                    mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
                 }
                 webViewClient = object : WebViewClient() {
                     override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
@@ -78,6 +83,8 @@ class YouTubeFragment : Fragment() {
 
                     override fun onPageFinished(view: WebView?, url: String?) {
                         pbLoadPage.visibility = View.GONE
+                        val script = webJavaInterface.hideShowPlayerControls(true)
+                        webView.loadUrl(script)
                     }
 
                     override fun onLoadResource(view: WebView?, url: String?) {
@@ -91,6 +98,7 @@ class YouTubeFragment : Fragment() {
                         return
                     }
                 })
+                addJavascriptInterface(webJavaInterface, WebJavaInterface.JS_TAG)
             }
             CookieManager.getInstance().apply {
                 acceptCookie()
@@ -110,6 +118,8 @@ class YouTubeFragment : Fragment() {
                     YouTubeViewModel.TimerState.Finish -> {
                         vPopAnchor.showAdPopup(
                             onClick = {
+                                val url = webJavaInterface.performClickScript()
+                                webView.loadUrl(url)
                                 parentFragmentManager.beginTransaction().add(R.id.frame_to_page_fragm, AdFragment.newInstance()).commit()
                             },
                             onDismissed = {
@@ -123,7 +133,24 @@ class YouTubeFragment : Fragment() {
 
             setFragmentResultListener(KEY_AD_DISMISSED, listener = {requestKey, bundle ->
                 youTubeVM.startAdTimer()
+                val url = webJavaInterface.performClickScript()
+                webView.loadUrl(url)
             })
+
+            btnTest.setOnClickListener {
+                webView.evaluateJavascript(
+                    "(function() { return ('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>'); })();",
+                    object : ValueCallback<String> {
+                        override fun onReceiveValue(html: String?) {
+                            val htmlContent = html?.replace("\\u003C", "<")?.replace("\\", "")
+                            if (htmlContent != null) {
+                                val isPlay = webJavaInterface.isPlayerPlay(htmlContent)
+                                isPlay
+                            }
+                        }
+                    }
+                )
+            }
 
         }
     }
