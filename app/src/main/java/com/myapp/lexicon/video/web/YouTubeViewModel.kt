@@ -1,13 +1,23 @@
 package com.myapp.lexicon.video.web
 
 import android.os.CountDownTimer
+import android.webkit.JavascriptInterface
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.myapp.lexicon.BuildConfig
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.jsoup.Jsoup
 import java.util.concurrent.TimeUnit
 
 class YouTubeViewModel: ViewModel() {
+
+    companion object {
+        const val JS_TAG = "JS_TAG_25878945"
+    }
 
     private val adShowInterval = if (BuildConfig.DEBUG) {
         TimeUnit.SECONDS.toMillis(30)
@@ -37,6 +47,61 @@ class YouTubeViewModel: ViewModel() {
         object Init: TimerState()
         object Start: TimerState()
         object Finish: TimerState()
+    }
+
+    fun parseIsPlayerPlay(
+        rawHtml: String?,
+        onStart: () -> Unit = {},
+        onComplete: (ex: Exception?) -> Unit = {},
+        onPlay: () -> Unit,
+        onPause: () -> Unit
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) {
+                onStart.invoke()
+                try {
+                    val htmlContent = rawHtml?.replace("\\u003C", "<")?.replace("\\", "")
+                    if (htmlContent != null) {
+                        val document = Jsoup.parse(htmlContent)
+                        val attr = document.getElementsByClass("player-control-play-pause-icon").firstOrNull()?.attr("aria-pressed")
+                        if (attr == null) {
+                            val element = document.getElementsByClass("is-scrubbable-mode").firstOrNull()
+                            if (element == null) {
+                                onPlay.invoke()
+                            }
+                            else {
+                                onPause.invoke()
+                            }
+                        }
+                        else {
+                            if (attr == "true") {
+                                onPlay.invoke()
+                            }
+                            else {
+                                onPause.invoke()
+                            }
+                        }
+
+                    } else {
+                        onPause.invoke()
+                    }
+                }
+                catch (e: IndexOutOfBoundsException) {
+                    onPause.invoke()
+                }
+                catch (e: Exception) {
+                    onComplete.invoke(e)
+                }
+                finally {
+                    onComplete.invoke(null)
+                }
+            }
+        }
+    }
+
+    @JavascriptInterface
+    fun performClickScript(): String {
+        return "javascript:(function(){document.getElementsByClassName('player-control-play-pause-icon')[0].click();})()"
     }
 
     override fun onCleared() {
