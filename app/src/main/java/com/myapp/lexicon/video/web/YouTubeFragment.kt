@@ -5,6 +5,7 @@ package com.myapp.lexicon.video.web
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,11 +20,17 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdFragment
+import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.ext.showAdPopup
+import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.common.MOBILE_YOUTUBE_URL
 import com.myapp.lexicon.databinding.FragmentYouTubeBinding
 import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
+import com.myapp.lexicon.helpers.toDp
+import com.myapp.lexicon.main.viewmodels.UserViewModel
+import com.myapp.lexicon.video.extensions.changeHeightAnimatedly
+import kotlinx.serialization.json.Json
 
 
 private const val WEB_VIEW_BUNDLE = "WEB_VIEW_BUNDLE"
@@ -32,6 +39,8 @@ class YouTubeFragment : Fragment() {
     companion object {
 
         const val KEY_AD_DISMISSED = "KEY_AD_DISMISSED_2548"
+        const val KEY_AD_DATA = "KEY_AD_DATA_78541"
+        const val KEY_JSON_AD_DATA = "KEY_JSON_AD_DATA_52398"
 
         @JvmStatic
         fun newInstance() = YouTubeFragment()
@@ -42,8 +51,16 @@ class YouTubeFragment : Fragment() {
     private val youTubeVM: YouTubeViewModel by lazy {
         ViewModelProvider(this)[YouTubeViewModel::class.java]
     }
+    private val revenueVM: RevenueViewModel by lazy {
+        ViewModelProvider(requireActivity())[RevenueViewModel::class.java]
+    }
     private val locker: LockOrientation by lazy {
         LockOrientation(requireActivity())
+    }
+    private val actionBarHeight: Int by lazy {
+        with(TypedValue().also {requireContext().theme.resolveAttribute(android.R.attr.actionBarSize, it, true)}) {
+            TypedValue.complexToDimensionPixelSize(this.data, resources.displayMetrics)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,15 +105,31 @@ class YouTubeFragment : Fragment() {
                         pbLoadPage.visibility = View.GONE
                     }
 
-                    override fun onLoadResource(view: WebView?, url: String?) {
-                        if (url?.contains("static/favicon.ico") == true) {
-
-                        }
-                    }
+                    override fun onLoadResource(view: WebView?, url: String?) {}
                 }
+
                 setOnScrollChangeListener(object : View.OnScrollChangeListener {
-                    override fun onScrollChange(p0: View?, p1: Int, p2: Int, p3: Int, p4: Int) {
-                        return
+                    override fun onScrollChange(p0: View?, scrollX: Int, scrollY: Int, oldScrollX: Int, oldScrollY: Int) {
+                        when {
+                            oldScrollY > scrollY -> {
+                                bottomBar.changeHeightAnimatedly(
+                                    actionBarHeight,
+                                    onEnd = { isVisible: Boolean ->
+                                        if (!isVisible) {
+                                            if (revenueVM.state.value is UserViewModel.State.RevenueUpdated) {
+                                                val user = (revenueVM.state.value!! as UserViewModel.State.RevenueUpdated).user
+                                                revenueVM.setState(UserViewModel.State.ReceivedUserData(user))
+                                            }
+                                        }
+                                    }
+                                )
+                            }
+                            else -> {
+                                if (oldScrollY != scrollY) {
+                                    bottomBar.changeHeightAnimatedly(5.toDp)
+                                }
+                            }
+                        }
                     }
                 })
                 addJavascriptInterface(youTubeVM, YouTubeViewModel.JS_TAG)
@@ -117,6 +150,9 @@ class YouTubeFragment : Fragment() {
             youTubeVM.timerState.observe(viewLifecycleOwner) { state ->
                 when(state) {
                     YouTubeViewModel.TimerState.Finish -> {
+
+                        bottomBar.changeHeightAnimatedly(5.toDp)
+
                         vPopAnchor.showAdPopup(
                             onClick = {
                                 webView.evaluateJavascript(
@@ -160,6 +196,10 @@ class YouTubeFragment : Fragment() {
                 webView.loadUrl(url)
             })
 
+            if (savedInstanceState == null) {
+                revenueVM.getUserFromCloud()
+            }
+
             btnTest.setOnClickListener {
 
             }
@@ -181,6 +221,53 @@ class YouTubeFragment : Fragment() {
         super.onResume()
 
         with(binding!!) {
+
+            setFragmentResultListener(KEY_AD_DATA, listener = {requestKey: String, bundle: Bundle ->
+                val strData = bundle.getString(KEY_JSON_AD_DATA)
+                if (strData != null) {
+                    val adData = try {
+                        Json.decodeFromString<AdData>(strData)
+                    } catch (e: Exception) {
+                        null
+                    }
+                    adData?.let { data: AdData ->
+                        revenueVM.updateUserRevenueIntoCloud(data)
+                    }
+                }
+            })
+
+            revenueVM.userRevenueLD.observe(viewLifecycleOwner) { result ->
+                result.onError { throwable ->
+                    throwable.printStackTraceIfDebug()
+                }
+            }
+
+            revenueVM.state.observe(viewLifecycleOwner) { state ->
+                when(state) {
+                    is UserViewModel.State.ReceivedUserData -> {
+                        val rewardText = "${getString(R.string.coins_bag)} " +
+                                "${getString(R.string.text_your_reward)} ${state.user.userReward} ${state.user.currencySymbol}"
+                        tvReward.text = rewardText
+                    }
+                    is UserViewModel.State.RevenueUpdated -> {
+                        val rewardText = "${getString(R.string.coins_bag)}  +${state.bonus} ${state.user.currencySymbol}. " +
+                                "${getString(R.string.text_your_reward)} ${state.user.userReward} ${state.user.currencySymbol}"
+                        tvReward.text = rewardText
+                        bottomBar.changeHeightAnimatedly(actionBarHeight)
+                    }
+                    else -> {}
+                }
+            }
+
+            btnBack.setOnClickListener {
+                if (webView.canGoBack()) {
+                    webView.goBack()
+                }
+                else {
+                    parentFragmentManager.popBackStack()
+                }
+            }
+
             requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     if (webView.canGoBack()) {

@@ -9,9 +9,9 @@ import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.databinding.FragmentAdBinding
-import com.myapp.lexicon.helpers.logIfDebug
 import com.myapp.lexicon.video.web.YouTubeFragment
 import com.yandex.mobile.ads.interstitial.InterstitialAd
+import kotlinx.serialization.json.Json
 
 class AdFragment : Fragment() {
 
@@ -34,7 +34,12 @@ class AdFragment : Fragment() {
                 ad.showAd(
                     requireActivity(),
                     onImpression = {data: AdData? ->
-                        "********** ${data.toString()} ***********".logIfDebug()
+                        setFragmentResult(YouTubeFragment.KEY_AD_DATA, Bundle().apply {
+                            if (data != null) {
+                                val jsonData = Json.encodeToJsonElement(AdData.serializer(), data).toString()
+                                putString(YouTubeFragment.KEY_JSON_AD_DATA, jsonData)
+                            }
+                        })
                     },
                     onDismissed = {
                         setFragmentResult(YouTubeFragment.KEY_AD_DISMISSED, Bundle.EMPTY)

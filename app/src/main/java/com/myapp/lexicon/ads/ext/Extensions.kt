@@ -24,10 +24,11 @@ fun View.showAdPopup(
         contentView = binding.root
         width = LinearLayout.LayoutParams.WRAP_CONTENT
         height = LinearLayout.LayoutParams.WRAP_CONTENT
-        isFocusable = true
+        isFocusable = false
 
         setBackgroundDrawable(ResourcesCompat.getDrawable(resources, R.drawable.bg_popup_dialog, null))
         animationStyle = R.style.popupWindowAnimation
+
         showAsDropDown(this@showAdPopup)
 
         binding.layoutRoot.setOnClickListener {

@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.common.mapToRevenue
+import com.myapp.lexicon.common.mapToUser
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.AppResult
@@ -68,6 +69,8 @@ class RevenueViewModel @Inject constructor(
                                         obj is ParseObject -> {
                                             val revenue = obj.mapToRevenue()
                                             _userRevenueLD.value = AppResult.Success(revenue)
+                                            val user = obj.mapToUser()
+                                            _state.value = State.RevenueUpdated(adData.revenue * USER_PERCENTAGE, user)
                                         }
                                         e is ParseException -> {
                                             _userRevenueLD.value = AppResult.Error(Exception(e.message))
