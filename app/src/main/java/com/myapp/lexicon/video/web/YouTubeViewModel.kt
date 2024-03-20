@@ -22,7 +22,7 @@ class YouTubeViewModel: ViewModel() {
     private val adShowInterval = if (BuildConfig.DEBUG) {
         TimeUnit.SECONDS.toMillis(30)
     } else {
-        val randomInterval = (180..300).random()
+        val randomInterval = (120..200).random()
         TimeUnit.SECONDS.toMillis(randomInterval.toLong())
     }
 
@@ -105,7 +105,8 @@ class YouTubeViewModel: ViewModel() {
             |function(){
             |try {
             |document.getElementsByClassName('player-control-play-pause-icon')[0].click();
-            |} catch (error) {}; try {
+            |} catch (error) {}; 
+            |try {
             |document.getElementsByClassName('touch-controls')[0].click();
             |} catch (error) {};
             |})()""".trimMargin()

@@ -95,5 +95,5 @@ fun LinearLayoutCompat.changeHeightAnimatedly(
             override fun onAnimationRepeat(p0: Animator) {}
 
         })
-    }.setDuration(300).start()
+    }.setDuration(200).start()
 }
