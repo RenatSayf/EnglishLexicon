@@ -170,7 +170,7 @@ class YouTubeFragment : Fragment() {
                                                     locker.unLock()
                                                 },
                                                 onPlay = {
-                                                    val url = youTubeVM.performClickScript()
+                                                    val url = youTubeVM.playPauseClickScript()
                                                     webView.loadUrl(url)
                                                     parentFragmentManager.beginTransaction().add(R.id.frame_to_page_fragm, AdFragment.newInstance()).commit()
                                                 },
@@ -193,7 +193,7 @@ class YouTubeFragment : Fragment() {
 
             setFragmentResultListener(KEY_AD_DISMISSED, listener = {requestKey, bundle ->
                 youTubeVM.startAdTimer()
-                val url = youTubeVM.performClickScript()
+                val url = youTubeVM.playPauseClickScript()
                 webView.loadUrl(url)
             })
 

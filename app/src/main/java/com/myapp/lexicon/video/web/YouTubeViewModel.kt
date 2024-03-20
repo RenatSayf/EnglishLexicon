@@ -100,8 +100,15 @@ class YouTubeViewModel: ViewModel() {
     }
 
     @JavascriptInterface
-    fun performClickScript(): String {
-        return "javascript:(function(){document.getElementsByClassName('player-control-play-pause-icon')[0].click();})()"
+    fun playPauseClickScript(): String {
+        return """javascript:(
+            |function(){
+            |try {
+            |document.getElementsByClassName('player-control-play-pause-icon')[0].click();
+            |} catch (error) {}; try {
+            |document.getElementsByClassName('touch-controls')[0].click();
+            |} catch (error) {};
+            |})()""".trimMargin()
     }
 
     override fun onCleared() {
