@@ -29,6 +29,7 @@ import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.toDp
 import com.myapp.lexicon.main.viewmodels.UserViewModel
+import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.video.extensions.changeHeightAnimatedly
 import kotlinx.serialization.json.Json
 
@@ -246,12 +247,12 @@ class YouTubeFragment : Fragment() {
                 when(state) {
                     is UserViewModel.State.ReceivedUserData -> {
                         val rewardText = "${getString(R.string.coins_bag)} " +
-                                "${getString(R.string.text_your_reward)} ${state.user.userReward} ${state.user.currencySymbol}"
+                                "${getString(R.string.text_your_reward)} ${state.user.userReward.to2DigitsScale()} ${state.user.currencySymbol}"
                         tvReward.text = rewardText
                     }
                     is UserViewModel.State.RevenueUpdated -> {
-                        val rewardText = "${getString(R.string.coins_bag)}  +${state.bonus} ${state.user.currencySymbol}. " +
-                                "${getString(R.string.text_your_reward)} ${state.user.userReward} ${state.user.currencySymbol}"
+                        val rewardText = "${getString(R.string.coins_bag)}  +${state.bonus.to2DigitsScale()} ${state.user.currencySymbol}. " +
+                                "${getString(R.string.text_your_reward)} ${state.user.userReward.to2DigitsScale()} ${state.user.currencySymbol}"
                         tvReward.text = rewardText
                         bottomBar.changeHeightAnimatedly(actionBarHeight)
                     }

@@ -17,7 +17,7 @@ enum class AdsSource {
 }
 
 const val VIDEO_BASE_URL = "https://www.youtube.com/watch?v="
-const val MOBILE_YOUTUBE_URL = "https://m.youtube.com/results?sp=mAEA&search_query=friends"
+const val MOBILE_YOUTUBE_URL = "https://m.youtube.com/"
 
 val USER_AGENT = try {
     Firebase.remoteConfig.getString("user_agent")

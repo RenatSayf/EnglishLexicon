@@ -88,6 +88,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 {
     private View root;
     private NavigationView navView;
+    private Toolbar toolBar;
+    private DrawerLayout drawerLayout;
+    private TextView tvReward;
     public LinearLayout mainControlLayout;
     private Button btnViewDict;
     private TextView tvWordsCounter;
@@ -107,10 +110,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         root = LayoutInflater.from(this).inflate(R.layout.a_navig_main, new DrawerLayout(this));
         setContentView(root);
 
-        Toolbar toolBar = findViewById(R.id.tool_bar);
+        toolBar = findViewById(R.id.tool_bar);
         setSupportActionBar(toolBar);
 
         navView = root.findViewById(R.id.nav_view);
+        drawerLayout = findViewById(R.id.drawer_layout);
+        tvReward = navView.getHeaderView(0).findViewById(R.id.tvReward);
 
         getSupportFragmentManager().setFragmentResultListener(getString(R.string.KEY_NEED_REFRESH), this, this);
         getSupportFragmentManager().setFragmentResultListener(getString(R.string.KEY_TEST_INTERVAL_CHANGED), this, this);
@@ -320,10 +325,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolBar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolBar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         //noinspection deprecation
-        drawer.setDrawerListener(toggle);
+        drawerLayout.setDrawerListener(toggle);
         toggle.syncState();
         NavigationView navigationView = findViewById(R.id.nav_view);
         if (navigationView != null)
@@ -453,7 +457,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void buildRewardText(Revenue revenue)
     {
-        Toolbar toolBar = root.findViewById(R.id.tool_bar);
         if (toolBar != null)
         {
             double rewardToDisplay = (revenue != null) ? UserKt.to2DigitsScale(revenue.getReward()) : 0.0;
@@ -463,15 +466,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     .concat((revenue != null) ? revenue.getCurrencySymbol() : Currency.getInstance("RUB").getSymbol());
             toolBar.setSubtitle(text);
 
-            TextView tvReward = root.findViewById(R.id.tvReward);
             if (tvReward != null)
             {
                 tvReward.setText(text);
                 tvReward.setVisibility(View.VISIBLE);
             }
             toolBar.setOnClickListener(view -> {
-                DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
-                drawerLayout.open();
+                if (drawerLayout != null)
+                {
+                    drawerLayout.open();
+                }
             });
         }
     }
@@ -815,10 +819,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             onAppFinish();
         }
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        if (drawer != null)
+        if (drawerLayout != null)
         {
-            drawer.closeDrawer(GravityCompat.START);
+            drawerLayout.closeDrawer(GravityCompat.START);
         }
         return true;
     }
