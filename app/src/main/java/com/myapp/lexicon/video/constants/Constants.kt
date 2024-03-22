@@ -8,7 +8,7 @@ import kotlinx.serialization.json.Json
 
 private val jsonDecoder = Json { ignoreUnknownKeys = true }
 
-val bookmarks: List<Bookmark>
+val BOOKMARKS: List<Bookmark>
     get() {
         return try {
             val json = Firebase.remoteConfig.getString("video_references")

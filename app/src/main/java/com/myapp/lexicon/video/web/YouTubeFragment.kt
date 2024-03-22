@@ -32,6 +32,8 @@ import com.myapp.lexicon.helpers.toDp
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.video.extensions.changeHeightAnimatedly
+import com.myapp.lexicon.video.models.Bookmark.Companion.fromString
+import com.myapp.lexicon.video.web.bookmarks.BookmarksDialog
 import kotlinx.serialization.json.Json
 
 
@@ -218,6 +220,9 @@ class YouTubeFragment : Fragment() {
                 }
             })
 
+            btnBookmarks.setOnClickListener {
+                BookmarksDialog.newInstance().show(parentFragmentManager, BookmarksDialog.TAG)
+            }
 
             btnTest.setOnClickListener {
 
@@ -252,6 +257,12 @@ class YouTubeFragment : Fragment() {
                     adData?.let { data: AdData ->
                         revenueVM.updateUserRevenueIntoCloud(data)
                     }
+                }
+            })
+            setFragmentResultListener(BookmarksDialog.KEY_BOOKMARK_RESULT, listener = {requestKey: String, bundle: Bundle ->
+                val bookmark = bundle.getString(BookmarksDialog.KEY_SELECTED_BOOKMARK)?.fromString()
+                bookmark?.let {
+                    webView.loadUrl(it.url)
                 }
             })
 

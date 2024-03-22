@@ -6,7 +6,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:background="@drawable/bg_bottom_dialog"
-    android:elevation="0dp">
+    android:backgroundTint="@color/colorWhite"
+    >
 
     <View
         android:id="@+id/vTopMarker"
@@ -16,7 +17,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp"
-        android:background="@color/colorBlack"
+        android:background="@color/colorWhite"
         android:elevation="1dp"
         />
 
@@ -26,13 +27,17 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
         android:gravity="center"
-        android:paddingTop="54dp"
+        android:paddingTop="34dp"
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
         android:paddingBottom="16dp"
-        android:backgroundTint="@color/color_F5F5F5"
-        android:text="Полезные ролики для изучения английского языка"
+        android:background="@drawable/bg_bottom_dialog"
+        android:backgroundTint="@color/color_status_bar"
+        android:text="Рекомендуемое"
         android:textSize="18sp"
+        android:textColor="@color/colorWhite"
+        android:textStyle="bold"
+        android:duplicateParentState="true"
         />
 
     <androidx.constraintlayout.widget.Group
@@ -52,5 +57,17 @@
         android:orientation="vertical"
         tools:listitem="@layout/item_search_query"
         tools:itemCount="3"/>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/rvBookmarks"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:indeterminateTint="@color/color_status_bar"
+        android:visibility="gone"
+        tools:visibility="visible"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
