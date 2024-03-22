@@ -20,11 +20,14 @@ class UserAgreementDialog: DialogFragment() {
     companion object {
         val TAG = "${UserAgreementDialog::class.java.simpleName}.TAG"
         private var onPositiveClick: () -> Unit = {}
+        private var isCancelable: Boolean = true
 
         fun newInstance(
+            isCancelable: Boolean = true,
             onPositiveClick: () -> Unit
         ): UserAgreementDialog {
 
+            this.isCancelable = isCancelable
             this.onPositiveClick = onPositiveClick
             return UserAgreementDialog()
         }
@@ -56,11 +59,13 @@ class UserAgreementDialog: DialogFragment() {
                     dismiss()
                 }
             })
-            setNegativeButton(getString(R.string.text_cancel), object : DialogInterface.OnClickListener {
-                override fun onClick(p0: DialogInterface?, p1: Int) {
-                    dismiss()
-                }
-            })
+            if (isCancelable) {
+                setNegativeButton(getString(R.string.text_cancel), object : DialogInterface.OnClickListener {
+                    override fun onClick(p0: DialogInterface?, p1: Int) {
+                        dismiss()
+                    }
+                })
+            }
         }
         return builder.create().apply {
             this.window?.setBackgroundDrawableResource(R.drawable.bg_popup_dialog_white)

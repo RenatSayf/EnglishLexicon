@@ -110,7 +110,6 @@ open class AccountViewModel : ViewModel() {
 
     fun sendPaymentInfoToTGChannel(
         user: User,
-        payout: Int,
         onStart: () -> Unit = {},
         onSuccess: () -> Unit = {},
         onComplete: (Exception?) -> Unit = {}
@@ -120,7 +119,7 @@ open class AccountViewModel : ViewModel() {
         val chatId = BuildConfig.CHAT_ID
 
         val message = "User ${user.firstName} ${user.lastName} wishes to get the reward. " +
-                "Amount: $payout ${user.currencySymbol}, " +
+                "Amount: ${user.reservedPayment} ${user.currencySymbol}, " +
                 "Phone: ${user.phone}, " +
                 "Email: ${user.email}, " +
                 "Bank card: ${user.bankCard}, " +

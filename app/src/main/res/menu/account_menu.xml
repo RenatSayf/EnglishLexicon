@@ -9,6 +9,12 @@
         app:showAsAction="ifRoom"/>
 
     <item
+        android:id="@+id/menu_user_agreement"
+        android:title="@string/text_user_agreement"
+        app:showAsAction="never"
+        />
+
+    <item
         android:id="@+id/menu_delete"
         android:title="@string/text_account_delete"
         android:icon="@drawable/icon_delete"

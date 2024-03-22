@@ -21,12 +21,14 @@ import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.auth.AuthFragment
 import com.myapp.lexicon.auth.AuthViewModel
+import com.myapp.lexicon.auth.agreement.UserAgreementDialog
 import com.myapp.lexicon.databinding.FragmentAccountBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.LuhnAlgorithm
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showSnackBar
+import com.myapp.lexicon.helpers.showToastIfDebug
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserState
@@ -213,21 +215,26 @@ class AccountFragment : Fragment() {
                     is UserViewModel.State.PaymentRequestSent -> {
                         showConfirmDialog()
                         if (currentUser != null) {
-                            userVM.getUserFromCloud()
-                            accountVM.sendPaymentInfoToTGChannel(
-                                user = state.user,
-                                payout = state.payout,
-                                onStart = {
-                                    screenOrientation.lock()
-                                },
-                                onComplete = { exception ->
-                                    exception?.printStackTraceIfDebug()
-                                    screenOrientation.unLock()
-                                },
-                                onSuccess = {
-                                    showSnackBar(getString(R.string.text_request_sented))
+                            userVM.getUserFromCloud().observe(viewLifecycleOwner) { result ->
+                                result.onSuccess { value: User ->
+                                    accountVM.sendPaymentInfoToTGChannel(
+                                        user = value,
+                                        onStart = {
+                                            screenOrientation.lock()
+                                        },
+                                        onSuccess = {
+                                            showSnackBar(getString(R.string.text_request_sented))
+                                        }
+                                    ) { exception ->
+                                        exception?.printStackTraceIfDebug()
+                                        screenOrientation.unLock()
+                                    }
                                 }
-                            )
+                                result.onFailure { exception ->
+                                    exception.printStackTraceIfDebug()
+                                    showToastIfDebug(exception.message)
+                                }
+                            }
                         }
                     }
                     is UserViewModel.State.Error -> {
@@ -435,6 +442,12 @@ class AccountFragment : Fragment() {
                 when(item.itemId) {
                     R.id.menu_edit -> {
                         accountVM.setState(AccountViewModel.State.Editing)
+                    }
+                    R.id.menu_user_agreement -> {
+                        val dialog = UserAgreementDialog.newInstance(
+                            isCancelable = false,
+                            onPositiveClick = {})
+                        dialog.show(parentFragmentManager, UserAgreementDialog.TAG)
                     }
                     R.id.menu_delete -> {
                         showAccountDeletingDialog()
