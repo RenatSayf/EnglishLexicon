@@ -27,7 +27,6 @@ import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.common.MOBILE_YOUTUBE_URL
 import com.myapp.lexicon.databinding.FragmentYouTubeBinding
 import com.myapp.lexicon.helpers.LockOrientation
-import com.myapp.lexicon.helpers.logIfDebug
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.toDp
 import com.myapp.lexicon.main.viewmodels.UserViewModel
@@ -82,7 +81,7 @@ class YouTubeFragment : Fragment() {
         return binding!!.root
     }
 
-    @SuppressLint("SetJavaScriptEnabled")
+    @SuppressLint("SetJavaScriptEnabled", "ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -111,30 +110,6 @@ class YouTubeFragment : Fragment() {
                     override fun onLoadResource(view: WebView?, url: String?) {}
                 }
 
-                setOnScrollChangeListener(object : View.OnScrollChangeListener {
-                    override fun onScrollChange(p0: View?, scrollX: Int, scrollY: Int, oldScrollX: Int, oldScrollY: Int) {
-                        when {
-                            oldScrollY > scrollY -> {
-                                bottomBar.changeHeightAnimatedly(
-                                    actionBarHeight,
-                                    onEnd = { isVisible: Boolean ->
-                                        if (!isVisible) {
-                                            if (revenueVM.state.value is UserViewModel.State.RevenueUpdated) {
-                                                val user = (revenueVM.state.value!! as UserViewModel.State.RevenueUpdated).user
-                                                revenueVM.setState(UserViewModel.State.ReceivedUserData(user))
-                                            }
-                                        }
-                                    }
-                                )
-                            }
-                            else -> {
-                                if (oldScrollY != scrollY) {
-                                    bottomBar.changeHeightAnimatedly(5.toDp)
-                                }
-                            }
-                        }
-                    }
-                })
                 addJavascriptInterface(youTubeVM, YouTubeViewModel.JS_TAG)
             }
             CookieManager.getInstance().apply {
@@ -202,6 +177,47 @@ class YouTubeFragment : Fragment() {
             if (savedInstanceState == null) {
                 revenueVM.getUserFromCloud()
             }
+
+            //the touch listener is used because the scroll listener stops working after a while
+            webView.setOnTouchListener(object : View.OnTouchListener {
+
+                private var downTouchY: Float = -1.0f
+                private var moveTouchY: Float = -1.0f
+
+                override fun onTouch(view: View?, event: MotionEvent?): Boolean {
+
+                    val action = event?.action
+                    when(action) {
+                        MotionEvent.ACTION_DOWN -> {
+                            downTouchY = event.y
+                        }
+                        MotionEvent.ACTION_MOVE -> {
+                            moveTouchY = event.y
+                        }
+                        MotionEvent.ACTION_UP -> {
+                            moveTouchY = event.y
+                        }
+                    }
+                    if (action == MotionEvent.ACTION_MOVE && downTouchY > moveTouchY) {
+                        bottomBar.changeHeightAnimatedly(
+                            actionBarHeight,
+                            onEnd = { isVisible: Boolean ->
+                                if (!isVisible) {
+                                    if (revenueVM.state.value is UserViewModel.State.RevenueUpdated) {
+                                        val user = (revenueVM.state.value!! as UserViewModel.State.RevenueUpdated).user
+                                        revenueVM.setState(UserViewModel.State.ReceivedUserData(user))
+                                    }
+                                }
+                            }
+                        )
+                    }
+                    else if (action == MotionEvent.ACTION_MOVE && downTouchY < moveTouchY) {
+                        bottomBar.changeHeightAnimatedly(5.toDp)
+                    }
+                    return false
+                }
+            })
+
 
             btnTest.setOnClickListener {
 
