@@ -16,7 +16,6 @@ import com.parse.ParseException
 import com.parse.ParseObject
 import com.parse.ParseQuery
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.serializer
 import org.jsoup.Jsoup
 import java.io.BufferedInputStream
 import java.net.HttpURLConnection
@@ -70,7 +69,6 @@ open class AccountViewModel : ViewModel() {
                         val bankList = elements.map {
                             it.text()
                         }
-                        val json = Json.encodeToString(serializer(), bankList)
                         _bankList.postValue(Result.success(bankList))
                     }
                     else -> {

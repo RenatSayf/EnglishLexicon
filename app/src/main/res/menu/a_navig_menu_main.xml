@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <group >
 
@@ -11,7 +12,9 @@
         <item
             android:id="@+id/nav_video_list"
             android:icon="@drawable/ic_video"
-            android:title="@string/text_video" />
+            android:title="@string/text_video"
+            android:visible="false"
+            tools:visible="true"/>
 
         <item
             android:id="@+id/nav_add_word"

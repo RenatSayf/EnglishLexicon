@@ -33,6 +33,7 @@ import com.myapp.lexicon.auth.AuthFragment;
 import com.myapp.lexicon.auth.AuthViewModel;
 import com.myapp.lexicon.auth.account.AccountFragment;
 import com.myapp.lexicon.auth.account.AccountViewModel;
+import com.myapp.lexicon.common.CommonConstantsKt;
 import com.myapp.lexicon.database.AppDataBase;
 import com.myapp.lexicon.dialogs.ConfirmDialog;
 import com.myapp.lexicon.dialogs.DictListDialog;
@@ -114,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setSupportActionBar(toolBar);
 
         navView = root.findViewById(R.id.nav_view);
+        navView.getMenu().findItem(R.id.nav_video_list).setVisible(CommonConstantsKt.getIS_VIDEO_SECTION());
         drawerLayout = findViewById(R.id.drawer_layout);
         tvReward = navView.getHeaderView(0).findViewById(R.id.tvReward);
 

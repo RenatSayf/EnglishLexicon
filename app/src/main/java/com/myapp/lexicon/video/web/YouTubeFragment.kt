@@ -24,7 +24,7 @@ import com.myapp.lexicon.ads.AdFragment
 import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.ext.showAdPopup
 import com.myapp.lexicon.ads.models.AdData
-import com.myapp.lexicon.common.MOBILE_YOUTUBE_URL
+import com.myapp.lexicon.common.VIDEO_URL
 import com.myapp.lexicon.databinding.FragmentYouTubeBinding
 import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
@@ -120,7 +120,7 @@ class YouTubeFragment : Fragment() {
             }
 
             if (savedInstanceState == null) {
-                webView.loadUrl(MOBILE_YOUTUBE_URL)
+                webView.loadUrl(VIDEO_URL)
             }
             else {
                 val bundle = savedInstanceState.getBundle(WEB_VIEW_BUNDLE)

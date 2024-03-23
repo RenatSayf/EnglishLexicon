@@ -1,10 +1,9 @@
 package com.myapp.lexicon.common
 
-import com.google.firebase.ktx.BuildConfig
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
-import java.util.concurrent.TimeUnit
+import com.parse.ParseConfig
 
 const val COLLECTION_PATH_USERS = "users"
 const val KEY_APP_STORE_LINK = "link"
@@ -16,8 +15,19 @@ enum class AdsSource {
     LOCAL_HOST
 }
 
-const val VIDEO_BASE_URL = "https://www.youtube.com/watch?v="
-const val MOBILE_YOUTUBE_URL = "https://m.youtube.com/"
+val IS_VIDEO_SECTION = try {
+    ParseConfig.get().getBoolean("is_video_section", false)
+} catch (e: Exception) {
+    e.printStackTraceIfDebug()
+    false
+}
+
+val VIDEO_URL = try {
+    ParseConfig.get().getString("video_url", "")
+} catch (e: Exception) {
+    e.printStackTraceIfDebug()
+    ""
+}
 
 val USER_AGENT = try {
     Firebase.remoteConfig.getString("user_agent")
