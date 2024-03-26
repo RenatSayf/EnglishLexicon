@@ -22,7 +22,15 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/bottomBar"
         app:layout_constraintVertical_weight="1"
+        />
 
+    <include
+        android:id="@+id/includeNetError"
+        layout="@layout/layout_error_network"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/webView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/webView"
         />
 
     <View

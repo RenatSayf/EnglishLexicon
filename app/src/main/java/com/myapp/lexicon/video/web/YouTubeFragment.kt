@@ -12,6 +12,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.CookieManager
 import android.webkit.ValueCallback
+import android.webkit.WebResourceError
+import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -92,6 +95,8 @@ class YouTubeFragment : Fragment() {
 
         with(binding!!) {
 
+            includeNetError.layoutRoot.visibility = View.GONE
+
             webView.apply {
                 canGoForward()
                 canGoBack()
@@ -111,9 +116,15 @@ class YouTubeFragment : Fragment() {
                     override fun onPageFinished(view: WebView?, url: String?) {
                         pbLoadPage.visibility = View.GONE
                         if (url != null && url.contains("watch?v=")) {
-                            val originalUrl = webView.originalUrl
-                            if (originalUrl != null) {
-                                youTubeVM.urlList.add(UrlHistoryItem(System.currentTimeMillis(), originalUrl))
+                            val videoUrl = webView.originalUrl
+                            if (videoUrl != null) {
+                                youTubeVM.urlList.add(UrlHistoryItem(System.currentTimeMillis(), videoUrl))
+                            }
+                        }
+                        else if (url != null && url.contains("shorts")) {
+                            val shortUrl = webView.url
+                            if (shortUrl != null) {
+                                youTubeVM.urlList.add(UrlHistoryItem(System.currentTimeMillis(), shortUrl))
                             }
                         }
                         else if (url != null && url == VIDEO_URL) {
@@ -123,11 +134,34 @@ class YouTubeFragment : Fragment() {
 
                     override fun onLoadResource(view: WebView?, url: String?) {
                         if (url == PRETTY_PRINT_URL) {
-                            val originalUrl = webView.originalUrl
-                            if (originalUrl != null) {
-                                youTubeVM.urlList.add(UrlHistoryItem(System.currentTimeMillis(), originalUrl))
+                            val videoUrl = webView.originalUrl
+                            val shortUrl = webView.url
+                            if (videoUrl != null && videoUrl.contains("watch?v=")) {
+                                youTubeVM.urlList.add(UrlHistoryItem(System.currentTimeMillis(), videoUrl))
+                            }
+                            else if (shortUrl != null && shortUrl.contains("/shorts/")) {
+                                youTubeVM.urlList.add(UrlHistoryItem(System.currentTimeMillis(), shortUrl))
                             }
                         }
+                    }
+
+                    override fun onReceivedError(
+                        view: WebView?,
+                        request: WebResourceRequest?,
+                        error: WebResourceError?
+                    ) {
+                        if (error?.errorCode == -2) {
+                            youTubeVM.cancelTimer()
+                            includeNetError.layoutRoot.visibility = View.VISIBLE
+                        }
+                    }
+
+                    override fun onReceivedHttpError(
+                        view: WebView?,
+                        request: WebResourceRequest?,
+                        errorResponse: WebResourceResponse?
+                    ) {
+                        super.onReceivedHttpError(view, request, errorResponse)
                     }
                 }
 
@@ -268,9 +302,9 @@ class YouTubeFragment : Fragment() {
 
     override fun onPause() {
 
-        if (youTubeVM.urlList.isNotEmpty()) {
-            val lastUrl = youTubeVM.urlList.last()
-            requireContext().lastUrl = lastUrl.url
+        val lastUrl = youTubeVM.getLastLoadedUrl()
+        if (lastUrl.isNotEmpty()) {
+            requireContext().lastUrl = lastUrl
         }
 
         super.onPause()
@@ -325,24 +359,26 @@ class YouTubeFragment : Fragment() {
             }
 
             btnBack.setOnClickListener {
-                if (webView.canGoBack()) {
-                    webView.loadUrl(VIDEO_URL)
-                }
-                else {
-                    parentFragmentManager.popBackStack()
-                }
+                goBack()
             }
 
             requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    if (webView.canGoBack()) {
-                        webView.loadUrl(VIDEO_URL)
-                    }
-                    else {
-                        parentFragmentManager.popBackStack()
-                    }
+                    goBack()
                 }
             })
+        }
+    }
+
+    private fun FragmentYouTubeBinding.goBack() {
+        if (webView.canGoBack()) {
+            webView.loadUrl(VIDEO_URL)
+        }
+        else if (!webView.canGoBack() && webView.url?.contains("shorts") == true) {
+            webView.loadUrl(VIDEO_URL)
+        }
+        else {
+            parentFragmentManager.popBackStack()
         }
     }
 

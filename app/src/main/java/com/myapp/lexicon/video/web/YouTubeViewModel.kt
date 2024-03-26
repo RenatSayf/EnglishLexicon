@@ -12,7 +12,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
-import java.util.SortedSet
 import java.util.concurrent.TimeUnit
 
 class YouTubeViewModel: ViewModel() {
@@ -40,6 +39,10 @@ class YouTubeViewModel: ViewModel() {
 
     fun startAdTimer() {
         timer.start()
+    }
+
+    fun cancelTimer() {
+        timer.cancel()
     }
 
     private var _timerState = MutableLiveData<TimerState>(TimerState.Init)
@@ -114,9 +117,14 @@ class YouTubeViewModel: ViewModel() {
             |})()""".trimMargin()
     }
 
-    val urlList: SortedSet<UrlHistoryItem> = sortedSetOf(Comparator { item1, item2 ->
-        item2.time.toInt() - item1.time.toInt()
-    })
+    val urlList: MutableSet<UrlHistoryItem> = mutableSetOf()
+
+    fun getLastLoadedUrl(): String {
+        val historyItem = urlList.toList().maxByOrNull {
+            it.time
+        }
+        return historyItem?.url ?: ""
+    }
 
     override fun onCleared() {
 
