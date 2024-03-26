@@ -16,14 +16,36 @@ enum class AdsSource {
 }
 
 val IS_VIDEO_SECTION = try {
-    ParseConfig.get().getBoolean("is_video_section", false)
+    val remoteKey = "is_video_section"
+    var value = ParseConfig.getCurrentConfig().getBoolean("is_video_section")
+    if (!value) {
+        value = ParseConfig.get().getBoolean(remoteKey)
+    }
+    value
 } catch (e: Exception) {
     e.printStackTraceIfDebug()
     false
 }
 
-val VIDEO_URL = try {
-    ParseConfig.get().getString("video_url", "")
+val VIDEO_URL: String = try {
+    val remoteKey = "video_url"
+    var value = ParseConfig.getCurrentConfig().getString(remoteKey)
+    if (value == null) {
+        value = ParseConfig.get().getString(remoteKey)
+    }
+    value
+} catch (e: Exception) {
+    e.printStackTraceIfDebug()
+    ""
+}
+
+val PRETTY_PRINT_URL: String = try {
+    val remoteKey = "pretty_print"
+    var value = ParseConfig.getCurrentConfig().getString(remoteKey)
+    if (value == null) {
+        value = ParseConfig.get().getString(remoteKey)
+    }
+    value
 } catch (e: Exception) {
     e.printStackTraceIfDebug()
     ""

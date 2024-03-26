@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.net.ConnectivityManager
@@ -16,6 +17,7 @@ import android.os.CountDownTimer
 import android.text.TextUtils
 import android.util.Patterns
 import android.view.LayoutInflater
+import android.view.Surface
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
@@ -26,6 +28,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.preference.PreferenceManager
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.ktx.Firebase
@@ -455,11 +458,37 @@ fun Context.checkOrientation(
     }
 }
 
-fun View?.removeSelf() {
-    this ?: return
-    val parentView = parent as? ViewGroup ?: return
-    parentView.removeView(this)
+@SuppressLint("SourceLockedOrientationActivity")
+fun FragmentActivity.orientationLock() {
+    var rotation = this.windowManager.defaultDisplay.rotation
+    when (this.resources.configuration.orientation) {
+        Configuration.ORIENTATION_PORTRAIT -> if (rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_180) {
+            this.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT
+        } else {
+            this.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
+
+        Configuration.ORIENTATION_LANDSCAPE -> {
+            rotation = this.windowManager.defaultDisplay.rotation
+            if (rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_90) {
+                this.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            } else {
+                this.requestedOrientation =
+                    ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
+            }
+        }
+
+        Configuration.ORIENTATION_SQUARE -> {}
+        Configuration.ORIENTATION_UNDEFINED -> {}
+        else -> {}
+    }
 }
+
+fun FragmentActivity.orientationUnLock() {
+    this.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+}
+
+
 
 
 

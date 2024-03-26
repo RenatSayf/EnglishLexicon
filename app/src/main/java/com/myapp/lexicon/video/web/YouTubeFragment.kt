@@ -24,6 +24,7 @@ import com.myapp.lexicon.ads.AdFragment
 import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.ext.showAdPopup
 import com.myapp.lexicon.ads.models.AdData
+import com.myapp.lexicon.common.PRETTY_PRINT_URL
 import com.myapp.lexicon.common.VIDEO_URL
 import com.myapp.lexicon.databinding.FragmentYouTubeBinding
 import com.myapp.lexicon.helpers.LockOrientation
@@ -34,6 +35,8 @@ import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.video.extensions.changeHeightAnimatedly
 import com.myapp.lexicon.video.models.Bookmark.Companion.fromString
 import com.myapp.lexicon.video.web.bookmarks.BookmarksDialog
+import com.myapp.lexicon.video.web.models.UrlHistoryItem
+import com.myapp.lexicon.video.web.pref.lastUrl
 import kotlinx.serialization.json.Json
 
 
@@ -107,9 +110,25 @@ class YouTubeFragment : Fragment() {
 
                     override fun onPageFinished(view: WebView?, url: String?) {
                         pbLoadPage.visibility = View.GONE
+                        if (url != null && url.contains("watch?v=")) {
+                            val originalUrl = webView.originalUrl
+                            if (originalUrl != null) {
+                                youTubeVM.urlList.add(UrlHistoryItem(System.currentTimeMillis(), originalUrl))
+                            }
+                        }
+                        else if (url != null && url == VIDEO_URL) {
+                            webView.clearHistory()
+                        }
                     }
 
-                    override fun onLoadResource(view: WebView?, url: String?) {}
+                    override fun onLoadResource(view: WebView?, url: String?) {
+                        if (url == PRETTY_PRINT_URL) {
+                            val originalUrl = webView.originalUrl
+                            if (originalUrl != null) {
+                                youTubeVM.urlList.add(UrlHistoryItem(System.currentTimeMillis(), originalUrl))
+                            }
+                        }
+                    }
                 }
 
                 addJavascriptInterface(youTubeVM, YouTubeViewModel.JS_TAG)
@@ -120,7 +139,13 @@ class YouTubeFragment : Fragment() {
             }
 
             if (savedInstanceState == null) {
-                webView.loadUrl(VIDEO_URL)
+                val lastUrl = requireContext().lastUrl
+                if (lastUrl == null) {
+                    webView.loadUrl(VIDEO_URL)
+                }
+                else {
+                    webView.loadUrl(lastUrl)
+                }
             }
             else {
                 val bundle = savedInstanceState.getBundle(WEB_VIEW_BUNDLE)
@@ -241,6 +266,16 @@ class YouTubeFragment : Fragment() {
         }
     }
 
+    override fun onPause() {
+
+        if (youTubeVM.urlList.isNotEmpty()) {
+            val lastUrl = youTubeVM.urlList.last()
+            requireContext().lastUrl = lastUrl.url
+        }
+
+        super.onPause()
+    }
+
     override fun onResume() {
         super.onResume()
 
@@ -291,7 +326,7 @@ class YouTubeFragment : Fragment() {
 
             btnBack.setOnClickListener {
                 if (webView.canGoBack()) {
-                    webView.goBack()
+                    webView.loadUrl(VIDEO_URL)
                 }
                 else {
                     parentFragmentManager.popBackStack()
@@ -301,7 +336,7 @@ class YouTubeFragment : Fragment() {
             requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     if (webView.canGoBack()) {
-                        webView.goBack()
+                        webView.loadUrl(VIDEO_URL)
                     }
                     else {
                         parentFragmentManager.popBackStack()

@@ -7,10 +7,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.myapp.lexicon.BuildConfig
+import com.myapp.lexicon.video.web.models.UrlHistoryItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
+import java.util.SortedSet
 import java.util.concurrent.TimeUnit
 
 class YouTubeViewModel: ViewModel() {
@@ -111,6 +113,10 @@ class YouTubeViewModel: ViewModel() {
             |} catch (error) {};
             |})()""".trimMargin()
     }
+
+    val urlList: SortedSet<UrlHistoryItem> = sortedSetOf(Comparator { item1, item2 ->
+        item2.time.toInt() - item1.time.toInt()
+    })
 
     override fun onCleared() {
 

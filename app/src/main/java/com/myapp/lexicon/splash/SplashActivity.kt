@@ -13,7 +13,10 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.lifecycle.lifecycleScope
 import com.myapp.lexicon.R
 import com.myapp.lexicon.auth.AuthViewModel
+import com.myapp.lexicon.common.IS_VIDEO_SECTION
 import com.myapp.lexicon.common.KEY_APP_STORE_LINK
+import com.myapp.lexicon.common.PRETTY_PRINT_URL
+import com.myapp.lexicon.common.VIDEO_URL
 import com.myapp.lexicon.databinding.ALayoutSplashScreenBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.showDialogAsSingleton
@@ -42,6 +45,8 @@ class SplashActivity : AppCompatActivity() {
 
         binding = ALayoutSplashScreenBinding.inflate(layoutInflater, CoordinatorLayout(this), false)
         setContentView(binding.root)
+
+        IS_VIDEO_SECTION; VIDEO_URL; PRETTY_PRINT_URL // initialization remote config
 
         val extras = intent.extras
         val appStoreLink = extras?.getString(KEY_APP_STORE_LINK)
