@@ -31,7 +31,8 @@ import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.common.PRETTY_PRINT_URL
 import com.myapp.lexicon.common.VIDEO_URL
 import com.myapp.lexicon.databinding.FragmentYouTubeBinding
-import com.myapp.lexicon.helpers.LockOrientation
+import com.myapp.lexicon.helpers.orientationLock
+import com.myapp.lexicon.helpers.orientationUnLock
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.toDp
 import com.myapp.lexicon.main.viewmodels.UserViewModel
@@ -64,9 +65,6 @@ class YouTubeFragment : Fragment() {
     }
     private val revenueVM: RevenueViewModel by lazy {
         ViewModelProvider(requireActivity())[RevenueViewModel::class.java]
-    }
-    private val locker: LockOrientation by lazy {
-        LockOrientation(requireActivity())
     }
     private val actionBarHeight: Int by lazy {
         with(TypedValue().also {requireContext().theme.resolveAttribute(android.R.attr.actionBarSize, it, true)}) {
@@ -167,7 +165,10 @@ class YouTubeFragment : Fragment() {
                             )
                         }
                         val isOpenApp = request?.url?.query?.contains("open_app")
-                        return isOpenApp?: true
+                        val parameterNames = request?.url?.queryParameterNames
+                        val isRedirect = parameterNames?.contains("redirect_app_store_ios") == true ||
+                            parameterNames?.contains("app") == true
+                        return isOpenApp?: true || isRedirect
                     }
                 }
 
@@ -207,11 +208,11 @@ class YouTubeFragment : Fragment() {
                                             youTubeVM.parseIsPlayerPlay(
                                                 rawHtml = html,
                                                 onStart = {
-                                                    locker.lock()
+                                                    requireActivity().orientationLock()
                                                 },
                                                 onComplete = { ex: Exception? ->
                                                     ex?.printStackTraceIfDebug()
-                                                    locker.unLock()
+                                                    requireActivity().orientationUnLock()
                                                 },
                                                 onPlay = {
                                                     val url = youTubeVM.playPauseClickScript()
