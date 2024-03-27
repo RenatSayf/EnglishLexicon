@@ -62,6 +62,7 @@ class SubtitlesViewModel(
 
         if (requestCode == SubtitlesViewModel.requestCode) {
             val accountName = data?.getStringExtra(AccountManager.KEY_ACCOUNT_NAME)
+            val password = data?.getStringExtra(AccountManager.KEY_PASSWORD)
             val account = Account(accountName, GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE)
             getAuthToken(account)
         }

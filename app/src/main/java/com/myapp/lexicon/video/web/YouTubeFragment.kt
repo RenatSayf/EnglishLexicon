@@ -3,7 +3,9 @@
 package com.myapp.lexicon.video.web
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -14,7 +16,6 @@ import android.webkit.CookieManager
 import android.webkit.ValueCallback
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
-import android.webkit.WebResourceResponse
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -156,12 +157,17 @@ class YouTubeFragment : Fragment() {
                         }
                     }
 
-                    override fun onReceivedHttpError(
+                    override fun shouldOverrideUrlLoading(
                         view: WebView?,
-                        request: WebResourceRequest?,
-                        errorResponse: WebResourceResponse?
-                    ) {
-                        super.onReceivedHttpError(view, request, errorResponse)
+                        request: WebResourceRequest?
+                    ): Boolean {
+                        if (view?.url != null && view.url?.startsWith(VIDEO_URL) == false) {
+                            requireActivity().startActivity(
+                                Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                            )
+                        }
+                        val isOpenApp = request?.url?.query?.contains("open_app")
+                        return isOpenApp?: true
                     }
                 }
 
