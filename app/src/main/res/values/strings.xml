@@ -305,6 +305,9 @@
     <string name="text_error_no_internet">Нет подключения к интернету</string>
     <string name="text_check_network">Проверьте подключение к сети</string>
     <string name="text_agreement_date">Дата вступления в силу:</string>
+    <string name="text_user">Пользователь</string>
+    <string name="text_wishes_to_get_reward">желает получить награду.</string>
+    <string name="text_amount">Сумма</string>
 
 
 </resources>
