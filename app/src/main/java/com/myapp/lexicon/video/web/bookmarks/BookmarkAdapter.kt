@@ -48,6 +48,7 @@ class BookmarkAdapter: ListAdapter<Bookmark, BookmarkAdapter.ViewHolder>(object 
                     onClick?.invoke(item)?: run { NullPointerException("OnClick listener not resolved") }
                 }
 
+                ivFirstIcon.setImageResource(R.drawable.ic_play_arrow_32)
                 tvSuggestion.text = item.title
                 val thumbnailUri = Uri.parse(item.thumbnailUrl)
                 Picasso.get().load(thumbnailUri)
