@@ -703,10 +703,10 @@ class AccountFragment : Fragment() {
     }
 
     private fun buildMessageAboutPayment(user: User): String {
-        return "${getString(R.string.text_user)} ${user.firstName} ${user.lastName} ${getString(R.string.text_wishes_to_get_reward)} " +
+        return "${getString(R.string.text_user)} ${user.firstName} ${user.lastName} ${getString(R.string.text_wishes_to_get_reward)}. " +
                 "${getString(R.string.text_amount)}: ${user.reservedPayment} ${user.currencySymbol}, " +
-                "${getString(R.string.title_phone)} ${user.phone}, " +
-                "${getString(R.string.title_e_mail)} ${user.email}, " +
+                "${getString(R.string.title_phone)}: ${user.phone}, " +
+                "${getString(R.string.title_e_mail)}: ${user.email}, " +
                 "${getString(R.string.text_bank_card)}: ${user.bankCard}, " +
                 "${getString(R.string.text_bank_name)}: ${user.bankName}."
     }
