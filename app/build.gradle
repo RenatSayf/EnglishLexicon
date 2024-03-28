@@ -12,8 +12,8 @@ android {
         applicationId "com.myapp.lexicon"
         minSdkVersion 26
         targetSdkVersion 34
-        versionName '5.0'   //Hint last versionName in store is 4.12
-        versionCode 79      //Hint last versionCode in store is 78
+        versionName '5.0'   //Hint last versionName in store is 5.0
+        versionCode 80      //Hint last versionCode in store is 79
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
 
@@ -177,7 +177,7 @@ dependencies {
     implementation 'com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.0'
 
     // OAuth2
-    implementation 'com.google.android.gms:play-services-auth:20.7.0'
+    implementation 'com.google.android.gms:play-services-auth:21.0.0'
 
     //Ktor
     implementation 'io.ktor:ktor-client-core:2.3.8'

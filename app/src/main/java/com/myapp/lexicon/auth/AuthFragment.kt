@@ -54,6 +54,7 @@ class AuthFragment : Fragment() {
                             onSuccess = {email, password ->
                                 etEmail.setText(email)
                                 etPassword.setText(password)
+                                progressBar.visibility = View.GONE
                             }
                         )
                     }

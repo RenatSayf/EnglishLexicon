@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.widget.doOnTextChanged
@@ -24,8 +25,9 @@ import com.myapp.lexicon.auth.AuthViewModel
 import com.myapp.lexicon.auth.agreement.UserAgreementDialog
 import com.myapp.lexicon.databinding.FragmentAccountBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
-import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.LuhnAlgorithm
+import com.myapp.lexicon.helpers.orientationLock
+import com.myapp.lexicon.helpers.orientationUnLock
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.helpers.showToastIfDebug
@@ -72,10 +74,6 @@ class AccountFragment : Fragment() {
 
     private val userVM: UserViewModel by lazy {
         ViewModelProvider(requireActivity())[userVMClass] as UserViewModel
-    }
-
-    private val screenOrientation: LockOrientation by lazy {
-        LockOrientation(requireActivity())
     }
 
     override fun onCreateView(
@@ -220,14 +218,14 @@ class AccountFragment : Fragment() {
                                     accountVM.sendPaymentInfoToTGChannel(
                                         user = value,
                                         onStart = {
-                                            screenOrientation.lock()
+                                            requireActivity().orientationLock()
                                         },
                                         onSuccess = {
                                             showSnackBar(getString(R.string.text_request_sented))
                                         }
                                     ) { exception ->
                                         exception?.printStackTraceIfDebug()
-                                        screenOrientation.unLock()
+                                        requireActivity().orientationUnLock()
                                     }
                                 }
                                 result.onFailure { exception ->
@@ -258,6 +256,7 @@ class AccountFragment : Fragment() {
                     AccountViewModel.State.Editing -> {
                         editTextList.forEach {
                             it.isEnabled = true
+                            (it.parent as LinearLayoutCompat).visibility = View.VISIBLE
                         }
                         val editText = editTextList.firstOrNull {
                             it.text.isEmpty()
@@ -273,6 +272,12 @@ class AccountFragment : Fragment() {
                     AccountViewModel.State.ReadOnly -> {
                         editTextList.forEach {
                             it.isEnabled = false
+                            if (it.text.isEmpty() && it.id != R.id.tvEmailValue) {
+                                (it.parent as LinearLayoutCompat).visibility = View.GONE
+                            }
+                            else {
+                                (it.parent as LinearLayoutCompat).visibility = View.VISIBLE
+                            }
                         }
                         btnSave.visibility = View.GONE
                     }
@@ -364,6 +369,7 @@ class AccountFragment : Fragment() {
             btnGetReward.setOnClickListener {
                 val user = userVM.user.value
                 if (user != null) {
+                    accountVM.setState(AccountViewModel.State.Editing)
                     val email = tvEmailValue.text.toString()
                     if (email.isEmpty() || !authVM.isValidEmail(email)) {
                         tvEmailValue.background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_horizontal_oval_error)
@@ -409,7 +415,7 @@ class AccountFragment : Fragment() {
                         ),
                         onStart = {
                             userVM.setLoadingState(UserViewModel.LoadingState.Start)
-                            screenOrientation.lock()
+                            requireActivity().orientationLock()
                         },
                         onSuccess = {payout: Int, remainder: Double ->
                             userVM.setState(UserViewModel.State.PaymentRequestSent(user, payout, remainder))
@@ -424,11 +430,12 @@ class AccountFragment : Fragment() {
                         },
                         onComplete = {exception ->
                             userVM.setLoadingState(UserViewModel.LoadingState.Complete)
+                            accountVM.setState(AccountViewModel.State.ReadOnly)
                             if (exception != null) {
                                 if (BuildConfig.DEBUG) exception.printStackTrace()
                                 showSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
                             }
-                            screenOrientation.unLock()
+                            requireActivity().orientationUnLock()
                         }
                     )
                 }
@@ -441,7 +448,15 @@ class AccountFragment : Fragment() {
             toolBar.setOnMenuItemClickListener { item ->
                 when(item.itemId) {
                     R.id.menu_edit -> {
-                        accountVM.setState(AccountViewModel.State.Editing)
+                        when (accountVM.state.value) {
+                            is AccountViewModel.State.ReadOnly -> {
+                                accountVM.setState(AccountViewModel.State.Editing)
+                            }
+                            is AccountViewModel.State.Editing -> {
+                                accountVM.setState(AccountViewModel.State.ReadOnly)
+                            }
+                            else -> {}
+                        }
                     }
                     R.id.menu_user_agreement -> {
                         val dialog = UserAgreementDialog.newInstance(
@@ -653,7 +668,7 @@ class AccountFragment : Fragment() {
                     setOnClickListener {
                         authVM.deleteAccount(
                             onStart = {
-                                screenOrientation.lock()
+                                requireActivity().orientationLock()
                                 authVM.setLoadingState(AuthViewModel.LoadingState.Start)
                             },
                             onSuccess = {
@@ -667,7 +682,7 @@ class AccountFragment : Fragment() {
                                     it.printStackTrace()
                                     showSnackBar(it.message?: getString(R.string.text_unknown_error_message))
                                 }
-                                screenOrientation.unLock()
+                                requireActivity().orientationUnLock()
                                 authVM.setLoadingState(AuthViewModel.LoadingState.Complete)
                                 dialog.dismiss()
                             }

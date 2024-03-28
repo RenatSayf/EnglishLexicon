@@ -198,7 +198,9 @@
                 android:gravity="start"
                 app:layout_constraintTop_toBottomOf="@+id/layoutEmail"
                 app:layout_constraintBottom_toTopOf="@+id/layoutBankName"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="8dp"
+                android:visibility="gone"
+                >
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tvPhoneTitle"
@@ -245,6 +247,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/layoutPhone"
                 app:layout_constraintBottom_toTopOf="@+id/layoutBankCard"
                 android:layout_marginTop="8dp"
+                android:visibility="gone"
                 >
 
                 <androidx.appcompat.widget.AppCompatTextView
@@ -291,6 +294,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/layoutBankName"
                 app:layout_constraintBottom_toTopOf="@+id/layoutFirstName"
                 android:layout_marginTop="8dp"
+                android:visibility="gone"
                 >
 
                 <androidx.appcompat.widget.AppCompatTextView
@@ -338,7 +342,8 @@
                 android:gravity="start"
                 app:layout_constraintTop_toBottomOf="@+id/layoutBankCard"
                 app:layout_constraintBottom_toTopOf="@+id/layoutLastName"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="8dp"
+                android:visibility="gone">
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tvFirstNameTitle"
@@ -382,7 +387,8 @@
                 android:gravity="start"
                 app:layout_constraintTop_toBottomOf="@+id/layoutFirstName"
                 app:layout_constraintBottom_toTopOf="@+id/btnSave"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="8dp"
+                android:visibility="gone">
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tvLastNameTitle"

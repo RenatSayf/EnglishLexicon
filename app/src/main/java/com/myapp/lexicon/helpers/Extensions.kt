@@ -195,6 +195,11 @@ fun Long.toStringDate(locale: Locale = Locale.getDefault()): String {
     return strDate
 }
 
+fun Long.toStringDateDDMonthYYYY(locale: Locale = Locale.getDefault()): String {
+    val formatter = SimpleDateFormat("dd MMMM yyyy", locale)
+    return formatter.format(this)
+}
+
 fun String.toLongDate(locale: Locale = Locale.getDefault()): Long {
     val formatter = SimpleDateFormat("yyyy-MM-dd", locale)
     val date = try {
