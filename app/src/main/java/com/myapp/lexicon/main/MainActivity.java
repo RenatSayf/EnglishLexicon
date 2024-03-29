@@ -33,7 +33,6 @@ import com.myapp.lexicon.auth.AuthFragment;
 import com.myapp.lexicon.auth.AuthViewModel;
 import com.myapp.lexicon.auth.account.AccountFragment;
 import com.myapp.lexicon.auth.account.AccountViewModel;
-import com.myapp.lexicon.common.CommonConstantsKt;
 import com.myapp.lexicon.database.AppDataBase;
 import com.myapp.lexicon.dialogs.ConfirmDialog;
 import com.myapp.lexicon.dialogs.DictListDialog;
@@ -53,6 +52,7 @@ import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.service.PhoneUnlockedReceiver;
 import com.myapp.lexicon.settings.ContainerFragment;
 import com.myapp.lexicon.settings.SettingsExtKt;
+import com.myapp.lexicon.video.constants.ConstantsKt;
 import com.myapp.lexicon.video.web.YouTubeFragment;
 import com.myapp.lexicon.wordeditor.WordEditorActivity;
 import com.myapp.lexicon.wordstests.OneOfFiveFragm;
@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setSupportActionBar(toolBar);
 
         navView = root.findViewById(R.id.nav_view);
-        navView.getMenu().findItem(R.id.nav_video_list).setVisible(CommonConstantsKt.getIS_VIDEO_SECTION());
+        navView.getMenu().findItem(R.id.nav_video_list).setVisible(ConstantsKt.getIS_VIDEO_SECTION());
         drawerLayout = findViewById(R.id.drawer_layout);
         tvReward = navView.getHeaderView(0).findViewById(R.id.tvReward);
 

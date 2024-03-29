@@ -28,8 +28,6 @@ import com.myapp.lexicon.ads.AdFragment
 import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.ext.showAdPopup
 import com.myapp.lexicon.ads.models.AdData
-import com.myapp.lexicon.common.PRETTY_PRINT_URL
-import com.myapp.lexicon.common.VIDEO_URL
 import com.myapp.lexicon.databinding.FragmentYouTubeBinding
 import com.myapp.lexicon.helpers.orientationLock
 import com.myapp.lexicon.helpers.orientationUnLock
@@ -37,6 +35,8 @@ import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.toDp
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.to2DigitsScale
+import com.myapp.lexicon.video.constants.PRETTY_PRINT_URL
+import com.myapp.lexicon.video.constants.VIDEO_URL
 import com.myapp.lexicon.video.extensions.changeHeightAnimatedly
 import com.myapp.lexicon.video.models.Bookmark.Companion.fromString
 import com.myapp.lexicon.video.web.bookmarks.BookmarksDialog

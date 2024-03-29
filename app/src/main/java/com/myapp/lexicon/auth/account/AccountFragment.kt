@@ -514,11 +514,38 @@ class AccountFragment : Fragment() {
             }
 
             tvEmailValue.setText(user.email)
-            tvPhoneValue.setText(user.phone)
-            tvBankNameValue.setText(user.bankName)
-            tvCardNumber.setText(user.bankCard)
-            tvFirstNameValue.setText(user.firstName)
-            tvLastNameValue.setText(user.lastName)
+
+            if (user.phone.isNotEmpty()) {
+                tvPhoneValue.setText(user.phone)
+                layoutPhone.visibility = View.VISIBLE
+            }
+            else layoutPhone.visibility = View.GONE
+
+            if (user.bankName.isNotEmpty()) {
+                tvBankNameValue.setText(user.bankName)
+                layoutBankName.visibility = View.VISIBLE
+            } else {
+                layoutBankName.visibility = View.GONE
+            }
+
+            if (user.bankCard.isNotEmpty()) {
+                tvCardNumber.setText(user.bankCard)
+                layoutBankCard.visibility = View.VISIBLE
+            } else {
+                layoutBankCard.visibility = View.GONE
+            }
+            if (user.firstName.isNotEmpty()) {
+                tvFirstNameValue.setText(user.firstName)
+                layoutFirstName.visibility = View.VISIBLE
+            } else {
+                layoutFirstName.visibility = View.GONE
+            }
+            if (user.lastName.isNotEmpty()) {
+                tvLastNameValue.setText(user.lastName)
+                layoutLastName.visibility = View.VISIBLE
+            } else {
+                layoutLastName.visibility = View.GONE
+            }
         }
     }
 
