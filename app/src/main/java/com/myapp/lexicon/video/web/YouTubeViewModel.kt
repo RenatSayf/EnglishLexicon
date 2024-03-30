@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.myapp.lexicon.BuildConfig
+import com.myapp.lexicon.video.constants.VIDEO_URL
 import com.myapp.lexicon.video.web.models.UrlHistoryItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -123,7 +124,9 @@ class YouTubeViewModel: ViewModel() {
     val urlList: MutableSet<UrlHistoryItem> = mutableSetOf()
 
     fun getLastLoadedUrl(): String {
-        val historyItem = urlList.toList().maxByOrNull {
+        val historyItem = urlList.toList().filter {
+            it.url != VIDEO_URL
+        }.maxByOrNull {
             it.time
         }
         return historyItem?.url ?: ""

@@ -143,11 +143,15 @@ class YouTubeFragment : Fragment() {
                                 youTubeVM.urlList.add(UrlHistoryItem(System.currentTimeMillis(), shortUrl))
                             }
                         }
-                        requireContext().isNetworkAvailable(
-                            onAvailable = {
-                                youTubeVM.setNetworkState(YouTubeViewModel.NetworkState.Available)
-                            }
-                        )
+                        try {
+                            requireContext().isNetworkAvailable(
+                                onAvailable = {
+                                    youTubeVM.setNetworkState(YouTubeViewModel.NetworkState.Available)
+                                }
+                            )
+                        } catch (e: Exception) {
+                            e.printStackTraceIfDebug()
+                        }
                     }
 
                     override fun onReceivedError(
@@ -408,14 +412,16 @@ class YouTubeFragment : Fragment() {
     }
 
     private fun FragmentYouTubeBinding.goBack() {
-        if (webView.canGoBack()) {
-            webView.loadUrl(VIDEO_URL)
-        }
-        else if (!webView.canGoBack() && webView.url?.contains("shorts") == true) {
-            webView.loadUrl(VIDEO_URL)
-        }
-        else {
-            parentFragmentManager.popBackStack()
+        when {
+            webView.url?.contains("watch?v=") == true -> {
+                webView.loadUrl(VIDEO_URL)
+            }
+            webView.url?.contains("shorts") == true -> {
+                webView.loadUrl(VIDEO_URL)
+            }
+            else -> {
+                parentFragmentManager.popBackStack()
+            }
         }
     }
 
