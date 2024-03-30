@@ -311,7 +311,10 @@ fun Throwable.throwIfDebug() {
     }
 }
 
-fun Context.isNetworkAvailable(): Boolean {
+fun Context.isNetworkAvailable(
+    onAvailable: () -> Unit = {},
+    onNotAvailable: () -> Unit = {}
+): Boolean {
     val manager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     return when {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
@@ -319,9 +322,20 @@ fun Context.isNetworkAvailable(): Boolean {
             when {
                 capabilities != null -> {
                     when {
-                        capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
-                        capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
-                        else -> capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
+                        capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> {
+                            onAvailable.invoke()
+                            true
+                        }
+                        capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> {
+                            onAvailable.invoke()
+                            true
+                        }
+                        else -> {
+
+                            val hasTransport = capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
+                            if (hasTransport) onAvailable.invoke() else onNotAvailable.invoke()
+                            hasTransport
+                        }
                     }
                 }
                 else -> false
@@ -330,9 +344,12 @@ fun Context.isNetworkAvailable(): Boolean {
         else -> {
             try {
                 val activeNetworkInfo = manager.activeNetworkInfo
-                activeNetworkInfo != null && activeNetworkInfo.isConnected
+                val result = activeNetworkInfo != null && activeNetworkInfo.isConnected
+                if (result) onAvailable.invoke() else onNotAvailable.invoke()
+                result
             } catch (e: Exception) {
-                if (BuildConfig.DEBUG) e.printStackTrace()
+                e.printStackTraceIfDebug()
+                onNotAvailable.invoke()
                 false
             }
         }

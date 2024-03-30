@@ -27,22 +27,25 @@ class YouTubeViewModel: ViewModel() {
         TimeUnit.SECONDS.toMillis(randomInterval.toLong())
     }
 
-    private val timer = object : CountDownTimer(adShowInterval, adShowInterval) {
-        override fun onTick(p0: Long) {
-            _timerState.value = TimerState.Start
-        }
-
-        override fun onFinish() {
-            _timerState.value = TimerState.Finish
-        }
-    }
+    private var timer: CountDownTimer? = null
 
     fun startAdTimer() {
-        timer.start()
+        if (timer == null) {
+            timer = object : CountDownTimer(adShowInterval, adShowInterval) {
+                override fun onTick(p0: Long) {
+                    _timerState.value = TimerState.Start
+                }
+
+                override fun onFinish() {
+                    _timerState.value = TimerState.Finish
+                }
+            }.start()
+        }
     }
 
     fun cancelTimer() {
-        timer.cancel()
+        timer?.cancel()
+        timer = null
     }
 
     private var _timerState = MutableLiveData<TimerState>(TimerState.Init)
@@ -126,9 +129,22 @@ class YouTubeViewModel: ViewModel() {
         return historyItem?.url ?: ""
     }
 
+    sealed class NetworkState {
+        object Available: NetworkState()
+        object NotAvailable: NetworkState()
+    }
+
+    private var _networkState = MutableLiveData<NetworkState>(NetworkState.Available)
+    val networkState: LiveData<NetworkState> = _networkState
+
+    fun setNetworkState(state: NetworkState) {
+        _networkState.value = state
+    }
+
     override fun onCleared() {
 
-        timer.cancel()
+        timer?.cancel()
+        timer = null
         super.onCleared()
     }
 }

@@ -29,6 +29,7 @@ import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.ext.showAdPopup
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.databinding.FragmentYouTubeBinding
+import com.myapp.lexicon.helpers.isNetworkAvailable
 import com.myapp.lexicon.helpers.orientationLock
 import com.myapp.lexicon.helpers.orientationUnLock
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
@@ -142,6 +143,11 @@ class YouTubeFragment : Fragment() {
                                 youTubeVM.urlList.add(UrlHistoryItem(System.currentTimeMillis(), shortUrl))
                             }
                         }
+                        requireContext().isNetworkAvailable(
+                            onAvailable = {
+                                youTubeVM.setNetworkState(YouTubeViewModel.NetworkState.Available)
+                            }
+                        )
                     }
 
                     override fun onReceivedError(
@@ -150,8 +156,7 @@ class YouTubeFragment : Fragment() {
                         error: WebResourceError?
                     ) {
                         if (error?.errorCode == -2) {
-                            youTubeVM.cancelTimer()
-                            includeNetError.layoutRoot.visibility = View.VISIBLE
+                            youTubeVM.setNetworkState(YouTubeViewModel.NetworkState.NotAvailable)
                         }
                     }
 
@@ -170,6 +175,7 @@ class YouTubeFragment : Fragment() {
                             parameterNames?.contains("app") == true
                         return isOpenApp?: true || isRedirect
                     }
+
                 }
 
                 addJavascriptInterface(youTubeVM, YouTubeViewModel.JS_TAG)
@@ -193,46 +199,70 @@ class YouTubeFragment : Fragment() {
                 bundle?.let { webView.restoreState(it) }
             }
 
-            youTubeVM.timerState.observe(viewLifecycleOwner) { state ->
-                when(state) {
-                    YouTubeViewModel.TimerState.Finish -> {
+            youTubeVM.apply {
+                timerState.observe(viewLifecycleOwner) { state ->
+                    when (state) {
+                        YouTubeViewModel.TimerState.Finish -> {
 
-                        bottomBar.changeHeightAnimatedly(5.toDp)
+                            bottomBar.changeHeightAnimatedly(5.toDp)
 
-                        vPopAnchor.showAdPopup(
-                            onClick = {
-                                webView.evaluateJavascript(
-                                    "(function() { return ('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>'); })();",
-                                    object : ValueCallback<String> {
-                                        override fun onReceiveValue(html: String?) {
-                                            youTubeVM.parseIsPlayerPlay(
-                                                rawHtml = html,
-                                                onStart = {
-                                                    requireActivity().orientationLock()
-                                                },
-                                                onComplete = { ex: Exception? ->
-                                                    ex?.printStackTraceIfDebug()
-                                                    requireActivity().orientationUnLock()
-                                                },
-                                                onPlay = {
-                                                    val url = youTubeVM.playPauseClickScript()
-                                                    webView.loadUrl(url)
-                                                    parentFragmentManager.beginTransaction().add(R.id.frame_to_page_fragm, AdFragment.newInstance()).commit()
-                                                },
-                                                onPause = {
-                                                    parentFragmentManager.beginTransaction().add(R.id.frame_to_page_fragm, AdFragment.newInstance()).commit()
-                                                }
-                                            )
+                            vPopAnchor.showAdPopup(
+                                onClick = {
+                                    webView.evaluateJavascript(
+                                        "(function() { return ('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>'); })();",
+                                        object : ValueCallback<String> {
+                                            override fun onReceiveValue(html: String?) {
+                                                youTubeVM.parseIsPlayerPlay(
+                                                    rawHtml = html,
+                                                    onStart = {
+                                                        requireActivity().orientationLock()
+                                                        youTubeVM.cancelTimer()
+                                                    },
+                                                    onComplete = { ex: Exception? ->
+                                                        ex?.printStackTraceIfDebug()
+                                                        requireActivity().orientationUnLock()
+                                                    },
+                                                    onPlay = {
+                                                        val url = youTubeVM.playPauseClickScript()
+                                                        webView.loadUrl(url)
+                                                        parentFragmentManager.beginTransaction()
+                                                            .add(
+                                                                R.id.frame_to_page_fragm,
+                                                                AdFragment.newInstance()
+                                                            ).commit()
+                                                    },
+                                                    onPause = {
+                                                        parentFragmentManager.beginTransaction()
+                                                            .add(
+                                                                R.id.frame_to_page_fragm,
+                                                                AdFragment.newInstance()
+                                                            ).commit()
+                                                    }
+                                                )
+                                            }
                                         }
-                                    }
-                                )
-                            },
-                            onDismissed = {
-                                youTubeVM.startAdTimer()
-                            }
-                        )
+                                    )
+                                },
+                                onDismissed = {
+                                    youTubeVM.startAdTimer()
+                                }
+                            )
+                        }
+
+                        else -> {}
                     }
-                    else -> {}
+                }
+                networkState.observe(viewLifecycleOwner) { state ->
+                    when(state) {
+                        YouTubeViewModel.NetworkState.Available -> {
+                            youTubeVM.startAdTimer()
+                            includeNetError.layoutRoot.visibility = View.GONE
+                        }
+                        YouTubeViewModel.NetworkState.NotAvailable -> {
+                            youTubeVM.cancelTimer()
+                            includeNetError.layoutRoot.visibility = View.VISIBLE
+                        }
+                    }
                 }
             }
 
