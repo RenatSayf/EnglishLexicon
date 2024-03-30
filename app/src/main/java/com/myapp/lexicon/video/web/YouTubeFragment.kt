@@ -220,7 +220,6 @@ class YouTubeFragment : Fragment() {
                                                     rawHtml = html,
                                                     onStart = {
                                                         requireActivity().orientationLock()
-                                                        youTubeVM.cancelTimer()
                                                     },
                                                     onComplete = { ex: Exception? ->
                                                         ex?.printStackTraceIfDebug()

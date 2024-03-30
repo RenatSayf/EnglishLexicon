@@ -24,7 +24,7 @@ class YouTubeViewModel: ViewModel() {
     private val adShowInterval = if (BuildConfig.DEBUG) {
         TimeUnit.SECONDS.toMillis(30)
     } else {
-        val randomInterval = (120..200).random()
+        val randomInterval = (120..180).random()
         TimeUnit.SECONDS.toMillis(randomInterval.toLong())
     }
 
@@ -39,6 +39,7 @@ class YouTubeViewModel: ViewModel() {
 
                 override fun onFinish() {
                     _timerState.value = TimerState.Finish
+                    timer = null
                 }
             }.start()
         }
