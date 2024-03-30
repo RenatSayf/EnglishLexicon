@@ -44,6 +44,7 @@ import com.myapp.lexicon.video.web.bookmarks.BookmarksDialog
 import com.myapp.lexicon.video.web.models.UrlHistoryItem
 import com.myapp.lexicon.video.web.pref.lastUrl
 import kotlinx.serialization.json.Json
+import java.util.concurrent.TimeUnit
 
 
 private const val WEB_VIEW_BUNDLE = "WEB_VIEW_BUNDLE"
@@ -77,7 +78,7 @@ class YouTubeFragment : Fragment() {
         super.onCreate(savedInstanceState)
 
         if (savedInstanceState == null) {
-            youTubeVM.startAdTimer()
+            youTubeVM.startAdTimer(TimeUnit.SECONDS.toMillis(10))
         }
     }
 

@@ -21,7 +21,7 @@ class YouTubeViewModel: ViewModel() {
         const val JS_TAG = "JS_TAG_25878945"
     }
 
-    private val adShowInterval = if (BuildConfig.DEBUG) {
+    private val adShowInterval: Long = if (BuildConfig.DEBUG) {
         TimeUnit.SECONDS.toMillis(30)
     } else {
         val randomInterval = (120..180).random()
@@ -30,9 +30,9 @@ class YouTubeViewModel: ViewModel() {
 
     private var timer: CountDownTimer? = null
 
-    fun startAdTimer() {
+    fun startAdTimer(millis: Long = adShowInterval) {
         if (timer == null) {
-            timer = object : CountDownTimer(adShowInterval, adShowInterval) {
+            timer = object : CountDownTimer(millis, millis) {
                 override fun onTick(p0: Long) {
                     _timerState.value = TimerState.Start
                 }
