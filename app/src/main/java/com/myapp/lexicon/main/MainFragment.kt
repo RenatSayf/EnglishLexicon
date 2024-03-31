@@ -10,6 +10,8 @@ import androidx.lifecycle.lifecycleScope
 import com.google.firebase.messaging.FirebaseMessaging
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
+import com.myapp.lexicon.aboutapp.checkAppUpdate
+import com.myapp.lexicon.aboutapp.showUpdateSnackBar
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.printLogIfDebug
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
@@ -18,6 +20,7 @@ import com.myapp.lexicon.main.viewmodels.FinishViewModel
 import com.myapp.lexicon.push.MessagingService
 import com.myapp.lexicon.service.FinishReceiver
 import com.myapp.lexicon.settings.askForPermission
+import com.myapp.lexicon.settings.goToAppStore
 import kotlinx.coroutines.launch
 
 class MainFragment : Fragment() {
@@ -93,6 +96,14 @@ class MainFragment : Fragment() {
                 exception.printStackTraceIfDebug()
             }
         }
+
+        requireContext().checkAppUpdate(
+            onAvailable = {
+                parentFragmentManager.fragments[0].view?.showUpdateSnackBar(onClick = {
+                    requireContext().goToAppStore()
+                })
+            }
+        )
 
     }
 

@@ -213,6 +213,7 @@ class YouTubeFragment : Fragment() {
 
                             vPopAnchor.showAdPopup(
                                 onClick = {
+                                    pbLoadPage.visibility = View.VISIBLE
                                     webView.evaluateJavascript(
                                         "(function() { return ('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>'); })();",
                                         object : ValueCallback<String> {
@@ -223,7 +224,10 @@ class YouTubeFragment : Fragment() {
                                                         requireActivity().orientationLock()
                                                     },
                                                     onComplete = { ex: Exception? ->
-                                                        ex?.printStackTraceIfDebug()
+                                                        ex?.let {
+                                                            it.printStackTraceIfDebug()
+                                                            pbLoadPage.visibility = View.GONE
+                                                        }
                                                         requireActivity().orientationUnLock()
                                                     },
                                                     onPlay = {
@@ -271,6 +275,7 @@ class YouTubeFragment : Fragment() {
             }
 
             setFragmentResultListener(KEY_AD_DISMISSED, listener = {requestKey, bundle ->
+                pbLoadPage.visibility = View.GONE
                 youTubeVM.startAdTimer()
                 val url = youTubeVM.playPauseClickScript()
                 webView.loadUrl(url)

@@ -308,6 +308,8 @@
     <string name="text_user">Пользователь</string>
     <string name="text_wishes_to_get_reward">желает получить награду</string>
     <string name="text_amount">Сумма</string>
+    <string name="text_update">Обновить</string>
+    <string name="text_update_available">"Доступно обновление"</string>
 
 
 </resources>

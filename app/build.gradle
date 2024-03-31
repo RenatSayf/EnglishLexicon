@@ -90,6 +90,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.7.0'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.7.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0'
+    implementation 'com.google.android.gms:play-services-auth-base:18.0.11'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
@@ -186,6 +187,10 @@ dependencies {
     implementation 'io.ktor:ktor-client-content-negotiation-jvm:2.3.8'
     testImplementation 'io.ktor:ktor-client-mock:2.3.8'
     testImplementation 'org.jetbrains.kotlin:kotlin-test'
+
+    // In-app update
+    implementation 'com.google.android.play:app-update:2.1.0'
+    implementation 'com.google.android.play:app-update-ktx:2.1.0'
 
 }
 

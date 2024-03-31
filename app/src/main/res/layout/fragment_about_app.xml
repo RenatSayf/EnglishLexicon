@@ -100,6 +100,35 @@
                 android:textColor="@drawable/selector_color_gold_to_white"
                 tools:ignore="TextContrastCheck" />
 
+            <TextView
+                android:id="@+id/tvUpdateInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:autoLink="email"
+                tools:text="Доступно обновление"
+                android:textAlignment="center"
+                android:textColor="@color/colorWhite"
+                android:textColorLink="@color/colorWhite"
+                android:visibility="gone"
+                tools:visibility="visible"
+                />
+
+            <Button
+                android:id="@+id/btnUpdate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorWhite"
+                android:background="@drawable/bg_ripple_horizintal_oval_green"
+                android:text="@string/text_update"
+                android:textAllCaps="false"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:layout_marginTop="12dp"
+                android:visibility="gone"
+                tools:visibility="visible"
+                />
+
             <androidx.legacy.widget.Space
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -1,95 +1,92 @@
-package com.myapp.lexicon.aboutapp;
+@file:Suppress("ObjectLiteralToLambda")
 
+package com.myapp.lexicon.aboutapp
 
-import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.net.Uri;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Color
+import android.net.Uri
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
+import androidx.fragment.app.Fragment
+import com.myapp.lexicon.R
+import com.myapp.lexicon.databinding.FragmentAboutAppBinding
+import com.myapp.lexicon.main.MainActivity
+import com.myapp.lexicon.settings.goToAppStore
 
-import com.myapp.lexicon.R;
-import com.myapp.lexicon.main.MainActivity;
-import com.myapp.lexicon.settings.SettingsExtKt;
+/** @noinspection CodeBlock2Expr
+ */
+class AboutAppFragment : Fragment() {
 
-import androidx.activity.OnBackPressedCallback;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.Fragment;
+    private var binding: FragmentAboutAppBinding? = null
 
-
-/** @noinspection CodeBlock2Expr*/
-public class AboutAppFragment extends Fragment
-{
-    private View fragment_view = null;
-
-    public AboutAppFragment()
-    {}
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = FragmentAboutAppBinding.inflate(inflater, container, false)
+        return binding!!.root
     }
 
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-    {
-        if (fragment_view == null)
-        {
-            fragment_view = inflater.inflate(R.layout.fragment_about_app, container, false);
-        }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        Toolbar toolBar = fragment_view.findViewById(R.id.tool_bar);
-        toolBar.setNavigationOnClickListener( v -> getParentFragmentManager().popBackStack());
+        with(binding!!) {
 
-        TextView versionNameTV = fragment_view.findViewById(R.id.version_name_tv);
-        try
-        {
-            if (getActivity() != null)
-            {
-                PackageInfo packageInfo = getActivity().getPackageManager().getPackageInfo(getActivity().getPackageName(), 0);
-                versionNameTV.setText("v.".concat(packageInfo.versionName));
+            toolBar.setNavigationOnClickListener {
+                parentFragmentManager.popBackStack()
             }
-        } catch (PackageManager.NameNotFoundException e)
-        {
-            versionNameTV.setText("???");
+
+            try {
+                val packageInfo = requireActivity().packageManager.getPackageInfo(requireActivity().packageName, 0)
+                val displayedText = "v." + packageInfo.versionName
+                versionNameTv.text = displayedText
+            } catch (e: PackageManager.NameNotFoundException) {
+                versionNameTv.text = "???"
+            }
+
+            btnEvaluate.setOnClickListener {
+                requireContext().goToAppStore()
+            }
+            tvLinkPrivacyPolicy.setOnClickListener {
+                tvLinkPrivacyPolicy.setTextColor(Color.RED)
+                val intent =
+                    Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.privacy_policy_link)))
+                startActivity(intent)
+            }
+
+            requireContext().checkAppUpdate(
+                onAvailable = {
+                    tvUpdateInfo.apply {
+                        this.text = getString(R.string.text_update_available)
+                        visibility = View.VISIBLE
+                    }
+                    btnUpdate.visibility = View.VISIBLE
+                },
+                onNotAvailable = {
+                    tvUpdateInfo.visibility = View.GONE
+                    btnUpdate.visibility = View.GONE
+                }
+            )
+
+            btnUpdate.setOnClickListener {
+                requireContext().goToAppStore()
+            }
         }
-
-        Button buttonEvaluate = fragment_view.findViewById(R.id.btn_evaluate);
-        buttonEvaluate.setOnClickListener( view -> {
-            SettingsExtKt.goToAppStore(requireContext());
-        });
-
-        final TextView tvLinkPrivacyPolicy = fragment_view.findViewById(R.id.tvLinkPrivacyPolicy);
-        tvLinkPrivacyPolicy.setOnClickListener( view -> {
-            tvLinkPrivacyPolicy.setTextColor(Color.RED);
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.privacy_policy_link)));
-            startActivity(intent);
-        });
-
-        return fragment_view;
     }
 
-    @Override
-    public void onResume()
-    {
-        super.onResume();
-        MainActivity activity = (MainActivity) requireActivity();
-        activity.getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true)
-        {
-            @Override
-            public void handleOnBackPressed()
-            {
-                activity.getSupportFragmentManager().popBackStack();
-                this.remove();
+    override fun onResume() {
+        super.onResume()
+        val activity = requireActivity() as MainActivity
+        requireActivity().onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                activity.supportFragmentManager.popBackStack()
+                this.remove()
             }
-        });
+        })
     }
 }
