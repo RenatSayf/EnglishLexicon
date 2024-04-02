@@ -24,7 +24,7 @@ class YouTubeViewModel: ViewModel() {
     private val adShowInterval: Long = if (BuildConfig.DEBUG) {
         TimeUnit.SECONDS.toMillis(30)
     } else {
-        val randomInterval = (120..180).random()
+        val randomInterval: Int = (120..180).random()
         TimeUnit.SECONDS.toMillis(randomInterval.toLong())
     }
 
@@ -70,8 +70,8 @@ class YouTubeViewModel: ViewModel() {
             withContext(Dispatchers.Main) {
                 onStart.invoke()
                 try {
-                    val htmlContent = rawHtml?.replace("\\u003C", "<")?.replace("\\", "")
-                    if (htmlContent != null) {
+                    if (rawHtml != null) {
+                        val htmlContent = prepareRawHtml(rawHtml)
                         val document = Jsoup.parse(htmlContent)
                         val attr = document.getElementsByClass("player-control-play-pause-icon").firstOrNull()?.attr("aria-pressed")
                         if (attr == null) {
@@ -91,9 +91,6 @@ class YouTubeViewModel: ViewModel() {
                                 onPause.invoke()
                             }
                         }
-
-                    } else {
-                        onPause.invoke()
                     }
                 }
                 catch (e: IndexOutOfBoundsException) {
@@ -121,6 +118,12 @@ class YouTubeViewModel: ViewModel() {
             |} catch (error) {};
             |})()""".trimMargin()
     }
+
+    private fun prepareRawHtml(rawHtml: String): String {
+        return rawHtml.replace("\\u003C", "<").replace("\\", "")
+    }
+
+    val scriptGetHtmlContent: String = "(function() { return ('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>'); })();"
 
     val urlList: MutableSet<UrlHistoryItem> = mutableSetOf()
 

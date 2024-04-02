@@ -12,13 +12,16 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams
 import android.webkit.CookieManager
 import android.webkit.ValueCallback
+import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
@@ -182,6 +185,25 @@ class YouTubeFragment : Fragment() {
                     }
 
                 }
+                webChromeClient = object : WebChromeClient() {
+
+                    private var fullScreen: View? = null
+
+                    override fun onShowCustomView(view: View?, callback: CustomViewCallback?) {
+                        webView.visibility = View.GONE
+                        if (fullScreen != null) {
+                            (requireActivity().window.decorView as FrameLayout).removeView(fullScreen)
+                        }
+                        fullScreen = view
+                        (requireActivity().window.decorView as FrameLayout).addView(fullScreen, FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+                        fullScreen?.visibility = View.VISIBLE
+                    }
+
+                    override fun onHideCustomView() {
+                        fullScreen?.visibility = View.GONE
+                        webView.visibility = View.VISIBLE
+                    }
+                }
 
                 addJavascriptInterface(youTubeVM, YouTubeViewModel.JS_TAG)
             }
@@ -215,7 +237,7 @@ class YouTubeFragment : Fragment() {
                                 onClick = {
                                     pbLoadPage.visibility = View.VISIBLE
                                     webView.evaluateJavascript(
-                                        "(function() { return ('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>'); })();",
+                                        youTubeVM.scriptGetHtmlContent,
                                         object : ValueCallback<String> {
                                             override fun onReceiveValue(html: String?) {
                                                 youTubeVM.parseIsPlayerPlay(

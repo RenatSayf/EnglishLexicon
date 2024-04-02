@@ -68,7 +68,7 @@
             android:name=".main.MainActivity"
             android:exported="true"
             android:theme="@style/AppTheme.NoActionBar"
-            android:configChanges="layoutDirection|locale|screenSize|orientation">
+            android:configChanges="orientation|screenSize">
             <intent-filter
                 android:label="Английский изучай"
                 >
