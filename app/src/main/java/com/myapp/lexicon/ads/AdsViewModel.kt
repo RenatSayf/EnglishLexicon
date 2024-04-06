@@ -66,7 +66,7 @@ class AdsViewModel @Inject constructor(
     fun loadInterstitialAd(adId: InterstitialAdIds? = null) {
 
         if (isAdsEnabled) {
-            val id = if (BuildConfig.DEBUG) {
+            val id = if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
                 "demo-interstitial-yandex"
             } else {
                 adId?.id ?: InterstitialAdIds.values().random().id
@@ -74,13 +74,13 @@ class AdsViewModel @Inject constructor(
             val adRequestConfiguration = AdRequestConfiguration.Builder(id).build()
             InterstitialAdLoader(app).apply {
                 setAdLoadListener(object : InterstitialAdLoadListener {
-                    override fun onAdLoaded(p0: InterstitialAd) {
-                        _interstitialAd.value = Result.success(p0)
+                    override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                        _interstitialAd.value = Result.success(interstitialAd)
                     }
 
-                    override fun onAdFailedToLoad(p0: AdRequestError) {
-                        printLogIfDebug("${this::class.simpleName} - ${p0.description}")
-                        _interstitialAd.value = Result.failure(Throwable(p0.description))
+                    override fun onAdFailedToLoad(error: AdRequestError) {
+                        printLogIfDebug("${this::class.simpleName} - ${error.description}")
+                        _interstitialAd.value = Result.failure(Throwable(error.description))
                     }
                 })
                 loadAd(adRequestConfiguration)
@@ -91,7 +91,7 @@ class AdsViewModel @Inject constructor(
     fun loadRewardedAd(adId: RewardedAdIds? = null) {
 
         if (isAdsEnabled) {
-            val id = if (BuildConfig.DEBUG) {
+            val id = if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
                 "demo-rewarded-yandex"
             } else {
                 adId?.id ?: RewardedAdIds.values().random().id
@@ -99,13 +99,13 @@ class AdsViewModel @Inject constructor(
             val adRequestConfiguration = AdRequestConfiguration.Builder(id).build()
             RewardedAdLoader(app).apply {
                 setAdLoadListener(object : RewardedAdLoadListener {
-                    override fun onAdLoaded(p0: RewardedAd) {
-                        _rewardedAd.value = Result.success(p0)
+                    override fun onAdLoaded(rewarded: RewardedAd) {
+                        _rewardedAd.value = Result.success(rewarded)
                     }
 
-                    override fun onAdFailedToLoad(p0: AdRequestError) {
-                        printLogIfDebug("${this::class.simpleName} - ${p0.description}")
-                        _rewardedAd.value = Result.failure(Throwable(p0.description))
+                    override fun onAdFailedToLoad(error: AdRequestError) {
+                        printLogIfDebug("${this::class.simpleName} - ${error.description}")
+                        _rewardedAd.value = Result.failure(Throwable(error.description))
                     }
                 })
                 loadAd(adRequestConfiguration)
@@ -128,8 +128,8 @@ fun InterstitialAd.showAd(
                 onShown.invoke()
             }
 
-            override fun onAdFailedToShow(p0: AdError) {
-                "${this::class.simpleName} - ${p0.description}".logIfDebug()
+            override fun onAdFailedToShow(adError: AdError) {
+                "${this::class.simpleName} - ${adError.description}".logIfDebug()
                 onDismissed.invoke()
             }
 
@@ -139,8 +139,8 @@ fun InterstitialAd.showAd(
 
             override fun onAdClicked() {}
 
-            override fun onAdImpression(p0: ImpressionData?) {
-                p0?.let {
+            override fun onAdImpression(impressionData: ImpressionData?) {
+                impressionData?.let {
                     val rawData = it.rawData
                     rawData.toAdData(
                         onSuccess = {data ->
@@ -183,8 +183,8 @@ fun RewardedAd.showAd(
                 onShown.invoke()
             }
 
-            override fun onAdFailedToShow(p0: AdError) {
-                printLogIfDebug("${this::class.simpleName} - ${p0.description}")
+            override fun onAdFailedToShow(adError: AdError) {
+                printLogIfDebug("${this::class.simpleName} - ${adError.description}")
                 onDismissed.invoke()
             }
 
@@ -194,8 +194,8 @@ fun RewardedAd.showAd(
 
             override fun onAdClicked() {}
 
-            override fun onAdImpression(p0: ImpressionData?) {
-                p0?.let {
+            override fun onAdImpression(impressionData: ImpressionData?) {
+                impressionData?.let {
                     val rawData = it.rawData
                     rawData.toAdData(
                         onSuccess = {data ->
@@ -222,7 +222,7 @@ fun RewardedAd.showAd(
                 }
             }
 
-            override fun onRewarded(p0: Reward) {}
+            override fun onRewarded(reward: Reward) {}
         })
         show(activity)
     }
