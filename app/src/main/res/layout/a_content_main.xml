@@ -40,6 +40,12 @@
             android:background="@drawable/bg_tool_bar"
             />
 
+        <View
+            android:id="@+id/vBonusAnchor"
+            android:layout_width="40dp"
+            android:layout_height="0.01dp"
+            android:layout_gravity="center_horizontal"/>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -48,6 +54,7 @@
             android:layout_marginRight="10dp"
             android:layout_marginTop="5dp"
             android:orientation="horizontal">
+
 
             <FrameLayout android:layout_width="0dp"
                 android:layout_height="wrap_content"

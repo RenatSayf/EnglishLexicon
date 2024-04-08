@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.BannerAdIds
 import com.myapp.lexicon.ads.RevenueViewModel
+import com.myapp.lexicon.ads.ext.showUserRewardPerAdPopup
 import com.myapp.lexicon.ads.loadBanner
 import com.myapp.lexicon.databinding.SRepeatModalFragmentBinding
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
@@ -201,6 +202,12 @@ class RepeatDialog: DialogFragment() {
                 result.onError { throwable ->
                     throwable.printStackTraceIfDebug()
                     adProgress.visibility = View.GONE
+                }
+            }
+            revenueVM.state.observe(viewLifecycleOwner) { state ->
+                if (state is UserViewModel.State.RevenueUpdated) {
+                    val bonus = state.bonus.to2DigitsScale()
+                    tvReward.showUserRewardPerAdPopup(bonus.toString())
                 }
             }
 

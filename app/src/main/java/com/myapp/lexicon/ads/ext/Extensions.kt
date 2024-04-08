@@ -9,6 +9,7 @@ import android.widget.PopupWindow
 import androidx.core.content.res.ResourcesCompat
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.PopupLayoutBinding
+import com.myapp.lexicon.databinding.PopupRewardPerAdBinding
 import java.util.concurrent.TimeUnit
 
 fun View.showAdPopup(
@@ -43,6 +44,35 @@ fun View.showAdPopup(
         override fun onFinish() {
             popUp.dismiss()
             onDismissed.invoke()
+        }
+    }.start()
+}
+
+fun View.showUserRewardPerAdPopup(message: String) {
+    val layoutInflater =
+        this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+
+    val binding = PopupRewardPerAdBinding.inflate(layoutInflater)
+    val popUp = PopupWindow(this.context)
+    popUp.apply {
+        contentView = binding.root
+        width = LinearLayout.LayoutParams.WRAP_CONTENT
+        height = LinearLayout.LayoutParams.WRAP_CONTENT
+        isFocusable = false
+
+        setBackgroundDrawable(ResourcesCompat.getDrawable(resources, R.drawable.bg_round_gold, null))
+        animationStyle = R.style.scaleDownAndYtoUpAnomation
+
+        showAsDropDown(this@showUserRewardPerAdPopup)
+        val text = "+$message"
+        binding.tvRewardValue.text = text
+    }
+    val duration = TimeUnit.SECONDS.toMillis(7)
+    object : CountDownTimer(duration, duration) {
+        override fun onTick(p0: Long) {}
+
+        override fun onFinish() {
+            popUp.dismiss()
         }
     }.start()
 }

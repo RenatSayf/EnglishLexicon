@@ -39,6 +39,14 @@
             app:navigationIcon="@drawable/ic_hamburger_white"
             android:background="@drawable/bg_tool_bar"/>
 
+        <View
+            android:id="@+id/vBonusAnchor"
+            android:layout_width="40dp"
+            android:layout_height="0.01dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="150dp"/>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="50dp"

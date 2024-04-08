@@ -926,6 +926,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 ExtensionsKt.printStackTraceIfDebug((Exception) error.getError());
             }
         });
+        revenueVM.getState().observe(this, state -> {
+            View anchor = findViewById(R.id.vBonusAnchor);
+            if (state instanceof UserViewModel.State.RevenueUpdated && anchor != null) {
+                double bonus = ((UserViewModel.State.RevenueUpdated) state).getBonus();
+                double scaleBonus = UserKt.to2DigitsScale(bonus);
+                com.myapp.lexicon.ads.ext.ExtensionsKt.showUserRewardPerAdPopup(anchor, String.valueOf(scaleBonus));
+            }
+        });
     }
 
     @Override
