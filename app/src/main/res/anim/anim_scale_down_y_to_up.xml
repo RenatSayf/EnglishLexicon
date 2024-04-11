@@ -11,8 +11,10 @@
         />
 
     <translate
-        android:fromYDelta="0"
-        android:toYDelta="-50"
+        android:fromYDelta="0.0"
+        android:toYDelta="-50.0"
+        android:fromXDelta="0.0"
+        android:toXDelta="85.0"
         />
 
 </set>
