@@ -134,6 +134,7 @@ class YouTubeFragment : Fragment() {
                         else if (url != null && url == VIDEO_URL) {
                             webView.clearHistory()
                         }
+                        CookieManager.getInstance().flush()
                     }
 
                     override fun onLoadResource(view: WebView?, url: String?) {

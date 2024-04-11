@@ -26,6 +26,7 @@ import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
+import com.myapp.lexicon.ads.AdFragment;
 import com.myapp.lexicon.ads.AdsViewModelKt;
 import com.myapp.lexicon.ads.BannerAdIds;
 import com.myapp.lexicon.ads.RevenueViewModel;
@@ -77,6 +78,7 @@ import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentResultListener;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
@@ -929,9 +931,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         revenueVM.getState().observe(this, state -> {
             View anchor = findViewById(R.id.vBonusAnchor);
             if (state instanceof UserViewModel.State.RevenueUpdated && anchor != null) {
-                double bonus = ((UserViewModel.State.RevenueUpdated) state).getBonus();
-                double scaleBonus = UserKt.to2DigitsScale(bonus);
-                com.myapp.lexicon.ads.ext.ExtensionsKt.showUserRewardPerAdPopup(anchor, String.valueOf(scaleBonus));
+                Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.frame_to_page_fragm);
+                if (fragment != null && fragment.getClass() != AdFragment.class) {
+                    double bonus = ((UserViewModel.State.RevenueUpdated) state).getBonus();
+                    double scaleBonus = UserKt.to2DigitsScale(bonus);
+                    com.myapp.lexicon.ads.ext.ExtensionsKt.showUserRewardPerAdPopup(anchor, String.valueOf(scaleBonus));
+                }
             }
         });
     }
