@@ -52,7 +52,7 @@
         <item name="android:windowExitAnimation">@anim/popdown_anim</item>
     </style>
 
-    <style name="scaleDownAndYtoUpAnomation">
+    <style name="scaleDownAndYtoUpAnimation">
         <item name="android:windowEnterAnimation">@anim/popup_anim</item>
         <item name="android:windowExitAnimation">@anim/anim_scale_down_y_to_up</item>
     </style>

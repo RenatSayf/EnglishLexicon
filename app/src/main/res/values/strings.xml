@@ -228,8 +228,8 @@
     </string-array>
 
     <string-array name="display_mode">
-        <item>Повтор</item>
-        <item>Тест</item>
+        <item>Повтор слов</item>
+        <item>Проверка знаний</item>
     </string-array>
     <string-array name="display_values">
         <item>0</item>

@@ -61,13 +61,13 @@ fun View.showUserRewardPerAdPopup(message: String) {
         isFocusable = false
 
         setBackgroundDrawable(ResourcesCompat.getDrawable(resources, R.drawable.bg_round_gold, null))
-        animationStyle = R.style.scaleDownAndYtoUpAnomation
+        animationStyle = R.style.scaleDownAndYtoUpAnimation
 
         showAsDropDown(this@showUserRewardPerAdPopup)
         val text = "+$message"
         binding.tvRewardValue.text = text
     }
-    val duration = TimeUnit.SECONDS.toMillis(7)
+    val duration = TimeUnit.SECONDS.toMillis(5)
     object : CountDownTimer(duration, duration) {
         override fun onTick(p0: Long) {}
 
