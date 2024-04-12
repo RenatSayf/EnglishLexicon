@@ -1,11 +1,19 @@
+@file:Suppress("ObjectLiteralToLambda")
+
 package com.myapp.lexicon.ads.ext
 
+import android.animation.Animator
+import android.animation.ValueAnimator
 import android.content.Context
 import android.os.CountDownTimer
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams
 import android.widget.LinearLayout
 import android.widget.PopupWindow
+import androidx.appcompat.widget.Toolbar
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.PopupLayoutBinding
@@ -76,3 +84,104 @@ fun View.showUserRewardPerAdPopup(message: String) {
         }
     }.start()
 }
+
+fun ViewGroup.showUserRewardAnimatedly(
+    reward: String,
+    coordinates: Pair<Int, Int>
+) {
+
+    val enterAnimDuration: Long = 1000
+    val pauseMiddleDuration: Long = 3000
+    val exitAnimDuration: Long = 200
+
+    val coinLayout = this@showUserRewardAnimatedly.findViewById<ConstraintLayout>(R.id.layoutCoin)
+    if (coinLayout != null) {
+        this@showUserRewardAnimatedly.removeView(coinLayout)
+    }
+
+    val layoutInflater = this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+
+    val binding = PopupRewardPerAdBinding.inflate(layoutInflater)
+    val text = "+$reward"
+    binding.tvRewardValue.text = text
+
+    val coinView = binding.root.apply {
+        x = this@showUserRewardAnimatedly.width + 10f
+        y = this@showUserRewardAnimatedly.height + 10f
+        scaleX = 0f
+        scaleY = 0f
+    }
+    this.addView(coinView, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
+
+    ValueAnimator.ofFloat(coinView.x, coordinates.first.toFloat() - coinView.width).apply {
+        duration = enterAnimDuration
+        addUpdateListener(object : ValueAnimator.AnimatorUpdateListener {
+            override fun onAnimationUpdate(p0: ValueAnimator) {
+                coinView.translationX = p0.animatedValue.toString().toFloat()
+            }
+        })
+        addListener(object : Animator.AnimatorListener {
+            override fun onAnimationStart(p0: Animator) {
+                coinView.animate().apply {
+                    duration = enterAnimDuration
+                }.scaleX(1f)
+
+                coinView.animate().apply {
+                    duration = enterAnimDuration
+                }.scaleY(1f)
+            }
+
+            override fun onAnimationEnd(p0: Animator) {
+                coinView.animate().apply {
+                    duration = exitAnimDuration
+                    startDelay = pauseMiddleDuration
+                }.scaleX(0f)
+
+                coinView.animate().apply {
+                    duration = exitAnimDuration
+                    startDelay = pauseMiddleDuration
+                }.scaleY(0f)
+            }
+
+            override fun onAnimationCancel(p0: Animator) {
+
+            }
+
+            override fun onAnimationRepeat(p0: Animator) {
+
+            }
+        })
+    }.start()
+
+    ValueAnimator.ofFloat(coinView.y, coordinates.second.toFloat()).apply {
+        duration = enterAnimDuration
+        addUpdateListener(object : ValueAnimator.AnimatorUpdateListener {
+            override fun onAnimationUpdate(p0: ValueAnimator) {
+                coinView.translationY = p0.animatedValue.toString().toFloat()
+            }
+        })
+    }.start()
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

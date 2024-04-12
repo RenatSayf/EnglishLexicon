@@ -26,26 +26,32 @@
         android:orientation="vertical"
         >
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/tool_bar"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:menu="@menu/a_up_menu_main"
-            android:theme="@style/AppToolbarStyle"
-            app:titleTextColor="@color/colorWhite"
-            app:title="@string/app_name"
-            tools:subtitle="💰 Ваша награда 30 Р"
-            app:subtitleTextColor="@android:color/holo_green_light"
-            app:navigationIcon="@drawable/ic_hamburger_white"
-            android:background="@drawable/bg_tool_bar"/>
+            android:layout_height="?attr/actionBarSize">
 
-        <View
-            android:id="@+id/vBonusAnchor"
-            android:layout_width="40dp"
-            android:layout_height="0.01dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginStart="30dp"
-            android:layout_marginEnd="150dp"/>
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/tool_bar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:menu="@menu/a_up_menu_main"
+                android:theme="@style/AppToolbarStyle"
+                app:titleTextColor="@color/colorWhite"
+                app:title="@string/app_name"
+                tools:subtitle="💰 Ваша награда 30 Р"
+                app:subtitleTextColor="@android:color/holo_green_light"
+                app:navigationIcon="@drawable/ic_hamburger_white"
+                android:background="@drawable/bg_tool_bar" />
+
+            <View
+                android:id="@+id/vBonusAnchor"
+                android:layout_width="0.01dp"
+                android:layout_height="0.01dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="175dp"
+                />
+
+        </FrameLayout>
 
         <LinearLayout
             android:layout_width="match_parent"

@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -83,7 +84,7 @@ import androidx.fragment.app.FragmentResultListener;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
-
+import kotlin.Pair;
 
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
@@ -633,6 +634,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getMenuInflater().inflate(R.menu.a_up_menu_main, menu);
         if (BuildConfig.DEBUG) {
             menu.add(getString(R.string.test_crash));
+            menu.add(R.string.test_button);
         }
 
         return super.onCreateOptionsMenu(menu);
@@ -646,6 +648,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             CharSequence title = item.getTitle();
             if (title != null && title.equals(getString(R.string.test_crash))) {
                 throw new RuntimeException("Test Crash");
+            }
+            if (title != null && title.equals(getString(R.string.test_button))) {
+                View anchorView = findViewById(R.id.vBonusAnchor);
+
+                Pair<Integer, Integer> coordinates = new Pair<>(545, 75);
+                FrameLayout frameLayout = findViewById(R.id.frame_to_page_fragm);
+                com.myapp.lexicon.ads.ext.ExtensionsKt.showUserRewardAnimatedly(
+                        frameLayout,
+                        "0.12",
+                        coordinates
+                );
             }
         }
         int id = item.getItemId();

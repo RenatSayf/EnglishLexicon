@@ -310,6 +310,7 @@
     <string name="text_amount">Сумма</string>
     <string name="text_update">Обновить</string>
     <string name="text_update_available">"Доступно обновление"</string>
+    <string name="test_button">Test Button</string>
 
 
 </resources>
