@@ -650,15 +650,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 throw new RuntimeException("Test Crash");
             }
             if (title != null && title.equals(getString(R.string.test_button))) {
-                View anchorView = findViewById(R.id.vBonusAnchor);
-
-                Pair<Integer, Integer> coordinates = new Pair<>(545, 75);
-                FrameLayout frameLayout = findViewById(R.id.frame_to_page_fragm);
-                com.myapp.lexicon.ads.ext.ExtensionsKt.showUserRewardAnimatedly(
-                        frameLayout,
-                        "0.12",
-                        coordinates
-                );
+                return false;
             }
         }
         int id = item.getItemId();
@@ -948,7 +940,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if (fragment != null && fragment.getClass() != AdFragment.class) {
                     double bonus = ((UserViewModel.State.RevenueUpdated) state).getBonus();
                     double scaleBonus = UserKt.to2DigitsScale(bonus);
-                    com.myapp.lexicon.ads.ext.ExtensionsKt.showUserRewardPerAdPopup(anchor, String.valueOf(scaleBonus));
+                    //com.myapp.lexicon.ads.ext.ExtensionsKt.showUserRewardPerAdPopup(anchor, String.valueOf(scaleBonus));
+
+                    Pair<Integer, Integer> coordinates = new Pair<>(535, 45);
+                    FrameLayout frameLayout = findViewById(R.id.frame_to_page_fragm);
+                    com.myapp.lexicon.ads.ext.ExtensionsKt.showUserRewardAnimatedly(
+                            frameLayout,
+                            String.valueOf(scaleBonus),
+                            coordinates
+                    );
                 }
             }
         });

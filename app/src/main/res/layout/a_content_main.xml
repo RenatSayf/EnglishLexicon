@@ -47,7 +47,8 @@
                 android:id="@+id/vBonusAnchor"
                 android:layout_width="0.01dp"
                 android:layout_height="0.01dp"
-                android:layout_gravity="center"/>
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="208dp"/>
 
         </FrameLayout>
 
