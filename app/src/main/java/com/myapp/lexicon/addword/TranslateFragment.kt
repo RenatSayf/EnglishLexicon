@@ -44,7 +44,7 @@ class TranslateFragment : Fragment()
     private lateinit var binding: TranslateFragmentBinding
     private lateinit var mActivity: AppCompatActivity
     private var interstitialAd: InterstitialAd? = null
-    private val adsVM: AdsViewModel by viewModels()
+    private val adsVM: AdsViewModel by activityViewModels()
     private val addWordVM: AddWordViewModel by lazy {
         val factory = AddWordViewModel.Factory(requireContext())
         ViewModelProvider(this, factory)[AddWordViewModel::class.java]
@@ -196,6 +196,7 @@ class TranslateFragment : Fragment()
                                 }
                             },
                             onDismissed = {
+                                adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(it))
                                 parentFragmentManager.popBackStack()
                             }
                         )?: run {
@@ -234,6 +235,7 @@ class TranslateFragment : Fragment()
                             }
                         },
                         onDismissed = {
+                            adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(it))
                             parentFragmentManager.popBackStack()
                         }
                     )?: run {

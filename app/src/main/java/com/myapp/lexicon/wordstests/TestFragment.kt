@@ -75,7 +75,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     private val pageBackVM: PageBackViewModel by lazy {
         ViewModelProvider(this)[PageBackViewModel::class.java]
     }
-    private val adsVM: AdsViewModel by viewModels()
+    private val adsVM: AdsViewModel by activityViewModels()
 
     private val revenueVM: RevenueViewModel by activityViewModels()
 
@@ -297,6 +297,9 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                                     revenueVM.updateUserRevenueIntoCloud(data)
                                 }
                                 testVM.setState(TestViewModel.State.Init)
+                            },
+                            onDismissed = {bonus: Double ->
+                                adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
                             }
                         )
                     }

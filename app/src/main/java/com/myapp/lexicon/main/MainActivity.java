@@ -27,7 +27,7 @@ import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
-import com.myapp.lexicon.ads.AdFragment;
+import com.myapp.lexicon.ads.AdsViewModel;
 import com.myapp.lexicon.ads.AdsViewModelKt;
 import com.myapp.lexicon.ads.BannerAdIds;
 import com.myapp.lexicon.ads.RevenueViewModel;
@@ -79,7 +79,6 @@ import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentResultListener;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
@@ -919,7 +918,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     private void onRevenueUpdate()
     {
-
         RevenueViewModel revenueVM = new ViewModelProvider(MainActivity.this).get(RevenueViewModel.class);
         revenueVM.getUserRevenueLD().observe(this, result -> {
             if (result instanceof AppResult.Success<?>)
@@ -933,23 +931,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 ExtensionsKt.printStackTraceIfDebug((Exception) error.getError());
             }
         });
-        revenueVM.getState().observe(this, state -> {
-            View anchor = findViewById(R.id.vBonusAnchor);
-            if (state instanceof UserViewModel.State.RevenueUpdated && anchor != null) {
-                Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.frame_to_page_fragm);
-                if (fragment != null && fragment.getClass() != AdFragment.class) {
-                    double bonus = ((UserViewModel.State.RevenueUpdated) state).getBonus();
-                    double scaleBonus = UserKt.to2DigitsScale(bonus);
-                    //com.myapp.lexicon.ads.ext.ExtensionsKt.showUserRewardPerAdPopup(anchor, String.valueOf(scaleBonus));
 
-                    Pair<Integer, Integer> coordinates = new Pair<>(535, 45);
-                    FrameLayout frameLayout = findViewById(R.id.frame_to_page_fragm);
-                    com.myapp.lexicon.ads.ext.ExtensionsKt.showUserRewardAnimatedly(
-                            frameLayout,
-                            String.valueOf(scaleBonus),
-                            coordinates
-                    );
-                }
+        AdsViewModel adsVM = new ViewModelProvider(this).get(AdsViewModel.class);
+        adsVM.getInterstitialAdState().observe(this, adState -> {
+            if (adState instanceof AdsViewModel.AdState.Dismissed) {
+                double bonus = ((AdsViewModel.AdState.Dismissed) adState).getBonus();
+                Pair<Integer, Integer> coordinates = new Pair<>(535, 45);
+                FrameLayout frameLayout = findViewById(R.id.frame_to_page_fragm);
+                com.myapp.lexicon.ads.ext.ExtensionsKt.showUserRewardAnimatedly(
+                        frameLayout,
+                        String.valueOf(bonus),
+                        coordinates
+                );
             }
         });
     }

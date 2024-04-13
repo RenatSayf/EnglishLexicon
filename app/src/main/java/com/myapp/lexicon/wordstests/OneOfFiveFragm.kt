@@ -11,7 +11,6 @@ import android.widget.Button
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -39,7 +38,7 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
     private lateinit var binding: OneOfFiveFragmNewBinding
     private lateinit var vm: OneOfFiveViewModel
     private lateinit var mActivity: MainActivity
-    private val adsVM: AdsViewModel by viewModels()
+    private val adsVM: AdsViewModel by activityViewModels()
     private val revenueVM: RevenueViewModel by activityViewModels()
     private var interstitialAd: InterstitialAd? = null
 
@@ -283,7 +282,8 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
                     if (data != null) {
                         revenueVM.updateUserRevenueIntoCloud(data)
                     }
-                }, onDismissed = {
+                }, onDismissed = { bonus: Double ->
+                    adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
                     onComplete.invoke()
                 }
             )

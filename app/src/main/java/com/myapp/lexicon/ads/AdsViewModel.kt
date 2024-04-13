@@ -14,6 +14,8 @@ import com.myapp.lexicon.helpers.printLogIfDebug
 import com.myapp.lexicon.helpers.logIfDebug
 import com.myapp.lexicon.helpers.screenHeight
 import com.myapp.lexicon.helpers.screenWidth
+import com.myapp.lexicon.main.viewmodels.UserViewModel
+import com.myapp.lexicon.models.to2DigitsScale
 import com.yandex.mobile.ads.banner.BannerAdSize
 import com.yandex.mobile.ads.banner.BannerAdView
 import com.yandex.mobile.ads.common.AdError
@@ -38,6 +40,18 @@ import kotlin.math.roundToInt
 class AdsViewModel @Inject constructor(
     private val app: Application
 ): AndroidViewModel(app) {
+
+    sealed class AdState {
+        object Init: AdState()
+        data class Dismissed(val bonus: Double): AdState()
+    }
+
+    private var _interstitialAdState = MutableLiveData<AdState>(AdState.Init)
+    val interstitialAdState: LiveData<AdState> = _interstitialAdState
+
+    fun setInterstitialAdState(state: AdState) {
+        _interstitialAdState.value = state
+    }
 
     private val isAdsEnabled: Boolean by lazy {
         Firebase.remoteConfig.getBoolean("is_ads_enabled")
@@ -116,25 +130,29 @@ class AdsViewModel @Inject constructor(
 
 }
 
+
 fun InterstitialAd.showAd(
     activity: Activity,
     onShown: () -> Unit = {},
     onImpression: (data: AdData?) -> Unit = {},
-    onDismissed: () -> Unit = {}
+    onDismissed: (bonus: Double) -> Unit = {}
 ) {
     this.apply {
         setAdEventListener(object : InterstitialAdEventListener {
+
+            private var bonus: Double = 0.0
+
             override fun onAdShown() {
                 onShown.invoke()
             }
 
             override fun onAdFailedToShow(adError: AdError) {
                 "${this::class.simpleName} - ${adError.description}".logIfDebug()
-                onDismissed.invoke()
+                onDismissed.invoke(0.0)
             }
 
             override fun onAdDismissed() {
-                onDismissed.invoke()
+                onDismissed.invoke(bonus)
             }
 
             override fun onAdClicked() {}
@@ -144,6 +162,7 @@ fun InterstitialAd.showAd(
                     val rawData = it.rawData
                     rawData.toAdData(
                         onSuccess = {data ->
+                            bonus = (data.revenue * UserViewModel.USER_PERCENTAGE).to2DigitsScale()
                             onImpression.invoke(data)
                         },
                         onFailed = {
@@ -154,6 +173,7 @@ fun InterstitialAd.showAd(
                     if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name || BuildConfig.ADS_SOURCE == AdsSource.LOCAL_HOST.name) {
                         TEST_INTERSTITIAL_DATA.toAdData(
                             onSuccess = { data ->
+                                bonus = (data.revenue * UserViewModel.USER_PERCENTAGE).to2DigitsScale()
                                 onImpression.invoke(data)
                             },
                             onFailed = {
