@@ -936,13 +936,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         adsVM.getInterstitialAdState().observe(this, adState -> {
             if (adState instanceof AdsViewModel.AdState.Dismissed) {
                 double bonus = ((AdsViewModel.AdState.Dismissed) adState).getBonus();
-                Pair<Integer, Integer> coordinates = new Pair<>(535, 45);
-                FrameLayout frameLayout = findViewById(R.id.frame_to_page_fragm);
-                com.myapp.lexicon.ads.ext.ExtensionsKt.showUserRewardAnimatedly(
-                        frameLayout,
-                        String.valueOf(bonus),
-                        coordinates
-                );
+                if (bonus > 0.0)
+                {
+                    Pair<Integer, Integer> coordinates = new Pair<>(535, 45);
+                    FrameLayout frameLayout = findViewById(R.id.frame_to_page_fragm);
+                    com.myapp.lexicon.ads.ext.ExtensionsKt.showUserRewardAnimatedly(
+                            frameLayout,
+                            String.valueOf(bonus),
+                            coordinates
+                    );
+                }
             }
         });
     }

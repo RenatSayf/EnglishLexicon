@@ -14,9 +14,10 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
+import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.BannerAdIds
 import com.myapp.lexicon.ads.RevenueViewModel
-import com.myapp.lexicon.ads.ext.showUserRewardPerAdPopup
+import com.myapp.lexicon.ads.ext.showUserRewardAnimatedly
 import com.myapp.lexicon.ads.loadBanner
 import com.myapp.lexicon.databinding.SRepeatModalFragmentBinding
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
@@ -59,6 +60,7 @@ class RepeatDialog: DialogFragment() {
     }
     private val userVM by viewModels<UserViewModel>()
     private val revenueVM by activityViewModels<RevenueViewModel>()
+    private val adsVM by activityViewModels<AdsViewModel>()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
 
@@ -204,10 +206,14 @@ class RepeatDialog: DialogFragment() {
                     adProgress.visibility = View.GONE
                 }
             }
-            revenueVM.state.observe(viewLifecycleOwner) { state ->
-                if (state is UserViewModel.State.RevenueUpdated) {
-                    val bonus = state.bonus.to2DigitsScale()
-                    tvReward.showUserRewardPerAdPopup(bonus.toString())
+
+            adsVM.interstitialAdState.observe(viewLifecycleOwner) { state ->
+                if (state is AdsViewModel.AdState.Dismissed) {
+                    val bonus = state.bonus
+                    if (bonus > 0.0) {
+                        val coordinates = Pair(btnOpenApp.right + 55, btnOpenApp.top + 15)
+                        layoutRoot.showUserRewardAnimatedly(bonus.toString(), coordinates)
+                    }
                 }
             }
 

@@ -3,7 +3,7 @@ package com.myapp.lexicon.service;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.widget.LinearLayout;
+import android.widget.FrameLayout;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.myapp.lexicon.R;
@@ -26,7 +26,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
-
 
 
 public class ServiceActivity extends AppCompatActivity implements IModalFragment
@@ -54,7 +53,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         locker = new LockOrientation(this);
         locker.lock();
 
-        binding = ServiceDialogActivityBinding.inflate(getLayoutInflater(), new LinearLayout(this), false);
+        binding = ServiceDialogActivityBinding.inflate(getLayoutInflater(), new FrameLayout(this), false);
         setContentView(binding.getRoot());
 
         adsVM = new ViewModelProvider(this).get(AdsViewModel.class);
@@ -122,7 +121,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
     private void handleAdvertisingPayload() {
 
         adsVM.loadInterstitialAd(InterstitialAdIds.INTERSTITIAL_2);
-        adsVM.getInterstitialAd().observe(this, result -> {
+        adsVM.getInterstitialAd().observe(ServiceActivity.this, result -> {
             interstitialAd = adsVM.getInterstitialAdOrNull();
             if (interstitialAd != null) {
                 AdsViewModelKt.showAd(
@@ -140,7 +139,10 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                             }
                             return null;
                         },
-                        bonus -> null
+                        bonus -> {
+                            adsVM.setInterstitialAdState(new AdsViewModel.AdState.Dismissed(bonus));
+                            return null;
+                        }
                 );
             }
         });

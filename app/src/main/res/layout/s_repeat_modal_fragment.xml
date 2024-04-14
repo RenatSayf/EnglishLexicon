@@ -1,211 +1,216 @@
-<!--TODO ModalFragment fragment layout-->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:maxWidth="280dp"
-              android:maxHeight="480dp"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:layout_margin="22dp"
-              android:orientation="vertical"
-              android:background="@drawable/side_nav_bar"
-              >
+<FrameLayout
+    android:id="@+id/layoutRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:maxWidth="280dp"
+    android:maxHeight="480dp"
+    android:layout_margin="22dp"
+    android:background="@drawable/side_nav_bar">
 
     <LinearLayout
+        android:id="@+id/layoutMainUI"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:orientation="horizontal"
-        android:layout_margin="0dp"
-        android:gravity="center"
-        android:background="@color/colorBlackTransparent">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:ignore="UselessParent">
 
-        <Button
-            android:id="@+id/btn_open_app"
-            style="@style/Base.Widget.AppCompat.Toolbar.Button.Navigation"
+        <LinearLayout
+            android:id="@+id/layoutHeader"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_margin="2dp"
-            android:paddingStart="10dp"
-            android:paddingEnd="5dp"
-            android:drawableStart="@drawable/selector_lexicon_icon"
-            android:background="@drawable/transparent_background_straight_angle"
-            android:textColor="@drawable/selector_white_to_orange_color"
-            android:text="@string/app_name"
-            android:textSize="18sp"
-            />
-
-        <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="0.0">
+            android:layout_height="?attr/actionBarSize"
+            android:orientation="horizontal"
+            android:layout_margin="0dp"
+            android:gravity="center"
+            android:background="@color/colorBlackTransparent">
 
             <Button
-                android:id="@+id/btn_stop_service"
+                android:id="@+id/btn_open_app"
                 style="@style/Base.Widget.AppCompat.Toolbar.Button.Navigation"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_margin="2dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="5dp"
+                android:drawableStart="@drawable/selector_lexicon_icon"
                 android:background="@drawable/transparent_background_straight_angle"
-                android:drawableTop="@drawable/selector_icon_power"
                 android:textColor="@drawable/selector_white_to_orange_color"
-                android:text="@string/text_off"
-                android:visibility="gone"/>
+                android:text="@string/app_name"
+                android:textSize="18sp" />
 
             <FrameLayout
-                android:id="@+id/rewardBlock"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:visibility="gone"
-                tools:visibility="visible"
-                >
+                android:layout_weight="0.0">
 
-                <TextView
-                    android:id="@+id/tvReward"
+                <Button
+                    android:id="@+id/btn_stop_service"
+                    style="@style/Base.Widget.AppCompat.Toolbar.Button.Navigation"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:padding="8dp"
-                    tools:text="💰 18.00 Р"
-                    android:textColor="@color/colorYellowDark"
-                    android:gravity="center"
-                    />
+                    android:background="@drawable/transparent_background_straight_angle"
+                    android:drawableTop="@drawable/selector_icon_power"
+                    android:textColor="@drawable/selector_white_to_orange_color"
+                    android:text="@string/text_off"
+                    android:visibility="gone" />
 
-                <ProgressBar
-                    android:id="@+id/adProgress"
-                    style="?android:attr/progressBarStyleHorizontal"
+                <FrameLayout
+                    android:id="@+id/rewardBlock"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"
-                    android:paddingStart="8dp"
-                    android:paddingEnd="8dp"
-                    android:indeterminate="true"
-                    android:indeterminateTint="@android:color/holo_orange_light"/>
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    tools:visibility="visible">
 
+                    <TextView
+                        android:id="@+id/tvReward"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:padding="8dp"
+                        android:textColor="@color/colorYellowDark"
+                        tools:ignore="TextContrastCheck"
+                        tools:text="💰 18.00 Р" />
+
+                    <ProgressBar
+                        android:id="@+id/adProgress"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:indeterminate="true"
+                        android:indeterminateTint="@android:color/holo_orange_light" />
+
+                </FrameLayout>
             </FrameLayout>
-        </FrameLayout>
 
-    </LinearLayout>
+        </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:orientation="horizontal"
-        android:layout_margin="5dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal"
+            android:layout_margin="5dp">
+
+            <TextView
+                android:id="@+id/name_dict_tv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:gravity="start"
+                android:text="@string/text_name_dict"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/colorWhite"
+                tools:ignore="TextContrastCheck" />
+
+            <ImageView
+                android:id="@+id/order_play_icon_iv_modal"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="0"
+                android:contentDescription="@string/btn_close_discribtion"
+                android:src="@drawable/ic_repeat_white" />
+
+            <TextView
+                android:id="@+id/words_number_tv_modal_sv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:textColor="@color/colorWhite"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        </LinearLayout>
 
         <TextView
-            android:id="@+id/name_dict_tv"
+            android:id="@+id/en_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:layout_weight="6"
+            android:gravity="center"
+            android:textSize="26sp"
+            android:textStyle="normal|bold"
+            android:textColor="@color/colorWhite"
+            android:text="@string/text_en" />
+
+        <TextView
+            android:id="@+id/ru_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:layout_marginBottom="20dp"
+            android:layout_weight="6"
+            android:gravity="center"
+            android:layout_marginTop="20dp"
+            android:textSize="26sp"
+            android:textStyle="normal|bold"
+            android:textColor="@color/colorLightGreen"
+            android:text="@string/text_ru" />
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_gravity="center_vertical"
-            android:gravity="start"
-            android:text="@string/text_name_dict"
-            android:textColor="@color/colorWhite"
-            android:textAppearance="?android:attr/textAppearanceSmall"/>
+            android:gravity="center"
+            android:orientation="horizontal">
 
-        <ImageView
-            android:id="@+id/order_play_icon_iv_modal"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="0"
-            android:contentDescription="@string/btn_close_discribtion"
-            android:src="@drawable/ic_repeat_white"/>
+            <CheckBox
+                android:id="@+id/check_box_ru_speak_modal"
+                style="@android:style/Widget.Holo.Light.CompoundButton.CheckBox"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_margin="12dp"
+                app:buttonTint="@color/colorWhite"
+                android:text="@string/text_ru"
+                android:textColor="@drawable/selector_white_to_orange_color"
+                android:background="@drawable/transparent_background_straight_angle"
+                android:checked="false"
+                tools:ignore="NestedWeights" />
 
-        <TextView
-            android:id="@+id/words_number_tv_modal_sv"
+            <ImageButton
+                android:id="@+id/btn_sound_modal"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="10"
+                android:background="@drawable/transparent_background_straight_angle"
+                android:contentDescription="@string/btn_sound_discribtion"
+                android:src="@drawable/selector_sound_icon"
+                android:textColor="@drawable/selector_white_to_orange_color" />
+
+            <ImageButton
+                android:id="@+id/btn_close"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/transparent_background_straight_angle"
+                android:contentDescription="@string/btn_close_discribtion"
+                android:padding="12dp"
+                android:src="@drawable/selector_close_icon"
+                android:textColor="@drawable/selector_white_to_orange_color"
+                tools:ignore="DuplicateSpeakableTextCheck,ImageContrastCheck" />
+
+        </LinearLayout>
+
+        <com.yandex.mobile.ads.banner.BannerAdView
+            android:id="@+id/bannerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="end"
-            android:textColor="@color/colorWhite"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            />
+            android:layout_gravity="bottom" />
 
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/en_text_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="20dp"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:layout_weight="6"
-        android:gravity="center"
-        android:textSize="26sp"
-        android:textStyle="normal|bold"
-        android:textColor="@color/colorWhite"
-        android:text="@string/text_en"/>
-
-    <TextView
-        android:id="@+id/ru_text_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:layout_marginBottom="20dp"
-        android:layout_weight="6"
-        android:gravity="center"
-        android:layout_marginTop="20dp"
-        android:textSize="26sp"
-        android:textStyle="normal|bold"
-        android:textColor="@color/colorLightGreen"
-        android:text="@string/text_ru"/>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:orientation="horizontal">
-
-        <CheckBox
-            android:id="@+id/check_box_ru_speak_modal"
-            style="@android:style/Widget.Holo.Light.CompoundButton.CheckBox"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_margin="12dp"
-            app:buttonTint="@color/colorWhite"
-            android:text="@string/text_ru"
-            android:textColor="@drawable/selector_white_to_orange_color"
-            android:background="@drawable/transparent_background_straight_angle"
-            android:checked="false"/>
-
-        <ImageButton
-            android:id="@+id/btn_sound_modal"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="10"
-            android:background="@drawable/transparent_background_straight_angle"
-            android:contentDescription="@string/btn_sound_discribtion"
-            android:src="@drawable/selector_sound_icon"
-            android:textColor="@drawable/selector_white_to_orange_color"
-            />
-
-        <ImageButton
-            android:id="@+id/btn_close"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:padding="12dp"
-            android:background="@drawable/transparent_background_straight_angle"
-            android:contentDescription="@string/btn_close_discribtion"
-            android:src="@drawable/selector_close_icon"
-            android:textColor="@drawable/selector_white_to_orange_color"
-            />
-
-    </LinearLayout>
-
-    <com.yandex.mobile.ads.banner.BannerAdView
-        android:id="@+id/bannerView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom">
-    </com.yandex.mobile.ads.banner.BannerAdView>
-
-</LinearLayout>
+</FrameLayout>
