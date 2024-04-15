@@ -8,6 +8,8 @@
     android:background="@color/color_status_bar"
     tools:context=".main.MainActivity">
 
-    <include layout="@layout/a_content_main"/>
+    <include
+        android:id="@+id/includeContentMain"
+        layout="@layout/a_content_main"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -36,6 +36,8 @@ import com.myapp.lexicon.auth.AuthViewModel;
 import com.myapp.lexicon.auth.account.AccountFragment;
 import com.myapp.lexicon.auth.account.AccountViewModel;
 import com.myapp.lexicon.database.AppDataBase;
+import com.myapp.lexicon.databinding.ANavigMainBinding;
+import com.myapp.lexicon.databinding.LayoutMainToolbarBinding;
 import com.myapp.lexicon.dialogs.ConfirmDialog;
 import com.myapp.lexicon.dialogs.DictListDialog;
 import com.myapp.lexicon.dialogs.OrderPlayDialog;
@@ -89,7 +91,9 @@ import kotlin.Pair;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         MainFragment.Listener, FragmentResultListener
 {
-    private View root;
+    private ANavigMainBinding binding;
+    private LayoutMainToolbarBinding toolbarBinding;
+    //private View root;
     private NavigationView navView;
     private Toolbar toolBar;
     private DrawerLayout drawerLayout;
@@ -110,13 +114,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        root = LayoutInflater.from(this).inflate(R.layout.a_navig_main, new DrawerLayout(this));
-        setContentView(root);
 
-        toolBar = findViewById(R.id.tool_bar);
+        binding = ANavigMainBinding.inflate(LayoutInflater.from(this));
+        setContentView(binding.getRoot());
+
+        toolbarBinding = binding.includeLayoutMain.includeContentMain.includeToolBar;
+        toolBar = toolbarBinding.layoutToolBar;
         setSupportActionBar(toolBar);
 
-        navView = root.findViewById(R.id.nav_view);
+        navView = binding.navView;
         navView.getMenu().findItem(R.id.nav_video_list).setVisible(ConstantsKt.getIS_VIDEO_SECTION());
         drawerLayout = findViewById(R.id.drawer_layout);
         tvReward = navView.getHeaderView(0).findViewById(R.id.tvReward);
@@ -440,7 +446,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         MainFragment mainFragment = MainFragment.Companion.getInstance(this);
         getSupportFragmentManager().beginTransaction().add(R.id.frame_to_page_fragm, mainFragment).commit();
 
-        BannerAdView bannerView = root.findViewById(R.id.bannerView);
+        BannerAdView bannerView = binding.getRoot().findViewById(R.id.bannerView);
         AdsViewModelKt.loadBanner(bannerView, BannerAdIds.BANNER_2);
 
         onRevenueUpdate();
@@ -468,7 +474,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     .concat(getString(R.string.text_your_reward)).concat(" ")
                     .concat(String.valueOf(rewardToDisplay)).concat(" ")
                     .concat((revenue != null) ? revenue.getCurrencySymbol() : Currency.getInstance("RUB").getSymbol());
-            toolBar.setSubtitle(text);
+            TextView tvSubTitle = toolBar.findViewById(R.id.tvSubtitle);
+            tvSubTitle.setText(text);
+            //toolBar.setSubtitle(text);
 
             if (tvReward != null)
             {
@@ -756,7 +764,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         String message = error.getMessage();
                         if (message != null)
                         {
-                            ExtensionsKt.showSnackBar(root, message, Snackbar.LENGTH_LONG);
+                            ExtensionsKt.showSnackBar(binding.getRoot(), message, Snackbar.LENGTH_LONG);
                         }
                         return null;
                     });
@@ -938,7 +946,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 double bonus = ((AdsViewModel.AdState.Dismissed) adState).getBonus();
                 if (bonus > 0.0)
                 {
-                    Pair<Integer, Integer> coordinates = new Pair<>(535, 45);
+                    TextView tvSubTitle = toolbarBinding.layoutToolBar.findViewById(R.id.tvSubtitle);
+                    int x = tvSubTitle.getRight();
+                    int top = tvSubTitle.getTop();
+                    int bottom = tvSubTitle.getBottom();
+                    Pair<Integer, Integer> coordinates = new Pair<>(x, top + ((top - bottom)/2));
                     FrameLayout frameLayout = findViewById(R.id.frame_to_page_fragm);
                     com.myapp.lexicon.ads.ext.ExtensionsKt.showUserRewardAnimatedly(
                             frameLayout,
