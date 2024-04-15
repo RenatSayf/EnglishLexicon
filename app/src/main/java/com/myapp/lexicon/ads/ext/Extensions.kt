@@ -89,7 +89,7 @@ fun ViewGroup.showUserRewardAnimatedly(
     coordinates: Pair<Int, Int>
 ) {
 
-    val enterAnimDuration: Long = 700
+    val enterAnimDuration: Long = 600
     val pauseMiddleDuration: Long = 3000
     val exitAnimDuration: Long = 200
 
