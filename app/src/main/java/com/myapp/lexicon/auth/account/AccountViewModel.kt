@@ -10,12 +10,13 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
+import com.myapp.lexicon.auth.models.SBPBanks
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.parse.GetCallback
 import com.parse.ParseException
 import com.parse.ParseObject
 import com.parse.ParseQuery
 import kotlinx.serialization.json.Json
-import org.jsoup.Jsoup
 import java.io.BufferedInputStream
 import java.net.HttpURLConnection
 import java.net.URL
@@ -55,10 +56,12 @@ open class AccountViewModel : ViewModel() {
     protected var _bankList = MutableLiveData<Result<List<String>>>()
     open val bankList: LiveData<Result<List<String>>> = _bankList
 
+    private val jsonDecoder = Json { ignoreUnknownKeys = true }
+
     open fun fetchBankListFromNet() {
 
         thread = Thread(Runnable {
-            val url = "https://life-pay.ru/blog/biznes/sistema-bystryh-platezhej-spisok-bankov/"
+            val url = "https://sbp.nspk.ru/rest/v1/banks/list?limit=500"
             try {
                 val urlConnection = URL(url).openConnection() as HttpURLConnection
                 val inputStream = BufferedInputStream(urlConnection.inputStream)
@@ -66,12 +69,16 @@ open class AccountViewModel : ViewModel() {
                 val code = urlConnection.responseCode
                 when(code) {
                     200 -> {
-                        val document = Jsoup.parse(responseText)
-                        val elements = document.select(".wp-block-table > table > tbody > tr > td:nth-child(1)")
-                        val bankList = elements.map {
-                            it.text()
+                        try {
+                            val sbpBanks = jsonDecoder.decodeFromString<SBPBanks>(responseText)
+                            val bankList = sbpBanks.banks.map {
+                                it.title
+                            }
+                            _bankList.postValue(Result.success(bankList))
+                        } catch (e: Exception) {
+                            e.printStackTraceIfDebug()
+                            getBankListFromCloud()
                         }
-                        _bankList.postValue(Result.success(bankList))
                     }
                     else -> {
                         _bankList.postValue(Result.failure(Exception("********* ${AccountViewModel::class.simpleName}.fetchBankList() - Http response code - $code **************")))
@@ -149,6 +156,6 @@ open class AccountViewModel : ViewModel() {
     }
 
     init {
-        this.getBankListFromCloud()
+        this.fetchBankListFromNet()
     }
 }
