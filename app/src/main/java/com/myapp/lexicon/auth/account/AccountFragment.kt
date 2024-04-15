@@ -104,14 +104,17 @@ class AccountFragment : Fragment() {
                 }
             }
 
-            val editTextList = listOf(
+            val editTextList = mutableListOf(
                 tvEmailValue,
                 tvPhoneValue,
                 tvBankNameValue,
-                tvCardNumber,
                 tvFirstNameValue,
                 tvLastNameValue
-            )
+            ).apply {
+                if (accountVM.isBankCardRequired) {
+                    add(tvCardNumber)
+                }
+            }
 
             accountVM.screenState.observe(viewLifecycleOwner) { state ->
                 when(state) {
@@ -381,11 +384,15 @@ class AccountFragment : Fragment() {
                         return@setOnClickListener
                     }
 
-                    val number = tvCardNumber.text.toString()
-                    val isValidNumber = LuhnAlgorithm.isLuhnChecksumValid(number)
-                    if (!isValidNumber) {
-                        tvCardNumber.background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_horizontal_oval_error)
-                        return@setOnClickListener
+                    if (accountVM.isBankCardRequired) {
+                        val number = tvCardNumber.text.toString()
+                        if (number.isNotEmpty()) {
+                            val isValidNumber = LuhnAlgorithm.isLuhnChecksumValid(number)
+                            if (!isValidNumber) {
+                                tvCardNumber.background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_horizontal_oval_error)
+                                return@setOnClickListener
+                            }
+                        }
                     }
 
                     if (tvBankNameValue.text.isNullOrEmpty()) {
@@ -528,7 +535,7 @@ class AccountFragment : Fragment() {
                 layoutBankName.visibility = View.GONE
             }
 
-            if (user.bankCard.isNotEmpty()) {
+            if (accountVM.isBankCardRequired && user.bankCard.isNotEmpty()) {
                 tvCardNumber.setText(user.bankCard)
                 layoutBankCard.visibility = View.VISIBLE
             } else {

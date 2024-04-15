@@ -56,7 +56,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         binding = ServiceDialogActivityBinding.inflate(getLayoutInflater(), new FrameLayout(this), false);
         setContentView(binding.getRoot());
 
-        adsVM = new ViewModelProvider(this).get(AdsViewModel.class);
+        adsVM = new ViewModelProvider(ServiceActivity.this).get(AdsViewModel.class);
         revenueVM = new ViewModelProvider(ServiceActivity.this).get(RevenueViewModel.class);
 
         ParseUser currentUser = ParseUser.getCurrentUser();
