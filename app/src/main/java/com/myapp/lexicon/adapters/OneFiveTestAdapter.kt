@@ -6,12 +6,14 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.recyclerview.widget.RecyclerView
 import com.myapp.lexicon.R
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.models.Word
 
-class OneFiveTestAdapter constructor(private val list: MutableList<Word>) : RecyclerView.Adapter<OneFiveTestAdapter.ViewHolder>()
+class OneFiveTestAdapter : RecyclerView.Adapter<OneFiveTestAdapter.ViewHolder>()
 {
     class ViewHolder(item: View) : RecyclerView.ViewHolder(item)
 
+    private val list: MutableList<Word> = mutableListOf()
     private lateinit var listener: ITestAdapterListener
 
     interface ITestAdapterListener
@@ -61,35 +63,21 @@ class OneFiveTestAdapter constructor(private val list: MutableList<Word>) : Recy
         return list
     }
 
-    fun removeItem(position: Int): Word
-    {
-        val word = list.removeAt(position)
-        notifyItemRemoved(position)
-        return word
-    }
+    fun removeItem(english: String, translate: String) {
 
-    fun removeItem(english: String, translate: String)
-    {
-        var position: Int = -1
-        list.forEachIndexed { i, w ->
-            if (w.english == english && w.translate == translate)
-            {
-                position = i
-                return@forEachIndexed
-            }
-        }
-        try
-        {
-            if (list.size == 1)
-            {
+        try {
+            if (list.size == 1) {
                 list.clear()
             }
-            else list.removeAt(position)
-            notifyItemRemoved(position)
-        }
-        catch (e: Exception)
-        {
-            e.printStackTrace()
+            else {
+                val position = list.indexOfFirst { item ->
+                    item.english == english && item.translate == translate
+                }
+                list.removeAt(position)
+                notifyItemRemoved(position)
+            }
+        } catch (e: Exception) {
+            e.printStackTraceIfDebug()
         }
     }
 
@@ -98,6 +86,10 @@ class OneFiveTestAdapter constructor(private val list: MutableList<Word>) : Recy
         list.add(position, word)
         notifyItemInserted(position)
         notifyItemChanged(position)
+    }
+
+    fun addItems(list: List<Word>) {
+        this.list.addAll(list)
     }
 
 }

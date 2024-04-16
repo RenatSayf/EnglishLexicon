@@ -13,7 +13,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.myapp.lexicon.R
 import com.myapp.lexicon.adapters.OneFiveTestAdapter
 import com.myapp.lexicon.ads.AdsViewModel
@@ -33,7 +32,7 @@ const val ROWS: Int = 5
 
 
 
-class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdapter.ITestAdapterListener
+class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
 {
     private lateinit var binding: OneOfFiveFragmNewBinding
     private lateinit var vm: OneOfFiveViewModel
@@ -41,6 +40,13 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
     private val adsVM: AdsViewModel by activityViewModels()
     private val revenueVM: RevenueViewModel by activityViewModels()
     private var interstitialAd: InterstitialAd? = null
+
+    private val wordsAdapter: OneFiveTestAdapter by lazy {
+        OneFiveTestAdapter().apply {
+            setHasStableIds(true)
+            setOnItemClickListener(this@OneOfFiveFragm)
+        }
+    }
 
 
     companion object
@@ -71,13 +77,17 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return inflater.inflate(R.layout.one_of_five_fragm_new, container, false)
+        binding = OneOfFiveFragmNewBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?)
     {
         super.onViewCreated(view, savedInstanceState)
-        binding = OneOfFiveFragmNewBinding.bind(view)
+
+        binding.answersRecyclerView.apply {
+            this.adapter = wordsAdapter
+        }
 
         if (!wordList.isNullOrEmpty()) vm.initTest(wordList!!.toList())
 
@@ -88,14 +98,8 @@ class OneOfFiveFragm : Fragment(R.layout.one_of_five_fragm_new), OneFiveTestAdap
             }
         }
 
-        vm.adapterList.observe(viewLifecycleOwner) {
-            binding.answersRecyclerView.apply {
-                this.adapter = OneFiveTestAdapter(it).apply {
-                    setHasStableIds(true)
-                    layoutManager = LinearLayoutManager(requireContext())
-                    setOnItemClickListener(this@OneOfFiveFragm)
-                }
-            }
+        vm.adapterList.observe(viewLifecycleOwner) { list ->
+            wordsAdapter.addItems(list)
         }
 
         vm.mysteryWord.observe(viewLifecycleOwner) {
