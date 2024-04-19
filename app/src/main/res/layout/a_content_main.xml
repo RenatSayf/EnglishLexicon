@@ -74,7 +74,7 @@
                     android:layout_gravity="center"
                     android:padding="10dp"
                     android:contentDescription="@string/btn_close_discribtion"
-                    android:src="@drawable/ic_repeat_white"
+                    android:src="@drawable/ic_repeat_to_forward"
                     android:background="@drawable/selector_transp_to_white_back"/>
             </FrameLayout>
 

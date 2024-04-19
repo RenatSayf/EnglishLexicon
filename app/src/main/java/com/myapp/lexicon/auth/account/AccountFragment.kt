@@ -506,7 +506,7 @@ class AccountFragment : Fragment() {
                 tvRewardCondition.visibility = View.GONE
             }
             else tvRewardCondition.visibility = View.VISIBLE
-            btnGetReward.isEnabled = user.userReward > rewardThreshold
+            btnGetReward.isEnabled = user.userReward > rewardThreshold && accountVM.paymentCode == BuildConfig.PAYMENT_CODE
 
             if (user.message.isNotEmpty()) {
                 tvMessage.apply {

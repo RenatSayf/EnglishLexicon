@@ -197,7 +197,7 @@
     <string name="title_first_name">Имя</string>
     <string name="title_last_name">Фамилия</string>
     <string name="text_get_reward_now">Получить награду</string>
-    <string name="text_reward_conditions">Получить награду можно, когда сумма составит больше</string>
+    <string name="text_reward_conditions">Вознаграждение выплачивается с 21 по 26 число каждого месяца, при условии, что сумма будет больше</string>
     <string name="text_card_number_to_phone">Номер банковской карты привязанной к номеру телефона</string>
     <string name="text_enter_card_number">Введите номер банковской карты</string>
     <string name="text_card_number_hint">0000 0000 0000 0000</string>

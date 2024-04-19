@@ -70,6 +70,7 @@
                         android:id="@+id/tvReward"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:minWidth="80dp"
                         android:gravity="center"
                         android:paddingStart="8dp"
                         android:paddingTop="8dp"
