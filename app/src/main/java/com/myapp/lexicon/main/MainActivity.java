@@ -36,6 +36,7 @@ import com.myapp.lexicon.auth.AuthViewModel;
 import com.myapp.lexicon.auth.account.AccountFragment;
 import com.myapp.lexicon.auth.account.AccountViewModel;
 import com.myapp.lexicon.database.AppDataBase;
+import com.myapp.lexicon.databinding.AContentMainBinding;
 import com.myapp.lexicon.databinding.ANavigMainBinding;
 import com.myapp.lexicon.databinding.LayoutMainToolbarBinding;
 import com.myapp.lexicon.dialogs.ConfirmDialog;
@@ -93,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 {
     private ANavigMainBinding binding;
     private LayoutMainToolbarBinding toolbarBinding;
-    //private View root;
+    private AContentMainBinding contentBinding;
     private NavigationView navView;
     private Toolbar toolBar;
     private DrawerLayout drawerLayout;
@@ -122,10 +123,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toolBar = toolbarBinding.layoutToolBar;
         setSupportActionBar(toolBar);
 
+        contentBinding = binding.includeLayoutMain.includeContentMain;
+
         navView = binding.navView;
         navView.getMenu().findItem(R.id.nav_video_list).setVisible(ConstantsKt.getIS_VIDEO_SECTION());
-        drawerLayout = findViewById(R.id.drawer_layout);
+        navView.setNavigationItemSelectedListener(this);
         tvReward = navView.getHeaderView(0).findViewById(R.id.tvReward);
+
+        drawerLayout = binding.drawerLayout;
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolBar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        //noinspection deprecation
+        drawerLayout.setDrawerListener(toggle);
+        toggle.syncState();
 
         getSupportFragmentManager().setFragmentResultListener(getString(R.string.KEY_NEED_REFRESH), this, this);
         getSupportFragmentManager().setFragmentResultListener(getString(R.string.KEY_TEST_INTERVAL_CHANGED), this, this);
@@ -194,15 +203,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             });
         });
 
-        btnViewDict = findViewById(R.id.btnViewDict);
+        btnViewDict = contentBinding.btnViewDict;
         btnViewDictOnClick(btnViewDict);
 
-        orderPlayView = findViewById(R.id.order_play_icon_iv);
+        orderPlayView = contentBinding.orderPlayIconIv;
         btnOrderPlayOnClick(orderPlayView);
 
-        tvWordsCounter = findViewById(R.id.tv_words_counter);
+        tvWordsCounter = contentBinding.tvWordsCounter;
 
-        mainViewPager = findViewById(R.id.mainViewPager);
+        mainViewPager = contentBinding.mainViewPager;
         mainViewPager.setAdapter(pagerAdapter);
         mainViewPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
 
@@ -321,11 +330,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
 
         mainVM.getMainControlVisibility().observe(this, visibility -> {
-            mainControlLayout = findViewById(R.id.main_control_layout);
-            if (mainControlLayout != null)
-            {
-                mainControlLayout.setVisibility(visibility);
-            }
+            mainControlLayout = contentBinding.mainControlLayout;
+            mainControlLayout.setVisibility(visibility);
         });
 
         if (savedInstanceState == null)
@@ -334,18 +340,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             getSupportFragmentManager().beginTransaction().replace(R.id.background_fragment, backgroundFragm).commit();
         }
 
-
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolBar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        //noinspection deprecation
-        drawerLayout.setDrawerListener(toggle);
-        toggle.syncState();
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        if (navigationView != null)
-        {
-            navigationView.setNavigationItemSelectedListener(this);
-        }
-
-        CheckBox checkBoxEnView = findViewById(R.id.check_box_en_speak);
+        CheckBox checkBoxEnView = contentBinding.checkBoxEnSpeak;
         //noinspection CodeBlock2Expr
         checkBoxEnView.setOnCheckedChangeListener((compoundButton, b) -> {
             speechVM.enableEnSpeech(b);
@@ -361,7 +356,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         speechVM.getEnCheckboxEnable().observe(this, checkBoxEnView::setEnabled);
 
-        CheckBox checkBoxRuSpeak = findViewById(R.id.check_box_ru_speak);
+        CheckBox checkBoxRuSpeak = contentBinding.checkBoxRuSpeak;
         checkBoxRuSpeak.setOnClickListener(view -> {
             CheckBox checkBox = (CheckBox) view;
             speechVM.enableRuSpeech(checkBox.isChecked());
@@ -381,7 +376,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         speechVM.getRuCheckboxEnable().observe(this, checkBoxRuSpeak::setEnabled);
 
-        ProgressBar speechProgress = findViewById(R.id.speechProgress);
+        ProgressBar speechProgress = contentBinding.speechProgress;
         //noinspection CodeBlock2Expr
         speechVM.getSpeechStartId().observe(MainActivity.this, utteranceId ->
         {
@@ -408,7 +403,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
 
 
-        ImageButton btnSpeak = findViewById(R.id.btn_speak);
+        ImageButton btnSpeak = contentBinding.btnSpeak;
         speechVM.getSpeechProgressVisibility().observe(this, v -> {
             speechProgress.setVisibility(v);
             if (v == View.VISIBLE)
@@ -433,7 +428,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        AppCompatImageButton btnReplay = findViewById(R.id.btnReplay);
+        AppCompatImageButton btnReplay = contentBinding.btnReplay;
         mainVM.isEndWordList.observe(this, isEnd -> {
             if (isEnd)
             {
@@ -446,7 +441,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         MainFragment mainFragment = MainFragment.Companion.getInstance(this);
         getSupportFragmentManager().beginTransaction().add(R.id.frame_to_page_fragm, mainFragment).commit();
 
-        BannerAdView bannerView = binding.getRoot().findViewById(R.id.bannerView);
+        BannerAdView bannerView = contentBinding.bannerView;
         AdsViewModelKt.loadBanner(bannerView, BannerAdIds.BANNER_2);
 
         onRevenueUpdate();
@@ -474,7 +469,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     .concat(getString(R.string.text_your_reward)).concat(" ")
                     .concat(String.valueOf(rewardToDisplay)).concat(" ")
                     .concat((revenue != null) ? revenue.getCurrencySymbol() : Currency.getInstance("RUB").getSymbol());
-            TextView tvSubTitle = toolBar.findViewById(R.id.tvSubtitle);
+            TextView tvSubTitle = toolbarBinding.tvSubtitle;
             tvSubTitle.setText(text);
             //toolBar.setSubtitle(text);
 
@@ -946,12 +941,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 double bonus = ((AdsViewModel.AdState.Dismissed) adState).getBonus();
                 if (bonus > 0.0)
                 {
-                    TextView tvSubTitle = toolbarBinding.layoutToolBar.findViewById(R.id.tvSubtitle);
+                    TextView tvSubTitle = toolbarBinding.tvSubtitle;
                     int x = tvSubTitle.getRight();
                     int top = tvSubTitle.getTop();
                     int bottom = tvSubTitle.getBottom();
                     Pair<Integer, Integer> coordinates = new Pair<>(x, top + ((top - bottom)/2));
-                    FrameLayout frameLayout = findViewById(R.id.frame_to_page_fragm);
+                    FrameLayout frameLayout = contentBinding.frameToPageFragm;
                     com.myapp.lexicon.ads.ext.ExtensionsKt.showUserRewardAnimatedly(
                             frameLayout,
                             String.valueOf(bonus),
