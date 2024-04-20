@@ -220,8 +220,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             {
                 int order = ExtensionsKt.checkSorting(list.getWords());
                 SettingsExtKt.saveOrderPlay(this, order);
-                if (order == 0 || order == 1) {
+                if (order == 0) {
                     orderPlayView.setImageResource(R.drawable.ic_repeat_white);
+                    orderPlayView.setScaleX(1f);
+                }
+                else if (order == 1) {
+                    orderPlayView.setImageResource(R.drawable.ic_repeat_white);
+                    orderPlayView.setScaleX(-1f);
                 }
                 else {
                     orderPlayView.setImageResource(R.drawable.ic_shuffle_white);

@@ -510,6 +510,16 @@ fun FragmentActivity.orientationUnLock() {
     this.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
 }
 
+fun String.firstCap() = this.lowercase().replaceFirstChar {
+    it.uppercase()
+}
+
+fun String.checkIfAllDigits(): Boolean {
+    return this.all {
+        it.code in 33..64
+    }
+}
+
 
 
 

@@ -32,7 +32,7 @@ open class AccountViewModel : ViewModel() {
         Firebase.remoteConfig.getDouble("payment_threshold") else 0.1
 
     open val paymentCode: String = if (!BuildConfig.DEBUG)
-        Firebase.remoteConfig.getString("PAYMENT_CODE") else BuildConfig.PAYMENT_CODE
+        Firebase.remoteConfig.getString("PAYMENT_CODE").trim() else BuildConfig.PAYMENT_CODE.trim()
 
     open val paymentDays: Int = Firebase.remoteConfig.getDouble("payment_days").toInt()
     open val explainMessage: String = Firebase.remoteConfig.getString("reward_explain_message")

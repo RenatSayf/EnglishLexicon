@@ -26,6 +26,8 @@ import com.myapp.lexicon.auth.agreement.UserAgreementDialog
 import com.myapp.lexicon.databinding.FragmentAccountBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.LuhnAlgorithm
+import com.myapp.lexicon.helpers.checkIfAllDigits
+import com.myapp.lexicon.helpers.firstCap
 import com.myapp.lexicon.helpers.orientationLock
 import com.myapp.lexicon.helpers.orientationUnLock
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
@@ -310,7 +312,7 @@ class AccountFragment : Fragment() {
                 if (text.toString().isEmpty()) {
                     tvBankNameValue.background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_horizontal_oval)
                 }
-                else if (!text.isNullOrEmpty() && text.toString().length > 1) {
+                else if (!text.isNullOrEmpty() && text.toString().length > 1 && !text.toString().checkIfAllDigits()) {
                     tvBankNameValue.background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_horizontal_oval)
                 }
                 else tvBankNameValue.background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_horizontal_oval_error)
@@ -361,8 +363,8 @@ class AccountFragment : Fragment() {
                         User.KEY_PHONE to tvPhoneValue.text.toString(),
                         User.KEY_BANK_NAME to tvBankNameValue.text.toString(),
                         User.KEY_BANK_CARD to tvCardNumber.text.toString(),
-                        User.KEY_FIRST_NAME to tvFirstNameValue.text.toString(),
-                        User.KEY_LAST_NAME to tvLastNameValue.text.toString()
+                        User.KEY_FIRST_NAME to tvFirstNameValue.text.toString().firstCap(),
+                        User.KEY_LAST_NAME to tvLastNameValue.text.toString().firstCap()
                     )
                     userVM.updateUserDataIntoCloud(userMap)
                     accountVM.setState(AccountViewModel.State.ReadOnly)
@@ -506,7 +508,7 @@ class AccountFragment : Fragment() {
                 tvRewardCondition.visibility = View.GONE
             }
             else tvRewardCondition.visibility = View.VISIBLE
-            btnGetReward.isEnabled = user.userReward > rewardThreshold && accountVM.paymentCode == BuildConfig.PAYMENT_CODE
+            btnGetReward.isEnabled = user.userReward > rewardThreshold && accountVM.paymentCode == BuildConfig.PAYMENT_CODE.trim()
 
             if (user.message.isNotEmpty()) {
                 tvMessage.apply {
