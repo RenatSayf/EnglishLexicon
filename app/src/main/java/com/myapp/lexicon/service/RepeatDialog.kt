@@ -174,10 +174,16 @@ class RepeatDialog: DialogFragment() {
                 onCycle = { value ->
                     when (value) {
                         0 -> {
-                            orderPlayIconIvModal.setImageResource(R.drawable.ic_repeat_white)
+                            orderPlayIconIvModal.apply {
+                                setImageResource(R.drawable.ic_repeat_white)
+                                scaleX = 1f
+                            }
                         }
                         1 -> {
-                            orderPlayIconIvModal.setImageResource(R.drawable.ic_repeat_white)
+                            orderPlayIconIvModal.apply {
+                                setImageResource(R.drawable.ic_repeat_white)
+                                scaleX = -1f
+                            }
                         }
                     }
                 },

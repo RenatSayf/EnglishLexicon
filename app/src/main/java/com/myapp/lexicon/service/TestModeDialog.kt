@@ -188,10 +188,16 @@ class TestModeDialog : DialogFragment() {
                 onCycle = { value ->
                     when (value) {
                         0 -> {
-                            orderPlayIconIvTestModal.setImageResource(R.drawable.ic_repeat_white)
+                            orderPlayIconIvTestModal.apply {
+                                setImageResource(R.drawable.ic_repeat_white)
+                                scaleX = 1f
+                            }
                         }
                         1 -> {
-                            orderPlayIconIvTestModal.setImageResource(R.drawable.ic_repeat_white)
+                            orderPlayIconIvTestModal.apply {
+                                setImageResource(R.drawable.ic_repeat_white)
+                                scaleX = -1f
+                            }
                         }
                     }
                 },
