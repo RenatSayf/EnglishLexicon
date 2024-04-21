@@ -164,7 +164,7 @@ fun Context.getWordFromPref(
     }
 }
 
-fun Context.checkUnLockedBroadcast(onEnabled: () -> Unit, onDisabled: () -> Unit) {
+fun Context.checkUnLockedBroadcast(onEnabled: () -> Unit, onDisabled: () -> Unit = {}) {
     val isEnabled = appSettings.getBoolean(getString(R.string.key_service), false)
     when(isEnabled) {
         true -> onEnabled.invoke()

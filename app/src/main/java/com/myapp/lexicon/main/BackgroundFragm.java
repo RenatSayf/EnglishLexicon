@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterViewFlipper;
 
 import com.myapp.lexicon.R;
+import com.myapp.lexicon.helpers.ExtensionsKt;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -106,8 +107,8 @@ public class BackgroundFragm extends Fragment
             @Override
             public void handleOnBackPressed()
             {
-                MainActivity mainActivity = (MainActivity) requireActivity();
-                mainActivity.onAppFinish();
+                ExtensionsKt.setServiceBroadcasts(requireContext());
+                requireActivity().finish();
             }
         });
     }

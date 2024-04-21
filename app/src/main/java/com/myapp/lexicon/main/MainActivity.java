@@ -5,7 +5,6 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -608,21 +607,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         super.onStart();
 
-        PhoneUnlockedReceiver.Companion.disableBroadcast();
-
-        NotificationManager nmg = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        if (nmg != null)
-        {
-            nmg.cancelAll();
-        }
-        AlarmScheduler scheduler = new AlarmScheduler(this);
-        scheduler.cancel(AlarmScheduler.ONE_SHOOT_ACTION);
-
         AppDataBase dataBase = AppDataBase.Companion.getDataBase();
         if (dataBase == null) {
             AppDataBase dbInstance = AppDataBase.Companion.getDbInstance(this);
             DataRepositoryImpl repository = new DataRepositoryImpl(dbInstance.appDao());
             mainVM.injectDependencies(repository);
+        }
+    }
+
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus)
+    {
+        super.onWindowFocusChanged(hasFocus);
+
+        if (hasFocus) {
+            PhoneUnlockedReceiver.Companion.disableBroadcast();
+
+            NotificationManager nmg = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            if (nmg != null)
+            {
+                nmg.cancelAll();
+            }
+            AlarmScheduler scheduler = new AlarmScheduler(this);
+            scheduler.cancel(AlarmScheduler.ONE_SHOOT_ACTION);
         }
     }
 
@@ -832,7 +840,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             getSupportFragmentManager().beginTransaction().replace(R.id.frame_to_page_fragm, aboutAppFragment).addToBackStack(null).commit();
         } else if (itemId == R.id.nav_exit)
         {
-            onAppFinish();
+            ExtensionsKt.setServiceBroadcasts(MainActivity.this);
+            finish();
         }
 
         if (drawerLayout != null)
@@ -884,36 +893,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     });
                     return null;
                 }), ConfirmDialog.Companion.getTAG());
-    }
-
-    @SuppressLint("UnspecifiedRegisterReceiverFlag")
-    public void onAppFinish()
-    {
-        ExtensionsKt.alarmClockEnable(this);
-
-        SettingsExtKt.checkUnLockedBroadcast(
-                this,
-                () -> {
-                    PhoneUnlockedReceiver unlockedReceiver = PhoneUnlockedReceiver.Companion.getInstance();
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                    {
-                        registerReceiver(
-                                unlockedReceiver,
-                                unlockedReceiver.getFilter(),
-                                Context.RECEIVER_NOT_EXPORTED
-                        );
-                    } else
-                    {
-                        registerReceiver(
-                                unlockedReceiver,
-                                unlockedReceiver.getFilter()
-                        );
-                    }
-                    return null;
-                },
-                () -> null
-        );
-        finish();
     }
 
     @Override

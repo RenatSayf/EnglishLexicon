@@ -13,6 +13,7 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.aboutapp.checkAppUpdate
 import com.myapp.lexicon.aboutapp.showUpdateSnackBar
 import com.myapp.lexicon.dialogs.ConfirmDialog
+import com.myapp.lexicon.helpers.setServiceBroadcasts
 import com.myapp.lexicon.helpers.printLogIfDebug
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.registerFinishReceiver
@@ -83,7 +84,8 @@ class MainFragment : Fragment() {
             finishVM.timeIsUp.collect { result ->
                 result.onSuccess { value ->
                     if (value) {
-                        (requireActivity() as MainActivity).onAppFinish()
+                        requireContext().setServiceBroadcasts()
+                        requireActivity().finish()
                     }
                 }
             }

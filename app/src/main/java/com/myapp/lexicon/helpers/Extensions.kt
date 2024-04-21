@@ -41,6 +41,8 @@ import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.schedule.AlarmScheduler
 import com.myapp.lexicon.schedule.AppNotification
 import com.myapp.lexicon.service.FinishReceiver
+import com.myapp.lexicon.service.PhoneUnlockedReceiver.Companion.getInstance
+import com.myapp.lexicon.settings.checkUnLockedBroadcast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
@@ -61,6 +63,30 @@ fun Context.alarmClockEnable() {
         val millis = TimeUnit.MINUTES.toMillis(minutesLong)
         AlarmScheduler(this).scheduleOne(millis)
     }
+}
+
+@SuppressLint("UnspecifiedRegisterReceiverFlag")
+fun Context.setServiceBroadcasts() {
+
+    this.alarmClockEnable()
+
+    checkUnLockedBroadcast(
+        onEnabled = {
+            val unlockedReceiver = getInstance()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                registerReceiver(
+                    unlockedReceiver,
+                    unlockedReceiver.getFilter(),
+                    Context.RECEIVER_NOT_EXPORTED
+                )
+            } else {
+                registerReceiver(
+                    unlockedReceiver,
+                    unlockedReceiver.getFilter()
+                )
+            }
+        }
+    )
 }
 
 fun Fragment.alarmClockEnable() {
