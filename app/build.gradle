@@ -91,7 +91,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.7.0'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.7.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0'
-    implementation 'com.google.android.gms:play-services-auth-base:18.0.11'
+    implementation 'com.google.android.gms:play-services-auth-base:18.0.12'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
@@ -141,12 +141,12 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.17.2'
 
     //region Hint Activity Result API. Runtime permission Step 1
-    implementation 'androidx.activity:activity-ktx:1.8.2'
+    implementation 'androidx.activity:activity-ktx:1.9.0'
     implementation 'androidx.fragment:fragment-ktx:1.6.2'
     //endregion
 
     //Google Play Billing Library
-    implementation 'com.android.billingclient:billing-ktx:6.2.0'
+    implementation 'com.android.billingclient:billing-ktx:6.2.1'
 
     //WorkManager library
     def work_version = "2.9.0"
@@ -179,7 +179,7 @@ dependencies {
     implementation 'com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.0'
 
     // OAuth2
-    implementation 'com.google.android.gms:play-services-auth:21.0.0'
+    implementation 'com.google.android.gms:play-services-auth:21.1.0'
 
     //Ktor
     implementation 'io.ktor:ktor-client-core:2.3.8'

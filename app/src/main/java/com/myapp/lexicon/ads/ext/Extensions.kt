@@ -89,8 +89,8 @@ fun ViewGroup.showUserRewardAnimatedly(
     coordinates: Pair<Int, Int>
 ) {
 
-    val enterAnimDuration: Long = 600
-    val pauseMiddleDuration: Long = 3000
+    val enterAnimDuration: Long = 500
+    val middlePauseDuration: Long = 3000
     val exitAnimDuration: Long = 200
 
     val coinLayout = this@showUserRewardAnimatedly.findViewById<ConstraintLayout>(R.id.layoutCoin)
@@ -133,12 +133,12 @@ fun ViewGroup.showUserRewardAnimatedly(
             override fun onAnimationEnd(p0: Animator) {
                 coinView.animate().apply {
                     duration = exitAnimDuration
-                    startDelay = pauseMiddleDuration
+                    startDelay = middlePauseDuration
                 }.scaleX(0f)
 
                 coinView.animate().apply {
                     duration = exitAnimDuration
-                    startDelay = pauseMiddleDuration
+                    startDelay = middlePauseDuration
                 }.scaleY(0f)
             }
 
