@@ -113,7 +113,9 @@ class MainFragment : Fragment() {
         super.onStart()
 
         finishVM.cancelTimer()
-        finishReceiver = FinishReceiver(requireActivity() as MainActivity)
+        finishReceiver = FinishReceiver().apply {
+            sendReferenceToActivity(requireActivity() as MainActivity)
+        }
         requireContext().registerFinishReceiver(finishReceiver!!)
     }
 

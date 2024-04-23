@@ -8,7 +8,9 @@ import com.myapp.lexicon.helpers.setServiceBroadcasts
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.MainFragment
 
-class FinishReceiver(private val activity: MainActivity) : BroadcastReceiver() {
+class FinishReceiver : BroadcastReceiver() {
+
+    private var activity: MainActivity? = null
 
     private var triggerCount = 0
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
@@ -22,8 +24,8 @@ class FinishReceiver(private val activity: MainActivity) : BroadcastReceiver() {
                     when (reason) {
                         "homekey" -> {
                             if (triggerCount == 1) {
-                                val fragments = activity.supportFragmentManager.fragments
-                                val mainFragment = fragments.firstOrNull {
+                                val fragments = activity?.supportFragmentManager?.fragments
+                                val mainFragment = fragments?.firstOrNull {
                                     it.javaClass.simpleName == MainFragment::class.java.simpleName
                                 }
                                 mainFragment?.let {
@@ -40,5 +42,9 @@ class FinishReceiver(private val activity: MainActivity) : BroadcastReceiver() {
                 }
             }
         }
+    }
+
+    fun sendReferenceToActivity(activity: MainActivity) {
+        this.activity = activity
     }
 }
