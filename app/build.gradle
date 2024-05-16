@@ -80,7 +80,7 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'com.google.android.material:material:1.12.0'
     implementation 'com.sothree.slidinguppanel:library:3.4.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.cardview:cardview:1.0.0'
@@ -111,7 +111,7 @@ dependencies {
     implementation 'androidx.multidex:multidex:2.0.1'
 
     //ViewPager2
-    implementation "androidx.viewpager2:viewpager2:1.0.0"
+    implementation "androidx.viewpager2:viewpager2:1.1.0"
 
     //firebase
     implementation platform('com.google.firebase:firebase-bom:32.7.2')
@@ -142,7 +142,7 @@ dependencies {
 
     //region Hint Activity Result API. Runtime permission Step 1
     implementation 'androidx.activity:activity-ktx:1.9.0'
-    implementation 'androidx.fragment:fragment-ktx:1.6.2'
+    implementation 'androidx.fragment:fragment-ktx:1.7.0'
     //endregion
 
     //Google Play Billing Library
@@ -158,7 +158,7 @@ dependencies {
     testImplementation "androidx.work:work-testing:$work_version"
 
     // Yandex Mobile Ads SDK
-    implementation 'com.yandex.android:mobileads:7.0.0'
+    implementation 'com.yandex.android:mobileads:7.0.1'
 
     // Yandex AppMetrica SDK.
     implementation 'io.appmetrica.analytics:analytics:6.2.1'
@@ -179,7 +179,7 @@ dependencies {
     implementation 'com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.0'
 
     // OAuth2
-    implementation 'com.google.android.gms:play-services-auth:21.1.0'
+    implementation 'com.google.android.gms:play-services-auth:21.1.1'
 
     //Ktor
     implementation 'io.ktor:ktor-client-core:2.3.8'
