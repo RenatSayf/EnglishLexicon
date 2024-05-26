@@ -145,9 +145,6 @@ dependencies {
     implementation 'androidx.fragment:fragment-ktx:1.7.1'
     //endregion
 
-    //Google Play Billing Library
-    implementation 'com.android.billingclient:billing-ktx:6.2.1'
-
     //WorkManager library
     def work_version = "2.9.0"
     // Kotlin + coroutines
