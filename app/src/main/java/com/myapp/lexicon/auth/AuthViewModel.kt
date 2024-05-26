@@ -113,6 +113,7 @@ open class AuthViewModel @Inject constructor(
     open fun signInWithEmailAndPassword(email: String, password: String) {
 
         _loadingState.value = LoadingState.Start
+        ParseUser.logOut()
         ParseUser.logInInBackground(
             email,
             password,
@@ -149,7 +150,7 @@ open class AuthViewModel @Inject constructor(
                         e is ParseException -> {
                             ParseUser.logOut()
                             if (e.code == ParseException.OBJECT_NOT_FOUND) {
-
+                                ParseException.EMAIL_TAKEN
                                 _state.value = UserState.NotRegistered
                                 _stateFlow.value = UserState.NotRegistered
                             } else {
