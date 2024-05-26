@@ -23,6 +23,7 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.auth.AuthFragment
 import com.myapp.lexicon.auth.AuthViewModel
 import com.myapp.lexicon.auth.agreement.UserAgreementDialog
+import com.myapp.lexicon.common.PAYMENTS_CONDITIONS
 import com.myapp.lexicon.databinding.FragmentAccountBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.LuhnAlgorithm
@@ -502,9 +503,9 @@ class AccountFragment : Fragment() {
             }
 
             val rewardThreshold = (accountVM.paymentThreshold * user.currencyRate).toInt()
-            val textCondition = "${getString(R.string.text_reward_conditions)} $rewardThreshold ${user.currencySymbol}"
+            val textCondition = "$PAYMENTS_CONDITIONS $rewardThreshold ${user.currencySymbol}"
             tvRewardCondition.text = textCondition
-            if (user.userReward <= 0.0) {
+            if (user.userReward <= 0.0 || PAYMENTS_CONDITIONS.isEmpty()) {
                 tvRewardCondition.visibility = View.GONE
             }
             else tvRewardCondition.visibility = View.VISIBLE

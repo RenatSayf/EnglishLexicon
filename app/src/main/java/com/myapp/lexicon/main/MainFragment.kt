@@ -15,10 +15,10 @@ import com.myapp.lexicon.aboutapp.showUpdateDialog
 import com.myapp.lexicon.aboutapp.showUpdateSnackBar
 import com.myapp.lexicon.common.IS_IMPORTANT_UPDATE
 import com.myapp.lexicon.dialogs.ConfirmDialog
-import com.myapp.lexicon.helpers.setServiceBroadcasts
-import com.myapp.lexicon.helpers.printLogIfDebug
+import com.myapp.lexicon.helpers.logIfDebug
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.registerFinishReceiver
+import com.myapp.lexicon.helpers.setServiceBroadcasts
 import com.myapp.lexicon.main.viewmodels.FinishViewModel
 import com.myapp.lexicon.push.MessagingService
 import com.myapp.lexicon.service.FinishReceiver
@@ -95,7 +95,7 @@ class MainFragment : Fragment() {
 
         if (BuildConfig.DEBUG) {
             FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
-                printLogIfDebug("********** ${MessagingService::class.simpleName} token = $token ***************")
+                "********** ${MessagingService::class.simpleName} token = $token ***************".logIfDebug()
             }.addOnFailureListener { exception ->
                 exception.printStackTraceIfDebug()
             }

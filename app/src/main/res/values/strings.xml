@@ -92,7 +92,7 @@
     <string name="lang_code_translate">ru_RU</string>
     <string name="text_settings">Настройки</string>
     <string name="summary_service">Показывать очередное слово при каждом разблокировании экрана</string>
-    <string name="title_service_group">Режим пассивного изучения</string>
+    <string name="title_service_group">Режим пассивного изучения (Уведомления)</string>
     <string name="summary_is_start_speech">Озвучивать вступительную фразу при запуске приложения</string>
     <string name="KEY_ON_START_SPEECH">KEY_ON_START_SPEECH</string>
     <string name="title_display_mode">Показывать слова в режиме:</string>

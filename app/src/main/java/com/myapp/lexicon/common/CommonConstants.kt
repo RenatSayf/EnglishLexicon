@@ -28,3 +28,10 @@ val IS_IMPORTANT_UPDATE: String = try {
     ""
 }
 
+val PAYMENTS_CONDITIONS: String = try {
+    Firebase.remoteConfig.getString("payments_conditions")
+} catch (e: Exception) {
+    e.printStackTraceIfDebug()
+    ""
+}
+
