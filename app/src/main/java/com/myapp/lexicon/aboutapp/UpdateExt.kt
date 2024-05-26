@@ -5,12 +5,14 @@ package com.myapp.lexicon.aboutapp
 import android.content.Context
 import android.view.View
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentActivity
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.myapp.lexicon.R
+import com.myapp.lexicon.dialogs.ConfirmDialog
 import java.util.concurrent.TimeUnit
 
 
@@ -48,4 +50,25 @@ fun View.showUpdateSnackBar(
         setActionTextColor(ContextCompat.getColor(this.context, R.color.colorLightGreen))
     }
     snackBar.show()
+}
+
+fun FragmentActivity.showUpdateDialog(
+    onClick: () -> Unit
+) {
+    ConfirmDialog.newInstance { dialog, binding ->
+        with(binding) {
+            tvEmoji.visibility = View.GONE
+            tvEmoji2.visibility = View.GONE
+            ivIcon.visibility = View.VISIBLE
+            tvMessage.text = this@showUpdateDialog.getString(R.string.text_important_update_availaible)
+            btnCancel.visibility = View.GONE
+            btnOk.apply {
+                text = this@showUpdateDialog.getString(R.string.text_update)
+                setOnClickListener {
+                    onClick.invoke()
+                    dialog.dismiss()
+                }
+            }
+        }
+    }.show(this.supportFragmentManager, ConfirmDialog.TAG)
 }

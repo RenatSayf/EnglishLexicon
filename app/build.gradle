@@ -33,6 +33,7 @@ android {
         buildConfigField "String", "BOT_TOKEN", "\"${properties.getProperty("BOT_TOKEN")}\""
         buildConfigField "String", "CHAT_ID", "\"${properties.getProperty("CHAT_ID")}\""
         buildConfigField "String", "PAYMENT_CODE", "\"${properties.getProperty("PAYMENT_CODE")}\""
+        buildConfigField "String", "IS_IMPORTANT_UPDATE", "\"${properties.getProperty("IS_IMPORTANT_UPDATE")}\""
     }
     buildTypes {
         debug {

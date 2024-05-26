@@ -32,7 +32,6 @@ class ConfirmDialog : DialogFragment() {
 
         isCancelable = false
         setStyle(STYLE_NO_TITLE, R.style.AppAlertDialog)
-        isCancelable = false
         return super.onCreateDialog(savedInstanceState).apply {
             this.window?.setBackgroundDrawableResource(R.drawable.bg_popup_dialog)
         }

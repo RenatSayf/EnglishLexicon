@@ -16,13 +16,15 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
+import com.myapp.lexicon.aboutapp.checkAppUpdate
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.BannerAdIds
 import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.ext.showUserRewardAnimatedly
-import com.myapp.lexicon.ads.ext.showUserRewardPerAdPopup
 import com.myapp.lexicon.ads.loadBanner
+import com.myapp.lexicon.common.IS_IMPORTANT_UPDATE
 import com.myapp.lexicon.databinding.STestModalFragmentBinding
 import com.myapp.lexicon.helpers.RandomNumberGenerator
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
@@ -237,6 +239,13 @@ class TestModeDialog : DialogFragment() {
                         val coordinates = Pair(btnOpenApp.right + 55, btnOpenApp.top + 15)
                         layoutRoot.showUserRewardAnimatedly(bonus.toString(), coordinates)
                     }
+                    requireContext().checkAppUpdate(
+                        onAvailable = {
+                            if (BuildConfig.IS_IMPORTANT_UPDATE == IS_IMPORTANT_UPDATE) {
+                                listener?.openApp()
+                            }
+                        }
+                    )
                 }
             }
 

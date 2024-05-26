@@ -11,7 +11,9 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.aboutapp.checkAppUpdate
+import com.myapp.lexicon.aboutapp.showUpdateDialog
 import com.myapp.lexicon.aboutapp.showUpdateSnackBar
+import com.myapp.lexicon.common.IS_IMPORTANT_UPDATE
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.setServiceBroadcasts
 import com.myapp.lexicon.helpers.printLogIfDebug
@@ -101,9 +103,18 @@ class MainFragment : Fragment() {
 
         requireContext().checkAppUpdate(
             onAvailable = {
-                parentFragmentManager.fragments[0].view?.showUpdateSnackBar(onClick = {
-                    requireContext().goToAppStore()
-                })
+                if (BuildConfig.IS_IMPORTANT_UPDATE == IS_IMPORTANT_UPDATE) {
+                    requireActivity().showUpdateDialog( onClick = {
+                        requireContext().setServiceBroadcasts()
+                        requireActivity().finish()
+                        requireContext().goToAppStore()
+                    })
+                }
+                else {
+                    parentFragmentManager.fragments[0].view?.showUpdateSnackBar( onClick = {
+                        requireContext().goToAppStore()
+                    })
+                }
             }
         )
 

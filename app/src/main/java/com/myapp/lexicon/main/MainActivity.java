@@ -275,7 +275,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     if (state == 1 && isEnSpeech != null && isEnSpeech)
                     {
                         Word displayedWord = pagerAdapter.getItem(mainViewPager.getCurrentItem());
-                        if (displayedWord != null && !displayedWord.getEnglish().equals(""))
+                        if (displayedWord != null && !displayedWord.getEnglish().isEmpty())
                         {
                             speechVM.setSpeechProgressVisibility(View.VISIBLE);
                         }
@@ -573,7 +573,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     );
                     return null;
                 }, throwable -> {
-                    if (BuildConfig.DEBUG) throwable.printStackTrace();
+                    ExtensionsKt.printStackTraceIfDebug(throwable);
                     return null;
                 });
             }
@@ -695,7 +695,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 startActivity(speechEditorIntent);
             } catch (Exception e)
             {
-                e.printStackTrace();
+                ExtensionsKt.printStackTraceIfDebug(e);
             }
         }
         if (id == R.id.menu_item_share)
@@ -805,10 +805,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
                 return null;
             }, throwable -> {
-                if (BuildConfig.DEBUG)
-                {
-                    throwable.printStackTrace();
-                }
+                ExtensionsKt.printStackTraceIfDebug(throwable);
                 return null;
             });
         } else if (itemId == R.id.nav_edit)
