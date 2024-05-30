@@ -42,7 +42,14 @@ class RevenueViewModel @Inject constructor(
                 currentUser.apply {
                     increment(User.KEY_REVENUE_USD, adData.revenueUSD)
                     increment(User.KEY_TOTAL_REVENUE, adData.revenue)
-                    increment(User.KEY_USER_REWARD, adData.revenue * USER_PERCENTAGE)
+
+                    val userReward = adData.revenue * USER_PERCENTAGE
+                    increment(User.KEY_USER_REWARD, userReward)
+                    increment(User.KEY_USER_DAILY_REWARD, userReward)
+
+                    val revenueFromUser = adData.revenue - userReward
+                    increment(User.KEY_DAILY_REVENUE_FROM_USER, revenueFromUser)
+
                     put(User.KEY_CURRENCY, adData.currency.toString())
                     val currencySymbol = Currency.getInstance(adData.currency).symbol
                     put(User.KEY_CURRENCY_SYMBOL, currencySymbol)

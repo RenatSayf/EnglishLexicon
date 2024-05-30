@@ -262,12 +262,12 @@ fun String.toAdData(
     }
 }
 
-private const val TEST_INTERSTITIAL_DATA = """{
+private val TEST_INTERSTITIAL_DATA = """{
   "currency": "RUB",
   "revenueUSD": "0.002145",
   "precision": "estimated",
   "revenue": "0.20158",
-  "requestId": "617871108186477874100342-demo-interstitial-yandex",
+  "requestId": "${System.currentTimeMillis()}617871108186477874100342-demo-interstitial-yandex",
   "blockId": "demo-interstitial-yandex",
   "adType": "interstitial",
   "ad_unit_id": "demo-interstitial-yandex",
@@ -278,12 +278,12 @@ private const val TEST_INTERSTITIAL_DATA = """{
   }
 }"""
 
-private const val TEST_REWARDED_DATA = """{
+private val TEST_REWARDED_DATA = """{
   "currency": "RUB",
   "revenueUSD": "0.50051",
   "precision": "estimated",
   "revenue": "50.0",
-  "requestId": "617871108186477874100342-demo-rewarded-yandex",
+  "requestId": "${System.currentTimeMillis()}617871108186477874100342-demo-rewarded-yandex",
   "blockId": "demo-rewarded-yandex",
   "adType": "interstitial",
   "ad_unit_id": "demo-rewarded-yandex",
