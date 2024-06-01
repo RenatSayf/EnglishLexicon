@@ -24,8 +24,6 @@ import javax.inject.Inject
 
 
 
-var requestId: String? = null
-
 class RevenueViewModel @Inject constructor(
     app: Application
 ): UserViewModel(app) {
@@ -37,8 +35,8 @@ class RevenueViewModel @Inject constructor(
 
         val currentUser = ParseUser.getCurrentUser()
         if (currentUser is ParseUser) {
-            if (adData.revenueUSD > 0.0 && requestId != adData.requestId) {
-                requestId = adData.requestId
+            if (adData.revenueUSD > 0.0 && REQUEST_ID != adData.requestId) {
+                REQUEST_ID = adData.requestId
                 currentUser.apply {
                     increment(User.KEY_REVENUE_USD, adData.revenueUSD)
                     increment(User.KEY_TOTAL_REVENUE, adData.revenue)
@@ -101,13 +99,13 @@ class RevenueViewModel @Inject constructor(
     }
 
     init {
-        val value = requestId
+        val value = REQUEST_ID
         value
     }
 
     override fun onCleared() {
 
-        requestId
+        REQUEST_ID
         super.onCleared()
     }
 

@@ -14,6 +14,7 @@ import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
+import com.myapp.lexicon.bgwork.ResetDailyRewardWork
 import com.myapp.lexicon.helpers.printLogIfDebug
 import com.parse.Parse
 import com.yandex.mobile.ads.common.InitializationListener
@@ -71,6 +72,8 @@ class App : Application(), Configuration.Provider {
                 server(getString(R.string.back4app_server_url))
             }.build()
         )
+
+        ResetDailyRewardWork.enqueueAtTime(this.applicationContext)
     }
     override val workManagerConfiguration: Configuration
         get() {

@@ -37,6 +37,8 @@ import javax.inject.Inject
 import kotlin.math.roundToInt
 
 
+var REQUEST_ID: String? = null
+
 class AdsViewModel @Inject constructor(
     private val app: Application
 ): AndroidViewModel(app) {
