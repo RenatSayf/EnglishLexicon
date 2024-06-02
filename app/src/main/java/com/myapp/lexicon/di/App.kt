@@ -67,8 +67,8 @@ class App : Application(), Configuration.Provider {
 
         Parse.initialize(
             Parse.Configuration.Builder(this).apply {
-                applicationId(getString(R.string.back4app_app_id))
-                clientKey(getString(R.string.back4app_client_key))
+                applicationId(BuildConfig.PARSE_APP_ID)
+                clientKey(BuildConfig.PARSE_CLIENT_KEY)
                 server(getString(R.string.back4app_server_url))
             }.build()
         )
