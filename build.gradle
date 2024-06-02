@@ -15,6 +15,7 @@ buildscript {
 
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.9'
 
+        // Hide API keys https://github.com/google/secrets-gradle-plugin
         classpath "com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin:2.0.1"
     }
 }

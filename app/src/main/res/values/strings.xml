@@ -270,10 +270,6 @@
     </string-array>
 
     <string name="back4app_server_url">https://parseapi.back4app.com/</string>
-
-    <!-- Paste BOTH strings as required -->
-    <string name="back4app_app_id">eq7Pyaz0P4xDBxocQ17M36x3HyvRrFZ9Vz8oF2wq</string>
-    <string name="back4app_client_key">DXLo1hciYQDrkPHyxmS51BUkgTjtJP5X5Lh2xjr4</string>
     <string name="text_account_delete">Удалить аккаунт</string>
     <string name="text_warning_account_delete">Вы действительно хотите удалить аккаунт. После этого действия Вы не сможете получать вознаграждение.</string>
     <string name="text_account_has_been_deleted">Аккаунт удален</string>
