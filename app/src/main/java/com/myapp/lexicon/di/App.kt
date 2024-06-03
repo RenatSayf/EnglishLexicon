@@ -73,7 +73,7 @@ class App : Application(), Configuration.Provider {
             }.build()
         )
 
-        ResetDailyRewardWork.enqueueAtTime(this.applicationContext)
+        //ResetDailyRewardWork.enqueueAtTime(this.applicationContext)
     }
     override val workManagerConfiguration: Configuration
         get() {
