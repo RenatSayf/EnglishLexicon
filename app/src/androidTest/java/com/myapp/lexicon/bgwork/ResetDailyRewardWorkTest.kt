@@ -41,9 +41,13 @@ class ResetDailyRewardWorkTest {
 
         scenario.onActivity { act ->
 
-            val inputTimeStr = "23:59 +0300"
             val localeRu = Locale("Ru", "ru")
-            val launchTime: Long? = ResetDailyRewardWork.calculateLaunchTime(inputTimeStr)
+            val calendar = Calendar.getInstance(localeRu).apply {
+                set(Calendar.HOUR_OF_DAY, 6)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+            }
+            val launchTime: Long? = ResetDailyRewardWork.calculateLaunchTime(calendar)
             val actualTimeStr = launchTime?.toStringTime()
 
             val currentTimeInMillis = Calendar.getInstance(localeRu).timeInMillis
