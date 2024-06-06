@@ -2,6 +2,7 @@ package com.myapp.lexicon.bgwork
 
 import android.content.Context
 import android.icu.util.Calendar
+import android.icu.util.TimeZone
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -9,8 +10,14 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import com.myapp.lexicon.di.App
+import com.myapp.lexicon.helpers.logIfDebug
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showToast
+import com.myapp.lexicon.main.viewmodels.UserViewModel
+import com.myapp.lexicon.models.User
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.time.Duration
 import java.util.Locale
@@ -26,10 +33,9 @@ class ResetDailyRewardWork(
         fun enqueueAtTime(
             context: Context
         ) {
-            val localeRu = Locale("Ru", "ru")
-            val startTimeInMillis = calculateLaunchTime()
+            val duration = calculateInitialDelay(endTimeStr = "19:50 +0000")
 
-            if (startTimeInMillis != null) {
+            if (duration != null) {
 
                 val workRequest = PeriodicWorkRequestBuilder<ResetDailyRewardWork>(Duration.ofDays(1)).apply {
                     setConstraints(
@@ -38,9 +44,6 @@ class ResetDailyRewardWork(
                             .setRequiresDeviceIdle(true)
                             .build()
                     )
-
-                    val currentTimeInMillis = Calendar.getInstance(localeRu).timeInMillis
-                    val duration = Duration.ofMillis(startTimeInMillis.minus(currentTimeInMillis))
                     setInitialDelay(duration)
                 }.build()
                 WorkManager.getInstance(context)
@@ -50,40 +53,40 @@ class ResetDailyRewardWork(
             }
         }
 
-        fun calculateLaunchTime(
-            calendar: Calendar = Calendar.getInstance(Locale("RU", "ru")),
-            startTime: String = "23:59 +0300"
-        ): Long? {
+        fun calculateInitialDelay(
+            currentTimeInMillis: Long = Calendar.getInstance(TimeZone.getTimeZone("Europe/Moscow")).timeInMillis,
+            endTimeStr: String = "23:59 +0000"
+        ): Duration? {
             val timeFormat = SimpleDateFormat("HH:mm Z", Locale.getDefault())
 
-            //val currentDate = Calendar.getInstance()
-
             return try {
-                val startDate = timeFormat.parse(startTime)
 
-                // Создаем календарь для парсенного времени
-                calendar.time = startDate
-
-                // Устанавливаем часы и минуты текущей даты по парсенному времени
-                calendar.set(Calendar.HOUR_OF_DAY, calendar.get(Calendar.HOUR_OF_DAY))
-                calendar.set(Calendar.MINUTE, calendar.get(Calendar.MINUTE))
-                calendar.set(Calendar.SECOND, 0)
-                calendar.set(Calendar.MILLISECOND, 0)
-
-                // Применяем часовой пояс
-                val offset =
-                    calendar.get(Calendar.ZONE_OFFSET) + calendar.get(Calendar.DST_OFFSET)
-                calendar.add(
-                    Calendar.MILLISECOND,
-                    offset - calendar.get(Calendar.ZONE_OFFSET) - calendar.get(Calendar.DST_OFFSET)
-                )
-
-                // Если установленное время меньше текущего, добавляем один день
-                if (calendar.timeInMillis < Calendar.getInstance().timeInMillis) {
-                    calendar.add(Calendar.DAY_OF_YEAR, 1)
+                val targetTimeCalendar = Calendar.getInstance().apply {
+                    timeZone = TimeZone.getTimeZone("Europe/Moscow")
+                    set(Calendar.HOUR_OF_DAY, 0)
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
                 }
 
-                calendar.timeInMillis
+                val offset = targetTimeCalendar.get(Calendar.ZONE_OFFSET) + targetTimeCalendar.get(Calendar.DST_OFFSET)
+                targetTimeCalendar.add(
+                    Calendar.MILLISECOND,
+                    offset - targetTimeCalendar.get(Calendar.ZONE_OFFSET) - targetTimeCalendar.get(Calendar.DST_OFFSET)
+                )
+
+                if (targetTimeCalendar.timeInMillis < currentTimeInMillis) {
+                    targetTimeCalendar.add(Calendar.DAY_OF_YEAR, 1)
+                }
+
+                val endDate = timeFormat.parse(endTimeStr)
+                if (endDate != null) {
+                    targetTimeCalendar.timeInMillis += endDate.time
+                    Duration.ofMillis(targetTimeCalendar.timeInMillis - currentTimeInMillis)
+                }
+                else {
+                    null
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
                 null
@@ -93,7 +96,20 @@ class ResetDailyRewardWork(
 
     override suspend fun doWork(): Result {
 
-        context.showToast("****** ${ResetDailyRewardWork::class.java.simpleName}.doWork() has been done ********")
-        return Result.success()
+        return withContext(Dispatchers.IO) {
+
+            val userVM = UserViewModel(App.INSTANCE)
+
+            val result = userVM.getUserFromCloud().value
+            result?.onSuccess { value: User ->
+                value.toString().logIfDebug()
+            }
+            result?.onFailure { exception: Throwable ->
+                exception.printStackTraceIfDebug()
+            }
+
+            context.showToast("****** ${ResetDailyRewardWork::class.java.simpleName}.doWork() has been done ********")
+            Result.success()
+        }
     }
 }

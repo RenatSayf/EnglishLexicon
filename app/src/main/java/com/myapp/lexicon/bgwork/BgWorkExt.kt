@@ -1,26 +1,58 @@
 package com.myapp.lexicon.bgwork
 
+import android.annotation.SuppressLint
+import android.app.AlarmManager
 import android.app.PendingIntent
+import android.content.BroadcastReceiver
 import android.content.Context
-import androidx.work.Constraints
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.NetworkType
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
-import java.time.Duration
+import android.content.Intent
+import android.icu.util.Calendar
+import android.icu.util.TimeZone
+import android.os.Build
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
 
 
-fun Context.resetDailyReward() {
-    val workRequest = PeriodicWorkRequestBuilder<ResetDailyRewardWork>(Duration.ofDays(1)).apply {
-        setConstraints(
-            Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build()
+private const val REQUEST_CODE = 524872359
+const val DAY_END_ACTION = "$REQUEST_CODE.one_shoot_action"
+
+@SuppressLint("UnspecifiedImmutableFlag")
+fun<T: BroadcastReceiver> Context.scheduleOneAlarm(alarmTime: Long, receiverClazz: Class<out T>) {
+
+    val intent = Intent(this, receiverClazz).apply {
+        this.action = DAY_END_ACTION
+    }
+    val broadcast = PendingIntent.getBroadcast(this, REQUEST_CODE, intent,
+            PendingIntent.FLAG_NO_CREATE)
+
+    if (broadcast == null) {
+        val pendingIntent = PendingIntent.getBroadcast(
+            this,
+            REQUEST_CODE,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE
         )
-    }.build()
-    WorkManager.getInstance(this)
-        .enqueueUniquePeriodicWork("XXXXXX", ExistingPeriodicWorkPolicy.KEEP, workRequest)
+        val alarmManager = this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmManager.apply {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val isCanSchedule = canScheduleExactAlarms()
+                if (isCanSchedule) {
+                    setExact(AlarmManager.RTC_WAKEUP, alarmTime, pendingIntent)
+                }
+                else {
+                    set(AlarmManager.RTC_WAKEUP, alarmTime, pendingIntent)
+                }
+            }
+            else {
+                setExact(AlarmManager.RTC_WAKEUP, alarmTime, pendingIntent)
+            }
+        }
+    }
+    else {
+        Exception("********** scheduleOneAlarm(): broadcast: PendingIntent already exists ***********")
+            .printStackTraceIfDebug()
+    }
 }
-//fun Context.createResetIntent(): PendingIntent {
-//
-//}
+
+fun Context.getCalendarMoscowTimeZone(): Calendar {
+    return Calendar.getInstance(TimeZone.getTimeZone("Europe/Moscow"))
+}

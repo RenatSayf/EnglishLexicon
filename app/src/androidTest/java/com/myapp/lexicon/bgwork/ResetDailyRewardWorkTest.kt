@@ -4,8 +4,6 @@ import android.icu.util.Calendar
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner
-import com.myapp.lexicon.helpers.toStringDate
-import com.myapp.lexicon.helpers.toStringTime
 import com.myapp.lexicon.testing.TestActivity
 import org.junit.After
 import org.junit.Assert
@@ -37,31 +35,17 @@ class ResetDailyRewardWorkTest {
 
     @Test
     fun calculateLaunchTime() {
-        var isTestComplete = false
 
-        scenario.onActivity { act ->
-
-            val localeRu = Locale("Ru", "ru")
-            val calendar = Calendar.getInstance(localeRu).apply {
-                set(Calendar.HOUR_OF_DAY, 6)
-                set(Calendar.MINUTE, 0)
-                set(Calendar.SECOND, 0)
-            }
-            val launchTime: Long? = ResetDailyRewardWork.calculateLaunchTime(calendar)
-            val actualTimeStr = launchTime?.toStringTime()
-
-            val currentTimeInMillis = Calendar.getInstance(localeRu).timeInMillis
-            val duration = Duration.ofMillis(launchTime?.minus(currentTimeInMillis) ?: -1)
-            val hours = duration.toHours()
-
-            val expectedTimeStr = "${currentTimeInMillis.toStringDate(localeRu)} 23:59:00"
-            Assert.assertEquals(expectedTimeStr, actualTimeStr)
-
-            isTestComplete = true
+        val localeRu = Locale("Ru", "ru")
+        val calendar = Calendar.getInstance(localeRu).apply {
+            set(Calendar.HOUR_OF_DAY, 22)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
         }
+        val duration: Duration? = ResetDailyRewardWork.calculateInitialDelay(calendar.timeInMillis)
 
-        while (!isTestComplete) {
-            Thread.sleep(100)
-        }
+        val actualHours = duration?.toHours()
+
+        Assert.assertEquals(20, actualHours)
     }
 }

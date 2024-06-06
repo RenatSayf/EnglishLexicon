@@ -98,15 +98,5 @@ class RevenueViewModel @Inject constructor(
         }
     }
 
-    init {
-        val value = REQUEST_ID
-        value
-    }
-
-    override fun onCleared() {
-
-        REQUEST_ID
-        super.onCleared()
-    }
 
 }

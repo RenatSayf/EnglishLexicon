@@ -3,10 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="32"
         tools:ignore="ScopedStorage" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -15,81 +17,79 @@
     <uses-permission android:name="com.android.vending.BILLING" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
-    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
 
     <application
         android:name=".di.App"
         android:allowBackup="true"
-        android:fullBackupContent="@xml/backup_rules"
         android:dataExtractionRules="@xml/backup_rules_12"
+        android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:targetApi="s">
+        <receiver
+            android:name=".bgwork.DayEndReceiver"
+            android:enabled="true"
+            android:exported="true"></receiver>
 
         <activity
             android:name=".splash.SplashActivity"
-            android:exported="true"
-            android:screenOrientation="userPortrait"
             android:configChanges="orientation|keyboardHidden"
+            android:exported="true"
             android:launchMode="singleTop"
+            android:screenOrientation="userPortrait"
             android:theme="@style/AppTheme.Launcher"
             tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <intent-filter
-                android:label="Английские слова"
-                >
+            <intent-filter android:label="Английские слова">
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".addword.TranslateActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.PROCESS_TEXT" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".testing.TestActivity"
-            android:exported="false">
-        </activity>
-
+            android:exported="false"></activity>
         <activity
             android:name=".main.MainActivity"
+            android:configChanges="orientation|screenSize"
             android:exported="true"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:configChanges="orientation|screenSize">
-            <intent-filter
-                android:label="Английский изучай"
-                >
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter android:label="Английский изучай">
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="com.myapp.lexicon.main.MainActivity" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".wordeditor.WordEditorActivity"
             android:exported="true"
             android:label="@string/title_activity_word_editor"
             android:screenOrientation="unspecified"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden"
-            >
-            <intent-filter
-                android:label="Англо-русский переводчик"
-                >
+            android:windowSoftInputMode="stateHidden">
+            <intent-filter android:label="Англо-русский переводчик">
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             <intent-filter>
@@ -100,7 +100,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".main.MainActivity" />
         </activity>
-
         <activity
             android:name=".service.ServiceActivity"
             android:theme="@style/popAppWindow" />
@@ -114,15 +113,12 @@
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="@string/admob_app_id" />
-
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/ic_notification" />
-
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/colorAccent" />
-
         <meta-data
             android:name="com.parse.SERVER_URL"
             android:value="@string/back4app_server_url" />
@@ -151,18 +147,16 @@
                 <data android:scheme="package" />
             </intent-filter>
         </receiver>
-
-        <receiver android:name=".schedule.TimerReceiver">
-        </receiver>
-
-        <receiver android:name=".service.PhoneUnlockedReceiver"
+        <receiver android:name=".schedule.TimerReceiver"></receiver>
+        <receiver
+            android:name=".service.PhoneUnlockedReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.USER_PRESENT" />
             </intent-filter>
         </receiver>
-
-        <receiver android:name=".service.FinishReceiver"
+        <receiver
+            android:name=".service.FinishReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.CLOSE_SYSTEM_DIALOGS" />
@@ -176,7 +170,6 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
     </application>
 
 </manifest>
