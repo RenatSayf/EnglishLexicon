@@ -22,14 +22,15 @@ fun<T: BroadcastReceiver> Context.scheduleOneAlarm(alarmTime: Long, receiverClaz
         this.action = DAY_END_ACTION
     }
     val broadcast = PendingIntent.getBroadcast(this, REQUEST_CODE, intent,
-            PendingIntent.FLAG_NO_CREATE)
+            PendingIntent.FLAG_NO_CREATE
+    )
 
     if (broadcast == null) {
         val pendingIntent = PendingIntent.getBroadcast(
             this,
             REQUEST_CODE,
             intent,
-            PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
         val alarmManager = this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         alarmManager.apply {

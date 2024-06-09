@@ -1,7 +1,5 @@
 package com.myapp.lexicon.models
 
-import com.parse.Parse
-import com.parse.ParseCloud
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -15,6 +13,8 @@ data class User(
         const val KEY_USER_REWARD = "userReward"
         const val KEY_USER_DAILY_REWARD = "userDailyReward"
         const val KEY_DAILY_REVENUE_FROM_USER = "dailyRevenueFromUser"
+        const val KEY_YESTERDAY_USER_REWARD = "yesterdayUserReward"
+        const val KEY_YESTERDAY_REVENUE_FROM_USER = "yesterdayRevenueFromUser"
         const val KEY_RESERVED_PAYMENT = "reservedPayment"
         const val KEY_CURRENCY = "currencyCode"
         const val KEY_CURRENCY_SYMBOL = "currencySymbol"
@@ -40,6 +40,10 @@ data class User(
     var revenueUSD: Double = 0.0
     var totalRevenue: Double = 0.0
     var userReward: Double = 0.0
+    var userDailyReward: Double = 0.0
+    var dailyRevenueFromUser: Double = 0.0
+    var yesterdayUserReward: Double = 0.0
+    var yesterdayRevenueFromUser: Double = 0.0
     var currencyRate: Double = 0.0
 
     var reservedPayment: Double = 0.0
@@ -49,6 +53,8 @@ data class User(
     var currencySymbol: String = ""
 
     var message: String = ""
+
+
 
 }
 

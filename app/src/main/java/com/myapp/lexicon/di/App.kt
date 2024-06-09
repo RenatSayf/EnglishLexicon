@@ -79,11 +79,11 @@ class App : Application(), Configuration.Provider {
         )
 
         val dayEndTime = this.getCalendarMoscowTimeZone().apply {
-            set(Calendar.HOUR_OF_DAY, 10)
-            set(Calendar.MINUTE, 30)
+            set(Calendar.HOUR_OF_DAY, 9)
+            set(Calendar.MINUTE, 42)
             set(Calendar.SECOND, 0)
         }.timeInMillis
-        this.applicationContext.scheduleOneAlarm(dayEndTime, DayEndReceiver::class.java)
+        //this.applicationContext.scheduleOneAlarm(dayEndTime, DayEndReceiver::class.java)
 
     }
     override val workManagerConfiguration: Configuration

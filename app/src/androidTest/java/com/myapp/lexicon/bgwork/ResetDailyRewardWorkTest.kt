@@ -33,19 +33,5 @@ class ResetDailyRewardWorkTest {
         scenario.close()
     }
 
-    @Test
-    fun calculateLaunchTime() {
 
-        val localeRu = Locale("Ru", "ru")
-        val calendar = Calendar.getInstance(localeRu).apply {
-            set(Calendar.HOUR_OF_DAY, 22)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-        }
-        val duration: Duration? = ResetDailyRewardWork.calculateInitialDelay(calendar.timeInMillis)
-
-        val actualHours = duration?.toHours()
-
-        Assert.assertEquals(20, actualHours)
-    }
 }

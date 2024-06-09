@@ -98,5 +98,40 @@ class RevenueViewModel @Inject constructor(
         }
     }
 
+    fun resetUserDailyReward(user: User) {
+        val currentUser = ParseUser.getCurrentUser()
+        if (currentUser is ParseUser) {
+            currentUser.apply {
+                put(User.KEY_USER_DAILY_REWARD, 0.0)
+                put(User.KEY_DAILY_REVENUE_FROM_USER, 0.0)
+                put(User.KEY_YESTERDAY_USER_REWARD, user.userDailyReward)
+                put(User.KEY_YESTERDAY_REVENUE_FROM_USER, user.dailyRevenueFromUser)
+            }
+            saveUserIntoCloud(currentUser)
+        }
+    }
+
+    private fun saveUserIntoCloud(user: ParseUser){
+        user.saveInBackground(object : SaveCallback {
+            override fun done(e: ParseException?) {
+                if (e is ParseException) {
+                    if (e.code == ParseException.INVALID_SESSION_TOKEN) {
+                        signInWithCurrentUser(
+                            onSuccess = {
+                                saveUserIntoCloud(user)
+                            },
+                            onFailure = {message ->
+                                Exception(message).printStackTraceIfDebug()
+                            }
+                        )
+                    }
+                    else {
+                        e.printStackTraceIfDebug()
+                    }
+                }
+            }
+        })
+    }
+
 
 }
