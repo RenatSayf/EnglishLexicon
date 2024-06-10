@@ -106,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private final MainViewPagerAdapter pagerAdapter = new MainViewPagerAdapter();
     public MainViewModel mainVM;
     private SpeechViewModel speechVM;
+    private RevenueViewModel revenueVM;
     public BackgroundFragm backgroundFragm = null;
     @Nullable
     private AccountFragment accountFragment;
@@ -143,6 +144,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         speechVM = createSpeechViewModel();
         speechVM = new ViewModelProvider(this).get(SpeechViewModel.class);
         AuthViewModel authVM = new ViewModelProvider(this).get(AuthViewModel.class);
+        revenueVM = new ViewModelProvider(MainActivity.this).get(RevenueViewModel.class);
 
         authVM.getState().observe(this, result -> {
             result.onInit(() -> {
@@ -186,6 +188,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return null;
             });
             result.onSignIn(user -> {
+                UserKt.checkActualDailyReward(user, u -> {
+                    u.setUserDailyReward(0.0);
+                    u.setDailyRevenueFromUser(0.0);
+                    u.setYesterdayUserReward(0.0);
+                    u.setYesterdayRevenueFromUser(0.0);
+                    u.setRewardUpdateAt("");
+                    revenueVM.resetUserDailyReward(u);
+                    return null;
+                });
                 navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_account);
                 buildRewardText(new Revenue(user.getUserReward(), user.getReservedPayment(), user.getCurrency(), user.getCurrencySymbol()));
                 return null;
@@ -902,7 +913,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     private void onRevenueUpdate()
     {
-        RevenueViewModel revenueVM = new ViewModelProvider(MainActivity.this).get(RevenueViewModel.class);
         revenueVM.getUserRevenueLD().observe(this, result -> {
             if (result instanceof AppResult.Success<?>)
             {

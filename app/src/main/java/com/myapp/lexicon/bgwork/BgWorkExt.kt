@@ -10,6 +10,7 @@ import android.icu.util.Calendar
 import android.icu.util.TimeZone
 import android.os.Build
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
+import java.util.Locale
 
 
 private const val REQUEST_CODE = 524872359
@@ -57,3 +58,8 @@ fun<T: BroadcastReceiver> Context.scheduleOneAlarm(alarmTime: Long, receiverClaz
 fun Context.getCalendarMoscowTimeZone(): Calendar {
     return Calendar.getInstance(TimeZone.getTimeZone("Europe/Moscow"))
 }
+
+val LOCALE_RU: Locale
+    get() {
+        return Locale("ru", "RU")
+    }

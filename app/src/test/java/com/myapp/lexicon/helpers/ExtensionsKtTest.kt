@@ -3,6 +3,7 @@ package com.myapp.lexicon.helpers
 import org.junit.Assert
 import org.junit.Test
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 
 class ExtensionsKtTest {
@@ -51,4 +52,35 @@ class ExtensionsKtTest {
         val currentTimeMillis = System.currentTimeMillis()
         Assert.assertTrue(actualResult < currentTimeMillis)
     }
+
+    @Test
+    fun isTodayDate() {
+        var inputTime = "2024-06-09 23:59:59"
+        var actualResult = inputTime.isTodayDate()
+        Assert.assertTrue(!actualResult)
+
+        inputTime = (System.currentTimeMillis() + TimeUnit.HOURS.toMillis(3)).toStringTime()
+        actualResult = inputTime.isTodayDate()
+        Assert.assertTrue(actualResult)
+
+        inputTime = ""
+        actualResult = inputTime.isTodayDate()
+        Assert.assertTrue(!actualResult)
+    }
+
+    @Test
+    fun isYesterday() {
+        var inputTime = "2024-06-09 23:59:59"
+        var actualResult = inputTime.isYesterday()
+        Assert.assertTrue(actualResult)
+
+        inputTime = (System.currentTimeMillis() + TimeUnit.HOURS.toMillis(3)).toStringTime()
+        actualResult = inputTime.isYesterday()
+        Assert.assertTrue(!actualResult)
+
+        inputTime = ""
+        actualResult = inputTime.isTodayDate()
+        Assert.assertTrue(!actualResult)
+    }
+
 }

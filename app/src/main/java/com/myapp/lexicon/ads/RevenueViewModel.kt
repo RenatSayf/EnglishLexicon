@@ -6,9 +6,11 @@ import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.myapp.lexicon.ads.models.AdData
+import com.myapp.lexicon.bgwork.LOCALE_RU
 import com.myapp.lexicon.common.mapToRevenue
 import com.myapp.lexicon.common.mapToUser
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
+import com.myapp.lexicon.helpers.toStringTime
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.AppResult
 import com.myapp.lexicon.models.User
@@ -47,6 +49,8 @@ class RevenueViewModel @Inject constructor(
 
                     val revenueFromUser = adData.revenue - userReward
                     increment(User.KEY_DAILY_REVENUE_FROM_USER, revenueFromUser)
+
+                    put(User.KEY_REWARD_UPDATE_AT, System.currentTimeMillis().toStringTime(LOCALE_RU))
 
                     put(User.KEY_CURRENCY, adData.currency.toString())
                     val currencySymbol = Currency.getInstance(adData.currency).symbol
@@ -106,6 +110,7 @@ class RevenueViewModel @Inject constructor(
                 put(User.KEY_DAILY_REVENUE_FROM_USER, 0.0)
                 put(User.KEY_YESTERDAY_USER_REWARD, user.userDailyReward)
                 put(User.KEY_YESTERDAY_REVENUE_FROM_USER, user.dailyRevenueFromUser)
+                put(User.KEY_REWARD_UPDATE_AT, user.rewardUpdateAt)
             }
             saveUserIntoCloud(currentUser)
         }

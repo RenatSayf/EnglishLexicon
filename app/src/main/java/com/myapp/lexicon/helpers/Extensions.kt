@@ -35,6 +35,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
+import com.myapp.lexicon.bgwork.LOCALE_RU
 import com.myapp.lexicon.databinding.SnackBarTestBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.models.Word
@@ -214,19 +215,18 @@ val String.isItEmail: Boolean
         return !TextUtils.isEmpty(this) && Patterns.EMAIL_ADDRESS.matcher(this).matches()
     }
 
-@Suppress("UnnecessaryVariable")
-fun Long.toStringDate(locale: Locale = Locale.getDefault()): String {
+fun Long.toStringDate(locale: Locale = LOCALE_RU): String {
     val formatter = SimpleDateFormat("yyyy-MM-dd", locale)
     val strDate = formatter.format(this)
     return strDate
 }
 
-fun Long.toStringDateDDMonthYYYY(locale: Locale = Locale.getDefault()): String {
+fun Long.toStringDateDDMonthYYYY(locale: Locale = LOCALE_RU): String {
     val formatter = SimpleDateFormat("dd MMMM yyyy", locale)
     return formatter.format(this)
 }
 
-fun String.toLongDate(locale: Locale = Locale.getDefault()): Long {
+fun String.toLongDate(locale: Locale = LOCALE_RU): Long {
     val formatter = SimpleDateFormat("yyyy-MM-dd", locale)
     val date = try {
         formatter.parse(this)
@@ -236,14 +236,13 @@ fun String.toLongDate(locale: Locale = Locale.getDefault()): Long {
     return date.time
 }
 
-@Suppress("UnnecessaryVariable")
-fun Long.toStringTime(locale: Locale = Locale.getDefault()): String {
+fun Long.toStringTime(locale: Locale = LOCALE_RU): String {
     val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", locale)
     val strDate = formatter.format(this)
     return strDate
 }
 
-fun String.toLongTime(locale: Locale = Locale.getDefault()): Long {
+fun String.toLongTime(locale: Locale = LOCALE_RU): Long {
     val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", locale)
     val date = try {
         formatter.parse(this)
@@ -252,6 +251,21 @@ fun String.toLongTime(locale: Locale = Locale.getDefault()): Long {
     }
     return date.time
 }
+
+fun String.isTodayDate(): Boolean {
+    val inputTime = this.toLongDate()
+    return inputTime == timeInMillisMoscowTimeZone.toStringDate().toLongDate()
+}
+
+fun String.isYesterday(): Boolean {
+    val inputTime = this.toLongDate()
+    return inputTime == (timeInMillisMoscowTimeZone - TimeUnit.HOURS.toMillis(24)).toStringDate().toLongDate()
+}
+
+val timeInMillisMoscowTimeZone: Long
+    get() {
+        return System.currentTimeMillis() + TimeUnit.HOURS.toMillis(3)
+    }
 
 fun View.showCustomSnackBar(
     message: String,
