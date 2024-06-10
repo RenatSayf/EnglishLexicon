@@ -9,7 +9,7 @@ import android.content.Intent
 import android.icu.util.Calendar
 import android.icu.util.TimeZone
 import android.os.Build
-import com.myapp.lexicon.helpers.printStackTraceIfDebug
+import com.myapp.lexicon.helpers.throwIfDebug
 import java.util.Locale
 
 
@@ -50,12 +50,11 @@ fun<T: BroadcastReceiver> Context.scheduleOneAlarm(alarmTime: Long, receiverClaz
         }
     }
     else {
-        Exception("********** scheduleOneAlarm(): broadcast: PendingIntent already exists ***********")
-            .printStackTraceIfDebug()
+        Exception("********** scheduleOneAlarm(): broadcast: PendingIntent already exists ***********").throwIfDebug()
     }
 }
 
-fun Context.getCalendarMoscowTimeZone(): Calendar {
+fun getCalendarMoscowTimeZone(): Calendar {
     return Calendar.getInstance(TimeZone.getTimeZone("Europe/Moscow"))
 }
 

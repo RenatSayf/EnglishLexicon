@@ -76,7 +76,7 @@ class App : Application(), Configuration.Provider {
             }.build()
         )
 
-        val dayEndTime = this.getCalendarMoscowTimeZone().apply {
+        val dayEndTime = getCalendarMoscowTimeZone().apply {
             set(Calendar.HOUR_OF_DAY, 23)
             set(Calendar.MINUTE, 59)
             set(Calendar.SECOND, 59)
