@@ -136,6 +136,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawerLayout.setDrawerListener(toggle);
         toggle.syncState();
 
+        ImageButton btnSpeak = contentBinding.btnSpeak;
+
         getSupportFragmentManager().setFragmentResultListener(getString(R.string.KEY_NEED_REFRESH), this, this);
         getSupportFragmentManager().setFragmentResultListener(getString(R.string.KEY_TEST_INTERVAL_CHANGED), this, this);
         getSupportFragmentManager().setFragmentResultListener(TranslateFragment.Companion.getKEY_FRAGMENT_START(), this, this);
@@ -369,7 +371,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        speechVM.getEnCheckboxEnable().observe(this, checkBoxEnView::setEnabled);
+        speechVM.getEnCheckboxEnable().observe(this, enabled -> {
+            checkBoxEnView.setChecked(enabled);
+            checkBoxEnView.setEnabled(enabled);
+            btnSpeak.setEnabled(enabled);
+        });
 
         CheckBox checkBoxRuSpeak = contentBinding.checkBoxRuSpeak;
         checkBoxRuSpeak.setOnClickListener(view -> {
@@ -417,8 +423,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             speechVM.setSpeechProgressVisibility(View.INVISIBLE);
         });
 
-
-        ImageButton btnSpeak = contentBinding.btnSpeak;
         speechVM.getSpeechProgressVisibility().observe(this, v -> {
             speechProgress.setVisibility(v);
             if (v == View.VISIBLE)
