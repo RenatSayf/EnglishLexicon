@@ -5,7 +5,6 @@ package com.myapp.lexicon.di
 import android.app.Application
 import android.content.Context
 import android.icu.util.Calendar
-import android.icu.util.TimeZone
 import android.util.Log
 import androidx.multidex.MultiDex
 import androidx.work.Configuration
@@ -17,7 +16,6 @@ import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.bgwork.DayEndReceiver
-import com.myapp.lexicon.bgwork.ResetDailyRewardWork
 import com.myapp.lexicon.bgwork.getCalendarMoscowTimeZone
 import com.myapp.lexicon.bgwork.scheduleOneAlarm
 import com.myapp.lexicon.helpers.printLogIfDebug
