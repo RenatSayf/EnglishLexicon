@@ -30,10 +30,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:targetApi="s">
-        <receiver
-            android:name=".bgwork.DayEndReceiver"
-            android:enabled="true"
-            android:exported="true"></receiver>
 
         <activity
             android:name=".splash.SplashActivity"
@@ -67,7 +63,7 @@
         </activity>
         <activity
             android:name=".testing.TestActivity"
-            android:exported="false"></activity>
+            android:exported="false" />
         <activity
             android:name=".main.MainActivity"
             android:configChanges="orientation|screenSize"
@@ -147,7 +143,7 @@
                 <data android:scheme="package" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".schedule.TimerReceiver"></receiver>
+        <receiver android:name=".schedule.TimerReceiver" />
         <receiver
             android:name=".service.PhoneUnlockedReceiver"
             android:exported="false">

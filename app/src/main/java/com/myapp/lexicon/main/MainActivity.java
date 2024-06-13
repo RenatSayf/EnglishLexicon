@@ -190,15 +190,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return null;
             });
             result.onSignIn(user -> {
-                UserKt.checkActualDailyReward(user, u -> {
-                    u.setUserDailyReward(0.0);
-                    u.setDailyRevenueFromUser(0.0);
-                    u.setYesterdayUserReward(0.0);
-                    u.setYesterdayRevenueFromUser(0.0);
-                    u.setRewardUpdateAt("");
-                    revenueVM.resetUserDailyReward(u);
-                    return null;
-                });
                 navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_account);
                 buildRewardText(new Revenue(user.getUserReward(), user.getReservedPayment(), user.getCurrency(), user.getCurrencySymbol()));
                 return null;
@@ -490,7 +481,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     .concat((revenue != null) ? revenue.getCurrencySymbol() : Currency.getInstance("RUB").getSymbol());
             TextView tvSubTitle = toolbarBinding.tvSubtitle;
             tvSubTitle.setText(text);
-            //toolBar.setSubtitle(text);
 
             if (tvReward != null)
             {

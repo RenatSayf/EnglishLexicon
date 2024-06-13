@@ -4,7 +4,6 @@ package com.myapp.lexicon.di
 
 import android.app.Application
 import android.content.Context
-import android.icu.util.Calendar
 import android.util.Log
 import androidx.multidex.MultiDex
 import androidx.work.Configuration
@@ -15,9 +14,6 @@ import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
-import com.myapp.lexicon.bgwork.DayEndReceiver
-import com.myapp.lexicon.bgwork.getCalendarMoscowTimeZone
-import com.myapp.lexicon.bgwork.scheduleOneAlarm
 import com.myapp.lexicon.helpers.printLogIfDebug
 import com.parse.Parse
 import com.yandex.mobile.ads.common.InitializationListener
@@ -75,13 +71,6 @@ class App : Application(), Configuration.Provider {
                 server(getString(R.string.back4app_server_url))
             }.build()
         )
-
-        val dayEndTime = getCalendarMoscowTimeZone().apply {
-            set(Calendar.HOUR_OF_DAY, 23)
-            set(Calendar.MINUTE, 59)
-            set(Calendar.SECOND, 59)
-        }.timeInMillis
-        this.applicationContext.scheduleOneAlarm(dayEndTime, DayEndReceiver::class.java)
 
     }
     override val workManagerConfiguration: Configuration

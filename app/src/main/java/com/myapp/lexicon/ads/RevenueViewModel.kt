@@ -6,9 +6,9 @@ import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.myapp.lexicon.ads.models.AdData
-import com.myapp.lexicon.bgwork.LOCALE_RU
 import com.myapp.lexicon.common.mapToRevenue
 import com.myapp.lexicon.common.mapToUser
+import com.myapp.lexicon.helpers.LOCALE_RU
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.toStringTime
 import com.myapp.lexicon.main.viewmodels.UserViewModel
@@ -100,42 +100,6 @@ class RevenueViewModel @Inject constructor(
                 _userRevenueLD.value = AppResult.Error(Exception(exception))
             }
         }
-    }
-
-    fun resetUserDailyReward(user: User) {
-        val currentUser = ParseUser.getCurrentUser()
-        if (currentUser is ParseUser) {
-            currentUser.apply {
-                put(User.KEY_USER_DAILY_REWARD, 0.0)
-                put(User.KEY_DAILY_REVENUE_FROM_USER, 0.0)
-                put(User.KEY_YESTERDAY_USER_REWARD, user.userDailyReward)
-                put(User.KEY_YESTERDAY_REVENUE_FROM_USER, user.dailyRevenueFromUser)
-                put(User.KEY_REWARD_UPDATE_AT, user.rewardUpdateAt)
-            }
-            saveUserIntoCloud(currentUser)
-        }
-    }
-
-    private fun saveUserIntoCloud(user: ParseUser){
-        user.saveInBackground(object : SaveCallback {
-            override fun done(e: ParseException?) {
-                if (e is ParseException) {
-                    if (e.code == ParseException.INVALID_SESSION_TOKEN) {
-                        signInWithCurrentUser(
-                            onSuccess = {
-                                saveUserIntoCloud(user)
-                            },
-                            onFailure = {message ->
-                                Exception(message).printStackTraceIfDebug()
-                            }
-                        )
-                    }
-                    else {
-                        e.printStackTraceIfDebug()
-                    }
-                }
-            }
-        })
     }
 
 

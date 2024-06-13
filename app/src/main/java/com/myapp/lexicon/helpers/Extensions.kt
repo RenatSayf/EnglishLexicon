@@ -10,6 +10,8 @@ import android.content.IntentFilter
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.icu.util.Calendar
+import android.icu.util.TimeZone
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
@@ -35,7 +37,6 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
-import com.myapp.lexicon.bgwork.LOCALE_RU
 import com.myapp.lexicon.databinding.SnackBarTestBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.models.Word
@@ -213,6 +214,15 @@ val Context.screenHeight: Int
 val String.isItEmail: Boolean
     get() {
         return !TextUtils.isEmpty(this) && Patterns.EMAIL_ADDRESS.matcher(this).matches()
+    }
+
+fun getCalendarMoscowTimeZone(): Calendar {
+    return Calendar.getInstance(TimeZone.getTimeZone("Europe/Moscow"))
+}
+
+val LOCALE_RU: Locale
+    get() {
+        return Locale("ru", "RU")
     }
 
 fun Long.toStringDate(locale: Locale = LOCALE_RU): String {

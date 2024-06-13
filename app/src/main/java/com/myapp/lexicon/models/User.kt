@@ -1,8 +1,5 @@
 package com.myapp.lexicon.models
 
-import com.myapp.lexicon.helpers.isTodayDate
-import com.myapp.lexicon.helpers.isYesterday
-import com.myapp.lexicon.helpers.toStringDateDDMonthYYYY
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -61,17 +58,6 @@ data class User(
 
 
 
-}
-
-fun User.checkActualDailyReward(
-    onNotActual: (user: User) -> Unit
-) {
-    val isToday = this.rewardUpdateAt.isTodayDate()
-    val isYesterday = this.rewardUpdateAt.isYesterday()
-    val dailyReward = this.userDailyReward
-    if (dailyReward > 0.0 && !isToday && !isYesterday) {
-        onNotActual.invoke(this)
-    }
 }
 
 fun Double.to2DigitsScale(): Double {
