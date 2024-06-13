@@ -506,7 +506,7 @@ class AccountFragment : Fragment() {
                 val yesterdayReward = user.yesterdayUserReward.to2DigitsScale()
                 if (yesterdayReward > 0.0) {
                     dailyRewardRoot.visibility = View.VISIBLE
-                    tvTitle.text = "Вчера"
+                    tvTitle.text = getString(R.string.text_yesterday)
                     val valueToDisplay = "+$yesterdayReward ${user.currencySymbol}"
                     tvValue.text = valueToDisplay
                 }
@@ -519,7 +519,7 @@ class AccountFragment : Fragment() {
                 val todayReward = user.userDailyReward.to2DigitsScale()
                 if (todayReward > 0.0) {
                     dailyRewardRoot.visibility = View.VISIBLE
-                    tvTitle.text = "Сегодня"
+                    tvTitle.text = getString(R.string.text_today)
                     val valueToDisplay = "+$todayReward ${user.currencySymbol}"
                     tvValue.text = valueToDisplay
                 }
