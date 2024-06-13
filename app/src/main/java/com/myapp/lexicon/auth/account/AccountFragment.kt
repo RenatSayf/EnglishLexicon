@@ -502,6 +502,32 @@ class AccountFragment : Fragment() {
                 groupToPayout.visibility = View.GONE
             }
 
+            with(includeYesterday) {
+                val yesterdayReward = user.yesterdayUserReward.to2DigitsScale()
+                if (yesterdayReward > 0.0) {
+                    dailyRewardRoot.visibility = View.VISIBLE
+                    tvTitle.text = "Вчера"
+                    val valueToDisplay = "+$yesterdayReward ${user.currencySymbol}"
+                    tvValue.text = valueToDisplay
+                }
+                else {
+                    dailyRewardRoot.visibility = View.INVISIBLE
+                }
+            }
+
+            with(includeToday) {
+                val todayReward = user.userDailyReward.to2DigitsScale()
+                if (todayReward > 0.0) {
+                    dailyRewardRoot.visibility = View.VISIBLE
+                    tvTitle.text = "Сегодня"
+                    val valueToDisplay = "+$todayReward ${user.currencySymbol}"
+                    tvValue.text = valueToDisplay
+                }
+                else {
+                    dailyRewardRoot.visibility = View.INVISIBLE
+                }
+            }
+
             val rewardThreshold = (accountVM.paymentThreshold * user.currencyRate).toInt()
             val textCondition = "$PAYMENTS_CONDITIONS $rewardThreshold ${user.currencySymbol}"
             tvRewardCondition.text = textCondition
