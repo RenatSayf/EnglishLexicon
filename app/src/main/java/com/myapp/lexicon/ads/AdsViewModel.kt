@@ -264,37 +264,39 @@ fun String.toAdData(
     }
 }
 
-private val TEST_INTERSTITIAL_DATA = """{
-  "currency": "RUB",
-  "revenueUSD": "0.002145",
-  "precision": "estimated",
-  "revenue": "0.20158",
-  "requestId": "${System.currentTimeMillis()}617871108186477874100342-demo-interstitial-yandex",
-  "blockId": "demo-interstitial-yandex",
-  "adType": "interstitial",
-  "ad_unit_id": "demo-interstitial-yandex",
-  "network": {
-    "name": "Yandex",
-    "adapter": "Yandex",
-    "ad_unit_id": "demo-interstitial-yandex"
-  }
-}"""
+private val TEST_INTERSTITIAL_DATA: String
+    get() = """{
+      "currency": "RUB",
+      "revenueUSD": "0.002145",
+      "precision": "estimated",
+      "revenue": "0.20158",
+      "requestId": "${System.currentTimeMillis()}617871108186477874100342-demo-interstitial-yandex",
+      "blockId": "demo-interstitial-yandex",
+      "adType": "interstitial",
+      "ad_unit_id": "demo-interstitial-yandex",
+      "network": {
+        "name": "Yandex",
+        "adapter": "Yandex",
+        "ad_unit_id": "demo-interstitial-yandex"
+      }
+    }"""
 
-private val TEST_REWARDED_DATA = """{
-  "currency": "RUB",
-  "revenueUSD": "0.50051",
-  "precision": "estimated",
-  "revenue": "50.0",
-  "requestId": "${System.currentTimeMillis()}617871108186477874100342-demo-rewarded-yandex",
-  "blockId": "demo-rewarded-yandex",
-  "adType": "interstitial",
-  "ad_unit_id": "demo-rewarded-yandex",
-  "network": {
-    "name": "Yandex",
-    "adapter": "Yandex",
-    "ad_unit_id": "demo-rewarded-yandex"
-  }
-}"""
+private val TEST_REWARDED_DATA: String
+    get() = """{
+      "currency": "RUB",
+      "revenueUSD": "0.50051",
+      "precision": "estimated",
+      "revenue": "50.0",
+      "requestId": "${System.currentTimeMillis()}617871108186477874100342-demo-rewarded-yandex",
+      "blockId": "demo-rewarded-yandex",
+      "adType": "interstitial",
+      "ad_unit_id": "demo-rewarded-yandex",
+      "network": {
+        "name": "Yandex",
+        "adapter": "Yandex",
+        "ad_unit_id": "demo-rewarded-yandex"
+      }
+    }"""
 
 fun BannerAdView.loadBanner(adId: BannerAdIds? = null) {
 
