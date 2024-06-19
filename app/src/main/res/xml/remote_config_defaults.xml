@@ -12,4 +12,18 @@
 <!--    <key>payment_days</key>-->
 <!--    <value>3</value>-->
 <!--  </entry>-->
+    <entry>
+        <key>reward_explain_message</key>
+        <value>Учите слова и фразы, проходите тесты и зарабатывайте монеты.
+            После того как размер вознаграждения превысит минимальный порог, кнопка 'Получить награду' станет активной.
+        </value>
+    </entry>
+    <entry>
+        <key>is_ads_enabled</key>
+        <value>true</value>
+    </entry>
+    <entry>
+        <key>is_banner_enabled</key>
+        <value>true</value>
+    </entry>
 </defaults>

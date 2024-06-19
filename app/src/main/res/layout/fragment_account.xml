@@ -34,7 +34,7 @@
 
             <FrameLayout
                 android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@id/imgReward"
                 app:layout_constraintEnd_toStartOf="@id/imgReward"
@@ -56,7 +56,7 @@
 
             <FrameLayout
                 android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 app:layout_constraintTop_toTopOf="@id/imgReward"
                 app:layout_constraintStart_toEndOf="@id/imgReward"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -114,11 +114,6 @@
                 android:id="@+id/tvReservedTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/layoutReward"
-                app:layout_constraintEnd_toStartOf="@id/tvReservedValue"
-                app:layout_constraintBottom_toTopOf="@+id/vDivider"
-                app:layout_constraintHorizontal_chainStyle="packed"
                 android:gravity="start"
                 android:padding="4dp"
                 android:paddingStart="12dp"
@@ -127,28 +122,33 @@
                 android:textColor="@color/colorYellowDark"
                 android:textSize="14sp"
                 android:visibility="gone"
-                tools:visibility="visible"
-                />
+                app:layout_constraintBottom_toTopOf="@+id/vDivider"
+                app:layout_constraintEnd_toStartOf="@id/tvReservedValue"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/layoutReward"
+                tools:ignore="TextContrastCheck"
+                tools:visibility="visible" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvReservedValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:layout_constraintStart_toEndOf="@+id/tvReservedTitle"
-                app:layout_constraintTop_toTopOf="@+id/tvReservedTitle"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="@+id/tvReservedTitle"
-                app:layout_constraintHorizontal_chainStyle="packed"
                 android:gravity="start"
                 android:padding="4dp"
                 android:paddingStart="12dp"
                 android:paddingEnd="12dp"
-                tools:text="0 Р"
                 android:textColor="@color/colorYellowDark"
                 android:textSize="14sp"
                 android:visibility="gone"
-                tools:visibility="visible"
-                />
+                app:layout_constraintBottom_toBottomOf="@+id/tvReservedTitle"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toEndOf="@+id/tvReservedTitle"
+                app:layout_constraintTop_toTopOf="@+id/tvReservedTitle"
+                tools:ignore="TextContrastCheck"
+                tools:text="0 Р"
+                tools:visibility="visible" />
 
             <View
                 android:id="@+id/vDivider"
@@ -182,7 +182,7 @@
                     android:textSize="14sp"
                     android:visibility="gone"
                     tools:visibility="visible"
-                    />
+                    tools:ignore="VisualLintLongText" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tvEmailTitle"
@@ -195,7 +195,7 @@
                     android:text="@string/title_e_mail"
                     android:textColor="@color/colorYellowDark"
                     android:textSize="14sp"
-                    />
+                    tools:ignore="TextContrastCheck" />
 
                 <androidx.appcompat.widget.AppCompatEditText
                     android:id="@+id/tvEmailValue"
@@ -209,7 +209,7 @@
                     android:paddingEnd="12dp"
                     android:textColor="@color/color_3B5E91"
                     android:textSize="18sp"
-                    tools:ignore="TouchTargetSizeCheck"
+                    tools:ignore="TouchTargetSizeCheck,VisualLintTextFieldSize"
                     tools:text="some-email@domain.com"
                     android:drawableStart="@drawable/email"
                     android:drawablePadding="8dp"/>
@@ -240,28 +240,28 @@
                     android:text="@string/title_phone"
                     android:textColor="@color/colorYellowDark"
                     android:textSize="14sp"
-                    />
+                    tools:ignore="TextContrastCheck" />
 
                 <me.dkzwm.widget.fet.FormattedEditText
                     android:id="@+id/tvPhoneValue"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/bg_horizontal_oval"
+                    android:drawableStart="@drawable/phone"
+                    android:drawablePadding="8dp"
                     android:gravity="start"
+                    android:hint="@string/text_when_awarding"
+                    android:inputType="phone"
                     android:padding="8dp"
                     android:paddingStart="12dp"
                     android:paddingEnd="12dp"
-                    android:inputType="phone"
                     android:textColor="@color/color_3B5E91"
+                    android:textColorHint="@color/color_CCC3C3"
                     android:textCursorDrawable="@null"
                     android:textSize="18sp"
-                    android:hint="@string/text_when_awarding"
-                    android:textColorHint="@color/color_CCC3C3"
-                    tools:ignore="TouchTargetSizeCheck"
                     app:fet_formatStyle="+0 (000)000-00-00"
                     app:fet_mode="mode_mask"
-                    android:drawableStart="@drawable/phone"
-                    android:drawablePadding="8dp"
-                    android:background="@drawable/bg_horizontal_oval"/>
+                    tools:ignore="TouchTargetSizeCheck,DuplicateSpeakableTextCheck,VisualLintTextFieldSize" />
 
             </androidx.appcompat.widget.LinearLayoutCompat>
 
@@ -289,7 +289,7 @@
                     android:text="@string/text_bank_name"
                     android:textColor="@color/colorYellowDark"
                     android:textSize="14sp"
-                    />
+                    tools:ignore="TextContrastCheck" />
 
                 <AutoCompleteTextView
                     android:id="@+id/tvBankNameValue"
@@ -337,29 +337,28 @@
                     android:text="@string/text_bank_card"
                     android:textColor="@color/colorYellowDark"
                     android:textSize="14sp"
-                    />
+                    tools:ignore="TextContrastCheck" />
 
                 <me.dkzwm.widget.fet.FormattedEditText
                     android:id="@+id/tvCardNumber"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/bg_horizontal_oval"
+                    android:drawableStart="@drawable/ic_credit_card"
+                    android:drawablePadding="8dp"
+                    android:gravity="start|center"
+                    android:hint="@string/optional_if_you_use_SBP"
+                    android:inputType="phone|textMultiLine"
                     android:padding="8dp"
                     android:paddingStart="12dp"
                     android:paddingEnd="12dp"
-                    android:background="@drawable/bg_horizontal_oval"
-                    android:gravity="start|center"
-                    android:inputType="phone|textMultiLine"
                     android:textColor="@color/color_3B5E91"
+                    android:textColorHint="@color/color_CCC3C3"
                     android:textCursorDrawable="@null"
                     android:textSize="18sp"
-                    tools:ignore="TouchTargetSizeCheck,VisualLintTextFieldSize"
-                    android:hint="@string/optional_if_you_use_SBP"
-                    android:textColorHint="@color/color_CCC3C3"
-                    android:drawableStart="@drawable/ic_credit_card"
-                    android:drawablePadding="8dp"
                     app:fet_formatStyle="0000 0000 0000 000*"
                     app:fet_mode="mode_mask"
-                    />
+                    tools:ignore="TouchTargetSizeCheck,VisualLintTextFieldSize,TextContrastCheck" />
 
             </androidx.appcompat.widget.LinearLayoutCompat>
 
@@ -404,7 +403,7 @@
                     android:textSize="18sp"
                     android:hint="@string/text_when_awarding"
                     android:textColorHint="@color/color_CCC3C3"
-                    tools:ignore="TouchTargetSizeCheck"
+                    tools:ignore="TouchTargetSizeCheck,VisualLintTextFieldSize"
                     />
 
             </androidx.appcompat.widget.LinearLayoutCompat>
@@ -447,7 +446,7 @@
                     android:textColor="@color/color_3B5E91"
                     android:textCursorDrawable="@null"
                     android:textSize="18sp"
-                    tools:ignore="TouchTargetSizeCheck"
+                    tools:ignore="TouchTargetSizeCheck,VisualLintTextFieldSize"
                     android:hint="@string/text_when_awarding"
                     android:textColorHint="@color/color_CCC3C3"/>
 

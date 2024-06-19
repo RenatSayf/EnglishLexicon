@@ -90,9 +90,9 @@ dependencies {
     implementation 'androidx.preference:preference-ktx:1.2.1'
 
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.8.1'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.8.1'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.1'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.8.2'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.8.2'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.2'
     implementation 'com.google.android.gms:play-services-auth-base:18.0.13'
 
     testImplementation 'junit:junit:4.13.2'
@@ -144,14 +144,14 @@ dependencies {
 
     //region Hint Activity Result API. Runtime permission Step 1
     implementation 'androidx.activity:activity-ktx:1.9.0'
-    implementation 'androidx.fragment:fragment-ktx:1.7.1'
+    implementation 'androidx.fragment:fragment-ktx:1.8.0'
     //endregion
 
     //WorkManager library
     def work_version = "2.9.0"
     // Kotlin + coroutines
     implementation "androidx.work:work-runtime-ktx:$work_version"
-    // optional - GCMNetworManager support
+    // optional - GCMNetworkManager support
     implementation "androidx.work:work-gcm:$work_version"
     // optional - Test helpers
     testImplementation "androidx.work:work-testing:$work_version"
