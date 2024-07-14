@@ -50,6 +50,12 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.text.ParseException
 import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.MonthDay
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
@@ -272,10 +278,31 @@ fun String.isYesterday(): Boolean {
     return inputTime == (timeInMillisMoscowTimeZone - TimeUnit.HOURS.toMillis(24)).toStringDate().toLongDate()
 }
 
+fun String.dayOfMonthFromStrTime(): Int {
+    val monthDay = try {
+        MonthDay.parse(this, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+    } catch (e: DateTimeParseException) {
+        e.printStackTraceIfDebug()
+        return -1
+    }
+    return monthDay.dayOfMonth
+}
+
+fun Long.dayOfMonthFromLongTime(): Int {
+    val stringTime = this.toStringTime()
+    return stringTime.dayOfMonthFromStrTime()
+}
+
 val timeInMillisMoscowTimeZone: Long
     get() {
         return System.currentTimeMillis() + TimeUnit.HOURS.toMillis(3)
     }
+
+
+fun Long.getMonthFromLongTime(): Int {
+    val dateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(this), ZoneId.systemDefault())
+    return dateTime.monthValue
+}
 
 fun View.showCustomSnackBar(
     message: String,

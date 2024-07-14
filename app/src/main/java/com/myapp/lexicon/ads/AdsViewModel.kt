@@ -267,9 +267,9 @@ fun String.toAdData(
 private val TEST_INTERSTITIAL_DATA: String
     get() = """{
       "currency": "RUB",
-      "revenueUSD": "0.002145",
+      "revenueUSD": "0.03332",
       "precision": "estimated",
-      "revenue": "0.20158",
+      "revenue": "2.9999",
       "requestId": "${System.currentTimeMillis()}617871108186477874100342-demo-interstitial-yandex",
       "blockId": "demo-interstitial-yandex",
       "adType": "interstitial",

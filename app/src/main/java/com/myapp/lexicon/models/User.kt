@@ -1,5 +1,7 @@
 package com.myapp.lexicon.models
 
+import com.myapp.lexicon.helpers.getMonthFromLongTime
+import com.myapp.lexicon.helpers.toLongTime
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -47,15 +49,22 @@ data class User(
     var yesterdayRevenueFromUser: Double = 0.0
     var rewardUpdateAt: String = ""
     var currencyRate: Double = 0.0
+    var paymentDate: String = ""
 
     var reservedPayment: Double = 0.0
         get() = BigDecimal(field).setScale(2, RoundingMode.DOWN).toDouble()
 
     var currency: String = ""
     var currencySymbol: String = ""
-
     var message: String = ""
 
+    fun checkPayDateIsLastMonth(
+        currentTime: Long = System.currentTimeMillis()
+    ): Boolean {
+        val lastPaymentMonth = this.paymentDate.toLongTime().getMonthFromLongTime()
+        val currentMonth = currentTime.getMonthFromLongTime()
+        return currentMonth > lastPaymentMonth
+    }
 
 
 }

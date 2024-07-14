@@ -33,6 +33,9 @@ fun ParseObject.mapToUser(): User {
         value = this@mapToUser[User.KEY_RESERVED_PAYMENT]
         this.reservedPayment = if (value is Number) value.toDouble() else this.reservedPayment
 
+        value = this@mapToUser[User.KEY_PAYMENT_DATE]
+        this.paymentDate = if (value is String) value else this.paymentDate
+
         value = this@mapToUser[User.KEY_CURRENCY]
         this.currency = if (value is String) value else this.currency
 

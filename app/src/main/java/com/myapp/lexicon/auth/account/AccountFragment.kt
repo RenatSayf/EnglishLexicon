@@ -535,7 +535,9 @@ class AccountFragment : Fragment() {
                 tvRewardCondition.visibility = View.GONE
             }
             else tvRewardCondition.visibility = View.VISIBLE
-            btnGetReward.isEnabled = user.userReward > rewardThreshold && accountVM.paymentCode == BuildConfig.PAYMENT_CODE.trim()
+
+            val payDateIsLastMonth = user.checkPayDateIsLastMonth()
+            btnGetReward.isEnabled = user.userReward > rewardThreshold && accountVM.paymentCode == BuildConfig.PAYMENT_CODE.trim() && payDateIsLastMonth
 
             if (user.message.isNotEmpty()) {
                 tvMessage.apply {

@@ -26,7 +26,7 @@ class ExtensionsKtTest {
 
     @Test
     fun toStringDate() {
-        val timeMillis: Long = 1688378419048
+        val timeMillis = 1688378419048L
         val actualDate = timeMillis.toStringDate(Locale("ru", "RU"))
         Assert.assertEquals("2023-07-03", actualDate)
     }
@@ -82,5 +82,14 @@ class ExtensionsKtTest {
         actualResult = inputTime.isTodayDate()
         Assert.assertTrue(!actualResult)
     }
+
+    @Test
+    fun dayOfMonthFromStrTime() {
+        val inputTime = "2024-06-09 23:59:59"
+        val actualDay = inputTime.dayOfMonthFromStrTime()
+        Assert.assertEquals(9, actualDay)
+    }
+
+
 
 }
