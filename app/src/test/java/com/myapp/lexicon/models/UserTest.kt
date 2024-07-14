@@ -28,4 +28,15 @@ class UserTest {
         Assert.assertEquals(false, actualResult)
     }
 
+    @Test
+    fun checkPayDateIsLastMonth_empty_date() {
+        val user = User("NNN").apply {
+            paymentDate = ""
+        }
+        val currentTime = "2024-07-20 00:00:01".toLongTime()
+        val actualResult = user.checkPayDateIsLastMonth(currentTime = currentTime)
+        Assert.assertEquals(true, actualResult)
+    }
+
+
 }
