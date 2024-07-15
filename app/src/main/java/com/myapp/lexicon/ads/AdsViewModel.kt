@@ -16,6 +16,7 @@ import com.myapp.lexicon.helpers.screenHeight
 import com.myapp.lexicon.helpers.screenWidth
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.to2DigitsScale
+import com.myapp.lexicon.settings.adsIsEnabled
 import com.yandex.mobile.ads.banner.BannerAdSize
 import com.yandex.mobile.ads.banner.BannerAdView
 import com.yandex.mobile.ads.common.AdError
@@ -56,7 +57,7 @@ class AdsViewModel @Inject constructor(
     }
 
     private val isAdsEnabled: Boolean by lazy {
-        Firebase.remoteConfig.getBoolean("is_ads_enabled")
+        app.adsIsEnabled
     }
 
     private var _interstitialAd = MutableLiveData<Result<InterstitialAd>>()
@@ -101,6 +102,9 @@ class AdsViewModel @Inject constructor(
                 })
                 loadAd(adRequestConfiguration)
             }
+        }
+        else {
+            _interstitialAd.value = Result.failure(Throwable("Advertising is suspended"))
         }
     }
 

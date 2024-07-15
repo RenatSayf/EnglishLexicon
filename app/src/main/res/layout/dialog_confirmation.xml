@@ -33,15 +33,16 @@
         android:id="@+id/tv_emoji_2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="@color/color_CCC3C3"
+        android:textSize="16sp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_emoji"
         app:layout_constraintStart_toEndOf="@+id/tv_emoji"
         app:layout_constraintTop_toTopOf="@+id/tv_emoji"
-        app:layout_constraintBottom_toBottomOf="@+id/tv_emoji"
         app:layout_constraintVertical_bias="1"
+        tools:ignore="TextContrastCheck"
         tools:text="@string/thumbs_up"
-        android:textSize="16sp"
-        android:textColor="@color/color_CCC3C3"
-        android:visibility="invisible"
-        tools:visibility="visibility"/>
+        tools:visibility="visibility" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tv_message"

@@ -65,6 +65,9 @@ fun ParseObject.mapToUser(): User {
 
         value = this@mapToUser[User.KEY_MESSAGE]
         this.message = if (value is String) value else this.message
+
+        value = this@mapToUser[User.KEY_IS_ADS_ENABLED]
+        this.isAdsEnabled = if (value is Boolean) value else this.isAdsEnabled
     }
 }
 

@@ -234,6 +234,7 @@ class TestModeDialog : DialogFragment() {
 
             adsVM.interstitialAdState.observe(viewLifecycleOwner) { state ->
                 if (state is AdsViewModel.AdState.Dismissed) {
+                    adProgress.visibility = View.GONE
                     val bonus = state.bonus
                     if (bonus > 0.0) {
                         val coordinates = Pair(btnOpenApp.right + 55, btnOpenApp.top + 15)

@@ -31,6 +31,7 @@ data class User(
         const val KEY_PAYMENT_DATE = "paymentDate"
         const val KEY_MESSAGE = "messageToUser"
         const val KEY_MESSAGING_TOKEN = "messagingToken"
+        const val KEY_IS_ADS_ENABLED = "isAdsEnabled"
     }
 
     var email: String = ""
@@ -57,6 +58,7 @@ data class User(
     var currency: String = ""
     var currencySymbol: String = ""
     var message: String = ""
+    var isAdsEnabled: Boolean = true
 
     fun checkPayDateIsLastMonth(
         currentTime: Long = System.currentTimeMillis()

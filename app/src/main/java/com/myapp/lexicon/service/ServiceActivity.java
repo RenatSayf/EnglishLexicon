@@ -103,7 +103,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
             displayMode = Integer.parseInt(preferencesString);
         } catch (NumberFormatException e)
         {
-            e.printStackTrace();
+            ExtensionsKt.printStackTraceIfDebug(e);
         }
 
         if (displayMode == 0)
@@ -144,6 +144,9 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                             return null;
                         }
                 );
+            }
+            else {
+                adsVM.setInterstitialAdState(new AdsViewModel.AdState.Dismissed(0.0));
             }
         });
     }

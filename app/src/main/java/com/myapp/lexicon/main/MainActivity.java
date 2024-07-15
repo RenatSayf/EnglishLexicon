@@ -45,6 +45,7 @@ import com.myapp.lexicon.dialogs.RemoveDictDialog;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.Share;
+import com.myapp.lexicon.main.ext.MainActivityExtKt;
 import com.myapp.lexicon.main.viewmodels.UserViewModel;
 import com.myapp.lexicon.models.AppResult;
 import com.myapp.lexicon.models.Revenue;
@@ -192,6 +193,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             result.onSignIn(user -> {
                 navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_account);
                 buildRewardText(new Revenue(user.getUserReward(), user.getReservedPayment(), user.getCurrency(), user.getCurrencySymbol()));
+                SettingsExtKt.setAdsIsEnabled(this, user.isAdsEnabled());
+                if (!user.isAdsEnabled() && !user.getMessage().isEmpty()) {
+                    MainActivityExtKt.showWarningDialog(this, user.getMessage());
+                }
                 return null;
             });
             result.onSignOut(() -> {
