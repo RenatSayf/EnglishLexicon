@@ -53,8 +53,6 @@ class SplashActivity : AppCompatActivity() {
             finish()
         }
 
-        applicationContext.adsIsEnabled = true
-
         applicationContext.getAuthDataFromPref(
             onNotRegistered = {
                 authChecked = true

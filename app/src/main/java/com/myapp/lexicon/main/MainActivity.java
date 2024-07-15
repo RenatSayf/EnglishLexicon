@@ -195,7 +195,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 buildRewardText(new Revenue(user.getUserReward(), user.getReservedPayment(), user.getCurrency(), user.getCurrencySymbol()));
                 SettingsExtKt.setAdsIsEnabled(this, user.isAdsEnabled());
                 if (!user.isAdsEnabled() && !user.getMessage().isEmpty()) {
-                    MainActivityExtKt.showWarningDialog(this, user.getMessage());
+                    ExtensionsKt.showSnackBar(navView, user.getMessage(), Snackbar.LENGTH_LONG);
+                    //MainActivityExtKt.showWarningDialog(this, user.getMessage());
                 }
                 return null;
             });

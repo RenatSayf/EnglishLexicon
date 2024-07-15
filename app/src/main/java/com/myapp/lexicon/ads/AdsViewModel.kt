@@ -12,6 +12,7 @@ import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.common.AdsSource
 import com.myapp.lexicon.helpers.printLogIfDebug
 import com.myapp.lexicon.helpers.logIfDebug
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.screenHeight
 import com.myapp.lexicon.helpers.screenWidth
 import com.myapp.lexicon.main.viewmodels.UserViewModel
@@ -158,7 +159,11 @@ fun InterstitialAd.showAd(
             }
 
             override fun onAdDismissed() {
-                onDismissed.invoke(bonus)
+                try {
+                    onDismissed.invoke(bonus)
+                } catch (e: Exception) {
+                    e.printStackTraceIfDebug()
+                }
             }
 
             override fun onAdClicked() {}
@@ -304,19 +309,21 @@ private val TEST_REWARDED_DATA: String
 
 fun BannerAdView.loadBanner(adId: BannerAdIds? = null) {
 
-    val isBannerEnabled = Firebase.remoteConfig.getBoolean("is_banner_enabled")
-    if (isBannerEnabled) {
-        val adWidth = this.context.screenWidth
-        val adHeight = (this.context.screenHeight * 0.08).roundToInt()
-        val fixedSize = BannerAdSize.fixedSize(this.context, adWidth, adHeight)
-        this.apply {
-            val id = if (BuildConfig.DEBUG) {
-                "demo-banner-yandex"
-            } else {
-                adId?.id ?: BannerAdIds.values().random().id
-            }
-            setAdUnitId(id)
-            setAdSize(fixedSize)
-        }.loadAd(AdRequest.Builder().build())
+    if (this.context.adsIsEnabled) {
+        val isBannerEnabled = Firebase.remoteConfig.getBoolean("is_banner_enabled")
+        if (isBannerEnabled) {
+            val adWidth = this.context.screenWidth
+            val adHeight = (this.context.screenHeight * 0.08).roundToInt()
+            val fixedSize = BannerAdSize.fixedSize(this.context, adWidth, adHeight)
+            this.apply {
+                val id = if (BuildConfig.DEBUG) {
+                    "demo-banner-yandex"
+                } else {
+                    adId?.id ?: BannerAdIds.values().random().id
+                }
+                setAdUnitId(id)
+                setAdSize(fixedSize)
+            }.loadAd(AdRequest.Builder().build())
+        }
     }
 }
