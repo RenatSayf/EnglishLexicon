@@ -363,7 +363,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
 
         speechVM.getEnCheckboxEnable().observe(this, enabled -> {
-            checkBoxEnView.setChecked(enabled);
             checkBoxEnView.setEnabled(enabled);
             btnSpeak.setEnabled(enabled);
         });

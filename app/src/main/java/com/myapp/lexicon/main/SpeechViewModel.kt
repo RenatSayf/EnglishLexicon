@@ -106,12 +106,14 @@ class SpeechViewModel(
     var isEnSpeech: LiveData<Boolean> = _isEnSpeech
     fun enableEnSpeech(flag: Boolean) {
         _isEnSpeech.value = flag
+        app.isEngSpeech = flag
     }
 
     private var _isRuSpeech = MutableLiveData(app.isRuSpeech)
     var isRuSpeech: LiveData<Boolean> = _isRuSpeech
     fun enableRuSpeech(flag: Boolean) {
         _isRuSpeech.value = flag
+        app.isRuSpeech = flag
     }
 
     private var _speechProgressVisibility = MutableLiveData(View.INVISIBLE)
@@ -121,10 +123,4 @@ class SpeechViewModel(
         _speechProgressVisibility.value = visibility
     }
 
-    override fun onCleared()
-    {
-        app.isEngSpeech = _isEnSpeech.value?: true
-        app.isRuSpeech = _isRuSpeech.value?: false
-        super.onCleared()
-    }
 }
