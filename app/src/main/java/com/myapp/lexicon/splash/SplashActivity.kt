@@ -1,5 +1,3 @@
-@file:Suppress("UNUSED_ANONYMOUS_PARAMETER")
-
 package com.myapp.lexicon.splash
 
 import android.annotation.SuppressLint
@@ -16,6 +14,7 @@ import com.myapp.lexicon.auth.AuthViewModel
 import com.myapp.lexicon.common.KEY_APP_STORE_LINK
 import com.myapp.lexicon.databinding.ALayoutSplashScreenBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showDialogAsSingleton
 import com.myapp.lexicon.helpers.startTimer
 import com.myapp.lexicon.main.MainActivity
@@ -44,7 +43,11 @@ class SplashActivity : AppCompatActivity() {
         binding = ALayoutSplashScreenBinding.inflate(layoutInflater, CoordinatorLayout(this), false)
         setContentView(binding.root)
 
-        initRemoteConfig() // initialization remote config
+        try {
+            initRemoteConfig() // initialization remote config
+        } catch (e: Exception) {
+            e.printStackTraceIfDebug()
+        }
 
         val extras = intent.extras
         val appStoreLink = extras?.getString(KEY_APP_STORE_LINK)
@@ -64,6 +67,7 @@ class SplashActivity : AppCompatActivity() {
 
         authVM.state.observe(this) { state ->
             state.onSignIn { user ->
+                this.adsIsEnabled = user.isAdsEnabled
                 authChecked = true
             }
             state.onFailure {
