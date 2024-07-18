@@ -14,7 +14,7 @@ android {
         minSdkVersion 26
         targetSdkVersion 34
         versionName '5.4.1'   //Hint last versionName in store is 5.3
-        versionCode 87      //Hint last versionCode in store is 86
+        versionCode 86      //Hint last versionCode in store is 86
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
 
@@ -116,7 +116,7 @@ dependencies {
     implementation "androidx.viewpager2:viewpager2:1.1.0"
 
     //firebase
-    implementation platform('com.google.firebase:firebase-bom:33.1.1')
+    implementation platform('com.google.firebase:firebase-bom:33.1.2')
     implementation 'com.google.firebase:firebase-storage-ktx'
     implementation 'com.google.firebase:firebase-config-ktx'
     implementation 'com.google.firebase:firebase-messaging-ktx'
@@ -181,11 +181,11 @@ dependencies {
     implementation 'com.google.android.gms:play-services-auth:21.2.0'
 
     //Ktor
-    implementation 'io.ktor:ktor-client-core:2.3.8'
-    implementation 'io.ktor:ktor-client-cio:2.3.8'
-    implementation 'io.ktor:ktor-client-logging:2.3.8'
-    implementation 'io.ktor:ktor-client-content-negotiation-jvm:2.3.8'
-    testImplementation 'io.ktor:ktor-client-mock:2.3.8'
+    implementation 'io.ktor:ktor-client-core:2.3.12'
+    implementation 'io.ktor:ktor-client-cio:2.3.12'
+    implementation 'io.ktor:ktor-client-logging:2.3.12'
+    implementation 'io.ktor:ktor-client-content-negotiation-jvm:2.3.12'
+    testImplementation 'io.ktor:ktor-client-mock:2.3.12'
     testImplementation 'org.jetbrains.kotlin:kotlin-test'
 
     // In-app update
