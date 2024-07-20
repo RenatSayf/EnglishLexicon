@@ -16,6 +16,7 @@ import com.myapp.lexicon.helpers.screenWidth
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.settings.adsIsEnabled
+import com.myapp.lexicon.settings.isUserRegistered
 import com.yandex.mobile.ads.banner.BannerAdSize
 import com.yandex.mobile.ads.banner.BannerAdView
 import com.yandex.mobile.ads.common.AdError
@@ -142,6 +143,7 @@ fun InterstitialAd.showAd(
     onImpression: (data: AdData?) -> Unit = {},
     onDismissed: (bonus: Double) -> Unit = {}
 ) {
+    val isUserRegistered = activity.isUserRegistered(onYes = {})
     this.apply {
         setAdEventListener(object : InterstitialAdEventListener {
 
@@ -171,8 +173,12 @@ fun InterstitialAd.showAd(
                     val rawData = it.rawData
                     rawData.toAdData(
                         onSuccess = {data ->
-                            bonus = (data.revenue * UserViewModel.USER_PERCENTAGE).to2DigitsScale()
-                            onImpression.invoke(data)
+                            if (isUserRegistered) {
+                                bonus = (data.revenue * UserViewModel.USER_PERCENTAGE).to2DigitsScale()
+                                onImpression.invoke(data)
+                            } else {
+                                onImpression.invoke(null)
+                            }
                         },
                         onFailed = {
                             onImpression.invoke(null)
@@ -182,8 +188,12 @@ fun InterstitialAd.showAd(
                     if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name || BuildConfig.ADS_SOURCE == AdsSource.LOCAL_HOST.name) {
                         TEST_INTERSTITIAL_DATA.toAdData(
                             onSuccess = { data ->
-                                bonus = (data.revenue * UserViewModel.USER_PERCENTAGE).to2DigitsScale()
-                                onImpression.invoke(data)
+                                if (isUserRegistered) {
+                                    bonus = (data.revenue * UserViewModel.USER_PERCENTAGE).to2DigitsScale()
+                                    onImpression.invoke(data)
+                                } else {
+                                    onImpression.invoke(null)
+                                }
                             },
                             onFailed = {
                                 onImpression.invoke(null)

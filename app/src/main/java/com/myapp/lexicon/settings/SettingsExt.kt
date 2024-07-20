@@ -71,7 +71,7 @@ fun Context.getAuthDataFromPref(
 fun Context.isUserRegistered(
     onYes: () -> Unit,
     onNotRegistered: () -> Unit = {}
-) {
+): Boolean {
     val result = appSettings.getBoolean("KEY_IS_REGISTERED", false)
     if (result) {
         onYes.invoke()
@@ -79,6 +79,7 @@ fun Context.isUserRegistered(
     else {
         onNotRegistered.invoke()
     }
+    return result
 }
 
 fun Context.isFirstLogin(

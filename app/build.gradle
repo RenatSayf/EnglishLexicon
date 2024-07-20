@@ -8,11 +8,12 @@ apply plugin: 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 
 
 android {
-    compileSdk 34
+    compileSdk 35
     defaultConfig {
         applicationId "com.myapp.lexicon"
         minSdkVersion 26
-        targetSdkVersion 34
+        //noinspection EditedTargetSdkVersion
+        targetSdkVersion 35
         versionName '5.4.1'   //Hint last versionName in store is 5.3
         versionCode 86      //Hint last versionCode in store is 86
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
