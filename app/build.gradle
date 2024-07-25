@@ -14,8 +14,8 @@ android {
         minSdkVersion 26
         //noinspection EditedTargetSdkVersion
         targetSdkVersion 35
-        versionName '5.4'   //Hint last versionName in store is 5.3
-        versionCode 87      //Hint last versionCode in store is 86
+        versionName '5.5.beta'   //Hint last versionName in store is 5.4
+        versionCode 87      //Hint last versionCode in store is 87
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
 
@@ -91,9 +91,9 @@ dependencies {
     implementation 'androidx.preference:preference-ktx:1.2.1'
 
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.8.3'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.8.3'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.3'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.8.4'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.8.4'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.4'
     implementation 'com.google.android.gms:play-services-auth-base:18.0.13'
 
     testImplementation 'junit:junit:4.13.2'
@@ -144,8 +144,8 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.17.2'
 
     //region Hint Activity Result API. Runtime permission Step 1
-    implementation 'androidx.activity:activity-ktx:1.9.0'
-    implementation 'androidx.fragment:fragment-ktx:1.8.1'
+    implementation 'androidx.activity:activity-ktx:1.9.1'
+    implementation 'androidx.fragment:fragment-ktx:1.8.2'
     //endregion
 
     //WorkManager library
@@ -158,7 +158,7 @@ dependencies {
     testImplementation "androidx.work:work-testing:$work_version"
 
     // Yandex Mobile Ads SDK
-    implementation 'com.yandex.android:mobileads:7.2.0'
+    implementation 'com.yandex.android:mobileads:7.1.0'
 
     // Yandex AppMetrica SDK.
     implementation 'io.appmetrica.analytics:analytics:6.2.1'
