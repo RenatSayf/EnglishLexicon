@@ -185,7 +185,7 @@ class SplashActivity : AppCompatActivity() {
             }
         })
 
-        startTimer(30000, onFinish = {
+        startTimer(15000, onFinish = {
             authChecked = true
         })
 

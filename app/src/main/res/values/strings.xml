@@ -308,7 +308,7 @@
     <string name="text_update_available">"Доступно обновление"</string>
     <string name="test_button">Test Button</string>
     <string name="optional_if_you_use_SBP">Необязательно, если используете СБП</string>
-    <string name="text_important_update_availaible">Доступно важное обновление. Исправлена ошибка начисления вознаграждения. Необходимо обновить приложение</string>
+    <string name="text_important_update_availaible">Доступно важное обновление. Необходимо обновить приложение</string>
     <string name="text_yesterday">Вчера</string>
     <string name="text_today">Сегодня</string>
 
