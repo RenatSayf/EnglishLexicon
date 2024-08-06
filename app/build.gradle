@@ -158,7 +158,7 @@ dependencies {
     testImplementation "androidx.work:work-testing:$work_version"
 
     // Yandex Mobile Ads SDK
-    implementation 'com.yandex.android:mobileads:7.1.0'
+    implementation 'com.yandex.android:mobileads:7.3.0'
 
     // Yandex AppMetrica SDK.
     implementation 'io.appmetrica.analytics:analytics:6.2.1'
