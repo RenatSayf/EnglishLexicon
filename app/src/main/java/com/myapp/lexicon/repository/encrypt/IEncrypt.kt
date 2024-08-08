@@ -6,5 +6,5 @@ interface IEncrypt {
 
     fun getKeyPair(): Result<Pair<Key, Key>>
 
-    fun encodedData(data: String, pubKey: Key): Result<String>
+    fun encodedData(data: String, pubKey: String): Result<String>
 }

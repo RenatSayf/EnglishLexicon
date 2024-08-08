@@ -1,8 +1,12 @@
 package com.myapp.lexicon.repository.encrypt
 
+import android.util.Base64
 import java.security.Key
+import java.security.KeyFactory
 import java.security.KeyPairGenerator
+import java.security.spec.X509EncodedKeySpec
 import javax.crypto.Cipher
+
 
 class Encrypt : IEncrypt {
     override fun getKeyPair(): Result<Pair<Key, Key>> {
@@ -17,16 +21,22 @@ class Encrypt : IEncrypt {
         }
     }
 
-    override fun encodedData(data: String, pubKey: Key): Result<String> {
+    override fun encodedData(data: String, pubKey: String): Result<String> {
+
+        val keyBytes = Base64.decode(pubKey, Base64.DEFAULT)
+        val spec = X509EncodedKeySpec(keyBytes)
+        val keyFactory = KeyFactory.getInstance("RSA")
+        val publicKey = keyFactory.generatePublic(spec)
 
         val cipher = Cipher.getInstance("RSA").apply {
-            init(Cipher.ENCRYPT_MODE, pubKey)
+            init(Cipher.ENCRYPT_MODE, publicKey)
         }
-        val bytes = try {
-            cipher.doFinal(data.encodeToByteArray())
+        return try {
+            val bytes = cipher.doFinal(data.encodeToByteArray())
+            val encodeString = Base64.encodeToString(bytes, Base64.DEFAULT)
+            Result.success(encodeString)
         } catch (e: Exception) {
-            return Result.failure(Throwable(e))
+            Result.failure(Throwable(e))
         }
-        return Result.success(bytes.toString())
     }
 }
