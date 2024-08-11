@@ -8,12 +8,12 @@ apply plugin: 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 
 
 android {
-    compileSdk 35
+    compileSdk 34
     defaultConfig {
         applicationId "com.myapp.lexicon"
         minSdkVersion 26
         //noinspection EditedTargetSdkVersion
-        targetSdkVersion 35
+        targetSdkVersion 34
         versionName '5.6'   //Hint last versionName in store is 5.5
         versionCode 90      //Hint last versionCode in store is 89
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -158,7 +158,7 @@ dependencies {
     testImplementation "androidx.work:work-testing:$work_version"
 
     // Yandex Mobile Ads SDK
-    implementation 'com.yandex.android:mobileads:7.1.0'
+    implementation 'com.yandex.android:mobileads:7.3.0'
 
     // Yandex AppMetrica SDK.
     implementation 'io.appmetrica.analytics:analytics:6.2.1'

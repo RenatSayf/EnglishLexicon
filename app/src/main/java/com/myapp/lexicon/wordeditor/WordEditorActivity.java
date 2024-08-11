@@ -115,7 +115,12 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
         checkMove_OnClick();
 
         BannerAdView bannerView = findViewById(R.id.bannerView);
-        AdsViewModelKt.loadBanner(bannerView, BannerAdIds.BANNER_4);
+        AdsViewModelKt.loadBanner(
+                bannerView, BannerAdIds.BANNER_4,
+                0.08,
+                (data) -> null,
+                e -> null
+        );
     }
 
     @SuppressWarnings("CodeBlock2Expr")
@@ -517,7 +522,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
                     }
                 } catch (Exception e)
                 {
-                    e.printStackTrace();
+                    ExtensionsKt.printStackTraceIfDebug(e);
                 }
                 return false;
             }
@@ -528,14 +533,14 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
     public void btn_Speak_OnClick(View view)
     {
         String text = editTextEn.getText().toString();
-        if (!text.equals(""))
+        if (!text.isEmpty())
         {
             try
             {
                 speechVM.doSpeech(text, Locale.US);
             } catch (Exception e)
             {
-                e.printStackTrace();
+                ExtensionsKt.printStackTraceIfDebug(e);
             }
         }
     }

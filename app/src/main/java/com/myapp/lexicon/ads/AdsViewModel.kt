@@ -17,6 +17,8 @@ import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.settings.adsIsEnabled
 import com.myapp.lexicon.settings.isUserRegistered
+import com.myapp.lexicon.video.models.High
+import com.yandex.mobile.ads.banner.BannerAdEventListener
 import com.yandex.mobile.ads.banner.BannerAdSize
 import com.yandex.mobile.ads.banner.BannerAdView
 import com.yandex.mobile.ads.common.AdError
@@ -315,11 +317,16 @@ private val TEST_REWARDED_DATA: String
       }
     }"""
 
-fun BannerAdView.loadBanner(adId: BannerAdIds? = null) {
+fun BannerAdView.loadBanner(
+    adId: BannerAdIds? = null,
+    heightRate: Double = 0.08,
+    onCompleted: (error: AdRequestError?) -> Unit = {},
+    onImpression: (data: AdData?) -> Unit = {}
+) {
 
     if (this.context.adsIsEnabled) {
         val adWidth = this.context.screenWidth
-        val adHeight = (this.context.screenHeight * 0.08).roundToInt()
+        val adHeight = (this.context.screenHeight * heightRate).roundToInt()
         val fixedSize = BannerAdSize.fixedSize(this.context, adWidth, adHeight)
         this.apply {
             val id = if (BuildConfig.DEBUG) {
@@ -330,5 +337,40 @@ fun BannerAdView.loadBanner(adId: BannerAdIds? = null) {
             setAdUnitId(id)
             setAdSize(fixedSize)
         }.loadAd(AdRequest.Builder().build())
+
+        this.setBannerAdEventListener(object : BannerAdEventListener {
+            override fun onAdClicked() {
+                return
+            }
+
+            override fun onAdFailedToLoad(error: AdRequestError) {
+                onCompleted.invoke(error)
+            }
+
+            override fun onAdLoaded() {
+                onCompleted.invoke(null)
+            }
+
+            override fun onImpression(impressionData: ImpressionData?) {
+                impressionData?.let {
+                    it.rawData.toAdData(
+                        onSuccess = {adData: AdData ->
+                            onImpression.invoke(adData)
+                        },
+                        onFailed = {
+                            onImpression.invoke(null)
+                        }
+                    )
+                }
+            }
+
+            override fun onLeftApplication() {
+                return
+            }
+
+            override fun onReturnedToApplication() {
+                return
+            }
+        })
     }
 }
