@@ -1,0 +1,15 @@
+{
+  "currency": "RUB",
+  "revenueUSD": "0.04",
+  "precision": "estimated",
+  "revenue": "1.1",
+  "requestId": "1723370787761663-356606154736833937500212-production-app-host-vla-pcode-54",
+  "blockId": "demo-banner-yandex",
+  "adType": "banner",
+  "ad_unit_id": "demo-banner-yandex",
+  "network": {
+    "name": "Yandex",
+    "adapter": "Yandex",
+    "ad_unit_id": "demo-banner-yandex"
+  }
+}

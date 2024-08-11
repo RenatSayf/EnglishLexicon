@@ -317,6 +317,25 @@ private val TEST_REWARDED_DATA: String
       }
     }"""
 
+private val TEST_BANNER_DATA: String
+    get() {
+        return """{
+  "currency": "RUB",
+  "revenueUSD": "0.04",
+  "precision": "estimated",
+  "revenue": "1.1",
+  "requestId": "1723370787761663-35660637500212",
+  "blockId": "demo-banner-yandex",
+  "adType": "banner",
+  "ad_unit_id": "demo-banner-yandex",
+  "network": {
+    "name": "Yandex",
+    "adapter": "Yandex",
+    "ad_unit_id": "demo-banner-yandex"
+  }
+}"""
+    }
+
 fun BannerAdView.loadBanner(
     adId: BannerAdIds? = null,
     heightRate: Double = 0.08,
@@ -329,7 +348,7 @@ fun BannerAdView.loadBanner(
         val adHeight = (this.context.screenHeight * heightRate).roundToInt()
         val fixedSize = BannerAdSize.fixedSize(this.context, adWidth, adHeight)
         this.apply {
-            val id = if (BuildConfig.DEBUG) {
+            val id = if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
                 "demo-banner-yandex"
             } else {
                 adId?.id ?: BannerAdIds.values().random().id
@@ -361,6 +380,20 @@ fun BannerAdView.loadBanner(
                             onImpression.invoke(null)
                         }
                     )
+                }?: run {
+                    if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name || BuildConfig.ADS_SOURCE == AdsSource.LOCAL_HOST.name) {
+                        TEST_BANNER_DATA.toAdData(
+                            onSuccess = { data ->
+                                onImpression.invoke(data)
+                            },
+                            onFailed = {
+                                onImpression.invoke(null)
+                            }
+                        )
+                    }
+                    else {
+                        onImpression.invoke(null)
+                    }
                 }
             }
 

@@ -5,14 +5,14 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class AdData(
-    val adType: String?,
+    var adType: String? = null,
     @SerialName("ad_unit_id")
-    val adUnitId: String?,
-    val blockId: String?,
-    val currency: String?,
-    val network: Network?,
-    val precision: String?,
-    val requestId: String?,
-    val revenue: Double = 0.0,
-    val revenueUSD: Double = 0.0
+    var adUnitId: String? = null,
+    var blockId: String? = null,
+    var currency: String? = null,
+    var network: Network? = null,
+    var precision: String? = null,
+    var requestId: String? = null,
+    var revenue: Double = 0.0,
+    var revenueUSD: Double = 0.0
 )

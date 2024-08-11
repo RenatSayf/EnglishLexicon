@@ -1,5 +1,6 @@
 package com.myapp.lexicon.ads
 
+import android.os.Bundle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner
@@ -39,12 +40,24 @@ class BannersFragmentTest {
 
         scenario.onActivity { act ->
 
-            val bannersFragment = BannersFragment()
+            val bannersFragment = BannersFragment().apply {
+                arguments = Bundle().apply {
+                    putStringArrayList(
+                        BannersFragment.ARG_ID_LIST,
+                        arrayListOf(
+                            "demo-banner-yandex",
+                            "demo-banner-yandex",
+                            "demo-banner-yandex"
+                        )
+                    )
+                }
+            }
 
             bannersFragment.setAdDataListener(object : IAdDataListener {
                 override fun onImpression(data: AdData?) {
                     if (data != null) {
-                        Assert.assertTrue(true)
+                        val actualRevenue = data.revenue
+                        Assert.assertEquals(3.3, actualRevenue, 0.001)
                     }
                     else {
                         Assert.assertTrue(false)
