@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
@@ -51,6 +52,10 @@ class BannersFragment : Fragment(), IAdDataListener {
             val listBannerIds = arguments?.getStringArrayList(ARG_ID_LIST)?.toList()
 
             if (!listBannerIds.isNullOrEmpty()) {
+
+                val bannerAdIds = BannerAdIds.values().filter {
+                    listBannerIds.contains(it.id)
+                }
                 repeat(listBannerIds.size) {
                     val bannerView = BannerAdView(requireContext()).apply {
                         layoutParams = LinearLayoutCompat.LayoutParams(
@@ -64,7 +69,7 @@ class BannersFragment : Fragment(), IAdDataListener {
 
                 loadAndShowBanners(
                     this,
-                    listBannerIds,
+                    bannerAdIds,
                     onLoaded = {
                         pbLoadAds.visibility = View.GONE
                     },
@@ -77,36 +82,43 @@ class BannersFragment : Fragment(), IAdDataListener {
                     }
                 )
             }
+
+            btnClose.setOnClickListener {
+                parentFragmentManager.beginTransaction()
+                    .remove(this@BannersFragment)
+                    .commit()
+            }
         }
     }
 
     private fun loadAndShowBanners(
         binding: FragmentBannersBinding,
-        idList: List<String>,
+        idList: List<BannerAdIds>,
         onLoaded: () -> Unit,
         onImpression: (data: AdData?) -> Unit
     ) {
         with(binding) {
 
-            val bannerAdIds = BannerAdIds.values().toList()
-
+            val adIds = idList.take(3)
             var loadCount = 0
+            var impressionCount = 0
             val adData = AdData()
-            val bannerViews = layoutBanners.children as Sequence<BannerAdView>
-            bannerViews.forEachIndexed { index, adView ->
-                adView.loadBanner(
-                    adId = bannerAdIds.firstOrNull { it.id == idList[index] },
-                    heightRate = 1.0 / idList.size,
+            val banners = layoutBanners.children.toList()
+            try {
+                (banners[0] as BannerAdView).loadBanner(
+                    adId = adIds[0],
+                    heightRate = 1.0 / adIds.size,
                     onCompleted = { error: AdRequestError? ->
                         loadCount++
                         error?.let {
                             Throwable(it.description).printStackTraceIfDebug()
                         }
-                        if (loadCount >= idList.size) {
+                        if (loadCount >= adIds.size) {
                             onLoaded.invoke()
                         }
                     },
                     onImpression = { data: AdData? ->
+                        impressionCount++
                         if (data != null) {
                             adData.let {
                                 it.adType = data.adType
@@ -119,19 +131,105 @@ class BannersFragment : Fragment(), IAdDataListener {
                                 it.revenue += data.revenue
                                 it.revenueUSD += data.revenueUSD
                             }
-                            if (loadCount >= idList.size) {
+                            if (impressionCount >= adIds.size) {
                                 onImpression.invoke(adData)
                             }
                         } else onImpression.invoke(null)
                     }
                 )
+            } catch (e: IndexOutOfBoundsException) {
+                e.printStackTraceIfDebug()
             }
+
+            try {
+                (banners[1] as BannerAdView).loadBanner(
+                    adId = adIds[1],
+                    heightRate = 1.0 / adIds.size,
+                    onCompleted = { error: AdRequestError? ->
+                        loadCount++
+                        error?.let {
+                            Throwable(it.description).printStackTraceIfDebug()
+                        }
+                        if (loadCount >= adIds.size) {
+                            onLoaded.invoke()
+                        }
+                    },
+                    onImpression = { data: AdData? ->
+                        impressionCount++
+                        if (data != null) {
+                            adData.let {
+                                it.adType = data.adType
+                                it.adUnitId = data.adUnitId
+                                it.blockId = data.blockId
+                                it.currency = data.currency
+                                it.network = data.network
+                                it.precision = data.precision
+                                it.requestId = data.requestId
+                                it.revenue += data.revenue
+                                it.revenueUSD += data.revenueUSD
+                            }
+                            if (impressionCount >= adIds.size) {
+                                onImpression.invoke(adData)
+                            }
+                        } else onImpression.invoke(null)
+                    }
+                )
+            } catch (e: IndexOutOfBoundsException) {
+                e.printStackTraceIfDebug()
+            }
+
+            try {
+                (banners[2] as BannerAdView).loadBanner(
+                    adId = adIds[2],
+                    heightRate = 1.0 / adIds.size,
+                    onCompleted = { error: AdRequestError? ->
+                        loadCount++
+                        error?.let {
+                            Throwable(it.description).printStackTraceIfDebug()
+                        }
+                        if (loadCount >= adIds.size) {
+                            onLoaded.invoke()
+                        }
+                    },
+                    onImpression = { data: AdData? ->
+                        impressionCount++
+                        if (data != null) {
+                            adData.let {
+                                it.adType = data.adType
+                                it.adUnitId = data.adUnitId
+                                it.blockId = data.blockId
+                                it.currency = data.currency
+                                it.network = data.network
+                                it.precision = data.precision
+                                it.requestId = data.requestId
+                                it.revenue += data.revenue
+                                it.revenueUSD += data.revenueUSD
+                            }
+                            if (impressionCount >= adIds.size) {
+                                onImpression.invoke(adData)
+                            }
+                        } else onImpression.invoke(null)
+                    }
+                )
+            } catch (e: IndexOutOfBoundsException) {
+                e.printStackTraceIfDebug()
+            }
+
         }
     }
 
     override fun onImpression(data: AdData?) {
         if (data != null) {
+            binding?.btnClose?.visibility = View.VISIBLE
             revenueVM.updateUserRevenueIntoCloud(data)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {}
+        })
     }
 }

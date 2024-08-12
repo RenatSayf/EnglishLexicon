@@ -35,3 +35,13 @@ val PAYMENTS_CONDITIONS: String = try {
     ""
 }
 
+val IS_MULTI_BANNER: Boolean
+    get() {
+        return try {
+            Firebase.remoteConfig.getBoolean("is_multi_banner")
+        } catch (e: Exception) {
+            e.printStackTraceIfDebug()
+            true
+        }
+    }
+

@@ -18,11 +18,13 @@ import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.BannerAdIds
+import com.myapp.lexicon.ads.BannersFragment
 import com.myapp.lexicon.ads.InterstitialAdIds
 import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.loadBanner
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.ads.showAd
+import com.myapp.lexicon.common.IS_MULTI_BANNER
 import com.myapp.lexicon.databinding.TranslateFragmentBinding
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showSnackBar
@@ -188,20 +190,43 @@ class TranslateFragment : Fragment()
                 when(mActivity)
                 {
                     is MainActivity -> {
-                        interstitialAd?.showAd(
-                            requireActivity(),
-                            onImpression = { data ->
-                                if (data is AdData) {
-                                    revenueVM.updateUserRevenueIntoCloud(data)
+                        if (!IS_MULTI_BANNER) {
+                            interstitialAd?.showAd(
+                                requireActivity(),
+                                onImpression = { data ->
+                                    if (data is AdData) {
+                                        revenueVM.updateUserRevenueIntoCloud(data)
+                                    }
+                                },
+                                onDismissed = {
+                                    adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(it))
+                                    parentFragmentManager.popBackStack()
                                 }
-                            },
-                            onDismissed = {
-                                adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(it))
+                            )?: run {
                                 parentFragmentManager.popBackStack()
                             }
-                        )?: run {
-                            parentFragmentManager.popBackStack()
+                        } else {
+                            val bannersFragment = BannersFragment().apply {
+                                arguments = Bundle().apply {
+                                    putStringArrayList(
+                                        BannersFragment.ARG_ID_LIST,
+                                        arrayListOf(
+                                            BannerAdIds.BANNER_3.id,
+                                            BannerAdIds.BANNER_4.id,
+                                            BannerAdIds.BANNER_5.id
+                                        )
+                                    )
+                                }
+                                setAdDataListener(this@apply)
+                            }
+                            requireActivity().supportFragmentManager
+                                .beginTransaction()
+                                .replace(R.id.frame_to_page_fragm, bannersFragment)
+                                .addToBackStack(null)
+                                .commit()
                         }
+
+
                     }
                     is TranslateActivity -> {
                         interstitialAd?.showAd(
