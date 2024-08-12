@@ -13,16 +13,15 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.BannerAdIds
-import com.myapp.lexicon.ads.BannersFragment
 import com.myapp.lexicon.ads.InterstitialAdIds
 import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.loadBanner
 import com.myapp.lexicon.ads.models.AdData
+import com.myapp.lexicon.ads.runBannerFragment
 import com.myapp.lexicon.ads.showAd
 import com.myapp.lexicon.common.IS_MULTI_BANNER
 import com.myapp.lexicon.databinding.TranslateFragmentBinding
@@ -206,29 +205,62 @@ class TranslateFragment : Fragment()
                                 parentFragmentManager.popBackStack()
                             }
                         } else {
-                            val bannersFragment = BannersFragment().apply {
-                                arguments = Bundle().apply {
-                                    putStringArrayList(
-                                        BannersFragment.ARG_ID_LIST,
-                                        arrayListOf(
-                                            BannerAdIds.BANNER_3.id,
-                                            BannerAdIds.BANNER_4.id,
-                                            BannerAdIds.BANNER_5.id
-                                        )
-                                    )
-                                }
-                                setAdDataListener(this@apply)
-                            }
-                            requireActivity().supportFragmentManager
-                                .beginTransaction()
-                                .replace(R.id.frame_to_page_fragm, bannersFragment)
-                                .addToBackStack(null)
-                                .commit()
+                            parentFragmentManager.runBannerFragment(revenueVM, adsVM)
                         }
 
 
                     }
                     is TranslateActivity -> {
+                        if (!IS_MULTI_BANNER) {
+                            interstitialAd?.showAd(
+                                requireActivity(),
+                                onImpression = { data ->
+                                    if (data is AdData) {
+                                        revenueVM.updateUserRevenueIntoCloud(data)
+                                    }
+                                },
+                                onDismissed = {
+                                    requireActivity().finish()
+                                }
+                            )?: run {
+                                requireActivity().finish()
+                            }
+                        }
+                        else {
+                            parentFragmentManager.runBannerFragment(revenueVM, adsVM)
+                        }
+                    }
+                }
+            }
+        })
+
+        binding.btnBack.setOnClickListener {
+
+            when(mActivity)
+            {
+                is MainActivity -> {
+                    if (!IS_MULTI_BANNER) {
+                        interstitialAd?.showAd(
+                            requireActivity(),
+                            onImpression = { data ->
+                                if (data is AdData) {
+                                    revenueVM.updateUserRevenueIntoCloud(data)
+                                }
+                            },
+                            onDismissed = {
+                                adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(it))
+                                parentFragmentManager.popBackStack()
+                            }
+                        )?: run {
+                            parentFragmentManager.popBackStack()
+                        }
+                    }
+                    else {
+                        parentFragmentManager.runBannerFragment(revenueVM, adsVM)
+                    }
+                }
+                is TranslateActivity -> {
+                    if (!IS_MULTI_BANNER) {
                         interstitialAd?.showAd(
                             requireActivity(),
                             onImpression = { data ->
@@ -242,44 +274,8 @@ class TranslateFragment : Fragment()
                         )?: run {
                             requireActivity().finish()
                         }
-                    }
-                }
-            }
-        })
-
-        binding.btnBack.setOnClickListener {
-
-            when(mActivity)
-            {
-                is MainActivity -> {
-                    interstitialAd?.showAd(
-                        requireActivity(),
-                        onImpression = { data ->
-                            if (data is AdData) {
-                                revenueVM.updateUserRevenueIntoCloud(data)
-                            }
-                        },
-                        onDismissed = {
-                            adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(it))
-                            parentFragmentManager.popBackStack()
-                        }
-                    )?: run {
-                        parentFragmentManager.popBackStack()
-                    }
-                }
-                is TranslateActivity -> {
-                    interstitialAd?.showAd(
-                        requireActivity(),
-                        onImpression = { data ->
-                            if (data is AdData) {
-                                revenueVM.updateUserRevenueIntoCloud(data)
-                            }
-                        },
-                        onDismissed = {
-                            requireActivity().finish()
-                        }
-                    )?: run {
-                        requireActivity().finish()
+                    } else {
+                        parentFragmentManager.runBannerFragment(revenueVM, adsVM)
                     }
                 }
             }

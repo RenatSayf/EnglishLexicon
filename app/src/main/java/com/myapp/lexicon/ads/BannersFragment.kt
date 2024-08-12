@@ -8,15 +8,18 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.FragmentManager
+import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.interfaces.IAdDataListener
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.databinding.FragmentBannersBinding
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
+import com.myapp.lexicon.main.viewmodels.UserViewModel
+import com.myapp.lexicon.models.to2DigitsScale
 import com.yandex.mobile.ads.banner.BannerAdView
 import com.yandex.mobile.ads.common.AdRequestError
 
-class BannersFragment : Fragment(), IAdDataListener {
+class BannersFragment : Fragment() {
 
     companion object {
         val TAG = "${BannersFragment::class.java.simpleName}.TAG589758"
@@ -25,9 +28,9 @@ class BannersFragment : Fragment(), IAdDataListener {
 
     private var binding: FragmentBannersBinding? = null
 
-    private val revenueVM by activityViewModels<RevenueViewModel>()
-
     private var listener: IAdDataListener? = null
+
+    private var adData = AdData()
 
     fun setAdDataListener(listener: IAdDataListener) {
         this.listener = listener
@@ -74,16 +77,18 @@ class BannersFragment : Fragment(), IAdDataListener {
                         pbLoadAds.visibility = View.GONE
                     },
                     onImpression = {data: AdData? ->
+                        btnClose.visibility = View.VISIBLE
                         if (data != null) {
-                            listener?.onImpression(data)
+                            onImpression(data)
                         } else {
-                            listener?.onImpression(null)
+                            onImpression(null)
                         }
                     }
                 )
             }
 
             btnClose.setOnClickListener {
+                listener?.onDismissed(this@BannersFragment.adData)
                 parentFragmentManager.beginTransaction()
                     .remove(this@BannersFragment)
                     .commit()
@@ -218,10 +223,9 @@ class BannersFragment : Fragment(), IAdDataListener {
         }
     }
 
-    override fun onImpression(data: AdData?) {
+    private fun onImpression(data: AdData?) {
         if (data != null) {
-            binding?.btnClose?.visibility = View.VISIBLE
-            revenueVM.updateUserRevenueIntoCloud(data)
+            this.adData = data
         }
     }
 
@@ -232,4 +236,36 @@ class BannersFragment : Fragment(), IAdDataListener {
             override fun handleOnBackPressed() {}
         })
     }
+}
+
+fun FragmentManager.runBannerFragment(
+    revenueVM: RevenueViewModel,
+    adsVM: AdsViewModel
+) {
+    val bannersFragment = BannersFragment().apply {
+        arguments = Bundle().apply {
+            putStringArrayList(
+                BannersFragment.ARG_ID_LIST,
+                arrayListOf(
+                    BannerAdIds.BANNER_3.id,
+                    BannerAdIds.BANNER_4.id,
+                    BannerAdIds.BANNER_5.id
+                )
+            )
+        }
+        setAdDataListener(object : IAdDataListener {
+            override fun onDismissed(data: AdData?) {
+                if (data != null) {
+                    revenueVM.updateUserRevenueIntoCloud(data)
+                    val bonus = (data.revenue * UserViewModel.USER_PERCENTAGE).to2DigitsScale()
+                    adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+                }
+                parentFragmentManager.beginTransaction().remove(this@apply).commit()
+            }
+        })
+    }
+    this.beginTransaction()
+        .replace(R.id.frame_to_page_fragm, bannersFragment)
+        .addToBackStack(null)
+        .commit()
 }

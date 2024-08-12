@@ -358,6 +358,7 @@ fun BannerAdView.loadBanner(
         }.loadAd(AdRequest.Builder().build())
 
         this.setBannerAdEventListener(object : BannerAdEventListener {
+
             override fun onAdClicked() {
                 return
             }
