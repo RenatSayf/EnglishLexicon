@@ -101,10 +101,12 @@ class TranslateFragment : Fragment()
         super.onViewCreated(view, savedInstanceState)
         binding = TranslateFragmentBinding.bind(view)
 
-        adsVM.loadInterstitialAd(InterstitialAdIds.INTERSTITIAL_1)
-        adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
-            result.onSuccess { ad ->
-                interstitialAd = ad
+        if (!IS_MULTI_BANNER) {
+            adsVM.loadInterstitialAd(InterstitialAdIds.INTERSTITIAL_1)
+            adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
+                result.onSuccess { ad ->
+                    interstitialAd = ad
+                }
             }
         }
 
@@ -212,6 +214,7 @@ class TranslateFragment : Fragment()
                                     }
                                 }, onDismissed = { bonus: Double ->
                                     adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+                                    parentFragmentManager.popBackStack()
                                 }
                             )
                         }
@@ -241,7 +244,7 @@ class TranslateFragment : Fragment()
                                         revenueVM.updateUserRevenueIntoCloud(data)
                                     }
                                 }, onDismissed = { bonus: Double ->
-                                    adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+                                    requireActivity().finish()
                                 }
                             )
                         }

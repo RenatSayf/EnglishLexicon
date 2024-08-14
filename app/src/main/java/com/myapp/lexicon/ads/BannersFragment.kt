@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.view.children
@@ -12,7 +11,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
 import com.myapp.lexicon.R
-import com.myapp.lexicon.ads.interfaces.IAdDataListener
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.databinding.FragmentBannersBinding
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
@@ -32,11 +30,15 @@ class BannersFragment : Fragment() {
 
     private var binding: FragmentBannersBinding? = null
 
-    private var listener: IAdDataListener? = null
+    interface Listener {
+        fun onDismissed(data: AdData?)
+    }
 
-    private var adData = AdData()
+    private var listener: Listener? = null
 
-    fun setAdDataListener(listener: IAdDataListener) {
+    private var adData: AdData? = null
+
+    fun setAdDataListener(listener: Listener) {
         this.listener = listener
     }
 
@@ -81,11 +83,7 @@ class BannersFragment : Fragment() {
                         pbLoadAds.visibility = View.GONE
                     },
                     onImpression = {data: AdData? ->
-                        if (data != null) {
-                            listener?.onImpression(data)
-                        } else {
-                            listener?.onImpression(null)
-                        }
+                        this@BannersFragment.adData = data
                         lifecycleScope.launch {
                             delay(3000)
                             btnClose.visibility = View.VISIBLE
@@ -94,12 +92,13 @@ class BannersFragment : Fragment() {
                 )
             }
 
-//            btnClose.setOnClickListener {
-//                listener?.onDismissed(this@BannersFragment.adData)
+            btnClose.setOnClickListener {
+                listener?.onDismissed(this@BannersFragment.adData)
 //                parentFragmentManager.beginTransaction()
 //                    .remove(this@BannersFragment)
 //                    .commit()
-//            }
+                parentFragmentManager.popBackStack()
+            }
         }
     }
 
@@ -230,12 +229,6 @@ class BannersFragment : Fragment() {
         }
     }
 
-    private fun onImpression(data: AdData?) {
-        if (data != null) {
-            this.adData = data
-        }
-    }
-
     override fun onResume() {
         super.onResume()
 
@@ -249,39 +242,28 @@ fun FragmentManager.runBannerFragment(
     onImpression: (data: AdData?) -> Unit,
     onDismissed: (bonus: Double) -> Unit
 ) {
-    var bonus = 0.0
     val bannersFragment = BannersFragment().apply {
         arguments = Bundle().apply {
             putStringArrayList(
                 BannersFragment.ARG_ID_LIST,
                 arrayListOf(
                     BannerAdIds.BANNER_3.id,
-                    BannerAdIds.BANNER_4.id,
-                    BannerAdIds.BANNER_5.id
+                    BannerAdIds.BANNER_4.id
                 )
             )
         }
-        setAdDataListener(object : IAdDataListener {
-            override fun onImpression(data: AdData?) {
+        setAdDataListener(object : BannersFragment.Listener {
+            override fun onDismissed(data: AdData?) {
                 if (data != null) {
                     onImpression.invoke(data)
-                    bonus = (data.revenue * UserViewModel.USER_PERCENTAGE).to2DigitsScale()
+                    val bonus = (data.revenue * UserViewModel.USER_PERCENTAGE).to2DigitsScale()
+                    onDismissed.invoke(bonus)
                 }
             }
         })
-        lifecycleScope.launch {
-            delay(20000)
-            parentFragmentManager.beginTransaction().remove(this@apply).commit()
-        }
-    }
-    bannersFragment.view?.findViewById<ImageView>(R.id.btnClose)?.setOnClickListener {
-        onDismissed.invoke(bonus)
-        this.beginTransaction()
-            .remove(bannersFragment)
-            .commit()
     }
     this.beginTransaction()
-        .replace(R.id.frame_to_page_fragm, bannersFragment)
+        .add(R.id.frame_to_page_fragm, bannersFragment)
         .addToBackStack(null)
         .commit()
 }
