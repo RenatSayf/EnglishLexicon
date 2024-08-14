@@ -17,7 +17,6 @@ import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.settings.adsIsEnabled
 import com.myapp.lexicon.settings.isUserRegistered
-import com.myapp.lexicon.video.models.High
 import com.yandex.mobile.ads.banner.BannerAdEventListener
 import com.yandex.mobile.ads.banner.BannerAdSize
 import com.yandex.mobile.ads.banner.BannerAdView
@@ -47,7 +46,7 @@ class AdsViewModel @Inject constructor(
 ): AndroidViewModel(app) {
 
     sealed class AdState {
-        object Init: AdState()
+        data object Init: AdState()
         data class Dismissed(val bonus: Double): AdState()
     }
 
@@ -88,7 +87,7 @@ class AdsViewModel @Inject constructor(
             val id = if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
                 "demo-interstitial-yandex"
             } else {
-                adId?.id ?: InterstitialAdIds.values().random().id
+                adId?.id ?: InterstitialAdIds.entries.toTypedArray().random().id
             }
             val adRequestConfiguration = AdRequestConfiguration.Builder(id).build()
             InterstitialAdLoader(app).apply {
@@ -116,7 +115,7 @@ class AdsViewModel @Inject constructor(
             val id = if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
                 "demo-rewarded-yandex"
             } else {
-                adId?.id ?: RewardedAdIds.values().random().id
+                adId?.id ?: RewardedAdIds.entries.toTypedArray().random().id
             }
             val adRequestConfiguration = AdRequestConfiguration.Builder(id).build()
             RewardedAdLoader(app).apply {
@@ -351,7 +350,7 @@ fun BannerAdView.loadBanner(
             val id = if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
                 "demo-banner-yandex"
             } else {
-                adId?.id ?: BannerAdIds.values().random().id
+                adId?.id ?: BannerAdIds.entries.toTypedArray().random().id
             }
             setAdUnitId(id)
             setAdSize(fixedSize)

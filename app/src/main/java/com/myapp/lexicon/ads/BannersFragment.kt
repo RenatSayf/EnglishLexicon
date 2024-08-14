@@ -62,7 +62,7 @@ class BannersFragment : Fragment() {
 
             if (!listBannerIds.isNullOrEmpty()) {
 
-                val bannerAdIds = BannerAdIds.values().filter {
+                val bannerAdIds = BannerAdIds.entries.filter {
                     listBannerIds.contains(it.id)
                 }
                 repeat(listBannerIds.size) {
@@ -85,7 +85,7 @@ class BannersFragment : Fragment() {
                     onImpression = {data: AdData? ->
                         this@BannersFragment.adData = data
                         lifecycleScope.launch {
-                            delay(3000)
+                            delay(5000)
                             btnClose.visibility = View.VISIBLE
                         }
                     }
@@ -94,9 +94,6 @@ class BannersFragment : Fragment() {
 
             btnClose.setOnClickListener {
                 listener?.onDismissed(this@BannersFragment.adData)
-//                parentFragmentManager.beginTransaction()
-//                    .remove(this@BannersFragment)
-//                    .commit()
                 parentFragmentManager.popBackStack()
             }
         }

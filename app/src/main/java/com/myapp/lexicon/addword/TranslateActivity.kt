@@ -20,7 +20,7 @@ class TranslateActivity : AppCompatActivity() {
             val enWord = intent.getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT).toString().lowercase()
             translateFragment = getInstance(enWord)
             supportFragmentManager.beginTransaction()
-                .add(R.id.translate_fragment, translateFragment!!)
+                .add(R.id.frame_to_page_fragm, translateFragment!!)
                 .addToBackStack(null)
                 .commit()
         }

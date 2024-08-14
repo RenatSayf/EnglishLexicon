@@ -188,130 +188,73 @@ class TranslateFragment : Fragment()
         {
             override fun handleOnBackPressed()
             {
-                when(mActivity)
-                {
-                    is MainActivity -> {
-                        if (!IS_MULTI_BANNER) {
-                            interstitialAd?.showAd(
-                                requireActivity(),
-                                onImpression = { data ->
-                                    if (data is AdData) {
-                                        revenueVM.updateUserRevenueIntoCloud(data)
-                                    }
-                                },
-                                onDismissed = {
-                                    adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(it))
-                                    parentFragmentManager.popBackStack()
-                                }
-                            )?: run {
-                                parentFragmentManager.popBackStack()
-                            }
-                        } else {
-                            parentFragmentManager.runBannerFragment(
-                                onImpression = { data: AdData? ->
-                                    if (data != null) {
-                                        revenueVM.updateUserRevenueIntoCloud(data)
-                                    }
-                                }, onDismissed = { bonus: Double ->
-                                    adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
-                                    parentFragmentManager.popBackStack()
-                                }
-                            )
-                        }
-
-
-                    }
-                    is TranslateActivity -> {
-                        if (!IS_MULTI_BANNER) {
-                            interstitialAd?.showAd(
-                                requireActivity(),
-                                onImpression = { data ->
-                                    if (data is AdData) {
-                                        revenueVM.updateUserRevenueIntoCloud(data)
-                                    }
-                                },
-                                onDismissed = {
-                                    requireActivity().finish()
-                                }
-                            )?: run {
-                                requireActivity().finish()
-                            }
-                        }
-                        else {
-                            parentFragmentManager.runBannerFragment(
-                                onImpression = { data: AdData? ->
-                                    if (data != null) {
-                                        revenueVM.updateUserRevenueIntoCloud(data)
-                                    }
-                                }, onDismissed = { bonus: Double ->
-                                    requireActivity().finish()
-                                }
-                            )
-                        }
-                    }
-                }
+                selectAndShowAd()
             }
         })
 
         binding.btnBack.setOnClickListener {
+            selectAndShowAd()
+        }
+    }
 
-            when(mActivity)
-            {
-                is MainActivity -> {
-                    if (!IS_MULTI_BANNER) {
-                        interstitialAd?.showAd(
-                            requireActivity(),
-                            onImpression = { data ->
-                                if (data is AdData) {
-                                    revenueVM.updateUserRevenueIntoCloud(data)
-                                }
-                            },
-                            onDismissed = {
-                                adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(it))
-                                parentFragmentManager.popBackStack()
+    private fun selectAndShowAd() {
+        when(mActivity)
+        {
+            is MainActivity -> {
+                if (!IS_MULTI_BANNER) {
+                    interstitialAd?.showAd(
+                        requireActivity(),
+                        onImpression = { data ->
+                            if (data is AdData) {
+                                revenueVM.updateUserRevenueIntoCloud(data)
                             }
-                        )?: run {
+                        },
+                        onDismissed = {
+                            adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(it))
                             parentFragmentManager.popBackStack()
                         }
-                    }
-                    else {
-                        parentFragmentManager.runBannerFragment(
-                            onImpression = { data: AdData? ->
-                                if (data != null) {
-                                    revenueVM.updateUserRevenueIntoCloud(data)
-                                }
-                            }, onDismissed = { bonus: Double ->
-                                adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
-                            }
-                        )
+                    )?: run {
+                        parentFragmentManager.popBackStack()
                     }
                 }
-                is TranslateActivity -> {
-                    if (!IS_MULTI_BANNER) {
-                        interstitialAd?.showAd(
-                            requireActivity(),
-                            onImpression = { data ->
-                                if (data is AdData) {
-                                    revenueVM.updateUserRevenueIntoCloud(data)
-                                }
-                            },
-                            onDismissed = {
-                                requireActivity().finish()
+                else {
+                    parentFragmentManager.runBannerFragment(
+                        onImpression = { data: AdData? ->
+                            if (data != null) {
+                                revenueVM.updateUserRevenueIntoCloud(data)
                             }
-                        )?: run {
+                        }, onDismissed = { bonus: Double ->
+                            adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+                            parentFragmentManager.popBackStack()
+                        }
+                    )
+                }
+            }
+            is TranslateActivity -> {
+                if (!IS_MULTI_BANNER) {
+                    interstitialAd?.showAd(
+                        requireActivity(),
+                        onImpression = { data ->
+                            if (data is AdData) {
+                                revenueVM.updateUserRevenueIntoCloud(data)
+                            }
+                        },
+                        onDismissed = {
                             requireActivity().finish()
                         }
-                    } else {
-                        parentFragmentManager.runBannerFragment(
-                            onImpression = { data: AdData? ->
-                                if (data != null) {
-                                    revenueVM.updateUserRevenueIntoCloud(data)
-                                }
-                            }, onDismissed = { bonus: Double ->
-                                adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
-                            }
-                        )
+                    )?: run {
+                        requireActivity().finish()
                     }
+                } else {
+                    parentFragmentManager.runBannerFragment(
+                        onImpression = { data: AdData? ->
+                            if (data != null) {
+                                revenueVM.updateUserRevenueIntoCloud(data)
+                            }
+                        }, onDismissed = { bonus: Double ->
+                            requireActivity().finish()
+                        }
+                    )
                 }
             }
         }

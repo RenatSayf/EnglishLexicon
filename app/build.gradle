@@ -8,12 +8,12 @@ apply plugin: 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 
 
 android {
-    compileSdk 34
+    compileSdk 35
     defaultConfig {
         applicationId "com.myapp.lexicon"
         minSdkVersion 26
         //noinspection EditedTargetSdkVersion
-        targetSdkVersion 34
+        targetSdkVersion 35
         versionName '5.6'   //Hint last versionName in store is 5.5
         versionCode 90      //Hint last versionCode in store is 89
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -103,13 +103,13 @@ dependencies {
     testImplementation "android.arch.core:core-testing:1.1.1"
     testImplementation 'androidx.test:core:1.6.1'
     testImplementation 'androidx.test.ext:truth:1.6.0'
-    testImplementation 'com.google.truth:truth:1.4.1'
+    testImplementation 'com.google.truth:truth:1.4.4'
     testImplementation 'androidx.test:core-ktx:1.6.1'
     testImplementation 'androidx.test.ext:junit-ktx:1.2.1'
 
     //Robolectric
-    testImplementation 'org.robolectric:robolectric:4.11.1'
-    testImplementation 'org.robolectric:annotations:4.11.1'
+    testImplementation 'org.robolectric:robolectric:4.13'
+    testImplementation 'org.robolectric:annotations:4.13'
 
     implementation 'androidx.multidex:multidex:2.0.1'
 
@@ -141,7 +141,7 @@ dependencies {
     implementation 'androidx.room:room-rxjava2:2.6.1'
 
     //jsoup
-    implementation 'org.jsoup:jsoup:1.17.2'
+    implementation 'org.jsoup:jsoup:1.18.1'
 
     //region Hint Activity Result API. Runtime permission Step 1
     implementation 'androidx.activity:activity-ktx:1.9.1'
@@ -149,7 +149,7 @@ dependencies {
     //endregion
 
     //WorkManager library
-    def work_version = "2.9.0"
+    def work_version = "2.9.1"
     // Kotlin + coroutines
     implementation "androidx.work:work-runtime-ktx:$work_version"
     // optional - GCMNetworkManager support
@@ -167,7 +167,7 @@ dependencies {
     implementation 'com.github.dkzwm:fet-core:0.2.1'
 
     //Kotlin Serialization
-    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.6.3'
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.7.1'
 
     //back4app
     implementation "com.github.parse-community.Parse-SDK-Android:parse:4.2.1"

@@ -5,7 +5,6 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner
 import com.myapp.lexicon.R
-import com.myapp.lexicon.ads.interfaces.IAdDataListener
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.testing.TestActivity
 import org.junit.After
@@ -54,8 +53,8 @@ class BannersFragmentTest {
                 }
             }
 
-            bannersFragment.setAdDataListener(object : IAdDataListener {
-                override fun onImpression(data: AdData?) {
+            bannersFragment.setAdDataListener(object : BannersFragment.Listener {
+                override fun onDismissed(data: AdData?) {
                     if (data != null) {
                         val actualRevenue = data.revenue
                         println("************ actualRevenue = $actualRevenue *****************")
