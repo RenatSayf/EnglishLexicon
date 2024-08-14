@@ -94,10 +94,12 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
 
         if (!wordList.isNullOrEmpty()) vm.initTest(wordList!!.toList())
 
-        adsVM.loadInterstitialAd(InterstitialAdIds.INTERSTITIAL_2)
-        adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
-            result.onSuccess { ad ->
-                interstitialAd = ad
+        if (!IS_MULTI_BANNER) {
+            adsVM.loadInterstitialAd(InterstitialAdIds.INTERSTITIAL_2)
+            adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
+                result.onSuccess { ad ->
+                    interstitialAd = ad
+                }
             }
         }
 
@@ -306,6 +308,7 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
                         }
                     }, onDismissed = { bonus: Double ->
                         adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+                        onComplete.invoke()
                     }
                 )
             }

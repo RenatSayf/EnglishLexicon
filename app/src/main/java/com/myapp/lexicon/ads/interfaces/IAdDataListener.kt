@@ -4,5 +4,5 @@ import com.myapp.lexicon.ads.models.AdData
 
 interface IAdDataListener {
 
-    fun onDismissed(data: AdData?)
+    fun onImpression(data: AdData?)
 }

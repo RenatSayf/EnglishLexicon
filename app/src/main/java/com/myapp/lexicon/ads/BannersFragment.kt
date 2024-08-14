@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.view.children
@@ -81,9 +82,9 @@ class BannersFragment : Fragment() {
                     },
                     onImpression = {data: AdData? ->
                         if (data != null) {
-                            onImpression(data)
+                            listener?.onImpression(data)
                         } else {
-                            onImpression(null)
+                            listener?.onImpression(null)
                         }
                         lifecycleScope.launch {
                             delay(3000)
@@ -93,12 +94,12 @@ class BannersFragment : Fragment() {
                 )
             }
 
-            btnClose.setOnClickListener {
-                listener?.onDismissed(this@BannersFragment.adData)
-                parentFragmentManager.beginTransaction()
-                    .remove(this@BannersFragment)
-                    .commit()
-            }
+//            btnClose.setOnClickListener {
+//                listener?.onDismissed(this@BannersFragment.adData)
+//                parentFragmentManager.beginTransaction()
+//                    .remove(this@BannersFragment)
+//                    .commit()
+//            }
         }
     }
 
@@ -248,6 +249,7 @@ fun FragmentManager.runBannerFragment(
     onImpression: (data: AdData?) -> Unit,
     onDismissed: (bonus: Double) -> Unit
 ) {
+    var bonus = 0.0
     val bannersFragment = BannersFragment().apply {
         arguments = Bundle().apply {
             putStringArrayList(
@@ -260,15 +262,23 @@ fun FragmentManager.runBannerFragment(
             )
         }
         setAdDataListener(object : IAdDataListener {
-            override fun onDismissed(data: AdData?) {
+            override fun onImpression(data: AdData?) {
                 if (data != null) {
                     onImpression.invoke(data)
-                    val bonus = (data.revenue * UserViewModel.USER_PERCENTAGE).to2DigitsScale()
-                    onDismissed.invoke(bonus)
+                    bonus = (data.revenue * UserViewModel.USER_PERCENTAGE).to2DigitsScale()
                 }
-                parentFragmentManager.beginTransaction().remove(this@apply).commit()
             }
         })
+        lifecycleScope.launch {
+            delay(20000)
+            parentFragmentManager.beginTransaction().remove(this@apply).commit()
+        }
+    }
+    bannersFragment.view?.findViewById<ImageView>(R.id.btnClose)?.setOnClickListener {
+        onDismissed.invoke(bonus)
+        this.beginTransaction()
+            .remove(bannersFragment)
+            .commit()
     }
     this.beginTransaction()
         .replace(R.id.frame_to_page_fragm, bannersFragment)

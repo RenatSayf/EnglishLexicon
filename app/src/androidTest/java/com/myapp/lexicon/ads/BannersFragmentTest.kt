@@ -55,7 +55,7 @@ class BannersFragmentTest {
             }
 
             bannersFragment.setAdDataListener(object : IAdDataListener {
-                override fun onDismissed(data: AdData?) {
+                override fun onImpression(data: AdData?) {
                     if (data != null) {
                         val actualRevenue = data.revenue
                         println("************ actualRevenue = $actualRevenue *****************")
