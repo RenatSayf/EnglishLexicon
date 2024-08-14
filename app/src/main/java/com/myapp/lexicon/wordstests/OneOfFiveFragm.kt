@@ -18,7 +18,10 @@ import com.myapp.lexicon.adapters.OneFiveTestAdapter
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.InterstitialAdIds
 import com.myapp.lexicon.ads.RevenueViewModel
+import com.myapp.lexicon.ads.models.AdData
+import com.myapp.lexicon.ads.runBannerFragment
 import com.myapp.lexicon.ads.showAd
+import com.myapp.lexicon.common.IS_MULTI_BANNER
 import com.myapp.lexicon.databinding.OneOfFiveFragmNewBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.RandomNumberGenerator
@@ -280,19 +283,31 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
     ) {
         if (this.adsIsEnabled) {
 
-            interstitialAd?.showAd(
-                requireActivity(),
-                onImpression = { data ->
-                    if (data != null) {
-                        revenueVM.updateUserRevenueIntoCloud(data)
+            if (!IS_MULTI_BANNER) {
+                interstitialAd?.showAd(
+                    requireActivity(),
+                    onImpression = { data ->
+                        if (data != null) {
+                            revenueVM.updateUserRevenueIntoCloud(data)
+                        }
+                    }, onDismissed = { bonus: Double ->
+                        adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+                        onComplete.invoke()
                     }
-                }, onDismissed = { bonus: Double ->
-                    adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+                )
+                if (interstitialAd == null) {
                     onComplete.invoke()
                 }
-            )
-            if (interstitialAd == null) {
-                onComplete.invoke()
+            } else {
+                parentFragmentManager.runBannerFragment(
+                    onImpression = { data: AdData? ->
+                        if (data != null) {
+                            revenueVM.updateUserRevenueIntoCloud(data)
+                        }
+                    }, onDismissed = { bonus: Double ->
+                        adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+                    }
+                )
             }
         }
         else {

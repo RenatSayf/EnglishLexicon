@@ -205,7 +205,15 @@ class TranslateFragment : Fragment()
                                 parentFragmentManager.popBackStack()
                             }
                         } else {
-                            parentFragmentManager.runBannerFragment(revenueVM, adsVM)
+                            parentFragmentManager.runBannerFragment(
+                                onImpression = { data: AdData? ->
+                                    if (data != null) {
+                                        revenueVM.updateUserRevenueIntoCloud(data)
+                                    }
+                                }, onDismissed = { bonus: Double ->
+                                    adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+                                }
+                            )
                         }
 
 
@@ -227,7 +235,15 @@ class TranslateFragment : Fragment()
                             }
                         }
                         else {
-                            parentFragmentManager.runBannerFragment(revenueVM, adsVM)
+                            parentFragmentManager.runBannerFragment(
+                                onImpression = { data: AdData? ->
+                                    if (data != null) {
+                                        revenueVM.updateUserRevenueIntoCloud(data)
+                                    }
+                                }, onDismissed = { bonus: Double ->
+                                    adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+                                }
+                            )
                         }
                     }
                 }
@@ -256,7 +272,15 @@ class TranslateFragment : Fragment()
                         }
                     }
                     else {
-                        parentFragmentManager.runBannerFragment(revenueVM, adsVM)
+                        parentFragmentManager.runBannerFragment(
+                            onImpression = { data: AdData? ->
+                                if (data != null) {
+                                    revenueVM.updateUserRevenueIntoCloud(data)
+                                }
+                            }, onDismissed = { bonus: Double ->
+                                adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+                            }
+                        )
                     }
                 }
                 is TranslateActivity -> {
@@ -275,7 +299,15 @@ class TranslateFragment : Fragment()
                             requireActivity().finish()
                         }
                     } else {
-                        parentFragmentManager.runBannerFragment(revenueVM, adsVM)
+                        parentFragmentManager.runBannerFragment(
+                            onImpression = { data: AdData? ->
+                                if (data != null) {
+                                    revenueVM.updateUserRevenueIntoCloud(data)
+                                }
+                            }, onDismissed = { bonus: Double ->
+                                adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+                            }
+                        )
                     }
                 }
             }

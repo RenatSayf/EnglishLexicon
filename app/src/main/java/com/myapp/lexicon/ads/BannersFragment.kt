@@ -9,6 +9,7 @@ import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.lifecycleScope
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.interfaces.IAdDataListener
 import com.myapp.lexicon.ads.models.AdData
@@ -18,6 +19,8 @@ import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.to2DigitsScale
 import com.yandex.mobile.ads.banner.BannerAdView
 import com.yandex.mobile.ads.common.AdRequestError
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class BannersFragment : Fragment() {
 
@@ -77,11 +80,14 @@ class BannersFragment : Fragment() {
                         pbLoadAds.visibility = View.GONE
                     },
                     onImpression = {data: AdData? ->
-                        btnClose.visibility = View.VISIBLE
                         if (data != null) {
                             onImpression(data)
                         } else {
                             onImpression(null)
+                        }
+                        lifecycleScope.launch {
+                            delay(3000)
+                            btnClose.visibility = View.VISIBLE
                         }
                     }
                 )
@@ -239,8 +245,8 @@ class BannersFragment : Fragment() {
 }
 
 fun FragmentManager.runBannerFragment(
-    revenueVM: RevenueViewModel,
-    adsVM: AdsViewModel
+    onImpression: (data: AdData?) -> Unit,
+    onDismissed: (bonus: Double) -> Unit
 ) {
     val bannersFragment = BannersFragment().apply {
         arguments = Bundle().apply {
@@ -256,9 +262,9 @@ fun FragmentManager.runBannerFragment(
         setAdDataListener(object : IAdDataListener {
             override fun onDismissed(data: AdData?) {
                 if (data != null) {
-                    revenueVM.updateUserRevenueIntoCloud(data)
+                    onImpression.invoke(data)
                     val bonus = (data.revenue * UserViewModel.USER_PERCENTAGE).to2DigitsScale()
-                    adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+                    onDismissed.invoke(bonus)
                 }
                 parentFragmentManager.beginTransaction().remove(this@apply).commit()
             }
