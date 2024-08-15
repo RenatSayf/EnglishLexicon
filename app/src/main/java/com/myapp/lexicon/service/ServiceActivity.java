@@ -9,10 +9,13 @@ import com.google.android.material.snackbar.Snackbar;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.ads.AdsViewModel;
 import com.myapp.lexicon.ads.AdsViewModelKt;
+import com.myapp.lexicon.ads.BannersActivity;
+import com.myapp.lexicon.ads.BannersFragmentKt;
 import com.myapp.lexicon.ads.InterstitialAdIds;
 import com.myapp.lexicon.ads.RevenueViewModel;
 import com.myapp.lexicon.ads.models.AdData;
 import com.myapp.lexicon.auth.AuthViewModel;
+import com.myapp.lexicon.common.CommonConstantsKt;
 import com.myapp.lexicon.databinding.ServiceDialogActivityBinding;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.LockOrientation;
@@ -120,35 +123,59 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
 
     private void handleAdvertisingPayload() {
 
-        adsVM.loadInterstitialAd(InterstitialAdIds.INTERSTITIAL_2);
-        adsVM.getInterstitialAd().observe(ServiceActivity.this, result -> {
-            interstitialAd = adsVM.getInterstitialAdOrNull();
-            if (interstitialAd != null) {
-                AdsViewModelKt.showAd(
-                        interstitialAd,
-                        ServiceActivity.this,
-                        () -> null,
-                        adData -> {
-                            if (adData != null)
-                            {
-                                revenueVM.updateUserRevenueIntoCloud(adData);
+        if (!CommonConstantsKt.getIS_MULTI_BANNER())
+        {
+            adsVM.loadInterstitialAd(InterstitialAdIds.INTERSTITIAL_2);
+            adsVM.getInterstitialAd().observe(ServiceActivity.this, result -> {
+                interstitialAd = adsVM.getInterstitialAdOrNull();
+                if (interstitialAd != null) {
+                    AdsViewModelKt.showAd(
+                            interstitialAd,
+                            ServiceActivity.this,
+                            () -> null,
+                            adData -> {
+                                if (adData != null)
+                                {
+                                    revenueVM.updateUserRevenueIntoCloud(adData);
+                                }
+                                else {
+                                    AdData emptyAdData = new AdData("", "", "", "", null, "", "", 0.0, 0.0);
+                                    revenueVM.updateUserRevenueIntoCloud(emptyAdData);
+                                }
+                                return null;
+                            },
+                            bonus -> {
+                                adsVM.setInterstitialAdState(new AdsViewModel.AdState.Dismissed(bonus));
+                                return null;
                             }
-                            else {
-                                AdData emptyAdData = new AdData("", "", "", "", null, "", "", 0.0, 0.0);
-                                revenueVM.updateUserRevenueIntoCloud(emptyAdData);
-                            }
-                            return null;
-                        },
-                        bonus -> {
-                            adsVM.setInterstitialAdState(new AdsViewModel.AdState.Dismissed(bonus));
-                            return null;
+                    );
+                }
+                else {
+                    adsVM.setInterstitialAdState(new AdsViewModel.AdState.Dismissed(0.0));
+                }
+            });
+        } else
+        {
+            BannersFragmentKt.runBannerFragment(
+                    getSupportFragmentManager(),
+                    adData -> {
+                        if (adData != null) {
+                            revenueVM.updateUserRevenueIntoCloud(adData);
                         }
-                );
-            }
-            else {
-                adsVM.setInterstitialAdState(new AdsViewModel.AdState.Dismissed(0.0));
-            }
-        });
+                        else {
+                            AdData emptyAdData = new AdData("", "", "", "", null, "", "", 0.0, 0.0);
+                            revenueVM.updateUserRevenueIntoCloud(emptyAdData);
+                        }
+                        return null;
+                    },
+                    bonus -> {
+                        adsVM.setInterstitialAdState(new AdsViewModel.AdState.Dismissed(bonus));
+                        return null;
+                    }
+            );
+            BannersActivity bannersActivity = new BannersActivity();
+            startActivity(new Intent(ServiceActivity.this, bannersActivity.getClass()));
+        }
     }
 
     @Override

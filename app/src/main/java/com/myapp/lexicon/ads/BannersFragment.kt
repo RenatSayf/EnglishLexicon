@@ -88,6 +88,9 @@ class BannersFragment : Fragment() {
                             delay(5000)
                             btnClose.visibility = View.VISIBLE
                         }
+                    },
+                    onFailed = {
+                        parentFragmentManager.popBackStack()
                     }
                 )
             }
@@ -103,12 +106,14 @@ class BannersFragment : Fragment() {
         binding: FragmentBannersBinding,
         idList: List<BannerAdIds>,
         onLoaded: () -> Unit,
-        onImpression: (data: AdData?) -> Unit
+        onImpression: (data: AdData?) -> Unit,
+        onFailed: () -> Unit
     ) {
         with(binding) {
 
             val adIds = idList.take(3)
             var loadCount = 0
+            var errorCount = 0
             var impressionCount = 0
             val adData = AdData()
             val banners = layoutBanners.children.toList()
@@ -119,7 +124,11 @@ class BannersFragment : Fragment() {
                     onCompleted = { error: AdRequestError? ->
                         loadCount++
                         error?.let {
+                            errorCount++
                             Throwable(it.description).printStackTraceIfDebug()
+                            if (errorCount >= adIds.size) {
+                                onFailed.invoke()
+                            }
                         }
                         if (loadCount >= adIds.size) {
                             onLoaded.invoke()
@@ -156,7 +165,11 @@ class BannersFragment : Fragment() {
                     onCompleted = { error: AdRequestError? ->
                         loadCount++
                         error?.let {
+                            errorCount++
                             Throwable(it.description).printStackTraceIfDebug()
+                            if (errorCount >= adIds.size) {
+                                onFailed.invoke()
+                            }
                         }
                         if (loadCount >= adIds.size) {
                             onLoaded.invoke()
@@ -193,7 +206,11 @@ class BannersFragment : Fragment() {
                     onCompleted = { error: AdRequestError? ->
                         loadCount++
                         error?.let {
+                            errorCount++
                             Throwable(it.description).printStackTraceIfDebug()
+                            if (errorCount >= adIds.size) {
+                                onFailed.invoke()
+                            }
                         }
                         if (loadCount >= adIds.size) {
                             onLoaded.invoke()

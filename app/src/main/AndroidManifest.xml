@@ -29,7 +29,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:targetApi="s">
-
+        <activity
+            android:name=".ads.BannersActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Translucent"/>
         <activity
             android:name=".splash.SplashActivity"
             android:configChanges="orientation|keyboardHidden"
