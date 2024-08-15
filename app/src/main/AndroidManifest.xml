@@ -32,7 +32,9 @@
         <activity
             android:name=".ads.BannersActivity"
             android:exported="false"
-            android:theme="@style/popAppWindow"/>
+            android:theme="@style/popAppWindow"
+            android:enableOnBackInvokedCallback="true"
+            tools:targetApi="tiramisu" />
         <activity
             android:name=".splash.SplashActivity"
             android:configChanges="orientation|keyboardHidden"

@@ -30,7 +30,7 @@
     </style>
 
     <!--Hint overridden theme for popapp-->
-    <style name="popAppWindow" parent="@style/Theme.AppCompat.Dialog.Alert">
+    <style name="popAppWindow" parent="@style/Theme.AppCompat.NoActionBar">
         <item name="android:colorBackground">@color/colorTransparent</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowIsTranslucent">true</item>

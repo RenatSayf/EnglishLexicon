@@ -9,8 +9,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.ads.AdsViewModel;
 import com.myapp.lexicon.ads.AdsViewModelKt;
-import com.myapp.lexicon.ads.BannersActivity;
-import com.myapp.lexicon.ads.BannersFragmentKt;
+import com.myapp.lexicon.ads.BannersActivityKt;
 import com.myapp.lexicon.ads.InterstitialAdIds;
 import com.myapp.lexicon.ads.RevenueViewModel;
 import com.myapp.lexicon.ads.models.AdData;
@@ -156,8 +155,8 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
             });
         } else
         {
-            BannersFragmentKt.runBannerFragment(
-                    getSupportFragmentManager(),
+            BannersActivityKt.startBannersActivity(
+                    this,
                     adData -> {
                         if (adData != null) {
                             revenueVM.updateUserRevenueIntoCloud(adData);
@@ -173,8 +172,6 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                         return null;
                     }
             );
-            BannersActivity bannersActivity = new BannersActivity();
-            startActivity(new Intent(ServiceActivity.this, bannersActivity.getClass()));
         }
     }
 
