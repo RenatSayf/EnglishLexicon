@@ -21,8 +21,8 @@ import com.myapp.lexicon.ads.InterstitialAdIds
 import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.loadBanner
 import com.myapp.lexicon.ads.models.AdData
-import com.myapp.lexicon.ads.runBannerFragment
 import com.myapp.lexicon.ads.showAd
+import com.myapp.lexicon.ads.startBannersActivity
 import com.myapp.lexicon.common.IS_MULTI_BANNER
 import com.myapp.lexicon.databinding.TranslateFragmentBinding
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
@@ -218,12 +218,13 @@ class TranslateFragment : Fragment()
                     }
                 }
                 else {
-                    parentFragmentManager.runBannerFragment(
-                        onImpression = { data: AdData? ->
+                    (requireActivity() as AppCompatActivity).startBannersActivity(
+                        onImpression = {data: AdData? ->
                             if (data != null) {
                                 revenueVM.updateUserRevenueIntoCloud(data)
                             }
-                        }, onDismissed = { bonus: Double ->
+                        },
+                        onDismissed = {bonus: Double ->
                             adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
                             parentFragmentManager.popBackStack()
                         }
@@ -246,12 +247,14 @@ class TranslateFragment : Fragment()
                         requireActivity().finish()
                     }
                 } else {
-                    parentFragmentManager.runBannerFragment(
-                        onImpression = { data: AdData? ->
+
+                    (requireActivity() as AppCompatActivity).startBannersActivity(
+                        onImpression = {data: AdData? ->
                             if (data != null) {
                                 revenueVM.updateUserRevenueIntoCloud(data)
                             }
-                        }, onDismissed = { bonus: Double ->
+                        },
+                        onDismissed = {bonus: Double ->
                             requireActivity().finish()
                         }
                     )
