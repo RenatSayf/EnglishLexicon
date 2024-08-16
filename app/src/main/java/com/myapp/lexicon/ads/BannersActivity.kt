@@ -2,6 +2,7 @@
 
 package com.myapp.lexicon.ads
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -262,7 +263,7 @@ class BannersActivity : AppCompatActivity() {
     }
 }
 
-fun AppCompatActivity.startBannersActivity(
+fun Activity.startBannersActivity(
     onImpression: (data: AdData?) -> Unit,
     onDismissed: (bonus: Double) -> Unit
 ) {

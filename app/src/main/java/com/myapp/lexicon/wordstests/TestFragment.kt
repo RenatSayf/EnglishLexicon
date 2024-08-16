@@ -28,7 +28,10 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.InterstitialAdIds
 import com.myapp.lexicon.ads.RevenueViewModel
+import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.ads.showAd
+import com.myapp.lexicon.ads.startBannersActivity
+import com.myapp.lexicon.common.IS_MULTI_BANNER
 import com.myapp.lexicon.databinding.TestFragmentBinding
 import com.myapp.lexicon.dialogs.DictListDialog
 import com.myapp.lexicon.helpers.LockOrientation
@@ -285,23 +288,38 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
             testVM.state.observe(viewLifecycleOwner) { state ->
                 when (state) {
                     TestViewModel.State.Init -> {
-                        adsVM.loadInterstitialAd(InterstitialAdIds.values().randomOrNull())
+                        if (!IS_MULTI_BANNER) {
+                            adsVM.loadInterstitialAd(InterstitialAdIds.entries.toTypedArray().randomOrNull())
+                        }
                     }
 
                     TestViewModel.State.NotShowAd -> {}
                     TestViewModel.State.ShowAd -> {
-                        interstitialAd?.showAd(
-                            requireActivity(),
-                            onImpression = { data ->
-                                if (data != null) {
-                                    revenueVM.updateUserRevenueIntoCloud(data)
+                        if (!IS_MULTI_BANNER) {
+                            interstitialAd?.showAd(
+                                requireActivity(),
+                                onImpression = { data ->
+                                    if (data != null) {
+                                        revenueVM.updateUserRevenueIntoCloud(data)
+                                    }
+                                    testVM.setState(TestViewModel.State.Init)
+                                },
+                                onDismissed = {bonus: Double ->
+                                    adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
                                 }
-                                testVM.setState(TestViewModel.State.Init)
-                            },
-                            onDismissed = {bonus: Double ->
-                                adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
-                            }
-                        )
+                            )
+                        } else {
+                            requireActivity().startBannersActivity(
+                                onImpression = {data: AdData? ->
+                                    if (data != null) {
+                                        revenueVM.updateUserRevenueIntoCloud(data)
+                                    }
+                                },
+                                onDismissed = {bonus: Double ->
+                                    adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+                                }
+                            )
+                        }
                     }
 
                     else -> {}

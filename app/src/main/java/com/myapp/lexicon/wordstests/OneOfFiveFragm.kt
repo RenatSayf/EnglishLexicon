@@ -19,8 +19,8 @@ import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.InterstitialAdIds
 import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.models.AdData
-import com.myapp.lexicon.ads.runBannerFragment
 import com.myapp.lexicon.ads.showAd
+import com.myapp.lexicon.ads.startBannersActivity
 import com.myapp.lexicon.common.IS_MULTI_BANNER
 import com.myapp.lexicon.databinding.OneOfFiveFragmNewBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
@@ -29,7 +29,7 @@ import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.adsIsEnabled
 import com.yandex.mobile.ads.interstitial.InterstitialAd
-import java.util.*
+import java.util.Date
 
 const val ROWS: Int = 5
 
@@ -301,12 +301,13 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
                     onComplete.invoke()
                 }
             } else {
-                parentFragmentManager.runBannerFragment(
-                    onImpression = { data: AdData? ->
+                requireActivity().startBannersActivity(
+                    onImpression = {data: AdData? ->
                         if (data != null) {
                             revenueVM.updateUserRevenueIntoCloud(data)
                         }
-                    }, onDismissed = { bonus: Double ->
+                    },
+                    onDismissed = {bonus: Double ->
                         adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
                         onComplete.invoke()
                     }

@@ -218,7 +218,7 @@ class TranslateFragment : Fragment()
                     }
                 }
                 else {
-                    (requireActivity() as AppCompatActivity).startBannersActivity(
+                    requireActivity().startBannersActivity(
                         onImpression = {data: AdData? ->
                             if (data != null) {
                                 revenueVM.updateUserRevenueIntoCloud(data)
@@ -247,8 +247,7 @@ class TranslateFragment : Fragment()
                         requireActivity().finish()
                     }
                 } else {
-
-                    (requireActivity() as AppCompatActivity).startBannersActivity(
+                    requireActivity().startBannersActivity(
                         onImpression = {data: AdData? ->
                             if (data != null) {
                                 revenueVM.updateUserRevenueIntoCloud(data)
