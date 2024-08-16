@@ -9,12 +9,17 @@ import androidx.multidex.MultiDex
 import androidx.work.Configuration
 import com.google.firebase.FirebaseApp
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.remoteconfig.ConfigUpdate
+import com.google.firebase.remoteconfig.ConfigUpdateListener
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigException
+import com.google.firebase.remoteconfig.get
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.helpers.printLogIfDebug
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.parse.Parse
 import com.yandex.mobile.ads.common.InitializationListener
 import com.yandex.mobile.ads.common.MobileAds
@@ -52,6 +57,16 @@ class App : Application(), Configuration.Provider {
             setConfigSettingsAsync(configSettings)
             setDefaultsAsync(R.xml.remote_config_defaults)
             fetchAndActivate()
+
+            addOnConfigUpdateListener(object : ConfigUpdateListener {
+                override fun onUpdate(configUpdate: ConfigUpdate) {
+                    fetchAndActivate()
+                }
+
+                override fun onError(error: FirebaseRemoteConfigException) {
+                    error.printStackTraceIfDebug()
+                }
+            })
         }
 
         val apiKey = getString(R.string.ya_metrica_api_key)
