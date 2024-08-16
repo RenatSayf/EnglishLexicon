@@ -13,6 +13,8 @@ import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.view.children
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.databinding.ActivityBannersBinding
+import com.myapp.lexicon.helpers.orientationLock
+import com.myapp.lexicon.helpers.orientationUnLock
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.to2DigitsScale
@@ -41,6 +43,8 @@ class BannersActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        this.orientationLock()
 
         binding = ActivityBannersBinding.inflate(layoutInflater)
         setContentView(binding!!.root)
@@ -259,6 +263,7 @@ class BannersActivity : AppCompatActivity() {
 
         binding = null
         listener = null
+        this.orientationUnLock()
         super.onDestroy()
     }
 }
