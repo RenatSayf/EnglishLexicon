@@ -190,6 +190,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return null;
             });
             result.onSignIn(user -> {
+                revenueVM.setState(new UserViewModel.State.ReceivedUserData(user));
                 navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_account);
                 buildRewardText(new Revenue(user.getUserReward(), user.getReservedPayment(), user.getCurrency(), user.getCurrencySymbol()));
                 SettingsExtKt.setAdsIsEnabled(this, user.isAdsEnabled());

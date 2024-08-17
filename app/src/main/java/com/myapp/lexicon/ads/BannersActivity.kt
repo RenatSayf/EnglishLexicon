@@ -94,7 +94,6 @@ class BannersActivity : AppCompatActivity() {
             }
 
             btnClose.setOnClickListener {
-                listener?.onDismissed(this@BannersActivity.adData)
                 finish()
             }
         }
@@ -251,7 +250,6 @@ class BannersActivity : AppCompatActivity() {
     )
     override fun onBackPressed() {
 
-        listener?.onDismissed(this@BannersActivity.adData)
         finish()
         super.onBackPressed()
     }
@@ -262,7 +260,6 @@ class BannersActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             this.callback = object : OnBackInvokedCallback {
                 override fun onBackInvoked() {
-                    listener?.onDismissed(this@BannersActivity.adData)
                     finish()
                 }
             }
@@ -276,6 +273,7 @@ class BannersActivity : AppCompatActivity() {
 
     override fun onDestroy() {
 
+        listener?.onDismissed(this@BannersActivity.adData)
         binding = null
         listener = null
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

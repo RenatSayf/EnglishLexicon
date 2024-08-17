@@ -24,8 +24,8 @@ import java.net.URL
 open class AccountViewModel : ViewModel() {
 
     sealed class State {
-        object ReadOnly: State()
-        object Editing: State()
+        data object ReadOnly: State()
+        data object Editing: State()
     }
 
     open val paymentThreshold: Double = if (!BuildConfig.DEBUG)

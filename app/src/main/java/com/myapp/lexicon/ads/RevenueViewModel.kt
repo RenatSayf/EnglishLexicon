@@ -5,6 +5,7 @@ package com.myapp.lexicon.ads
 import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.common.mapToRevenue
 import com.myapp.lexicon.common.mapToUser
@@ -43,7 +44,10 @@ class RevenueViewModel @Inject constructor(
                     increment(User.KEY_REVENUE_USD, adData.revenueUSD)
                     increment(User.KEY_TOTAL_REVENUE, adData.revenue)
 
-                    val userReward = adData.revenue * USER_PERCENTAGE
+                    val percent =
+                        if (state.value is State.ReceivedUserData) (state.value as State.ReceivedUserData).user.userPercent
+                        else USER_PERCENTAGE
+                    val userReward = adData.revenue * (percent?: USER_PERCENTAGE)
                     increment(User.KEY_USER_REWARD, userReward)
                     increment(User.KEY_USER_DAILY_REWARD, userReward)
 
@@ -57,6 +61,7 @@ class RevenueViewModel @Inject constructor(
                     put(User.KEY_CURRENCY_SYMBOL, currencySymbol)
                     val currencyRate = (adData.revenue / adData.revenueUSD).to2DigitsScale()
                     put(User.KEY_CURRENCY_RATE, currencyRate)
+                    put(User.KEY_APP_VERSION, "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
                 }
                 currentUser.saveInBackground(object : SaveCallback {
                     override fun done(e: ParseException?) {

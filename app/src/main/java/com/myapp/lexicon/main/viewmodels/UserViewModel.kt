@@ -46,8 +46,8 @@ open class UserViewModel @Inject constructor(
     }
 
     sealed class LoadingState {
-        object Start: LoadingState()
-        object Complete: LoadingState()
+        data object Start: LoadingState()
+        data object Complete: LoadingState()
     }
 
     protected var _loadingState = MutableStateFlow<LoadingState>(LoadingState.Complete)
@@ -57,9 +57,9 @@ open class UserViewModel @Inject constructor(
     }
 
     sealed class State {
-        object Init: State()
+        data object Init: State()
         data class ReceivedUserData(val user: User): State()
-        object PersonalDataUpdated: State()
+        data object PersonalDataUpdated: State()
         data class RevenueUpdated(val bonus: Double, val user: User): State()
         data class PaymentRequestSent(val user: User, val payout: Int, val remainder: Double): State()
         data class Error(val message: String): State()
@@ -232,12 +232,14 @@ open class UserViewModel @Inject constructor(
                 currentUser.apply {
                     increment(User.KEY_REVENUE_USD, adData.revenueUSD)
                     increment(User.KEY_TOTAL_REVENUE, adData.revenue)
-                    increment(User.KEY_USER_REWARD, adData.revenue * USER_PERCENTAGE)
+                    val percent = if (user.value?.userPercent == null) USER_PERCENTAGE else user.value!!.userPercent
+                    increment(User.KEY_USER_REWARD, adData.revenue * (percent?: USER_PERCENTAGE))
                     put(User.KEY_CURRENCY, adData.currency.toString())
                     val currencySymbol = Currency.getInstance(adData.currency).symbol
                     put(User.KEY_CURRENCY_SYMBOL, currencySymbol)
                     val currencyRate = (adData.revenue / adData.revenueUSD).to2DigitsScale()
                     put(User.KEY_CURRENCY_RATE, currencyRate)
+                    put(User.KEY_APP_VERSION, "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
                 }
                 currentUser.saveInBackground(object : SaveCallback {
                     override fun done(e: ParseException?) {

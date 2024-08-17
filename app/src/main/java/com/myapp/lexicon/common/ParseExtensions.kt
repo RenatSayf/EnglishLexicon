@@ -68,6 +68,12 @@ fun ParseObject.mapToUser(): User {
 
         value = this@mapToUser[User.KEY_IS_ADS_ENABLED]
         this.isAdsEnabled = if (value is Boolean) value else this.isAdsEnabled
+
+        value = this@mapToUser[User.KEY_USER_PERCENT]
+        this.userPercent = if (value is Number) value.toDouble() else this.userPercent
+
+        value = this@mapToUser[User.KEY_APP_VERSION]
+        this.appVersion = if (value is String) value else this.appVersion
     }
 }
 

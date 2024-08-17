@@ -32,6 +32,8 @@ data class User(
         const val KEY_MESSAGE = "messageToUser"
         const val KEY_MESSAGING_TOKEN = "messagingToken"
         const val KEY_IS_ADS_ENABLED = "isAdsEnabled"
+        const val KEY_USER_PERCENT = "userPercent"
+        const val KEY_APP_VERSION = "appVersion"
     }
 
     var email: String = ""
@@ -51,6 +53,8 @@ data class User(
     var rewardUpdateAt: String = ""
     var currencyRate: Double = 0.0
     var paymentDate: String = ""
+    var userPercent: Double? = null
+    var appVersion: String = ""
 
     var reservedPayment: Double = 0.0
         get() = BigDecimal(field).setScale(2, RoundingMode.DOWN).toDouble()
