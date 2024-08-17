@@ -45,8 +45,10 @@ class RevenueViewModel @Inject constructor(
                     increment(User.KEY_TOTAL_REVENUE, adData.revenue)
 
                     val percent =
-                        if (state.value is State.ReceivedUserData) (state.value as State.ReceivedUserData).user.userPercent
-                        else USER_PERCENTAGE
+                        when(state.value) {
+                            is State.ReceivedUserData -> (state.value as State.ReceivedUserData).user.userPercent
+                            else -> USER_PERCENTAGE
+                        }
                     val userReward = adData.revenue * (percent?: USER_PERCENTAGE)
                     increment(User.KEY_USER_REWARD, userReward)
                     increment(User.KEY_USER_DAILY_REWARD, userReward)
