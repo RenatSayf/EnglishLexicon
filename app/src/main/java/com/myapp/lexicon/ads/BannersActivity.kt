@@ -40,6 +40,7 @@ class BannersActivity : AppCompatActivity() {
     }
 
     private var adData: AdData? = null
+    private var callback: OnBackInvokedCallback? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,7 +88,7 @@ class BannersActivity : AppCompatActivity() {
                         }
                     },
                     onFailed = {
-                        finish()
+                        btnClose.visibility = View.VISIBLE
                     }
                 )
             }
@@ -154,6 +155,7 @@ class BannersActivity : AppCompatActivity() {
                 )
             } catch (e: IndexOutOfBoundsException) {
                 e.printStackTraceIfDebug()
+                onFailed.invoke()
             }
 
             try {
@@ -195,6 +197,7 @@ class BannersActivity : AppCompatActivity() {
                 )
             } catch (e: IndexOutOfBoundsException) {
                 e.printStackTraceIfDebug()
+                onFailed.invoke()
             }
 
             try {
@@ -236,6 +239,7 @@ class BannersActivity : AppCompatActivity() {
                 )
             } catch (e: IndexOutOfBoundsException) {
                 e.printStackTraceIfDebug()
+                onFailed.invoke()
             }
 
         }
@@ -246,6 +250,9 @@ class BannersActivity : AppCompatActivity() {
         ReplaceWith("super.onBackPressed()", "androidx.appcompat.app.AppCompatActivity")
     )
     override fun onBackPressed() {
+
+        listener?.onDismissed(this@BannersActivity.adData)
+        finish()
         super.onBackPressed()
     }
 
@@ -253,9 +260,17 @@ class BannersActivity : AppCompatActivity() {
         super.onResume()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            onBackInvokedDispatcher.registerOnBackInvokedCallback(0, object : OnBackInvokedCallback {
-                override fun onBackInvoked() {}
-            })
+            this.callback = object : OnBackInvokedCallback {
+                override fun onBackInvoked() {
+                    listener?.onDismissed(this@BannersActivity.adData)
+                    finish()
+                }
+            }
+            if (this.callback != null) {
+                onBackInvokedDispatcher.registerOnBackInvokedCallback(0,
+                    this.callback as OnBackInvokedCallback
+                )
+            }
         }
     }
 
@@ -263,6 +278,9 @@ class BannersActivity : AppCompatActivity() {
 
         binding = null
         listener = null
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            this.callback?.let { onBackInvokedDispatcher.unregisterOnBackInvokedCallback(it) }
+        }
         this.orientationUnLock()
         super.onDestroy()
     }

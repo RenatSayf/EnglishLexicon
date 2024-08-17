@@ -372,7 +372,7 @@ fun BannerAdView.loadBanner(
 
             override fun onImpression(impressionData: ImpressionData?) {
                 impressionData?.let {
-                    println("************ onImpression(): impressionData: ${impressionData.rawData} *******************")
+                    //println("************ onImpression(): impressionData: ${impressionData.rawData} *******************")
                     it.rawData.toAdData(
                         onSuccess = {adData: AdData ->
                             onImpression.invoke(adData)
