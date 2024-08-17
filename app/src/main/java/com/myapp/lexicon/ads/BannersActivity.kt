@@ -55,7 +55,7 @@ class BannersActivity : AppCompatActivity() {
             pbLoadAds.visibility = View.VISIBLE
 
 
-            val listBannerIds = intent?.getStringArrayListExtra(ARG_ID_LIST)?.toList()
+            val listBannerIds = intent?.getStringArrayListExtra(ARG_ID_LIST)?.toList()?.take(2)
 
             if (!listBannerIds.isNullOrEmpty()) {
 
@@ -109,7 +109,7 @@ class BannersActivity : AppCompatActivity() {
     ) {
         with(binding) {
 
-            val adIds = idList.take(3)
+            val adIds = idList.take(2)
             var loadCount = 0
             var errorCount = 0
             var impressionCount = 0
@@ -198,49 +198,6 @@ class BannersActivity : AppCompatActivity() {
                 e.printStackTraceIfDebug()
                 onFailed.invoke()
             }
-
-            try {
-                (banners[2] as BannerAdView).loadBanner(
-                    adId = adIds[2],
-                    heightRate = 1.0 / adIds.size,
-                    onCompleted = { error: AdRequestError? ->
-                        loadCount++
-                        error?.let {
-                            errorCount++
-                            Throwable(it.description).printStackTraceIfDebug()
-                            if (errorCount >= adIds.size) {
-                                onFailed.invoke()
-                            }
-                        }
-                        if (loadCount >= adIds.size) {
-                            onLoaded.invoke()
-                        }
-                    },
-                    onImpression = { data: AdData? ->
-                        impressionCount++
-                        if (data != null) {
-                            adData.let {
-                                it.adType = data.adType
-                                it.adUnitId = data.adUnitId
-                                it.blockId = data.blockId
-                                it.currency = data.currency
-                                it.network = data.network
-                                it.precision = data.precision
-                                it.requestId = data.requestId
-                                it.revenue += data.revenue
-                                it.revenueUSD += data.revenueUSD
-                            }
-                            if (impressionCount >= adIds.size) {
-                                onImpression.invoke(adData)
-                            }
-                        } else onImpression.invoke(null)
-                    }
-                )
-            } catch (e: IndexOutOfBoundsException) {
-                e.printStackTraceIfDebug()
-                onFailed.invoke()
-            }
-
         }
     }
 
