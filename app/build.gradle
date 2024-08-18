@@ -15,7 +15,7 @@ android {
         //noinspection EditedTargetSdkVersion
         targetSdkVersion 35
         versionName '5.7'   //Hint last versionName in store is 5.6
-        versionCode 92      //Hint last versionCode in store is 90
+        versionCode 93      //Hint last versionCode in store is 92
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
 
@@ -159,7 +159,8 @@ dependencies {
     testImplementation "androidx.work:work-testing:$work_version"
 
     // Yandex Mobile Ads SDK
-    implementation 'com.yandex.android:mobileads:7.3.0'
+    //noinspection MobileAdsSdkOutdatedVersion
+    implementation 'com.yandex.android:mobileads:7.1.0'
 
     // Yandex AppMetrica SDK.
     implementation 'io.appmetrica.analytics:analytics:6.2.1'
@@ -188,7 +189,7 @@ dependencies {
     implementation 'io.ktor:ktor-client-logging:2.3.12'
     implementation 'io.ktor:ktor-client-content-negotiation-jvm:2.3.12'
     testImplementation 'io.ktor:ktor-client-mock:2.3.12'
-    testImplementation 'org.jetbrains.kotlin:kotlin-test'
+    testImplementation 'org.jetbrains.kotlin:kotlin-test:2.0.20-RC2'
 
     // In-app update
     implementation 'com.google.android.play:app-update:2.1.0'
