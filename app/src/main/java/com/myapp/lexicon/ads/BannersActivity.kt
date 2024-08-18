@@ -6,6 +6,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.view.View
 import android.window.OnBackInvokedCallback
 import androidx.appcompat.app.AppCompatActivity
@@ -41,6 +42,7 @@ class BannersActivity : AppCompatActivity() {
 
     private var adData: AdData? = null
     private var callback: OnBackInvokedCallback? = null
+    private var timer: CountDownTimer? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -96,6 +98,15 @@ class BannersActivity : AppCompatActivity() {
             btnClose.setOnClickListener {
                 finish()
             }
+
+            timer = object : CountDownTimer(20000, 20000) {
+                override fun onTick(millisUntilFinished: Long) {}
+
+                override fun onFinish() {
+                    btnClose.visibility = View.VISIBLE
+                }
+            }
+            timer?.start()
         }
 
     }
@@ -231,6 +242,8 @@ class BannersActivity : AppCompatActivity() {
     override fun onDestroy() {
 
         listener?.onDismissed(this@BannersActivity.adData)
+        timer?.cancel()
+        timer = null
         binding = null
         listener = null
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
