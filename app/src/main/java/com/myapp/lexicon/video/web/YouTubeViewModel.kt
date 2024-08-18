@@ -54,9 +54,9 @@ class YouTubeViewModel: ViewModel() {
     val timerState: LiveData<TimerState> = _timerState
 
     sealed class TimerState {
-        object Init: TimerState()
-        object Start: TimerState()
-        object Finish: TimerState()
+        data object Init: TimerState()
+        data object Start: TimerState()
+        data object Finish: TimerState()
     }
 
     fun parseIsPlayerPlay(
@@ -137,8 +137,8 @@ class YouTubeViewModel: ViewModel() {
     }
 
     sealed class NetworkState {
-        object Available: NetworkState()
-        object NotAvailable: NetworkState()
+        data object Available: NetworkState()
+        data object NotAvailable: NetworkState()
     }
 
     private var _networkState = MutableLiveData<NetworkState>(NetworkState.Available)
