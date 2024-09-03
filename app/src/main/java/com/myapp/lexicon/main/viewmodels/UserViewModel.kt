@@ -303,7 +303,7 @@ open class UserViewModel @Inject constructor(
             val currentUser = ParseUser.getCurrentUser()
             if (currentUser is ParseUser) {
                 currentUser.apply {
-                    put(User.KEY_PAYMENT_DATE, System.currentTimeMillis().toStringTime())
+                    put(User.KEY__RESERVED_PAYMENT_DATE, System.currentTimeMillis().toStringTime())
                     put(User.KEY_TOTAL_REVENUE, rewardRemainder)
                     put(User.KEY_USER_REWARD, rewardRemainder)
                     increment(User.KEY_RESERVED_PAYMENT, payout)

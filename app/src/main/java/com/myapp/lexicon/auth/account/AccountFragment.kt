@@ -34,6 +34,7 @@ import com.myapp.lexicon.helpers.orientationUnLock
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.helpers.showToastIfDebug
+import com.myapp.lexicon.helpers.toStringTime
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserState
@@ -413,32 +414,26 @@ class AccountFragment : Fragment() {
                         return@setOnClickListener
                     }
 
-                    userVM.updatePayoutDataIntoCloud(
+                    accountVM.demandPayment(
                         threshold = (accountVM.paymentThreshold * user.currencyRate).toInt(),
-                        reward = user.userReward,
-                        userMap = mapOf(
-                            User.KEY_BANK_CARD to tvCardNumber.text.toString(),
-                            User.KEY_BANK_NAME to tvBankNameValue.text.toString(),
-                            User.KEY_PHONE to tvPhoneValue.text.toString(),
-                            User.KEY_FIRST_NAME to tvFirstNameValue.text.toString(),
-                            User.KEY_LAST_NAME to tvLastNameValue.text.toString()
-                        ),
+                        reward = user.reservedPayment.toInt(),
+                        userMap = mapOf(User.KEY_PAYMENT_DATE to System.currentTimeMillis().toStringTime()),
                         onStart = {
                             userVM.setLoadingState(UserViewModel.LoadingState.Start)
                             requireActivity().orientationLock()
                         },
-                        onSuccess = {payout: Int, remainder: Double ->
-                            userVM.setState(UserViewModel.State.PaymentRequestSent(user, payout, remainder))
+                        onSuccess = {
+                            userVM.setState(UserViewModel.State.PaymentRequestSent(user, 0, 0.0))
                         },
                         onNotEnough = {
                             showSnackBar(getString(R.string.text_not_money))
                         },
-                        onInvalidToken = {oldToken ->
+                        onInvalidToken = {s: String ->
                             showSnackBar(getString(R.string.text_session_has_expired))
                             val authFragment = AuthFragment.newInstance()
                             parentFragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, authFragment).commit()
                         },
-                        onComplete = {exception ->
+                        onComplete = {exception: Exception? ->
                             userVM.setLoadingState(UserViewModel.LoadingState.Complete)
                             accountVM.setState(AccountViewModel.State.ReadOnly)
                             if (exception != null) {
@@ -448,6 +443,42 @@ class AccountFragment : Fragment() {
                             requireActivity().orientationUnLock()
                         }
                     )
+
+//                    userVM.updatePayoutDataIntoCloud(
+//                        threshold = (accountVM.paymentThreshold * user.currencyRate).toInt(),
+//                        reward = 0.0,
+//                        userMap = mapOf(
+//                            User.KEY_BANK_CARD to tvCardNumber.text.toString(),
+//                            User.KEY_BANK_NAME to tvBankNameValue.text.toString(),
+//                            User.KEY_PHONE to tvPhoneValue.text.toString(),
+//                            User.KEY_FIRST_NAME to tvFirstNameValue.text.toString(),
+//                            User.KEY_LAST_NAME to tvLastNameValue.text.toString()
+//                        ),
+//                        onStart = {
+//                            userVM.setLoadingState(UserViewModel.LoadingState.Start)
+//                            requireActivity().orientationLock()
+//                        },
+//                        onSuccess = {payout: Int, remainder: Double ->
+//                            userVM.setState(UserViewModel.State.PaymentRequestSent(user, payout, remainder))
+//                        },
+//                        onNotEnough = {
+//                            showSnackBar(getString(R.string.text_not_money))
+//                        },
+//                        onInvalidToken = {oldToken ->
+//                            showSnackBar(getString(R.string.text_session_has_expired))
+//                            val authFragment = AuthFragment.newInstance()
+//                            parentFragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, authFragment).commit()
+//                        },
+//                        onComplete = {exception ->
+//                            userVM.setLoadingState(UserViewModel.LoadingState.Complete)
+//                            accountVM.setState(AccountViewModel.State.ReadOnly)
+//                            if (exception != null) {
+//                                if (BuildConfig.DEBUG) exception.printStackTrace()
+//                                showSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
+//                            }
+//                            requireActivity().orientationUnLock()
+//                        }
+//                    )
                 }
             }
 
@@ -537,7 +568,7 @@ class AccountFragment : Fragment() {
             else tvRewardCondition.visibility = View.VISIBLE
 
             val payDateIsLastMonth = user.checkPayDateIsLastMonth()
-            btnGetReward.isEnabled = user.userReward > rewardThreshold && accountVM.paymentCode == BuildConfig.PAYMENT_CODE.trim() && payDateIsLastMonth
+            btnGetReward.isEnabled = user.reservedPayment > rewardThreshold && accountVM.paymentCode == BuildConfig.PAYMENT_CODE.trim() && payDateIsLastMonth
 
             if (user.message.isNotEmpty()) {
                 tvMessage.apply {

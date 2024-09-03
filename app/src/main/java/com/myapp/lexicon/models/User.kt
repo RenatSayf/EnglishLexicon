@@ -29,6 +29,7 @@ data class User(
         const val KEY_BANK_CARD = "bankCard"
         const val KEY_BANK_NAME = "bankName"
         const val KEY_PAYMENT_DATE = "paymentDate"
+        const val KEY__RESERVED_PAYMENT_DATE = "reservedPaymentDate"
         const val KEY_MESSAGE = "messageToUser"
         const val KEY_MESSAGING_TOKEN = "messagingToken"
         const val KEY_IS_ADS_ENABLED = "isAdsEnabled"
@@ -59,6 +60,7 @@ data class User(
     var reservedPayment: Double = 0.0
         get() = BigDecimal(field).setScale(2, RoundingMode.DOWN).toDouble()
 
+    var reservedPaymentDate: String = ""
     var currency: String = ""
     var currencySymbol: String = ""
     var message: String = ""

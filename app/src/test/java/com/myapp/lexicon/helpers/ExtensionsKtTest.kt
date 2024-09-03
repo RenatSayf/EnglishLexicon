@@ -90,6 +90,36 @@ class ExtensionsKtTest {
         Assert.assertEquals(9, actualDay)
     }
 
+    @Test
+    fun isDateOfLastMonth() {
+        var inputDate = "2024-08-17 09:09:56"
+        var actualResult = inputDate.isDateOfLastMonth(currentMonth = 9)
+        Assert.assertTrue(actualResult)
+
+        inputDate = "2024-08-17 09:09:56"
+        actualResult = inputDate.isDateOfLastMonth(currentMonth = 8)
+        Assert.assertTrue(!actualResult)
+
+        inputDate = "sgfdf;dslp"
+        actualResult = inputDate.isDateOfLastMonth(currentMonth = 9)
+        Assert.assertTrue(actualResult)
+    }
+
+    @Test
+    fun isTodayFirstDayOfMonth() {
+        var inputDate = "2024-08-01 09:09:56".toLongTime()
+        var actualResult = isTodayFirstDayOfMonth(timeInMillis = inputDate)
+        Assert.assertTrue(actualResult)
+
+        inputDate = "2024-09-01 09:09:56".toLongTime()
+        actualResult = isTodayFirstDayOfMonth(timeInMillis = inputDate)
+        Assert.assertTrue(actualResult)
+
+        inputDate = "2024-09-10 09:09:56".toLongTime()
+        actualResult = isTodayFirstDayOfMonth(timeInMillis = inputDate)
+        Assert.assertTrue(!actualResult)
+    }
+
 
 
 }

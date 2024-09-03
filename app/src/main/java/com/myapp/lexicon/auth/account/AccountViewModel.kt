@@ -16,6 +16,8 @@ import com.parse.GetCallback
 import com.parse.ParseException
 import com.parse.ParseObject
 import com.parse.ParseQuery
+import com.parse.ParseUser
+import com.parse.SaveCallback
 import kotlinx.serialization.json.Json
 import java.io.BufferedInputStream
 import java.net.HttpURLConnection
@@ -116,6 +118,52 @@ open class AccountViewModel : ViewModel() {
                 }
             }
         })
+    }
+
+    fun demandPayment(
+        threshold: Int,
+        reward: Int,
+        userMap: Map<String, Any?> = mapOf(),
+        onStart: () -> Unit = {},
+        onSuccess: () -> Unit,
+        onNotEnough: () -> Unit = {},
+        onInvalidToken: (String) -> Unit,
+        onComplete: (Exception?) -> Unit = {}
+    ) {
+        onStart.invoke()
+        if (reward > threshold) {
+            val currentUser = ParseUser.getCurrentUser()
+            if (currentUser is ParseUser) {
+                userMap.forEach { entry ->
+                    currentUser.put(entry.key, entry.value?: "")
+                }
+                currentUser.saveInBackground(object : SaveCallback {
+                    override fun done(e: ParseException?) {
+                        if (e is ParseException) {
+                            if (e.code == ParseException.INVALID_SESSION_TOKEN) {
+                                onInvalidToken.invoke(currentUser.sessionToken)
+                                onComplete.invoke(null)
+                            }
+                            else {
+                                if (BuildConfig.DEBUG) e.printStackTrace()
+                                onComplete.invoke(e)
+                            }
+                        }
+                        else {
+                            onSuccess.invoke()
+                            onComplete.invoke(null)
+                        }
+                    }
+                })
+            }
+            else {
+                onComplete.invoke(Exception("************ Current user is NULL ***********"))
+            }
+        }
+        else {
+            onNotEnough.invoke()
+            onComplete.invoke(null)
+        }
     }
 
     fun sendPaymentInfoToTGChannel(

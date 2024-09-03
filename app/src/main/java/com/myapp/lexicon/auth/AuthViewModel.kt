@@ -31,8 +31,8 @@ open class AuthViewModel @Inject constructor(
 ) : AndroidViewModel(app) {
 
     sealed class LoadingState {
-        object Start: LoadingState()
-        object Complete: LoadingState()
+        data object Start: LoadingState()
+        data object Complete: LoadingState()
     }
 
     protected var _loadingState = MutableLiveData<LoadingState>()
@@ -43,7 +43,7 @@ open class AuthViewModel @Inject constructor(
     }
 
     sealed class ScreenState {
-        object Init: ScreenState()
+        data object Init: ScreenState()
         data class Current(
             val emailText: String,
             val emailIsFocused: Boolean,

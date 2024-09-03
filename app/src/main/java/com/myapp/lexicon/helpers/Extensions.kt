@@ -31,6 +31,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.ktx.Firebase
@@ -39,6 +40,8 @@ import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.databinding.SnackBarTestBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
+import com.myapp.lexicon.main.viewmodels.UserViewModel
+import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.schedule.AlarmScheduler
 import com.myapp.lexicon.schedule.AppNotification
@@ -53,6 +56,7 @@ import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.MonthDay
+import java.time.YearMonth
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
@@ -298,10 +302,58 @@ val timeInMillisMoscowTimeZone: Long
         return System.currentTimeMillis() + TimeUnit.HOURS.toMillis(3)
     }
 
+fun isTodayFirstDayOfMonth(timeInMillis: Long = timeInMillisMoscowTimeZone): Boolean {
+    return timeInMillis.dayOfMonthFromLongTime() == 3
+}
+
+fun String.isDateOfLastMonth(currentMonth: Int = timeInMillisMoscowTimeZone.getMonthFromLongTime()): Boolean {
+    val yearMonth = try {
+        YearMonth.parse(this, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+    } catch (e: DateTimeParseException) {
+        e.printStackTraceIfDebug()
+        return true
+    }
+    val inputMonth = yearMonth.monthValue
+    return inputMonth < currentMonth
+}
 
 fun Long.getMonthFromLongTime(): Int {
     val dateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(this), ZoneId.systemDefault())
     return dateTime.monthValue
+}
+
+fun FragmentActivity.reserveRewardPaymentForMonth(
+    user: User,
+    onSuccess: (sum: Int, remainder: Double) -> Unit
+) {
+    //val testDate = "2024-08-03 09:09:56".toLongTime()
+    val isFirstDay = isTodayFirstDayOfMonth()
+    val isLastMonth = user.reservedPaymentDate.isDateOfLastMonth()
+    if (isFirstDay && isLastMonth) {
+        val userVM = ViewModelProvider(this)[UserViewModel::class.java]
+
+        val paymentThreshold: Double = if (!BuildConfig.DEBUG)
+            Firebase.remoteConfig.getDouble("payment_threshold") else 0.1
+        userVM.updatePayoutDataIntoCloud(
+            threshold = (paymentThreshold * user.currencyRate).toInt(),
+            reward = user.userReward,
+            userMap = mapOf(
+
+            ),
+            onStart = {
+                this.orientationLock()
+            },
+            onSuccess = { sum: Int, remainder: Double ->
+                onSuccess.invoke(sum, remainder)
+            },
+            onNotEnough = {},
+            onInvalidToken = {},
+            onComplete = {exception: Exception? ->
+                exception?.printStackTraceIfDebug()
+                this.orientationUnLock()
+            }
+        )
+    }
 }
 
 fun View.showCustomSnackBar(
@@ -577,7 +629,6 @@ fun FragmentActivity.orientationLock() {
             }
         }
 
-        Configuration.ORIENTATION_SQUARE -> {}
         Configuration.ORIENTATION_UNDEFINED -> {}
         else -> {}
     }

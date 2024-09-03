@@ -322,8 +322,8 @@ private val TEST_BANNER_DATA: String
   "currency": "RUB",
   "revenueUSD": "0.04",
   "precision": "estimated",
-  "revenue": "1.1",
-  "requestId": "1723370787761663-35660637500212",
+  "revenue": "3.0",
+  "requestId": "${System.currentTimeMillis()}617871108186477874100342-demo-banner-yandex",
   "blockId": "demo-banner-yandex",
   "adType": "banner",
   "ad_unit_id": "demo-banner-yandex",
@@ -375,7 +375,19 @@ fun BannerAdView.loadBanner(
                     //println("************ onImpression(): impressionData: ${impressionData.rawData} *******************")
                     it.rawData.toAdData(
                         onSuccess = {adData: AdData ->
-                            onImpression.invoke(adData)
+                            if (adData.adUnitId == "demo-banner-yandex") {
+                                TEST_BANNER_DATA.toAdData(
+                                    onSuccess = { data ->
+                                        onImpression.invoke(data)
+                                    },
+                                    onFailed = {
+                                        onImpression.invoke(null)
+                                    }
+                                )
+                            }
+                            else {
+                                onImpression.invoke(adData)
+                            }
                         },
                         onFailed = {
                             onImpression.invoke(null)
