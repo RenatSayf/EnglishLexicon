@@ -10,8 +10,6 @@ import android.os.CountDownTimer
 import android.view.View
 import android.window.OnBackInvokedCallback
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.LinearLayoutCompat
-import androidx.core.view.children
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.databinding.ActivityBannersBinding
 import com.myapp.lexicon.helpers.orientationLock
@@ -19,7 +17,6 @@ import com.myapp.lexicon.helpers.orientationUnLock
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.to2DigitsScale
-import com.yandex.mobile.ads.banner.BannerAdView
 import com.yandex.mobile.ads.common.AdRequestError
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -27,7 +24,6 @@ import kotlinx.coroutines.runBlocking
 class BannersActivity : AppCompatActivity() {
 
     companion object {
-        const val ARG_ID_LIST = "BANNERS_IDS"
         private var listener: Listener? = null
         fun setAdDataListener(listener: Listener) {
             this.listener = listener
@@ -57,43 +53,23 @@ class BannersActivity : AppCompatActivity() {
             pbLoadAds.visibility = View.VISIBLE
 
 
-            val listBannerIds = intent?.getStringArrayListExtra(ARG_ID_LIST)?.toList()?.take(2)
+            loadAndShowBanners(
+                this,
+                onLoaded = {
+                    pbLoadAds.visibility = View.GONE
+                },
+                onImpression = {data: AdData? ->
+                    this@BannersActivity.adData = data
 
-            if (!listBannerIds.isNullOrEmpty()) {
-
-                val bannerAdIds = BannerAdIds.entries.filter {
-                    listBannerIds.contains(it.id)
-                }
-                repeat(listBannerIds.size) {
-                    val bannerView = BannerAdView(this@BannersActivity).apply {
-                        layoutParams = LinearLayoutCompat.LayoutParams(
-                            LinearLayoutCompat.LayoutParams.MATCH_PARENT,
-                            0,
-                            1f
-                        )
-                    }
-                    layoutBanners.addView(bannerView)
-                }
-
-                loadAndShowBanners(
-                    this,
-                    bannerAdIds,
-                    onLoaded = {
-                        pbLoadAds.visibility = View.GONE
-                    },
-                    onImpression = {data: AdData? ->
-                        this@BannersActivity.adData = data
-
-                        runBlocking {
-                            delay(5000)
-                            btnClose.visibility = View.VISIBLE
-                        }
-                    },
-                    onFailed = {
+                    runBlocking {
+                        delay(5000)
                         btnClose.visibility = View.VISIBLE
                     }
-                )
-            }
+                },
+                onFailed = {
+                    btnClose.visibility = View.VISIBLE
+                }
+            )
 
             btnClose.setOnClickListener {
                 finish()
@@ -113,33 +89,31 @@ class BannersActivity : AppCompatActivity() {
 
     private fun loadAndShowBanners(
         binding: ActivityBannersBinding,
-        idList: List<BannerAdIds>,
         onLoaded: () -> Unit,
         onImpression: (data: AdData?) -> Unit,
         onFailed: () -> Unit
     ) {
         with(binding) {
 
-            val adIds = idList.take(2)
             var loadCount = 0
             var errorCount = 0
             var impressionCount = 0
             val adData = AdData()
-            val banners = layoutBanners.children.toList()
+
             try {
-                (banners[0] as BannerAdView).loadBanner(
-                    adId = adIds[0],
-                    heightRate = 1.0 / adIds.size,
+                bannerViewTop.loadBanner(
+                    adId = BannerAdIds.BANNER_4,
+                    heightRate = 0.5,
                     onCompleted = { error: AdRequestError? ->
                         loadCount++
                         error?.let {
                             errorCount++
                             Throwable(it.description).printStackTraceIfDebug()
-                            if (errorCount >= adIds.size) {
+                            if (errorCount >= 2) {
                                 onFailed.invoke()
                             }
                         }
-                        if (loadCount >= adIds.size) {
+                        if (loadCount >= 2) {
                             onLoaded.invoke()
                         }
                     },
@@ -157,7 +131,7 @@ class BannersActivity : AppCompatActivity() {
                                 it.revenue += data.revenue
                                 it.revenueUSD += data.revenueUSD
                             }
-                            if (impressionCount >= adIds.size) {
+                            if (impressionCount >= 2) {
                                 onImpression.invoke(adData)
                             }
                         } else onImpression.invoke(null)
@@ -169,19 +143,19 @@ class BannersActivity : AppCompatActivity() {
             }
 
             try {
-                (banners[1] as BannerAdView).loadBanner(
-                    adId = adIds[1],
-                    heightRate = 1.0 / adIds.size,
+                bannerViewBottom.loadBanner(
+                    adId = BannerAdIds.BANNER_5,
+                    heightRate = 0.5,
                     onCompleted = { error: AdRequestError? ->
                         loadCount++
                         error?.let {
                             errorCount++
                             Throwable(it.description).printStackTraceIfDebug()
-                            if (errorCount >= adIds.size) {
+                            if (errorCount >= 2) {
                                 onFailed.invoke()
                             }
                         }
-                        if (loadCount >= adIds.size) {
+                        if (loadCount >= 2) {
                             onLoaded.invoke()
                         }
                     },
@@ -199,7 +173,7 @@ class BannersActivity : AppCompatActivity() {
                                 it.revenue += data.revenue
                                 it.revenueUSD += data.revenueUSD
                             }
-                            if (impressionCount >= adIds.size) {
+                            if (impressionCount >= 2) {
                                 onImpression.invoke(adData)
                             }
                         } else onImpression.invoke(null)
@@ -267,15 +241,5 @@ fun Activity.startBannersActivity(
             }
         }
     })
-    this.startActivity(Intent(this, BannersActivity::class.java).apply {
-        putExtras(Bundle().apply {
-            putStringArrayList(
-                BannersActivity.ARG_ID_LIST,
-                arrayListOf(
-                    BannerAdIds.BANNER_4.id,
-                    BannerAdIds.BANNER_5.id
-                )
-            )
-        })
-    })
+    this.startActivity(Intent(this, BannersActivity::class.java))
 }

@@ -303,7 +303,7 @@ val timeInMillisMoscowTimeZone: Long
     }
 
 fun isTodayFirstDayOfMonth(timeInMillis: Long = timeInMillisMoscowTimeZone): Boolean {
-    return timeInMillis.dayOfMonthFromLongTime() == 3
+    return timeInMillis.dayOfMonthFromLongTime() == 1
 }
 
 fun String.isDateOfLastMonth(currentMonth: Int = timeInMillisMoscowTimeZone.getMonthFromLongTime()): Boolean {
@@ -326,7 +326,6 @@ fun FragmentActivity.reserveRewardPaymentForMonth(
     user: User,
     onSuccess: (sum: Int, remainder: Double) -> Unit
 ) {
-    //val testDate = "2024-08-03 09:09:56".toLongTime()
     val isFirstDay = isTodayFirstDayOfMonth()
     val isLastMonth = user.reservedPaymentDate.isDateOfLastMonth()
     if (isFirstDay && isLastMonth) {
