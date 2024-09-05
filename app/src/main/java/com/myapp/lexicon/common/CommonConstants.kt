@@ -2,6 +2,7 @@ package com.myapp.lexicon.common
 
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
+import com.myapp.lexicon.ads.models.AdType
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 
 const val COLLECTION_PATH_USERS = "users"
@@ -42,6 +43,22 @@ val IS_MULTI_BANNER: Boolean
         } catch (e: Exception) {
             e.printStackTraceIfDebug()
             true
+        }
+    }
+
+val AD_TYPE: AdType
+    get() {
+        return try {
+            val value = Firebase.remoteConfig.getLong("ad_type").toInt()
+            when (value) {
+                1 -> AdType.BANNER
+                2 -> AdType.NATIVE
+                else -> AdType.INTERSTITIAL
+            }
+        }
+        catch (e: Exception) {
+            e.printStackTraceIfDebug()
+            AdType.BANNER
         }
     }
 

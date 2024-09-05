@@ -77,6 +77,7 @@ class App : Application(), Configuration.Provider {
                 printLogIfDebug("*************** MobileAds initialization successful ***************")
             }
         })
+        MobileAds.enableDebugErrorIndicator(BuildConfig.DEBUG)
 
         Parse.initialize(
             Parse.Configuration.Builder(this).apply {
