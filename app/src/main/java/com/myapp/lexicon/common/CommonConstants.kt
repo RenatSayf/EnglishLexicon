@@ -5,9 +5,7 @@ import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.ads.models.AdType
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 
-const val COLLECTION_PATH_USERS = "users"
 const val KEY_APP_STORE_LINK = "link"
-const val APP_STORE_LINK = "https://play.google.com/store/apps/details?id=com.myapp.lexicon"
 
 enum class AdsSource {
     TEST_AD,
@@ -35,16 +33,6 @@ val PAYMENTS_CONDITIONS: String = try {
     e.printStackTraceIfDebug()
     ""
 }
-
-val IS_MULTI_BANNER: Boolean
-    get() {
-        return try {
-            Firebase.remoteConfig.getBoolean("is_multi_banner")
-        } catch (e: Exception) {
-            e.printStackTraceIfDebug()
-            true
-        }
-    }
 
 val AD_TYPE: AdType
     get() {

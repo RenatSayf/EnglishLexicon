@@ -21,9 +21,11 @@ import com.myapp.lexicon.ads.InterstitialAdIds
 import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.loadBanner
 import com.myapp.lexicon.ads.models.AdData
+import com.myapp.lexicon.ads.models.AdType
 import com.myapp.lexicon.ads.showAd
 import com.myapp.lexicon.ads.startBannersActivity
-import com.myapp.lexicon.common.IS_MULTI_BANNER
+import com.myapp.lexicon.ads.startNativeAdsActivity
+import com.myapp.lexicon.common.AD_TYPE
 import com.myapp.lexicon.databinding.TranslateFragmentBinding
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showSnackBar
@@ -101,7 +103,7 @@ class TranslateFragment : Fragment()
         super.onViewCreated(view, savedInstanceState)
         binding = TranslateFragmentBinding.bind(view)
 
-        if (!IS_MULTI_BANNER) {
+        if (AD_TYPE == AdType.INTERSTITIAL) {
             adsVM.loadInterstitialAd(InterstitialAdIds.INTERSTITIAL_1)
             adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
                 result.onSuccess { ad ->
@@ -201,62 +203,94 @@ class TranslateFragment : Fragment()
         when(mActivity)
         {
             is MainActivity -> {
-                if (!IS_MULTI_BANNER) {
-                    interstitialAd?.showAd(
-                        requireActivity(),
-                        onImpression = { data ->
-                            if (data is AdData) {
-                                revenueVM.updateUserRevenueIntoCloud(data)
+
+                when(AD_TYPE) {
+                    AdType.BANNER -> {
+                        requireActivity().startBannersActivity(
+                            onImpression = {data: AdData? ->
+                                if (data != null) {
+                                    revenueVM.updateUserRevenueIntoCloud(data)
+                                }
+                            },
+                            onDismissed = {bonus: Double ->
+                                adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+                                parentFragmentManager.popBackStack()
                             }
-                        },
-                        onDismissed = {
-                            adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(it))
-                            parentFragmentManager.popBackStack()
-                        }
-                    )?: run {
-                        parentFragmentManager.popBackStack()
+                        )
                     }
-                }
-                else {
-                    requireActivity().startBannersActivity(
-                        onImpression = {data: AdData? ->
-                            if (data != null) {
-                                revenueVM.updateUserRevenueIntoCloud(data)
+                    AdType.NATIVE -> {
+                        requireActivity().startNativeAdsActivity(
+                            onImpression = {data: AdData? ->
+                                if (data != null) {
+                                    revenueVM.updateUserRevenueIntoCloud(data)
+                                }
+                            },
+                            onDismissed = {bonus: Double ->
+                                adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+                                parentFragmentManager.popBackStack()
                             }
-                        },
-                        onDismissed = {bonus: Double ->
-                            adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+                        )
+                    }
+                    AdType.INTERSTITIAL -> {
+                        interstitialAd?.showAd(
+                            requireActivity(),
+                            onImpression = { data ->
+                                if (data is AdData) {
+                                    revenueVM.updateUserRevenueIntoCloud(data)
+                                }
+                            },
+                            onDismissed = {
+                                adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(it))
+                                parentFragmentManager.popBackStack()
+                            }
+                        )?: run {
                             parentFragmentManager.popBackStack()
                         }
-                    )
+                    }
                 }
             }
             is TranslateActivity -> {
-                if (!IS_MULTI_BANNER) {
-                    interstitialAd?.showAd(
-                        requireActivity(),
-                        onImpression = { data ->
-                            if (data is AdData) {
-                                revenueVM.updateUserRevenueIntoCloud(data)
+
+                when(AD_TYPE) {
+                    AdType.BANNER -> {
+                        requireActivity().startBannersActivity(
+                            onImpression = {data: AdData? ->
+                                if (data != null) {
+                                    revenueVM.updateUserRevenueIntoCloud(data)
+                                }
+                            },
+                            onDismissed = {bonus: Double ->
+                                requireActivity().finish()
                             }
-                        },
-                        onDismissed = {
-                            requireActivity().finish()
-                        }
-                    )?: run {
-                        requireActivity().finish()
+                        )
                     }
-                } else {
-                    requireActivity().startBannersActivity(
-                        onImpression = {data: AdData? ->
-                            if (data != null) {
-                                revenueVM.updateUserRevenueIntoCloud(data)
+                    AdType.NATIVE -> {
+                        requireActivity().startNativeAdsActivity(
+                            onImpression = {data: AdData? ->
+                                if (data != null) {
+                                    revenueVM.updateUserRevenueIntoCloud(data)
+                                }
+                            },
+                            onDismissed = {bonus: Double ->
+                                requireActivity().finish()
                             }
-                        },
-                        onDismissed = {bonus: Double ->
+                        )
+                    }
+                    AdType.INTERSTITIAL -> {
+                        interstitialAd?.showAd(
+                            requireActivity(),
+                            onImpression = { data ->
+                                if (data is AdData) {
+                                    revenueVM.updateUserRevenueIntoCloud(data)
+                                }
+                            },
+                            onDismissed = {
+                                requireActivity().finish()
+                            }
+                        )?: run {
                             requireActivity().finish()
                         }
-                    )
+                    }
                 }
             }
         }

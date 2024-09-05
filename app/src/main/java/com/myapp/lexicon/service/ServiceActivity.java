@@ -11,8 +11,10 @@ import com.myapp.lexicon.ads.AdsViewModel;
 import com.myapp.lexicon.ads.AdsViewModelKt;
 import com.myapp.lexicon.ads.BannersActivityKt;
 import com.myapp.lexicon.ads.InterstitialAdIds;
+import com.myapp.lexicon.ads.NativeAdsActivityKt;
 import com.myapp.lexicon.ads.RevenueViewModel;
 import com.myapp.lexicon.ads.models.AdData;
+import com.myapp.lexicon.ads.models.AdType;
 import com.myapp.lexicon.auth.AuthViewModel;
 import com.myapp.lexicon.common.CommonConstantsKt;
 import com.myapp.lexicon.databinding.ServiceDialogActivityBinding;
@@ -122,8 +124,8 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
 
     private void handleAdvertisingPayload() {
 
-        if (!CommonConstantsKt.getIS_MULTI_BANNER())
-        {
+        AdType adType = CommonConstantsKt.getAD_TYPE();
+        if (adType == AdType.INTERSTITIAL) {
             adsVM.loadInterstitialAd(InterstitialAdIds.INTERSTITIAL_2);
             adsVM.getInterstitialAd().observe(ServiceActivity.this, result -> {
                 interstitialAd = adsVM.getInterstitialAdOrNull();
@@ -153,9 +155,28 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                     adsVM.setInterstitialAdState(new AdsViewModel.AdState.Dismissed(0.0));
                 }
             });
-        } else
-        {
+        }
+        if (adType == AdType.BANNER) {
             BannersActivityKt.startBannersActivity(
+                    this,
+                    adData -> {
+                        if (adData != null) {
+                            revenueVM.updateUserRevenueIntoCloud(adData);
+                        }
+                        else {
+                            AdData emptyAdData = new AdData("", "", "", "", null, "", "", 0.0, 0.0);
+                            revenueVM.updateUserRevenueIntoCloud(emptyAdData);
+                        }
+                        return null;
+                    },
+                    bonus -> {
+                        adsVM.setInterstitialAdState(new AdsViewModel.AdState.Dismissed(bonus));
+                        return null;
+                    }
+            );
+        }
+        if (adType == AdType.NATIVE) {
+            NativeAdsActivityKt.startNativeAdsActivity(
                     this,
                     adData -> {
                         if (adData != null) {

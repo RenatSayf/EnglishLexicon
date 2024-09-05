@@ -24,7 +24,6 @@ import com.myapp.lexicon.ads.showAd
 import com.myapp.lexicon.ads.startBannersActivity
 import com.myapp.lexicon.ads.startNativeAdsActivity
 import com.myapp.lexicon.common.AD_TYPE
-import com.myapp.lexicon.common.IS_MULTI_BANNER
 import com.myapp.lexicon.databinding.OneOfFiveFragmNewBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.RandomNumberGenerator
@@ -97,7 +96,7 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
 
         if (!wordList.isNullOrEmpty()) vm.initTest(wordList!!.toList())
 
-        if (!IS_MULTI_BANNER) {
+        if (AD_TYPE == AdType.INTERSTITIAL) {
             adsVM.loadInterstitialAd(InterstitialAdIds.INTERSTITIAL_2)
             adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
                 result.onSuccess { ad ->

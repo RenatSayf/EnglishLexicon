@@ -29,9 +29,11 @@ import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.InterstitialAdIds
 import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.models.AdData
+import com.myapp.lexicon.ads.models.AdType
 import com.myapp.lexicon.ads.showAd
 import com.myapp.lexicon.ads.startBannersActivity
-import com.myapp.lexicon.common.IS_MULTI_BANNER
+import com.myapp.lexicon.ads.startNativeAdsActivity
+import com.myapp.lexicon.common.AD_TYPE
 import com.myapp.lexicon.databinding.TestFragmentBinding
 import com.myapp.lexicon.dialogs.DictListDialog
 import com.myapp.lexicon.helpers.LockOrientation
@@ -288,40 +290,56 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
             testVM.state.observe(viewLifecycleOwner) { state ->
                 when (state) {
                     TestViewModel.State.Init -> {
-                        if (!IS_MULTI_BANNER) {
+                        if (AD_TYPE == AdType.INTERSTITIAL) {
                             adsVM.loadInterstitialAd(InterstitialAdIds.entries.toTypedArray().randomOrNull())
                         }
                     }
 
                     TestViewModel.State.NotShowAd -> {}
                     TestViewModel.State.ShowAd -> {
-                        if (!IS_MULTI_BANNER) {
-                            interstitialAd?.showAd(
-                                requireActivity(),
-                                onImpression = { data ->
-                                    if (data != null) {
-                                        revenueVM.updateUserRevenueIntoCloud(data)
+
+                        when(AD_TYPE) {
+                            AdType.BANNER -> {
+                                requireActivity().startBannersActivity(
+                                    onImpression = {data: AdData? ->
+                                        if (data != null) {
+                                            revenueVM.updateUserRevenueIntoCloud(data)
+                                        }
+                                    },
+                                    onDismissed = {bonus: Double ->
+                                        adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
                                     }
-                                    testVM.setState(TestViewModel.State.Init)
-                                },
-                                onDismissed = {bonus: Double ->
-                                    adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
-                                }
-                            )
-                        } else {
-                            requireActivity().startBannersActivity(
-                                onImpression = {data: AdData? ->
-                                    if (data != null) {
-                                        revenueVM.updateUserRevenueIntoCloud(data)
+                                )
+                            }
+                            AdType.NATIVE -> {
+                                requireActivity().startNativeAdsActivity(
+                                    onImpression = {data: AdData? ->
+                                        if (data != null) {
+                                            revenueVM.updateUserRevenueIntoCloud(data)
+                                        }
+                                        testVM.setState(TestViewModel.State.Init)
+                                    },
+                                    onDismissed = {bonus: Double ->
+                                        adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
                                     }
-                                },
-                                onDismissed = {bonus: Double ->
-                                    adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
-                                }
-                            )
+                                )
+                            }
+                            AdType.INTERSTITIAL -> {
+                                interstitialAd?.showAd(
+                                    requireActivity(),
+                                    onImpression = { data ->
+                                        if (data != null) {
+                                            revenueVM.updateUserRevenueIntoCloud(data)
+                                        }
+                                        testVM.setState(TestViewModel.State.Init)
+                                    },
+                                    onDismissed = {bonus: Double ->
+                                        adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+                                    }
+                                )
+                            }
                         }
                     }
-
                     else -> {}
                 }
             }
