@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.databinding.ADialogAddDictBinding;
 import com.myapp.lexicon.helpers.ExtensionsKt;
@@ -90,9 +89,7 @@ public class NewDictDialog extends DialogFragment
                         binding.etDictName.setSelection(fixedStr.length());
                     } catch (NullPointerException e)
                     {
-                        if (BuildConfig.DEBUG) {
-                            e.printStackTrace();
-                        }
+                        ExtensionsKt.printStackTraceIfDebug(e);
                     }
                 }
             }
