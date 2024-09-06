@@ -64,7 +64,7 @@ class BannersActivity : AppCompatActivity() {
                     this@BannersActivity.adData = data
 
                     val maxRatingValue = ratingList.values.maxOrNull()
-                    if (ratingList.size == 2 && maxRatingValue != null) {
+                    if (ratingList.size >= 2 && maxRatingValue != null) {
                         rbTop.apply {
                             max = (maxRatingValue * 100).toInt()
                             progress = (ratingList[0]!! * 100).toInt()

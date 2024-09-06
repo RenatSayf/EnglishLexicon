@@ -126,7 +126,7 @@ class NativeAdsActivity : AppCompatActivity() {
                         it.revenueUSD += data.revenueUSD
                     }
                     ratingList.add(data.revenue)
-                    if (ratingList.size == 3) {
+                    if (ratingList.size >= 3) {
                         val maxValue = ratingList.maxOrNull()
                         if (maxValue != null) {
                             with(binding){

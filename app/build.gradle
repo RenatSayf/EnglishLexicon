@@ -160,7 +160,7 @@ dependencies {
 
     // Yandex Mobile Ads SDK
     //noinspection MobileAdsSdkOutdatedVersion
-    implementation 'com.yandex.android:mobileads:7.4.0'
+    implementation 'com.yandex.android:mobileads:7.1.0'
 
     // Yandex AppMetrica SDK.
     implementation 'io.appmetrica.analytics:analytics:6.5.0'
