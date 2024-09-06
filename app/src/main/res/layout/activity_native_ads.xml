@@ -86,12 +86,12 @@
         android:elevation="10dp"
         android:padding="5dp"
         android:src="@drawable/ic_close_red"
-        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/pbLoadAds"
         app:layout_constraintEnd_toEndOf="@+id/pbLoadAds"
         app:layout_constraintStart_toStartOf="@+id/pbLoadAds"
         app:layout_constraintTop_toTopOf="@+id/pbLoadAds"
         tools:ignore="ImageContrastCheck"
+        android:visibility="gone"
         tools:visibility="visible" />
 
     <ProgressBar

@@ -160,22 +160,22 @@ dependencies {
 
     // Yandex Mobile Ads SDK
     //noinspection MobileAdsSdkOutdatedVersion
-    implementation 'com.yandex.android:mobileads:7.1.0'
+    implementation 'com.yandex.android:mobileads:7.4.0'
 
     // Yandex AppMetrica SDK.
-    implementation 'io.appmetrica.analytics:analytics:6.2.1'
+    implementation 'io.appmetrica.analytics:analytics:6.5.0'
 
     //FormatEditText
     implementation 'com.github.dkzwm:fet-core:0.2.1'
 
     //Kotlin Serialization
-    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.7.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.7.2'
 
     //back4app
     implementation "com.github.parse-community.Parse-SDK-Android:parse:4.2.1"
 
     // Picasso
-    implementation 'com.squareup.picasso:picasso:2.8'
+    implementation 'com.squareup.picasso:picasso:2.71828'
 
     //android-youtube-player
     implementation 'com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.0'
@@ -189,7 +189,7 @@ dependencies {
     implementation 'io.ktor:ktor-client-logging:2.3.12'
     implementation 'io.ktor:ktor-client-content-negotiation-jvm:2.3.12'
     testImplementation 'io.ktor:ktor-client-mock:2.3.12'
-    testImplementation 'org.jetbrains.kotlin:kotlin-test:2.0.20-RC2'
+    testImplementation 'org.jetbrains.kotlin:kotlin-test:2.0.20'
 
     // In-app update
     implementation 'com.google.android.play:app-update:2.1.0'

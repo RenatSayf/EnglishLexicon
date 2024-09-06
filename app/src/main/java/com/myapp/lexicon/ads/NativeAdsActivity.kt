@@ -10,6 +10,7 @@ import android.os.CountDownTimer
 import android.view.View
 import android.window.OnBackInvokedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.databinding.ActivityNativeAdsBinding
 import com.myapp.lexicon.helpers.logIfDebug
@@ -24,6 +25,8 @@ import com.yandex.mobile.ads.nativeads.NativeAdEventListener
 import com.yandex.mobile.ads.nativeads.NativeAdRequestConfiguration
 import com.yandex.mobile.ads.nativeads.NativeBulkAdLoadListener
 import com.yandex.mobile.ads.nativeads.NativeBulkAdLoader
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class NativeAdsActivity : AppCompatActivity() {
 
@@ -140,6 +143,10 @@ class NativeAdsActivity : AppCompatActivity() {
                                     progress = (ratingList[2] * 100).toInt()
                                 }
                             }
+                        }
+                        lifecycleScope.launch {
+                            delay(5000)
+                            binding.btnClose.visibility = View.VISIBLE
                         }
                     }
                 },

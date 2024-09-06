@@ -10,6 +10,7 @@ import android.os.CountDownTimer
 import android.view.View
 import android.window.OnBackInvokedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.databinding.ActivityBannersBinding
 import com.myapp.lexicon.helpers.orientationLock
@@ -19,7 +20,7 @@ import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.to2DigitsScale
 import com.yandex.mobile.ads.common.AdRequestError
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 
 class BannersActivity : AppCompatActivity() {
 
@@ -74,7 +75,7 @@ class BannersActivity : AppCompatActivity() {
                         }
                     }
 
-                    runBlocking {
+                    lifecycleScope.launch {
                         delay(5000)
                         btnClose.visibility = View.VISIBLE
                     }
