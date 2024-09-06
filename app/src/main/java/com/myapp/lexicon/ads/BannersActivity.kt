@@ -39,6 +39,7 @@ class BannersActivity : AppCompatActivity() {
     private var adData: AdData? = null
     private var callback: OnBackInvokedCallback? = null
     private var timer: CountDownTimer? = null
+    private val ratingList: MutableMap<Int, Double> = mutableMapOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,6 +61,18 @@ class BannersActivity : AppCompatActivity() {
                 },
                 onImpression = {data: AdData? ->
                     this@BannersActivity.adData = data
+
+                    val maxRatingValue = ratingList.values.maxOrNull()
+                    if (ratingList.size == 2 && maxRatingValue != null) {
+                        rbTop.apply {
+                            max = (maxRatingValue * 100).toInt()
+                            progress = (ratingList[0]!! * 100).toInt()
+                        }
+                        rbBottom.apply {
+                            max = (maxRatingValue * 100).toInt()
+                            progress = (ratingList[1]!! * 100).toInt()
+                        }
+                    }
 
                     runBlocking {
                         delay(5000)
@@ -131,6 +144,7 @@ class BannersActivity : AppCompatActivity() {
                                 it.revenue += data.revenue
                                 it.revenueUSD += data.revenueUSD
                             }
+                            ratingList[0] = data.revenue
                             if (impressionCount >= 2) {
                                 onImpression.invoke(adData)
                             }
@@ -173,6 +187,7 @@ class BannersActivity : AppCompatActivity() {
                                 it.revenue += data.revenue
                                 it.revenueUSD += data.revenueUSD
                             }
+                            ratingList[1] = data.revenue
                             if (impressionCount >= 2) {
                                 onImpression.invoke(adData)
                             }

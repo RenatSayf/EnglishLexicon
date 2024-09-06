@@ -12,7 +12,8 @@
         android:id="@+id/layoutBanners"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        >
 
         <com.yandex.mobile.ads.banner.BannerAdView
             android:id="@+id/bannerViewTop"
@@ -20,11 +21,45 @@
             android:layout_height="0dp"
             android:layout_weight="1"/>
 
+
+        <RatingBar
+            android:id="@+id/rbTop"
+            style="?android:attr/ratingBarStyleSmall"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:progressTint="@color/colorYellowDark"
+            android:max="5"
+            android:progress="0"
+            tools:progress="3"
+            tools:max="5"
+            android:visibility="visible"
+            tools:visibility="visible"
+            android:background="@color/colorWhite"
+            />
+
+
         <com.yandex.mobile.ads.banner.BannerAdView
             android:id="@+id/bannerViewBottom"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"/>
+
+
+        <RatingBar
+            android:id="@+id/rbBottom"
+            style="?android:attr/ratingBarStyleSmall"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:progressTint="@color/colorYellowDark"
+            android:max="5"
+            android:progress="0"
+            tools:progress="1"
+            tools:max="5"
+            android:visibility="visible"
+            tools:visibility="visible"
+            android:background="@color/colorWhite"
+            />
+
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 
