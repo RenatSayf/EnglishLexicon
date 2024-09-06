@@ -16,6 +16,7 @@ import com.myapp.lexicon.databinding.ActivityNativeAdsBinding
 import com.myapp.lexicon.helpers.logIfDebug
 import com.myapp.lexicon.helpers.orientationLock
 import com.myapp.lexicon.helpers.orientationUnLock
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.to2DigitsScale
 import com.yandex.mobile.ads.common.AdRequestError
@@ -89,6 +90,10 @@ class NativeAdsActivity : AppCompatActivity() {
                             setNativeAdEventListener(nativeAdListener)
                         })
                     }
+                    lifecycleScope.launch {
+                        delay(2000)
+                        scrollAds.smoothScrollTo(0, scrollAds.height)
+                    }
                 }
             })
 
@@ -109,6 +114,7 @@ class NativeAdsActivity : AppCompatActivity() {
     }
 
     private val nativeAdListener = object : NativeAdEventListener {
+
         override fun onAdClicked() {}
 
         override fun onImpression(impressionData: ImpressionData?) {
@@ -150,7 +156,9 @@ class NativeAdsActivity : AppCompatActivity() {
                         }
                     }
                 },
-                onFailed = {}
+                onFailed = {
+                    Exception("********* ImpressionData.rawData.toAdData() - parsing error ***********").printStackTraceIfDebug()
+                }
             )
         }
 

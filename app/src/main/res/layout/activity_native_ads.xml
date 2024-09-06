@@ -6,93 +6,93 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="2dp"
     android:background="@color/colorTransparent"
     tools:context=".ads.NativeAdsActivity">
 
-    <androidx.appcompat.widget.LinearLayoutCompat
-        android:id="@+id/layoutAds"
+    <ScrollView
+        android:id="@+id/scrollAds"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:background="@color/colorWhite"
-        android:visibility="invisible"
-        tools:visibility="visible">
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-        <com.yandex.mobile.ads.nativeads.template.NativeBannerView
-            android:id="@+id/nativeBannerTop"
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/layoutAds"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
-            android:background="@color/colorTransparent"
-            />
+            android:orientation="vertical"
+            android:padding="4dp"
+            android:background="@color/colorWhite"
+            android:visibility="invisible"
+            tools:visibility="visible">
 
-        <RatingBar
-            android:id="@+id/rbTop"
-            style="?android:attr/ratingBarStyleSmall"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:progressTint="@color/colorYellowDark"
-            tools:progress="3"
-            tools:max="5"
-            />
+            <com.yandex.mobile.ads.nativeads.template.NativeBannerView
+                android:id="@+id/nativeBannerTop"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginTop="0dp"
+                android:background="@color/colorTransparent" />
 
-        <com.yandex.mobile.ads.nativeads.template.NativeBannerView
-            android:id="@+id/nativeBannerCenter"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:background="@color/colorTransparent"
-            />
+            <RatingBar
+                android:id="@+id/rbTop"
+                style="?android:attr/ratingBarStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:progressTint="@color/colorYellowDark"
+                tools:progress="3"
+                tools:max="5" />
 
-        <RatingBar
-            android:id="@+id/rbCenter"
-            style="?android:attr/ratingBarStyleSmall"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:progressTint="@color/colorYellowDark"
-            tools:progress="5"
-            tools:max="5"
-            />
+            <com.yandex.mobile.ads.nativeads.template.NativeBannerView
+                android:id="@+id/nativeBannerCenter"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:background="@color/colorTransparent" />
 
-        <com.yandex.mobile.ads.nativeads.template.NativeBannerView
-            android:id="@+id/nativeBannerBottom"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:background="@color/colorTransparent"
-            />
+            <RatingBar
+                android:id="@+id/rbCenter"
+                style="?android:attr/ratingBarStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:progressTint="@color/colorYellowDark"
+                tools:progress="5"
+                tools:max="5" />
 
-        <RatingBar
-            android:id="@+id/rbBottom"
-            style="?android:attr/ratingBarStyleSmall"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:progressTint="@color/colorYellowDark"
-            tools:progress="1"
-            tools:max="5"
-            />
+            <com.yandex.mobile.ads.nativeads.template.NativeBannerView
+                android:id="@+id/nativeBannerBottom"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:background="@color/colorTransparent" />
 
-    </androidx.appcompat.widget.LinearLayoutCompat>
+            <RatingBar
+                android:id="@+id/rbBottom"
+                style="?android:attr/ratingBarStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:progressTint="@color/colorYellowDark"
+                tools:progress="1"
+                tools:max="5" />
 
+            <ImageView
+                android:id="@+id/btnClose"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/selector_transp_to_white_back"
+                android:contentDescription="@string/btn_close_discribtion"
+                android:elevation="10dp"
+                android:padding="8dp"
+                android:src="@drawable/ic_close_red"
+                android:layout_gravity="center"
+                tools:ignore="ImageContrastCheck"
+                android:visibility="invisible"
+                tools:visibility="visible" />
 
+        </androidx.appcompat.widget.LinearLayoutCompat>
 
-    <ImageView
-        android:id="@+id/btnClose"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/selector_transp_to_white_back"
-        android:contentDescription="@string/btn_close_discribtion"
-        android:elevation="10dp"
-        android:padding="5dp"
-        android:src="@drawable/ic_close_red"
-        app:layout_constraintBottom_toBottomOf="@+id/pbLoadAds"
-        app:layout_constraintEnd_toEndOf="@+id/pbLoadAds"
-        app:layout_constraintStart_toStartOf="@+id/pbLoadAds"
-        app:layout_constraintTop_toTopOf="@+id/pbLoadAds"
-        tools:ignore="ImageContrastCheck"
-        android:visibility="gone"
-        tools:visibility="visible" />
+    </ScrollView>
 
     <ProgressBar
         android:id="@+id/pbLoadAds"
