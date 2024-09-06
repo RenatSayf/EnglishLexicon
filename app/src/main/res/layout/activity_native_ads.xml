@@ -69,8 +69,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:progressTint="@color/colorYellowDark"
-            android:progress="1"
-            android:max="5"
+            tools:progress="1"
+            tools:max="5"
             />
 
     </androidx.appcompat.widget.LinearLayoutCompat>
