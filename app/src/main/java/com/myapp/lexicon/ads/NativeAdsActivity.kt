@@ -45,6 +45,7 @@ class NativeAdsActivity : AppCompatActivity() {
 
     private var adData: AdData = AdData()
     private var callback: OnBackInvokedCallback? = null
+    private val ratingList: MutableList<Double> = mutableListOf()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,7 +63,7 @@ class NativeAdsActivity : AppCompatActivity() {
                 nativeAdRequestConfiguration = NativeAdRequestConfiguration.Builder(NativeAdIds.NATIVE_1.id).apply {
                     setShouldLoadImagesAutomatically(true)
                 }.build(),
-                2
+                3
             )
             nativeAdLoader?.setNativeBulkAdLoadListener(object : NativeBulkAdLoadListener {
                 override fun onAdsFailedToLoad(error: AdRequestError) {
@@ -72,17 +73,16 @@ class NativeAdsActivity : AppCompatActivity() {
 
                 override fun onAdsLoaded(nativeAds: List<NativeAd>) {
                     pbLoadAds.visibility = View.GONE
-                    nativeBannerTop.visibility = View.VISIBLE
-                    nativeBannerBottom.visibility = View.VISIBLE
-                    val nativeAd1 = nativeAds.firstOrNull()
-                    if (nativeAd1 != null) {
-                        nativeBannerTop.setAd(nativeAd1.apply {
+                    layoutAds.visibility = View.VISIBLE
+
+                    if (nativeAds.size >= 3) {
+                        nativeBannerTop.setAd(nativeAds[0].apply {
                             setNativeAdEventListener(nativeAdListener)
                         })
-                    }
-                    val nativeAd2 = nativeAds.lastOrNull()
-                    if (nativeAd2 != null) {
-                        nativeBannerBottom.setAd(nativeAd2.apply {
+                        nativeBannerCenter.setAd(nativeAds[1].apply {
+                            setNativeAdEventListener(nativeAdListener)
+                        })
+                        nativeBannerBottom.setAd(nativeAds[2].apply {
                             setNativeAdEventListener(nativeAdListener)
                         })
                     }
@@ -121,6 +121,26 @@ class NativeAdsActivity : AppCompatActivity() {
                         it.requestId = data.requestId
                         it.revenue += data.revenue
                         it.revenueUSD += data.revenueUSD
+                    }
+                    ratingList.add(data.revenue)
+                    if (ratingList.size == 3) {
+                        val maxValue = ratingList.maxOrNull()
+                        if (maxValue != null) {
+                            with(binding){
+                                rbTop.apply {
+                                    max = (maxValue * 100).toInt()
+                                    progress = (ratingList[0] * 100).toInt()
+                                }
+                                rbCenter.apply {
+                                    max = (maxValue * 100).toInt()
+                                    progress = (ratingList[1] * 100).toInt()
+                                }
+                                rbBottom.apply {
+                                    max = (maxValue * 100).toInt()
+                                    progress = (ratingList[2] * 100).toInt()
+                                }
+                            }
+                        }
                     }
                 },
                 onFailed = {}
