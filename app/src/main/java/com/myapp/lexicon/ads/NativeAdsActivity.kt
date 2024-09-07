@@ -91,7 +91,7 @@ class NativeAdsActivity : AppCompatActivity() {
                         })
                     }
                     lifecycleScope.launch {
-                        delay(2000)
+                        delay(5000)
                         scrollAds.smoothScrollTo(0, scrollAds.height)
                     }
                 }
