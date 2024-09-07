@@ -1,59 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorTransparent"
+    android:backgroundTint="@color/colorTransparent"
     tools:context=".ads.BannersActivity">
 
-    <androidx.appcompat.widget.LinearLayoutCompat
-        android:id="@+id/layoutBanners"
+    <com.yandex.mobile.ads.banner.BannerAdView
+        android:id="@+id/bannerViewTop"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        >
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/rbTop"/>
 
-        <com.yandex.mobile.ads.banner.BannerAdView
-            android:id="@+id/bannerViewTop"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"/>
+    <RatingBar
+        android:id="@+id/rbTop"
+        style="?android:attr/ratingBarStyleSmall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/bannerViewTop"
+        app:layout_constraintBottom_toTopOf="@id/bannerViewBottom"
+        android:progressTint="@color/colorYellowDark"
+        tools:progress="3"
+        tools:max="5"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:background="@color/colorWhite"
+        />
 
+    <com.yandex.mobile.ads.banner.BannerAdView
+        android:id="@+id/bannerViewBottom"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@+id/rbTop"
+        app:layout_constraintBottom_toTopOf="@+id/rbBottom"/>
 
-        <RatingBar
-            android:id="@+id/rbTop"
-            style="?android:attr/ratingBarStyleSmall"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:progressTint="@color/colorYellowDark"
-            tools:progress="3"
-            tools:max="5"
-            android:visibility="visible"
-            tools:visibility="visible"
-            android:background="@color/colorWhite"
-            />
+    <RatingBar
+        android:id="@+id/rbBottom"
+        style="?android:attr/ratingBarStyleSmall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/bannerViewBottom"
+        app:layout_constraintBottom_toTopOf="@id/layoutCloseAds"
+        android:progressTint="@color/colorYellowDark"
+        tools:progress="1"
+        tools:max="5"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:background="@color/colorWhite"
+        />
 
-        <com.yandex.mobile.ads.banner.BannerAdView
-            android:id="@+id/bannerViewBottom"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"/>
-
-
-        <RatingBar
-            android:id="@+id/rbBottom"
-            style="?android:attr/ratingBarStyleSmall"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:progressTint="@color/colorYellowDark"
-            tools:progress="1"
-            tools:max="5"
-            android:visibility="visible"
-            tools:visibility="visible"
-            android:background="@color/colorWhite"
-            />
+    <FrameLayout
+        android:id="@+id/layoutCloseAds"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/rbBottom"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="@color/colorWhite"
+        android:visibility="gone"
+        tools:visibility="visible">
 
         <ImageView
             android:id="@+id/btnClose"
@@ -65,15 +74,10 @@
             android:elevation="10dp"
             android:padding="5dp"
             android:src="@drawable/ic_close_red"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
             tools:ignore="ImageContrastCheck"
-            tools:visibility="visible" />
+            />
 
-    </androidx.appcompat.widget.LinearLayoutCompat>
+    </FrameLayout>
 
     <ProgressBar
         android:id="@+id/pbLoadAds"

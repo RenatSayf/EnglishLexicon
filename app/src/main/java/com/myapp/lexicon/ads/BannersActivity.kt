@@ -59,6 +59,8 @@ class BannersActivity : AppCompatActivity() {
                 this,
                 onLoaded = {
                     pbLoadAds.visibility = View.GONE
+                    rbTop.visibility = View.VISIBLE
+                    rbBottom.visibility = View.VISIBLE
                 },
                 onImpression = {data: AdData? ->
                     this@BannersActivity.adData = data
@@ -77,11 +79,11 @@ class BannersActivity : AppCompatActivity() {
 
                     lifecycleScope.launch {
                         delay(5000)
-                        btnClose.visibility = View.VISIBLE
+                        layoutCloseAds.visibility = View.VISIBLE
                     }
                 },
                 onFailed = {
-                    btnClose.visibility = View.VISIBLE
+                    layoutCloseAds.visibility = View.VISIBLE
                 }
             )
 
@@ -93,7 +95,7 @@ class BannersActivity : AppCompatActivity() {
                 override fun onTick(millisUntilFinished: Long) {}
 
                 override fun onFinish() {
-                    btnClose.visibility = View.VISIBLE
+                    layoutCloseAds.visibility = View.VISIBLE
                 }
             }
             timer?.start()
