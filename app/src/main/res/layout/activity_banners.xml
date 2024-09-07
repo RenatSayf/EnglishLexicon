@@ -35,7 +35,6 @@
             android:background="@color/colorWhite"
             />
 
-
         <com.yandex.mobile.ads.banner.BannerAdView
             android:id="@+id/bannerViewBottom"
             android:layout_width="match_parent"
@@ -56,25 +55,25 @@
             android:background="@color/colorWhite"
             />
 
+        <ImageView
+            android:id="@+id/btnClose"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/selector_transp_to_white_back"
+            android:contentDescription="@string/btn_close_discribtion"
+            android:elevation="10dp"
+            android:padding="5dp"
+            android:src="@drawable/ic_close_red"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ImageContrastCheck"
+            tools:visibility="visible" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>
-
-    <ImageView
-        android:id="@+id/btnClose"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/selector_transp_to_white_back"
-        android:contentDescription="@string/btn_close_discribtion"
-        android:elevation="10dp"
-        android:padding="5dp"
-        android:src="@drawable/ic_close_red"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="ImageContrastCheck"
-        tools:visibility="visible" />
 
     <ProgressBar
         android:id="@+id/pbLoadAds"
