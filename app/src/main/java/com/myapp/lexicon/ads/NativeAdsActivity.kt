@@ -1,4 +1,4 @@
-@file:Suppress("ObjectLiteralToLambda")
+@file:Suppress("ObjectLiteralToLambda", "RedundantSamConstructor")
 
 package com.myapp.lexicon.ads
 
@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.View
+import android.widget.ScrollView
 import android.window.OnBackInvokedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -90,10 +91,9 @@ class NativeAdsActivity : AppCompatActivity() {
                             setNativeAdEventListener(nativeAdListener)
                         })
                     }
-                    lifecycleScope.launch {
-                        delay(2000)
-                        scrollAds.smoothScrollTo(0, scrollAds.height)
-                    }
+                    scrollAds.postDelayed(Runnable {
+                        scrollAds.fullScroll(ScrollView.FOCUS_DOWN)
+                    }, 2000)
                 }
             })
 
