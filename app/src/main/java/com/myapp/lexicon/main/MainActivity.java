@@ -469,7 +469,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 bannerView, BannerAdIds.BANNER_2,
                 0.08,
                 (data) -> null,
-                e -> null
+                e -> null,
+                () -> null
         );
 
         onRevenueUpdate();

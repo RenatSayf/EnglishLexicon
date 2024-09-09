@@ -119,7 +119,8 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
                 bannerView, BannerAdIds.BANNER_4,
                 0.08,
                 (data) -> null,
-                e -> null
+                e -> null,
+                () -> null
         );
     }
 
