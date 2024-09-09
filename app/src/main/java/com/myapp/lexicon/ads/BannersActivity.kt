@@ -84,6 +84,9 @@ class BannersActivity : AppCompatActivity() {
                 },
                 onFailed = {
                     layoutCloseAds.visibility = View.VISIBLE
+                },
+                onAdClicked = {
+                    finish()
                 }
             )
 
@@ -107,7 +110,8 @@ class BannersActivity : AppCompatActivity() {
         binding: ActivityBannersBinding,
         onLoaded: () -> Unit,
         onImpression: (data: AdData?) -> Unit,
-        onFailed: () -> Unit
+        onFailed: () -> Unit,
+        onAdClicked: () -> Unit = {}
     ) {
         with(binding) {
 
@@ -152,6 +156,9 @@ class BannersActivity : AppCompatActivity() {
                                 onImpression.invoke(adData)
                             }
                         } else onImpression.invoke(null)
+                    },
+                    onAdClicked = {
+                        onAdClicked.invoke()
                     }
                 )
             } catch (e: IndexOutOfBoundsException) {
@@ -195,6 +202,9 @@ class BannersActivity : AppCompatActivity() {
                                 onImpression.invoke(adData)
                             }
                         } else onImpression.invoke(null)
+                    },
+                    onAdClicked = {
+                        onAdClicked.invoke()
                     }
                 )
             } catch (e: IndexOutOfBoundsException) {

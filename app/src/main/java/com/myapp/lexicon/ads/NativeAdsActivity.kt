@@ -115,7 +115,9 @@ class NativeAdsActivity : AppCompatActivity() {
 
     private val nativeAdListener = object : NativeAdEventListener {
 
-        override fun onAdClicked() {}
+        override fun onAdClicked() {
+            this@NativeAdsActivity.finish()
+        }
 
         override fun onImpression(impressionData: ImpressionData?) {
             impressionData?.rawData?.toAdData(

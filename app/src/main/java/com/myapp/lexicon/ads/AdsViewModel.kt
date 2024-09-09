@@ -339,7 +339,8 @@ fun BannerAdView.loadBanner(
     adId: BannerAdIds? = null,
     heightRate: Double = 0.08,
     onCompleted: (error: AdRequestError?) -> Unit = {},
-    onImpression: (data: AdData?) -> Unit = {}
+    onImpression: (data: AdData?) -> Unit = {},
+    onAdClicked: () -> Unit = {}
 ) {
 
     if (this.context.adsIsEnabled) {
