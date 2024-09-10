@@ -13,6 +13,7 @@ import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.common.mapToUser
+import com.myapp.lexicon.helpers.LOCALE_RU
 import com.myapp.lexicon.helpers.toStringTime
 import com.myapp.lexicon.interfaces.FlowCallback
 import com.myapp.lexicon.models.User
@@ -240,6 +241,7 @@ open class UserViewModel @Inject constructor(
                     val currencyRate = (adData.revenue / adData.revenueUSD).to2DigitsScale()
                     put(User.KEY_CURRENCY_RATE, currencyRate)
                     put(User.KEY_APP_VERSION, "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
+                    put(User.KEY_REWARD_UPDATE_AT, System.currentTimeMillis().toStringTime(LOCALE_RU))
                 }
                 currentUser.saveInBackground(object : SaveCallback {
                     override fun done(e: ParseException?) {
@@ -307,6 +309,7 @@ open class UserViewModel @Inject constructor(
                     put(User.KEY_TOTAL_REVENUE, rewardRemainder)
                     put(User.KEY_USER_REWARD, rewardRemainder)
                     increment(User.KEY_RESERVED_PAYMENT, payout)
+                    put(User.KEY_REWARD_UPDATE_AT, System.currentTimeMillis().toStringTime(LOCALE_RU))
                 }
                 userMap.forEach { entry ->
                     currentUser.put(entry.key, entry.value?: "")
