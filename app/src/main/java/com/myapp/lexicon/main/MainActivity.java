@@ -34,6 +34,7 @@ import com.myapp.lexicon.auth.AuthFragment;
 import com.myapp.lexicon.auth.AuthViewModel;
 import com.myapp.lexicon.auth.account.AccountFragment;
 import com.myapp.lexicon.auth.account.AccountViewModel;
+import com.myapp.lexicon.common.CommonConstantsKt;
 import com.myapp.lexicon.database.AppDataBase;
 import com.myapp.lexicon.databinding.AContentMainBinding;
 import com.myapp.lexicon.databinding.ANavigMainBinding;
@@ -194,7 +195,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 revenueVM.setState(new UserViewModel.State.ReceivedUserData(user));
                 navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_account);
                 buildRewardText(new Revenue(user.getUserReward(), user.getReservedPayment(), user.getCurrency(), user.getCurrencySymbol()));
-                SettingsExtKt.setAdsIsEnabled(this, user.isAdsEnabled());
+                boolean isAdsEnabled = CommonConstantsKt.getIS_ADS_ENABLED() || user.isAdsEnabled();
+                SettingsExtKt.setAdsIsEnabled(this, isAdsEnabled);
                 if (!user.isAdsEnabled() && !user.getMessage().isEmpty()) {
                     ExtensionsKt.showSnackBar(navView, user.getMessage(), Snackbar.LENGTH_LONG);
                 }

@@ -50,3 +50,13 @@ val AD_TYPE: AdType
         }
     }
 
+val IS_ADS_ENABLED: Boolean
+    get() {
+        return try {
+            Firebase.remoteConfig.getBoolean("is_ads_enabled")
+        } catch (e: Exception) {
+            e.printStackTraceIfDebug()
+            true
+        }
+    }
+
