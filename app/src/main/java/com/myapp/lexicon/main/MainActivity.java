@@ -35,6 +35,7 @@ import com.myapp.lexicon.auth.AuthViewModel;
 import com.myapp.lexicon.auth.account.AccountFragment;
 import com.myapp.lexicon.auth.account.AccountViewModel;
 import com.myapp.lexicon.common.CommonConstantsKt;
+import com.myapp.lexicon.common.TimeExtKt;
 import com.myapp.lexicon.database.AppDataBase;
 import com.myapp.lexicon.databinding.AContentMainBinding;
 import com.myapp.lexicon.databinding.ANavigMainBinding;
@@ -495,9 +496,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         if (toolBar != null)
         {
+            String currentMonth = TimeExtKt.getMonthNameFromMillis(ExtensionsKt.getTimeInMillisMoscowTimeZone());
             double rewardToDisplay = (revenue != null) ? UserKt.to2DigitsScale(revenue.getReward()) : 0.0;
             String text = getString(R.string.coins_bag).concat(" ")
-                    .concat(getString(R.string.text_your_reward)).concat(" ")
+                    .concat(currentMonth).concat(" ")
                     .concat(String.valueOf(rewardToDisplay)).concat(" ")
                     .concat((revenue != null) ? revenue.getCurrencySymbol() : Currency.getInstance("RUB").getSymbol());
             TextView tvSubTitle = toolbarBinding.tvSubtitle;

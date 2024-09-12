@@ -24,6 +24,8 @@ import com.myapp.lexicon.auth.AuthFragment
 import com.myapp.lexicon.auth.AuthViewModel
 import com.myapp.lexicon.auth.agreement.UserAgreementDialog
 import com.myapp.lexicon.common.PAYMENTS_CONDITIONS
+import com.myapp.lexicon.common.getMonthNameFromMillis
+import com.myapp.lexicon.common.getPreviousMonthNameFromMillis
 import com.myapp.lexicon.databinding.FragmentAccountBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.LuhnAlgorithm
@@ -34,6 +36,7 @@ import com.myapp.lexicon.helpers.orientationUnLock
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.helpers.showToastIfDebug
+import com.myapp.lexicon.helpers.timeInMillisMoscowTimeZone
 import com.myapp.lexicon.helpers.toStringTime
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.User
@@ -443,42 +446,6 @@ class AccountFragment : Fragment() {
                             requireActivity().orientationUnLock()
                         }
                     )
-
-//                    userVM.updatePayoutDataIntoCloud(
-//                        threshold = (accountVM.paymentThreshold * user.currencyRate).toInt(),
-//                        reward = 0.0,
-//                        userMap = mapOf(
-//                            User.KEY_BANK_CARD to tvCardNumber.text.toString(),
-//                            User.KEY_BANK_NAME to tvBankNameValue.text.toString(),
-//                            User.KEY_PHONE to tvPhoneValue.text.toString(),
-//                            User.KEY_FIRST_NAME to tvFirstNameValue.text.toString(),
-//                            User.KEY_LAST_NAME to tvLastNameValue.text.toString()
-//                        ),
-//                        onStart = {
-//                            userVM.setLoadingState(UserViewModel.LoadingState.Start)
-//                            requireActivity().orientationLock()
-//                        },
-//                        onSuccess = {payout: Int, remainder: Double ->
-//                            userVM.setState(UserViewModel.State.PaymentRequestSent(user, payout, remainder))
-//                        },
-//                        onNotEnough = {
-//                            showSnackBar(getString(R.string.text_not_money))
-//                        },
-//                        onInvalidToken = {oldToken ->
-//                            showSnackBar(getString(R.string.text_session_has_expired))
-//                            val authFragment = AuthFragment.newInstance()
-//                            parentFragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, authFragment).commit()
-//                        },
-//                        onComplete = {exception ->
-//                            userVM.setLoadingState(UserViewModel.LoadingState.Complete)
-//                            accountVM.setState(AccountViewModel.State.ReadOnly)
-//                            if (exception != null) {
-//                                if (BuildConfig.DEBUG) exception.printStackTrace()
-//                                showSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
-//                            }
-//                            requireActivity().orientationUnLock()
-//                        }
-//                    )
                 }
             }
 
@@ -521,12 +488,14 @@ class AccountFragment : Fragment() {
 
         with(binding) {
 
-            val rewardToDisplay = "${(user.userReward).to2DigitsScale()} ${user.currencySymbol}"
+            val currentMonth = timeInMillisMoscowTimeZone.getMonthNameFromMillis()
+            val rewardToDisplay = "$currentMonth: ${(user.userReward).to2DigitsScale()} ${user.currencySymbol}"
             tvRewardValue.text = rewardToDisplay
 
             if (user.reservedPayment > 0) {
                 groupToPayout.visibility = View.VISIBLE
-                val payoutToDisplay = "${user.reservedPayment} ${user.currencySymbol}"
+                val previousMonth = timeInMillisMoscowTimeZone.getPreviousMonthNameFromMillis()
+                val payoutToDisplay = "$previousMonth: ${user.reservedPayment} ${user.currencySymbol}"
                 tvReservedValue.text = payoutToDisplay
             }
             else {

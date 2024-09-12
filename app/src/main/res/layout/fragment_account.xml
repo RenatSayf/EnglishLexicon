@@ -147,7 +147,7 @@
                 app:layout_constraintStart_toEndOf="@+id/tvReservedTitle"
                 app:layout_constraintTop_toTopOf="@+id/tvReservedTitle"
                 tools:ignore="TextContrastCheck"
-                tools:text="0 Р"
+                tools:text="Август: 0 Р"
                 tools:visibility="visible" />
 
             <View
