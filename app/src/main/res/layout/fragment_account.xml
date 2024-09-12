@@ -72,14 +72,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center"
+                android:gravity="top|center"
                 app:layout_constraintTop_toBottomOf="@+id/imgReward">
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tvRewardTitle"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:gravity="end"
                     android:text="@string/text_your_reward"
                     android:textColor="@color/colorYellowDark"
                     android:textStyle="bold"
@@ -88,12 +89,13 @@
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tvRewardValue"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:paddingStart="12dp"
+                    android:layout_weight="1.5"
+                    android:paddingStart="8dp"
                     android:paddingEnd="0dp"
-                    android:gravity="center"
-                    tools:text="0.0 Р"
+                    android:gravity="start"
+                    tools:text="Сентябрь: 11000.0 Р"
                     android:textColor="@color/colorYellowDark"
                     android:textStyle="bold"
                     android:textSize="20sp"
@@ -117,7 +119,7 @@
                 android:gravity="start"
                 android:padding="4dp"
                 android:paddingStart="12dp"
-                android:paddingEnd="12dp"
+                android:paddingEnd="0dp"
                 android:text="@string/text_to_payment"
                 android:textColor="@color/colorYellowDark"
                 android:textSize="14sp"
@@ -136,7 +138,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="start"
                 android:padding="4dp"
-                android:paddingStart="12dp"
+                android:paddingStart="8dp"
                 android:paddingEnd="12dp"
                 android:textColor="@color/colorYellowDark"
                 android:textSize="14sp"
@@ -379,32 +381,31 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="start"
-                    android:paddingTop="0dp"
-                    android:paddingBottom="4dp"
                     android:paddingStart="12dp"
+                    android:paddingTop="0dp"
                     android:paddingEnd="12dp"
+                    android:paddingBottom="4dp"
                     android:text="@string/title_first_name"
                     android:textColor="@color/colorYellowDark"
                     android:textSize="14sp"
-                    />
+                    tools:ignore="TextContrastCheck" />
 
                 <androidx.appcompat.widget.AppCompatEditText
                     android:id="@+id/tvFirstNameValue"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/bg_horizontal_oval"
+                    android:gravity="start"
+                    android:hint="@string/text_when_awarding"
+                    android:inputType="none"
                     android:padding="8dp"
                     android:paddingStart="12dp"
                     android:paddingEnd="12dp"
-                    android:background="@drawable/bg_horizontal_oval"
-                    android:gravity="start"
-                    android:inputType="none"
                     android:textColor="@color/color_3B5E91"
+                    android:textColorHint="@color/color_CCC3C3"
                     android:textCursorDrawable="@null"
                     android:textSize="18sp"
-                    android:hint="@string/text_when_awarding"
-                    android:textColorHint="@color/color_CCC3C3"
-                    tools:ignore="TouchTargetSizeCheck,VisualLintTextFieldSize"
-                    />
+                    tools:ignore="TouchTargetSizeCheck,VisualLintTextFieldSize,TextContrastCheck" />
 
             </androidx.appcompat.widget.LinearLayoutCompat>
 
