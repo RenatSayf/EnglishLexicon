@@ -76,26 +76,13 @@
                 app:layout_constraintTop_toBottomOf="@+id/imgReward">
 
                 <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/tvRewardTitle"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="end"
-                    android:text="@string/text_your_reward"
-                    android:textColor="@color/colorYellowDark"
-                    android:textStyle="bold"
-                    android:textSize="20sp"
-                    />
-
-                <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tvRewardValue"
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1.5"
                     android:paddingStart="8dp"
                     android:paddingEnd="0dp"
-                    android:gravity="start"
-                    tools:text="Сентябрь: 11000.0 Р"
+                    android:gravity="center"
+                    tools:text="Награда за Сентябрь: 11000.0 Р"
                     android:textColor="@color/colorYellowDark"
                     android:textStyle="bold"
                     android:textSize="20sp"
@@ -108,29 +95,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toBottomOf="@+id/layoutReward"
-                app:constraint_referenced_ids="tvReservedTitle, tvReservedValue"
+                app:constraint_referenced_ids="tvReservedValue"
                 android:visibility="gone"
                 tools:visibility="visible"/>
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tvReservedTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="start"
-                android:padding="4dp"
-                android:paddingStart="12dp"
-                android:paddingEnd="0dp"
-                android:text="@string/text_to_payment"
-                android:textColor="@color/colorYellowDark"
-                android:textSize="14sp"
-                android:visibility="gone"
-                app:layout_constraintBottom_toTopOf="@+id/vDivider"
-                app:layout_constraintEnd_toStartOf="@id/tvReservedValue"
-                app:layout_constraintHorizontal_chainStyle="packed"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/layoutReward"
-                tools:ignore="TextContrastCheck"
-                tools:visibility="visible" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvReservedValue"
@@ -138,18 +105,18 @@
                 android:layout_height="wrap_content"
                 android:gravity="start"
                 android:padding="4dp"
-                android:paddingStart="8dp"
+                android:paddingStart="12dp"
                 android:paddingEnd="12dp"
                 android:textColor="@color/colorYellowDark"
                 android:textSize="14sp"
                 android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="@+id/tvReservedTitle"
+                app:layout_constraintBottom_toTopOf="@+id/vDivider"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_chainStyle="packed"
-                app:layout_constraintStart_toEndOf="@+id/tvReservedTitle"
-                app:layout_constraintTop_toTopOf="@+id/tvReservedTitle"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/layoutReward"
                 tools:ignore="TextContrastCheck"
-                tools:text="Август: 0 Р"
+                tools:text="К выплате за Август: 0 Р"
                 tools:visibility="visible" />
 
             <View
@@ -263,7 +230,7 @@
                     android:textSize="18sp"
                     app:fet_formatStyle="+0 (000)000-00-00"
                     app:fet_mode="mode_mask"
-                    tools:ignore="TouchTargetSizeCheck,DuplicateSpeakableTextCheck,VisualLintTextFieldSize" />
+                    tools:ignore="TouchTargetSizeCheck,DuplicateSpeakableTextCheck,VisualLintTextFieldSize,TextContrastCheck" />
 
             </androidx.appcompat.widget.LinearLayoutCompat>
 
