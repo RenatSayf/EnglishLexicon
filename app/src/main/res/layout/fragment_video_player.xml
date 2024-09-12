@@ -292,7 +292,7 @@
             android:textColor="@color/colorYellowDark"
             android:textStyle="bold"
             tools:ignore="TextContrastCheck"
-            tools:text="@string/text_your_reward" />
+            tools:text="@string/text_reward_for" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/btnSearch"

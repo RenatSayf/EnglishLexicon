@@ -489,7 +489,7 @@ class AccountFragment : Fragment() {
         with(binding) {
 
             val currentMonth = timeInMillisMoscowTimeZone.getMonthNameFromMillis()
-            val rewardToDisplay = "${getString(R.string.text_your_reward)} $currentMonth: ${(user.userReward).to2DigitsScale()} ${user.currencySymbol}"
+            val rewardToDisplay = "${getString(R.string.text_reward_for)} $currentMonth: ${(user.userReward).to2DigitsScale()} ${user.currencySymbol}"
             tvRewardValue.text = rewardToDisplay
 
             if (user.reservedPayment > 0) {
