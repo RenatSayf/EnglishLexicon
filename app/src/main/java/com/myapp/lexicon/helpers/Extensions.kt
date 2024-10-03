@@ -290,7 +290,10 @@ fun String.isYesterday(currentTime: Long = timeInMillisMoscowTimeZone): Boolean 
 
 fun String.dayOfMonthFromStrTime(): Int {
     val monthDay = try {
-        MonthDay.parse(this, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+        val dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").apply {
+            withZone(ZoneId.of(APP_TIME_ZONE))
+        }
+        MonthDay.parse(this, dateTimeFormatter)
     } catch (e: DateTimeParseException) {
         e.printStackTraceIfDebug()
         return -1
