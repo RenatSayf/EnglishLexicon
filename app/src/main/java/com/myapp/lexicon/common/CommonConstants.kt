@@ -60,3 +60,12 @@ val IS_ADS_ENABLED: Boolean
         }
     }
 
+val APP_TIME_ZONE: String
+    get() {
+        return try {
+            Firebase.remoteConfig.getString("APP_TIME_ZONE")
+        } catch (e: Exception) {
+            "Europe/Moscow"
+        }
+    }
+

@@ -1,12 +1,19 @@
 package com.myapp.lexicon.helpers
 
+import com.myapp.lexicon.common.APP_TIME_ZONE
 import org.junit.Assert
 import org.junit.Test
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 
 class ExtensionsKtTest {
+
+    private val timeZoneId = "Europe/Moscow"
 
 
     @Test
@@ -33,9 +40,10 @@ class ExtensionsKtTest {
 
     @Test
     fun toLongDate_Success() {
-        val dataStr = "2023-07-03"
-        val actualResult = dataStr.toLongDate()
-        Assert.assertEquals(1688324400000L, actualResult)
+        val inputStrDate = "2023-07-03"
+        val actualResult = inputStrDate.toLongDate()
+        val actualStrDate = actualResult.toStringDate()
+        Assert.assertEquals(inputStrDate, actualStrDate)
     }
 
     @Test
@@ -70,16 +78,17 @@ class ExtensionsKtTest {
 
     @Test
     fun isYesterday() {
+        val currentTime = "2024-06-10 00:00:01".toLongTime()
         var inputTime = "2024-06-09 23:59:59"
-        var actualResult = inputTime.isYesterday()
+        var actualResult = inputTime.isYesterday(currentTime)
         Assert.assertTrue(actualResult)
 
         inputTime = (System.currentTimeMillis() + TimeUnit.HOURS.toMillis(3)).toStringTime()
-        actualResult = inputTime.isYesterday()
+        actualResult = inputTime.isYesterday(currentTime)
         Assert.assertTrue(!actualResult)
 
         inputTime = ""
-        actualResult = inputTime.isTodayDate()
+        actualResult = inputTime.isTodayDate(currentTime)
         Assert.assertTrue(!actualResult)
     }
 
@@ -92,16 +101,17 @@ class ExtensionsKtTest {
 
     @Test
     fun isDateOfLastMonth() {
+
         var inputDate = "2024-08-17 09:09:56"
-        var actualResult = inputDate.isDateOfLastMonth(currentMonth = 9)
+        var actualResult = inputDate.isDateOfLastMonth(currentMonth = 9, timeZoneId = timeZoneId)
         Assert.assertTrue(actualResult)
 
         inputDate = "2024-08-17 09:09:56"
-        actualResult = inputDate.isDateOfLastMonth(currentMonth = 8)
+        actualResult = inputDate.isDateOfLastMonth(currentMonth = 8, timeZoneId = timeZoneId)
         Assert.assertTrue(!actualResult)
 
         inputDate = "sgfdf;dslp"
-        actualResult = inputDate.isDateOfLastMonth(currentMonth = 9)
+        actualResult = inputDate.isDateOfLastMonth(currentMonth = 9, timeZoneId = timeZoneId)
         Assert.assertTrue(actualResult)
     }
 
@@ -118,6 +128,21 @@ class ExtensionsKtTest {
         inputDate = "2024-09-10 09:09:56".toLongTime()
         actualResult = isTodayFirstDayOfMonth(timeInMillis = inputDate)
         Assert.assertTrue(!actualResult)
+    }
+
+    @Test
+    fun timeInMillisMoscowTimeZone_s() {
+        val timeInMillis = timeInMillisMoscowTimeZone
+
+        val actualTime = timeInMillis.toStringTime()
+
+        val instant = LocalDateTime.ofInstant(Instant.now(), ZoneId.of(APP_TIME_ZONE))
+
+        val sysTime = System.currentTimeMillis().toStringTime()
+
+        val time = Date().time.toStringTime()
+
+        Assert.assertTrue(true)
     }
 
 

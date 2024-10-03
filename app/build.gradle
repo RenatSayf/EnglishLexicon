@@ -91,9 +91,9 @@ dependencies {
     implementation 'androidx.preference:preference-ktx:1.2.1'
 
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.8.5'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.8.5'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.5'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.8.6'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.8.6'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.6'
     implementation 'com.google.android.gms:play-services-auth-base:18.0.13'
     implementation 'androidx.activity:activity-ktx:1.9.2'
 
@@ -118,7 +118,7 @@ dependencies {
     implementation "androidx.viewpager2:viewpager2:1.1.0"
 
     //firebase
-    implementation platform('com.google.firebase:firebase-bom:33.2.0')
+    implementation platform('com.google.firebase:firebase-bom:33.4.0')
     implementation 'com.google.firebase:firebase-storage-ktx'
     implementation 'com.google.firebase:firebase-config-ktx'
     implementation 'com.google.firebase:firebase-messaging-ktx'
@@ -146,7 +146,7 @@ dependencies {
 
     //region Hint Activity Result API. Runtime permission Step 1
     implementation 'androidx.activity:activity-ktx:1.9.2'
-    implementation 'androidx.fragment:fragment-ktx:1.8.3'
+    implementation 'androidx.fragment:fragment-ktx:1.8.4'
     //endregion
 
     //WorkManager library
@@ -160,10 +160,10 @@ dependencies {
 
     // Yandex Mobile Ads SDK
     //noinspection MobileAdsSdkOutdatedVersion
-    implementation 'com.yandex.android:mobileads:7.1.0'
+    implementation 'com.yandex.android:mobileads:7.5.0'
 
     // Yandex AppMetrica SDK.
-    implementation 'io.appmetrica.analytics:analytics:6.5.0'
+    implementation 'io.appmetrica.analytics:analytics:7.2.0'
 
     //FormatEditText
     implementation 'com.github.dkzwm:fet-core:0.2.1'

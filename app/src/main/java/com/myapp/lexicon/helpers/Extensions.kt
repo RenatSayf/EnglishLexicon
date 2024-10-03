@@ -10,8 +10,6 @@ import android.content.IntentFilter
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.content.res.Resources
-import android.icu.util.Calendar
-import android.icu.util.TimeZone
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
@@ -38,6 +36,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
+import com.myapp.lexicon.common.APP_TIME_ZONE
 import com.myapp.lexicon.databinding.SnackBarTestBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.main.viewmodels.UserViewModel
@@ -62,6 +61,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 import java.util.zip.CRC32
 import kotlin.math.roundToInt
@@ -226,28 +226,30 @@ val String.isItEmail: Boolean
         return !TextUtils.isEmpty(this) && Patterns.EMAIL_ADDRESS.matcher(this).matches()
     }
 
-fun getCalendarMoscowTimeZone(): Calendar {
-    return Calendar.getInstance(TimeZone.getTimeZone("Europe/Moscow"))
-}
-
 val LOCALE_RU: Locale
     get() {
         return Locale("ru", "RU")
     }
 
 fun Long.toStringDate(locale: Locale = LOCALE_RU): String {
-    val formatter = SimpleDateFormat("yyyy-MM-dd", locale)
+    val formatter = SimpleDateFormat("yyyy-MM-dd", locale).apply {
+        timeZone = TimeZone.getTimeZone(APP_TIME_ZONE)
+    }
     val strDate = formatter.format(this)
     return strDate
 }
 
 fun Long.toStringDateDDMonthYYYY(locale: Locale = LOCALE_RU): String {
-    val formatter = SimpleDateFormat("dd MMMM yyyy", locale)
+    val formatter = SimpleDateFormat("dd MMMM yyyy", locale).apply {
+        timeZone = TimeZone.getTimeZone(APP_TIME_ZONE)
+    }
     return formatter.format(this)
 }
 
 fun String.toLongDate(locale: Locale = LOCALE_RU): Long {
-    val formatter = SimpleDateFormat("yyyy-MM-dd", locale)
+    val formatter = SimpleDateFormat("yyyy-MM-dd", locale).apply {
+        timeZone = TimeZone.getTimeZone(APP_TIME_ZONE)
+    }
     val date = try {
         formatter.parse(this)
     } catch (e: ParseException) {
@@ -257,13 +259,17 @@ fun String.toLongDate(locale: Locale = LOCALE_RU): Long {
 }
 
 fun Long.toStringTime(locale: Locale = LOCALE_RU): String {
-    val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", locale)
+    val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", locale).apply {
+        timeZone = TimeZone.getTimeZone(APP_TIME_ZONE)
+    }
     val strDate = formatter.format(this)
     return strDate
 }
 
 fun String.toLongTime(locale: Locale = LOCALE_RU): Long {
-    val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", locale)
+    val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", locale).apply {
+        timeZone = TimeZone.getTimeZone(APP_TIME_ZONE)
+    }
     val date = try {
         formatter.parse(this)
     } catch (e: ParseException) {
@@ -272,14 +278,14 @@ fun String.toLongTime(locale: Locale = LOCALE_RU): Long {
     return date.time
 }
 
-fun String.isTodayDate(): Boolean {
+fun String.isTodayDate(currentTime: Long = timeInMillisMoscowTimeZone): Boolean {
     val inputTime = this.toLongDate()
-    return inputTime == timeInMillisMoscowTimeZone.toStringDate().toLongDate()
+    return inputTime == currentTime.toStringDate().toLongDate()
 }
 
-fun String.isYesterday(): Boolean {
+fun String.isYesterday(currentTime: Long = timeInMillisMoscowTimeZone): Boolean {
     val inputTime = this.toLongDate()
-    return inputTime == (timeInMillisMoscowTimeZone - TimeUnit.HOURS.toMillis(24)).toStringDate().toLongDate()
+    return inputTime == (currentTime - TimeUnit.HOURS.toMillis(24)).toStringDate().toLongDate()
 }
 
 fun String.dayOfMonthFromStrTime(): Int {
@@ -299,16 +305,27 @@ fun Long.dayOfMonthFromLongTime(): Int {
 
 val timeInMillisMoscowTimeZone: Long
     get() {
-        return System.currentTimeMillis() + TimeUnit.HOURS.toMillis(3)
+        val localDateTime = LocalDateTime.ofInstant(
+            Instant.ofEpochMilli(System.currentTimeMillis()),
+            ZoneId.of(APP_TIME_ZONE)
+        )
+        val zonedDateTime = localDateTime.atZone(ZoneId.of(APP_TIME_ZONE))
+        return zonedDateTime.toInstant().toEpochMilli()
     }
 
 fun isTodayFirstDayOfMonth(timeInMillis: Long = timeInMillisMoscowTimeZone): Boolean {
     return timeInMillis.dayOfMonthFromLongTime() == 1
 }
 
-fun String.isDateOfLastMonth(currentMonth: Int = timeInMillisMoscowTimeZone.getMonthFromLongTime()): Boolean {
+fun String.isDateOfLastMonth(
+    currentMonth: Int = timeInMillisMoscowTimeZone.getMonthFromLongTime(),
+    timeZoneId: String = APP_TIME_ZONE
+): Boolean {
     val yearMonth = try {
-        YearMonth.parse(this, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+        val timeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").apply {
+            withZone(ZoneId.of(timeZoneId))
+        }
+        YearMonth.parse(this, timeFormatter)
     } catch (e: DateTimeParseException) {
         e.printStackTraceIfDebug()
         return true
@@ -318,7 +335,7 @@ fun String.isDateOfLastMonth(currentMonth: Int = timeInMillisMoscowTimeZone.getM
 }
 
 fun Long.getMonthFromLongTime(): Int {
-    val dateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(this), ZoneId.systemDefault())
+    val dateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(this), ZoneId.of(APP_TIME_ZONE))
     return dateTime.monthValue
 }
 
