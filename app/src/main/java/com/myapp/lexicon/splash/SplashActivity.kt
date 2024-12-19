@@ -11,7 +11,9 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.lifecycle.lifecycleScope
 import com.myapp.lexicon.R
 import com.myapp.lexicon.auth.AuthViewModel
+import com.myapp.lexicon.common.IS_REWARD_ACCESSIBLE
 import com.myapp.lexicon.common.KEY_APP_STORE_LINK
+import com.myapp.lexicon.common.MESSAGE_TO_USER
 import com.myapp.lexicon.databinding.ALayoutSplashScreenBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
@@ -45,6 +47,8 @@ class SplashActivity : AppCompatActivity() {
 
         try {
             initRemoteConfig() // initialization remote config
+            IS_REWARD_ACCESSIBLE
+            MESSAGE_TO_USER
         } catch (e: Exception) {
             e.printStackTraceIfDebug()
         }

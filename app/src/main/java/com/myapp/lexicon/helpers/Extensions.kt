@@ -107,6 +107,9 @@ fun Fragment.alarmClockEnable() {
 
 fun View.showSnackBar(message: String, duration: Int = Snackbar.LENGTH_LONG): Snackbar {
     return Snackbar.make(this, message, duration).apply {
+        if (duration == Snackbar.LENGTH_INDEFINITE) {
+            setAction(R.string.text_close) { dismiss() }
+        }
         show()
     }
 }

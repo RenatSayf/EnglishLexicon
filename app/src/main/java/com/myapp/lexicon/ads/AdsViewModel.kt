@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.common.AdsSource
+import com.myapp.lexicon.common.IS_REWARD_ACCESSIBLE
 import com.myapp.lexicon.helpers.logIfDebug
 import com.myapp.lexicon.helpers.printLogIfDebug
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
@@ -57,10 +58,6 @@ class AdsViewModel @Inject constructor(
         _interstitialAdState.value = state
     }
 
-    private val isAdsEnabled: Boolean by lazy {
-        app.adsIsEnabled
-    }
-
     private var _interstitialAd = MutableLiveData<Result<InterstitialAd>>()
     val interstitialAd: LiveData<Result<InterstitialAd>> = _interstitialAd
 
@@ -83,54 +80,47 @@ class AdsViewModel @Inject constructor(
 
     fun loadInterstitialAd(adId: InterstitialAdIds? = null) {
 
-        if (isAdsEnabled) {
-            val id = if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
-                "demo-interstitial-yandex"
-            } else {
-                adId?.id ?: InterstitialAdIds.entries.toTypedArray().random().id
-            }
-            val adRequestConfiguration = AdRequestConfiguration.Builder(id).build()
-            InterstitialAdLoader(app).apply {
-                setAdLoadListener(object : InterstitialAdLoadListener {
-                    override fun onAdLoaded(interstitialAd: InterstitialAd) {
-                        _interstitialAd.value = Result.success(interstitialAd)
-                    }
-
-                    override fun onAdFailedToLoad(error: AdRequestError) {
-                        printLogIfDebug("${this::class.simpleName} - ${error.description}")
-                        _interstitialAd.value = Result.failure(Throwable(error.description))
-                    }
-                })
-                loadAd(adRequestConfiguration)
-            }
+        val id = if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
+            "demo-interstitial-yandex"
+        } else {
+            adId?.id ?: InterstitialAdIds.entries.toTypedArray().random().id
         }
-        else {
-            _interstitialAd.value = Result.failure(Throwable("Advertising is suspended"))
+        val adRequestConfiguration = AdRequestConfiguration.Builder(id).build()
+        InterstitialAdLoader(app).apply {
+            setAdLoadListener(object : InterstitialAdLoadListener {
+                override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                    _interstitialAd.value = Result.success(interstitialAd)
+                }
+
+                override fun onAdFailedToLoad(error: AdRequestError) {
+                    printLogIfDebug("${this::class.simpleName} - ${error.description}")
+                    _interstitialAd.value = Result.failure(Throwable(error.description))
+                }
+            })
+            loadAd(adRequestConfiguration)
         }
     }
 
     fun loadRewardedAd(adId: RewardedAdIds? = null) {
 
-        if (isAdsEnabled) {
-            val id = if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
-                "demo-rewarded-yandex"
-            } else {
-                adId?.id ?: RewardedAdIds.entries.toTypedArray().random().id
-            }
-            val adRequestConfiguration = AdRequestConfiguration.Builder(id).build()
-            RewardedAdLoader(app).apply {
-                setAdLoadListener(object : RewardedAdLoadListener {
-                    override fun onAdLoaded(rewarded: RewardedAd) {
-                        _rewardedAd.value = Result.success(rewarded)
-                    }
+        val id = if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
+            "demo-rewarded-yandex"
+        } else {
+            adId?.id ?: RewardedAdIds.entries.toTypedArray().random().id
+        }
+        val adRequestConfiguration = AdRequestConfiguration.Builder(id).build()
+        RewardedAdLoader(app).apply {
+            setAdLoadListener(object : RewardedAdLoadListener {
+                override fun onAdLoaded(rewarded: RewardedAd) {
+                    _rewardedAd.value = Result.success(rewarded)
+                }
 
-                    override fun onAdFailedToLoad(error: AdRequestError) {
-                        printLogIfDebug("${this::class.simpleName} - ${error.description}")
-                        _rewardedAd.value = Result.failure(Throwable(error.description))
-                    }
-                })
-                loadAd(adRequestConfiguration)
-            }
+                override fun onAdFailedToLoad(error: AdRequestError) {
+                    printLogIfDebug("${this::class.simpleName} - ${error.description}")
+                    _rewardedAd.value = Result.failure(Throwable(error.description))
+                }
+            })
+            loadAd(adRequestConfiguration)
         }
     }
 
@@ -170,25 +160,11 @@ fun InterstitialAd.showAd(
             override fun onAdClicked() {}
 
             override fun onAdImpression(impressionData: ImpressionData?) {
-                impressionData?.let {
-                    val rawData = it.rawData
-                    rawData.toAdData(
-                        onSuccess = {data ->
-                            if (isUserRegistered) {
-                                bonus = (data.revenue * UserViewModel.USER_PERCENTAGE).to2DigitsScale()
-                                onImpression.invoke(data)
-                            } else {
-                                onImpression.invoke(null)
-                            }
-                        },
-                        onFailed = {
-                            onImpression.invoke(null)
-                        }
-                    )
-                }?: run {
-                    if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name || BuildConfig.ADS_SOURCE == AdsSource.LOCAL_HOST.name) {
-                        TEST_INTERSTITIAL_DATA.toAdData(
-                            onSuccess = { data ->
+                if (IS_REWARD_ACCESSIBLE) {
+                    impressionData?.let {
+                        val rawData = it.rawData
+                        rawData.toAdData(
+                            onSuccess = {data ->
                                 if (isUserRegistered) {
                                     bonus = (data.revenue * UserViewModel.USER_PERCENTAGE).to2DigitsScale()
                                     onImpression.invoke(data)
@@ -200,9 +176,25 @@ fun InterstitialAd.showAd(
                                 onImpression.invoke(null)
                             }
                         )
-                    }
-                    else {
-                        onImpression.invoke(null)
+                    }?: run {
+                        if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name || BuildConfig.ADS_SOURCE == AdsSource.LOCAL_HOST.name) {
+                            TEST_INTERSTITIAL_DATA.toAdData(
+                                onSuccess = { data ->
+                                    if (isUserRegistered) {
+                                        bonus = (data.revenue * UserViewModel.USER_PERCENTAGE).to2DigitsScale()
+                                        onImpression.invoke(data)
+                                    } else {
+                                        onImpression.invoke(null)
+                                    }
+                                },
+                                onFailed = {
+                                    onImpression.invoke(null)
+                                }
+                            )
+                        }
+                        else {
+                            onImpression.invoke(null)
+                        }
                     }
                 }
             }

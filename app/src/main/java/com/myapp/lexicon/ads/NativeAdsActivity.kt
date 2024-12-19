@@ -13,6 +13,7 @@ import android.window.OnBackInvokedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.myapp.lexicon.ads.models.AdData
+import com.myapp.lexicon.common.IS_REWARD_ACCESSIBLE
 import com.myapp.lexicon.databinding.ActivityNativeAdsBinding
 import com.myapp.lexicon.helpers.logIfDebug
 import com.myapp.lexicon.helpers.orientationLock
@@ -120,48 +121,50 @@ class NativeAdsActivity : AppCompatActivity() {
         }
 
         override fun onImpression(impressionData: ImpressionData?) {
-            impressionData?.rawData?.toAdData(
-                onSuccess = { data: AdData ->
-                    adData.let {
-                        it.adType = data.adType
-                        it.adUnitId = data.adUnitId
-                        it.blockId = data.blockId
-                        it.currency = data.currency
-                        it.network = data.network
-                        it.precision = data.precision
-                        it.requestId = data.requestId
-                        it.revenue += data.revenue
-                        it.revenueUSD += data.revenueUSD
-                    }
-                    ratingList.add(data.revenue)
-                    if (ratingList.size >= 3) {
-                        val maxValue = ratingList.maxOrNull()
-                        if (maxValue != null) {
-                            with(binding){
-                                rbTop.apply {
-                                    max = (maxValue * 100).toInt()
-                                    progress = (ratingList[0] * 100).toInt()
-                                }
-                                rbCenter.apply {
-                                    max = (maxValue * 100).toInt()
-                                    progress = (ratingList[1] * 100).toInt()
-                                }
-                                rbBottom.apply {
-                                    max = (maxValue * 100).toInt()
-                                    progress = (ratingList[2] * 100).toInt()
+            if (IS_REWARD_ACCESSIBLE) {
+                impressionData?.rawData?.toAdData(
+                    onSuccess = { data: AdData ->
+                        adData.let {
+                            it.adType = data.adType
+                            it.adUnitId = data.adUnitId
+                            it.blockId = data.blockId
+                            it.currency = data.currency
+                            it.network = data.network
+                            it.precision = data.precision
+                            it.requestId = data.requestId
+                            it.revenue += data.revenue
+                            it.revenueUSD += data.revenueUSD
+                        }
+                        ratingList.add(data.revenue)
+                        if (ratingList.size >= 3) {
+                            val maxValue = ratingList.maxOrNull()
+                            if (maxValue != null) {
+                                with(binding){
+                                    rbTop.apply {
+                                        max = (maxValue * 100).toInt()
+                                        progress = (ratingList[0] * 100).toInt()
+                                    }
+                                    rbCenter.apply {
+                                        max = (maxValue * 100).toInt()
+                                        progress = (ratingList[1] * 100).toInt()
+                                    }
+                                    rbBottom.apply {
+                                        max = (maxValue * 100).toInt()
+                                        progress = (ratingList[2] * 100).toInt()
+                                    }
                                 }
                             }
+                            lifecycleScope.launch {
+                                delay(5000)
+                                binding.btnClose.visibility = View.VISIBLE
+                            }
                         }
-                        lifecycleScope.launch {
-                            delay(5000)
-                            binding.btnClose.visibility = View.VISIBLE
-                        }
+                    },
+                    onFailed = {
+                        Exception("********* ImpressionData.rawData.toAdData() - parsing error ***********").printStackTraceIfDebug()
                     }
-                },
-                onFailed = {
-                    Exception("********* ImpressionData.rawData.toAdData() - parsing error ***********").printStackTraceIfDebug()
-                }
-            )
+                )
+            }
         }
 
         override fun onLeftApplication() {}

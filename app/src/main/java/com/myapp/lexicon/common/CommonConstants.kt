@@ -60,6 +60,26 @@ val IS_ADS_ENABLED: Boolean
         }
     }
 
+val IS_REWARD_ACCESSIBLE: Boolean
+    get() {
+        return try {
+            Firebase.remoteConfig.getBoolean("IS_REWARD_ACCESSIBLE")
+        } catch (e: Exception) {
+            e.printStackTraceIfDebug()
+            true
+        }
+    }
+
+val MESSAGE_TO_USER: String
+    get() {
+        return try {
+            Firebase.remoteConfig.getString("MESSAGE_TO_USER")
+        } catch (e: Exception) {
+            e.printStackTraceIfDebug()
+            "Unknown error"
+        }
+    }
+
 val APP_TIME_ZONE: String
     get() {
         return try {

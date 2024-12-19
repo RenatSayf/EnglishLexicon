@@ -12,6 +12,7 @@ import android.window.OnBackInvokedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.myapp.lexicon.ads.models.AdData
+import com.myapp.lexicon.common.IS_REWARD_ACCESSIBLE
 import com.myapp.lexicon.databinding.ActivityBannersBinding
 import com.myapp.lexicon.helpers.orientationLock
 import com.myapp.lexicon.helpers.orientationUnLock
@@ -139,23 +140,25 @@ class BannersActivity : AppCompatActivity() {
                     },
                     onImpression = { data: AdData? ->
                         impressionCount++
-                        if (data != null) {
-                            adData.let {
-                                it.adType = data.adType
-                                it.adUnitId = data.adUnitId
-                                it.blockId = data.blockId
-                                it.currency = data.currency
-                                it.network = data.network
-                                it.precision = data.precision
-                                it.requestId = data.requestId
-                                it.revenue += data.revenue
-                                it.revenueUSD += data.revenueUSD
-                            }
-                            ratingList[0] = data.revenue
-                            if (impressionCount >= 2) {
-                                onImpression.invoke(adData)
-                            }
-                        } else onImpression.invoke(null)
+                        if (IS_REWARD_ACCESSIBLE) {
+                            if (data != null) {
+                                adData.let {
+                                    it.adType = data.adType
+                                    it.adUnitId = data.adUnitId
+                                    it.blockId = data.blockId
+                                    it.currency = data.currency
+                                    it.network = data.network
+                                    it.precision = data.precision
+                                    it.requestId = data.requestId
+                                    it.revenue += data.revenue
+                                    it.revenueUSD += data.revenueUSD
+                                }
+                                ratingList[0] = data.revenue
+                                if (impressionCount >= 2) {
+                                    onImpression.invoke(adData)
+                                }
+                            } else onImpression.invoke(null)
+                        }
                     },
                     onAdClicked = {
                         onAdClicked.invoke()
@@ -185,23 +188,25 @@ class BannersActivity : AppCompatActivity() {
                     },
                     onImpression = { data: AdData? ->
                         impressionCount++
-                        if (data != null) {
-                            adData.let {
-                                it.adType = data.adType
-                                it.adUnitId = data.adUnitId
-                                it.blockId = data.blockId
-                                it.currency = data.currency
-                                it.network = data.network
-                                it.precision = data.precision
-                                it.requestId = data.requestId
-                                it.revenue += data.revenue
-                                it.revenueUSD += data.revenueUSD
-                            }
-                            ratingList[1] = data.revenue
-                            if (impressionCount >= 2) {
-                                onImpression.invoke(adData)
-                            }
-                        } else onImpression.invoke(null)
+                        if (IS_REWARD_ACCESSIBLE) {
+                            if (data != null) {
+                                adData.let {
+                                    it.adType = data.adType
+                                    it.adUnitId = data.adUnitId
+                                    it.blockId = data.blockId
+                                    it.currency = data.currency
+                                    it.network = data.network
+                                    it.precision = data.precision
+                                    it.requestId = data.requestId
+                                    it.revenue += data.revenue
+                                    it.revenueUSD += data.revenueUSD
+                                }
+                                ratingList[1] = data.revenue
+                                if (impressionCount >= 2) {
+                                    onImpression.invoke(adData)
+                                }
+                            } else onImpression.invoke(null)
+                        }
                     },
                     onAdClicked = {
                         onAdClicked.invoke()
