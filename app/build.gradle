@@ -87,15 +87,15 @@ dependencies {
     implementation 'com.sothree.slidinguppanel:library:3.4.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
     implementation 'androidx.preference:preference-ktx:1.2.1'
 
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.8.6'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.8.6'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.6'
-    implementation 'com.google.android.gms:play-services-auth-base:18.0.13'
-    implementation 'androidx.activity:activity-ktx:1.9.2'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.8.7'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.8.7'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7'
+    implementation 'com.google.android.gms:play-services-auth-base:18.1.0'
+    implementation 'androidx.activity:activity-ktx:1.9.3'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
@@ -109,8 +109,8 @@ dependencies {
     testImplementation 'androidx.test.ext:junit-ktx:1.2.1'
 
     //Robolectric
-    testImplementation 'org.robolectric:robolectric:4.13'
-    testImplementation 'org.robolectric:annotations:4.13'
+    testImplementation 'org.robolectric:robolectric:4.14.1'
+    testImplementation 'org.robolectric:annotations:4.14.1'
 
     implementation 'androidx.multidex:multidex:2.0.1'
 
@@ -118,7 +118,7 @@ dependencies {
     implementation "androidx.viewpager2:viewpager2:1.1.0"
 
     //firebase
-    implementation platform('com.google.firebase:firebase-bom:33.4.0')
+    implementation platform('com.google.firebase:firebase-bom:33.7.0')
     implementation 'com.google.firebase:firebase-storage-ktx'
     implementation 'com.google.firebase:firebase-config-ktx'
     implementation 'com.google.firebase:firebase-messaging-ktx'
@@ -142,15 +142,15 @@ dependencies {
     implementation 'androidx.room:room-rxjava2:2.6.1'
 
     //jsoup
-    implementation 'org.jsoup:jsoup:1.18.1'
+    implementation 'org.jsoup:jsoup:1.18.3'
 
     //region Hint Activity Result API. Runtime permission Step 1
-    implementation 'androidx.activity:activity-ktx:1.9.2'
-    implementation 'androidx.fragment:fragment-ktx:1.8.4'
+    implementation 'androidx.activity:activity-ktx:1.9.3'
+    implementation 'androidx.fragment:fragment-ktx:1.8.5'
     //endregion
 
     //WorkManager library
-    def work_version = "2.9.1"
+    def work_version = "2.10.0"
     // Kotlin + coroutines
     implementation "androidx.work:work-runtime-ktx:$work_version"
     // optional - GCMNetworkManager support
@@ -160,16 +160,16 @@ dependencies {
 
     // Yandex Mobile Ads SDK
     //noinspection MobileAdsSdkOutdatedVersion
-    implementation 'com.yandex.android:mobileads:7.5.0'
+    implementation 'com.yandex.android:mobileads:7.8.0'
 
     // Yandex AppMetrica SDK.
-    implementation 'io.appmetrica.analytics:analytics:7.2.0'
+    implementation 'io.appmetrica.analytics:analytics:7.5.0'
 
     //FormatEditText
     implementation 'com.github.dkzwm:fet-core:0.2.1'
 
     //Kotlin Serialization
-    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.7.2'
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.7.3'
 
     //back4app
     implementation "com.github.parse-community.Parse-SDK-Android:parse:4.2.1"
@@ -178,10 +178,10 @@ dependencies {
     implementation 'com.squareup.picasso:picasso:2.71828'
 
     //android-youtube-player
-    implementation 'com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.0'
+    implementation 'com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.1'
 
     // OAuth2
-    implementation 'com.google.android.gms:play-services-auth:21.2.0'
+    implementation 'com.google.android.gms:play-services-auth:21.3.0'
 
     //Ktor
     implementation 'io.ktor:ktor-client-core:2.3.12'
@@ -189,7 +189,7 @@ dependencies {
     implementation 'io.ktor:ktor-client-logging:2.3.12'
     implementation 'io.ktor:ktor-client-content-negotiation-jvm:2.3.12'
     testImplementation 'io.ktor:ktor-client-mock:2.3.12'
-    testImplementation 'org.jetbrains.kotlin:kotlin-test:2.0.20'
+    testImplementation 'org.jetbrains.kotlin:kotlin-test:2.1.0'
 
     // In-app update
     implementation 'com.google.android.play:app-update:2.1.0'
