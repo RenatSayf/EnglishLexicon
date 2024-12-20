@@ -22,6 +22,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.view.inputmethod.InputMethodManager
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -108,6 +109,8 @@ fun Fragment.alarmClockEnable() {
 fun View.showSnackBar(message: String, duration: Int = Snackbar.LENGTH_LONG): Snackbar {
     return Snackbar.make(this, message, duration).apply {
         if (duration == Snackbar.LENGTH_INDEFINITE) {
+            val textView = this@apply.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+            textView?.maxLines = 5
             setAction(R.string.emoji_close) { dismiss() }
         }
         show()
