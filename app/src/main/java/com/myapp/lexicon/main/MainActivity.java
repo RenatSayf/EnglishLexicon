@@ -641,6 +641,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             DataRepositoryImpl repository = new DataRepositoryImpl(dbInstance.appDao());
             mainVM.injectDependencies(repository);
         }
+
+        if (!CommonConstantsKt.getIS_REWARD_ACCESSIBLE())
+        {
+            ExtensionsKt.showSnackBar(
+                    binding.getRoot(),
+                    CommonConstantsKt.getMESSAGE_TO_USER(),
+                    Snackbar.LENGTH_INDEFINITE
+            );
+        }
     }
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")

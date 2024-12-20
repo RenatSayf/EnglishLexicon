@@ -7,5 +7,6 @@
     <string name="coins_bag" translatable="false">💰</string>
     <string name="star" translatable="false">⭐</string>
     <string name="warning" translatable="false">⚠️</string>
+    <string name="emoji_close" translatable="false">❌</string>
     
 </resources>

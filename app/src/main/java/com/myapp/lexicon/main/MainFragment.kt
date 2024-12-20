@@ -7,7 +7,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.messaging.FirebaseMessaging
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
@@ -15,14 +14,11 @@ import com.myapp.lexicon.aboutapp.checkAppUpdate
 import com.myapp.lexicon.aboutapp.showUpdateDialog
 import com.myapp.lexicon.aboutapp.showUpdateSnackBar
 import com.myapp.lexicon.common.IS_IMPORTANT_UPDATE
-import com.myapp.lexicon.common.IS_REWARD_ACCESSIBLE
-import com.myapp.lexicon.common.MESSAGE_TO_USER
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.logIfDebug
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.registerFinishReceiver
 import com.myapp.lexicon.helpers.setServiceBroadcasts
-import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.main.viewmodels.FinishViewModel
 import com.myapp.lexicon.push.MessagingService
 import com.myapp.lexicon.service.FinishReceiver
@@ -121,10 +117,6 @@ class MainFragment : Fragment() {
                 }
             }
         )
-
-        if (!IS_REWARD_ACCESSIBLE) {
-            this.showSnackBar(MESSAGE_TO_USER, duration = Snackbar.LENGTH_INDEFINITE)
-        }
 
     }
 
