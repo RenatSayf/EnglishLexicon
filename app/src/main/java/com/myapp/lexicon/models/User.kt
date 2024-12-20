@@ -56,6 +56,7 @@ data class User(
     var paymentDate: String = ""
     var userPercent: Double? = null
     var appVersion: String = ""
+    var createdAt: Long = 0
 
     var reservedPayment: Double = 0.0
         get() = BigDecimal(field).setScale(2, RoundingMode.DOWN).toDouble()

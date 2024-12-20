@@ -77,6 +77,9 @@ fun ParseObject.mapToUser(): User {
 
         value = this@mapToUser[User.KEY_APP_VERSION]
         this.appVersion = if (value is String) value else this.appVersion
+
+        value = this@mapToUser.createdAt.time
+        this.createdAt = value
     }
 }
 

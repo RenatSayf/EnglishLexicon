@@ -349,9 +349,10 @@ fun FragmentActivity.reserveRewardPaymentForMonth(
     user: User,
     onSuccess: (sum: Int, remainder: Double) -> Unit
 ) {
-    val isRewardUpdateOfLastMonth = user.rewardUpdateAt.isDateOfLastMonth()
-    val isLastMonth = user.reservedPaymentDate.isDateOfLastMonth()
-    if (isRewardUpdateOfLastMonth && isLastMonth) {
+    val isCreatedAtLastMonth = user.createdAt.toStringTime().isDateOfLastMonth()
+    val isRewardUpdateAtLastMonth = user.rewardUpdateAt.isDateOfLastMonth()
+    val isReservedAtLastMonth = user.reservedPaymentDate.isDateOfLastMonth()
+    if (isCreatedAtLastMonth && isRewardUpdateAtLastMonth && isReservedAtLastMonth) {
         val userVM = ViewModelProvider(this)[UserViewModel::class.java]
 
         val paymentThreshold: Double = if (!BuildConfig.DEBUG)
