@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.recyclerview.widget.RecyclerView
 import com.myapp.lexicon.R
+import com.myapp.lexicon.helpers.onDebouncedListener
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.models.Word
 
@@ -37,7 +38,7 @@ class OneFiveTestAdapter : RecyclerView.Adapter<OneFiveTestAdapter.ViewHolder>()
         val itemView = holder.itemView
         val answerView = itemView.findViewById<Button>(R.id.answerView)
         answerView.text = list[position].english
-        answerView.setOnClickListener {
+        answerView.onDebouncedListener {
             try
             {
                 val word = list[position]
