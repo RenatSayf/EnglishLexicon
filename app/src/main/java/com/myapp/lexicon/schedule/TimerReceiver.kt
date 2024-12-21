@@ -23,6 +23,7 @@ import com.myapp.lexicon.settings.saveWordToPref
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 
 
 class TimerReceiver : BroadcastReceiver()
@@ -38,10 +39,10 @@ class TimerReceiver : BroadcastReceiver()
             repository = DataRepositoryImpl(AppDataBase.getDbInstance(context).appDao())
 
             preferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val strInterval = preferences?.getString(context.getString(R.string.key_show_intervals), "0")
-            strInterval?.toLong()?.let {
-                AlarmScheduler(context).scheduleOne(it * 60 * 1000)
-            }
+            val strInterval = preferences?.getString(context.getString(R.string.key_show_intervals), "20")?: "20"
+            val longInterval = strInterval.toLong()
+            val millis = TimeUnit.MINUTES.toMillis(longInterval)
+            AlarmScheduler(context).scheduleOne(millis)
 
             if (intent.action == AlarmScheduler.ONE_SHOOT_ACTION || intent.action == Intent.ACTION_SCREEN_OFF)
             {
