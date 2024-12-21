@@ -264,17 +264,17 @@ fun String.toLongDate(locale: Locale = LOCALE_RU): Long {
     return date.time
 }
 
-fun Long.toStringTime(locale: Locale = LOCALE_RU): String {
+fun Long.toStringTime(locale: Locale = LOCALE_RU, tz: String = APP_TIME_ZONE): String {
     val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", locale).apply {
-        timeZone = TimeZone.getTimeZone(APP_TIME_ZONE)
+        timeZone = TimeZone.getTimeZone(tz)
     }
     val strDate = formatter.format(this)
     return strDate
 }
 
-fun String.toLongTime(locale: Locale = LOCALE_RU): Long {
+fun String.toLongTime(locale: Locale = LOCALE_RU, tz: String = APP_TIME_ZONE): Long {
     val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", locale).apply {
-        timeZone = TimeZone.getTimeZone(APP_TIME_ZONE)
+        timeZone = TimeZone.getTimeZone(tz)
     }
     val date = try {
         formatter.parse(this)
@@ -334,7 +334,11 @@ fun String.isDateOfLastMonth(
         val timeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").apply {
             withZone(ZoneId.of(timeZoneId))
         }
-        YearMonth.parse(this, timeFormatter)
+        if (this.isNotEmpty()) {
+            YearMonth.parse(this, timeFormatter)
+        } else {
+            return true
+        }
     } catch (e: DateTimeParseException) {
         e.printStackTraceIfDebug()
         return true

@@ -1,6 +1,7 @@
 package com.myapp.lexicon.helpers
 
 import com.myapp.lexicon.common.APP_TIME_ZONE
+import com.myapp.lexicon.models.User
 import org.junit.Assert
 import org.junit.Test
 import java.time.Instant
@@ -143,6 +144,75 @@ class ExtensionsKtTest {
         val time = Date().time.toStringTime()
 
         Assert.assertTrue(true)
+    }
+
+    @Test
+    fun reserveRewardPaymentForMonth_user_created_at_current_month() {
+        val timeZone = "Europe/Moscow"
+        val currentMonth = 8
+        val user = User(id = "XXXXX").apply {
+            createdAt = "2024-08-10 09:09:56".toLongTime(tz = timeZone)
+            rewardUpdateAt = "2024-08-20 12:00:00"
+            reservedPaymentDate = ""
+        }
+
+        val isCreatedAtLastMonth = user.createdAt.toStringTime(tz = "Europe/Moscow").isDateOfLastMonth(timeZoneId = timeZone, currentMonth = currentMonth)
+        val isRewardUpdateAtLastMonth = user.rewardUpdateAt.isDateOfLastMonth(timeZoneId = timeZone, currentMonth = currentMonth)
+        val isReservedAtLastMonth = user.reservedPaymentDate.isDateOfLastMonth(timeZoneId = timeZone, currentMonth = currentMonth)
+        Assert.assertTrue(!isCreatedAtLastMonth && !isRewardUpdateAtLastMonth && isReservedAtLastMonth)
+
+        if (isCreatedAtLastMonth && isRewardUpdateAtLastMonth && isReservedAtLastMonth) {
+            Assert.assertTrue(false)
+        }
+        else {
+            Assert.assertTrue(true)
+        }
+    }
+
+    @Test
+    fun reserveRewardPaymentForMonth_user_created_at_last_month() {
+        val timeZone = "Europe/Moscow"
+        val currentMonth = 9
+        val user = User(id = "XXXXX").apply {
+            createdAt = "2024-08-10 09:09:56".toLongTime(tz = "Europe/Moscow")
+            rewardUpdateAt = "2024-08-31 23:59:59"
+            reservedPaymentDate = ""
+        }
+
+        val isCreatedAtLastMonth = user.createdAt.toStringTime().isDateOfLastMonth(timeZoneId = timeZone, currentMonth = currentMonth)
+        val isRewardUpdateAtLastMonth = user.rewardUpdateAt.isDateOfLastMonth(timeZoneId = timeZone, currentMonth = currentMonth)
+        val isReservedAtLastMonth = user.reservedPaymentDate.isDateOfLastMonth(timeZoneId = timeZone, currentMonth = currentMonth)
+        Assert.assertTrue(isCreatedAtLastMonth && isRewardUpdateAtLastMonth && isReservedAtLastMonth)
+
+        if (isCreatedAtLastMonth && isRewardUpdateAtLastMonth && isReservedAtLastMonth) {
+            Assert.assertTrue(true)
+        }
+        else {
+            Assert.assertTrue(false)
+        }
+    }
+
+    @Test
+    fun reserveRewardPaymentForMonth_user_created_long_ago() {
+        val timeZone = "Europe/Moscow"
+        val currentMonth = 10
+        val user = User(id = "XXXXX").apply {
+            createdAt = "2024-08-10 09:09:56".toLongTime(tz = "Europe/Moscow")
+            rewardUpdateAt = "2024-09-31 23:59:59"
+            reservedPaymentDate = "2024-09-01 00:00:20"
+        }
+
+        val isCreatedAtLastMonth = user.createdAt.toStringTime().isDateOfLastMonth(timeZoneId = timeZone, currentMonth = currentMonth)
+        val isRewardUpdateAtLastMonth = user.rewardUpdateAt.isDateOfLastMonth(timeZoneId = timeZone, currentMonth = currentMonth)
+        val isReservedAtLastMonth = user.reservedPaymentDate.isDateOfLastMonth(timeZoneId = timeZone, currentMonth = currentMonth)
+        Assert.assertTrue(isCreatedAtLastMonth && isRewardUpdateAtLastMonth && isReservedAtLastMonth)
+
+        if (isCreatedAtLastMonth && isRewardUpdateAtLastMonth && isReservedAtLastMonth) {
+            Assert.assertTrue(true)
+        }
+        else {
+            Assert.assertTrue(false)
+        }
     }
 
 
