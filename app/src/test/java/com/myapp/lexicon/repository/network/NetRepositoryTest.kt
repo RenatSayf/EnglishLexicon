@@ -2,7 +2,6 @@
 
 package com.myapp.lexicon.repository.network
 
-import com.myapp.lexicon.video.models.VideoSearchResult
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
