@@ -14,8 +14,8 @@ android {
         minSdkVersion 26
         //noinspection EditedTargetSdkVersion
         targetSdkVersion 35
-        versionName '5.10'   //Hint last versionName in store is 5.9
-        versionCode 97      //Hint last versionCode in store is 96
+        versionName '5.11'   //Hint last versionName in store is 5.10
+        versionCode 98      //Hint last versionCode in store is 97
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
 
