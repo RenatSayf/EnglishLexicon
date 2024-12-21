@@ -47,6 +47,7 @@ import com.myapp.lexicon.dialogs.RemoveDictDialog;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.Share;
+import com.myapp.lexicon.main.ext.MainActivityExtKt;
 import com.myapp.lexicon.main.viewmodels.UserViewModel;
 import com.myapp.lexicon.models.AppResult;
 import com.myapp.lexicon.models.Revenue;
@@ -644,10 +645,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (!CommonConstantsKt.getIS_REWARD_ACCESSIBLE())
         {
-            ExtensionsKt.showSnackBar(
-                    binding.getRoot(),
-                    CommonConstantsKt.getMESSAGE_TO_USER(),
-                    Snackbar.LENGTH_INDEFINITE
+            MainActivityExtKt.showWarningDialog(
+                    this,
+                    CommonConstantsKt.getMESSAGE_TO_USER()
             );
         }
     }
