@@ -5,5 +5,5 @@ import kotlinx.coroutines.Deferred
 import java.io.File
 
 interface INetRepository {
-
+    suspend fun getUserProfile(accessToken: String): Deferred<Result<String>>
 }

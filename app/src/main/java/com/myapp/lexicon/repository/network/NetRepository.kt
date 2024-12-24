@@ -2,23 +2,52 @@ package com.myapp.lexicon.repository.network
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.cookie
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.json.Json
 
 open class NetRepository(
-    private val httpClient: HttpClient
+    private val httpClient: HttpClient,
+    private val baseUrl: String
 ): INetRepository {
 
     private val jsonDecoder = Json { ignoreUnknownKeys }
 
+    override suspend fun getUserProfile(accessToken: String): Deferred<Result<String>> {
+        return coroutineScope {
+            async {
+                val response = httpClient.get(urlString = "$baseUrl/user", block = {
+                    contentType(ContentType.Application.Json)
+                    parameter("access_token", accessToken)
+                })
+                when(response.status) {
+                    HttpStatusCode.OK -> {
+                        val body = response.body<String>()
+                        Result.success(body)
+                    }
+                    else -> {
+                        val statusCode = response.status
+                        Result.failure(Throwable("********** Error description: ${statusCode.description}. Code: ${statusCode.value} ************"))
+                    }
+                }
+            }
+        }
+    }
+
     suspend fun fetchSuggestions(query: String, lang: String, userAgent: String): Deferred<Result<List<String>>> {
         return coroutineScope {
             async {
+
+
+
                 val url = "https://suggestqueries-clients6.youtube.com/complete/search?client=youtube"
                 val httpResponse = httpClient.get(url, block = {
                     header("User-Agent", userAgent)
