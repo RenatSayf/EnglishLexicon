@@ -2,6 +2,9 @@ package com.myapp.lexicon.repository.network
 
 import com.myapp.lexicon.di.NetRepositoryModule
 import com.myapp.lexicon.helpers.logIfDebug
+import com.myapp.lexicon.models.SignInData
+import com.myapp.lexicon.models.SignUpData
+import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.models.UserX
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -30,6 +33,71 @@ class NetRepositoryTest {
     }
     @After
     fun after() {
+    }
+
+    @Test
+    fun signUp_success() {
+        val signUpData = SignUpData(
+            appVersion = "v.Test",
+            email = "user-test@mail.com",
+            password = "123456"
+        )
+        mockEngine = MockEngine.invoke {
+            respond(
+                content = """{
+                  "access_token": "access00000000000",
+                  "refresh_token": "refresh0000000000000"
+                }""".trimIndent(),
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
+        val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine)
+        repository = repositoryModule.provideNetRepository(refreshToken = "")
+        runBlocking {
+            repository.signUp(signUpData).collect(collector = { result ->
+                result.onSuccess { value: Tokens ->
+                    Assert.assertEquals("access00000000000", value.accessToken)
+                    Assert.assertEquals("refresh0000000000000", value.refreshToken)
+                }
+                result.onFailure { exception: Throwable ->
+                    exception.message!!.logIfDebug()
+                    Assert.assertTrue(false)
+                }
+            })
+        }
+    }
+
+    @Test
+    fun signIn_success() {
+        val signInData = SignInData(
+            email = "user-test@mail.com",
+            password = "123456"
+        )
+        mockEngine = MockEngine.invoke {
+            respond(
+                content = """{
+                  "access_token": "access00000000000",
+                  "refresh_token": "refresh0000000000000"
+                }""".trimIndent(),
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
+        val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine)
+        repository = repositoryModule.provideNetRepository(refreshToken = "")
+        runBlocking {
+            repository.signIn(signInData).collect(collector = { result ->
+                result.onSuccess { value: Tokens ->
+                    Assert.assertEquals("access00000000000", value.accessToken)
+                    Assert.assertEquals("refresh0000000000000", value.refreshToken)
+                }
+                result.onFailure { exception: Throwable ->
+                    exception.message!!.logIfDebug()
+                    Assert.assertTrue(false)
+                }
+            })
+        }
     }
 
     @Test

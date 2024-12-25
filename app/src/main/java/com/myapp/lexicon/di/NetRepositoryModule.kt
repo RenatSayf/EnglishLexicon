@@ -3,7 +3,6 @@ package com.myapp.lexicon.di
 import com.google.common.net.HttpHeaders
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.helpers.logIfDebug
-import com.myapp.lexicon.helpers.printLogIfDebug
 import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.repository.network.INetRepository
 import com.myapp.lexicon.repository.network.NetRepository
@@ -26,7 +25,6 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import kotlinx.serialization.json.Json
-
 
 
 class NetRepositoryModule(
