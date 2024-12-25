@@ -36,6 +36,7 @@ android {
         buildConfigField "String", "CHAT_ID", "\"${properties.getProperty("CHAT_ID")}\""
         buildConfigField "String", "PAYMENT_CODE", "\"${properties.getProperty("PAYMENT_CODE")}\""
         buildConfigField "String", "IS_IMPORTANT_UPDATE", "\"${properties.getProperty("IS_IMPORTANT_UPDATE")}\""
+        buildConfigField "String", "API_KEY", "\"${properties.getProperty("API_KEY")}\""
     }
     buildTypes {
         debug {

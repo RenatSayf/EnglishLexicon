@@ -2,6 +2,7 @@ package com.myapp.lexicon.common
 
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
+import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.ads.models.AdType
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 
@@ -13,12 +14,17 @@ enum class AdsSource {
     LOCAL_HOST
 }
 
-val USER_AGENT = try {
-    Firebase.remoteConfig.getString("user_agent")
-} catch (e: Exception) {
-    e.printStackTraceIfDebug()
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
-}
+val BASE_URL: String
+    get() {
+        return if (BuildConfig.DEBUG)
+            "https://api.dev.englishlexicon.ru"
+        else "https://api.englishlexicon.ru"
+    }
+
+val API_KEY: String
+    get() {
+        return BuildConfig.API_KEY
+    }
 
 val IS_IMPORTANT_UPDATE: String = try {
     Firebase.remoteConfig.getString("is_important_update")

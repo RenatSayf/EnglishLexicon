@@ -1,5 +1,7 @@
 package com.myapp.lexicon.repository.network
 
+import com.myapp.lexicon.models.Balance
+import com.myapp.lexicon.models.RevenueX
 import com.myapp.lexicon.models.SignInData
 import com.myapp.lexicon.models.SignUpData
 import com.myapp.lexicon.models.Tokens
@@ -16,4 +18,6 @@ interface INetRepository {
     suspend fun signOut(accessToken: String): Flow<Result<Tokens>>
 
     suspend fun getUserProfile(accessToken: String): Deferred<Result<UserX>>
+
+    suspend fun updateUserBalance(accessToken: String, revenue: RevenueX): Flow<Result<Balance>>
 }

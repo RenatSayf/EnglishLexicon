@@ -1,7 +1,8 @@
 package com.myapp.lexicon.di
 
-import com.google.common.net.HttpHeaders
 import com.myapp.lexicon.BuildConfig
+import com.myapp.lexicon.common.API_KEY
+import com.myapp.lexicon.common.BASE_URL
 import com.myapp.lexicon.helpers.logIfDebug
 import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.repository.network.INetRepository
@@ -14,11 +15,13 @@ import io.ktor.client.engine.cio.endpoint
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.HttpSend
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.plugin
 import io.ktor.client.request.HttpRequestBuilder
+import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
@@ -36,7 +39,7 @@ class NetRepositoryModule(
             connectAttempts = 5
         }
     }),
-    private val baseUrl: String = "api.dev.englishlexicon.ru"
+    private val baseUrl: String = BASE_URL
 ) {
 
     fun provideNetRepository(
@@ -53,12 +56,15 @@ class NetRepositoryModule(
                 level = LogLevel.ALL
                 if (!BuildConfig.DEBUG) {
                     sanitizeHeader { header: String ->
-                        header == HttpHeaders.AUTHORIZATION
+                        header == "Api-Key"
                     }
                 }
             })
             install(plugin = ContentNegotiation) {
                 Json
+            }
+            defaultRequest {
+                header(key = "Api-Key", value = API_KEY)
             }
         })
         httpClient.plugin(HttpSend).intercept { request: HttpRequestBuilder ->

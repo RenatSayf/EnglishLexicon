@@ -2,6 +2,8 @@ package com.myapp.lexicon.repository.network
 
 import com.myapp.lexicon.di.NetRepositoryModule
 import com.myapp.lexicon.helpers.logIfDebug
+import com.myapp.lexicon.models.Balance
+import com.myapp.lexicon.models.RevenueX
 import com.myapp.lexicon.models.SignInData
 import com.myapp.lexicon.models.SignUpData
 import com.myapp.lexicon.models.Tokens
@@ -199,6 +201,64 @@ class NetRepositoryTest {
                 Assert.assertTrue(false)
             }
         }
+    }
+
+    @Test
+    fun updateUserBalance_success() {
+        val accessToken = "XXXXXXXXXXXXXX"
+        val responseJson = """{
+  "today_balance": 10.5,
+  "yesterday_balance": 20.6,
+  "month_balance": 50.59,
+  "currency_code": "RUB",
+  "reserved_payout": 200
+}""".trimIndent()
+
+        mockEngine = MockEngine.invoke { request ->
+            val isApiKey = request.headers.contains("Api-Key")
+            if (isApiKey) {
+                when(request.url.fullPath) {
+                    "/user/balance?access_token=$accessToken" -> {
+                        respond(
+                            content = responseJson,
+                            status = HttpStatusCode.OK,
+                            headers = headersOf(HttpHeaders.ContentType, "application/json")
+                        )
+                    }
+                    else -> {
+                        respondBadRequest()
+                    }
+                }
+            } else {
+                respondBadRequest()
+            }
+        }
+
+        val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine)
+        repository = repositoryModule.provideNetRepository(refreshToken = "VVVVVVVVV")
+
+        val revenue = RevenueX(
+            currencyCode = "RUB",
+            lastAdId = "Adfsdfsdfjk",
+            revenueRub = 0.12,
+            revenueUsd = 0.0012
+        )
+        runBlocking {
+            repository.updateUserBalance(accessToken = accessToken, revenue = revenue)
+                .collect(collector = { result ->
+                    result.onSuccess { value: Balance ->
+                        Assert.assertEquals(10.5, value.todayBalance, 0.0001)
+                        Assert.assertEquals(20.6, value.yesterdayBalance, 0.0001)
+                        Assert.assertEquals(50.59, value.monthBalance, 0.0001)
+                        Assert.assertEquals(200, value.reservedPayout)
+                    }
+                    result.onFailure { exception: Throwable ->
+                        exception.message!!.logIfDebug()
+                        Assert.assertTrue(false)
+                    }
+                })
+        }
+
     }
 
 

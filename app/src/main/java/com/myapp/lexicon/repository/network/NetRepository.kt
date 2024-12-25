@@ -1,5 +1,7 @@
 package com.myapp.lexicon.repository.network
 
+import com.myapp.lexicon.models.Balance
+import com.myapp.lexicon.models.RevenueX
 import com.myapp.lexicon.models.SignInData
 import com.myapp.lexicon.models.SignUpData
 import com.myapp.lexicon.models.Tokens
@@ -9,6 +11,7 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
+import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
@@ -122,6 +125,35 @@ open class NetRepository(
                         val statusCode = response.status
                         Result.failure(Throwable("********** Error description: ${statusCode.description}. Code: ${statusCode.value} ************"))
                     }
+                }
+            }
+        }
+    }
+
+    override suspend fun updateUserBalance(
+        accessToken: String,
+        revenue: RevenueX
+    ): Flow<Result<Balance>> {
+        return flow {
+            val response = httpClient.put(urlString = "$baseUrl/user/balance", block = {
+                contentType(ContentType.Application.Json)
+                parameter("token", accessToken)
+                val json = jsonDecoder.encodeToString(RevenueX.serializer(), revenue)
+                setBody(json)
+            })
+            when(response.status) {
+                HttpStatusCode.OK -> {
+                    val bodyText = response.body<String>()
+                    try {
+                        val balance = jsonDecoder.decodeFromString<Balance>(bodyText)
+                        Result.success(balance)
+                    } catch (e: Exception) {
+                        Result.failure(e)
+                    }
+                }
+                else -> {
+                    val statusCode = response.status
+                    Result.failure(Throwable("********** Error description: ${statusCode.description}. Code: ${statusCode.value} ************"))
                 }
             }
         }
