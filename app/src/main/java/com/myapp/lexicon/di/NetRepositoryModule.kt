@@ -71,8 +71,7 @@ class NetRepositoryModule(
                 when(refreshResponse.status) {
                     HttpStatusCode.Accepted -> {
                         val newTokens = Json.decodeFromString<Tokens>(refreshResponse.body())
-                        request.url.encodedParameters.clear()
-                        request.url.encodedParameters.append("access_token", newTokens.accessToken)
+                        request.url.encodedParameters["access_token"] = newTokens.accessToken
                         execute(request)
                     }
                     else -> {
