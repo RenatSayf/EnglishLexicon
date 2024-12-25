@@ -1,18 +1,18 @@
-@file:Suppress("UNUSED_ANONYMOUS_PARAMETER")
-
 package com.myapp.lexicon.repository.network
 
 import com.myapp.lexicon.di.NetRepositoryModule
+import com.myapp.lexicon.helpers.logIfDebug
+import com.myapp.lexicon.models.UserX
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.engine.mock.respondBadRequest
-import io.ktor.client.plugins.ClientRequestException
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.fullPath
 import io.ktor.http.headersOf
 import kotlinx.coroutines.runBlocking
 import org.junit.After
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 
@@ -33,7 +33,23 @@ class NetRepositoryTest {
     }
 
     @Test
-    fun getUserProfile() {
+    fun getUserProfile_with_expired_token() {
+
+        val userJson = """{
+  "today_balance": 10.5,
+  "yesterday_balance": 20.3,
+  "month_balance": 100.89,
+  "currency_code": "RUB",
+  "reserved_payout": 200,
+  "email": "user-test@mail.com",
+  "phone": "+79998887755",
+  "first_name": "User",
+  "second_name": null,
+  "last_name": "Test",
+  "bank_name": "BCS",
+  "bank_card": null,
+  "message_to_user": null
+}"""
 
         val oldAccessToken = "access00000000000"
         val newAccessToken = "access11111111111"
@@ -63,7 +79,7 @@ class NetRepositoryTest {
                 }
                 "/user?access_token=$newAccessToken" -> {
                     respond(
-                        content = "{'Success':'success'}",
+                        content = userJson,
                         status = HttpStatusCode.OK,
                         headers = headersOf(HttpHeaders.ContentType, "application/json")
                     )
@@ -77,11 +93,12 @@ class NetRepositoryTest {
         repository = repositoryModule.provideNetRepository(refreshToken = refreshToken)
         runBlocking {
             val result = repository.getUserProfile(accessToken = oldAccessToken).await()
-            result.onSuccess { value: String ->
-                value
+            result.onSuccess { value: UserX ->
+                Assert.assertEquals(value.email, "user-test@mail.com")
             }
             result.onFailure { exception: Throwable ->
-                throw exception as ClientRequestException
+                exception.message!!.logIfDebug()
+                Assert.assertTrue(false)
             }
         }
     }

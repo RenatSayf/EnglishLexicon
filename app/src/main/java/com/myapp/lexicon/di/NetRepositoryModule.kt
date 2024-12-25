@@ -2,6 +2,7 @@ package com.myapp.lexicon.di
 
 import com.google.common.net.HttpHeaders
 import com.myapp.lexicon.BuildConfig
+import com.myapp.lexicon.helpers.logIfDebug
 import com.myapp.lexicon.helpers.printLogIfDebug
 import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.repository.network.INetRepository
@@ -24,8 +25,9 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
+
+
 
 class NetRepositoryModule(
     private val clientEngine: HttpClientEngine = CIO.create(block = {
@@ -38,9 +40,6 @@ class NetRepositoryModule(
     }),
     private val baseUrl: String = "api.dev.englishlexicon.ru"
 ) {
-    fun getBaseUrl(): String {
-        return baseUrl
-    }
 
     fun provideNetRepository(
         refreshToken: String = ""
@@ -50,7 +49,7 @@ class NetRepositoryModule(
             install(plugin = Logging, configure = {
                 logger = object : Logger {
                     override fun log(message: String) {
-                        printLogIfDebug("******** HTTP call: $message *****************")
+                        "******** HTTP call: $message *****************".logIfDebug()
                     }
                 }
                 level = LogLevel.ALL

@@ -1,5 +1,6 @@
 package com.myapp.lexicon.repository.network
 
+import com.myapp.lexicon.models.UserX
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.cookie
@@ -21,7 +22,7 @@ open class NetRepository(
 
     private val jsonDecoder = Json { ignoreUnknownKeys }
 
-    override suspend fun getUserProfile(accessToken: String): Deferred<Result<String>> {
+    override suspend fun getUserProfile(accessToken: String): Deferred<Result<UserX>> {
         return coroutineScope {
             async {
                 val response = httpClient.get(urlString = "$baseUrl/user", block = {
@@ -30,8 +31,13 @@ open class NetRepository(
                 })
                 when(response.status) {
                     HttpStatusCode.OK -> {
-                        val body = response.body<String>()
-                        Result.success(body)
+                        val bodyText = response.body<String>()
+                        try {
+                            val user = jsonDecoder.decodeFromString<UserX>(bodyText)
+                            Result.success(user)
+                        } catch (e: Exception) {
+                            Result.failure(e)
+                        }
                     }
                     else -> {
                         val statusCode = response.status
