@@ -13,5 +13,7 @@ interface INetRepository {
 
     suspend fun signIn(data: SignInData): Flow<Result<Tokens>>
 
+    suspend fun signOut(accessToken: String): Flow<Result<Tokens>>
+
     suspend fun getUserProfile(accessToken: String): Deferred<Result<UserX>>
 }

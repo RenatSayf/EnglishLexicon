@@ -101,6 +101,36 @@ class NetRepositoryTest {
     }
 
     @Test
+    fun signOut_success() {
+        mockEngine = MockEngine.invoke {
+            respond(
+                content = """{
+                  "access_token": "",
+                  "refresh_token": ""
+                }""".trimIndent(),
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
+
+        val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine)
+        repository = repositoryModule.provideNetRepository(refreshToken = "")
+
+        runBlocking {
+            repository.signOut(accessToken = "access00000000000").collect(collector = { result ->
+                result.onSuccess { value: Tokens ->
+                    Assert.assertEquals("", value.accessToken)
+                    Assert.assertEquals("", value.refreshToken)
+                }
+                result.onFailure { exception: Throwable ->
+                    exception.message!!.logIfDebug()
+                    Assert.assertTrue(false)
+                }
+            })
+        }
+    }
+
+    @Test
     fun getUserProfile_with_expired_token() {
 
         val userJson = """{

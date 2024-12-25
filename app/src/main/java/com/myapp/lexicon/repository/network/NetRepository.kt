@@ -36,9 +36,13 @@ open class NetRepository(
             })
             when(response.status) {
                 HttpStatusCode.OK -> {
-                    val json = response.body<String>()
-                    val tokens = jsonDecoder.decodeFromString<Tokens>(json)
-                    emit(Result.success(tokens))
+                    try {
+                        val json = response.body<String>()
+                        val tokens = jsonDecoder.decodeFromString<Tokens>(json)
+                        emit(Result.success(tokens))
+                    } catch (e: Exception) {
+                        emit(Result.failure(e))
+                    }
                 }
                 else -> {
                     val status = response.status
@@ -57,9 +61,37 @@ open class NetRepository(
             })
             when(response.status) {
                 HttpStatusCode.OK -> {
+                    try {
+                        val json = response.body<String>()
+                        val tokens = jsonDecoder.decodeFromString<Tokens>(json)
+                        emit(Result.success(tokens))
+                    } catch (e: Exception) {
+                        emit(Result.failure(e))
+                    }
+                }
+                else -> {
+                    val status = response.status
+                    emit(Result.failure(Throwable("********** Error description: ${status.description}. Code: ${status.value} ************")))
+                }
+            }
+        }
+    }
+
+    override suspend fun signOut(accessToken: String): Flow<Result<Tokens>> {
+        return flow {
+            val response = httpClient.post(urlString = "$baseUrl/auth/sign-out", block = {
+                contentType(ContentType.Application.Json)
+                parameter("token", accessToken)
+            })
+            when(response.status) {
+                HttpStatusCode.OK -> {
                     val json = response.body<String>()
-                    val tokens = jsonDecoder.decodeFromString<Tokens>(json)
-                    emit(Result.success(tokens))
+                    try {
+                        val tokens = jsonDecoder.decodeFromString<Tokens>(json)
+                        emit(Result.success(tokens))
+                    } catch (e: Exception) {
+                        emit(Result.failure(e))
+                    }
                 }
                 else -> {
                     val status = response.status
