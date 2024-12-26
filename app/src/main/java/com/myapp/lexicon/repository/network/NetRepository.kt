@@ -5,6 +5,7 @@ import com.myapp.lexicon.models.RevenueX
 import com.myapp.lexicon.models.SignInData
 import com.myapp.lexicon.models.SignUpData
 import com.myapp.lexicon.models.Tokens
+import com.myapp.lexicon.models.UserProfile
 import com.myapp.lexicon.models.UserX
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -122,8 +123,8 @@ open class NetRepository(
                         }
                     }
                     else -> {
-                        val statusCode = response.status
-                        Result.failure(Throwable("********** Error description: ${statusCode.description}. Code: ${statusCode.value} ************"))
+                        val status = response.status
+                        Result.failure(Throwable("********** Error description: ${status.description}. Code: ${status.value} ************"))
                     }
                 }
             }
@@ -146,14 +147,43 @@ open class NetRepository(
                     val bodyText = response.body<String>()
                     try {
                         val balance = jsonDecoder.decodeFromString<Balance>(bodyText)
-                        Result.success(balance)
+                        emit(Result.success(balance))
                     } catch (e: Exception) {
-                        Result.failure(e)
+                        emit(Result.failure(e))
                     }
                 }
                 else -> {
-                    val statusCode = response.status
-                    Result.failure(Throwable("********** Error description: ${statusCode.description}. Code: ${statusCode.value} ************"))
+                    val status = response.status
+                    emit(Result.failure(Throwable("********** Error description: ${status.description}. Code: ${status.value} ************")))
+                }
+            }
+        }
+    }
+
+    override suspend fun updateUserProfile(
+        accessToken: String,
+        profile: UserProfile
+    ): Flow<Result<UserProfile>> {
+        return flow {
+            val response = httpClient.put(urlString = "$baseUrl/user/profile", block = {
+                contentType(ContentType.Application.Json)
+                parameter("token", accessToken)
+                val json = jsonDecoder.encodeToString(UserProfile.serializer(), profile)
+                setBody(json)
+            })
+            when(response.status) {
+                HttpStatusCode.OK -> {
+                    val bodyText = response.body<String>()
+                    try {
+                        val profile1 = jsonDecoder.decodeFromString<UserProfile>(bodyText)
+                        emit(Result.success(profile1))
+                    } catch (e: Exception) {
+                        emit(Result.failure(e))
+                    }
+                }
+                else -> {
+                    val status = response.status
+                    emit(Result.failure(Throwable("********** Error description: ${status.description}. Code: ${status.value} ************")))
                 }
             }
         }

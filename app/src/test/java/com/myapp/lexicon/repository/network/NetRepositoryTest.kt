@@ -218,7 +218,7 @@ class NetRepositoryTest {
             val isApiKey = request.headers.contains("Api-Key")
             if (isApiKey) {
                 when(request.url.fullPath) {
-                    "/user/balance?access_token=$accessToken" -> {
+                    "/user/balance?token=$accessToken" -> {
                         respond(
                             content = responseJson,
                             status = HttpStatusCode.OK,
