@@ -167,7 +167,7 @@ open class NetRepository(
         return flow {
             val response = httpClient.put(urlString = "$baseUrl/user/profile", block = {
                 contentType(ContentType.Application.Json)
-                parameter("token", accessToken)
+                parameter("access_token", accessToken)
                 val json = jsonDecoder.encodeToString(UserProfile.serializer(), profile)
                 setBody(json)
             })

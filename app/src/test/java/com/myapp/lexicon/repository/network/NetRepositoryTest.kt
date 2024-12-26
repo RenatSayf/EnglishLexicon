@@ -1,5 +1,6 @@
 package com.myapp.lexicon.repository.network
 
+import com.myapp.lexicon.common.APP_VERSION
 import com.myapp.lexicon.di.NetRepositoryModule
 import com.myapp.lexicon.helpers.logIfDebug
 import com.myapp.lexicon.models.Balance
@@ -7,6 +8,7 @@ import com.myapp.lexicon.models.RevenueX
 import com.myapp.lexicon.models.SignInData
 import com.myapp.lexicon.models.SignUpData
 import com.myapp.lexicon.models.Tokens
+import com.myapp.lexicon.models.UserProfile
 import com.myapp.lexicon.models.UserX
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -251,6 +253,70 @@ class NetRepositoryTest {
                         Assert.assertEquals(20.6, value.yesterdayBalance, 0.0001)
                         Assert.assertEquals(50.59, value.monthBalance, 0.0001)
                         Assert.assertEquals(200, value.reservedPayout)
+                    }
+                    result.onFailure { exception: Throwable ->
+                        exception.message!!.logIfDebug()
+                        Assert.assertTrue(false)
+                    }
+                })
+        }
+
+    }
+
+    @Test
+    fun updateUserProfile_success() {
+        val accessToken = "XXXXXXXXXXXXXX"
+        val responseJson = """{
+  "email": "user-test@mail.com",
+  "phone": "+79998887755",
+  "first_name": "User",
+  "second_name": null,
+  "last_name": "Test",
+  "bank_name": "BCS",
+  "bank_card": null
+}""".trimEnd()
+
+        mockEngine = MockEngine.invoke { request ->
+            val isApiKey = request.headers.contains("Api-Key")
+            if (isApiKey) {
+                when(request.url.fullPath) {
+                    "/user/profile?access_token=$accessToken" -> {
+                        respond(
+                            content = responseJson,
+                            status = HttpStatusCode.OK,
+                            headers = headersOf(HttpHeaders.ContentType, "application/json")
+                        )
+                    }
+                    else -> {
+                        respondBadRequest()
+                    }
+                }
+            }
+            else {
+                respondBadRequest()
+            }
+        }
+
+        val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine)
+        repository = repositoryModule.provideNetRepository(refreshToken = "VVVVVVVVV")
+
+        val userProfile = UserProfile(
+            email = "user-test@mail.com",
+            phone = "+79998887755",
+            firstName = "User",
+            secondName = null,
+            lastName = "Test",
+            bankCard = null,
+            bankName = "BCS"
+        )
+        runBlocking {
+            repository.updateUserProfile(accessToken = accessToken, profile = userProfile)
+                .collect(collector = { result ->
+                    result.onSuccess { value: UserProfile ->
+                        Assert.assertEquals("user-test@mail.com", value.email)
+                        Assert.assertEquals("+79998887755", value.phone)
+                        Assert.assertEquals(null, value.secondName)
+                        Assert.assertEquals(APP_VERSION, value.appVersion)
                     }
                     result.onFailure { exception: Throwable ->
                         exception.message!!.logIfDebug()

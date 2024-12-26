@@ -1,6 +1,6 @@
 package com.myapp.lexicon.models
 
-import com.myapp.lexicon.BuildConfig
+import com.myapp.lexicon.common.APP_VERSION
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -27,7 +27,7 @@ data class UserProfile(
     val bankName: String?,
 
     @SerialName("app_version")
-    val appVersion: String = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
+    val appVersion: String = APP_VERSION,
 
     @SerialName("role_code")
     val roleCode: Int = 0

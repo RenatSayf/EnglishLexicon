@@ -95,3 +95,8 @@ val APP_TIME_ZONE: String
         }
     }
 
+val APP_VERSION: String
+    get() {
+        return "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"
+    }
+
