@@ -22,6 +22,9 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.SetSerializer
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 
 open class NetRepository(
@@ -177,6 +180,34 @@ open class NetRepository(
                     try {
                         val profile1 = jsonDecoder.decodeFromString<UserProfile>(bodyText)
                         emit(Result.success(profile1))
+                    } catch (e: Exception) {
+                        emit(Result.failure(e))
+                    }
+                }
+                else -> {
+                    val status = response.status
+                    emit(Result.failure(Throwable("********** Error description: ${status.description}. Code: ${status.value} ************")))
+                }
+            }
+        }
+    }
+
+    override suspend fun reservedPaymentToUser(
+        accessToken: String,
+        sum: Int
+    ): Flow<Result<Balance>> {
+        return flow {
+            val response = httpClient.put(urlString = "$baseUrl/user/payment", block = {
+                contentType(ContentType.Application.Json)
+                parameter("token", accessToken)
+                setBody("""{"reserved_payout":"$sum"}""")
+            })
+            when(response.status) {
+                HttpStatusCode.OK -> {
+                    val bodyText = response.body<String>()
+                    try {
+                        val balance = jsonDecoder.decodeFromString<Balance>(bodyText)
+                        emit(Result.success(balance))
                     } catch (e: Exception) {
                         emit(Result.failure(e))
                     }

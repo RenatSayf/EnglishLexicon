@@ -327,6 +327,56 @@ class NetRepositoryTest {
 
     }
 
+    @Test
+    fun reservedPaymentToUser_succes() {
+        val accessToken = "XXXXXXXXXXXXXX"
+
+        mockEngine = MockEngine.invoke { request ->
+            val isApiKey = request.headers.contains("Api-Key")
+            if (isApiKey) {
+                val responseJson = """{
+                      "today_balance": 10.5,
+                      "yesterday_balance": 20.4,
+                      "month_balance": 50.54,
+                      "currency_code": "RUB",
+                      "reserved_payout": 200
+                    }""".trimIndent()
+                when(request.url.fullPath) {
+                    "/user/payment?token=$accessToken" -> {
+                        respond(
+                            content = responseJson,
+                            status = HttpStatusCode.OK,
+                            headers = headersOf(HttpHeaders.ContentType, "application/json")
+                        )
+                    }
+                    else -> {
+                        respondBadRequest()
+                    }
+                }
+            }
+            else {
+                respondBadRequest()
+            }
+        }
+
+        val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine)
+        repository = repositoryModule.provideNetRepository(refreshToken = "VVVVVVVVV")
+
+        runBlocking {
+            val sum = 200
+            repository.reservedPaymentToUser(accessToken = accessToken, sum = sum)
+                .collect(collector = { result ->
+                    result.onSuccess { value: Balance ->
+                        Assert.assertEquals(200, value.reservedPayout)
+                    }
+                    result.onFailure { exception: Throwable ->
+                        exception.message!!.logIfDebug()
+                        Assert.assertTrue(false)
+                    }
+                })
+        }
+    }
+
 
 
 }

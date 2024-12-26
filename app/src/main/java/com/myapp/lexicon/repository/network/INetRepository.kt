@@ -23,4 +23,6 @@ interface INetRepository {
     suspend fun updateUserBalance(accessToken: String, revenue: RevenueX): Flow<Result<Balance>>
 
     suspend fun updateUserProfile(accessToken: String, profile: UserProfile): Flow<Result<UserProfile>>
+
+    suspend fun reservedPaymentToUser(accessToken: String, sum: Int): Flow<Result<Balance>>
 }
