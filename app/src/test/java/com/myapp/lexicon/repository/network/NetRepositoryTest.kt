@@ -377,6 +377,33 @@ class NetRepositoryTest {
         }
     }
 
+    @Test
+    fun deleteUser_success() {
+        mockEngine = MockEngine.invoke {
+            respond(
+                content = "true",
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
+
+        val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine)
+        repository = repositoryModule.provideNetRepository(refreshToken = "")
+
+        val accessToken = "XXXXXXXXXXXXXX"
+        runBlocking {
+            repository.deleteUser(accessToken = accessToken).collect(collector = { result ->
+                result.onSuccess { value: Boolean ->
+                    Assert.assertEquals(true, value)
+                }
+                result.onFailure { exception: Throwable ->
+                    exception.message!!.logIfDebug()
+                    Assert.assertTrue(false)
+                }
+            })
+        }
+    }
+
 
 
 }

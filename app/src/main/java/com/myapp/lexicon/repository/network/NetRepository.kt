@@ -217,5 +217,29 @@ open class NetRepository(
         }
     }
 
+    override suspend fun deleteUser(accessToken: String): Flow<Result<Boolean>> {
+        return flow {
+            val response = httpClient.put(urlString = "$baseUrl/user/delete", block = {
+                contentType(ContentType.Application.Json)
+                parameter("token", accessToken)
+            })
+            when(response.status) {
+                HttpStatusCode.OK -> {
+                    val bodyText = response.body<String>()
+                    try {
+                        val isDeleted = jsonDecoder.decodeFromString<Boolean>(bodyText)
+                        emit(Result.success(isDeleted))
+                    } catch (e: Exception) {
+                        emit(Result.failure(e))
+                    }
+                }
+                else -> {
+                    val status = response.status
+                    emit(Result.failure(Throwable("********** Error description: ${status.description}. Code: ${status.value} ************")))
+                }
+            }
+        }
+    }
+
 
 }
