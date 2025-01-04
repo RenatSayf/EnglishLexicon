@@ -26,5 +26,9 @@ interface INetRepository {
 
     suspend fun reservedPaymentToUser(accessToken: String, sum: Int): Flow<Result<Balance>>
 
+    suspend fun updateClickCounter(accessToken: String): Flow<Result<Boolean>>
+
     suspend fun deleteUser(accessToken: String): Flow<Result<Boolean>>
+
+    suspend fun forgotPassword(email: String): Flow<Result<String>>
 }

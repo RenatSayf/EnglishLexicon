@@ -1,6 +1,7 @@
 package com.myapp.lexicon.repository.network
 
 import com.myapp.lexicon.common.APP_VERSION
+import com.myapp.lexicon.di.KEY_API
 import com.myapp.lexicon.di.NetRepositoryModule
 import com.myapp.lexicon.helpers.logIfDebug
 import com.myapp.lexicon.models.Balance
@@ -13,6 +14,7 @@ import com.myapp.lexicon.models.UserX
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.engine.mock.respondBadRequest
+import io.ktor.client.engine.mock.respondError
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.fullPath
@@ -46,15 +48,20 @@ class NetRepositoryTest {
             email = "user-test@mail.com",
             password = "123456"
         )
-        mockEngine = MockEngine.invoke {
-            respond(
-                content = """{
-                  "access_token": "access00000000000",
-                  "refresh_token": "refresh0000000000000"
-                }""".trimIndent(),
-                status = HttpStatusCode.OK,
-                headers = headersOf(HttpHeaders.ContentType, "application/json")
-            )
+        mockEngine = MockEngine.invoke { request ->
+            val isApiKey = request.headers.contains(KEY_API)
+            if (isApiKey) {
+                respond(
+                    content = """{
+                          "access_token": "access00000000000",
+                          "refresh_token": "refresh0000000000000"
+                        }""".trimIndent(),
+                    status = HttpStatusCode.OK,
+                    headers = headersOf(HttpHeaders.ContentType, "application/json")
+                )
+            } else {
+                respondError(status = HttpStatusCode.Forbidden)
+            }
         }
         val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine)
         repository = repositoryModule.provideNetRepository(refreshToken = "")
@@ -78,15 +85,20 @@ class NetRepositoryTest {
             email = "user-test@mail.com",
             password = "123456"
         )
-        mockEngine = MockEngine.invoke {
-            respond(
-                content = """{
-                  "access_token": "access00000000000",
-                  "refresh_token": "refresh0000000000000"
-                }""".trimIndent(),
-                status = HttpStatusCode.OK,
-                headers = headersOf(HttpHeaders.ContentType, "application/json")
-            )
+        mockEngine = MockEngine.invoke { request ->
+            val isApiKey = request.headers.contains(KEY_API)
+            if (isApiKey) {
+                respond(
+                    content = """{
+                          "access_token": "access00000000000",
+                          "refresh_token": "refresh0000000000000"
+                        }""".trimIndent(),
+                    status = HttpStatusCode.OK,
+                    headers = headersOf(HttpHeaders.ContentType, "application/json")
+                )
+            } else {
+                respondError(status = HttpStatusCode.Forbidden)
+            }
         }
         val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine)
         repository = repositoryModule.provideNetRepository(refreshToken = "")
@@ -106,15 +118,20 @@ class NetRepositoryTest {
 
     @Test
     fun signOut_success() {
-        mockEngine = MockEngine.invoke {
-            respond(
-                content = """{
-                  "access_token": "",
-                  "refresh_token": ""
-                }""".trimIndent(),
-                status = HttpStatusCode.OK,
-                headers = headersOf(HttpHeaders.ContentType, "application/json")
-            )
+        mockEngine = MockEngine.invoke { request ->
+            val isApiKey = request.headers.contains(KEY_API)
+            if (isApiKey) {
+                respond(
+                    content = """{
+                          "access_token": "",
+                          "refresh_token": ""
+                        }""".trimIndent(),
+                    status = HttpStatusCode.OK,
+                    headers = headersOf(HttpHeaders.ContentType, "application/json")
+                )
+            } else {
+                respondError(status = HttpStatusCode.Forbidden)
+            }
         }
 
         val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine)
@@ -162,16 +179,17 @@ class NetRepositoryTest {
                 "/auth/refresh" -> {
                     respond(
                         content = """
-                            {
-                              "access_token": "$newAccessToken",
-                              "refresh_token": "refresh2222222222"
-                            }
-                        """.trimIndent(),
+                                    {
+                                      "access_token": "$newAccessToken",
+                                      "refresh_token": "refresh2222222222"
+                                    }
+                                """.trimIndent(),
                         status = HttpStatusCode.Accepted,
                         headers = headersOf(HttpHeaders.ContentType, "application/json"),
 
-                    )
+                        )
                 }
+
                 "/user?access_token=$oldAccessToken" -> {
                     respond(
                         content = "{'error':'error'}",
@@ -179,6 +197,7 @@ class NetRepositoryTest {
                         headers = headersOf(HttpHeaders.ContentType, "application/json")
                     )
                 }
+
                 "/user?access_token=$newAccessToken" -> {
                     respond(
                         content = userJson,
@@ -186,6 +205,7 @@ class NetRepositoryTest {
                         headers = headersOf(HttpHeaders.ContentType, "application/json")
                     )
                 }
+
                 else -> {
                     respondBadRequest()
                 }
@@ -217,7 +237,7 @@ class NetRepositoryTest {
 }""".trimIndent()
 
         mockEngine = MockEngine.invoke { request ->
-            val isApiKey = request.headers.contains("Api-Key")
+            val isApiKey = request.headers.contains(KEY_API)
             if (isApiKey) {
                 when(request.url.fullPath) {
                     "/user/balance?token=$accessToken" -> {
@@ -232,7 +252,7 @@ class NetRepositoryTest {
                     }
                 }
             } else {
-                respondBadRequest()
+                respondError(status = HttpStatusCode.Forbidden)
             }
         }
 
@@ -277,7 +297,7 @@ class NetRepositoryTest {
 }""".trimEnd()
 
         mockEngine = MockEngine.invoke { request ->
-            val isApiKey = request.headers.contains("Api-Key")
+            val isApiKey = request.headers.contains(KEY_API)
             if (isApiKey) {
                 when(request.url.fullPath) {
                     "/user/profile?access_token=$accessToken" -> {
@@ -293,7 +313,7 @@ class NetRepositoryTest {
                 }
             }
             else {
-                respondBadRequest()
+                respondError(status = HttpStatusCode.Forbidden)
             }
         }
 
@@ -332,7 +352,7 @@ class NetRepositoryTest {
         val accessToken = "XXXXXXXXXXXXXX"
 
         mockEngine = MockEngine.invoke { request ->
-            val isApiKey = request.headers.contains("Api-Key")
+            val isApiKey = request.headers.contains(KEY_API)
             if (isApiKey) {
                 val responseJson = """{
                       "today_balance": 10.5,
@@ -355,7 +375,7 @@ class NetRepositoryTest {
                 }
             }
             else {
-                respondBadRequest()
+                respondError(status = HttpStatusCode.Forbidden)
             }
         }
 
@@ -378,13 +398,57 @@ class NetRepositoryTest {
     }
 
     @Test
+    fun updateClickCounter_success() {
+        val accessToken = "XXXXXXXXXXXXXX"
+        mockEngine = MockEngine.invoke { request ->
+            val isApiKey = request.headers.contains(KEY_API)
+            if (isApiKey) {
+                when(request.url.fullPath) {
+                    "/user/ad-click?token=$accessToken" -> {
+                        respond(
+                            content = "true",
+                            status = HttpStatusCode.OK,
+                            headers = headersOf(HttpHeaders.ContentType, "application/json")
+                        )
+                    }
+
+                    else -> {
+                        respondBadRequest()
+                    }
+                }
+
+            } else {
+                respondError(status = HttpStatusCode.Forbidden)
+            }
+        }
+        val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine)
+        repository = repositoryModule.provideNetRepository(refreshToken = "VVVVVVVVV")
+        runBlocking {
+            repository.updateClickCounter(accessToken).collect(collector = { result ->
+                result.onSuccess { value: Boolean ->
+                    Assert.assertTrue(value)
+                }
+                result.onFailure { exception: Throwable ->
+                    exception.message!!.logIfDebug()
+                    Assert.assertTrue(false)
+                }
+            })
+        }
+    }
+
+    @Test
     fun deleteUser_success() {
-        mockEngine = MockEngine.invoke {
-            respond(
-                content = "true",
-                status = HttpStatusCode.OK,
-                headers = headersOf(HttpHeaders.ContentType, "application/json")
-            )
+        mockEngine = MockEngine.invoke { request ->
+            val isApiKey = request.headers.contains(KEY_API)
+            if (isApiKey) {
+                respond(
+                    content = "true",
+                    status = HttpStatusCode.OK,
+                    headers = headersOf(HttpHeaders.ContentType, "application/json")
+                )
+            } else {
+                respondError(status = HttpStatusCode.Forbidden)
+            }
         }
 
         val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine)
@@ -395,6 +459,45 @@ class NetRepositoryTest {
             repository.deleteUser(accessToken = accessToken).collect(collector = { result ->
                 result.onSuccess { value: Boolean ->
                     Assert.assertEquals(true, value)
+                }
+                result.onFailure { exception: Throwable ->
+                    exception.message!!.logIfDebug()
+                    Assert.assertTrue(false)
+                }
+            })
+        }
+    }
+
+    @Test
+    fun forgotPassword_success() {
+        val email = "admin@mail.com"
+        mockEngine = MockEngine.invoke { request ->
+            val isApiKey = request.headers.contains(KEY_API)
+            if (isApiKey) {
+                when(request.url.encodedPath) {
+                    "/user/forgot-password" -> {
+                        respond(
+                            content = """{"message": "Email sent successfully"}""".trimIndent(),
+                            status = HttpStatusCode.OK,
+                            headers = headersOf(HttpHeaders.ContentType, "application/json")
+                        )
+                    }
+                    else -> {
+                        respondBadRequest()
+                    }
+                }
+            } else {
+                respondError(status = HttpStatusCode.Forbidden)
+            }
+        }
+
+        val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine)
+        repository = repositoryModule.provideNetRepository(refreshToken = "")
+
+        runBlocking {
+            repository.forgotPassword(email = email).collect(collector = { result ->
+                result.onSuccess { value: String ->
+                    Assert.assertTrue(value.contains("Email sent successfully"))
                 }
                 result.onFailure { exception: Throwable ->
                     exception.message!!.logIfDebug()

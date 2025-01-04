@@ -217,6 +217,30 @@ open class NetRepository(
         }
     }
 
+    override suspend fun updateClickCounter(accessToken: String): Flow<Result<Boolean>> {
+        return flow {
+            val response = httpClient.put(urlString = "$baseUrl/user/ad-click", block = {
+                contentType(ContentType.Application.Json)
+                parameter("token", accessToken)
+            })
+            when(response.status) {
+                HttpStatusCode.OK -> {
+                    val bodyText = response.body<String>()
+                    try {
+                        val isDeleted = jsonDecoder.decodeFromString<Boolean>(bodyText)
+                        emit(Result.success(isDeleted))
+                    } catch (e: Exception) {
+                        emit(Result.failure(e))
+                    }
+                }
+                else -> {
+                    val status = response.status
+                    emit(Result.failure(Throwable("********** Error description: ${status.description}. Code: ${status.value} ************")))
+                }
+            }
+        }
+    }
+
     override suspend fun deleteUser(accessToken: String): Flow<Result<Boolean>> {
         return flow {
             val response = httpClient.put(urlString = "$baseUrl/user/delete", block = {
@@ -239,6 +263,26 @@ open class NetRepository(
                 }
             }
         }
+    }
+
+    override suspend fun forgotPassword(email: String): Flow<Result<String>> {
+        return flow {
+            val response = httpClient.put(urlString = "$baseUrl/user/forgot-password", block = {
+                contentType(ContentType.Application.Json)
+                parameter("email", email)
+            })
+            when(response.status) {
+                HttpStatusCode.OK -> {
+                    val bodyText = response.body<String>()
+                    emit(Result.success(bodyText))
+                }
+                else -> {
+                    val status = response.status
+                    emit(Result.failure(Throwable("********** Error description: ${status.description}. Code: ${status.value} ************")))
+                }
+            }
+        }
+
     }
 
 

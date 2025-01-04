@@ -30,6 +30,9 @@ import io.ktor.http.contentType
 import kotlinx.serialization.json.Json
 
 
+const val KEY_API = "api-key"
+
+
 class NetRepositoryModule(
     private val clientEngine: HttpClientEngine = CIO.create(block = {
         maxConnectionsCount = 1000
@@ -56,7 +59,7 @@ class NetRepositoryModule(
                 level = LogLevel.ALL
                 if (!BuildConfig.DEBUG) {
                     sanitizeHeader { header: String ->
-                        header == "Api-Key"
+                        header == KEY_API
                     }
                 }
             })
@@ -64,7 +67,7 @@ class NetRepositoryModule(
                 Json
             }
             defaultRequest {
-                header(key = "Api-Key", value = API_KEY)
+                header(key = KEY_API, value = API_KEY)
             }
         })
         httpClient.plugin(HttpSend).intercept { request: HttpRequestBuilder ->
