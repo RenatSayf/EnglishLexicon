@@ -2,6 +2,7 @@ package com.myapp.lexicon.common
 
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
+import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.ads.models.AdType
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 
@@ -77,6 +78,17 @@ val MESSAGE_TO_USER: String
         } catch (e: Exception) {
             e.printStackTraceIfDebug()
             "Unknown error"
+        }
+    }
+
+val PAYMENT_THRESHOLD: Double
+    get() {
+        return try {
+            if (!BuildConfig.DEBUG)
+                Firebase.remoteConfig.getDouble("payment_threshold") else 0.1
+        }
+        catch (e: Exception) {
+            1.0
         }
     }
 
