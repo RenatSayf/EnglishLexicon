@@ -38,7 +38,6 @@ import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.common.APP_TIME_ZONE
-import com.myapp.lexicon.common.PAYMENT_THRESHOLD
 import com.myapp.lexicon.databinding.SnackBarTestBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.main.viewmodels.UserViewModel
@@ -361,9 +360,7 @@ fun FragmentActivity.reserveRewardPaymentForMonth(
     if (isResetMonthlyBalance) {
         val userVM = ViewModelProvider(this)[UserViewModel::class.java]
 
-        val paymentThreshold: Double = PAYMENT_THRESHOLD
         userVM.updatePayoutDataIntoCloud(
-            threshold = (paymentThreshold * user.currencyRate).toInt(),
             reward = user.userReward,
             userMap = mapOf(
 

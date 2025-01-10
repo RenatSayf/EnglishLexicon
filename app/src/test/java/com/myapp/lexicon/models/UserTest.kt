@@ -40,69 +40,110 @@ class UserTest {
     }
 
     @Test
-    fun isResetMonthlyBalance() {
-
+    fun `The user registered in the current month The result should be false`() {
         val user = User("XXX").apply {
-            createdAt = "2025-01-08 00:00:01".toLongTime()
+            createdAt = "2025-01-01 00:00:01".toLongTime()
             rewardUpdateAt = "2025-01-09 10:06:25"
             reservedPaymentDate = ""
         }
 
-        var actualResult = user.isResetMonthlyBalance(currentMonth = 1)
+        val actualResult = user.isResetMonthlyBalance(currentMonth = 1)
         Assert.assertEquals(false, actualResult)
+    }
 
-        var currentTime = "2025-01-31 23:59:59"
-        user.apply {
-            createdAt = "2025-01-08 00:00:01".toLongTime()
-            rewardUpdateAt = currentTime
+    @Test
+    fun `The user registered at the beginning of the current month, It's the end of the current month, the result should be false`() {
+        val currentTime = "2025-01-31 23:59:59"
+        val user = User("XXX").apply {
+            createdAt = "2025-01-01 00:00:01".toLongTime()
+            rewardUpdateAt = "2025-01-21 23:06:25"
             reservedPaymentDate = ""
         }
-        actualResult = user.isResetMonthlyBalance(currentMonth = currentTime.toLongTime().getMonthFromLongTime())
+        val actualResult = user.isResetMonthlyBalance(currentMonth = currentTime.toLongTime().getMonthFromLongTime())
         Assert.assertEquals(false, actualResult)
+    }
 
-        currentTime = "2025-02-01 00:00:01"
-        user.apply {
-            createdAt = "2025-01-08 00:00:01".toLongTime()
-            rewardUpdateAt = "2025-01-31 23:59:59"
+    @Test
+    fun `The user registered at the previous month, It's the start of the next month, the result should be true`() {
+        val currentTime = "2025-02-01 00:00:01"
+        val user = User("XXX").apply {
+            createdAt = "2025-01-01 00:00:01".toLongTime()
+            rewardUpdateAt = "2025-01-21 23:06:25"
             reservedPaymentDate = ""
         }
-        actualResult = user.isResetMonthlyBalance(currentMonth = currentTime.toLongTime().getMonthFromLongTime())
+        val actualResult = user.isResetMonthlyBalance(currentMonth = currentTime.toLongTime().getMonthFromLongTime())
         Assert.assertEquals(true, actualResult)
+    }
 
-        currentTime = "2025-02-01 00:00:01"
-        user.apply {
-            createdAt = "2025-01-08 00:00:01".toLongTime()
-            rewardUpdateAt = currentTime
-            reservedPaymentDate = ""
-        }
-        actualResult = user.isResetMonthlyBalance(currentMonth = currentTime.toLongTime().getMonthFromLongTime())
-        Assert.assertEquals(true, actualResult)
-
-        currentTime = "2025-02-28 23:59:59"
-        user.apply {
-            createdAt = "2025-01-08 00:00:01".toLongTime()
-            rewardUpdateAt = currentTime
+    @Test
+    fun `The user registered at the previous month, It's the end of the current month, the result should be false`() {
+        val currentTime = "2025-02-28 23:59:59"
+        val user = User("XXX").apply {
+            createdAt = "2025-01-01 00:00:01".toLongTime()
+            rewardUpdateAt = "2025-02-21 23:06:25"
             reservedPaymentDate = "2025-02-01 00:00:01"
         }
-        actualResult = user.isResetMonthlyBalance(currentMonth = currentTime.toLongTime().getMonthFromLongTime())
+        val actualResult = user.isResetMonthlyBalance(currentMonth = currentTime.toLongTime().getMonthFromLongTime())
         Assert.assertEquals(false, actualResult)
+    }
 
-        currentTime = "2025-03-01 00:00:01"
-        user.apply {
-            createdAt = "2025-01-08 00:00:01".toLongTime()
-            rewardUpdateAt = currentTime
+    @Test
+    fun `The user registered a few months ago, It's the beginning of the next month, the result should be true`() {
+        val currentTime = "2025-03-01 00:00:01"
+        val user = User("XXX").apply {
+            createdAt = "2025-01-01 00:00:01".toLongTime()
+            rewardUpdateAt = "2025-02-21 23:06:25"
             reservedPaymentDate = "2025-02-01 00:00:01"
         }
-        actualResult = user.isResetMonthlyBalance(currentMonth = currentTime.toLongTime().getMonthFromLongTime())
+        val actualResult = user.isResetMonthlyBalance(currentMonth = currentTime.toLongTime().getMonthFromLongTime())
         Assert.assertEquals(true, actualResult)
+    }
 
-        currentTime = "2025-04-01 00:00:01"
-        user.apply {
-            createdAt = "2025-01-08 00:00:01".toLongTime()
-            rewardUpdateAt = "2025-03-01 00:00:01"
-            reservedPaymentDate = "2025-02-01 00:00:01"
+    @Test
+    fun `The user registered a few months ago, It's the end of the current month, the result should be false`() {
+        val currentTime = "2025-03-31 23:59:59"
+        val user = User("XXX").apply {
+            createdAt = "2025-01-01 00:00:01".toLongTime()
+            rewardUpdateAt = "2025-03-21 23:06:25"
+            reservedPaymentDate = "2025-03-01 00:00:01"
         }
-        actualResult = user.isResetMonthlyBalance(currentMonth = currentTime.toLongTime().getMonthFromLongTime())
+        val actualResult = user.isResetMonthlyBalance(currentMonth = currentTime.toLongTime().getMonthFromLongTime())
+        Assert.assertEquals(false, actualResult)
+    }
+
+    @Test
+    fun `The user registered a few months ago, It's the start of the next month, the result should be true`() {
+        val currentTime = "2025-04-01 00:00:01"
+        val user = User("XXX").apply {
+            createdAt = "2025-01-01 00:00:01".toLongTime()
+            rewardUpdateAt = "2025-03-21 23:06:25"
+            reservedPaymentDate = "2025-03-01 00:00:01"
+        }
+        val actualResult = user.isResetMonthlyBalance(currentMonth = currentTime.toLongTime().getMonthFromLongTime())
+        Assert.assertEquals(true, actualResult)
+    }
+
+    @Test
+    fun `The user registered in January, It's the end of April now, the result should be false`() {
+        val currentTime = "2025-04-30 23:59:59"
+        val user = User("XXX").apply {
+            createdAt = "2025-01-01 00:00:01".toLongTime()
+            rewardUpdateAt = "2025-03-21 23:06:25" // The user did not log in in April
+            reservedPaymentDate = "2025-04-01 00:00:01"
+        }
+        val actualResult = user.isResetMonthlyBalance(currentMonth = currentTime.toLongTime().getMonthFromLongTime())
+        Assert.assertEquals(false, actualResult)
+    }
+
+    @Test
+    fun `The user registered in January, It's the beginning of May, and the result should be true`() {
+        val currentTime = "2025-05-01 00:00:01"
+        val user = User("XXX").apply {
+            createdAt = "2025-01-01 00:00:01".toLongTime()
+            rewardUpdateAt = "2025-05-01 00:00:01" //
+            reservedPaymentDate = "2025-04-01 00:00:01"
+        }
+        val actualResult = user.isResetMonthlyBalance(currentMonth = currentTime.toLongTime().getMonthFromLongTime())
         Assert.assertEquals(true, actualResult)
     }
 
