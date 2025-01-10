@@ -173,7 +173,7 @@
     <string name="test_cloud_token" translatable="false">Test-55555-44444-33333-22222-11111</string>
     <string name="text_reward_for">Награда за</string>
     <string name="text_your_reward">Ваша награда:</string>
-    <string name="text_account">Аккаунт</string>
+    <string name="text_account">Моя награда</string>
     <string name="text_get_reward">Получать вознаграждение</string>
     <string name="explaining_about_revenue_getting">Для того, что бы получать вознаграждение, необходимо зарегистрироваться либо войти, если Вы уже были зарегистрированы раннее.</string>
     <string name="text_hint_email">your-email@domain.com</string>
