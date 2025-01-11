@@ -14,3 +14,5 @@ build/
 /java_pid1564.hprof
 /java_pid8308.hprof
 local.properties
+/lexicon_key.jks
+/private_key.pepk
