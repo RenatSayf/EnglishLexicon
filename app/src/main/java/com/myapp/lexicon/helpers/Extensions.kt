@@ -356,16 +356,11 @@ fun FragmentActivity.reserveRewardPaymentForMonth(
     user: User,
     onSuccess: (sum: Int, remainder: Double) -> Unit
 ) {
-    val isCreatedAtLastMonth = user.createdAt.toStringTime().isDateOfLastMonth()
-    val isRewardUpdateAtLastMonth = user.rewardUpdateAt.isDateOfLastMonth()
-    val isReservedAtLastMonth = user.reservedPaymentDate.isDateOfLastMonth()
-    if (isCreatedAtLastMonth && isRewardUpdateAtLastMonth && isReservedAtLastMonth) {
+    val isResetMonthlyBalance = user.isResetMonthlyBalance()
+    if (isResetMonthlyBalance) {
         val userVM = ViewModelProvider(this)[UserViewModel::class.java]
 
-        val paymentThreshold: Double = if (!BuildConfig.DEBUG)
-            Firebase.remoteConfig.getDouble("payment_threshold") else 0.1
         userVM.updatePayoutDataIntoCloud(
-            threshold = (paymentThreshold * user.currencyRate).toInt(),
             reward = user.userReward,
             userMap = mapOf(
 

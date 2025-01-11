@@ -11,6 +11,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.auth.models.SBPBanks
+import com.myapp.lexicon.common.PAYMENT_THRESHOLD
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.parse.GetCallback
 import com.parse.ParseException
@@ -30,8 +31,7 @@ open class AccountViewModel : ViewModel() {
         data object Editing: State()
     }
 
-    open val paymentThreshold: Double = if (!BuildConfig.DEBUG)
-        Firebase.remoteConfig.getDouble("payment_threshold") else 0.1
+    open val paymentThreshold: Double = PAYMENT_THRESHOLD
 
     open val paymentCode: String = if (!BuildConfig.DEBUG)
         Firebase.remoteConfig.getString("PAYMENT_CODE").trim() else BuildConfig.PAYMENT_CODE.trim()

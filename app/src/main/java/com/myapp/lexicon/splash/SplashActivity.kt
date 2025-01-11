@@ -16,16 +16,17 @@ import com.myapp.lexicon.common.KEY_APP_STORE_LINK
 import com.myapp.lexicon.common.MESSAGE_TO_USER
 import com.myapp.lexicon.databinding.ALayoutSplashScreenBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
-import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showDialogAsSingleton
 import com.myapp.lexicon.helpers.startTimer
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.Speaker
-import com.myapp.lexicon.settings.*
-import com.myapp.lexicon.video.constants.initRemoteConfig
+import com.myapp.lexicon.settings.adsIsEnabled
+import com.myapp.lexicon.settings.checkOnStartSpeech
+import com.myapp.lexicon.settings.getAuthDataFromPref
+import com.myapp.lexicon.settings.goToAppStore
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.*
+import java.util.Locale
 
 
 @SuppressLint("CustomSplashScreen")
@@ -45,13 +46,8 @@ class SplashActivity : AppCompatActivity() {
         binding = ALayoutSplashScreenBinding.inflate(layoutInflater, CoordinatorLayout(this), false)
         setContentView(binding.root)
 
-        try {
-            initRemoteConfig() // initialization remote config
-            IS_REWARD_ACCESSIBLE
-            MESSAGE_TO_USER
-        } catch (e: Exception) {
-            e.printStackTraceIfDebug()
-        }
+        IS_REWARD_ACCESSIBLE
+        MESSAGE_TO_USER
 
         val extras = intent.extras
         val appStoreLink = extras?.getString(KEY_APP_STORE_LINK)

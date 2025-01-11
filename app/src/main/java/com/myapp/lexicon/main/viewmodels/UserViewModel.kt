@@ -289,7 +289,6 @@ open class UserViewModel @Inject constructor(
     }
 
     open fun updatePayoutDataIntoCloud(
-        threshold: Int,
         reward: Double,
         userMap: Map<String, Any?> = mapOf(),
         onStart: () -> Unit = {},
@@ -299,7 +298,7 @@ open class UserViewModel @Inject constructor(
         onComplete: (Exception?) -> Unit = {}
     ) {
         onStart.invoke()
-        if (reward > threshold) {
+        if (reward > 0.0) {
             val payout = reward.toInt()
             val rewardRemainder = reward - payout
             val currentUser = ParseUser.getCurrentUser()

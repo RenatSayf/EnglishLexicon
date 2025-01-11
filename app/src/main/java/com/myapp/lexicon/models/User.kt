@@ -75,6 +75,20 @@ data class User(
         return currentMonth > lastPaymentMonth
     }
 
+    fun isResetMonthlyBalance(currentMonth: Int = System.currentTimeMillis().getMonthFromLongTime()): Boolean {
+        val createdMonth = this.createdAt.getMonthFromLongTime()
+        val rewardUpdateMonth = this.rewardUpdateAt.toLongTime().getMonthFromLongTime()
+        val reservedMonth = this.reservedPaymentDate.toLongTime().getMonthFromLongTime()
+        return when {
+            createdMonth == currentMonth -> false
+            currentMonth >= rewardUpdateMonth &&
+                    currentMonth > createdMonth &&
+                    reservedMonth < currentMonth -> true
+            else -> false
+        }
+
+    }
+
 
 }
 
