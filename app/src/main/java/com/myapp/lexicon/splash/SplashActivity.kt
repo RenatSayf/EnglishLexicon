@@ -1,6 +1,7 @@
 package com.myapp.lexicon.splash
 
 import android.annotation.SuppressLint
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -169,7 +170,11 @@ class SplashActivity : AppCompatActivity() {
                             text = getString(R.string.btn_text_setup)
                             setOnClickListener {
                                 val intent = Intent(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA)
-                                startActivity(intent)
+                                try {
+                                    startActivity(intent)
+                                } catch (e: ActivityNotFoundException) {
+                                    e.printStackTrace()
+                                }
                                 dialog.dismiss()
                             }
                         }
