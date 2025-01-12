@@ -2,6 +2,7 @@ package com.myapp.lexicon.common
 
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
+import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.ads.models.AdType
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 
@@ -80,10 +81,31 @@ val MESSAGE_TO_USER: String
         }
     }
 
+val PAYMENT_THRESHOLD: Double
+    get() {
+        return try {
+            if (BuildConfig.ADS_SOURCE != AdsSource.LOCAL_HOST.name) {
+                if (!BuildConfig.DEBUG)
+                    Firebase.remoteConfig.getDouble("payment_threshold") else 0.1
+            }
+            else {
+                1.0
+            }
+        }
+        catch (e: Exception) {
+            1.0
+        }
+    }
+
 val APP_TIME_ZONE: String
     get() {
         return try {
-            Firebase.remoteConfig.getString("APP_TIME_ZONE")
+            if (BuildConfig.ADS_SOURCE != AdsSource.LOCAL_HOST.name) {
+                Firebase.remoteConfig.getString("APP_TIME_ZONE")
+            }
+            else {
+                "Europe/Moscow"
+            }
         } catch (e: Exception) {
             "Europe/Moscow"
         }

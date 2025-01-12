@@ -71,7 +71,7 @@ class AccountFragmentTest {
                 .add(R.id.frameLayout, accountFragment, "XXX")
                 .commitNow()
 
-            val tvFirstName = act.findViewById<AppCompatEditText>(R.id.tvFirstNameValue)
+            val tvFirstName = act.findViewById<AppCompatEditText>(R.id.tvEmailValue)
             val actualBgState = tvFirstName.background.constantState
             val expectedBgState = act.resources.getDrawable(R.drawable.bg_horizontal_oval, null).constantState
             Assert.assertEquals(expectedBgState, actualBgState)
@@ -83,7 +83,7 @@ class AccountFragmentTest {
         Espresso.onView(ViewMatchers.withText("OK")).perform(ViewActions.click())
 
         Thread.sleep(2000)
-        Espresso.onView(ViewMatchers.withId(R.id.tvFirstNameValue))
+        Espresso.onView(ViewMatchers.withId(R.id.tvEmailValue))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
 
     }

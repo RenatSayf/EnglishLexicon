@@ -1,6 +1,7 @@
 package com.myapp.lexicon.splash
 
 import android.annotation.SuppressLint
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -16,16 +17,17 @@ import com.myapp.lexicon.common.KEY_APP_STORE_LINK
 import com.myapp.lexicon.common.MESSAGE_TO_USER
 import com.myapp.lexicon.databinding.ALayoutSplashScreenBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
-import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showDialogAsSingleton
 import com.myapp.lexicon.helpers.startTimer
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.Speaker
-import com.myapp.lexicon.settings.*
-import com.myapp.lexicon.video.constants.initRemoteConfig
+import com.myapp.lexicon.settings.adsIsEnabled
+import com.myapp.lexicon.settings.checkOnStartSpeech
+import com.myapp.lexicon.settings.getAuthDataFromPref
+import com.myapp.lexicon.settings.goToAppStore
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.*
+import java.util.Locale
 
 
 @SuppressLint("CustomSplashScreen")
@@ -45,13 +47,8 @@ class SplashActivity : AppCompatActivity() {
         binding = ALayoutSplashScreenBinding.inflate(layoutInflater, CoordinatorLayout(this), false)
         setContentView(binding.root)
 
-        try {
-            initRemoteConfig() // initialization remote config
-            IS_REWARD_ACCESSIBLE
-            MESSAGE_TO_USER
-        } catch (e: Exception) {
-            e.printStackTraceIfDebug()
-        }
+        IS_REWARD_ACCESSIBLE
+        MESSAGE_TO_USER
 
         val extras = intent.extras
         val appStoreLink = extras?.getString(KEY_APP_STORE_LINK)
@@ -173,7 +170,11 @@ class SplashActivity : AppCompatActivity() {
                             text = getString(R.string.btn_text_setup)
                             setOnClickListener {
                                 val intent = Intent(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA)
-                                startActivity(intent)
+                                try {
+                                    startActivity(intent)
+                                } catch (e: ActivityNotFoundException) {
+                                    e.printStackTrace()
+                                }
                                 dialog.dismiss()
                             }
                         }

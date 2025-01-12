@@ -3,9 +3,9 @@
 - Architecture: MVVM
 - Libraries used:
    * DI: Manual
-   * Navigation: Jetpak Navigation component
+   * Navigation: FragmentManager
    * Network: Ktor
-   * Backend: Firebase: Storage, Cloud Firestore, Authentication, Remote config.
+   * Backend: Firebase: Storage, Cloud Firestore, Remote config.
    * Backend: Back4app (https://www.back4app.com): cloud database
    * Local store: Room database
    * Background work: Workmanager
@@ -13,4 +13,4 @@
    * Unit tests: JUnit
    * UI tests: Espresso
    * Other libraries: Jsoup, Picasso, Kotlin Serialization
-   * Monetization: AdMob, Yandex mobilead, Billing Play Library
+   * Monetization: Yandex mobilead
