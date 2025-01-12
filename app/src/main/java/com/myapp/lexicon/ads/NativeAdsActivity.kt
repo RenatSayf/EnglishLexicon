@@ -99,6 +99,7 @@ class NativeAdsActivity : AppCompatActivity() {
             })
 
             btnClose.setOnClickListener {
+
                 finish()
             }
 
@@ -211,9 +212,13 @@ fun Activity.startNativeAdsActivity(
     NativeAdsActivity.setAdDataListener(object : NativeAdsActivity.Listener {
         override fun onDismissed(data: AdData?) {
             if (data != null) {
-                onImpression.invoke(data)
-                val bonus = (data.revenue * UserViewModel.USER_PERCENTAGE).to2DigitsScale()
-                onDismissed.invoke(bonus)
+                try {
+                    onImpression.invoke(data)
+                    val bonus = (data.revenue * UserViewModel.USER_PERCENTAGE).to2DigitsScale()
+                    onDismissed.invoke(bonus)
+                } catch (e: Exception) {
+                    e.printStackTraceIfDebug()
+                }
             }
         }
     })

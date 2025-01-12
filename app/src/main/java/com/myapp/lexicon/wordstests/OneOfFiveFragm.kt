@@ -27,6 +27,7 @@ import com.myapp.lexicon.common.AD_TYPE
 import com.myapp.lexicon.databinding.OneOfFiveFragmNewBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.RandomNumberGenerator
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.adsIsEnabled
@@ -266,8 +267,12 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
     {
         showAd(
             onComplete = {
-                parentFragmentManager.popBackStack()
-                mActivity.testPassed()
+                try {
+                    parentFragmentManager.popBackStack()
+                    mActivity.testPassed()
+                } catch (e: Exception) {
+                    e.printStackTraceIfDebug()
+                }
             }
         )
     }
@@ -276,8 +281,12 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
     {
         showAd(
             onComplete = {
-                parentFragmentManager.popBackStack()
-                mActivity.testFailed(errors)
+                try {
+                    parentFragmentManager.popBackStack()
+                    mActivity.testFailed(errors)
+                } catch (e: Exception) {
+                    e.printStackTraceIfDebug()
+                }
             }
         )
     }
@@ -305,12 +314,20 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
                     requireActivity().startNativeAdsActivity(
                         onImpression = {data: AdData? ->
                             if (data != null) {
-                                revenueVM.updateUserRevenueIntoCloud(data)
+                                try {
+                                    revenueVM.updateUserRevenueIntoCloud(data)
+                                } catch (e: Exception) {
+                                    e.printStackTraceIfDebug()
+                                }
                             }
                         },
                         onDismissed = {bonus: Double ->
                             adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
-                            onComplete.invoke()
+                            try {
+                                onComplete.invoke()
+                            } catch (e: Exception) {
+                                e.printStackTraceIfDebug()
+                            }
                         }
                     )
                 }
