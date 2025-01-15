@@ -66,29 +66,28 @@ class YouTubeViewModel: ViewModel() {
         onPlay: () -> Unit,
         onPause: () -> Unit
     ) {
-        viewModelScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) {
+        viewModelScope.launch(Dispatchers.Main) {
+            run {
                 onStart.invoke()
                 try {
                     if (rawHtml != null) {
                         val htmlContent = prepareRawHtml(rawHtml)
                         val document = Jsoup.parse(htmlContent)
-                        val attr = document.getElementsByClass("player-control-play-pause-icon").firstOrNull()?.attr("aria-pressed")
-                        if (attr == null) {
-                            val element = document.getElementsByClass("is-scrubbable-mode").firstOrNull()
-                            if (element == null) {
-                                onPlay.invoke()
-                            }
-                            else {
-                                onPause.invoke()
-                            }
+
+                        val element = withContext(Dispatchers.IO) {
+                            document.getElementsByClass("player-control-play-pause-icon")
                         }
-                        else {
-                            if (attr == "true") {
-                                onPlay.invoke()
-                            }
-                            else {
+                        val attrD = element.first()?.firstElementChild()?.firstElementSibling()
+                            ?.firstElementChild()?.firstElementSibling()
+                            ?.firstElementChild()?.firstElementChild()
+                            ?.firstElementChild()?.attr("d")
+
+                        when(attrD) {
+                            "m7 4 12 8-12 8V4z" -> {
                                 onPause.invoke()
+                            }
+                            "M9 19H7V5h2Zm8-14h-2v14h2Z", null -> {
+                                onPlay.invoke()
                             }
                         }
                     }

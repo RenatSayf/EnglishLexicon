@@ -12,7 +12,9 @@ import android.widget.ScrollView
 import android.window.OnBackInvokedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.ads.models.AdData
+import com.myapp.lexicon.common.AdsSource
 import com.myapp.lexicon.common.IS_REWARD_ACCESSIBLE
 import com.myapp.lexicon.databinding.ActivityNativeAdsBinding
 import com.myapp.lexicon.helpers.logIfDebug
@@ -65,8 +67,10 @@ class NativeAdsActivity : AppCompatActivity() {
         with(binding) {
 
             nativeAdLoader = NativeBulkAdLoader(this@NativeAdsActivity)
+            val adId = if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) "demo-native-app-yandex"
+            else NativeAdIds.NATIVE_1.id
             nativeAdLoader?.loadAds(
-                nativeAdRequestConfiguration = NativeAdRequestConfiguration.Builder(NativeAdIds.NATIVE_1.id).apply {
+                nativeAdRequestConfiguration = NativeAdRequestConfiguration.Builder(adId).apply {
                     setShouldLoadImagesAutomatically(true)
                 }.build(),
                 3
