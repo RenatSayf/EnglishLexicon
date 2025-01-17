@@ -45,9 +45,17 @@ class NetRepositoryModule(
     private val baseUrl: String = BASE_URL
 ) {
 
+    private var listener: Listener? = null
+
+    fun setTokensUpdateListener(listener: Listener) {
+        this.listener = listener
+    }
+
     fun provideNetRepository(
         refreshToken: String = ""
     ): INetRepository {
+
+        require(this.listener != null, lazyMessage = {"TokensUpdateListener not implemented. You need to call the setTokensUpdateListener()"})
 
         val httpClient = HttpClient(engine = clientEngine, block = {
             install(plugin = Logging, configure = {
@@ -80,6 +88,7 @@ class NetRepositoryModule(
                 when(refreshResponse.status) {
                     HttpStatusCode.Accepted -> {
                         val newTokens = Json.decodeFromString<Tokens>(refreshResponse.body())
+                        listener?.onUpdateTokens(newTokens)
                         request.url.encodedParameters["access_token"] = newTokens.accessToken
                         execute(request)
                     }
@@ -93,6 +102,10 @@ class NetRepositoryModule(
             }
         }
         return NetRepository(httpClient, baseUrl)
+    }
+
+    interface Listener {
+        fun onUpdateTokens(tokens: Tokens)
     }
 
 
