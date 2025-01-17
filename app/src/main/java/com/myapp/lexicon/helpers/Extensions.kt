@@ -314,10 +314,12 @@ fun Long.dayOfMonthFromLongTime(): Int {
 
 val timeInMillisMoscowTimeZone: Long
     get() {
-        val localDateTime = LocalDateTime.ofInstant(
-            Instant.ofEpochMilli(System.currentTimeMillis()),
-            ZoneId.of(APP_TIME_ZONE)
-        )
+        val localDateTime = try {
+            LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of(APP_TIME_ZONE))
+        }
+        catch (e: Exception) {
+            LocalDateTime.now()
+        }
         val zonedDateTime = localDateTime.atZone(ZoneId.of(APP_TIME_ZONE))
         return zonedDateTime.toInstant().toEpochMilli()
     }

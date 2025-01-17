@@ -15,7 +15,7 @@ android {
         //noinspection EditedTargetSdkVersion
         targetSdkVersion 35
         versionName '5.11'   //Hint last versionName in store is 5.10
-        versionCode 98      //Hint last versionCode in store is 97
+        versionCode 99      //Hint last versionCode in store is 98
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
 
@@ -98,7 +98,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.8.7'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7'
     implementation 'com.google.android.gms:play-services-auth-base:18.1.0'
-    implementation 'androidx.activity:activity-ktx:1.9.3'
+    implementation 'androidx.activity:activity-ktx:1.10.0'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
@@ -148,7 +148,7 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.18.3'
 
     //region Hint Activity Result API. Runtime permission Step 1
-    implementation 'androidx.activity:activity-ktx:1.9.3'
+    implementation 'androidx.activity:activity-ktx:1.10.0'
     implementation 'androidx.fragment:fragment-ktx:1.8.5'
     //endregion
 
