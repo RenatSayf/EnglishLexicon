@@ -16,9 +16,7 @@ enum class AdsSource {
 
 val BASE_URL: String
     get() {
-        return if (BuildConfig.DEBUG)
-            "https://api.dev.englishlexicon.ru"
-        else "https://api.englishlexicon.ru"
+        return BuildConfig.BASE_URL
     }
 
 val API_KEY: String

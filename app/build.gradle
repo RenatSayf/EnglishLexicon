@@ -64,19 +64,27 @@ android {
         checkReleaseBuilds false
     }
 
-    flavorDimensions = ['ADS_TEST']
+    flavorDimensions = ['BASE_URL']
     productFlavors {
-        TEST_ADS {
-            dimension 'ADS_TEST'
-            buildConfigField 'String', 'ADS_SOURCE', '\"TEST_AD\"'
-        }
-        ALIVE_ADS {
-            dimension 'ADS_TEST'
-            buildConfigField 'String', 'ADS_SOURCE', '\"ALIVE_AD\"'
-        }
-        LOCAL_HOST {
-            dimension 'ADS_TEST'
+        LOCAL_HOST_ {
+            dimension 'BASE_URL'
             buildConfigField('String', 'ADS_SOURCE', '\"LOCAL_HOST\"')
+            buildConfigField('String', 'BASE_URL', '\"https://api.dev.englishlexicon.ru\"')
+        }
+        DEV_HOST_TEST_ADS_ {
+            dimension('BASE_URL')
+            buildConfigField 'String', 'ADS_SOURCE', '\"TEST_AD\"'
+            buildConfigField('String', 'BASE_URL', '\"https://api.dev.englishlexicon.ru\"')
+        }
+        DEV_HOST_ALIVE_ADS_ {
+            dimension('BASE_URL')
+            buildConfigField 'String', 'ADS_SOURCE', '\"ALIVE_AD\"'
+            buildConfigField('String', 'BASE_URL', '\"https://api.dev.englishlexicon.ru\"')
+        }
+        PROD_HOST_ {
+            dimension('BASE_URL')
+            buildConfigField 'String', 'ADS_SOURCE', '\"ALIVE_AD\"'
+            buildConfigField('String', 'BASE_URL', '\"https://api.englishlexicon.ru\"')
         }
     }
     testOptions.unitTests.includeAndroidResources = true
