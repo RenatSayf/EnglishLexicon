@@ -314,14 +314,14 @@ fun Long.dayOfMonthFromLongTime(): Int {
 
 val timeInMillisMoscowTimeZone: Long
     get() {
-        val localDateTime = try {
-            LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of(APP_TIME_ZONE))
+        try {
+            val localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of(APP_TIME_ZONE))
+            val zonedDateTime = localDateTime.atZone(ZoneId.of(APP_TIME_ZONE))
+            return zonedDateTime.toInstant().toEpochMilli()
+        } catch (e: Exception) {
+            e.printStackTraceIfDebug()
+            return System.currentTimeMillis()
         }
-        catch (e: Exception) {
-            LocalDateTime.now()
-        }
-        val zonedDateTime = localDateTime.atZone(ZoneId.of(APP_TIME_ZONE))
-        return zonedDateTime.toInstant().toEpochMilli()
     }
 
 fun isTodayFirstDayOfMonth(timeInMillis: Long = timeInMillisMoscowTimeZone): Boolean {

@@ -497,14 +497,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         if (toolBar != null)
         {
-            String currentMonth = TimeExtKt.getMonthNameFromMillis(ExtensionsKt.getTimeInMillisMoscowTimeZone());
-            double rewardToDisplay = (revenue != null) ? UserKt.to2DigitsScale(revenue.getReward()) : 0.0;
-            String text = getString(R.string.coins_bag).concat(" ")
-                    .concat(currentMonth).concat(" ")
-                    .concat(String.valueOf(rewardToDisplay)).concat(" ")
-                    .concat((revenue != null) ? revenue.getCurrencySymbol() : Currency.getInstance("RUB").getSymbol());
-            TextView tvSubTitle = toolbarBinding.tvSubtitle;
-            tvSubTitle.setText(text);
+            String text = "";
+            try
+            {
+                String currentMonth = TimeExtKt.getMonthNameFromMillis(ExtensionsKt.getTimeInMillisMoscowTimeZone());
+                double rewardToDisplay = (revenue != null) ? UserKt.to2DigitsScale(revenue.getReward()) : 0.0;
+                text = getString(R.string.coins_bag).concat(" ")
+                        .concat(currentMonth).concat(" ")
+                        .concat(String.valueOf(rewardToDisplay)).concat(" ")
+                        .concat((revenue != null) ? revenue.getCurrencySymbol() : Currency.getInstance("RUB").getSymbol());
+                TextView tvSubTitle = toolbarBinding.tvSubtitle;
+                tvSubTitle.setText(text);
+            } catch (Exception e)
+            {
+                ExtensionsKt.printStackTraceIfDebug(e);
+            }
 
             if (tvReward != null)
             {
