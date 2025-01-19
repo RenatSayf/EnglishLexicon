@@ -1,6 +1,7 @@
 package com.myapp.lexicon.repository.network
 
 import com.myapp.lexicon.models.Balance
+import com.myapp.lexicon.models.HttpThrowable
 import com.myapp.lexicon.models.RevenueX
 import com.myapp.lexicon.models.SignInData
 import com.myapp.lexicon.models.SignUpData
@@ -50,7 +51,8 @@ open class NetRepository(
                 }
                 else -> {
                     val status = response.status
-                    emit(Result.failure(Throwable("********** Error description: ${status.description}. Code: ${status.value} ************")))
+                    val httpThrowable = HttpThrowable(message = status.description, errorCode = status.value)
+                    emit(Result.failure(httpThrowable))
                 }
             }
         }
@@ -64,7 +66,7 @@ open class NetRepository(
                 setBody(json)
             })
             when(response.status) {
-                HttpStatusCode.OK -> {
+                HttpStatusCode.Accepted -> {
                     try {
                         val json = response.body<String>()
                         val tokens = jsonDecoder.decodeFromString<Tokens>(json)
@@ -75,7 +77,8 @@ open class NetRepository(
                 }
                 else -> {
                     val status = response.status
-                    emit(Result.failure(Throwable("********** Error description: ${status.description}. Code: ${status.value} ************")))
+                    val httpThrowable = HttpThrowable(message = status.description, errorCode = status.value)
+                    emit(Result.failure(httpThrowable))
                 }
             }
         }

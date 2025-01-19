@@ -14,6 +14,7 @@ import androidx.preference.PreferenceManager
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.models.TestState
+import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.toWord
@@ -35,6 +36,10 @@ fun Context.saveUserToPref(user: User) {
         putString("KEY_PASSWORD", user.password)
         putBoolean("KEY_IS_REGISTERED", true)
     }.apply()
+}
+
+fun Context.saveTokensToPref(tokens: Tokens) {
+
 }
 
 fun Context.clearEmailPasswordInPref() {

@@ -2,16 +2,24 @@
 
 package com.myapp.lexicon.auth
 
-import android.app.Application
 import android.graphics.drawable.Drawable
 import android.text.TextUtils
 import android.util.Patterns
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.common.mapToUser
+import com.myapp.lexicon.di.INetRepositoryModule
+import com.myapp.lexicon.di.NetRepositoryModule
+import com.myapp.lexicon.models.HttpThrowable
+import com.myapp.lexicon.models.SignInData
+import com.myapp.lexicon.models.SignUpData
+import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.models.UserState
-import com.myapp.lexicon.settings.getAuthDataFromPref
+import com.myapp.lexicon.repository.network.INetRepository
 import com.parse.DeleteCallback
 import com.parse.GetCallback
 import com.parse.LogInCallback
@@ -21,14 +29,26 @@ import com.parse.ParseQuery
 import com.parse.ParseUser
 import com.parse.RequestPasswordResetCallback
 import com.parse.SignUpCallback
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import javax.inject.Inject
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
-open class AuthViewModel @Inject constructor(
-    app: Application
-) : AndroidViewModel(app) {
+open class AuthViewModel(
+    private val netModule: INetRepositoryModule
+) : ViewModel() {
+
+    @Suppress("UNCHECKED_CAST")
+    class Factory(
+        private val netModule: INetRepositoryModule = NetRepositoryModule()
+    ) : ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            require(modelClass == AuthViewModel::class.java)
+            return AuthViewModel(netModule) as T
+        }
+    }
+
+    private val repository: INetRepository = netModule.provideNetRepository()
 
     sealed class LoadingState {
         data object Start: LoadingState()
@@ -67,12 +87,37 @@ open class AuthViewModel @Inject constructor(
     }
     open val state: LiveData<UserState> = _state
 
-    protected val _stateFlow = MutableStateFlow<UserState>(UserState.Init)
-    open val stateFlow: StateFlow<UserState> = _stateFlow
-
     open fun setState(state: UserState) {
         _state.value = state
-        _stateFlow.value = state
+    }
+
+    open fun registerForNewUser(email: String, password: String, dispatcher: CoroutineDispatcher = Dispatchers.IO) {
+        _loadingState.value = LoadingState.Start
+
+        val signUpData = SignUpData(appVersion = BuildConfig.VERSION_NAME, email, password)
+        viewModelScope.launch(dispatcher) {
+            repository.signUp(data = signUpData).collect(collector = { result ->
+                result.onSuccess { value: Tokens ->
+                    netModule.setRefreshToken(value.refreshToken)
+                    _state.value = UserState.LogUp(value)
+                }
+                result.onFailure { exception: Throwable ->
+                    val errorCode = (exception as HttpThrowable).errorCode
+                    when(errorCode) {
+                        409 -> {
+                            _state.value = UserState.AlreadyExists
+                        }
+                        422 -> {
+                            _state.value = UserState.PasswordValid(false)
+                        }
+                        else -> {
+                            _state.value = UserState.HttpFailure(exception.message)
+                        }
+                    }
+                }
+            })
+        }
+
     }
 
     open fun registerWithEmailAndPassword(email: String, password: String) {
@@ -93,11 +138,9 @@ open class AuthViewModel @Inject constructor(
                     when (e.code) {
                         ParseException.EMAIL_TAKEN, ParseException.USERNAME_TAKEN -> {
                             _state.value = UserState.AlreadyExists
-                            _stateFlow.value = UserState.AlreadyExists
                         }
                         else -> {
                             _state.value = UserState.Failure(e)
-                            _stateFlow.value = UserState.Failure(e)
                         }
                     }
                 }
@@ -108,6 +151,32 @@ open class AuthViewModel @Inject constructor(
 
     open fun isValidEmail(email: String): Boolean {
         return !TextUtils.isEmpty(email) && Patterns.EMAIL_ADDRESS.matcher(email).matches()
+    }
+
+    open fun logInWithEmailAndPassword(email: String, password: String) {
+        _loadingState.value = LoadingState.Start
+        viewModelScope.launch {
+            val signInData = SignInData(email, password)
+            repository.signIn(signInData).collect(collector = { result ->
+                result.onSuccess { value: Tokens ->
+                    netModule.setRefreshToken(value.refreshToken)
+                }
+                result.onFailure { exception: Throwable ->
+                    val errorCode = (exception as HttpThrowable).errorCode
+                    when(errorCode) {
+                        404 -> {
+                            _state.value = UserState.NotRegistered
+                        }
+                        401 -> {
+                            _state.value = UserState.UnAuthorized
+                        }
+                        else -> {
+                            _state.value = UserState.HttpFailure(exception.message)
+                        }
+                    }
+                }
+            })
+        }
     }
 
     open fun signInWithEmailAndPassword(email: String, password: String) {
@@ -135,12 +204,10 @@ open class AuthViewModel @Inject constructor(
                                                 this.password = password
                                             })
                                             _state.value = newState
-                                            _stateFlow.value = newState
                                         }
 
                                         e is ParseException -> {
                                             _state.value = UserState.Failure(Exception(e.message))
-                                            _stateFlow.value = UserState.Failure(Exception(e.message))
                                         }
                                     }
                                     _loadingState.value = LoadingState.Complete
@@ -152,11 +219,9 @@ open class AuthViewModel @Inject constructor(
                             if (e.code == ParseException.OBJECT_NOT_FOUND) {
                                 ParseException.EMAIL_TAKEN
                                 _state.value = UserState.NotRegistered
-                                _stateFlow.value = UserState.NotRegistered
                             } else {
 
                                 _state.value = UserState.Failure(Exception(e.message))
-                                _stateFlow.value = UserState.Failure(Exception(e.message))
                             }
                         }
                     }
@@ -174,11 +239,9 @@ open class AuthViewModel @Inject constructor(
             override fun done(e: ParseException?) {
                 if (e == null) {
                     _state.value = UserState.PasswordReset
-                    _stateFlow.value = UserState.PasswordReset
                 }
                 else {
                     _state.value = UserState.Failure(e)
-                    _stateFlow.value = UserState.Failure(e)
                 }
                 _loadingState.value = LoadingState.Complete
             }
@@ -214,19 +277,12 @@ open class AuthViewModel @Inject constructor(
 
     init {
 
-        app.getAuthDataFromPref(
-            onNotRegistered = {
-                _state.value = UserState.Init
-                _stateFlow.value = UserState.Init
-            },
-            onSuccess = { email, password ->
-                signInWithEmailAndPassword(email, password)
-            },
-            onFailure = {exception ->
-                _state.value = UserState.Failure(exception)
-                _stateFlow.value = UserState.Failure(exception)
+        netModule.setTokensUpdateListener(object : INetRepositoryModule.Listener {
+            override fun onUpdateTokens(tokens: Tokens) {
+                netModule.setRefreshToken(tokens.refreshToken)
+                _state.value = UserState.TokensUpdated(tokens)
             }
-        )
+        })
 
     }
 }

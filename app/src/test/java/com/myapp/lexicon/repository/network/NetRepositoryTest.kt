@@ -1,6 +1,7 @@
 package com.myapp.lexicon.repository.network
 
 import com.myapp.lexicon.common.APP_VERSION
+import com.myapp.lexicon.di.INetRepositoryModule
 import com.myapp.lexicon.di.KEY_API
 import com.myapp.lexicon.di.NetRepositoryModule
 import com.myapp.lexicon.helpers.logIfDebug
@@ -64,10 +65,10 @@ class NetRepositoryTest {
             }
         }
         val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine)
-        repositoryModule.setTokensUpdateListener(object : NetRepositoryModule.Listener {
+        repositoryModule.setTokensUpdateListener(object : INetRepositoryModule.Listener {
             override fun onUpdateTokens(tokens: Tokens) {}
         })
-        repository = repositoryModule.provideNetRepository(refreshToken = "")
+        repository = repositoryModule.provideNetRepository()
         runBlocking {
             repository.signUp(signUpData).collect(collector = { result ->
                 result.onSuccess { value: Tokens ->
@@ -96,7 +97,7 @@ class NetRepositoryTest {
                           "access_token": "access00000000000",
                           "refresh_token": "refresh0000000000000"
                         }""".trimIndent(),
-                    status = HttpStatusCode.OK,
+                    status = HttpStatusCode.Accepted,
                     headers = headersOf(HttpHeaders.ContentType, "application/json")
                 )
             } else {
@@ -104,10 +105,10 @@ class NetRepositoryTest {
             }
         }
         val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine)
-        repositoryModule.setTokensUpdateListener(object : NetRepositoryModule.Listener {
+        repositoryModule.setTokensUpdateListener(object : INetRepositoryModule.Listener {
             override fun onUpdateTokens(tokens: Tokens) {}
         })
-        repository = repositoryModule.provideNetRepository(refreshToken = "")
+        repository = repositoryModule.provideNetRepository()
         runBlocking {
             repository.signIn(signInData).collect(collector = { result ->
                 result.onSuccess { value: Tokens ->
@@ -141,11 +142,11 @@ class NetRepositoryTest {
         }
 
         val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine).apply {
-            setTokensUpdateListener(object : NetRepositoryModule.Listener {
+            setTokensUpdateListener(object : INetRepositoryModule.Listener {
                 override fun onUpdateTokens(tokens: Tokens) {}
             })
         }
-        repository = repositoryModule.provideNetRepository(refreshToken = "")
+        repository = repositoryModule.provideNetRepository()
 
         runBlocking {
             repository.signOut(accessToken = "access00000000000").collect(collector = { result ->
@@ -222,13 +223,14 @@ class NetRepositoryTest {
             }
         }
         val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine).apply {
-            setTokensUpdateListener(object : NetRepositoryModule.Listener {
+            setRefreshToken(refreshToken)
+            setTokensUpdateListener(object : INetRepositoryModule.Listener {
                 override fun onUpdateTokens(tokens: Tokens) {
                     Assert.assertTrue(true)
                 }
             })
         }
-        repository = repositoryModule.provideNetRepository(refreshToken = refreshToken)
+        repository = repositoryModule.provideNetRepository()
         runBlocking {
             val result = repository.getUserProfile(accessToken = oldAccessToken).await()
             result.onSuccess { value: UserX ->
@@ -273,11 +275,11 @@ class NetRepositoryTest {
         }
 
         val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine).apply {
-            setTokensUpdateListener(object : NetRepositoryModule.Listener {
+            setTokensUpdateListener(object : INetRepositoryModule.Listener {
                 override fun onUpdateTokens(tokens: Tokens) {}
             })
         }
-        repository = repositoryModule.provideNetRepository(refreshToken = "VVVVVVVVV")
+        repository = repositoryModule.provideNetRepository()
 
         val revenue = RevenueX(
             currencyCode = "RUB",
@@ -338,11 +340,11 @@ class NetRepositoryTest {
         }
 
         val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine).apply {
-            setTokensUpdateListener(object : NetRepositoryModule.Listener {
+            setTokensUpdateListener(object : INetRepositoryModule.Listener {
                 override fun onUpdateTokens(tokens: Tokens) {}
             })
         }
-        repository = repositoryModule.provideNetRepository(refreshToken = "VVVVVVVVV")
+        repository = repositoryModule.provideNetRepository()
 
         val userProfile = UserProfile(
             email = "user-test@mail.com",
@@ -404,11 +406,11 @@ class NetRepositoryTest {
         }
 
         val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine).apply {
-            setTokensUpdateListener(object : NetRepositoryModule.Listener {
+            setTokensUpdateListener(object : INetRepositoryModule.Listener {
                 override fun onUpdateTokens(tokens: Tokens) {}
             })
         }
-        repository = repositoryModule.provideNetRepository(refreshToken = "VVVVVVVVV")
+        repository = repositoryModule.provideNetRepository()
 
         runBlocking {
             val sum = 200
@@ -450,11 +452,11 @@ class NetRepositoryTest {
             }
         }
         val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine).apply {
-            setTokensUpdateListener(object : NetRepositoryModule.Listener {
+            setTokensUpdateListener(object : INetRepositoryModule.Listener {
                 override fun onUpdateTokens(tokens: Tokens) {}
             })
         }
-        repository = repositoryModule.provideNetRepository(refreshToken = "VVVVVVVVV")
+        repository = repositoryModule.provideNetRepository()
         runBlocking {
             repository.updateClickCounter(accessToken).collect(collector = { result ->
                 result.onSuccess { value: Boolean ->
@@ -484,11 +486,11 @@ class NetRepositoryTest {
         }
 
         val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine).apply {
-            setTokensUpdateListener(object : NetRepositoryModule.Listener {
+            setTokensUpdateListener(object : INetRepositoryModule.Listener {
                 override fun onUpdateTokens(tokens: Tokens) {}
             })
         }
-        repository = repositoryModule.provideNetRepository(refreshToken = "")
+        repository = repositoryModule.provideNetRepository()
 
         val accessToken = "XXXXXXXXXXXXXX"
         runBlocking {
@@ -528,11 +530,11 @@ class NetRepositoryTest {
         }
 
         val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine).apply {
-            setTokensUpdateListener(object : NetRepositoryModule.Listener {
+            setTokensUpdateListener(object : INetRepositoryModule.Listener {
                 override fun onUpdateTokens(tokens: Tokens) {}
             })
         }
-        repository = repositoryModule.provideNetRepository(refreshToken = "")
+        repository = repositoryModule.provideNetRepository()
 
         runBlocking {
             repository.forgotPassword(email = email).collect(collector = { result ->

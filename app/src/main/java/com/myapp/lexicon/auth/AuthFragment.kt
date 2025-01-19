@@ -8,7 +8,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.auth.account.AccountFragment
 import com.myapp.lexicon.auth.agreement.UserAgreementDialog
@@ -16,9 +16,11 @@ import com.myapp.lexicon.databinding.FragmentAuthBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.isItEmail
 import com.myapp.lexicon.helpers.showSnackBar
+import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserState
 import com.myapp.lexicon.settings.getAuthDataFromPref
+import com.myapp.lexicon.settings.saveAuthTokens
 import com.myapp.lexicon.settings.saveUserToPref
 
 class AuthFragment : Fragment() {
@@ -32,7 +34,10 @@ class AuthFragment : Fragment() {
     }
 
     private lateinit var binding: FragmentAuthBinding
-    private val authVM: AuthViewModel by viewModels()
+    private val authVM: AuthViewModel by lazy {
+        val factory = AuthViewModel.Factory()
+        ViewModelProvider(this, factory)[AuthViewModel::class.java]
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -90,7 +95,7 @@ class AuthFragment : Fragment() {
                     onSuccess = { email, password ->
                         UserAgreementDialog.newInstance(
                             onPositiveClick = {
-                                authVM.registerWithEmailAndPassword(email, password)
+                                authVM.registerForNewUser(email, password)
                             }
                         ).show(parentFragmentManager, UserAgreementDialog.TAG)
 
@@ -129,7 +134,7 @@ class AuthFragment : Fragment() {
             btnSignIn.setOnClickListener {
                 validateEmailAndPassword(
                     onSuccess = { email, password ->
-                        authVM.signInWithEmailAndPassword(email, password)
+                        authVM.logInWithEmailAndPassword(email, password)
                     },
                     onEmailNotValid = { message ->
                         showSnackBar(message)
@@ -187,6 +192,9 @@ class AuthFragment : Fragment() {
                     etPassword.text?.clear()
                     showSnackBar(getString(R.string.text_such_user_already_exists))
                 }
+                state.onUnAuthorized {
+                    showSnackBar(getString(R.string.text_password_incorrect))
+                }
                 state.onSignUp { user ->
                     showSnackBar(getString(R.string.text_user_is_registered))
                     handleAuthorization(user)
@@ -194,6 +202,10 @@ class AuthFragment : Fragment() {
                 state.onSignIn { user ->
                     showSnackBar(getString(R.string.text_login_completed))
                     handleAuthorization(user)
+                }
+                state.onLogUp { tokens: Tokens ->
+                    showSnackBar(getString(R.string.text_user_is_registered))
+                    requireContext().saveAuthTokens(tokens)
                 }
                 state.onEmailValid { flag ->
                     if (flag) {
@@ -224,6 +236,12 @@ class AuthFragment : Fragment() {
                 state.onFailure { exception ->
                     exception.printStackTrace()
                     showSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
+                }
+                state.onHttpFailure { message: String? ->
+                    showSnackBar(message?: getString(R.string.text_unknown_error_message))
+                }
+                state.onTokensUpdated { tokens: Tokens ->
+                    requireContext().saveAuthTokens(tokens)
                 }
             }
         }

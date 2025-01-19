@@ -312,6 +312,7 @@
     <string name="text_important_update_availaible">Доступно важное обновление. Необходимо обновить приложение</string>
     <string name="text_yesterday">Вчера</string>
     <string name="text_today">Сегодня</string>
+    <string name="text_password_incorrect">Неправильный пароль</string>
 
 
 </resources>

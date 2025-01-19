@@ -43,17 +43,21 @@ class NetRepositoryModule(
         }
     }),
     private val baseUrl: String = BASE_URL
-) {
+): INetRepositoryModule {
 
-    private var listener: Listener? = null
+    private var refreshToken = ""
 
-    fun setTokensUpdateListener(listener: Listener) {
+    private var listener: INetRepositoryModule.Listener? = null
+
+    override fun setRefreshToken(token: String) {
+        this.refreshToken = token
+    }
+
+    override fun setTokensUpdateListener(listener: INetRepositoryModule.Listener) {
         this.listener = listener
     }
 
-    fun provideNetRepository(
-        refreshToken: String = ""
-    ): INetRepository {
+    override fun provideNetRepository(): INetRepository {
 
         require(this.listener != null, lazyMessage = {"TokensUpdateListener not implemented. You need to call the setTokensUpdateListener()"})
 

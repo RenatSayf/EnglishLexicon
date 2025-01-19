@@ -2,7 +2,8 @@ package com.myapp.lexicon.models
 
 sealed class UserState {
     object Init: UserState()
-    object NotRegistered: UserState()
+    data object NotRegistered: UserState()
+    data object UnAuthorized: UserState()
     data class EmailValid(val flag: Boolean): UserState()
     data class PasswordValid(val flag: Boolean): UserState()
     object AlreadyExists: UserState()
@@ -11,7 +12,10 @@ sealed class UserState {
     object AccountDeleted: UserState()
     data class SignUp(val user: User): UserState()
     data class SignIn(val user: User): UserState()
+    data class LogUp(val tokens: Tokens): UserState()
+    data class TokensUpdated(val tokens: Tokens): UserState()
     data class Failure(val error: Exception): UserState()
+    data class HttpFailure(val message: String?): UserState()
 
     fun onInit(onInit: () -> Unit) {
         if (this is Init) {
@@ -22,6 +26,12 @@ sealed class UserState {
     fun onNotRegistered(onNotRegistered: () -> Unit) {
         if (this is NotRegistered) {
             onNotRegistered.invoke()
+        }
+    }
+
+    fun onUnAuthorized(onUnAuthorized: () -> Unit) {
+        if (this is UnAuthorized) {
+            onUnAuthorized.invoke()
         }
     }
 
@@ -55,9 +65,27 @@ sealed class UserState {
         }
     }
 
+    fun onLogUp(onLogUp: (Tokens) -> Unit) {
+        if (this is LogUp) {
+            onLogUp.invoke(this.tokens)
+        }
+    }
+
+    fun onTokensUpdated(onUpdate: (Tokens) -> Unit) {
+        if (this is TokensUpdated) {
+            onUpdate.invoke(this.tokens)
+        }
+    }
+
     fun onFailure(onFailure: (Exception) -> Unit) {
         if (this is Failure) {
             onFailure.invoke(this.error)
+        }
+    }
+
+    fun onHttpFailure(onFailure: (String?) -> Unit) {
+        if (this is HttpFailure) {
+            onFailure.invoke(this.message)
         }
     }
 
