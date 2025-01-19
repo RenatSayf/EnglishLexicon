@@ -346,7 +346,13 @@ fun String.isDateOfLastMonth(
         return true
     }
     val inputMonth = yearMonth.monthValue
-    return inputMonth < currentMonth
+    val inputYear = yearMonth.year
+    val currentYear = LocalDateTime.now().year
+    return when {
+        currentYear > inputYear -> true
+        currentMonth > inputMonth -> true
+        else -> false
+    }
 }
 
 fun Long.getMonthFromLongTime(): Int {
