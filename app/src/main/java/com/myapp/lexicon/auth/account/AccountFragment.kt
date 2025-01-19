@@ -31,6 +31,7 @@ import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.LuhnAlgorithm
 import com.myapp.lexicon.helpers.checkIfAllDigits
 import com.myapp.lexicon.helpers.firstCap
+import com.myapp.lexicon.helpers.isDateOfLastMonth
 import com.myapp.lexicon.helpers.orientationLock
 import com.myapp.lexicon.helpers.orientationUnLock
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
@@ -536,7 +537,10 @@ class AccountFragment : Fragment() {
             }
             else tvRewardCondition.visibility = View.VISIBLE
 
-            btnGetReward.isEnabled = user.reservedPayment > rewardThreshold && accountVM.paymentCode == BuildConfig.PAYMENT_CODE.trim()
+            val isDateOfLastMonth = user.paymentDate.isDateOfLastMonth()
+
+            btnGetReward.isEnabled = user.reservedPayment > rewardThreshold
+                    && accountVM.paymentCode == BuildConfig.PAYMENT_CODE.trim() && isDateOfLastMonth
 
             if (user.message.isNotEmpty()) {
                 tvMessage.apply {
