@@ -15,7 +15,7 @@ android {
         //noinspection EditedTargetSdkVersion
         targetSdkVersion 35
         versionName '7.0'   //Hint last versionName in store is 5.11
-        versionCode 100      //Hint last versionCode in store is 99
+        versionCode 101      //Hint last versionCode in store is 99
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
 
