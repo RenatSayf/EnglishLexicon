@@ -63,7 +63,6 @@ class AuthViewModelUnitTest {
                 Assert.assertEquals("access00000000000", tokens.accessToken)
                 Assert.assertEquals("refresh0000000000000", tokens.refreshToken)
             }
-
         })
         val viewModel = AuthViewModel(repositoryModule)
 
@@ -213,4 +212,51 @@ class AuthViewModelUnitTest {
         }
 
     }
+
+    @Test
+    fun logInWithEmailAndPassword_success_202() {
+        val mockEngine = MockEngine.invoke { request ->
+            val isApiKey = request.headers.contains(KEY_API)
+            if (isApiKey) {
+                respond(
+                    content = """{
+                          "access_token": "access00000000000",
+                          "refresh_token": "refresh0000000000000"
+                        }""".trimIndent(),
+                    status = HttpStatusCode.Accepted,
+                    headers = headersOf(HttpHeaders.ContentType, "application/json")
+                )
+            } else {
+                respondError(status = HttpStatusCode.Forbidden)
+            }
+        }
+        val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine)
+        repositoryModule.setTokensUpdateListener(object : INetRepositoryModule.Listener {
+            override fun onUpdateTokens(tokens: Tokens) {
+                Assert.assertEquals("access00000000000", tokens.accessToken)
+                Assert.assertEquals("refresh0000000000000", tokens.refreshToken)
+            }
+        })
+
+        val viewModel = AuthViewModel(repositoryModule)
+
+        runBlocking {
+            viewModel.logInWithEmailAndPassword(email = "testuser@gmail.com", password = "123456", dispatcher = Dispatchers.Unconfined)
+
+            delay(2000)
+
+            val state = viewModel.state.value
+            when(state) {
+                is UserState.LogIn -> {
+                    Assert.assertEquals("access00000000000", state.tokens.accessToken)
+                    Assert.assertEquals("refresh0000000000000", state.tokens.refreshToken)
+                }
+                else -> {
+                    Assert.assertTrue(false)
+                }
+            }
+        }
+    }
+
+
 }

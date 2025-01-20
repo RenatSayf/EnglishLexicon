@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED_ANONYMOUS_PARAMETER")
+
 package com.myapp.lexicon.auth
 
 import android.os.Bundle
@@ -207,6 +209,10 @@ class AuthFragment : Fragment() {
                     showSnackBar(getString(R.string.text_user_is_registered))
                     requireContext().saveAuthTokens(tokens)
                 }
+                state.onLogIn { tokens: Tokens ->
+                    showSnackBar(getString(R.string.text_login_completed))
+                    //TODO Redirect to account screen
+                }
                 state.onEmailValid { flag ->
                     if (flag) {
                         etEmail.background = ResourcesCompat.getDrawable(resources, R.drawable.bg_horizontal_oval, null)
@@ -239,7 +245,7 @@ class AuthFragment : Fragment() {
                     showSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
                 }
                 state.onHttpFailure { message: String? ->
-                    showSnackBar(message?: getString(R.string.text_unknown_error_message))
+                    showSnackBar(getString(R.string.text_service_unavailable))
                 }
                 state.onTokensUpdated { tokens: Tokens ->
                     requireContext().saveAuthTokens(tokens)

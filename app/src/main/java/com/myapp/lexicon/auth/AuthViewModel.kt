@@ -153,13 +153,14 @@ open class AuthViewModel(
         return !TextUtils.isEmpty(email) && Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 
-    open fun logInWithEmailAndPassword(email: String, password: String) {
+    open fun logInWithEmailAndPassword(email: String, password: String, dispatcher: CoroutineDispatcher = Dispatchers.IO) {
         _loadingState.value = LoadingState.Start
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             val signInData = SignInData(email, password)
             repository.signIn(signInData).collect(collector = { result ->
                 result.onSuccess { value: Tokens ->
                     netModule.setRefreshToken(value.refreshToken)
+                    _state.value = UserState.LogIn(value)
                 }
                 result.onFailure { exception: Throwable ->
                     val errorCode = (exception as HttpThrowable).errorCode

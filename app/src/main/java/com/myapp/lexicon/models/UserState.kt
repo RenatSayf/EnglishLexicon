@@ -13,6 +13,7 @@ sealed class UserState {
     data class SignUp(val user: User): UserState()
     data class SignIn(val user: User): UserState()
     data class LogUp(val tokens: Tokens): UserState()
+    data class LogIn(val tokens: Tokens): UserState()
     data class TokensUpdated(val tokens: Tokens): UserState()
     data class Failure(val error: Exception): UserState()
     data class HttpFailure(val message: String?): UserState()
@@ -68,6 +69,12 @@ sealed class UserState {
     fun onLogUp(onLogUp: (Tokens) -> Unit) {
         if (this is LogUp) {
             onLogUp.invoke(this.tokens)
+        }
+    }
+
+    fun onLogIn(onLogIn: (Tokens) -> Unit) {
+        if (this is LogIn) {
+            onLogIn.invoke(this.tokens)
         }
     }
 
