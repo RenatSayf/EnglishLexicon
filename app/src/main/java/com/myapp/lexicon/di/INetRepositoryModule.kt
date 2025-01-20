@@ -7,6 +7,7 @@ interface INetRepositoryModule {
 
     interface Listener {
         fun onUpdateTokens(tokens: Tokens)
+        fun onAuthorizationRequired()
     }
 
     fun setRefreshToken(token: String)

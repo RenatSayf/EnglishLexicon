@@ -1,15 +1,15 @@
 package com.myapp.lexicon.models
 
 sealed class UserState {
-    object Init: UserState()
+    data object Init: UserState()
     data object NotRegistered: UserState()
-    data object UnAuthorized: UserState()
+    data object NotAcceptable: UserState()
     data class EmailValid(val flag: Boolean): UserState()
     data class PasswordValid(val flag: Boolean): UserState()
-    object AlreadyExists: UserState()
-    object PasswordReset: UserState()
-    object SignOut: UserState()
-    object AccountDeleted: UserState()
+    data object AlreadyExists: UserState()
+    data object PasswordReset: UserState()
+    data object SignOut: UserState()
+    data object AccountDeleted: UserState()
     data class SignUp(val user: User): UserState()
     data class SignIn(val user: User): UserState()
     data class LogUp(val tokens: Tokens): UserState()
@@ -30,9 +30,9 @@ sealed class UserState {
         }
     }
 
-    fun onUnAuthorized(onUnAuthorized: () -> Unit) {
-        if (this is UnAuthorized) {
-            onUnAuthorized.invoke()
+    fun onNotAcceptable(onNotAcceptable: () -> Unit) {
+        if (this is NotAcceptable) {
+            onNotAcceptable.invoke()
         }
     }
 

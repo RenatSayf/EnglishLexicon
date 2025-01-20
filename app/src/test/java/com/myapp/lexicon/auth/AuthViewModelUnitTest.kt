@@ -63,6 +63,7 @@ class AuthViewModelUnitTest {
                 Assert.assertEquals("access00000000000", tokens.accessToken)
                 Assert.assertEquals("refresh0000000000000", tokens.refreshToken)
             }
+            override fun onAuthorizationRequired() {}
         })
         val viewModel = AuthViewModel(repositoryModule)
 
@@ -114,6 +115,7 @@ class AuthViewModelUnitTest {
         val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine)
         repositoryModule.setTokensUpdateListener(object : INetRepositoryModule.Listener {
             override fun onUpdateTokens(tokens: Tokens) {}
+            override fun onAuthorizationRequired() {}
         })
         val viewModel = AuthViewModel(repositoryModule)
 
@@ -153,6 +155,7 @@ class AuthViewModelUnitTest {
         val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine)
         repositoryModule.setTokensUpdateListener(object : INetRepositoryModule.Listener {
             override fun onUpdateTokens(tokens: Tokens) {}
+            override fun onAuthorizationRequired() {}
         })
         val viewModel = AuthViewModel(repositoryModule)
 
@@ -192,6 +195,7 @@ class AuthViewModelUnitTest {
         val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine)
         repositoryModule.setTokensUpdateListener(object : INetRepositoryModule.Listener {
             override fun onUpdateTokens(tokens: Tokens) {}
+            override fun onAuthorizationRequired() {}
         })
         val viewModel = AuthViewModel(repositoryModule)
 
@@ -236,6 +240,8 @@ class AuthViewModelUnitTest {
                 Assert.assertEquals("access00000000000", tokens.accessToken)
                 Assert.assertEquals("refresh0000000000000", tokens.refreshToken)
             }
+
+            override fun onAuthorizationRequired() {}
         })
 
         val viewModel = AuthViewModel(repositoryModule)
@@ -250,6 +256,86 @@ class AuthViewModelUnitTest {
                 is UserState.LogIn -> {
                     Assert.assertEquals("access00000000000", state.tokens.accessToken)
                     Assert.assertEquals("refresh0000000000000", state.tokens.refreshToken)
+                }
+                else -> {
+                    Assert.assertTrue(false)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun logInWithEmailAndPassword_error_404() {
+        val mockEngine = MockEngine.invoke { request ->
+            val isApiKey = request.headers.contains(KEY_API)
+            if (isApiKey) {
+                respond(
+                    content = """{"detail": "User not found"}""",
+                    status = HttpStatusCode.NotFound,
+                    headers = headersOf(HttpHeaders.ContentType, "application/json")
+                )
+            } else {
+                respondError(status = HttpStatusCode.Forbidden)
+            }
+        }
+        val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine)
+        repositoryModule.setTokensUpdateListener(object : INetRepositoryModule.Listener {
+            override fun onUpdateTokens(tokens: Tokens) {}
+            override fun onAuthorizationRequired() {}
+        })
+
+        val viewModel = AuthViewModel(repositoryModule)
+
+        runBlocking {
+            viewModel.logInWithEmailAndPassword(email = "testuser@gmail.com", password = "123456", dispatcher = Dispatchers.Unconfined)
+
+            delay(2000)
+
+            val state = viewModel.state.value
+            when(state) {
+                is UserState.NotRegistered -> {
+                    Assert.assertTrue(true)
+                }
+                else -> {
+                    Assert.assertTrue(false)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun logInWithEmailAndPassword_error_406() {
+        val mockEngine = MockEngine.invoke { request ->
+            val isApiKey = request.headers.contains(KEY_API)
+            if (isApiKey) {
+                respond(
+                    content = """{"detail": "Invalid email or password"}""",
+                    status = HttpStatusCode.NotAcceptable,
+                    headers = headersOf(HttpHeaders.ContentType, "application/json")
+                )
+            } else {
+                respondError(status = HttpStatusCode.Forbidden)
+            }
+        }
+        val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine)
+        repositoryModule.setTokensUpdateListener(object : INetRepositoryModule.Listener {
+            override fun onUpdateTokens(tokens: Tokens) {}
+            override fun onAuthorizationRequired() {
+                Assert.assertTrue(true)
+            }
+        })
+
+        val viewModel = AuthViewModel(repositoryModule)
+
+        runBlocking {
+            viewModel.logInWithEmailAndPassword(email = "testuser@gmail.com", password = "123456", dispatcher = Dispatchers.Unconfined)
+
+            delay(2000)
+
+            val state = viewModel.state.value
+            when(state) {
+                is UserState.NotAcceptable -> {
+                    Assert.assertTrue(true)
                 }
                 else -> {
                     Assert.assertTrue(false)

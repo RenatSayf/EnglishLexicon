@@ -24,6 +24,7 @@ import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.request.url
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
@@ -96,6 +97,12 @@ class NetRepositoryModule(
                         request.url.encodedParameters["access_token"] = newTokens.accessToken
                         execute(request)
                     }
+                    HttpStatusCode.TemporaryRedirect -> {
+                        listener?.onAuthorizationRequired()
+                        execute(HttpRequestBuilder().takeFrom(request.apply {
+                            url(baseUrl)
+                        }))
+                    }
                     else -> {
                         throw ClientRequestException(refreshResponse, refreshResponse.status.description)
                     }
@@ -106,10 +113,6 @@ class NetRepositoryModule(
             }
         }
         return NetRepository(httpClient, baseUrl)
-    }
-
-    interface Listener {
-        fun onUpdateTokens(tokens: Tokens)
     }
 
 

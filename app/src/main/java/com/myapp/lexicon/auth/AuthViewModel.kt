@@ -168,8 +168,8 @@ open class AuthViewModel(
                         404 -> {
                             _state.value = UserState.NotRegistered
                         }
-                        401 -> {
-                            _state.value = UserState.UnAuthorized
+                        406 -> {
+                            _state.value = UserState.NotAcceptable
                         }
                         else -> {
                             _state.value = UserState.HttpFailure(exception.message)
@@ -282,6 +282,10 @@ open class AuthViewModel(
             override fun onUpdateTokens(tokens: Tokens) {
                 netModule.setRefreshToken(tokens.refreshToken)
                 _state.value = UserState.TokensUpdated(tokens)
+            }
+
+            override fun onAuthorizationRequired() {
+                _state.value = UserState.NotAcceptable
             }
         })
 

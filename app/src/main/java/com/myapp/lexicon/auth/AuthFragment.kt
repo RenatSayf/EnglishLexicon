@@ -194,7 +194,7 @@ class AuthFragment : Fragment() {
                     etPassword.text?.clear()
                     showSnackBar(getString(R.string.text_such_user_already_exists))
                 }
-                state.onUnAuthorized {
+                state.onNotAcceptable {
                     showSnackBar(getString(R.string.text_password_incorrect))
                 }
                 state.onSignUp { user ->

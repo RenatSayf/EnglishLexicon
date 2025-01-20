@@ -67,6 +67,7 @@ class NetRepositoryTest {
         val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine)
         repositoryModule.setTokensUpdateListener(object : INetRepositoryModule.Listener {
             override fun onUpdateTokens(tokens: Tokens) {}
+            override fun onAuthorizationRequired() {}
         })
         repository = repositoryModule.provideNetRepository()
         runBlocking {
@@ -107,6 +108,7 @@ class NetRepositoryTest {
         val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine)
         repositoryModule.setTokensUpdateListener(object : INetRepositoryModule.Listener {
             override fun onUpdateTokens(tokens: Tokens) {}
+            override fun onAuthorizationRequired() {}
         })
         repository = repositoryModule.provideNetRepository()
         runBlocking {
@@ -144,6 +146,7 @@ class NetRepositoryTest {
         val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine).apply {
             setTokensUpdateListener(object : INetRepositoryModule.Listener {
                 override fun onUpdateTokens(tokens: Tokens) {}
+                override fun onAuthorizationRequired() {}
             })
         }
         repository = repositoryModule.provideNetRepository()
@@ -201,7 +204,7 @@ class NetRepositoryTest {
                         )
                 }
 
-                "/user?access_token=$oldAccessToken" -> {
+                "/mobile-user?access_token=$oldAccessToken" -> {
                     respond(
                         content = "{'error':'error'}",
                         status = HttpStatusCode.Unauthorized,
@@ -209,7 +212,7 @@ class NetRepositoryTest {
                     )
                 }
 
-                "/user?access_token=$newAccessToken" -> {
+                "/mobile-user?access_token=$newAccessToken" -> {
                     respond(
                         content = userJson,
                         status = HttpStatusCode.OK,
@@ -228,6 +231,10 @@ class NetRepositoryTest {
                 override fun onUpdateTokens(tokens: Tokens) {
                     Assert.assertTrue(true)
                 }
+
+                override fun onAuthorizationRequired() {
+                    Assert.assertTrue(false)
+                }
             })
         }
         repository = repositoryModule.provideNetRepository()
@@ -239,6 +246,58 @@ class NetRepositoryTest {
             result.onFailure { exception: Throwable ->
                 exception.message!!.logIfDebug()
                 Assert.assertTrue(false)
+            }
+        }
+    }
+
+    @Test
+    fun getUserProfile_with_expire_refresh_token() {
+
+        val oldAccessToken = "access00000000000"
+        val refreshToken = "refresh0000000000000"
+
+        mockEngine = MockEngine { request ->
+            when(request.url.fullPath) {
+                "/auth/refresh" -> {
+                    respond(
+                        content = """{"detail": "The token has expired"}""",
+                        status = HttpStatusCode.TemporaryRedirect,
+                        headers = headersOf(HttpHeaders.ContentType, "application/json")
+                    )
+                }
+                "/mobile-user?access_token=$oldAccessToken" -> {
+                    respond(
+                        content = """{"detail": "The token has expired"}""",
+                        status = HttpStatusCode.Unauthorized,
+                        headers = headersOf(HttpHeaders.ContentType, "application/json")
+                    )
+                }
+                else -> {
+                    respondBadRequest()
+                }
+            }
+        }
+        val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine).apply {
+            setRefreshToken(refreshToken)
+            setTokensUpdateListener(object : INetRepositoryModule.Listener {
+                override fun onUpdateTokens(tokens: Tokens) {
+                    Assert.assertTrue(false)
+                }
+
+                override fun onAuthorizationRequired() {
+                    Assert.assertTrue(true)
+                }
+            })
+        }
+        repository = repositoryModule.provideNetRepository()
+        runBlocking {
+            val result = repository.getUserProfile(accessToken = oldAccessToken).await()
+            result.onSuccess { value: UserX ->
+                Assert.assertEquals(value.email, "user-test@mail.com")
+            }
+            result.onFailure { exception: Throwable ->
+                exception.message!!.logIfDebug()
+                Assert.assertTrue(true)
             }
         }
     }
@@ -277,6 +336,7 @@ class NetRepositoryTest {
         val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine).apply {
             setTokensUpdateListener(object : INetRepositoryModule.Listener {
                 override fun onUpdateTokens(tokens: Tokens) {}
+                override fun onAuthorizationRequired() {}
             })
         }
         repository = repositoryModule.provideNetRepository()
@@ -342,6 +402,7 @@ class NetRepositoryTest {
         val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine).apply {
             setTokensUpdateListener(object : INetRepositoryModule.Listener {
                 override fun onUpdateTokens(tokens: Tokens) {}
+                override fun onAuthorizationRequired() {}
             })
         }
         repository = repositoryModule.provideNetRepository()
@@ -408,6 +469,7 @@ class NetRepositoryTest {
         val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine).apply {
             setTokensUpdateListener(object : INetRepositoryModule.Listener {
                 override fun onUpdateTokens(tokens: Tokens) {}
+                override fun onAuthorizationRequired() {}
             })
         }
         repository = repositoryModule.provideNetRepository()
@@ -454,6 +516,7 @@ class NetRepositoryTest {
         val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine).apply {
             setTokensUpdateListener(object : INetRepositoryModule.Listener {
                 override fun onUpdateTokens(tokens: Tokens) {}
+                override fun onAuthorizationRequired() {}
             })
         }
         repository = repositoryModule.provideNetRepository()
@@ -488,6 +551,7 @@ class NetRepositoryTest {
         val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine).apply {
             setTokensUpdateListener(object : INetRepositoryModule.Listener {
                 override fun onUpdateTokens(tokens: Tokens) {}
+                override fun onAuthorizationRequired() {}
             })
         }
         repository = repositoryModule.provideNetRepository()
@@ -532,6 +596,7 @@ class NetRepositoryTest {
         val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine).apply {
             setTokensUpdateListener(object : INetRepositoryModule.Listener {
                 override fun onUpdateTokens(tokens: Tokens) {}
+                override fun onAuthorizationRequired() {}
             })
         }
         repository = repositoryModule.provideNetRepository()

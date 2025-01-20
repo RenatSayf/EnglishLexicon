@@ -111,7 +111,7 @@ open class NetRepository(
     override suspend fun getUserProfile(accessToken: String): Deferred<Result<UserX>> {
         return coroutineScope {
             async {
-                val response = httpClient.get(urlString = "$baseUrl/user", block = {
+                val response = httpClient.get(urlString = "$baseUrl/mobile-user", block = {
                     contentType(ContentType.Application.Json)
                     parameter("access_token", accessToken)
                 })
