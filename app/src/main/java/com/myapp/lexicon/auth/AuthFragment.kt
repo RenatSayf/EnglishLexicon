@@ -221,6 +221,7 @@ class AuthFragment : Fragment() {
                     }
                     else {
                         etPassword.background = ResourcesCompat.getDrawable(resources, R.drawable.bg_horizontal_oval_error, null)
+                        showSnackBar(getString(R.string.text_short_password))
                     }
                 }
                 state.onPasswordReset {

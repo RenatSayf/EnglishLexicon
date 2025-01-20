@@ -96,4 +96,124 @@ class AuthViewModelUnitTest {
         }
 
     }
+
+    @Test
+    fun registerForNewUser_error_422() {
+        val errorBody = """{"detail": "The password length is too short"}"""
+        val mockEngine = MockEngine.invoke { request ->
+            val isApiKey = request.headers.contains(KEY_API)
+            if (isApiKey) {
+                respond(
+                    content = errorBody,
+                    status = HttpStatusCode.UnprocessableEntity,
+                    headers = headersOf(HttpHeaders.ContentType, "application/json")
+                )
+            } else {
+                respondError(status = HttpStatusCode.Forbidden)
+            }
+        }
+
+        val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine)
+        repositoryModule.setTokensUpdateListener(object : INetRepositoryModule.Listener {
+            override fun onUpdateTokens(tokens: Tokens) {}
+        })
+        val viewModel = AuthViewModel(repositoryModule)
+
+        runBlocking {
+            viewModel.registerForNewUser(email = "testuser@gmail.com", password = "123", dispatcher = Dispatchers.Unconfined)
+
+            delay(2000)
+
+            val state = viewModel.state.value
+            when(state) {
+                is UserState.PasswordValid -> {
+                    Assert.assertEquals(false, state.flag)
+                }
+                else -> {
+                    Assert.assertTrue(false)
+                }
+            }
+        }
+
+    }
+
+    @Test
+    fun registerForNewUser_error_409() {
+        val errorBody = """{"detail": "User is already exists"}"""
+        val mockEngine = MockEngine.invoke { request ->
+            val isApiKey = request.headers.contains(KEY_API)
+            if (isApiKey) {
+                respond(
+                    content = errorBody,
+                    status = HttpStatusCode.Conflict,
+                    headers = headersOf(HttpHeaders.ContentType, "application/json")
+                )
+            } else {
+                respondError(status = HttpStatusCode.Forbidden)
+            }
+        }
+
+        val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine)
+        repositoryModule.setTokensUpdateListener(object : INetRepositoryModule.Listener {
+            override fun onUpdateTokens(tokens: Tokens) {}
+        })
+        val viewModel = AuthViewModel(repositoryModule)
+
+        runBlocking {
+            viewModel.registerForNewUser(email = "testuser@gmail.com", password = "123456", dispatcher = Dispatchers.Unconfined)
+
+            delay(2000)
+
+            val state = viewModel.state.value
+            when(state) {
+                is UserState.AlreadyExists -> {
+                    Assert.assertTrue(true)
+                }
+                else -> {
+                    Assert.assertTrue(false)
+                }
+            }
+        }
+
+    }
+
+    @Test
+    fun registerForNewUser_error_500() {
+        val errorBody = """{"detail": "Internal server error"}"""
+        val mockEngine = MockEngine.invoke { request ->
+            val isApiKey = request.headers.contains(KEY_API)
+            if (isApiKey) {
+                respond(
+                    content = errorBody,
+                    status = HttpStatusCode.InternalServerError,
+                    headers = headersOf(HttpHeaders.ContentType, "application/json")
+                )
+            } else {
+                respondError(status = HttpStatusCode.Forbidden)
+            }
+        }
+
+        val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine)
+        repositoryModule.setTokensUpdateListener(object : INetRepositoryModule.Listener {
+            override fun onUpdateTokens(tokens: Tokens) {}
+        })
+        val viewModel = AuthViewModel(repositoryModule)
+
+        runBlocking {
+            viewModel.registerForNewUser(email = "testuser@gmail.com", password = "123456", dispatcher = Dispatchers.Unconfined)
+
+            delay(2000)
+
+            val state = viewModel.state.value
+            when(state) {
+                is UserState.HttpFailure -> {
+                    Assert.assertEquals("Internal Server Error", state.message)
+                }
+                else -> {
+                    Assert.assertTrue(false)
+                }
+            }
+        }
+
+    }
 }
