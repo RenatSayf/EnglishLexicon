@@ -99,12 +99,11 @@ class AuthViewModelUnitTest {
 
     @Test
     fun registerForNewUser_error_422() {
-        val errorBody = """{"detail": "The password length is too short"}"""
         val mockEngine = MockEngine.invoke { request ->
             val isApiKey = request.headers.contains(KEY_API)
             if (isApiKey) {
                 respond(
-                    content = errorBody,
+                    content = """{"detail": "The password length is too short"}""",
                     status = HttpStatusCode.UnprocessableEntity,
                     headers = headersOf(HttpHeaders.ContentType, "application/json")
                 )
@@ -139,12 +138,11 @@ class AuthViewModelUnitTest {
 
     @Test
     fun registerForNewUser_error_409() {
-        val errorBody = """{"detail": "User is already exists"}"""
         val mockEngine = MockEngine.invoke { request ->
             val isApiKey = request.headers.contains(KEY_API)
             if (isApiKey) {
                 respond(
-                    content = errorBody,
+                    content = """{"detail": "User is already exists"}""",
                     status = HttpStatusCode.Conflict,
                     headers = headersOf(HttpHeaders.ContentType, "application/json")
                 )
@@ -179,12 +177,11 @@ class AuthViewModelUnitTest {
 
     @Test
     fun registerForNewUser_error_500() {
-        val errorBody = """{"detail": "Internal server error"}"""
         val mockEngine = MockEngine.invoke { request ->
             val isApiKey = request.headers.contains(KEY_API)
             if (isApiKey) {
                 respond(
-                    content = errorBody,
+                    content = """{"detail": "Internal server error"}""",
                     status = HttpStatusCode.InternalServerError,
                     headers = headersOf(HttpHeaders.ContentType, "application/json")
                 )
