@@ -48,6 +48,10 @@ open class AuthViewModel(
         }
     }
 
+    companion object {
+        const val ACCOUNT_DELETING_ERROR = "Account deleting error"
+    }
+
     private val repository: INetRepository = netModule.provideNetRepository()
 
     sealed class LoadingState {
@@ -270,6 +274,32 @@ open class AuthViewModel(
                 _loadingState.value = LoadingState.Complete
             }
         })
+    }
+
+    open fun deleteUserAccount(
+        token: String,
+        onStart: () -> Unit = {},
+        onSuccess: () -> Unit,
+        onComplete: (Exception?) -> Unit = {},
+        dispatcher: CoroutineDispatcher = Dispatchers.IO
+    ) {
+        onStart.invoke()
+        viewModelScope.launch(dispatcher) {
+            repository.deleteUser(token).collect(collector = { result ->
+                result.onSuccess { value: Boolean ->
+                    if (value) {
+                        onSuccess.invoke()
+                        onComplete.invoke(null)
+                    }
+                    else {
+                        onComplete.invoke(Exception(ACCOUNT_DELETING_ERROR))
+                    }
+                }
+                result.onFailure { exception: Throwable ->
+                    onComplete.invoke(exception as Exception)
+                }
+            })
+        }
     }
 
     open fun deleteAccount(

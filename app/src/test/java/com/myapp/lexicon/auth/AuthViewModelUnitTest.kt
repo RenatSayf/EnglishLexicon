@@ -467,5 +467,87 @@ class AuthViewModelUnitTest {
         }
     }
 
+    @Test
+    fun deleteUserAccount_success_200() {
+        val mockEngine = MockEngine.invoke { request ->
+            val isApiKey = request.headers.contains(KEY_API)
+            if (isApiKey) {
+                respond(
+                    content = "true",
+                    status = HttpStatusCode.OK,
+                    headers = headersOf(HttpHeaders.ContentType, "application/json")
+                )
+            } else {
+                respondError(status = HttpStatusCode.Forbidden)
+            }
+        }
+        val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine)
+        repositoryModule.setTokensUpdateListener(object : INetRepositoryModule.Listener {
+            override fun onUpdateTokens(tokens: Tokens) {}
+            override fun onAuthorizationRequired() {
+                Assert.assertTrue(false)
+            }
+        })
+
+        val viewModel = AuthViewModel(repositoryModule)
+
+        runBlocking {
+
+            delay(2000)
+
+            viewModel.deleteUserAccount(
+                token = "XXXXXXXX",
+                onSuccess = {
+                    Assert.assertTrue(true)
+                },
+                onComplete = {
+                    Assert.assertTrue(false)
+                },
+                dispatcher = Dispatchers.Unconfined
+            )
+        }
+    }
+
+    @Test
+    fun deleteUserAccount_error_500() {
+        val mockEngine = MockEngine.invoke { request ->
+            val isApiKey = request.headers.contains(KEY_API)
+            if (isApiKey) {
+                respond(
+                    content = """{"detail": "INTERNAL_SERVER_ERROR"}""",
+                    status = HttpStatusCode.InternalServerError,
+                    headers = headersOf(HttpHeaders.ContentType, "application/json")
+                )
+            } else {
+                respondError(status = HttpStatusCode.Forbidden)
+            }
+        }
+        val repositoryModule = NetRepositoryModule(baseUrl = "", clientEngine = mockEngine)
+        repositoryModule.setTokensUpdateListener(object : INetRepositoryModule.Listener {
+            override fun onUpdateTokens(tokens: Tokens) {}
+            override fun onAuthorizationRequired() {
+                Assert.assertTrue(false)
+            }
+        })
+
+        val viewModel = AuthViewModel(repositoryModule)
+
+        runBlocking {
+
+            delay(2000)
+
+            viewModel.deleteUserAccount(
+                token = "XXXXXXXX",
+                onSuccess = {
+                    Assert.assertTrue(false)
+                },
+                onComplete = {
+                    Assert.assertTrue(true)
+                },
+                dispatcher = Dispatchers.Unconfined
+            )
+        }
+    }
+
 
 }

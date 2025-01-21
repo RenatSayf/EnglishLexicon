@@ -32,12 +32,12 @@ fun Context.saveAuthTokens(tokens: Tokens) {
     }.apply()
 }
 
-val Context.getAccessToken: String
+val Context.accessToken: String
     get() {
         return this.encryptPref.getString(ACCESS_TOKEN, "").toString()
     }
 
-val Context.getRefreshToken: String
+val Context.refreshToken: String
     get() {
         return this.encryptPref.getString(REFRESH_TOKEN, "").toString()
     }

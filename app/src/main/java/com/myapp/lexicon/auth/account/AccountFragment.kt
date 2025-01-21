@@ -45,6 +45,7 @@ import com.myapp.lexicon.models.UserState
 import com.myapp.lexicon.models.ViewState
 import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.settings.clearEmailPasswordInPref
+import com.myapp.lexicon.settings.accessToken
 import com.myapp.lexicon.settings.isFirstLogin
 import com.parse.ParseUser
 import kotlinx.coroutines.launch
@@ -734,7 +735,8 @@ class AccountFragment : Fragment() {
                 btnOk.apply {
                     text = getString(R.string.btn_text_delete)
                     setOnClickListener {
-                        authVM.deleteAccount(
+                        authVM.deleteUserAccount(
+                            token = requireContext().accessToken,
                             onStart = {
                                 requireActivity().orientationLock()
                                 authVM.setLoadingState(AuthViewModel.LoadingState.Start)
@@ -745,7 +747,7 @@ class AccountFragment : Fragment() {
                                 authVM.setState(UserState.AccountDeleted)
                                 parentFragmentManager.beginTransaction().detach(this@AccountFragment).commit()
                             },
-                            onComplete = { exception ->
+                            onComplete = { exception: Exception? ->
                                 exception?.let {
                                     it.printStackTrace()
                                     showSnackBar(it.message?: getString(R.string.text_unknown_error_message))
