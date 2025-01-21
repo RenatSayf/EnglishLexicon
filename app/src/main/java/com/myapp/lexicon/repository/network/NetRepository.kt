@@ -281,7 +281,8 @@ open class NetRepository(
                 }
                 else -> {
                     val status = response.status
-                    emit(Result.failure(Throwable("********** Error description: ${status.description}. Code: ${status.value} ************")))
+                    val httpThrowable = HttpThrowable(message = status.description, errorCode = status.value)
+                    emit(Result.failure(httpThrowable))
                 }
             }
         }

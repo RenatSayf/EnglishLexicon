@@ -1,4 +1,4 @@
-@file:Suppress("ObjectLiteralToLambda", "PropertyName")
+@file:Suppress("ObjectLiteralToLambda", "PropertyName", "UNUSED_ANONYMOUS_PARAMETER")
 
 package com.myapp.lexicon.auth
 
@@ -230,6 +230,29 @@ open class AuthViewModel(
                 }
             }
         )
+    }
+
+    open fun resetUserPassword(email: String, dispatcher: CoroutineDispatcher = Dispatchers.IO) {
+        _loadingState.value = LoadingState.Start
+        viewModelScope.launch(dispatcher) {
+            repository.forgotPassword(email).collect(collector = { result ->
+                result.onSuccess { value: String ->
+                    _state.value = UserState.PasswordReset
+                }
+                result.onFailure { exception: Throwable ->
+                    val errorCode = (exception as HttpThrowable).errorCode
+                    when(errorCode) {
+                        404 -> {
+                            _state.value = UserState.NotRegistered
+                        }
+                        else -> {
+                            _state.value = UserState.HttpFailure(exception.message)
+                        }
+                    }
+                }
+            })
+        }
+
     }
 
     open fun resetPassword(email: String) {

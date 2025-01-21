@@ -164,7 +164,7 @@ class AuthFragment : Fragment() {
                                 btnOk.setOnClickListener {
                                     val text = etEmail.text.toString()
                                     if (text.isItEmail) {
-                                        authVM.resetPassword(text)
+                                        authVM.resetUserPassword(text)
                                     }
                                     dialog.dismiss()
                                 }
