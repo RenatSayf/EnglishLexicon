@@ -21,7 +21,9 @@ import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserState
+import com.myapp.lexicon.settings.emailIntoPref
 import com.myapp.lexicon.settings.getAuthDataFromPref
+import com.myapp.lexicon.settings.passwordIntoPref
 import com.myapp.lexicon.settings.saveAuthTokens
 import com.myapp.lexicon.settings.saveUserToPref
 
@@ -57,13 +59,9 @@ class AuthFragment : Fragment() {
             authVM.screenState.observe(viewLifecycleOwner) { state ->
                 when(state) {
                     AuthViewModel.ScreenState.Init -> {
-                        requireContext().getAuthDataFromPref(
-                            onSuccess = {email, password ->
-                                etEmail.setText(email)
-                                etPassword.setText(password)
-                                progressBar.visibility = View.GONE
-                            }
-                        )
+                        progressBar.visibility = View.GONE
+                        etEmail.setText(requireContext().emailIntoPref)
+                        etPassword.setText(requireContext().passwordIntoPref)
                     }
                     is AuthViewModel.ScreenState.Current -> {
                         etEmail.apply {
@@ -198,6 +196,8 @@ class AuthFragment : Fragment() {
                     showSnackBar(getString(R.string.text_password_incorrect))
                 }
                 state.onSignUp { user ->
+                    requireContext().emailIntoPref = etEmail.text.toString()
+                    requireContext().passwordIntoPref = etPassword.text.toString()
                     showSnackBar(getString(R.string.text_user_is_registered))
                     handleAuthorization(user)
                 }

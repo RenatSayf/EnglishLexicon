@@ -13,11 +13,14 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.replace
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.whenResumed
+import androidx.lifecycle.withResumed
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.auth.AuthFragment
@@ -40,14 +43,19 @@ import com.myapp.lexicon.helpers.showToastIfDebug
 import com.myapp.lexicon.helpers.timeInMillisMoscowTimeZone
 import com.myapp.lexicon.helpers.toStringTime
 import com.myapp.lexicon.main.viewmodels.UserViewModel
+import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserState
 import com.myapp.lexicon.models.ViewState
 import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.settings.clearEmailPasswordInPref
 import com.myapp.lexicon.settings.accessToken
+import com.myapp.lexicon.settings.emailIntoPref
 import com.myapp.lexicon.settings.isFirstLogin
+import com.myapp.lexicon.settings.passwordIntoPref
+import com.myapp.lexicon.settings.saveAuthTokens
 import com.parse.ParseUser
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 
@@ -78,7 +86,8 @@ class AccountFragment : Fragment() {
     }
 
     private val authVM: AuthViewModel by lazy {
-        ViewModelProvider(requireActivity())[authVMClass] as AuthViewModel
+        val factory = AuthViewModel.Factory()
+        ViewModelProvider(this, factory)[AuthViewModel::class.java]
     }
 
     private val userVM: UserViewModel by lazy {
@@ -483,6 +492,23 @@ class AccountFragment : Fragment() {
             toolBar.setNavigationOnClickListener {
                 goBack()
             }
+
+            lifecycleScope.launch {
+                accountVM.newTokens.collect(collector = { result ->
+                    result.onSuccess { tokens: Tokens ->
+                        requireContext().saveAuthTokens(tokens)
+                    }
+                })
+            }
+            lifecycleScope.launch {
+                accountVM.authorizationRequired.collect(collector = { result ->
+                    result.onSuccess {
+                        parentFragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, AuthFragment()).commit()
+                    }
+                })
+            }
+
+
         }
     }
 
@@ -642,15 +668,27 @@ class AccountFragment : Fragment() {
                     }
                 }
                 btnOk.setOnClickListener {
-                    val currentUser = ParseUser.getCurrentUser()
-                    if (currentUser is ParseUser) {
-                        ParseUser.logOut()
-                    }
-                    requireContext().cacheDir.deleteRecursively()
-                    requireContext().clearEmailPasswordInPref()
-                    authVM.setState(UserState.SignOut)
-                    parentFragmentManager.beginTransaction().detach(this@AccountFragment).commit()
-                    dialog.dismiss()
+                    accountVM.signOut(
+                        token = requireContext().accessToken,
+                        onStart = {
+                            requireActivity().orientationLock()
+                        },
+                        onSuccess = { tokens ->
+                            requireContext().cacheDir.deleteRecursively()
+                            requireContext().saveAuthTokens(tokens)
+                            requireContext().emailIntoPref = ""
+                            requireContext().passwordIntoPref = ""
+                            authVM.setState(UserState.SignOut)
+                            parentFragmentManager.beginTransaction().detach(this@AccountFragment).commit()
+                        },
+                        onComplete = { exception: Exception? ->
+                            if (exception != null) {
+                                showSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
+                            }
+                            requireActivity().orientationUnLock()
+                            dialog.dismiss()
+                        }
+                    )
                 }
             }
         }).show(parentFragmentManager, ConfirmDialog.TAG)

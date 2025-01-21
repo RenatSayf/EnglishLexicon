@@ -7,24 +7,47 @@ package com.myapp.lexicon.auth.account
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.remoteconfig.ktx.remoteConfig
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.auth.models.SBPBanks
+import com.myapp.lexicon.common.EXPLAIN_MESSAGE
+import com.myapp.lexicon.common.IS_BANK_CARD_REQUIRED
+import com.myapp.lexicon.common.PAYMENT_CODE
+import com.myapp.lexicon.common.PAYMENT_DAYS
 import com.myapp.lexicon.common.PAYMENT_THRESHOLD
+import com.myapp.lexicon.di.INetRepositoryModule
+import com.myapp.lexicon.di.NetRepositoryModule
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
+import com.myapp.lexicon.models.Tokens
 import com.parse.GetCallback
 import com.parse.ParseException
 import com.parse.ParseObject
 import com.parse.ParseQuery
 import com.parse.ParseUser
 import com.parse.SaveCallback
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import java.io.BufferedInputStream
 import java.net.HttpURLConnection
 import java.net.URL
 
-open class AccountViewModel : ViewModel() {
+open class AccountViewModel(
+    netModule: INetRepositoryModule
+) : ViewModel() {
+
+    @Suppress("UNCHECKED_CAST")
+    class Factory(
+        private val netModule: INetRepositoryModule = NetRepositoryModule()
+    ) : ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            require(modelClass == AccountViewModel::class.java)
+            return AccountViewModel(netModule) as T
+        }
+    }
 
     sealed class State {
         data object ReadOnly: State()
@@ -32,16 +55,14 @@ open class AccountViewModel : ViewModel() {
     }
 
     open val paymentThreshold: Double = PAYMENT_THRESHOLD
-
-    open val paymentCode: String = if (!BuildConfig.DEBUG)
-        Firebase.remoteConfig.getString("PAYMENT_CODE").trim() else BuildConfig.PAYMENT_CODE.trim()
-
-    open val paymentDays: Int = Firebase.remoteConfig.getDouble("payment_days").toInt()
-    open val explainMessage: String = Firebase.remoteConfig.getString("reward_explain_message")
-    open val isBankCardRequired: Boolean = Firebase.remoteConfig.getBoolean("is_bank_card_required")
+    open val paymentCode: String = PAYMENT_CODE
+    open val paymentDays: Int = PAYMENT_DAYS
+    open val explainMessage: String = EXPLAIN_MESSAGE
+    open val isBankCardRequired: Boolean = IS_BANK_CARD_REQUIRED
 
     private var thread: Thread? = null
     private var payoutThread: Thread? = null
+    private val repository = netModule.provideNetRepository()
 
     private var _state = MutableLiveData<State>().apply {
         value = State.ReadOnly
@@ -62,6 +83,12 @@ open class AccountViewModel : ViewModel() {
     open val bankList: LiveData<Result<List<String>>> = _bankList
 
     private val jsonDecoder = Json { ignoreUnknownKeys = true }
+
+    var newTokens = MutableStateFlow<Result<Tokens>>(Result.failure(Throwable()))
+        private set
+
+    var authorizationRequired = MutableStateFlow<Result<Boolean>>(Result.failure(Throwable()))
+        private set
 
     open fun fetchBankListFromNet() {
 
@@ -200,6 +227,26 @@ open class AccountViewModel : ViewModel() {
         payoutThread?.start()
     }
 
+    fun signOut(
+        token: String,
+        onStart: () -> Unit = {},
+        onSuccess: (Tokens) -> Unit = {},
+        onComplete: (Exception?) -> Unit = {},
+        dispatcher: CoroutineDispatcher = Dispatchers.IO
+    ) {
+        onStart.invoke()
+        viewModelScope.launch(dispatcher) {
+            repository.signOut(token).collect(collector = { result ->
+                result.onSuccess { tokens: Tokens ->
+                    onSuccess.invoke(tokens)
+                }
+                result.onFailure { exception: Throwable ->
+                    onComplete.invoke(exception as Exception)
+                }
+            })
+        }
+    }
+
     override fun onCleared() {
         thread?.interrupt()
         payoutThread?.interrupt()
@@ -207,6 +254,18 @@ open class AccountViewModel : ViewModel() {
     }
 
     init {
+        netModule.apply {
+            setTokensUpdateListener(object : INetRepositoryModule.Listener {
+                override fun onUpdateTokens(tokens: Tokens) {
+                    setRefreshToken(tokens.refreshToken)
+                    newTokens.value = Result.success(tokens)
+                }
+
+                override fun onAuthorizationRequired() {
+                    authorizationRequired.value = Result.success(true)
+                }
+            })
+        }
         this.fetchBankListFromNet()
     }
 }

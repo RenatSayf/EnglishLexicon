@@ -6,9 +6,11 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.myapp.lexicon.models.Tokens
 
-private const val ACCESS_TOKEN = "KEY_ACCESS_TOKEN"
-private const val REFRESH_TOKEN = "KEY_REFRESH_TOKEN"
+private const val ACCESS_TOKEN = "KEY_ACCESS_TOKEN_54784297855"
+private const val REFRESH_TOKEN = "KEY_REFRESH_TOKEN_4878975645"
 private const val FILE_NAME = "lexicon_secure_prefs"
+private const val KEY_EMAIL = "KEY_EMAIL_2589422"
+private const val KEY_PASSWORD = "KEY_PASSWORD_13297452"
 
 
 private val Context.encryptPref: SharedPreferences
@@ -41,3 +43,15 @@ val Context.refreshToken: String
     get() {
         return this.encryptPref.getString(REFRESH_TOKEN, "").toString()
     }
+
+var Context.emailIntoPref: String
+    get() {
+        return this.encryptPref.getString(KEY_EMAIL, "").toString()
+    }
+    set(value) { this.encryptPref.edit().putString(KEY_EMAIL, value).apply() }
+
+var Context.passwordIntoPref: String
+    get() {
+        return this.encryptPref.getString(KEY_PASSWORD, "").toString()
+    }
+    set(value) { this.encryptPref.edit().putString(KEY_PASSWORD, value).apply() }

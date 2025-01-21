@@ -119,3 +119,36 @@ val APP_VERSION: String
         return "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"
     }
 
+val PAYMENT_CODE: String
+    get() {
+        return try {
+            if (!BuildConfig.DEBUG)
+                Firebase.remoteConfig.getString("PAYMENT_CODE").trim() else BuildConfig.PAYMENT_CODE.trim()
+        } catch (e: Exception) {
+            BuildConfig.PAYMENT_CODE.trim()
+        }
+    }
+
+val PAYMENT_DAYS: Int
+    get() {
+        return try {
+            Firebase.remoteConfig.getDouble("payment_days").toInt()
+        } catch (e: Exception) {
+            3
+        }
+    }
+
+val EXPLAIN_MESSAGE: String
+    get() = try {
+        Firebase.remoteConfig.getString("reward_explain_message")
+    } catch (e: Exception) {
+        ""
+    }
+
+val IS_BANK_CARD_REQUIRED: Boolean
+    get() = try {
+        Firebase.remoteConfig.getBoolean("is_bank_card_required")
+    } catch (e: Exception) {
+        false
+    }
+

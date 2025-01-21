@@ -2,10 +2,11 @@ package com.myapp.lexicon.auth.account
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
+import com.myapp.lexicon.di.INetRepositoryModule
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class MockAccountViewModel: AccountViewModel() {
+class MockAccountViewModel(netModule: INetRepositoryModule): AccountViewModel(netModule) {
 
     companion object {
         const val testMessage = "This is test message for user"
