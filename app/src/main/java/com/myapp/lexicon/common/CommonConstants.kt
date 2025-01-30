@@ -111,3 +111,13 @@ val APP_TIME_ZONE: String
         }
     }
 
+val SELF_EMPLOYED_THRESHOLD: Int
+    get() {
+        return try {
+            if (!BuildConfig.DEBUG) {
+                Firebase.remoteConfig.getDouble("SELF_EMPLOYED_THRESHOLD").toInt()
+            } else 20
+        } catch (e: Exception) {
+            1000
+        }
+    }
