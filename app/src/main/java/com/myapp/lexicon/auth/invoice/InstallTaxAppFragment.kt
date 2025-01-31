@@ -1,11 +1,12 @@
 package com.myapp.lexicon.auth.invoice
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.myapp.lexicon.R
+import androidx.fragment.app.Fragment
 import com.myapp.lexicon.databinding.FragmentInstallTaxAppBinding
 
 class InstallTaxAppFragment : Fragment() {
@@ -27,8 +28,20 @@ class InstallTaxAppFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        with(binding) {
+        with(binding!!) {
 
+            toolBar.setNavigationOnClickListener {
+                parentFragmentManager.popBackStack()
+            }
+
+            btnInstall.setOnClickListener {
+                val intent = Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("https://play.google.com/store/apps/details?id=com.gnivts.selfemployed")
+                )
+                startActivity(intent)
+            }
+            requireActivity().finish()
         }
     }
 
