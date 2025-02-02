@@ -152,3 +152,14 @@ val IS_BANK_CARD_REQUIRED: Boolean
         false
     }
 
+
+val SELF_EMPLOYED_THRESHOLD: Int
+    get() {
+        return try {
+            if (!BuildConfig.DEBUG) {
+                Firebase.remoteConfig.getDouble("SELF_EMPLOYED_THRESHOLD").toInt()
+            } else 20
+        } catch (e: Exception) {
+            1000
+        }
+    }

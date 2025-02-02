@@ -14,8 +14,8 @@ android {
         minSdkVersion 26
         //noinspection EditedTargetSdkVersion
         targetSdkVersion 35
-        versionName '7.0'   //Hint last versionName in store is 5.11
-        versionCode 101      //Hint last versionCode in store is 99
+        versionName '5.12'   //Hint last versionName in store is 5.11
+        versionCode 102      //Hint last versionCode in store is 101
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
 
@@ -172,7 +172,7 @@ dependencies {
 
     // Yandex Mobile Ads SDK
     //noinspection MobileAdsSdkOutdatedVersion
-    implementation 'com.yandex.android:mobileads:7.8.1'
+    implementation 'com.yandex.android:mobileads:7.9.0'
 
     // Yandex AppMetrica SDK.
     implementation 'io.appmetrica.analytics:analytics:7.5.0'

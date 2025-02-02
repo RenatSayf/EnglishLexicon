@@ -360,6 +360,15 @@ var Context.isRuSpeech: Boolean
         appSettings.edit().putBoolean("KEY_RUS_SPEECH", value).apply()
     }
 
+fun Context.isAppInstalled(packageName: String): Boolean {
+    return try {
+        this.packageManager.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES)
+        true
+    } catch (e: PackageManager.NameNotFoundException) {
+        false
+    }
+}
+
 
 
 

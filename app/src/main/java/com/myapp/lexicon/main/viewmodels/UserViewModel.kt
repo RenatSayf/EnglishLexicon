@@ -6,7 +6,6 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
@@ -15,7 +14,6 @@ import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.common.mapToUser
 import com.myapp.lexicon.helpers.LOCALE_RU
 import com.myapp.lexicon.helpers.toStringTime
-import com.myapp.lexicon.interfaces.FlowCallback
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.settings.getAuthDataFromPref
@@ -29,9 +27,6 @@ import com.parse.ParseUser
 import com.parse.SaveCallback
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.launch
 import java.util.Currency
 import javax.inject.Inject
 
@@ -69,28 +64,12 @@ open class UserViewModel @Inject constructor(
     protected var _state = MutableLiveData<State>(State.Init)
     open val state: LiveData<State> = _state
 
-    protected var _stateFlow = MutableStateFlow<State>(State.Init)
-    open val stateFlow: StateFlow<State> = _stateFlow
-
     open fun setState(state: State) {
         _state.value = state
-        _stateFlow.value = state
     }
 
     protected var _user = MutableLiveData<User?>(null)
     open val user: LiveData<User?> = _user
-
-    open fun collect(callBack: FlowCallback) {
-        viewModelScope.launch {
-            _stateFlow.onStart {
-                callBack.onStart()
-            }.onCompletion {
-                callBack.onCompletion(it)
-            }.collect {
-                callBack.onResult(_stateFlow.value)
-            }
-        }
-    }
 
     protected fun signInWithCurrentUser(
         onSuccess: () -> Unit,
@@ -140,7 +119,6 @@ open class UserViewModel @Inject constructor(
                         val user = obj.mapToUser()
                         _user.value = user
                         _state.value = State.ReceivedUserData(user)
-                        _stateFlow.value = State.ReceivedUserData(user)
                         result.value = Result.success(user)
                     }
                     else if (e is ParseException) {
@@ -152,7 +130,6 @@ open class UserViewModel @Inject constructor(
                                 onFailure = {message ->
                                     Exception(message).printStackTrace()
                                     _state.value = State.Error(message)
-                                    _stateFlow.value = State.Error(message)
                                     result.value = Result.failure(Exception(message))
                                 }
                             )
@@ -160,7 +137,6 @@ open class UserViewModel @Inject constructor(
                         else {
                             e.printStackTrace()
                             _state.value = State.Error(e.message?: "Unknown error")
-                            _stateFlow.value = State.Error(e.message?: "Unknown error")
                             result.value = Result.failure(e)
                         }
                     }
@@ -200,7 +176,6 @@ open class UserViewModel @Inject constructor(
                                     Exception(message).printStackTrace()
                                 }
                                 _state.value = State.Error(message)
-                                _stateFlow.value = State.Error(message)
                                 result.value = Result.failure(Exception(message))
                             }
                         )
@@ -211,13 +186,11 @@ open class UserViewModel @Inject constructor(
                         }
                         result.value = Result.failure(e)
                         _state.value = State.Error(e.message?: "Unknown error")
-                        _stateFlow.value = State.Error(e.message?: "Unknown error")
                     }
                 }
                 else {
                     result.value = Result.success(currentUser.objectId)
                     _state.value = State.PersonalDataUpdated
-                    _stateFlow.value = State.PersonalDataUpdated
                 }
                 _loadingState.value = LoadingState.Complete
             }
@@ -254,7 +227,6 @@ open class UserViewModel @Inject constructor(
                                             Exception(message).printStackTrace()
                                         }
                                         _state.value = State.Error(message)
-                                        _stateFlow.value = State.Error(message)
                                     }
                                 )
                             }
@@ -263,14 +235,12 @@ open class UserViewModel @Inject constructor(
                                     e.printStackTrace()
                                 }
                                 _state.value = State.Error(e.message?: "Unknown error")
-                                _stateFlow.value = State.Error(e.message?: "Unknown error")
                             }
                         }
                         else {
                             val user = currentUser.mapToUser()
                             _user.value = user
                             _state.value = State.RevenueUpdated(adData.revenue, user)
-                            _stateFlow.value = State.RevenueUpdated(adData.revenue, user)
                         }
                         _loadingState.value = LoadingState.Complete
                     }
@@ -287,62 +257,6 @@ open class UserViewModel @Inject constructor(
         }
         else _loadingState.value = LoadingState.Complete
     }
-
-    open fun updatePayoutDataIntoCloud(
-        reward: Double,
-        userMap: Map<String, Any?> = mapOf(),
-        onStart: () -> Unit = {},
-        onSuccess: (Int, Double) -> Unit,
-        onNotEnough: () -> Unit = {},
-        onInvalidToken: (String) -> Unit,
-        onComplete: (Exception?) -> Unit = {}
-    ) {
-        onStart.invoke()
-        if (reward > 0.0) {
-            val payout = reward.toInt()
-            val rewardRemainder = reward - payout
-            val currentUser = ParseUser.getCurrentUser()
-            if (currentUser is ParseUser) {
-                currentUser.apply {
-                    put(User.KEY__RESERVED_PAYMENT_DATE, System.currentTimeMillis().toStringTime())
-                    put(User.KEY_TOTAL_REVENUE, rewardRemainder)
-                    put(User.KEY_USER_REWARD, rewardRemainder)
-                    increment(User.KEY_RESERVED_PAYMENT, payout)
-                    put(User.KEY_REWARD_UPDATE_AT, System.currentTimeMillis().toStringTime(LOCALE_RU))
-                }
-                userMap.forEach { entry ->
-                    currentUser.put(entry.key, entry.value?: "")
-                }
-                currentUser.saveInBackground(object : SaveCallback {
-                    override fun done(e: ParseException?) {
-                        if (e is ParseException) {
-                            if (e.code == ParseException.INVALID_SESSION_TOKEN) {
-                                onInvalidToken.invoke(currentUser.sessionToken)
-                                onComplete.invoke(null)
-                            }
-                            else {
-                                if (BuildConfig.DEBUG) e.printStackTrace()
-                                onComplete.invoke(e)
-                            }
-                        }
-                        else {
-                            onSuccess.invoke(payout, rewardRemainder)
-                            onComplete.invoke(null)
-                        }
-                    }
-                })
-            }
-            else {
-                onComplete.invoke(Exception("************ Current user is NULL ***********"))
-            }
-        }
-        else {
-            onNotEnough.invoke()
-            onComplete.invoke(null)
-        }
-    }
-
-
 
 
 }

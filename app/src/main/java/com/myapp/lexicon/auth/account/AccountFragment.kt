@@ -26,7 +26,10 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.auth.AuthFragment
 import com.myapp.lexicon.auth.AuthViewModel
 import com.myapp.lexicon.auth.agreement.UserAgreementDialog
+import com.myapp.lexicon.auth.invoice.InstallTaxAppFragment
+import com.myapp.lexicon.auth.invoice.PayoutGuideFragment
 import com.myapp.lexicon.common.PAYMENTS_CONDITIONS
+import com.myapp.lexicon.common.SELF_EMPLOYED_THRESHOLD
 import com.myapp.lexicon.common.getMonthNameFromMillis
 import com.myapp.lexicon.common.getPreviousMonthNameFromMillis
 import com.myapp.lexicon.databinding.FragmentAccountBinding
@@ -34,7 +37,6 @@ import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.LuhnAlgorithm
 import com.myapp.lexicon.helpers.checkIfAllDigits
 import com.myapp.lexicon.helpers.firstCap
-import com.myapp.lexicon.helpers.isDateOfLastMonth
 import com.myapp.lexicon.helpers.orientationLock
 import com.myapp.lexicon.helpers.orientationUnLock
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
@@ -49,6 +51,7 @@ import com.myapp.lexicon.models.UserState
 import com.myapp.lexicon.models.ViewState
 import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.settings.clearEmailPasswordInPref
+import com.myapp.lexicon.settings.isAppInstalled
 import com.myapp.lexicon.settings.accessToken
 import com.myapp.lexicon.settings.emailIntoPref
 import com.myapp.lexicon.settings.isFirstLogin
@@ -428,35 +431,50 @@ class AccountFragment : Fragment() {
                         return@setOnClickListener
                     }
 
-                    accountVM.demandPayment(
-                        threshold = (accountVM.paymentThreshold * user.currencyRate).toInt(),
-                        reward = user.reservedPayment.toInt(),
-                        userMap = mapOf(User.KEY_PAYMENT_DATE to System.currentTimeMillis().toStringTime()),
-                        onStart = {
-                            userVM.setLoadingState(UserViewModel.LoadingState.Start)
-                            requireActivity().orientationLock()
-                        },
-                        onSuccess = {
-                            userVM.setState(UserViewModel.State.PaymentRequestSent(user, 0, 0.0))
-                        },
-                        onNotEnough = {
-                            showSnackBar(getString(R.string.text_not_money))
-                        },
-                        onInvalidToken = {s: String ->
-                            showSnackBar(getString(R.string.text_session_has_expired))
-                            val authFragment = AuthFragment.newInstance()
-                            parentFragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, authFragment).commit()
-                        },
-                        onComplete = {exception: Exception? ->
-                            userVM.setLoadingState(UserViewModel.LoadingState.Complete)
-                            accountVM.setState(AccountViewModel.State.ReadOnly)
-                            if (exception != null) {
-                                if (BuildConfig.DEBUG) exception.printStackTrace()
-                                showSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
+                    if (user.reservedPayment <= SELF_EMPLOYED_THRESHOLD) {
+                        accountVM.demandPayment(
+                            threshold = (accountVM.paymentThreshold * user.currencyRate).toInt(),
+                            reward = user.reservedPayment.toInt(),
+                            userMap = mapOf(User.KEY_PAYMENT_DATE to System.currentTimeMillis().toStringTime()),
+                            onStart = {
+                                userVM.setLoadingState(UserViewModel.LoadingState.Start)
+                                requireActivity().orientationLock()
+                            },
+                            onSuccess = {
+                                userVM.setState(UserViewModel.State.PaymentRequestSent(user, 0, 0.0))
+                            },
+                            onNotEnough = {
+                                showSnackBar(getString(R.string.text_not_money))
+                            },
+                            onInvalidToken = {s: String ->
+                                showSnackBar(getString(R.string.text_session_has_expired))
+                                val authFragment = AuthFragment.newInstance()
+                                parentFragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, authFragment).commit()
+                            },
+                            onComplete = {exception: Exception? ->
+                                userVM.setLoadingState(UserViewModel.LoadingState.Complete)
+                                accountVM.setState(AccountViewModel.State.ReadOnly)
+                                if (exception != null) {
+                                    if (BuildConfig.DEBUG) exception.printStackTrace()
+                                    showSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
+                                }
+                                requireActivity().orientationUnLock()
                             }
-                            requireActivity().orientationUnLock()
+                        )
+                    } else {
+                        val isInstalled = requireContext().isAppInstalled("com.gnivts.selfemployed")
+                        if (isInstalled) {
+                            parentFragmentManager.beginTransaction()
+                                .replace(R.id.frame_to_page_fragm, PayoutGuideFragment.newInstance(user.reservedPayment.toInt()))
+                                .addToBackStack(null)
+                                .commit()
+                        } else {
+                            parentFragmentManager.beginTransaction()
+                                .replace(R.id.frame_to_page_fragm, InstallTaxAppFragment.newInstance())
+                                .addToBackStack(null)
+                                .commit()
                         }
-                    )
+                    }
                 }
             }
 
@@ -564,10 +582,7 @@ class AccountFragment : Fragment() {
             }
             else tvRewardCondition.visibility = View.VISIBLE
 
-            val isDateOfLastMonth = user.paymentDate.isDateOfLastMonth()
-
-            btnGetReward.isEnabled = user.reservedPayment > rewardThreshold
-                    && accountVM.paymentCode == BuildConfig.PAYMENT_CODE.trim() && isDateOfLastMonth
+            btnGetReward.isEnabled = user.reservedPayment > rewardThreshold && accountVM.paymentCode == BuildConfig.PAYMENT_CODE.trim()
 
             if (user.message.isNotEmpty()) {
                 tvMessage.apply {
