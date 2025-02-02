@@ -40,8 +40,8 @@ class InstallTaxAppFragment : Fragment() {
                     Uri.parse("https://play.google.com/store/apps/details?id=com.gnivts.selfemployed")
                 )
                 startActivity(intent)
+                requireActivity().finish()
             }
-            requireActivity().finish()
         }
     }
 

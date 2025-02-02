@@ -1,11 +1,14 @@
 package com.myapp.lexicon.auth.invoice
 
+import android.graphics.Bitmap
 import androidx.fragment.app.viewModels
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import com.myapp.lexicon.databinding.FragmentPayoutGuideBinding
 import com.myapp.lexicon.settings.isAppInstalled
 
@@ -36,8 +39,20 @@ class PayoutGuideFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        with(binding) {
+        with(binding!!) {
 
+            webView.apply {
+                webViewClient = object : WebViewClient() {
+                    override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+
+                    }
+
+                    override fun onPageFinished(view: WebView?, url: String?) {
+
+                    }
+                }
+                loadUrl("https://api.englishlexicon.ru/get-self-employed-guide")
+            }
         }
     }
 

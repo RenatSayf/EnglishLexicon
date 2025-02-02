@@ -453,7 +453,7 @@ class AccountFragment : Fragment() {
                         )
                     } else {
                         val isInstalled = requireContext().isAppInstalled("com.gnivts.selfemployed")
-                        if (isInstalled) {
+                        if (!isInstalled) {
                             parentFragmentManager.beginTransaction()
                                 .replace(R.id.frame_to_page_fragm, PayoutGuideFragment.newInstance(user.reservedPayment.toInt()))
                                 .addToBackStack(null)
