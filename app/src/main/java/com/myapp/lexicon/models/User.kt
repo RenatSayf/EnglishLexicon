@@ -1,7 +1,5 @@
 package com.myapp.lexicon.models
 
-import com.myapp.lexicon.helpers.getMonthFromLongTime
-import com.myapp.lexicon.helpers.toLongTime
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -29,7 +27,7 @@ data class User(
         const val KEY_BANK_CARD = "bankCard"
         const val KEY_BANK_NAME = "bankName"
         const val KEY_PAYMENT_DATE = "paymentDate"
-        const val KEY__RESERVED_PAYMENT_DATE = "reservedPaymentDate"
+        const val KEY_RESERVED_PAYMENT_DATE = "reservedPaymentDate"
         const val KEY_MESSAGE = "messageToUser"
         const val KEY_MESSAGING_TOKEN = "messagingToken"
         const val KEY_IS_ADS_ENABLED = "isAdsEnabled"
@@ -66,28 +64,6 @@ data class User(
     var currencySymbol: String = ""
     var message: String = ""
     var isAdsEnabled: Boolean = true
-
-    fun checkPayDateIsLastMonth(
-        currentTime: Long = System.currentTimeMillis()
-    ): Boolean {
-        val lastPaymentMonth = this.paymentDate.toLongTime().getMonthFromLongTime()
-        val currentMonth = currentTime.getMonthFromLongTime()
-        return currentMonth > lastPaymentMonth
-    }
-
-    fun isResetMonthlyBalance(currentMonth: Int = System.currentTimeMillis().getMonthFromLongTime()): Boolean {
-        val createdMonth = this.createdAt.getMonthFromLongTime()
-        val rewardUpdateMonth = this.rewardUpdateAt.toLongTime().getMonthFromLongTime()
-        val reservedMonth = this.reservedPaymentDate.toLongTime().getMonthFromLongTime()
-        return when {
-            createdMonth == currentMonth -> false
-            currentMonth >= rewardUpdateMonth &&
-                    currentMonth > createdMonth &&
-                    reservedMonth < currentMonth -> true
-            else -> false
-        }
-
-    }
 
 
 }

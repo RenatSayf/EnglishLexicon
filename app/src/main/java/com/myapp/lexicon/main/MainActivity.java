@@ -202,14 +202,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if (!user.isAdsEnabled() && !user.getMessage().isEmpty()) {
                     ExtensionsKt.showSnackBar(navView, user.getMessage(), Snackbar.LENGTH_LONG);
                 }
-                ExtensionsKt.reserveRewardPaymentForMonth(
-                        MainActivity.this,
-                        user,
-                        (sum, remainder) -> {
-                            buildRewardText(new Revenue(remainder, sum, user.getCurrency(), user.getCurrencySymbol()));
-                            return null;
-                        }
-                );
                 return null;
             });
             result.onSignOut(() -> {
