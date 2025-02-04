@@ -1,16 +1,19 @@
 package com.myapp.lexicon.auth.invoice
 
+import android.content.Intent
 import android.graphics.Bitmap
-import androidx.fragment.app.viewModels
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.activity.OnBackPressedCallback
+import androidx.fragment.app.Fragment
+import com.myapp.lexicon.common.SELF_EMPLOYED_MARKET
+import com.myapp.lexicon.common.SELF_EMPLOYED_PACKAGE
+import com.myapp.lexicon.common.SELF_EMPLOYED_RU_STORE
 import com.myapp.lexicon.databinding.FragmentPayoutGuideBinding
-import com.myapp.lexicon.settings.isAppInstalled
 
 class PayoutGuideFragment : Fragment() {
 
@@ -25,8 +28,6 @@ class PayoutGuideFragment : Fragment() {
     }
 
     private var binding: FragmentPayoutGuideBinding? = null
-
-    private val viewModel: PayoutGuideViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -53,6 +54,37 @@ class PayoutGuideFragment : Fragment() {
                 }
                 loadUrl("https://api.englishlexicon.ru/get-self-employed-guide")
             }
+
+            btnOpenApp.setOnClickListener {
+                val intent = requireContext().packageManager.getLaunchIntentForPackage(SELF_EMPLOYED_PACKAGE)
+                if (intent != null) {
+                    startActivity(intent.apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    })
+                }
+                else {
+                    try {
+                        startActivity(Intent(Intent.ACTION_VIEW, SELF_EMPLOYED_MARKET))
+                    } catch (e: Exception) {
+                        startActivity(Intent(Intent.ACTION_VIEW, SELF_EMPLOYED_RU_STORE))
+                    }
+                }
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        with(binding!!) {
+            toolBar.setNavigationOnClickListener {
+                parentFragmentManager.popBackStack()
+            }
+            requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    parentFragmentManager.popBackStack()
+                }
+            })
         }
     }
 

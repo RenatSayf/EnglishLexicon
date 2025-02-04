@@ -52,10 +52,9 @@
             android:layout_height="wrap_content"
             android:contentDescription="@string/text_setup_from_google_play"
             android:src="@drawable/get_it_on_google_play"
-            android:background="@drawable/bg_ripple_transparent" />
+            android:background="@drawable/bg_ripple_transparent"
+            android:foreground="@drawable/bg_ripple_transparent"/>
 
     </LinearLayout>
-
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

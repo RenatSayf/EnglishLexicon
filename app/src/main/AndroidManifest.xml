@@ -19,6 +19,10 @@
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
 
+    <queries>
+        <package android:name="com.gnivts.selfemployed" />
+    </queries>
+
     <application
         android:name=".di.App"
         android:allowBackup="true"

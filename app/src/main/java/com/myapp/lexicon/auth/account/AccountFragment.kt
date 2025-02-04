@@ -26,6 +26,7 @@ import com.myapp.lexicon.auth.agreement.UserAgreementDialog
 import com.myapp.lexicon.auth.invoice.InstallTaxAppFragment
 import com.myapp.lexicon.auth.invoice.PayoutGuideFragment
 import com.myapp.lexicon.common.PAYMENTS_CONDITIONS
+import com.myapp.lexicon.common.SELF_EMPLOYED_PACKAGE
 import com.myapp.lexicon.common.SELF_EMPLOYED_THRESHOLD
 import com.myapp.lexicon.common.getMonthNameFromMillis
 import com.myapp.lexicon.common.getPreviousMonthNameFromMillis
@@ -452,8 +453,8 @@ class AccountFragment : Fragment() {
                             }
                         )
                     } else {
-                        val isInstalled = requireContext().isAppInstalled("com.gnivts.selfemployed")
-                        if (!isInstalled) {
+                        val isInstalled = requireContext().isAppInstalled(SELF_EMPLOYED_PACKAGE)
+                        if (isInstalled) {
                             parentFragmentManager.beginTransaction()
                                 .replace(R.id.frame_to_page_fragm, PayoutGuideFragment.newInstance(user.reservedPayment.toInt()))
                                 .addToBackStack(null)
