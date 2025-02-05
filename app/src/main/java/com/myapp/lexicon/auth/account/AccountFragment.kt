@@ -11,6 +11,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -121,7 +122,8 @@ class AccountFragment : Fragment() {
                 tvPhoneValue,
                 tvBankNameValue,
                 tvFirstNameValue,
-                tvLastNameValue
+                tvLastNameValue,
+                tvCheckRefValue
             ).apply {
                 if (accountVM.isBankCardRequired) {
                     add(tvCardNumber)
@@ -190,9 +192,6 @@ class AccountFragment : Fragment() {
                                 requestFocus()
                                 setSelection(this.text?.length?: 0)
                             }
-                        }
-                        btnSave.apply {
-                            visibility = state.btnSave.visibility
                         }
                         btnGetReward.apply {
                             isEnabled = state.btnGetReward.isEnabled
@@ -282,9 +281,11 @@ class AccountFragment : Fragment() {
                                 setSelection(this.text?.length?: 0)
                             }
                         }
-                        btnSave.visibility = View.VISIBLE
+                        toolBar.menu.findItem(R.id.menu_edit).isVisible = false
+                        toolBar.menu.findItem(R.id.menu_save).isVisible = true
                     }
                     AccountViewModel.State.ReadOnly -> {
+                        toolBar.menu.findItem(R.id.menu_save).isVisible = false
                         editTextList.forEach {
                             it.isEnabled = false
                             if (it.text.isEmpty() && it.id != R.id.tvEmailValue) {
@@ -294,7 +295,8 @@ class AccountFragment : Fragment() {
                                 (it.parent as LinearLayoutCompat).visibility = View.VISIBLE
                             }
                         }
-                        btnSave.visibility = View.GONE
+                        toolBar.menu.findItem(R.id.menu_edit).isVisible = true
+                        toolBar.menu.findItem(R.id.menu_save).isVisible = false
                     }
                 }
             }
@@ -354,33 +356,6 @@ class AccountFragment : Fragment() {
                 else tvLastNameValue.background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_horizontal_oval_error)
             }
 
-            btnSave.setOnClickListener {
-                val user = userVM.user.value
-                if (user != null) {
-                    val editText = editTextList.firstOrNull {
-                        it.background.constantState == ResourcesCompat.getDrawable(
-                            resources,
-                            R.drawable.bg_horizontal_oval_error,
-                            null
-                        )?.constantState
-                    }
-                    if (editText != null) {
-                        showSnackBar(getString(R.string.text_form_incorrect))
-                        return@setOnClickListener
-                    }
-                    val userMap = mapOf<String, Any>(
-                        User.KEY_EMAIL to tvEmailValue.text.toString(),
-                        User.KEY_PHONE to tvPhoneValue.text.toString(),
-                        User.KEY_BANK_NAME to tvBankNameValue.text.toString(),
-                        User.KEY_BANK_CARD to tvCardNumber.text.toString(),
-                        User.KEY_FIRST_NAME to tvFirstNameValue.text.toString().firstCap(),
-                        User.KEY_LAST_NAME to tvLastNameValue.text.toString().firstCap()
-                    )
-                    userVM.updateUserDataIntoCloud(userMap)
-                    accountVM.setState(AccountViewModel.State.ReadOnly)
-                }
-            }
-
             btnGetReward.setOnClickListener {
                 val user = userVM.user.value
                 if (user != null) {
@@ -422,51 +397,45 @@ class AccountFragment : Fragment() {
                         return@setOnClickListener
                     }
 
-                    if (user.reservedPayment <= SELF_EMPLOYED_THRESHOLD) {
-                        accountVM.demandPayment(
-                            threshold = (accountVM.paymentThreshold * user.currencyRate).toInt(),
-                            reward = user.reservedPayment.toInt(),
-                            userMap = mapOf(User.KEY_PAYMENT_DATE to System.currentTimeMillis().toStringTime()),
-                            onStart = {
-                                userVM.setLoadingState(UserViewModel.LoadingState.Start)
-                                requireActivity().orientationLock()
-                            },
-                            onSuccess = {
-                                userVM.setState(UserViewModel.State.PaymentRequestSent(user, 0, 0.0))
-                            },
-                            onNotEnough = {
-                                showSnackBar(getString(R.string.text_not_money))
-                            },
-                            onInvalidToken = {s: String ->
-                                showSnackBar(getString(R.string.text_session_has_expired))
-                                val authFragment = AuthFragment.newInstance()
-                                parentFragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, authFragment).commit()
-                            },
-                            onComplete = {exception: Exception? ->
-                                userVM.setLoadingState(UserViewModel.LoadingState.Complete)
-                                accountVM.setState(AccountViewModel.State.ReadOnly)
-                                if (exception != null) {
-                                    if (BuildConfig.DEBUG) exception.printStackTrace()
-                                    showSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
-                                }
-                                requireActivity().orientationUnLock()
-                            }
-                        )
-                    } else {
-                        val isInstalled = requireContext().isAppInstalled(SELF_EMPLOYED_PACKAGE)
-                        if (isInstalled) {
-                            parentFragmentManager.beginTransaction()
-                                .replace(R.id.frame_to_page_fragm, PayoutGuideFragment.newInstance(user.reservedPayment.toInt()))
-                                .addToBackStack(null)
-                                .commit()
-                        } else {
-                            parentFragmentManager.beginTransaction()
-                                .replace(R.id.frame_to_page_fragm, InstallTaxAppFragment.newInstance())
-                                .addToBackStack(null)
-                                .commit()
-                        }
+                    if (layoutCheckRef.isVisible && tvCheckRefValue.text.isNullOrEmpty()) {
+                        tvCheckRefValue.background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_horizontal_oval_error)
+                        return@setOnClickListener
                     }
+
+                    accountVM.demandPayment(
+                        threshold = (accountVM.paymentThreshold * user.currencyRate).toInt(),
+                        reward = user.reservedPayment.toInt(),
+                        userMap = mapOf(User.KEY_PAYMENT_DATE to System.currentTimeMillis().toStringTime()),
+                        onStart = {
+                            userVM.setLoadingState(UserViewModel.LoadingState.Start)
+                            requireActivity().orientationLock()
+                        },
+                        onSuccess = {
+                            userVM.setState(UserViewModel.State.PaymentRequestSent(user, 0, 0.0))
+                        },
+                        onNotEnough = {
+                            showSnackBar(getString(R.string.text_not_money))
+                        },
+                        onInvalidToken = {s: String ->
+                            showSnackBar(getString(R.string.text_session_has_expired))
+                            val authFragment = AuthFragment.newInstance()
+                            parentFragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, authFragment).commit()
+                        },
+                        onComplete = {exception: Exception? ->
+                            userVM.setLoadingState(UserViewModel.LoadingState.Complete)
+                            accountVM.setState(AccountViewModel.State.ReadOnly)
+                            if (exception != null) {
+                                if (BuildConfig.DEBUG) exception.printStackTrace()
+                                showSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
+                            }
+                            requireActivity().orientationUnLock()
+                        }
+                    )
                 }
+            }
+
+            btnCreateCheck.setOnClickListener {
+                userVM.user.value?.let { usr -> checkIfSelfEmployedAppInstalled(usr) }
             }
 
             btnLogOut.setOnClickListener {
@@ -486,6 +455,31 @@ class AccountFragment : Fragment() {
                             else -> {}
                         }
                     }
+                    R.id.menu_save -> {
+                        val user = userVM.user.value
+                        if (user != null) {
+                            val editText = editTextList.firstOrNull {
+                                it.background.constantState == ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.bg_horizontal_oval_error,
+                                    null
+                                )?.constantState
+                            }
+                            if (editText != null) {
+                                showSnackBar(getString(R.string.text_form_incorrect))
+                            }
+                            val userMap = mapOf<String, Any>(
+                                User.KEY_EMAIL to tvEmailValue.text.toString(),
+                                User.KEY_PHONE to tvPhoneValue.text.toString(),
+                                User.KEY_BANK_NAME to tvBankNameValue.text.toString(),
+                                User.KEY_BANK_CARD to tvCardNumber.text.toString(),
+                                User.KEY_FIRST_NAME to tvFirstNameValue.text.toString().firstCap(),
+                                User.KEY_LAST_NAME to tvLastNameValue.text.toString().firstCap()
+                            )
+                            userVM.updateUserDataIntoCloud(userMap)
+                            accountVM.setState(AccountViewModel.State.ReadOnly)
+                        }
+                    }
                     R.id.menu_user_agreement -> {
                         val dialog = UserAgreementDialog.newInstance(
                             isCancelable = false,
@@ -501,6 +495,7 @@ class AccountFragment : Fragment() {
             toolBar.setNavigationOnClickListener {
                 goBack()
             }
+
         }
     }
 
@@ -557,6 +552,12 @@ class AccountFragment : Fragment() {
             else tvRewardCondition.visibility = View.VISIBLE
 
             btnGetReward.isEnabled = user.reservedPayment > rewardThreshold && accountVM.paymentCode == BuildConfig.PAYMENT_CODE.trim()
+            if (user.reservedPayment > SELF_EMPLOYED_THRESHOLD) {
+                layoutCheckRef.isVisible = btnGetReward.isEnabled
+            }
+            else {
+                layoutCheckRef.isVisible = false
+            }
 
             if (user.message.isNotEmpty()) {
                 tvMessage.apply {
@@ -714,7 +715,6 @@ class AccountFragment : Fragment() {
                         text = tvLastNameValue.text.toString(),
                         background = tvLastNameValue.background
                     ),
-                    btnSave = ViewState(visibility = btnSave.visibility),
                     btnGetReward = ViewState(isEnabled = btnGetReward.isEnabled),
                     rewardCondition = ViewState(text = tvRewardCondition.text.toString())
                 )
@@ -793,6 +793,21 @@ class AccountFragment : Fragment() {
                 "${getString(R.string.title_e_mail)}: ${user.email}, " +
                 "${getString(R.string.text_bank_card)}: ${user.bankCard}, " +
                 "${getString(R.string.text_bank_name)}: ${user.bankName}."
+    }
+
+    private fun checkIfSelfEmployedAppInstalled(user: User) {
+        val isInstalled = requireContext().isAppInstalled(SELF_EMPLOYED_PACKAGE)
+        if (isInstalled) {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.frame_to_page_fragm, PayoutGuideFragment.newInstance(user.reservedPayment.toInt()))
+                .addToBackStack(null)
+                .commit()
+        } else {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.frame_to_page_fragm, InstallTaxAppFragment.newInstance())
+                .addToBackStack(null)
+                .commit()
+        }
     }
 
 

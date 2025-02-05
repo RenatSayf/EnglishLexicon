@@ -195,7 +195,7 @@
     <string name="text_change_data">Изменить данные</string>
     <string name="title_e_mail">E-mail</string>
     <string name="title_phone">Телефон</string>
-    <string name="title_first_name">Имя</string>
+    <string name="title_first_name">Имя Отчество</string>
     <string name="title_last_name">Фамилия</string>
     <string name="text_get_reward_now">Получить награду</string>
     <string name="text_reward_conditions">Вознаграждение выплачивается с 21 по 26 число каждого месяца, при условии, что сумма будет больше</string>
