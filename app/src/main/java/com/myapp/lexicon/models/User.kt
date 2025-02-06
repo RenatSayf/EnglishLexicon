@@ -59,6 +59,8 @@ data class User(
     var reservedPayment: Double = 0.0
         get() = BigDecimal(field).setScale(2, RoundingMode.DOWN).toDouble()
 
+    var requiresPayment: Int = 0
+
     var reservedPaymentDate: String = ""
     var currency: String = ""
     var currencySymbol: String = ""

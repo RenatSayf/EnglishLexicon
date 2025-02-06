@@ -193,6 +193,11 @@ class AccountFragment : Fragment() {
                                 setSelection(this.text?.length?: 0)
                             }
                         }
+                        layoutCheckRef.visibility = state.checkRef.visibility
+                        tvCheckRefValue.apply {
+                            setText(state.checkRef.text)
+                            background = state.checkRef.background
+                        }
                         btnGetReward.apply {
                             isEnabled = state.btnGetReward.isEnabled
                         }
@@ -397,7 +402,8 @@ class AccountFragment : Fragment() {
                         return@setOnClickListener
                     }
 
-                    if (layoutCheckRef.isVisible && tvCheckRefValue.text.isNullOrEmpty()) {
+                    val isMatches = tvCheckRefValue.text?.matches(Regex("^https://lknpd\\.nalog\\.ru/api/v1/receipt/\\d+/[a-zA-Z0-9]+/print$"))
+                    if (layoutCheckRef.isVisible && isMatches == false) {
                         tvCheckRefValue.background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_horizontal_oval_error)
                         return@setOnClickListener
                     }
@@ -714,6 +720,11 @@ class AccountFragment : Fragment() {
                     lastName = ViewState(
                         text = tvLastNameValue.text.toString(),
                         background = tvLastNameValue.background
+                    ),
+                    checkRef = ViewState(
+                        text = tvCheckRefValue.text.toString(),
+                        background = tvCheckRefValue.background,
+                        visibility = layoutCheckRef.visibility
                     ),
                     btnGetReward = ViewState(isEnabled = btnGetReward.isEnabled),
                     rewardCondition = ViewState(text = tvRewardCondition.text.toString())
