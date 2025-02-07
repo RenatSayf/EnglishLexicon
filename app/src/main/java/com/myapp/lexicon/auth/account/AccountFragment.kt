@@ -27,6 +27,7 @@ import com.myapp.lexicon.auth.agreement.UserAgreementDialog
 import com.myapp.lexicon.auth.invoice.InstallTaxAppFragment
 import com.myapp.lexicon.auth.invoice.PayoutGuideFragment
 import com.myapp.lexicon.common.PAYMENTS_CONDITIONS
+import com.myapp.lexicon.common.PAYMENT_CHECK_PATTERN
 import com.myapp.lexicon.common.SELF_EMPLOYED_PACKAGE
 import com.myapp.lexicon.common.SELF_EMPLOYED_THRESHOLD
 import com.myapp.lexicon.common.getMonthNameFromMillis
@@ -42,8 +43,8 @@ import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.helpers.showToastIfDebug
 import com.myapp.lexicon.helpers.timeInMillisMoscowTimeZone
-import com.myapp.lexicon.helpers.toStringTime
 import com.myapp.lexicon.main.viewmodels.UserViewModel
+import com.myapp.lexicon.models.Payout
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserState
 import com.myapp.lexicon.models.ViewState
@@ -234,6 +235,7 @@ class AccountFragment : Fragment() {
                         if (currentUser != null) {
                             userVM.getUserFromCloud().observe(viewLifecycleOwner) { result ->
                                 result.onSuccess { value: User ->
+                                    handleUserData(value)
                                     accountVM.sendPaymentInfoToTGChannel(
                                         message = buildMessageAboutPayment(value),
                                         onStart = {
@@ -402,7 +404,7 @@ class AccountFragment : Fragment() {
                         return@setOnClickListener
                     }
 
-                    val isMatches = tvCheckRefValue.text?.matches(Regex("^https://lknpd\\.nalog\\.ru/api/v1/receipt/\\d+/[a-zA-Z0-9]+/print$"))
+                    val isMatches = tvCheckRefValue.text?.matches(Regex(PAYMENT_CHECK_PATTERN))
                     if (layoutCheckRef.isVisible && isMatches == false) {
                         tvCheckRefValue.background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_horizontal_oval_error)
                         return@setOnClickListener
@@ -411,7 +413,12 @@ class AccountFragment : Fragment() {
                     accountVM.demandPayment(
                         threshold = (accountVM.paymentThreshold * user.currencyRate).toInt(),
                         reward = user.reservedPayment.toInt(),
-                        userMap = mapOf(User.KEY_PAYMENT_DATE to System.currentTimeMillis().toStringTime()),
+                        userMap = Payout(
+                            reservedSum = 0,
+                            payoutSum = user.reservedPayment.toInt(),
+                            payoutTime = System.currentTimeMillis(),
+                            checkReference = tvCheckRefValue.text.toString()
+                        ).toMap(),
                         onStart = {
                             userVM.setLoadingState(UserViewModel.LoadingState.Start)
                             requireActivity().orientationLock()
@@ -517,6 +524,11 @@ class AccountFragment : Fragment() {
                 groupToPayout.visibility = View.VISIBLE
                 val previousMonth = timeInMillisMoscowTimeZone.getPreviousMonthNameFromMillis()
                 val payoutToDisplay = "${getString(R.string.text_to_payment)} $previousMonth: ${user.reservedPayment} ${user.currencySymbol}"
+                tvReservedValue.text = payoutToDisplay
+            }
+            else if (user.requiresPayment > 0 && user.reservedPayment == 0.0) {
+                groupToPayout.visibility = View.VISIBLE
+                val payoutToDisplay = "${getString(R.string.text_prepare_to_payment)}: ${user.requiresPayment} ${user.currencySymbol}"
                 tvReservedValue.text = payoutToDisplay
             }
             else {
@@ -803,7 +815,8 @@ class AccountFragment : Fragment() {
                 "${getString(R.string.title_phone)}: ${user.phone}, " +
                 "${getString(R.string.title_e_mail)}: ${user.email}, " +
                 "${getString(R.string.text_bank_card)}: ${user.bankCard}, " +
-                "${getString(R.string.text_bank_name)}: ${user.bankName}."
+                "${getString(R.string.text_bank_name)}: ${user.bankName}. " +
+                "${getString(R.string.text_check_ref)}: ${user.checkReference}"
     }
 
     private fun checkIfSelfEmployedAppInstalled(user: User) {

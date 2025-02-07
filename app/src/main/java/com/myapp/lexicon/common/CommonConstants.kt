@@ -130,3 +130,12 @@ val SELF_EMPLOYED_MARKET: Uri
     get() {
         return Uri.parse("market://details?id=$SELF_EMPLOYED_PACKAGE")
     }
+
+val PAYMENT_CHECK_PATTERN: String
+    get() {
+        return try {
+            Firebase.remoteConfig.getString("PAYMENT_CHECK_PATTERN")
+        } catch (e: Exception) {
+            "^https://lknpd\\.nalog\\.ru/api/v1/receipt/\\d+/[a-zA-Z0-9]+/print$"
+        }
+    }
