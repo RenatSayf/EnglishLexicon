@@ -362,6 +362,15 @@ class AccountFragment : Fragment() {
                 }
                 else tvLastNameValue.background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_horizontal_oval_error)
             }
+            tvCheckRefValue.doOnTextChanged { text, start, before, count ->
+                val isMatches = tvCheckRefValue.text?.matches(Regex(PAYMENT_CHECK_PATTERN))
+                if (isMatches == true) {
+                    tvCheckRefValue.background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_horizontal_oval)
+                }
+                else {
+                    tvCheckRefValue.background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_horizontal_oval_error)
+                }
+            }
 
             btnGetReward.setOnClickListener {
                 val user = userVM.user.value
@@ -570,11 +579,12 @@ class AccountFragment : Fragment() {
             else tvRewardCondition.visibility = View.VISIBLE
 
             btnGetReward.isEnabled = user.reservedPayment > rewardThreshold && accountVM.paymentCode == BuildConfig.PAYMENT_CODE.trim()
-            if (user.reservedPayment > SELF_EMPLOYED_THRESHOLD) {
-                layoutCheckRef.isVisible = btnGetReward.isEnabled
+            if (user.reservedPayment > SELF_EMPLOYED_THRESHOLD && btnGetReward.isEnabled) {
+                layoutCheckRef.isVisible = true
             }
             else {
                 layoutCheckRef.isVisible = false
+                tvCheckRefValue.setText("")
             }
 
             if (user.message.isNotEmpty()) {
@@ -811,7 +821,7 @@ class AccountFragment : Fragment() {
 
     private fun buildMessageAboutPayment(user: User): String {
         return "${getString(R.string.text_user)} ${user.firstName} ${user.lastName} ${getString(R.string.text_wishes_to_get_reward)}. " +
-                "${getString(R.string.text_amount)}: ${user.reservedPayment} ${user.currencySymbol}, " +
+                "${getString(R.string.text_amount)}: ${user.requiresPayment} ${user.currencySymbol}, " +
                 "${getString(R.string.title_phone)}: ${user.phone}, " +
                 "${getString(R.string.title_e_mail)}: ${user.email}, " +
                 "${getString(R.string.text_bank_card)}: ${user.bankCard}, " +
