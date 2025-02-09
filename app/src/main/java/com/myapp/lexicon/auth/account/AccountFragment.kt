@@ -321,7 +321,9 @@ class AccountFragment : Fragment() {
 
                     AccountViewModel.State.InvoiceAdded -> {
                         tvCheckRefValue.background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_horizontal_oval)
-                        btnGetReward.isEnabled = true
+                        if (accountVM.paymentCode == BuildConfig.PAYMENT_CODE) {
+                            btnGetReward.isEnabled = true
+                        }
                         accountVM.setState(AccountViewModel.State.ReadOnly)
                     }
                 }
