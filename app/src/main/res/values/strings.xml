@@ -318,6 +318,10 @@
     </string>
     <string name="text_setup_from_google_play">Установить из Google Play</string>
     <string name="text_tax_app_header">Оплата налогов – это важно!</string>
+    <string name="text_check_ref_title">Создайте чек на оплату в приложении Мой налог</string>
+    <string name="text_check_ref_hint">Ссылка на чек</string>
+    <string name="btn_create_check_text">Создать чек</string>
+    <string name="text_open_selfemployed_app">Открыть Мой налог</string>
 
 
 </resources>

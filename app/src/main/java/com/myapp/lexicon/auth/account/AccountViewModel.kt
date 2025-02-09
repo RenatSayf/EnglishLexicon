@@ -29,6 +29,8 @@ open class AccountViewModel : ViewModel() {
     sealed class State {
         data object ReadOnly: State()
         data object Editing: State()
+        data object InvoiceRequired: State()
+        data object InvoiceAdded: State()
     }
 
     open val paymentThreshold: Double = PAYMENT_THRESHOLD

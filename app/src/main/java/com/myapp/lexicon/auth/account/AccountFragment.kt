@@ -11,7 +11,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -123,8 +122,7 @@ class AccountFragment : Fragment() {
                 tvPhoneValue,
                 tvBankNameValue,
                 tvFirstNameValue,
-                tvLastNameValue,
-                tvCheckRefValue
+                tvLastNameValue
             ).apply {
                 if (accountVM.isBankCardRequired) {
                     add(tvCardNumber)
@@ -288,8 +286,8 @@ class AccountFragment : Fragment() {
                                 setSelection(this.text?.length?: 0)
                             }
                         }
-                        toolBar.menu.findItem(R.id.menu_edit).isVisible = false
-                        toolBar.menu.findItem(R.id.menu_save).isVisible = true
+                        toolBar.menu.findItem(R.id.menu_edit)?.isVisible = false
+                        toolBar.menu.findItem(R.id.menu_save)?.isVisible = true
                     }
                     AccountViewModel.State.ReadOnly -> {
                         toolBar.menu.findItem(R.id.menu_save).isVisible = false
@@ -302,8 +300,30 @@ class AccountFragment : Fragment() {
                                 (it.parent as LinearLayoutCompat).visibility = View.VISIBLE
                             }
                         }
-                        toolBar.menu.findItem(R.id.menu_edit).isVisible = true
-                        toolBar.menu.findItem(R.id.menu_save).isVisible = false
+                        toolBar.menu.findItem(R.id.menu_edit)?.isVisible = true
+                        toolBar.menu.findItem(R.id.menu_save)?.isVisible = false
+                    }
+
+                    AccountViewModel.State.InvoiceRequired -> {
+                        editTextList.forEach {
+                            it.isEnabled = false
+                            if (it.text.isEmpty() && it.id != R.id.tvEmailValue) {
+                                (it.parent as LinearLayoutCompat).visibility = View.GONE
+                            }
+                            else {
+                                (it.parent as LinearLayoutCompat).visibility = View.VISIBLE
+                            }
+                        }
+                        layoutCheckRef.visibility = View.VISIBLE
+                        tvCheckRefValue.background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_horizontal_oval_error)
+                        btnGetReward.isEnabled = false
+                        accountVM.setState(AccountViewModel.State.Editing)
+                    }
+
+                    AccountViewModel.State.InvoiceAdded -> {
+                        tvCheckRefValue.background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_horizontal_oval)
+                        btnGetReward.isEnabled = true
+                        accountVM.setState(AccountViewModel.State.ReadOnly)
                     }
                 }
             }
@@ -365,10 +385,10 @@ class AccountFragment : Fragment() {
             tvCheckRefValue.doOnTextChanged { text, start, before, count ->
                 val isMatches = tvCheckRefValue.text?.matches(Regex(PAYMENT_CHECK_PATTERN))
                 if (isMatches == true) {
-                    tvCheckRefValue.background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_horizontal_oval)
+                    accountVM.setState(AccountViewModel.State.InvoiceAdded)
                 }
                 else {
-                    tvCheckRefValue.background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_horizontal_oval_error)
+                    accountVM.setState(AccountViewModel.State.InvoiceRequired)
                 }
             }
 
@@ -414,8 +434,8 @@ class AccountFragment : Fragment() {
                     }
 
                     val isMatches = tvCheckRefValue.text?.matches(Regex(PAYMENT_CHECK_PATTERN))
-                    if (layoutCheckRef.isVisible && isMatches == false) {
-                        tvCheckRefValue.background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_horizontal_oval_error)
+                    if (isMatches == false) {
+                        accountVM.setState(AccountViewModel.State.InvoiceRequired)
                         return@setOnClickListener
                     }
 
@@ -579,12 +599,13 @@ class AccountFragment : Fragment() {
             else tvRewardCondition.visibility = View.VISIBLE
 
             btnGetReward.isEnabled = user.reservedPayment > rewardThreshold && accountVM.paymentCode == BuildConfig.PAYMENT_CODE.trim()
-            if (user.reservedPayment > SELF_EMPLOYED_THRESHOLD && btnGetReward.isEnabled) {
-                layoutCheckRef.isVisible = true
+            if (user.reservedPayment > SELF_EMPLOYED_THRESHOLD && tvCheckRefValue.text.isNullOrEmpty()) {
+                layoutCheckRef.visibility = View.VISIBLE
+                btnGetReward.isEnabled = false
+                tvCheckRefValue.background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_horizontal_oval_error)
             }
             else {
-                layoutCheckRef.isVisible = false
-                tvCheckRefValue.setText("")
+                layoutCheckRef.visibility = View.GONE
             }
 
             if (user.message.isNotEmpty()) {
@@ -833,7 +854,7 @@ class AccountFragment : Fragment() {
         val isInstalled = requireContext().isAppInstalled(SELF_EMPLOYED_PACKAGE)
         if (isInstalled) {
             parentFragmentManager.beginTransaction()
-                .replace(R.id.frame_to_page_fragm, PayoutGuideFragment.newInstance(user.reservedPayment.toInt()))
+                .replace(R.id.frame_to_page_fragm, PayoutGuideFragment.newInstance(user))
                 .addToBackStack(null)
                 .commit()
         } else {

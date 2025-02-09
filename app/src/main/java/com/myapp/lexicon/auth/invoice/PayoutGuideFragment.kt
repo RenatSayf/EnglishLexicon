@@ -10,19 +10,21 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
+import com.myapp.lexicon.R
 import com.myapp.lexicon.common.SELF_EMPLOYED_MARKET
 import com.myapp.lexicon.common.SELF_EMPLOYED_PACKAGE
 import com.myapp.lexicon.common.SELF_EMPLOYED_RU_STORE
 import com.myapp.lexicon.databinding.FragmentPayoutGuideBinding
+import com.myapp.lexicon.models.User
 
 class PayoutGuideFragment : Fragment() {
 
     companion object {
 
-        private var amount: Int = 0
+        private var user: User? = null
 
-        fun newInstance(amount: Int): PayoutGuideFragment {
-            this.amount = amount
+        fun newInstance(user: User): PayoutGuideFragment {
+            this.user = user
             return PayoutGuideFragment()
         }
     }
@@ -42,14 +44,19 @@ class PayoutGuideFragment : Fragment() {
 
         with(binding!!) {
 
+            toolBar.apply {
+                subtitle = "${getString(R.string.text_your_reward)} ${user?.reservedPayment?.toInt()} ${user?.currencySymbol}"
+            }
+
             webView.apply {
                 webViewClient = object : WebViewClient() {
                     override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
-
+                        progressBar.visibility = View.VISIBLE
                     }
 
                     override fun onPageFinished(view: WebView?, url: String?) {
-
+                        view?.loadUrl("javascript:(function(){ document.body.style.marginBottom = '64px'})();")
+                        progressBar.visibility = View.GONE
                     }
                 }
                 loadUrl("https://api.englishlexicon.ru/get-self-employed-guide")
