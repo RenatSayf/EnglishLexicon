@@ -1,5 +1,6 @@
 package com.myapp.lexicon.auth.invoice
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
@@ -39,6 +40,7 @@ class PayoutGuideFragment : Fragment() {
         return binding!!.root
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -49,6 +51,7 @@ class PayoutGuideFragment : Fragment() {
             }
 
             webView.apply {
+                settings.javaScriptEnabled = true
                 webViewClient = object : WebViewClient() {
                     override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                         progressBar.visibility = View.VISIBLE
