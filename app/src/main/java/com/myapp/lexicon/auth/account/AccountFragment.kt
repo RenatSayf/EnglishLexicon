@@ -317,7 +317,6 @@ class AccountFragment : Fragment() {
                         layoutCheckRef.visibility = View.VISIBLE
                         tvCheckRefValue.background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_horizontal_oval_error)
                         btnGetReward.isEnabled = false
-                        accountVM.setState(AccountViewModel.State.Editing)
                     }
 
                     AccountViewModel.State.InvoiceAdded -> {
@@ -488,7 +487,7 @@ class AccountFragment : Fragment() {
                 when(item.itemId) {
                     R.id.menu_edit -> {
                         when (accountVM.state.value) {
-                            is AccountViewModel.State.ReadOnly -> {
+                            is AccountViewModel.State.ReadOnly, AccountViewModel.State.InvoiceRequired -> {
                                 accountVM.setState(AccountViewModel.State.Editing)
                             }
                             is AccountViewModel.State.Editing -> {
