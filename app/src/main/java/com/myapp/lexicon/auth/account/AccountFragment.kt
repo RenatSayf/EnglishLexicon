@@ -321,7 +321,8 @@ class AccountFragment : Fragment() {
 
                     AccountViewModel.State.InvoiceAdded -> {
                         tvCheckRefValue.background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_horizontal_oval)
-                        if (accountVM.paymentCode == BuildConfig.PAYMENT_CODE) {
+                        val reservedPayment = userVM.user.value?.reservedPayment
+                        if (accountVM.paymentCode == BuildConfig.PAYMENT_CODE && reservedPayment != null && reservedPayment > SELF_EMPLOYED_THRESHOLD) {
                             btnGetReward.isEnabled = true
                         }
                         accountVM.setState(AccountViewModel.State.ReadOnly)
