@@ -306,26 +306,41 @@ class AccountFragment : Fragment() {
 
                     AccountViewModel.State.InvoiceRequired -> {
                         editTextList.forEach {
-                            it.isEnabled = false
-                            if (it.text.isEmpty() && it.id != R.id.tvEmailValue) {
-                                (it.parent as LinearLayoutCompat).visibility = View.GONE
-                            }
-                            else {
-                                (it.parent as LinearLayoutCompat).visibility = View.VISIBLE
-                            }
+                            it.isEnabled = true
+                            (it.parent as LinearLayoutCompat).visibility = View.VISIBLE
                         }
+                        layoutPhone.visibility = View.VISIBLE
+                        layoutBankName.visibility = View.VISIBLE
+                        layoutFirstName.visibility = View.VISIBLE
+                        layoutLastName.visibility = View.VISIBLE
                         layoutCheckRef.visibility = View.VISIBLE
                         tvCheckRefValue.background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_horizontal_oval_error)
                         btnGetReward.isEnabled = false
+                        val messageToUser = getString(R.string.text_message_create_invoice)
+                        tvMessage.apply {
+                            text = messageToUser
+                            visibility = View.VISIBLE
+                        }
                     }
 
                     AccountViewModel.State.InvoiceAdded -> {
                         tvCheckRefValue.background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_horizontal_oval)
+                        tvMessage.apply {
+                            text = ""
+                            visibility = View.GONE
+                        }
                         val reservedPayment = userVM.user.value?.reservedPayment
                         if (accountVM.paymentCode == BuildConfig.PAYMENT_CODE && reservedPayment != null && reservedPayment > SELF_EMPLOYED_THRESHOLD) {
                             btnGetReward.isEnabled = true
                         }
-                        accountVM.setState(AccountViewModel.State.ReadOnly)
+                    }
+
+                    AccountViewModel.State.InvoiceNotRequired -> {
+                        layoutCheckRef.visibility = View.GONE
+                        tvMessage.apply {
+                            text = ""
+                            visibility = View.GONE
+                        }
                     }
                 }
             }
@@ -592,6 +607,13 @@ class AccountFragment : Fragment() {
                 }
             }
 
+            tvEmailValue.setText(user.email)
+            tvPhoneValue.setText(user.phone)
+            tvBankNameValue.setText(user.bankName)
+            tvCardNumber.setText(user.bankCard)
+            tvFirstNameValue.setText(user.firstName)
+            tvLastNameValue.setText(user.lastName)
+
             val rewardThreshold = (accountVM.paymentThreshold * user.currencyRate).toInt()
             val textCondition = "$PAYMENTS_CONDITIONS $rewardThreshold ${user.currencySymbol}"
             tvRewardCondition.text = textCondition
@@ -601,59 +623,11 @@ class AccountFragment : Fragment() {
             else tvRewardCondition.visibility = View.VISIBLE
 
             btnGetReward.isEnabled = user.reservedPayment > rewardThreshold && accountVM.paymentCode == BuildConfig.PAYMENT_CODE.trim()
-            if (user.reservedPayment > SELF_EMPLOYED_THRESHOLD && tvCheckRefValue.text.isNullOrEmpty()) {
-                layoutCheckRef.visibility = View.VISIBLE
-                btnGetReward.isEnabled = false
-                tvCheckRefValue.background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_horizontal_oval_error)
+            if (user.reservedPayment > SELF_EMPLOYED_THRESHOLD) {
+                accountVM.setState(AccountViewModel.State.InvoiceRequired)
             }
             else {
-                layoutCheckRef.visibility = View.GONE
-            }
-
-            if (user.message.isNotEmpty()) {
-                tvMessage.apply {
-                    visibility = View.VISIBLE
-                    text = user.message
-                }
-            }
-            else {
-                tvMessage.apply {
-                    visibility = View.GONE
-                }
-            }
-
-            tvEmailValue.setText(user.email)
-
-            if (user.phone.isNotEmpty()) {
-                tvPhoneValue.setText(user.phone)
-                layoutPhone.visibility = View.VISIBLE
-            }
-            else layoutPhone.visibility = View.GONE
-
-            if (user.bankName.isNotEmpty()) {
-                tvBankNameValue.setText(user.bankName)
-                layoutBankName.visibility = View.VISIBLE
-            } else {
-                layoutBankName.visibility = View.GONE
-            }
-
-            if (accountVM.isBankCardRequired && user.bankCard.isNotEmpty()) {
-                tvCardNumber.setText(user.bankCard)
-                layoutBankCard.visibility = View.VISIBLE
-            } else {
-                layoutBankCard.visibility = View.GONE
-            }
-            if (user.firstName.isNotEmpty()) {
-                tvFirstNameValue.setText(user.firstName)
-                layoutFirstName.visibility = View.VISIBLE
-            } else {
-                layoutFirstName.visibility = View.GONE
-            }
-            if (user.lastName.isNotEmpty()) {
-                tvLastNameValue.setText(user.lastName)
-                layoutLastName.visibility = View.VISIBLE
-            } else {
-                layoutLastName.visibility = View.GONE
+                accountVM.setState(AccountViewModel.State.InvoiceNotRequired)
             }
         }
     }

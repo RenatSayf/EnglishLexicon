@@ -322,6 +322,7 @@
     <string name="text_check_ref_hint">Ссылка на чек</string>
     <string name="btn_create_check_text">Создать чек</string>
     <string name="text_open_selfemployed_app">Открыть Мой налог</string>
+    <string name="text_message_create_invoice">Для получения награды, необходимо создать чек на выплату в приложении \"Мой налог\". Нажмите кнопку \"Создать чек\" и следуйте дальнейшим инструкциям.</string>
 
 
 </resources>

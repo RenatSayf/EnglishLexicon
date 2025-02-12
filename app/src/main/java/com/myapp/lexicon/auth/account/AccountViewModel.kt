@@ -31,6 +31,7 @@ open class AccountViewModel : ViewModel() {
         data object Editing: State()
         data object InvoiceRequired: State()
         data object InvoiceAdded: State()
+        data object InvoiceNotRequired: State()
     }
 
     open val paymentThreshold: Double = PAYMENT_THRESHOLD
@@ -40,7 +41,11 @@ open class AccountViewModel : ViewModel() {
 
     open val paymentDays: Int = Firebase.remoteConfig.getDouble("payment_days").toInt()
     open val explainMessage: String = Firebase.remoteConfig.getString("reward_explain_message")
-    open val isBankCardRequired: Boolean = Firebase.remoteConfig.getBoolean("is_bank_card_required")
+    open val isBankCardRequired: Boolean = try {
+        Firebase.remoteConfig.getBoolean("is_bank_card_required")
+    } catch (e: Exception) {
+        false
+    }
 
     private var thread: Thread? = null
     private var payoutThread: Thread? = null
