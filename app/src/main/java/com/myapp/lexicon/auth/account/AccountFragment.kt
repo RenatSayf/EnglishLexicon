@@ -226,7 +226,6 @@ class AccountFragment : Fragment() {
                         if (currentUser != null) {
                             userVM.getUserFromCloud()
                         }
-                        accountVM.setState(AccountViewModel.State.ReadOnly)
                     }
                     is UserViewModel.State.PaymentRequestSent -> {
                         showConfirmDialog()
@@ -264,7 +263,7 @@ class AccountFragment : Fragment() {
                             }
                         )
                         handleUserData(state.user)
-                        userVM.setState(UserViewModel.State.Init)
+                        accountVM.setState(AccountViewModel.State.ReadOnly)
                     }
                     else -> {}
                 }
@@ -400,12 +399,15 @@ class AccountFragment : Fragment() {
                 else tvLastNameValue.background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_horizontal_oval_error)
             }
             tvCheckRefValue.doOnTextChanged { text, start, before, count ->
-                val isMatches = tvCheckRefValue.text?.matches(Regex(PAYMENT_CHECK_PATTERN))
-                if (isMatches == true) {
-                    accountVM.setState(AccountViewModel.State.InvoiceAdded)
-                }
-                else {
-                    accountVM.setState(AccountViewModel.State.InvoiceRequired)
+                val reservedPayment = userVM.user.value?.reservedPayment ?: 0.0
+                if (reservedPayment > SELF_EMPLOYED_THRESHOLD) {
+                    val isMatches = tvCheckRefValue.text?.matches(Regex(PAYMENT_CHECK_PATTERN))
+                    if (isMatches == true) {
+                        accountVM.setState(AccountViewModel.State.InvoiceAdded)
+                    }
+                    else {
+                        accountVM.setState(AccountViewModel.State.InvoiceRequired)
+                    }
                 }
             }
 
@@ -450,10 +452,13 @@ class AccountFragment : Fragment() {
                         return@setOnClickListener
                     }
 
-                    val isMatches = tvCheckRefValue.text?.matches(Regex(PAYMENT_CHECK_PATTERN))
-                    if (isMatches == false) {
-                        accountVM.setState(AccountViewModel.State.InvoiceRequired)
-                        return@setOnClickListener
+                    val reservedPayment = userVM.user.value?.reservedPayment ?: 0.0
+                    if (reservedPayment > SELF_EMPLOYED_THRESHOLD) {
+                        val isMatches = tvCheckRefValue.text?.matches(Regex(PAYMENT_CHECK_PATTERN))
+                        if (isMatches == false) {
+                            accountVM.setState(AccountViewModel.State.InvoiceRequired)
+                            return@setOnClickListener
+                        }
                     }
 
                     accountVM.demandPayment(
