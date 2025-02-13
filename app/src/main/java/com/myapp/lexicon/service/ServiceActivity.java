@@ -42,6 +42,8 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
     private InterstitialAd interstitialAd;
     private LockOrientation locker;
 
+    private static Long lastAdShowTime = 0L;
+
     @Override
     public void openApp()
     {
@@ -124,6 +126,12 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
 
     private void handleAdvertisingPayload() {
 
+        long diffTime = System.currentTimeMillis() - lastAdShowTime;
+        if (diffTime < 60000)
+        {
+            return;
+        }
+
         AdType adType = CommonConstantsKt.getAD_TYPE();
         if (adType == AdType.INTERSTITIAL) {
             adsVM.loadInterstitialAd(InterstitialAdIds.INTERSTITIAL_2);
@@ -199,6 +207,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
     @Override
     protected void onDestroy()
     {
+        lastAdShowTime = System.currentTimeMillis();
         locker.unLock();
         super.onDestroy();
     }
