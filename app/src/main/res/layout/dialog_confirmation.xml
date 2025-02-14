@@ -42,7 +42,7 @@
         app:layout_constraintVertical_bias="1"
         tools:ignore="TextContrastCheck"
         tools:text="@string/thumbs_up"
-        tools:visibility="visibility" />
+        tools:visibility="visible" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tv_message"

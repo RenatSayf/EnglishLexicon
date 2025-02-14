@@ -51,6 +51,7 @@ import com.myapp.lexicon.main.ext.MainActivityExtKt;
 import com.myapp.lexicon.main.viewmodels.UserViewModel;
 import com.myapp.lexicon.models.AppResult;
 import com.myapp.lexicon.models.Revenue;
+import com.myapp.lexicon.models.User;
 import com.myapp.lexicon.models.UserKt;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.models.WordList;
@@ -71,6 +72,7 @@ import java.util.ArrayList;
 import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -201,6 +203,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 SettingsExtKt.setAdsIsEnabled(this, isAdsEnabled);
                 if (!user.isAdsEnabled() && !user.getMessage().isEmpty()) {
                     ExtensionsKt.showSnackBar(navView, user.getMessage(), Snackbar.LENGTH_LONG);
+                }
+                if (!user.getMessage().isEmpty()) {
+                    UserViewModel userVM = new ViewModelProvider(this).get(UserViewModel.class);
+                    MainActivityExtKt.showThankDialog(
+                            this,
+                            user.getMessage(),
+                            () -> {
+                                userVM.updateUserDataIntoCloud(Map.of(
+                                        User.KEY_MESSAGE, "",
+                                        User.KEY_EMAIL, user.getEmail()
+                                ));
+                                return null;
+                            }
+                    );
                 }
                 return null;
             });

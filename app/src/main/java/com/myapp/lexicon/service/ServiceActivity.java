@@ -129,6 +129,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         long diffTime = System.currentTimeMillis() - lastAdShowTime;
         if (diffTime < 60000)
         {
+            adsVM.setInterstitialAdState(new AdsViewModel.AdState.Dismissed(0.0));
             return;
         }
 
