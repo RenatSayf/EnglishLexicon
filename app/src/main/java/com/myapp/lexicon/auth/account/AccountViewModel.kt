@@ -32,6 +32,7 @@ open class AccountViewModel : ViewModel() {
         data object InvoiceRequired: State()
         data object InvoiceAdded: State()
         data object InvoiceNotRequired: State()
+        data class FieldNotValid(val viewId: Int): State()
     }
 
     open val paymentThreshold: Double = PAYMENT_THRESHOLD

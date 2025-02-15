@@ -6,6 +6,8 @@ sealed class AccountScreenState {
     data object Init: AccountScreenState()
     data class Current(
         val reward: ViewState,
+        val today: ViewState,
+        val yesterday: ViewState,
         val groupPayout: ViewState,
         val messageForUser: ViewState,
         val emailState: ViewState,
