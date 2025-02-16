@@ -113,7 +113,6 @@ open class AuthViewModel @Inject constructor(
     open fun signInWithEmailAndPassword(email: String, password: String) {
 
         _loadingState.value = LoadingState.Start
-        ParseUser.logOut()
         ParseUser.logInInBackground(
             email,
             password,
