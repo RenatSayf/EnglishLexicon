@@ -26,15 +26,6 @@ import java.net.URL
 
 open class AccountViewModel : ViewModel() {
 
-    sealed class State {
-        data object ReadOnly: State()
-        data object Editing: State()
-        data object InvoiceRequired: State()
-        data object InvoiceAdded: State()
-        data object InvoiceNotRequired: State()
-        data class FieldNotValid(val viewId: Int): State()
-    }
-
     open val paymentThreshold: Double = PAYMENT_THRESHOLD
 
     open val paymentCode: String = if (!BuildConfig.DEBUG)
@@ -50,15 +41,6 @@ open class AccountViewModel : ViewModel() {
 
     private var thread: Thread? = null
     private var payoutThread: Thread? = null
-
-    private var _state = MutableLiveData<State>().apply {
-        value = State.ReadOnly
-    }
-    open val state: LiveData<State> = _state
-
-    open fun setState(state: State) {
-        _state.value = state
-    }
 
     private var _screenState = MutableLiveData<AccountScreenState>(AccountScreenState.Init)
     open val screenState: LiveData<AccountScreenState> = _screenState

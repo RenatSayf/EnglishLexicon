@@ -228,6 +228,11 @@ val String.isItEmail: Boolean
         return !TextUtils.isEmpty(this) && Patterns.EMAIL_ADDRESS.matcher(this).matches()
     }
 
+val String.isItPhone: Boolean
+    get() {
+        return !TextUtils.isEmpty(this) && Patterns.PHONE.matcher(this).matches()
+    }
+
 val LOCALE_RU: Locale
     get() {
         return Locale("ru", "RU")
@@ -596,7 +601,7 @@ fun String.firstCap() = this.lowercase().replaceFirstChar {
 }
 
 fun String.checkIfAllDigits(): Boolean {
-    return this.all {
+    return this.replace(" ", "").all {
         it.code in 33..64
     }
 }

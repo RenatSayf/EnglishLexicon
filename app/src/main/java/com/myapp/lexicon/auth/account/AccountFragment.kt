@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.children
@@ -38,6 +37,8 @@ import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.LuhnAlgorithm
 import com.myapp.lexicon.helpers.checkIfAllDigits
 import com.myapp.lexicon.helpers.firstCap
+import com.myapp.lexicon.helpers.isItEmail
+import com.myapp.lexicon.helpers.isItPhone
 import com.myapp.lexicon.helpers.orientationLock
 import com.myapp.lexicon.helpers.orientationUnLock
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
@@ -267,91 +268,8 @@ class AccountFragment : Fragment() {
                             }
                         )
                         handleUserData(state.user)
-                        //setReadOnlyState()
                     }
                     else -> {}
-                }
-            }
-
-            accountVM.state.observe(viewLifecycleOwner) { state ->
-                when(state) {
-                    AccountViewModel.State.Editing -> {
-//                        editTextList.forEach {
-//                            it.isEnabled = true
-//                            (it.parent as LinearLayoutCompat).visibility = View.VISIBLE
-//                        }
-//                        val editText = editTextList.firstOrNull {
-//                            it.text.isEmpty()
-//                        }
-//                        editText?.requestFocus() ?: run {
-//                            tvFirstNameValue.apply {
-//                                requestFocus()
-//                                setSelection(this.text?.length?: 0)
-//                            }
-//                        }
-//                        toolBar.menu.findItem(R.id.menu_edit)?.isVisible = false
-//                        toolBar.menu.findItem(R.id.menu_save)?.isVisible = true
-                    }
-                    AccountViewModel.State.ReadOnly -> {
-//                        toolBar.menu.findItem(R.id.menu_save).isVisible = false
-//                        editTextList.forEach {
-//                            it.isEnabled = false
-//                            if (it.text.isEmpty() && it.id != R.id.tvEmailValue) {
-//                                (it.parent as LinearLayoutCompat).visibility = View.GONE
-//                            }
-//                            else {
-//                                (it.parent as LinearLayoutCompat).visibility = View.VISIBLE
-//                            }
-//                        }
-//                        toolBar.menu.findItem(R.id.menu_edit)?.isVisible = true
-//                        toolBar.menu.findItem(R.id.menu_save)?.isVisible = false
-                    }
-
-                    AccountViewModel.State.InvoiceRequired -> {
-//                        editTextList.forEach {
-//                            it.isEnabled = true
-//                            (it.parent as LinearLayoutCompat).visibility = View.VISIBLE
-//                        }
-//                        layoutPhone.visibility = View.VISIBLE
-//                        layoutBankName.visibility = View.VISIBLE
-//                        layoutFirstName.visibility = View.VISIBLE
-//                        layoutLastName.visibility = View.VISIBLE
-//                        layoutCheckRef.visibility = View.VISIBLE
-//                        tvCheckRefValue.background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_horizontal_oval_error)
-//                        btnGetReward.isEnabled = false
-//                        val messageToUser = getString(R.string.text_message_create_invoice)
-//                        tvMessage.apply {
-//                            text = messageToUser
-//                            visibility = View.VISIBLE
-//                        }
-                    }
-
-                    AccountViewModel.State.InvoiceAdded -> {
-//                        tvCheckRefValue.background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_horizontal_oval)
-//                        tvMessage.apply {
-//                            text = ""
-//                            visibility = View.GONE
-//                        }
-//                        val reservedPayment = userVM.user.value?.reservedPayment
-//                        if (accountVM.paymentCode == BuildConfig.PAYMENT_CODE && reservedPayment != null && reservedPayment > SELF_EMPLOYED_THRESHOLD) {
-//                            btnGetReward.isEnabled = true
-//                        }
-                    }
-
-                    AccountViewModel.State.InvoiceNotRequired -> {
-//                        layoutCheckRef.visibility = View.GONE
-//                        tvMessage.apply {
-//                            text = ""
-//                            visibility = View.GONE
-//                        }
-                    }
-
-                    is AccountViewModel.State.FieldNotValid -> {
-//                        val viewId = state.viewId
-//                        requireActivity().findViewById<View?>(viewId).apply {
-//                            background = ResourcesCompat.getDrawable(resources, R.drawable.bg_horizontal_oval_error, null)
-//                        }
-                    }
                 }
             }
 
@@ -394,20 +312,19 @@ class AccountFragment : Fragment() {
                 else setNotValidFieldState(tvCardNumber)
             }
             tvFirstNameValue.doOnTextChanged { text, start, before, count ->
-                if (start == 0) {
-                    setNotValidFieldState(tvFirstNameValue)
-                }
-                else if (count > before && start > 0) {
+                if (text.toString().length > 1) {
                     setValidFieldState(tvFirstNameValue)
                 }
-                //else setNotValidFieldState(tvFirstNameValue)
+                else {
+                    setNotValidFieldState(tvFirstNameValue)
+                }
             }
             tvLastNameValue.doOnTextChanged { text, start, before, count ->
-                if (start == 0) {
-                    setNotValidFieldState(tvLastNameValue)
-                }
-                else if (count > before && start > 0) {
+                if (text.toString().length > 1) {
                     setValidFieldState(tvLastNameValue)
+                }
+                else {
+                    setNotValidFieldState(tvLastNameValue)
                 }
             }
             tvCheckRefValue.doOnTextChanged { text, start, before, count ->
@@ -420,6 +337,7 @@ class AccountFragment : Fragment() {
                             setText("")
                             visibility = View.GONE
                         }
+                        btnGetReward.isEnabled = true
                     }
                     else {
                         setInvoiceRequiredState()
@@ -430,7 +348,6 @@ class AccountFragment : Fragment() {
             btnGetReward.setOnClickListener {
                 val user = userVM.user.value
                 if (user != null) {
-                    //accountVM.setState(AccountViewModel.State.Editing)
                     val email = tvEmailValue.text.toString()
                     if (email.isEmpty() || !authVM.isValidEmail(email)) {
                         setNotValidFieldState(tvEmailValue)
@@ -439,6 +356,7 @@ class AccountFragment : Fragment() {
 
                     val phone = tvPhoneValue.text.toString()
                     if (phone.isEmpty() || phone.length < 11 && !phone.startsWith("+79")) {
+                        setReadOnlyState(false)
                         setNotValidFieldState(tvPhoneValue)
                         return@setOnClickListener
                     }
@@ -448,11 +366,13 @@ class AccountFragment : Fragment() {
                         if (number.isNotEmpty()) {
                             val isValidNumber = LuhnAlgorithm.isLuhnChecksumValid(number)
                             if (!isValidNumber) {
+                                setReadOnlyState(false)
                                 setNotValidFieldState(tvCardNumber)
                                 return@setOnClickListener
                             }
                         }
                         else {
+                            setReadOnlyState(false)
                             setNotValidFieldState(tvCardNumber)
                             return@setOnClickListener
                         }
@@ -460,18 +380,21 @@ class AccountFragment : Fragment() {
 
                     val bankName = tvBankNameValue.text.toString()
                     if (bankName.isEmpty()) {
+                        setReadOnlyState(false)
                         setNotValidFieldState(tvBankNameValue)
                         return@setOnClickListener
                     }
 
                     val firstName = tvFirstNameValue.text.toString()
                     if (firstName.isEmpty()) {
+                        setReadOnlyState(false)
                         setNotValidFieldState(tvFirstNameValue)
                         return@setOnClickListener
                     }
 
                     val lastName = tvLastNameValue.text.toString()
                     if (lastName.isEmpty()) {
+                        setReadOnlyState(false)
                         setNotValidFieldState(tvLastNameValue)
                         return@setOnClickListener
                     }
@@ -480,20 +403,33 @@ class AccountFragment : Fragment() {
                     if (reservedPayment > SELF_EMPLOYED_THRESHOLD) {
                         val isMatches = tvCheckRefValue.text?.matches(Regex(PAYMENT_CHECK_PATTERN))
                         if (isMatches == false) {
+                            setReadOnlyState(false)
                             setInvoiceRequiredState()
                             return@setOnClickListener
                         }
                     }
 
+                    val requisitesMap = mutableMapOf(
+                        User.KEY_PHONE to tvPhoneValue.text.toString().trim(),
+                        User.KEY_BANK_NAME to tvBankNameValue.text.toString().trim(),
+                        User.KEY_BANK_CARD to tvCardNumber.text.toString().trim(),
+                        User.KEY_FIRST_NAME to tvFirstNameValue.text.toString().trim().firstCap(),
+                        User.KEY_LAST_NAME to tvLastNameValue.text.toString().trim().firstCap()
+                    )
+
+                    val payoutMap = Payout(
+                        reservedSum = 0,
+                        payoutSum = user.reservedPayment.toInt(),
+                        payoutTime = System.currentTimeMillis(),
+                        checkReference = tvCheckRefValue.text.toString()
+                    ).toMap().toMutableMap()
+
+                    payoutMap.putAll(requisitesMap)
+
                     accountVM.demandPayment(
                         threshold = (accountVM.paymentThreshold * user.currencyRate).toInt(),
                         reward = user.reservedPayment.toInt(),
-                        userMap = Payout(
-                            reservedSum = 0,
-                            payoutSum = user.reservedPayment.toInt(),
-                            payoutTime = System.currentTimeMillis(),
-                            checkReference = tvCheckRefValue.text.toString()
-                        ).toMap(),
+                        userMap = payoutMap,
                         onStart = {
                             userVM.setLoadingState(UserViewModel.LoadingState.Start)
                             requireActivity().orientationLock()
@@ -533,15 +469,6 @@ class AccountFragment : Fragment() {
             toolBar.setOnMenuItemClickListener { item ->
                 when(item.itemId) {
                     R.id.menu_edit -> {
-//                        when (accountVM.state.value) {
-//                            is AccountViewModel.State.ReadOnly, AccountViewModel.State.InvoiceRequired -> {
-//                                accountVM.setState(AccountViewModel.State.Editing)
-//                            }
-//                            is AccountViewModel.State.Editing -> {
-//                                accountVM.setState(AccountViewModel.State.ReadOnly)
-//                            }
-//                            else -> {}
-//                        }
                         setReadOnlyState(flag = false)
                     }
                     R.id.menu_save -> {
@@ -556,6 +483,7 @@ class AccountFragment : Fragment() {
                             }
                             if (editText != null) {
                                 showSnackBar(getString(R.string.text_form_incorrect))
+                                return@setOnMenuItemClickListener true
                             }
                             val userMap = mapOf<String, Any>(
                                 User.KEY_EMAIL to tvEmailValue.text.toString(),
@@ -638,11 +566,32 @@ class AccountFragment : Fragment() {
             }
 
             tvEmailValue.setText(user.email)
-            tvPhoneValue.setText(user.phone)
-            tvBankNameValue.setText(user.bankName)
-            tvCardNumber.setText(user.bankCard)
-            tvFirstNameValue.setText(user.firstName)
-            tvLastNameValue.setText(user.lastName)
+            if (!user.email.isItEmail) setNotValidFieldState(tvEmailValue)
+
+            if (user.phone.isItPhone) {
+                layoutPhone.visibility = View.VISIBLE
+                tvPhoneValue.setText(user.phone)
+            }
+
+            if (user.bankName.isNotEmpty()) {
+                layoutBankName.visibility = View.VISIBLE
+                tvBankNameValue.setText(user.bankName)
+            }
+
+            if (accountVM.isBankCardRequired && user.bankCard.checkIfAllDigits()) {
+                layoutBankCard.visibility = View.VISIBLE
+                tvCardNumber.setText(user.bankCard)
+            }
+
+            if (user.firstName.isNotEmpty()) {
+                layoutFirstName.visibility = View.VISIBLE
+                tvFirstNameValue.setText(user.firstName)
+            }
+
+            if (user.lastName.isNotEmpty()) {
+                layoutLastName.visibility = View.VISIBLE
+                tvLastNameValue.setText(user.lastName)
+            }
 
             val rewardThreshold = (accountVM.paymentThreshold * user.currencyRate).toInt()
             val textCondition = "$PAYMENTS_CONDITIONS $rewardThreshold ${user.currencySymbol}"
@@ -656,9 +605,6 @@ class AccountFragment : Fragment() {
             if (user.reservedPayment > SELF_EMPLOYED_THRESHOLD) {
                 setInvoiceRequiredState()
             }
-//            else {
-//                accountVM.setState(AccountViewModel.State.InvoiceNotRequired)
-//            }
         }
     }
 
@@ -815,23 +761,28 @@ class AccountFragment : Fragment() {
                     phoneState = ViewState(
                         text = tvPhoneValue.text.toString(),
                         isEnabled = tvPhoneValue.isEnabled,
-                        background = tvPhoneValue.background
+                        background = tvPhoneValue.background,
+                        visibility = tvPhoneValue.visibility
                     ),
                     bankName = ViewState(
                         text = tvBankNameValue.text.toString(),
-                        background = tvBankNameValue.background
+                        background = tvBankNameValue.background,
+                        visibility = tvBankNameValue.visibility
                     ),
                     cardNumber = ViewState(
                         text = tvCardNumber.text.toString(),
-                        background = tvCardNumber.background
+                        background = tvCardNumber.background,
+                        visibility = tvCardNumber.visibility
                     ),
                     firstName = ViewState(
                         text = tvFirstNameValue.text.toString(),
-                        background = tvFirstNameValue.background
+                        background = tvFirstNameValue.background,
+                        visibility = tvFirstNameValue.visibility
                     ),
                     lastName = ViewState(
                         text = tvLastNameValue.text.toString(),
-                        background = tvLastNameValue.background
+                        background = tvLastNameValue.background,
+                        visibility = tvLastNameValue.visibility
                     ),
                     checkRef = ViewState(
                         text = tvCheckRefValue.text.toString(),

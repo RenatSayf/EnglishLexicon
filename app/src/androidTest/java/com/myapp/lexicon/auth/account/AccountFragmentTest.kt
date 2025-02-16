@@ -78,7 +78,7 @@ class AccountFragmentTest {
         }
 
         Thread.sleep(10000)
-        Espresso.onView(ViewMatchers.withText(MockAccountViewModel.testMessage))
+        Espresso.onView(ViewMatchers.withText(MockAccountViewModel.TEST_MESSAGE))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
         Espresso.onView(ViewMatchers.withText("OK")).perform(ViewActions.click())
 
