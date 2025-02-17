@@ -59,6 +59,7 @@ open class AccountViewModel : ViewModel() {
             val url = "https://sbp.nspk.ru/rest/v1/banks/list?limit=500"
             try {
                 val urlConnection = URL(url).openConnection() as HttpURLConnection
+                urlConnection.setRequestProperty("Content-Type", "application/json")
                 val inputStream = BufferedInputStream(urlConnection.inputStream)
                 val responseText = inputStream.bufferedReader().readText()
                 val code = urlConnection.responseCode
@@ -197,6 +198,7 @@ open class AccountViewModel : ViewModel() {
     }
 
     init {
-        this.fetchBankListFromNet()
+        //this.fetchBankListFromNet()
+        this.getBankListFromCloud()
     }
 }
