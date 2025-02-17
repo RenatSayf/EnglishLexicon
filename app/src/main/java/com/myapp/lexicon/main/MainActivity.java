@@ -147,6 +147,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getSupportFragmentManager().setFragmentResultListener(getString(R.string.KEY_NEED_REFRESH), this, this);
         getSupportFragmentManager().setFragmentResultListener(getString(R.string.KEY_TEST_INTERVAL_CHANGED), this, this);
         getSupportFragmentManager().setFragmentResultListener(TranslateFragment.Companion.getKEY_FRAGMENT_START(), this, this);
+        getSupportFragmentManager().setFragmentResultListener(OneOfFiveFragm.TEST_START, this, this);
 
         mainVM = createMainViewModel();
         speechVM = createSpeechViewModel();
@@ -349,14 +350,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     mainVM.setMainControlVisibility(View.INVISIBLE);
                     speechVM.setSpeechProgressVisibility(View.INVISIBLE);
                     Toast.makeText(MainActivity.this, getString(R.string.text_test_knowledge), Toast.LENGTH_LONG).show();
-                    OneOfFiveFragm testFragment = OneOfFiveFragm.newInstance(list);
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            .setCustomAnimations(R.anim.from_right_to_left_anim, R.anim.from_left_to_right_anim)
-                            .addToBackStack(null)
-                            .add(R.id.frame_to_page_fragm, testFragment)
-                            .commit();
-                    mainViewPager.setCurrentItem(position - 1);
+                    try
+                    {
+                        mainViewPager.setUserInputEnabled(false);
+                        OneOfFiveFragm testFragment = OneOfFiveFragm.newInstance(list);
+                        getSupportFragmentManager()
+                                .beginTransaction()
+                                .setCustomAnimations(R.anim.from_right_to_left_anim, R.anim.from_left_to_right_anim)
+                                .addToBackStack(null)
+                                .add(R.id.frame_to_page_fragm, testFragment)
+                                .commit();
+                        mainViewPager.setCurrentItem(position - 1);
+                    } catch (Exception e)
+                    {
+                        ExtensionsKt.printStackTraceIfDebug(e);
+                        mainViewPager.setUserInputEnabled(true);
+                    }
                     return;
                 }
                 this.position = position;
@@ -1019,6 +1028,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             int currentIndex = mainViewPager.getCurrentItem();
             Word word = pagerAdapter.getItem(currentIndex);
             SettingsExtKt.saveWordToPref(this, word, mainViewPager.getCurrentItem());
+        }
+
+        if (requestKey.equals(OneOfFiveFragm.TEST_START)) {
+            mainViewPager.setUserInputEnabled(true);
         }
     }
 }
