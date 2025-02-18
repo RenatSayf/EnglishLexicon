@@ -139,3 +139,13 @@ val PAYMENT_CHECK_PATTERN: String
             "^https://lknpd\\.nalog\\.ru/api/v1/receipt/\\d+/[a-zA-Z0-9]+/print$"
         }
     }
+
+val AD_SHOWING_INTERVAL_IN_SEC: Long
+    get() {
+        return try {
+            Firebase.remoteConfig.getLong("AD_SHOWING_INTERVAL_IN_SEC")
+        } catch (e: Exception) {
+            e.printStackTraceIfDebug()
+            60L
+        }
+    }

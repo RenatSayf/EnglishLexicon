@@ -15,7 +15,6 @@ import com.myapp.lexicon.auth.AuthViewModel
 import com.myapp.lexicon.common.IS_REWARD_ACCESSIBLE
 import com.myapp.lexicon.common.KEY_APP_STORE_LINK
 import com.myapp.lexicon.common.MESSAGE_TO_USER
-import com.myapp.lexicon.common.SELF_EMPLOYED_THRESHOLD
 import com.myapp.lexicon.databinding.ALayoutSplashScreenBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.showDialogAsSingleton
@@ -50,7 +49,6 @@ class SplashActivity : AppCompatActivity() {
 
         IS_REWARD_ACCESSIBLE
         MESSAGE_TO_USER
-        SELF_EMPLOYED_THRESHOLD
 
         val extras = intent.extras
         val appStoreLink = extras?.getString(KEY_APP_STORE_LINK)

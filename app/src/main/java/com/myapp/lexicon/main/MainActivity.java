@@ -496,6 +496,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         onRevenueUpdate();
 
+        CommonConstantsKt.getAD_SHOWING_INTERVAL_IN_SEC();
+        CommonConstantsKt.getSELF_EMPLOYED_THRESHOLD();
     }
 
     private SpeechViewModel createSpeechViewModel()
