@@ -225,7 +225,9 @@ class AccountFragment : Fragment() {
             val currentUser = ParseUser.getCurrentUser()
             userVM.state.observe(viewLifecycleOwner) { state ->
                 when(state) {
-                    UserViewModel.State.Init -> {}
+                    UserViewModel.State.Init -> {
+                        setReadOnlyState(true)
+                    }
                     is UserViewModel.State.PersonalDataUpdated -> {
                         showSnackBar(getString(R.string.data_is_saved))
                         if (currentUser != null) {
