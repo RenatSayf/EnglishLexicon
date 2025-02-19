@@ -135,6 +135,7 @@ class AccountFragment : Fragment() {
             accountVM.screenState.observe(viewLifecycleOwner) { state ->
                 when(state) {
                     AccountScreenState.Init -> {
+                        setReadOnlyState(true)
                         userVM.getUserFromCloud()
                     }
                     is AccountScreenState.Current -> {
