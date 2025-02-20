@@ -264,21 +264,20 @@
                     android:id="@+id/tvBankNameValue"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/bg_horizontal_oval"
+                    android:drawableStart="@drawable/ic_bank"
+                    android:drawablePadding="8dp"
+                    android:gravity="start|center"
+                    android:hint="@string/text_when_awarding"
+                    android:inputType="text|textMultiLine"
                     android:padding="8dp"
                     android:paddingStart="12dp"
                     android:paddingEnd="12dp"
-                    android:background="@drawable/bg_horizontal_oval"
-                    android:gravity="start|center"
-                    android:inputType="text|textMultiLine"
                     android:textColor="@color/color_3B5E91"
+                    android:textColorHint="@color/color_CCC3C3"
                     android:textCursorDrawable="@null"
                     android:textSize="18sp"
-                    tools:ignore="TouchTargetSizeCheck,VisualLintTextFieldSize"
-                    android:hint="@string/text_when_awarding"
-                    android:textColorHint="@color/color_CCC3C3"
-                    android:drawableStart="@drawable/ic_bank"
-                    android:drawablePadding="8dp"
-                    />
+                    tools:ignore="TouchTargetSizeCheck,VisualLintTextFieldSize,TextContrastCheck" />
 
             </androidx.appcompat.widget.LinearLayoutCompat>
 
@@ -383,7 +382,7 @@
                 android:orientation="vertical"
                 android:gravity="start"
                 app:layout_constraintTop_toBottomOf="@+id/layoutFirstName"
-                app:layout_constraintBottom_toTopOf="@+id/btnSave"
+                app:layout_constraintBottom_toTopOf="@+id/layoutCheckRef"
                 android:layout_marginTop="8dp"
                 android:visibility="gone"
                 tools:visibility="visible">
@@ -392,69 +391,112 @@
                     android:id="@+id/tvLastNameTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:gravity="start"
                     android:padding="4dp"
                     android:paddingStart="12dp"
                     android:paddingEnd="12dp"
-                    android:gravity="start"
                     android:text="@string/title_last_name"
-                    android:textColor="@color/colorYellowDark"
-                    android:textSize="14sp"
-                    />
+                    android:textColor="#FFD600"
+                    android:textSize="14sp" />
 
                 <androidx.appcompat.widget.AppCompatEditText
                     android:id="@+id/tvLastNameValue"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/bg_horizontal_oval"
+                    android:gravity="start"
+                    android:hint="@string/text_when_awarding"
+                    android:inputType="none"
                     android:padding="8dp"
                     android:paddingStart="12dp"
                     android:paddingEnd="12dp"
-                    android:background="@drawable/bg_horizontal_oval"
-                    android:gravity="start"
-                    android:inputType="none"
                     android:textColor="@color/color_3B5E91"
+                    android:textColorHint="@color/color_CCC3C3"
                     android:textCursorDrawable="@null"
                     android:textSize="18sp"
-                    tools:ignore="TouchTargetSizeCheck,VisualLintTextFieldSize"
-                    android:hint="@string/text_when_awarding"
-                    android:textColorHint="@color/color_CCC3C3"/>
+                    tools:ignore="TouchTargetSizeCheck,VisualLintTextFieldSize,TextContrastCheck" />
 
             </androidx.appcompat.widget.LinearLayoutCompat>
 
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnSave"
-                android:layout_width="wrap_content"
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/layoutCheckRef"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                android:orientation="vertical"
+                android:gravity="start"
                 app:layout_constraintTop_toBottomOf="@+id/layoutLastName"
                 app:layout_constraintBottom_toTopOf="@+id/btnGetReward"
-                android:layout_marginTop="24dp"
-                android:padding="12dp"
-                android:background="@drawable/bg_ripple_transparent"
-                android:textColor="@color/colorWhite"
-                android:text="@string/text_save"
-                android:textAllCaps="false"
-                android:drawableStart="@drawable/ic_save"
-                android:drawablePadding="8dp"
+                android:layout_marginTop="8dp"
                 android:visibility="gone"
-                tools:visibility="visible"/>
+                tools:visibility="visible">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvCheckRefTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="start"
+                    android:padding="4dp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:text="@string/text_check_ref_title"
+                    android:textColor="#FFD600"
+                    android:textSize="14sp" />
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/tvCheckRefValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_horizontal_oval"
+                    android:gravity="start"
+                    android:hint="@string/text_check_ref_hint"
+                    android:inputType="none"
+                    android:padding="8dp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:textColor="@color/color_3B5E91"
+                    android:textColorHint="#757575"
+                    android:textCursorDrawable="@null"
+                    android:textSize="18sp"
+                    tools:ignore="TouchTargetSizeCheck,VisualLintTextFieldSize" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btnCreateCheck"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/bg_ripple_horizintal_oval_orange"
+                    android:drawableStart="@mipmap/ic_my_nalog"
+                    android:drawablePadding="4dp"
+                    android:enabled="true"
+                    android:paddingStart="4dp"
+                    android:paddingTop="0dp"
+                    android:paddingEnd="26dp"
+                    android:paddingBottom="0dp"
+                    android:text="@string/btn_create_check_text"
+                    android:textAllCaps="false"
+                    android:textColor="@color/colorWhite"
+                    tools:enabled="true"
+                    tools:ignore="TextContrastCheck" />
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnGetReward"
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/btnSave"
-                app:layout_constraintBottom_toTopOf="@+id/tvRewardCondition"
                 android:layout_marginTop="24dp"
+                android:background="@drawable/bg_ripple_horizintal_oval_green"
+                android:enabled="false"
                 android:text="@string/text_get_reward_now"
                 android:textAllCaps="false"
                 android:textColor="@color/colorWhite"
-                android:background="@drawable/bg_ripple_horizintal_oval_green"
-                android:enabled="false"
+                app:layout_constraintBottom_toTopOf="@+id/tvRewardCondition"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/layoutCheckRef"
                 tools:enabled="true"
-                />
+                tools:ignore="TextContrastCheck" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvRewardCondition"

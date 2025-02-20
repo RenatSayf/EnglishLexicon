@@ -30,7 +30,6 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.ktx.Firebase
@@ -40,8 +39,6 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.common.APP_TIME_ZONE
 import com.myapp.lexicon.databinding.SnackBarTestBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
-import com.myapp.lexicon.main.viewmodels.UserViewModel
-import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.schedule.AlarmScheduler
 import com.myapp.lexicon.schedule.AppNotification
@@ -56,7 +53,6 @@ import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.MonthDay
-import java.time.YearMonth
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
@@ -232,6 +228,11 @@ val String.isItEmail: Boolean
         return !TextUtils.isEmpty(this) && Patterns.EMAIL_ADDRESS.matcher(this).matches()
     }
 
+val String.isItPhone: Boolean
+    get() {
+        return !TextUtils.isEmpty(this) && Patterns.PHONE.matcher(this).matches()
+    }
+
 val LOCALE_RU: Locale
     get() {
         return Locale("ru", "RU")
@@ -324,69 +325,9 @@ val timeInMillisMoscowTimeZone: Long
         }
     }
 
-fun isTodayFirstDayOfMonth(timeInMillis: Long = timeInMillisMoscowTimeZone): Boolean {
-    return timeInMillis.dayOfMonthFromLongTime() == 1
-}
-
-fun String.isDateOfLastMonth(
-    currentMonth: Int = timeInMillisMoscowTimeZone.getMonthFromLongTime(),
-    timeZoneId: String = APP_TIME_ZONE
-): Boolean {
-    val yearMonth = try {
-        val timeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").apply {
-            withZone(ZoneId.of(timeZoneId))
-        }
-        if (this.isNotEmpty()) {
-            YearMonth.parse(this, timeFormatter)
-        } else {
-            return true
-        }
-    } catch (e: DateTimeParseException) {
-        e.printStackTraceIfDebug()
-        return true
-    }
-    val inputMonth = yearMonth.monthValue
-    val inputYear = yearMonth.year
-    val currentYear = LocalDateTime.now().year
-    return when {
-        currentYear > inputYear -> true
-        currentMonth > inputMonth -> true
-        else -> false
-    }
-}
-
 fun Long.getMonthFromLongTime(): Int {
     val dateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(this), ZoneId.of(APP_TIME_ZONE))
     return dateTime.monthValue
-}
-
-fun FragmentActivity.reserveRewardPaymentForMonth(
-    user: User,
-    onSuccess: (sum: Int, remainder: Double) -> Unit
-) {
-    val isResetMonthlyBalance = user.isResetMonthlyBalance()
-    if (isResetMonthlyBalance) {
-        val userVM = ViewModelProvider(this)[UserViewModel::class.java]
-
-        userVM.updatePayoutDataIntoCloud(
-            reward = user.userReward,
-            userMap = mapOf(
-
-            ),
-            onStart = {
-                this.orientationLock()
-            },
-            onSuccess = { sum: Int, remainder: Double ->
-                onSuccess.invoke(sum, remainder)
-            },
-            onNotEnough = {},
-            onInvalidToken = {},
-            onComplete = {exception: Exception? ->
-                exception?.printStackTraceIfDebug()
-                this.orientationUnLock()
-            }
-        )
-    }
 }
 
 fun View.showCustomSnackBar(
@@ -515,22 +456,6 @@ fun Context.isNetworkAvailable(
                 false
             }
         }
-    }
-}
-
-fun List<Word>.findItemWithoutRemainder(
-    divider: Int,
-    isRemainder: () -> Unit = {},
-    noRemainder: () -> Unit = {}
-) {
-    val result = this.any {
-        it._id % divider == 0
-    }
-    if (result) {
-        noRemainder.invoke()
-    }
-    else {
-        isRemainder.invoke()
     }
 }
 
@@ -676,7 +601,7 @@ fun String.firstCap() = this.lowercase().replaceFirstChar {
 }
 
 fun String.checkIfAllDigits(): Boolean {
-    return this.all {
+    return this.replace(" ", "").all {
         it.code in 33..64
     }
 }

@@ -1,12 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <item
         android:id="@+id/menu_edit"
         android:title="@string/text_change_data"
         android:icon="@drawable/ic_mode_edit"
         app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/menu_save"
+        android:title="@string/text_save"
+        android:icon="@drawable/ic_save"
+        android:iconTint="@color/colorGreen"
+        app:showAsAction="ifRoom"
+        android:visible="false"
+        tools:visible="true"
+
+        />
 
     <item
         android:id="@+id/menu_user_agreement"

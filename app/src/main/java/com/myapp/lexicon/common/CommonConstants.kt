@@ -1,5 +1,6 @@
 package com.myapp.lexicon.common
 
+import android.net.Uri
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
@@ -12,13 +13,6 @@ enum class AdsSource {
     TEST_AD,
     ALIVE_AD,
     LOCAL_HOST
-}
-
-val USER_AGENT = try {
-    Firebase.remoteConfig.getString("user_agent")
-} catch (e: Exception) {
-    e.printStackTraceIfDebug()
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
 }
 
 val IS_IMPORTANT_UPDATE: String = try {
@@ -111,3 +105,47 @@ val APP_TIME_ZONE: String
         }
     }
 
+val SELF_EMPLOYED_THRESHOLD: Int
+    get() {
+        return try {
+            if (!BuildConfig.DEBUG) {
+                Firebase.remoteConfig.getDouble("SELF_EMPLOYED_THRESHOLD").toInt()
+            } else 20
+        } catch (e: Exception) {
+            1000
+        }
+    }
+
+val SELF_EMPLOYED_PACKAGE: String
+    get() {
+        return "com.gnivts.selfemployed"
+    }
+
+val SELF_EMPLOYED_RU_STORE: Uri
+    get() {
+        return Uri.parse("https://www.rustore.ru/catalog/app/$SELF_EMPLOYED_PACKAGE")
+    }
+
+val SELF_EMPLOYED_MARKET: Uri
+    get() {
+        return Uri.parse("market://details?id=$SELF_EMPLOYED_PACKAGE")
+    }
+
+val PAYMENT_CHECK_PATTERN: String
+    get() {
+        return try {
+            Firebase.remoteConfig.getString("PAYMENT_CHECK_PATTERN")
+        } catch (e: Exception) {
+            "^https://lknpd\\.nalog\\.ru/api/v1/receipt/\\d+/[a-zA-Z0-9]+/print$"
+        }
+    }
+
+val AD_SHOWING_INTERVAL_IN_SEC: Long
+    get() {
+        return try {
+            Firebase.remoteConfig.getLong("AD_SHOWING_INTERVAL_IN_SEC")
+        } catch (e: Exception) {
+            e.printStackTraceIfDebug()
+            60L
+        }
+    }

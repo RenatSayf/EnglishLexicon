@@ -27,13 +27,11 @@ class MockUserViewModel @Inject constructor(
             if (testData is User) {
                 _user.value = testData
                 _state.value = State.ReceivedUserData(_user.value!!)
-                _stateFlow.value = State.ReceivedUserData(_user.value!!)
                 result.value = Result.success(testData!!)
             }
             else {
                 val errorState = _state.value as State.Error
                 _state.value = State.Error("********* ${errorState.message} **********")
-                _stateFlow.value = State.Error("********* ${errorState.message} **********")
                 result.value = Result.failure(Throwable(errorState.message))
             }
             _loadingState.value = LoadingState.Complete

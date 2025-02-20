@@ -28,7 +28,6 @@ import com.myapp.lexicon.common.IS_IMPORTANT_UPDATE
 import com.myapp.lexicon.databinding.STestModalFragmentBinding
 import com.myapp.lexicon.helpers.RandomNumberGenerator
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
-import com.myapp.lexicon.helpers.reserveRewardPaymentForMonth
 import com.myapp.lexicon.helpers.showToast
 import com.myapp.lexicon.interfaces.IModalFragment
 import com.myapp.lexicon.main.MainViewModel
@@ -217,12 +216,6 @@ class TestModeDialog : DialogFragment() {
                     is ReceivedUserData -> {
                         val user = state.user
                         buildRewardText(user)
-                        requireActivity().reserveRewardPaymentForMonth(
-                            user,
-                            onSuccess = {sum, remainder ->
-                                buildRewardText(Revenue(reward = remainder, toPayout = sum.toDouble(), currencyCode = user.currency, currencySymbol = user.currencySymbol))
-                            }
-                        )
                     }
                     else -> {}
                 }

@@ -8,14 +8,11 @@ import kotlinx.coroutines.launch
 class MockAccountViewModel: AccountViewModel() {
 
     companion object {
-        const val testMessage = "This is test message for user"
+        const val TEST_MESSAGE = "This is test message for user"
     }
 
     override val explainMessage: String
-        get() = testMessage
-
-    override val state: LiveData<State>
-        get() = super.state
+        get() = TEST_MESSAGE
 
     override val bankList: LiveData<Result<List<String>>>
         get() = super.bankList

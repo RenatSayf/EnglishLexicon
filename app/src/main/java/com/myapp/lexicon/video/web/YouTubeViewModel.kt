@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.myapp.lexicon.BuildConfig
+import com.myapp.lexicon.common.AD_SHOWING_INTERVAL_IN_SEC
 import com.myapp.lexicon.video.constants.VIDEO_URL
 import com.myapp.lexicon.video.web.models.UrlHistoryItem
 import kotlinx.coroutines.Dispatchers
@@ -21,10 +22,11 @@ class YouTubeViewModel: ViewModel() {
         const val JS_TAG = "JS_TAG_25878945"
     }
 
+    private val configInterval: Int = AD_SHOWING_INTERVAL_IN_SEC.toInt()
     private val adShowInterval: Long = if (BuildConfig.DEBUG) {
         TimeUnit.SECONDS.toMillis(30)
     } else {
-        val randomInterval: Int = (120..180).random()
+        val randomInterval: Int = (configInterval * 2..configInterval * 3).random()
         TimeUnit.SECONDS.toMillis(randomInterval.toLong())
     }
 
