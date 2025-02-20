@@ -13,6 +13,11 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.aboutapp.checkAppUpdate
 import com.myapp.lexicon.aboutapp.showUpdateDialog
 import com.myapp.lexicon.aboutapp.showUpdateSnackBar
+import com.myapp.lexicon.ads.NATIVE_AD_MAIN
+import com.myapp.lexicon.ads.NATIVE_AD_SERVICE
+import com.myapp.lexicon.ads.NATIVE_AD_TEST
+import com.myapp.lexicon.ads.NATIVE_AD_TRANS
+import com.myapp.lexicon.ads.NATIVE_AD_VIDEO
 import com.myapp.lexicon.common.IS_IMPORTANT_UPDATE
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.logIfDebug
@@ -56,6 +61,12 @@ class MainFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        NATIVE_AD_MAIN
+        NATIVE_AD_TRANS
+        NATIVE_AD_TEST
+        NATIVE_AD_VIDEO
+        NATIVE_AD_SERVICE
 
         val launcher = this.registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
 

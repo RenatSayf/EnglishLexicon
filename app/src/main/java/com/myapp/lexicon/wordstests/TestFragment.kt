@@ -27,6 +27,7 @@ import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.InterstitialAdIds
+import com.myapp.lexicon.ads.NATIVE_AD_MAIN
 import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.ads.models.AdType
@@ -313,6 +314,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                             }
                             AdType.NATIVE -> {
                                 requireActivity().startNativeAdsActivity(
+                                    adId = NATIVE_AD_MAIN,
                                     onImpression = {data: AdData? ->
                                         if (data != null) {
                                             revenueVM.updateUserRevenueIntoCloud(data)

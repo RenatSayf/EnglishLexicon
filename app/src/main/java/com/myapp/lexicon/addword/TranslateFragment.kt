@@ -18,6 +18,9 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.BannerAdIds
 import com.myapp.lexicon.ads.InterstitialAdIds
+import com.myapp.lexicon.ads.NATIVE_AD_MAIN
+import com.myapp.lexicon.ads.NATIVE_AD_TEST
+import com.myapp.lexicon.ads.NATIVE_AD_TRANS
 import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.loadBanner
 import com.myapp.lexicon.ads.models.AdData
@@ -220,6 +223,7 @@ class TranslateFragment : Fragment()
                     }
                     AdType.NATIVE -> {
                         requireActivity().startNativeAdsActivity(
+                            adId = NATIVE_AD_TRANS,
                             onImpression = {data: AdData? ->
                                 if (data != null) {
                                     revenueVM.updateUserRevenueIntoCloud(data)

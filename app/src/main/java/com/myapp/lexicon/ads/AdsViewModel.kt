@@ -2,6 +2,7 @@ package com.myapp.lexicon.ads
 
 import android.app.Activity
 import android.app.Application
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -30,6 +31,10 @@ import com.yandex.mobile.ads.interstitial.InterstitialAd
 import com.yandex.mobile.ads.interstitial.InterstitialAdEventListener
 import com.yandex.mobile.ads.interstitial.InterstitialAdLoadListener
 import com.yandex.mobile.ads.interstitial.InterstitialAdLoader
+import com.yandex.mobile.ads.nativeads.NativeAd
+import com.yandex.mobile.ads.nativeads.NativeAdRequestConfiguration
+import com.yandex.mobile.ads.nativeads.NativeBulkAdLoadListener
+import com.yandex.mobile.ads.nativeads.NativeBulkAdLoader
 import com.yandex.mobile.ads.rewarded.Reward
 import com.yandex.mobile.ads.rewarded.RewardedAd
 import com.yandex.mobile.ads.rewarded.RewardedAdEventListener
@@ -260,6 +265,8 @@ fun RewardedAd.showAd(
     }
 }
 
+
+
 fun String.toAdData(
     onSuccess: (AdData) -> Unit,
     onFailed: () -> Unit
@@ -326,6 +333,33 @@ private val TEST_BANNER_DATA: String
   }
 }"""
     }
+
+fun FragmentActivity.loadNativeAds(
+    adId: NativeAdIds,
+    adCount: Int = 1,
+    onLoaded: (List<NativeAd>) -> Unit,
+    onFailed: (Throwable) -> Unit
+) {
+    val nativeAdLoader = NativeBulkAdLoader(this)
+    val id = if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) "demo-native-app-yandex"
+    else adId.id
+
+    nativeAdLoader.loadAds(
+        nativeAdRequestConfiguration = NativeAdRequestConfiguration.Builder(id).apply {
+            setShouldLoadImagesAutomatically(true)
+        }.build(),
+        adsCount = adCount
+    )
+    nativeAdLoader.setNativeBulkAdLoadListener(object : NativeBulkAdLoadListener {
+        override fun onAdsFailedToLoad(error: AdRequestError) {
+            onFailed.invoke(Throwable(error.description))
+        }
+
+        override fun onAdsLoaded(nativeAds: List<NativeAd>) {
+            onLoaded.invoke(nativeAds)
+        }
+    })
+}
 
 fun BannerAdView.loadBanner(
     adId: BannerAdIds? = null,

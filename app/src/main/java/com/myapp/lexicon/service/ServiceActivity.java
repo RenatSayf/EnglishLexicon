@@ -11,6 +11,7 @@ import com.myapp.lexicon.ads.AdsViewModel;
 import com.myapp.lexicon.ads.AdsViewModelKt;
 import com.myapp.lexicon.ads.BannersActivityKt;
 import com.myapp.lexicon.ads.InterstitialAdIds;
+import com.myapp.lexicon.ads.NativeAdIdsKt;
 import com.myapp.lexicon.ads.NativeAdsActivityKt;
 import com.myapp.lexicon.ads.RevenueViewModel;
 import com.myapp.lexicon.ads.models.AdData;
@@ -187,6 +188,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         if (adType == AdType.NATIVE) {
             NativeAdsActivityKt.startNativeAdsActivity(
                     this,
+                    NativeAdIdsKt.getNATIVE_AD_SERVICE(),
                     adData -> {
                         if (adData != null) {
                             revenueVM.updateUserRevenueIntoCloud(adData);

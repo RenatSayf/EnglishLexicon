@@ -50,6 +50,7 @@ class AdFragment : Fragment() {
             }
             AdType.NATIVE -> {
                 requireActivity().startNativeAdsActivity(
+                    adId = NATIVE_AD_VIDEO,
                     onImpression = {data: AdData? ->
                         setFragmentResult(YouTubeFragment.KEY_AD_DATA, Bundle().apply {
                             if (data != null) {
