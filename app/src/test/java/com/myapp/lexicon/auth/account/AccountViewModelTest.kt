@@ -1,6 +1,5 @@
 package com.myapp.lexicon.auth.account
 
-import android.util.proto.ProtoOutputStream
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.myapp.lexicon.di.INetRepositoryModule
 import com.myapp.lexicon.di.KEY_API
@@ -17,8 +16,8 @@ import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
-import org.junit.Test
 import org.junit.Rule
+import org.junit.Test
 
 class AccountViewModelTest {
 

@@ -7,12 +7,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.EditText
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.children
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.replace
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -640,11 +641,30 @@ class AccountFragment : Fragment() {
         }
     }
 
-            if (user.message.isNotEmpty()) {
-                tvMessage.apply {
-                    visibility = View.VISIBLE
-                    text = user.message
+    private fun setValidFieldState(view: View) {
+        view.apply {
+            background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_horizontal_oval)
+        }
+    }
+
+    private fun setInvoiceRequiredState() {
+        with(binding) {
+            root.children.forEach { view: View ->
+                if (view is EditText) {
+                    view.isEnabled = true
                 }
+            }
+            layoutPhone.visibility = View.VISIBLE
+            layoutBankName.visibility = View.VISIBLE
+            layoutFirstName.visibility = View.VISIBLE
+            layoutLastName.visibility = View.VISIBLE
+            layoutCheckRef.visibility = View.VISIBLE
+            tvCheckRefValue.background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_horizontal_oval_error)
+            btnGetReward.isEnabled = false
+            val messageToUser = getString(R.string.text_message_create_invoice)
+            tvMessage.apply {
+                text = messageToUser
+                visibility = View.VISIBLE
             }
         }
     }

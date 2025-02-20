@@ -22,7 +22,6 @@ import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserState
 import com.myapp.lexicon.settings.emailIntoPref
-import com.myapp.lexicon.settings.getAuthDataFromPref
 import com.myapp.lexicon.settings.passwordIntoPref
 import com.myapp.lexicon.settings.saveAuthTokens
 import com.myapp.lexicon.settings.saveUserToPref

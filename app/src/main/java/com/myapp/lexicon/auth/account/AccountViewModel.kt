@@ -9,12 +9,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.auth.models.SBPBanks
-import com.myapp.lexicon.common.EXPLAIN_MESSAGE
-import com.myapp.lexicon.common.IS_BANK_CARD_REQUIRED
-import com.myapp.lexicon.common.PAYMENT_CODE
-import com.myapp.lexicon.common.PAYMENT_DAYS
 import com.myapp.lexicon.common.PAYMENT_THRESHOLD
 import com.myapp.lexicon.di.INetRepositoryModule
 import com.myapp.lexicon.di.NetRepositoryModule
