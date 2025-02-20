@@ -11,6 +11,7 @@ import android.widget.Button
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
@@ -57,6 +58,7 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
 
     companion object
     {
+        const val TEST_START = "TEST_START_15897423"
         private var wordList: List<Word>? = null
 
         @JvmStatic
@@ -185,6 +187,8 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
             parentFragmentManager.popBackStack()
             mActivity.mainVM.setMainControlVisibility(View.VISIBLE)
         }
+
+        setFragmentResult(TEST_START, result = Bundle.EMPTY)
     }
 
     override fun onItemClickListener(position: Int, word: Word, view: Button)

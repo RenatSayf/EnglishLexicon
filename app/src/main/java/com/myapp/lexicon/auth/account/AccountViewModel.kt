@@ -49,29 +49,22 @@ open class AccountViewModel(
         }
     }
 
-    sealed class State {
-        data object ReadOnly: State()
-        data object Editing: State()
-    }
-
     open val paymentThreshold: Double = PAYMENT_THRESHOLD
-    open val paymentCode: String = PAYMENT_CODE
-    open val paymentDays: Int = PAYMENT_DAYS
-    open val explainMessage: String = EXPLAIN_MESSAGE
-    open val isBankCardRequired: Boolean = IS_BANK_CARD_REQUIRED
+
+    open val paymentCode: String = if (!BuildConfig.DEBUG)
+        Firebase.remoteConfig.getString("PAYMENT_CODE").trim() else BuildConfig.PAYMENT_CODE.trim()
+
+    open val paymentDays: Int = Firebase.remoteConfig.getDouble("payment_days").toInt()
+    open val explainMessage: String = Firebase.remoteConfig.getString("reward_explain_message")
+    open val isBankCardRequired: Boolean = try {
+        Firebase.remoteConfig.getBoolean("is_bank_card_required")
+    } catch (e: Exception) {
+        false
+    }
 
     private var thread: Thread? = null
     private var payoutThread: Thread? = null
     private val repository = netModule.provideNetRepository()
-
-    private var _state = MutableLiveData<State>().apply {
-        value = State.ReadOnly
-    }
-    open val state: LiveData<State> = _state
-
-    open fun setState(state: State) {
-        _state.value = state
-    }
 
     private var _screenState = MutableLiveData<AccountScreenState>(AccountScreenState.Init)
     open val screenState: LiveData<AccountScreenState> = _screenState
@@ -96,6 +89,7 @@ open class AccountViewModel(
             val url = "https://sbp.nspk.ru/rest/v1/banks/list?limit=500"
             try {
                 val urlConnection = URL(url).openConnection() as HttpURLConnection
+                urlConnection.setRequestProperty("Content-Type", "application/json")
                 val inputStream = BufferedInputStream(urlConnection.inputStream)
                 val responseText = inputStream.bufferedReader().readText()
                 val code = urlConnection.responseCode
@@ -254,6 +248,8 @@ open class AccountViewModel(
     }
 
     init {
+        //this.fetchBankListFromNet()
+        this.getBankListFromCloud()
         netModule.apply {
             setTokensUpdateListener(object : INetRepositoryModule.Listener {
                 override fun onUpdateTokens(tokens: Tokens) {

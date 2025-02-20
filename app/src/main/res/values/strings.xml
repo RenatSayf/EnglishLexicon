@@ -195,7 +195,7 @@
     <string name="text_change_data">Изменить данные</string>
     <string name="title_e_mail">E-mail</string>
     <string name="title_phone">Телефон</string>
-    <string name="title_first_name">Имя</string>
+    <string name="title_first_name">Имя Отчество</string>
     <string name="title_last_name">Фамилия</string>
     <string name="text_get_reward_now">Получить награду</string>
     <string name="text_reward_conditions">Вознаграждение выплачивается с 21 по 26 число каждого месяца, при условии, что сумма будет больше</string>
@@ -212,11 +212,13 @@
     <string name="text_bank_card">Номер банковской карты</string>
     <string name="text_not_money">Недостаточно средств</string>
     <string name="text_to_payment">К выплате за</string>
+    <string name="text_prepare_to_payment">Готовится выплата</string>
     <string name="text_logout">Выход из аккаунта</string>
     <string name="text_signout_message">Вы действительно хотите выйти из аккаунта? Тогда Вы не сможете получать вознаграждение. Продолжить?</string>
     <string name="text_you_are_signed_out">Вы вышли из аккаунта</string>
     <string name="ya_metrica_api_key" tools:ignore="TypographyDashes">c94c303b-4981-4be6-890f-a9c6a7d09d6b</string>
     <string name="text_bank_name">Банк СБП</string>
+    <string name="text_check_ref">Чек</string>
     <string name="text_go_over">Перейти</string>
 
     <string-array name="not_move">
@@ -319,6 +321,11 @@
     </string>
     <string name="text_setup_from_google_play">Установить из Google Play</string>
     <string name="text_tax_app_header">Оплата налогов – это важно!</string>
+    <string name="text_check_ref_title">Создайте чек на оплату в приложении Мой налог</string>
+    <string name="text_check_ref_hint">Ссылка на чек</string>
+    <string name="btn_create_check_text">Создать чек</string>
+    <string name="text_open_selfemployed_app">Открыть Мой налог</string>
+    <string name="text_message_create_invoice">Для получения награды, необходимо создать чек на выплату в приложении \"Мой налог\". Нажмите кнопку \"Создать чек\" и следуйте дальнейшим инструкциям.</string>
 
 
 </resources>

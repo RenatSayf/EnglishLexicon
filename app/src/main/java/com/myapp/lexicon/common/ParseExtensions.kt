@@ -33,6 +33,9 @@ fun ParseObject.mapToUser(): User {
         value = this@mapToUser[User.KEY_RESERVED_PAYMENT]
         this.reservedPayment = if (value is Number) value.toDouble() else this.reservedPayment
 
+        value = this@mapToUser[User.KEY_REQUIRES_PAYMENT]
+        this.requiresPayment = if (value is Number) value.toInt() else this.requiresPayment
+
         value = this@mapToUser[User.KEY_PAYMENT_DATE]
         this.paymentDate = if (value is String) value else this.paymentDate
 
@@ -68,6 +71,9 @@ fun ParseObject.mapToUser(): User {
 
         value = this@mapToUser[User.KEY_MESSAGE]
         this.message = if (value is String) value else this.message
+
+        value = this@mapToUser[User.KEY_CHECK_REFERENCE]
+        this.checkReference = if (value is String) value else this.checkReference
 
         value = this@mapToUser[User.KEY_IS_ADS_ENABLED]
         this.isAdsEnabled = if (value is Boolean) value else this.isAdsEnabled

@@ -21,6 +21,7 @@
     <color name="colorLightGrey">#e9ebec</color>
     <color name="colorYellow">#ffdc61</color>
     <color name="colorYellowDark">#FFC107</color>
+    <color name="colorOrange">#FF9500</color>
     <color name="colorSemitransparent">#640b0b0b</color>
     <color name="color_status_bar">#192b45</color>
     <color name="color_7E8E1A">#7E8E1A</color>

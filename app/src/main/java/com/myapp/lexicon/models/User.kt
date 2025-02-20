@@ -17,6 +17,7 @@ data class User(
         const val KEY_YESTERDAY_REVENUE_FROM_USER = "yesterdayRevenueFromUser"
         const val KEY_REWARD_UPDATE_AT = "rewardUpdateAt"
         const val KEY_RESERVED_PAYMENT = "reservedPayment"
+        const val KEY_REQUIRES_PAYMENT = "requiresPayment"
         const val KEY_CURRENCY = "currencyCode"
         const val KEY_CURRENCY_SYMBOL = "currencySymbol"
         const val KEY_CURRENCY_RATE = "currencyRate"
@@ -28,6 +29,7 @@ data class User(
         const val KEY_BANK_NAME = "bankName"
         const val KEY_PAYMENT_DATE = "paymentDate"
         const val KEY_RESERVED_PAYMENT_DATE = "reservedPaymentDate"
+        const val KEY_CHECK_REFERENCE = "checkReference"
         const val KEY_MESSAGE = "messageToUser"
         const val KEY_MESSAGING_TOKEN = "messagingToken"
         const val KEY_IS_ADS_ENABLED = "isAdsEnabled"
@@ -59,7 +61,10 @@ data class User(
     var reservedPayment: Double = 0.0
         get() = BigDecimal(field).setScale(2, RoundingMode.DOWN).toDouble()
 
+    var requiresPayment: Int = 0
+
     var reservedPaymentDate: String = ""
+    var checkReference: String = ""
     var currency: String = ""
     var currencySymbol: String = ""
     var message: String = ""

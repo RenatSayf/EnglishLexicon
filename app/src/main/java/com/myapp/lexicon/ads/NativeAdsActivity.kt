@@ -62,6 +62,8 @@ class NativeAdsActivity : AppCompatActivity() {
         binding = ActivityNativeAdsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        if (BuildConfig.DEBUG && listener == null) throw NullPointerException("${this::class.java.simpleName}.setAdDataListener must be installed")
+
         this.orientationLock()
 
         with(binding) {
@@ -196,7 +198,7 @@ class NativeAdsActivity : AppCompatActivity() {
 
     override fun onDestroy() {
 
-        listener?.onDismissed(adData)?: throw NullPointerException("${this::class.java.simpleName}.setAdDataListener must be installed")
+        listener?.onDismissed(adData)
         timer?.cancel()
         timer = null
         listener = null
