@@ -10,7 +10,7 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.ads.AdsViewModel;
 import com.myapp.lexicon.ads.AdsViewModelKt;
 import com.myapp.lexicon.ads.BannersActivityKt;
-import com.myapp.lexicon.ads.InterstitialAdIds;
+import com.myapp.lexicon.ads.InterstitialAdIdsKt;
 import com.myapp.lexicon.ads.NativeAdIdsKt;
 import com.myapp.lexicon.ads.NativeAdsActivityKt;
 import com.myapp.lexicon.ads.RevenueViewModel;
@@ -136,7 +136,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
 
         AdType adType = CommonConstantsKt.getAD_TYPE();
         if (adType == AdType.INTERSTITIAL) {
-            adsVM.loadInterstitialAd(InterstitialAdIds.INTERSTITIAL_2);
+            adsVM.loadInterstitialAd(InterstitialAdIdsKt.getINTERSTITIAL_SERVICE());
             adsVM.getInterstitialAd().observe(ServiceActivity.this, result -> {
                 interstitialAd = adsVM.getInterstitialAdOrNull();
                 if (interstitialAd != null) {

@@ -16,10 +16,8 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
-import com.myapp.lexicon.ads.BannerAdIds
-import com.myapp.lexicon.ads.InterstitialAdIds
-import com.myapp.lexicon.ads.NATIVE_AD_MAIN
-import com.myapp.lexicon.ads.NATIVE_AD_TEST
+import com.myapp.lexicon.ads.BANNER_TRANSLATE
+import com.myapp.lexicon.ads.INTERSTITIAL_TRANSLATE
 import com.myapp.lexicon.ads.NATIVE_AD_TRANS
 import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.loadBanner
@@ -107,7 +105,7 @@ class TranslateFragment : Fragment()
         binding = TranslateFragmentBinding.bind(view)
 
         if (AD_TYPE == AdType.INTERSTITIAL) {
-            adsVM.loadInterstitialAd(InterstitialAdIds.INTERSTITIAL_1)
+            adsVM.loadInterstitialAd(INTERSTITIAL_TRANSLATE)
             adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
                 result.onSuccess { ad ->
                     interstitialAd = ad
@@ -179,7 +177,7 @@ class TranslateFragment : Fragment()
                 }
             }
 
-            bannerView.loadBanner(adId = BannerAdIds.BANNER_1)
+            bannerView.loadBanner(adId = BANNER_TRANSLATE)
         }
 
     }

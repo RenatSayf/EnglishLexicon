@@ -26,7 +26,7 @@ import com.jakewharton.rxbinding2.widget.RxTextView
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
-import com.myapp.lexicon.ads.InterstitialAdIds
+import com.myapp.lexicon.ads.INTERSTITIAL_TEST
 import com.myapp.lexicon.ads.NATIVE_AD_MAIN
 import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.models.AdData
@@ -292,7 +292,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 when (state) {
                     TestViewModel.State.Init -> {
                         if (AD_TYPE == AdType.INTERSTITIAL) {
-                            adsVM.loadInterstitialAd(InterstitialAdIds.entries.toTypedArray().randomOrNull())
+                            adsVM.loadInterstitialAd(INTERSTITIAL_TEST)
                         }
                     }
 

@@ -20,7 +20,7 @@ import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.aboutapp.checkAppUpdate
 import com.myapp.lexicon.ads.AdsViewModel
-import com.myapp.lexicon.ads.BannerAdIds
+import com.myapp.lexicon.ads.BANNER_SERVICE
 import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.ext.showUserRewardAnimatedly
 import com.myapp.lexicon.ads.loadBanner
@@ -102,7 +102,7 @@ class TestModeDialog : DialogFragment() {
 
         with(binding) {
 
-            bannerView.loadBanner(BannerAdIds.BANNER_3)
+            bannerView.loadBanner(BANNER_SERVICE)
 
             val extra = requireActivity().intent.getStringExtra(ServiceActivity.ARG_JSON)
             if (extra != null) {

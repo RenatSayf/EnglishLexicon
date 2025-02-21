@@ -72,7 +72,7 @@ class NativeAdsActivity : AppCompatActivity() {
             nativeAdLoader = NativeBulkAdLoader(this@NativeAdsActivity)
             val adId = if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) "demo-native-app-yandex"
             else {
-                intent.extras?.getString(KEY_AD_ID)?: NativeAdIds.NATIVE_1.id
+                intent.extras?.getString(KEY_AD_ID)?: NATIVE_AD_MAIN
             }
             nativeAdLoader?.loadAds(
                 nativeAdRequestConfiguration = NativeAdRequestConfiguration.Builder(adId).apply {

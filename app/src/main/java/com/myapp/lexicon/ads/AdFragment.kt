@@ -65,7 +65,7 @@ class AdFragment : Fragment() {
                 )
             }
             AdType.INTERSTITIAL -> {
-                adsVM.loadInterstitialAd(InterstitialAdIds.INTERSTITIAL_2)
+                adsVM.loadInterstitialAd(INTERSTITIAL_VIDEO)
                 adsVM.interstitialAd.observe(this) { result ->
                     result.onSuccess { ad: InterstitialAd ->
                         ad.showAd(

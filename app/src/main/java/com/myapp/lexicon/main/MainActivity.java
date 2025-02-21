@@ -28,7 +28,7 @@ import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
 import com.myapp.lexicon.ads.AdsViewModel;
 import com.myapp.lexicon.ads.AdsViewModelKt;
-import com.myapp.lexicon.ads.BannerAdIds;
+import com.myapp.lexicon.ads.BannerAdIdsKt;
 import com.myapp.lexicon.ads.RevenueViewModel;
 import com.myapp.lexicon.auth.AuthFragment;
 import com.myapp.lexicon.auth.AuthViewModel;
@@ -487,7 +487,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         BannerAdView bannerView = contentBinding.bannerView;
         AdsViewModelKt.loadBanner(
-                bannerView, BannerAdIds.BANNER_2,
+                bannerView,
+                BannerAdIdsKt.getBANNER_MAIN(),
                 0.08,
                 (data) -> null,
                 e -> null,

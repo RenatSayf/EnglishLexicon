@@ -17,7 +17,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.adapters.OneFiveTestAdapter
 import com.myapp.lexicon.ads.AdsViewModel
-import com.myapp.lexicon.ads.InterstitialAdIds
+import com.myapp.lexicon.ads.INTERSTITIAL_MAIN
 import com.myapp.lexicon.ads.NATIVE_AD_MAIN
 import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.models.AdData
@@ -101,7 +101,7 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
         if (!wordList.isNullOrEmpty()) vm.initTest(wordList!!.toList())
 
         if (AD_TYPE == AdType.INTERSTITIAL) {
-            adsVM.loadInterstitialAd(InterstitialAdIds.INTERSTITIAL_2)
+            adsVM.loadInterstitialAd(INTERSTITIAL_MAIN)
             adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
                 result.onSuccess { ad ->
                     interstitialAd = ad

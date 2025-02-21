@@ -83,12 +83,12 @@ class AdsViewModel @Inject constructor(
         return null
     }
 
-    fun loadInterstitialAd(adId: InterstitialAdIds? = null) {
+    fun loadInterstitialAd(adId: String) {
 
         val id = if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
             "demo-interstitial-yandex"
         } else {
-            adId?.id ?: InterstitialAdIds.entries.toTypedArray().random().id
+            adId
         }
         val adRequestConfiguration = AdRequestConfiguration.Builder(id).build()
         InterstitialAdLoader(app).apply {
@@ -335,14 +335,14 @@ private val TEST_BANNER_DATA: String
     }
 
 fun FragmentActivity.loadNativeAds(
-    adId: NativeAdIds,
+    adId: String,
     adCount: Int = 1,
     onLoaded: (List<NativeAd>) -> Unit,
     onFailed: (Throwable) -> Unit
 ) {
     val nativeAdLoader = NativeBulkAdLoader(this)
     val id = if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) "demo-native-app-yandex"
-    else adId.id
+    else adId
 
     nativeAdLoader.loadAds(
         nativeAdRequestConfiguration = NativeAdRequestConfiguration.Builder(id).apply {
@@ -362,7 +362,7 @@ fun FragmentActivity.loadNativeAds(
 }
 
 fun BannerAdView.loadBanner(
-    adId: BannerAdIds? = null,
+    adId: String,
     heightRate: Double = 0.08,
     onCompleted: (error: AdRequestError?) -> Unit = {},
     onImpression: (data: AdData?) -> Unit = {},
@@ -377,7 +377,7 @@ fun BannerAdView.loadBanner(
             val id = if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
                 "demo-banner-yandex"
             } else {
-                adId?.id ?: BannerAdIds.entries.toTypedArray().random().id
+                adId
             }
             setAdUnitId(id)
             setAdSize(fixedSize)
@@ -386,7 +386,7 @@ fun BannerAdView.loadBanner(
         this.setBannerAdEventListener(object : BannerAdEventListener {
 
             override fun onAdClicked() {
-                return
+                onAdClicked.invoke()
             }
 
             override fun onAdFailedToLoad(error: AdRequestError) {
