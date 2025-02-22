@@ -1,4 +1,4 @@
-@file:Suppress("ObjectLiteralToLambda")
+@file:Suppress("ObjectLiteralToLambda", "UNUSED_ANONYMOUS_PARAMETER")
 
 package com.myapp.lexicon.service
 
