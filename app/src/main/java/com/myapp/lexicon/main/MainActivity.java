@@ -30,6 +30,7 @@ import com.myapp.lexicon.ads.AdsViewModel;
 import com.myapp.lexicon.ads.AdsViewModelKt;
 import com.myapp.lexicon.ads.BannerAdIdsKt;
 import com.myapp.lexicon.ads.RevenueViewModel;
+import com.myapp.lexicon.ads.models.AdName;
 import com.myapp.lexicon.auth.AuthFragment;
 import com.myapp.lexicon.auth.AuthViewModel;
 import com.myapp.lexicon.auth.account.AccountFragment;
@@ -154,6 +155,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         speechVM = new ViewModelProvider(this).get(SpeechViewModel.class);
         AuthViewModel authVM = new ViewModelProvider(this).get(AuthViewModel.class);
         revenueVM = new ViewModelProvider(MainActivity.this).get(RevenueViewModel.class);
+        UserViewModel userVM = new ViewModelProvider(MainActivity.this).get(UserViewModel.class);
 
         authVM.getState().observe(this, result -> {
             result.onInit(() -> {
@@ -206,7 +208,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     ExtensionsKt.showSnackBar(navView, user.getMessage(), Snackbar.LENGTH_LONG);
                 }
                 if (!user.getMessage().isEmpty()) {
-                    UserViewModel userVM = new ViewModelProvider(this).get(UserViewModel.class);
                     MainActivityExtKt.showThankDialog(
                             this,
                             user.getMessage(),
@@ -490,7 +491,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 bannerView,
                 BannerAdIdsKt.getBANNER_MAIN(),
                 0.08,
-                (data) -> null,
+                (data) -> {
+                    SettingsExtKt.getAuthDataFromPref(
+                            this,
+                            () -> null,
+                            (email, p) -> {
+                                userVM.updateUserDataIntoCloud(Map.of(User.KEY_EMAIL, email, AdName.BANNER_MAIN.name(), 1));
+                                return null;
+                            },
+                            e -> null
+                    );
+                    return null;
+                },
                 e -> null,
                 () -> null
         );

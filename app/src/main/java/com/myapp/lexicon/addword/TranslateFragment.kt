@@ -22,6 +22,7 @@ import com.myapp.lexicon.ads.NATIVE_AD_TRANS
 import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.loadBanner
 import com.myapp.lexicon.ads.models.AdData
+import com.myapp.lexicon.ads.models.AdName
 import com.myapp.lexicon.ads.models.AdType
 import com.myapp.lexicon.ads.showAd
 import com.myapp.lexicon.ads.startBannersActivity
@@ -32,8 +33,11 @@ import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showSnackBar
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.MainViewModel
+import com.myapp.lexicon.main.viewmodels.UserViewModel
+import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.toWord
+import com.myapp.lexicon.settings.getAuthDataFromPref
 import com.myapp.lexicon.settings.getWordFromPref
 import com.myapp.lexicon.settings.orderPlayFromPref
 import com.yandex.mobile.ads.interstitial.InterstitialAd
@@ -58,6 +62,7 @@ class TranslateFragment : Fragment()
         ViewModelProvider(this, factory)[MainViewModel::class.java]
     }
     private val revenueVM: RevenueViewModel by activityViewModels()
+    private val userVM: UserViewModel by activityViewModels()
 
     companion object
     {
@@ -177,7 +182,21 @@ class TranslateFragment : Fragment()
                 }
             }
 
-            bannerView.loadBanner(adId = BANNER_TRANSLATE)
+            bannerView.loadBanner(
+                adId = BANNER_TRANSLATE,
+                onImpression = {
+                    requireContext().getAuthDataFromPref(
+                        onSuccess = {email: String, password: String ->
+                            userVM.updateUserDataIntoCloud(
+                                userMap = mapOf(
+                                    User.KEY_EMAIL to email,
+                                    AdName.BANNER_TRANSLATE.name to 1
+                                )
+                            )
+                        }
+                    )
+                }
+            )
         }
 
     }
@@ -210,6 +229,7 @@ class TranslateFragment : Fragment()
                         requireActivity().startBannersActivity(
                             onImpression = {data: AdData? ->
                                 if (data != null) {
+                                    data.adCount = mapOf(AdName.BANNER_TRANSLATE.name to 1)
                                     revenueVM.updateUserRevenueIntoCloud(data)
                                 }
                             },
@@ -224,6 +244,7 @@ class TranslateFragment : Fragment()
                             adId = NATIVE_AD_TRANS,
                             onImpression = {data: AdData? ->
                                 if (data != null) {
+                                    data.adCount = mapOf(AdName.NATIVE_TRANSLATE.name to 1)
                                     revenueVM.updateUserRevenueIntoCloud(data)
                                 }
                             },
@@ -238,6 +259,7 @@ class TranslateFragment : Fragment()
                             requireActivity(),
                             onImpression = { data ->
                                 if (data is AdData) {
+                                    data.adCount = mapOf(AdName.INTERSTITIAL_TRANSLATE.name to 1)
                                     revenueVM.updateUserRevenueIntoCloud(data)
                                 }
                             },
@@ -258,6 +280,7 @@ class TranslateFragment : Fragment()
                         requireActivity().startBannersActivity(
                             onImpression = {data: AdData? ->
                                 if (data != null) {
+                                    data.adCount = mapOf(AdName.BANNER_TRANSLATE.name to 1)
                                     revenueVM.updateUserRevenueIntoCloud(data)
                                 }
                             },
@@ -270,6 +293,7 @@ class TranslateFragment : Fragment()
                         requireActivity().startNativeAdsActivity(
                             onImpression = {data: AdData? ->
                                 if (data != null) {
+                                    data.adCount = mapOf(AdName.NATIVE_TRANSLATE.name to 1)
                                     revenueVM.updateUserRevenueIntoCloud(data)
                                 }
                             },
@@ -283,6 +307,7 @@ class TranslateFragment : Fragment()
                             requireActivity(),
                             onImpression = { data ->
                                 if (data is AdData) {
+                                    data.adCount = mapOf(AdName.INTERSTITIAL_TRANSLATE.name to 1)
                                     revenueVM.updateUserRevenueIntoCloud(data)
                                 }
                             },

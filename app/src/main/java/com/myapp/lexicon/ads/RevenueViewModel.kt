@@ -64,6 +64,9 @@ class RevenueViewModel @Inject constructor(
                     val currencyRate = (adData.revenue / adData.revenueUSD).to2DigitsScale()
                     put(User.KEY_CURRENCY_RATE, currencyRate)
                     put(User.KEY_APP_VERSION, "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
+                    adData.adCount.forEach(action = { entry: Map.Entry<String, Int> ->
+                        increment(entry.key, entry.value)
+                    })
                 }
                 currentUser.saveInBackground(object : SaveCallback {
                     override fun done(e: ParseException?) {
