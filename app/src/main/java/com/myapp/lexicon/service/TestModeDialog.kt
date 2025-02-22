@@ -24,6 +24,7 @@ import com.myapp.lexicon.ads.BANNER_SERVICE
 import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.ext.showUserRewardAnimatedly
 import com.myapp.lexicon.ads.loadBanner
+import com.myapp.lexicon.ads.models.AdName
 import com.myapp.lexicon.common.IS_IMPORTANT_UPDATE
 import com.myapp.lexicon.databinding.STestModalFragmentBinding
 import com.myapp.lexicon.helpers.RandomNumberGenerator
@@ -40,6 +41,7 @@ import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.models.toWordList
 import com.myapp.lexicon.settings.disablePassiveWordsRepeat
+import com.myapp.lexicon.settings.getAuthDataFromPref
 import com.myapp.lexicon.settings.getOrderPlay
 import com.myapp.lexicon.settings.isUserRegistered
 import java.util.Date
@@ -102,7 +104,16 @@ class TestModeDialog : DialogFragment() {
 
         with(binding) {
 
-            bannerView.loadBanner(BANNER_SERVICE)
+            bannerView.loadBanner(BANNER_SERVICE, onImpression = {
+                requireContext().getAuthDataFromPref(onSuccess = { email: String, p: String ->
+                    userVM.updateUserDataIntoCloud(
+                        userMap = mapOf(
+                            User.KEY_EMAIL to email,
+                            AdName.BANNER_SERVICE.name to 1
+                        )
+                    )
+                })
+            })
 
             val extra = requireActivity().intent.getStringExtra(ServiceActivity.ARG_JSON)
             if (extra != null) {

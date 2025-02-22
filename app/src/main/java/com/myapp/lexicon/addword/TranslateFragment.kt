@@ -229,7 +229,7 @@ class TranslateFragment : Fragment()
                         requireActivity().startBannersActivity(
                             onImpression = {data: AdData? ->
                                 if (data != null) {
-                                    data.adCount = mapOf(AdName.BANNER_TRANSLATE.name to 1)
+                                    data.adCount = mapOf(AdName.FULL_TRANSLATE.name to 1)
                                     revenueVM.updateUserRevenueIntoCloud(data)
                                 }
                             },
@@ -244,7 +244,7 @@ class TranslateFragment : Fragment()
                             adId = NATIVE_AD_TRANS,
                             onImpression = {data: AdData? ->
                                 if (data != null) {
-                                    data.adCount = mapOf(AdName.NATIVE_TRANSLATE.name to 1)
+                                    data.adCount = mapOf(AdName.FULL_TRANSLATE.name to 1)
                                     revenueVM.updateUserRevenueIntoCloud(data)
                                 }
                             },
@@ -259,7 +259,7 @@ class TranslateFragment : Fragment()
                             requireActivity(),
                             onImpression = { data ->
                                 if (data is AdData) {
-                                    data.adCount = mapOf(AdName.INTERSTITIAL_TRANSLATE.name to 1)
+                                    data.adCount = mapOf(AdName.FULL_TRANSLATE.name to 1)
                                     revenueVM.updateUserRevenueIntoCloud(data)
                                 }
                             },
@@ -280,7 +280,7 @@ class TranslateFragment : Fragment()
                         requireActivity().startBannersActivity(
                             onImpression = {data: AdData? ->
                                 if (data != null) {
-                                    data.adCount = mapOf(AdName.BANNER_TRANSLATE.name to 1)
+                                    data.adCount = mapOf(AdName.FULL_TRANSLATE.name to 1)
                                     revenueVM.updateUserRevenueIntoCloud(data)
                                 }
                             },
@@ -293,7 +293,7 @@ class TranslateFragment : Fragment()
                         requireActivity().startNativeAdsActivity(
                             onImpression = {data: AdData? ->
                                 if (data != null) {
-                                    data.adCount = mapOf(AdName.NATIVE_TRANSLATE.name to 1)
+                                    data.adCount = mapOf(AdName.FULL_TRANSLATE.name to 1)
                                     revenueVM.updateUserRevenueIntoCloud(data)
                                 }
                             },
@@ -307,7 +307,7 @@ class TranslateFragment : Fragment()
                             requireActivity(),
                             onImpression = { data ->
                                 if (data is AdData) {
-                                    data.adCount = mapOf(AdName.INTERSTITIAL_TRANSLATE.name to 1)
+                                    data.adCount = mapOf(AdName.FULL_TRANSLATE.name to 1)
                                     revenueVM.updateUserRevenueIntoCloud(data)
                                 }
                             },

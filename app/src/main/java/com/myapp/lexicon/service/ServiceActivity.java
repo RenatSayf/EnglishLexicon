@@ -15,6 +15,7 @@ import com.myapp.lexicon.ads.NativeAdIdsKt;
 import com.myapp.lexicon.ads.NativeAdsActivityKt;
 import com.myapp.lexicon.ads.RevenueViewModel;
 import com.myapp.lexicon.ads.models.AdData;
+import com.myapp.lexicon.ads.models.AdName;
 import com.myapp.lexicon.ads.models.AdType;
 import com.myapp.lexicon.auth.AuthViewModel;
 import com.myapp.lexicon.common.CommonConstantsKt;
@@ -26,6 +27,8 @@ import com.myapp.lexicon.settings.SettingsExtKt;
 import com.myapp.lexicon.splash.SplashActivity;
 import com.parse.ParseUser;
 import com.yandex.mobile.ads.interstitial.InterstitialAd;
+
+import java.util.Map;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -147,6 +150,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                             adData -> {
                                 if (adData != null)
                                 {
+                                    adData.setAdCount(Map.of(AdName.FULL_SERVICE.name(), 1));
                                     revenueVM.updateUserRevenueIntoCloud(adData);
                                 }
                                 else {
@@ -171,6 +175,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                     this,
                     adData -> {
                         if (adData != null) {
+                            adData.setAdCount(Map.of(AdName.FULL_SERVICE.name(), 1));
                             revenueVM.updateUserRevenueIntoCloud(adData);
                         }
                         else {
@@ -191,6 +196,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                     NativeAdIdsKt.getNATIVE_AD_SERVICE(),
                     adData -> {
                         if (adData != null) {
+                            adData.setAdCount(Map.of(AdName.FULL_SERVICE.name(), 1));
                             revenueVM.updateUserRevenueIntoCloud(adData);
                         }
                         else {

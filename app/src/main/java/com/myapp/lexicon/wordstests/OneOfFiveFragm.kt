@@ -21,6 +21,7 @@ import com.myapp.lexicon.ads.INTERSTITIAL_MAIN
 import com.myapp.lexicon.ads.NATIVE_AD_MAIN
 import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.models.AdData
+import com.myapp.lexicon.ads.models.AdName
 import com.myapp.lexicon.ads.models.AdType
 import com.myapp.lexicon.ads.showAd
 import com.myapp.lexicon.ads.startBannersActivity
@@ -306,6 +307,7 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
                     requireActivity().startBannersActivity(
                         onImpression = {data: AdData? ->
                             if (data != null) {
+                                data.adCount = mapOf(AdName.FULL_MAIN.name to 1)
                                 revenueVM.updateUserRevenueIntoCloud(data)
                             }
                         },
@@ -321,6 +323,7 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
                         onImpression = {data: AdData? ->
                             if (data != null) {
                                 try {
+                                    data.adCount = mapOf(AdName.FULL_MAIN.name to 1)
                                     revenueVM.updateUserRevenueIntoCloud(data)
                                 } catch (e: Exception) {
                                     e.printStackTraceIfDebug()
@@ -342,6 +345,7 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
                         requireActivity(),
                         onImpression = { data ->
                             if (data != null) {
+                                data.adCount = mapOf(AdName.FULL_MAIN.name to 1)
                                 revenueVM.updateUserRevenueIntoCloud(data)
                             }
                         }, onDismissed = { bonus: Double ->

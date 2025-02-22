@@ -31,6 +31,7 @@ import com.myapp.lexicon.ads.AdFragment
 import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.ext.showAdPopup
 import com.myapp.lexicon.ads.models.AdData
+import com.myapp.lexicon.ads.models.AdName
 import com.myapp.lexicon.databinding.FragmentYouTubeBinding
 import com.myapp.lexicon.helpers.isNetworkAvailable
 import com.myapp.lexicon.helpers.orientationLock
@@ -393,6 +394,7 @@ class YouTubeFragment : Fragment() {
                         null
                     }
                     adData?.let { data: AdData ->
+                        data.adCount = mapOf(AdName.FULL_VIDEO.name to 1)
                         revenueVM.updateUserRevenueIntoCloud(data)
                     }
                 }

@@ -30,6 +30,7 @@ import com.myapp.lexicon.ads.INTERSTITIAL_TEST
 import com.myapp.lexicon.ads.NATIVE_AD_MAIN
 import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.models.AdData
+import com.myapp.lexicon.ads.models.AdName
 import com.myapp.lexicon.ads.models.AdType
 import com.myapp.lexicon.ads.showAd
 import com.myapp.lexicon.ads.startBannersActivity
@@ -304,6 +305,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                                 requireActivity().startBannersActivity(
                                     onImpression = {data: AdData? ->
                                         if (data != null) {
+                                            data.adCount = mapOf(AdName.FULL_TEST.name to 1)
                                             revenueVM.updateUserRevenueIntoCloud(data)
                                         }
                                     },
@@ -317,6 +319,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                                     adId = NATIVE_AD_MAIN,
                                     onImpression = {data: AdData? ->
                                         if (data != null) {
+                                            data.adCount = mapOf(AdName.FULL_TEST.name to 1)
                                             revenueVM.updateUserRevenueIntoCloud(data)
                                         }
                                         testVM.setState(TestViewModel.State.Init)
@@ -331,6 +334,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                                     requireActivity(),
                                     onImpression = { data ->
                                         if (data != null) {
+                                            data.adCount = mapOf(AdName.FULL_TEST.name to 1)
                                             revenueVM.updateUserRevenueIntoCloud(data)
                                         }
                                         testVM.setState(TestViewModel.State.Init)

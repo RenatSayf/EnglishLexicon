@@ -4,22 +4,15 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 enum class AdName {
-    NATIVE_MAIN,
-    NATIVE_TRANSLATE,
-    NATIVE_TEST,
-    NATIVE_VIDEO,
-    NATIVE_SERVICE,
+    FULL_MAIN,
+    FULL_TRANSLATE,
+    FULL_TEST,
+    FULL_VIDEO,
+    FULL_SERVICE,
     BANNER_MAIN,
     BANNER_TRANSLATE,
     BANNER_EDITOR,
-    BANNER_SERVICE,
-    BANNER_ACTIVITY_1,
-    BANNER_ACTIVITY_2,
-    INTERSTITIAL_MAIN,
-    INTERSTITIAL_TRANSLATE,
-    INTERSTITIAL_TEST,
-    INTERSTITIAL_VIDEO,
-    INTERSTITIAL_SERVICE
+    BANNER_SERVICE
 }
 
 @Serializable

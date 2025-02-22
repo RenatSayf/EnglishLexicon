@@ -26,12 +26,16 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.addword.AddWordViewModel;
 import com.myapp.lexicon.ads.AdsViewModelKt;
 import com.myapp.lexicon.ads.BannerAdIdsKt;
+import com.myapp.lexicon.ads.models.AdName;
 import com.myapp.lexicon.dialogs.ConfirmDialog;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SpeechViewModel;
+import com.myapp.lexicon.main.viewmodels.UserViewModel;
+import com.myapp.lexicon.models.User;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.models.WordKt;
+import com.myapp.lexicon.settings.SettingsExtKt;
 import com.myapp.lexicon.viewmodels.EditorSearchViewModel;
 import com.yandex.mobile.ads.banner.BannerAdView;
 
@@ -39,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -74,6 +79,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
     private EditorViewModel editorVM;
     private AddWordViewModel addWordVM;
     private SpeechViewModel speechVM;
+    private UserViewModel userVM;
 
     private void initViews()
     {
@@ -113,16 +119,6 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
         buttonWrite_OnClick();
         buttonCancel_OnClick();
         checkMove_OnClick();
-
-        BannerAdView bannerView = findViewById(R.id.bannerView);
-        AdsViewModelKt.loadBanner(
-                bannerView,
-                BannerAdIdsKt.getBANNER_EDITOR(),
-                0.08,
-                (data) -> null,
-                e -> null,
-                () -> null
-        );
     }
 
     @SuppressWarnings("CodeBlock2Expr")
@@ -143,6 +139,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
         editorVM = createEditorViewModel();
         addWordVM = createAddWordViewModel();
         speechVM = createSpeechViewModel();
+        userVM = new ViewModelProvider(WordEditorActivity.this).get(UserViewModel.class);
 
         initViews();
 
@@ -314,6 +311,29 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             editorVM.selectedWord = word;
             switcher.showNext();
         }
+
+        BannerAdView bannerView = findViewById(R.id.bannerView);
+        AdsViewModelKt.loadBanner(
+                bannerView,
+                BannerAdIdsKt.getBANNER_EDITOR(),
+                0.08,
+                (data) -> {
+                    SettingsExtKt.getAuthDataFromPref(
+                            this,
+                            () -> null,
+                            (email, p) -> {
+                                userVM.updateUserDataIntoCloud(
+                                        Map.of(User.KEY_EMAIL, email, AdName.BANNER_EDITOR.name(), 1)
+                                );
+                                return null;
+                            },
+                            e -> null
+                    );
+                    return null;
+                },
+                e -> null,
+                () -> null
+        );
 
     }
 
