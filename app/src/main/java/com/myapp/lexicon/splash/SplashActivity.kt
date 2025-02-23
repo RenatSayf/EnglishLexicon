@@ -11,6 +11,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.lifecycle.lifecycleScope
 import com.myapp.lexicon.R
+import com.myapp.lexicon.ads.AppOpenAdViewModel
+import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.auth.AuthViewModel
 import com.myapp.lexicon.common.IS_REWARD_ACCESSIBLE
 import com.myapp.lexicon.common.KEY_APP_STORE_LINK
@@ -25,6 +27,8 @@ import com.myapp.lexicon.settings.adsIsEnabled
 import com.myapp.lexicon.settings.checkOnStartSpeech
 import com.myapp.lexicon.settings.getAuthDataFromPref
 import com.myapp.lexicon.settings.goToAppStore
+import com.myapp.lexicon.settings.isUserRegistered
+import com.yandex.mobile.ads.appopenad.AppOpenAd
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -33,10 +37,16 @@ import java.util.Locale
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : AppCompatActivity() {
 
+    companion object {
+        const val NEED_UPDATE_USER_REWARD = 147852324
+    }
+
     private lateinit var binding: ALayoutSplashScreenBinding
     private var speaker: Speaker? = null
 
+    private var appOpenAd: AppOpenAd? = null
     private val authVM: AuthViewModel by viewModels()
+    private val openAdVM: AppOpenAdViewModel by viewModels()
 
     private var authChecked = false
     private var speechChecked = false
@@ -73,6 +83,12 @@ class SplashActivity : AppCompatActivity() {
             }
             state.onFailure {
                 authChecked = true
+            }
+        }
+
+        openAdVM.resultOpenAd.observe(this) { result ->
+            result.onSuccess { ad: AppOpenAd ->
+                appOpenAd = ad
             }
         }
     }
@@ -198,13 +214,37 @@ class SplashActivity : AppCompatActivity() {
             while (!speechChecked || !authChecked) {
                 delay(500)
                 if (authChecked && speechChecked) {
-                    val intent = Intent(this@SplashActivity, MainActivity::class.java)
-                    startActivity(intent)
-                    this@SplashActivity.finish()
+                    this@SplashActivity.isUserRegistered(
+                        onYes = {
+                            appOpenAd?.show(this@SplashActivity)?: run {
+                                startMainActivity()
+                            }
+                        },
+                        onNotRegistered = {
+                            startMainActivity()
+                        }
+                    )
                 }
             }
         }
 
+        openAdVM.resultAdData.observe(this) { result ->
+            result.onSuccess { data: AdData ->
+                setResult(NEED_UPDATE_USER_REWARD, Intent().apply {
+                    putExtra("", data.toString())
+                })
+            }
+            result.onFailure {
+                startMainActivity()
+            }
+        }
+
+    }
+
+    private fun startMainActivity() {
+        val intent = Intent(this@SplashActivity, MainActivity::class.java)
+        startActivity(intent)
+        this@SplashActivity.finish()
     }
 
 }
