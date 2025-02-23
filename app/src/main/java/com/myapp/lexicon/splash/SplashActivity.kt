@@ -230,7 +230,7 @@ class SplashActivity : AppCompatActivity() {
 
         openAdVM.resultAdData.observe(this) { result ->
             result.onSuccess { data: AdData ->
-                setResult(NEED_UPDATE_USER_REWARD, Intent().apply {
+                this.setResult(NEED_UPDATE_USER_REWARD, Intent().apply {
                     putExtra("", data.toString())
                 })
             }
