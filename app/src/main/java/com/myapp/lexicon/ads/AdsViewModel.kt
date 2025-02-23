@@ -67,7 +67,7 @@ class AdsViewModel @Inject constructor(
     val interstitialAd: LiveData<Result<InterstitialAd>> = _interstitialAd
 
     private var _rewardedAd = MutableLiveData<Result<RewardedAd>>()
-    val rewardedAd: LiveData<Result<RewardedAd>> = _rewardedAd
+    var rewardedAd: LiveData<Result<RewardedAd>> = _rewardedAd
 
     fun getInterstitialAdOrNull(): InterstitialAd? {
         _interstitialAd.value?.onSuccess { ad ->
@@ -106,12 +106,12 @@ class AdsViewModel @Inject constructor(
         }
     }
 
-    fun loadRewardedAd(adId: RewardedAdIds? = null) {
+    fun loadRewardedAd(adId: String) {
 
         val id = if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
             "demo-rewarded-yandex"
         } else {
-            adId?.id ?: RewardedAdIds.entries.toTypedArray().random().id
+            adId
         }
         val adRequestConfiguration = AdRequestConfiguration.Builder(id).build()
         RewardedAdLoader(app).apply {
@@ -212,49 +212,60 @@ fun RewardedAd.showAd(
     activity: Activity,
     onShown: () -> Unit = {},
     onImpression: (data: AdData?) -> Unit = {},
-    onDismissed: () -> Unit = {}
+    onDismissed: (bonus: Double) -> Unit = {}
 ) {
+    val isUserRegistered = activity.isUserRegistered(onYes = {})
     this.apply {
         setAdEventListener(object : RewardedAdEventListener {
+            private var bonus: Double = 0.0
+
             override fun onAdShown() {
                 onShown.invoke()
             }
 
             override fun onAdFailedToShow(adError: AdError) {
                 printLogIfDebug("${this::class.simpleName} - ${adError.description}")
-                onDismissed.invoke()
+                onDismissed.invoke(bonus)
             }
 
             override fun onAdDismissed() {
-                onDismissed.invoke()
+                onDismissed.invoke(bonus)
             }
 
             override fun onAdClicked() {}
 
             override fun onAdImpression(impressionData: ImpressionData?) {
-                impressionData?.let {
-                    val rawData = it.rawData
-                    rawData.toAdData(
-                        onSuccess = {data ->
-                            onImpression.invoke(data)
-                        },
-                        onFailed = {
-                            onImpression.invoke(null)
-                        }
-                    )
-                }?: run {
-                    if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name || BuildConfig.ADS_SOURCE == AdsSource.LOCAL_HOST.name) {
-                        TEST_REWARDED_DATA.toAdData(
-                            onSuccess = { data ->
-                                onImpression.invoke(data)
+                if (IS_REWARD_ACCESSIBLE) {
+                    impressionData?.let {
+                        val rawData = it.rawData
+                        rawData.toAdData(
+                            onSuccess = {data ->
+
+                                if (isUserRegistered) {
+                                    bonus = (data.revenue * UserViewModel.USER_PERCENTAGE).to2DigitsScale()
+                                    onImpression.invoke(data)
+                                } else {
+                                    onImpression.invoke(null)
+                                }
                             },
                             onFailed = {
                                 onImpression.invoke(null)
                             }
                         )
-                    }
-                    else {
-                        onImpression.invoke(null)
+                    }?: run {
+                        if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name || BuildConfig.ADS_SOURCE == AdsSource.LOCAL_HOST.name) {
+                            TEST_REWARDED_DATA.toAdData(
+                                onSuccess = { data ->
+                                    onImpression.invoke(data)
+                                },
+                                onFailed = {
+                                    onImpression.invoke(null)
+                                }
+                            )
+                        }
+                        else {
+                            onImpression.invoke(null)
+                        }
                     }
                 }
             }

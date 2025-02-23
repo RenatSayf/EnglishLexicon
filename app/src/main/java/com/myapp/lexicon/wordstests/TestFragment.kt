@@ -28,14 +28,15 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.INTERSTITIAL_TEST
 import com.myapp.lexicon.ads.NATIVE_AD_MAIN
+import com.myapp.lexicon.ads.REWARDED_TEST_ID
 import com.myapp.lexicon.ads.RevenueViewModel
+import com.myapp.lexicon.ads.models.AD_TYPE_TEST
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.ads.models.AdName
 import com.myapp.lexicon.ads.models.AdType
 import com.myapp.lexicon.ads.showAd
 import com.myapp.lexicon.ads.startBannersActivity
 import com.myapp.lexicon.ads.startNativeAdsActivity
-import com.myapp.lexicon.common.AD_TYPE
 import com.myapp.lexicon.databinding.TestFragmentBinding
 import com.myapp.lexicon.dialogs.DictListDialog
 import com.myapp.lexicon.helpers.LockOrientation
@@ -50,6 +51,7 @@ import com.myapp.lexicon.settings.saveTestStateToPref
 import com.myapp.lexicon.viewmodels.AnimViewModel
 import com.myapp.lexicon.viewmodels.PageBackViewModel
 import com.yandex.mobile.ads.interstitial.InterstitialAd
+import com.yandex.mobile.ads.rewarded.RewardedAd
 import io.reactivex.disposables.CompositeDisposable
 import java.util.Locale
 import java.util.concurrent.TimeUnit
@@ -89,6 +91,8 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     private val composite = CompositeDisposable()
     private var dialogWarning: DialogWarning? = null
     private var interstitialAd: InterstitialAd? = null
+    private var rewardedAd: RewardedAd? = null
+
     private val lockOrientation: LockOrientation by lazy {
         LockOrientation(requireActivity())
     }
@@ -289,19 +293,26 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 }
             }
 
+            adsVM.rewardedAd.observe(viewLifecycleOwner) { result ->
+                result.onSuccess { ad: RewardedAd ->
+                    rewardedAd = ad
+                }
+            }
+
             testVM.state.observe(viewLifecycleOwner) { state ->
                 when (state) {
                     TestViewModel.State.Init -> {
-                        if (AD_TYPE == AdType.INTERSTITIAL) {
-                            adsVM.loadInterstitialAd(INTERSTITIAL_TEST)
+                        when(AD_TYPE_TEST) {
+                            AdType.INTERSTITIAL.type -> adsVM.loadInterstitialAd(INTERSTITIAL_TEST)
+                            AdType.REWARDED.type -> adsVM.loadRewardedAd(REWARDED_TEST_ID)
                         }
                     }
 
                     TestViewModel.State.NotShowAd -> {}
                     TestViewModel.State.ShowAd -> {
 
-                        when(AD_TYPE) {
-                            AdType.BANNER -> {
+                        when(AD_TYPE_TEST) {
+                            AdType.BANNER.type -> {
                                 requireActivity().startBannersActivity(
                                     onImpression = {data: AdData? ->
                                         if (data != null) {
@@ -314,7 +325,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                                     }
                                 )
                             }
-                            AdType.NATIVE -> {
+                            AdType.NATIVE.type -> {
                                 requireActivity().startNativeAdsActivity(
                                     adId = NATIVE_AD_MAIN,
                                     onImpression = {data: AdData? ->
@@ -329,7 +340,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                                     }
                                 )
                             }
-                            AdType.INTERSTITIAL -> {
+                            AdType.INTERSTITIAL.type -> {
                                 interstitialAd?.showAd(
                                     requireActivity(),
                                     onImpression = { data ->
@@ -340,6 +351,21 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                                         testVM.setState(TestViewModel.State.Init)
                                     },
                                     onDismissed = {bonus: Double ->
+                                        adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+                                    }
+                                )
+                            }
+                            AdType.REWARDED.type -> {
+                                rewardedAd?.showAd(
+                                    requireActivity(),
+                                    onImpression = {data: AdData? ->
+                                        if (data != null) {
+                                            data.adCount = mapOf(AdName.FULL_TEST.name to 1)
+                                            revenueVM.updateUserRevenueIntoCloud(data)
+                                        }
+                                        testVM.setState(TestViewModel.State.Init)
+                                    },
+                                    onDismissed = { bonus: Double ->
                                         adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
                                     }
                                 )

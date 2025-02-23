@@ -14,9 +14,11 @@ import com.myapp.lexicon.ads.InterstitialAdIdsKt;
 import com.myapp.lexicon.ads.NativeAdIdsKt;
 import com.myapp.lexicon.ads.NativeAdsActivityKt;
 import com.myapp.lexicon.ads.RevenueViewModel;
+import com.myapp.lexicon.ads.RewardedAdIdsKt;
 import com.myapp.lexicon.ads.models.AdData;
 import com.myapp.lexicon.ads.models.AdName;
 import com.myapp.lexicon.ads.models.AdType;
+import com.myapp.lexicon.ads.models.AdTypeKt;
 import com.myapp.lexicon.auth.AuthViewModel;
 import com.myapp.lexicon.common.CommonConstantsKt;
 import com.myapp.lexicon.databinding.ServiceDialogActivityBinding;
@@ -27,6 +29,7 @@ import com.myapp.lexicon.settings.SettingsExtKt;
 import com.myapp.lexicon.splash.SplashActivity;
 import com.parse.ParseUser;
 import com.yandex.mobile.ads.interstitial.InterstitialAd;
+import com.yandex.mobile.ads.rewarded.RewardedAd;
 
 import java.util.Map;
 
@@ -44,6 +47,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
     private AdsViewModel adsVM;
     private RevenueViewModel revenueVM;
     private InterstitialAd interstitialAd;
+    private RewardedAd rewardedAd;
     private LockOrientation locker;
 
     private static Long lastAdShowTime = 0L;
@@ -137,8 +141,8 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
             return;
         }
 
-        AdType adType = CommonConstantsKt.getAD_TYPE();
-        if (adType == AdType.INTERSTITIAL) {
+        int adType = AdTypeKt.getAD_TYPE_SERVICE();
+        if (adType == AdType.INTERSTITIAL.getType()) {
             adsVM.loadInterstitialAd(InterstitialAdIdsKt.getINTERSTITIAL_SERVICE());
             adsVM.getInterstitialAd().observe(ServiceActivity.this, result -> {
                 interstitialAd = adsVM.getInterstitialAdOrNull();
@@ -170,7 +174,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                 }
             });
         }
-        if (adType == AdType.BANNER) {
+        if (adType == AdType.BANNER.getType()) {
             BannersActivityKt.startBannersActivity(
                     this,
                     adData -> {
@@ -190,7 +194,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                     }
             );
         }
-        if (adType == AdType.NATIVE) {
+        if (adType == AdType.NATIVE.getType()) {
             NativeAdsActivityKt.startNativeAdsActivity(
                     this,
                     NativeAdIdsKt.getNATIVE_AD_SERVICE(),
@@ -210,6 +214,35 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                         return null;
                     }
             );
+        }
+        if (adType == AdType.REWARDED.getType()) {
+            adsVM.loadRewardedAd(RewardedAdIdsKt.getREWARDED_SERVICE_ID());
+            adsVM.getRewardedAd().observe(ServiceActivity.this, result -> {
+                rewardedAd = adsVM.getRewardedAdOrNull();
+                if (rewardedAd != null) {
+                    AdsViewModelKt.showAd(
+                            rewardedAd,
+                            ServiceActivity.this,
+                            () -> null,
+                            adData -> {
+                                if (adData != null)
+                                {
+                                    adData.setAdCount(Map.of(AdName.FULL_SERVICE.name(), 1));
+                                    revenueVM.updateUserRevenueIntoCloud(adData);
+                                }
+                                else {
+                                    AdData emptyAdData = new AdData("", "", "", "", null, "", "", 0.0, 0.0);
+                                    revenueVM.updateUserRevenueIntoCloud(emptyAdData);
+                                }
+                                return null;
+                            },
+                            bonus -> {
+                                adsVM.setInterstitialAdState(new AdsViewModel.AdState.Dismissed(bonus));
+                                return null;
+                            }
+                    );
+                }
+            });
         }
     }
 

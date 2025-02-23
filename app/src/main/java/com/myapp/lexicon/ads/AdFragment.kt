@@ -9,12 +9,13 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.ViewModelProvider
+import com.myapp.lexicon.ads.models.AD_TYPE_VIDEO
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.ads.models.AdType
-import com.myapp.lexicon.common.AD_TYPE
 import com.myapp.lexicon.databinding.FragmentAdBinding
 import com.myapp.lexicon.video.web.YouTubeFragment
 import com.yandex.mobile.ads.interstitial.InterstitialAd
+import com.yandex.mobile.ads.rewarded.RewardedAd
 import kotlinx.serialization.json.Json
 
 class AdFragment : Fragment() {
@@ -32,8 +33,8 @@ class AdFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        when(AD_TYPE) {
-            AdType.BANNER -> {
+        when(AD_TYPE_VIDEO) {
+            AdType.BANNER.type -> {
                 requireActivity().startBannersActivity(
                     onImpression = {data: AdData? ->
                         setFragmentResult(YouTubeFragment.KEY_AD_DATA, Bundle().apply {
@@ -48,7 +49,7 @@ class AdFragment : Fragment() {
                     }
                 )
             }
-            AdType.NATIVE -> {
+            AdType.NATIVE.type -> {
                 requireActivity().startNativeAdsActivity(
                     adId = NATIVE_AD_VIDEO,
                     onImpression = {data: AdData? ->
@@ -64,7 +65,7 @@ class AdFragment : Fragment() {
                     }
                 )
             }
-            AdType.INTERSTITIAL -> {
+            AdType.INTERSTITIAL.type -> {
                 adsVM.loadInterstitialAd(INTERSTITIAL_VIDEO)
                 adsVM.interstitialAd.observe(this) { result ->
                     result.onSuccess { ad: InterstitialAd ->
@@ -79,6 +80,27 @@ class AdFragment : Fragment() {
                                 })
                             },
                             onDismissed = {
+                                setFragmentResult(YouTubeFragment.KEY_AD_DISMISSED, Bundle.EMPTY)
+                            }
+                        )
+                    }
+                }
+            }
+            AdType.REWARDED.type -> {
+                adsVM.loadRewardedAd(REWARDED_VIDEO_ID)
+                adsVM.rewardedAd.observe(viewLifecycleOwner) { result ->
+                    result.onSuccess { ad: RewardedAd ->
+                        ad.showAd(
+                            requireActivity(),
+                            onImpression = {data: AdData? ->
+                                setFragmentResult(YouTubeFragment.KEY_AD_DATA, Bundle().apply {
+                                    if (data != null) {
+                                        val jsonData = Json.encodeToJsonElement(AdData.serializer(), data).toString()
+                                        putString(YouTubeFragment.KEY_JSON_AD_DATA, jsonData)
+                                    }
+                                })
+                            },
+                            onDismissed = {bonus: Double ->
                                 setFragmentResult(YouTubeFragment.KEY_AD_DISMISSED, Bundle.EMPTY)
                             }
                         )
