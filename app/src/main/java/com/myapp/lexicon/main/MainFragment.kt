@@ -29,6 +29,11 @@ import com.myapp.lexicon.ads.NATIVE_AD_SERVICE
 import com.myapp.lexicon.ads.NATIVE_AD_TEST
 import com.myapp.lexicon.ads.NATIVE_AD_TRANS
 import com.myapp.lexicon.ads.NATIVE_AD_VIDEO
+import com.myapp.lexicon.ads.models.AD_MAIN
+import com.myapp.lexicon.ads.models.AD_SERVICE
+import com.myapp.lexicon.ads.models.AD_TEST
+import com.myapp.lexicon.ads.models.AD_TRANSLATE
+import com.myapp.lexicon.ads.models.AD_VIDEO
 import com.myapp.lexicon.ads.models.AdType
 import com.myapp.lexicon.common.AD_TYPE
 import com.myapp.lexicon.common.IS_IMPORTANT_UPDATE
@@ -75,30 +80,11 @@ class MainFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        when(AD_TYPE) {
-            AdType.BANNER -> {
-                BANNER_MAIN
-                BANNER_EDITOR
-                BANNER_TRANSLATE
-                BANNER_SERVICE
-                BANNER_ACTIVITY_1
-                BANNER_ACTIVITY_2
-            }
-            AdType.NATIVE -> {
-                NATIVE_AD_MAIN
-                NATIVE_AD_TRANS
-                NATIVE_AD_TEST
-                NATIVE_AD_VIDEO
-                NATIVE_AD_SERVICE
-            }
-            AdType.INTERSTITIAL -> {
-                INTERSTITIAL_MAIN
-                INTERSTITIAL_TRANSLATE
-                INTERSTITIAL_TEST
-                INTERSTITIAL_VIDEO
-                INTERSTITIAL_SERVICE
-            }
-        }
+        AD_MAIN
+        AD_TRANSLATE
+        AD_TEST
+        AD_VIDEO
+        AD_SERVICE
 
         val launcher = this.registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
 

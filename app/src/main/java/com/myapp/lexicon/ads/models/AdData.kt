@@ -2,6 +2,7 @@ package com.myapp.lexicon.ads.models
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
 enum class AdName {
     FULL_MAIN,
@@ -27,6 +28,25 @@ data class AdData(
     var requestId: String? = null,
     var revenue: Double = 0.0,
     var revenueUSD: Double = 0.0
-){
+) : java.io.Serializable {
+
+    companion object {
+        fun String.fromString(): AdData? {
+            return try {
+                Json.decodeFromString<AdData>(this)
+            } catch (e: Exception) {
+                null
+            }
+        }
+    }
+
     var adCount = emptyMap<String, Int>()
+
+    override fun toString(): String {
+        return try {
+            Json.encodeToString(serializer(), this)
+        } catch (e: Exception) {
+            ""
+        }
+    }
 }

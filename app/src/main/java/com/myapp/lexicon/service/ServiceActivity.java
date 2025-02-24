@@ -141,7 +141,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
             return;
         }
 
-        int adType = AdTypeKt.getAD_TYPE_SERVICE();
+        int adType = AdTypeKt.getAD_SERVICE();
         if (adType == AdType.INTERSTITIAL.getType()) {
             adsVM.loadInterstitialAd(InterstitialAdIdsKt.getINTERSTITIAL_SERVICE());
             adsVM.getInterstitialAd().observe(ServiceActivity.this, result -> {

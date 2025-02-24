@@ -21,8 +21,7 @@ import com.myapp.lexicon.ads.INTERSTITIAL_MAIN
 import com.myapp.lexicon.ads.NATIVE_AD_MAIN
 import com.myapp.lexicon.ads.REWARDED_MAIN_ID
 import com.myapp.lexicon.ads.RevenueViewModel
-import com.myapp.lexicon.ads.RewardedAdIds
-import com.myapp.lexicon.ads.models.AD_TYPE_MAIN
+import com.myapp.lexicon.ads.models.AD_MAIN
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.ads.models.AdName
 import com.myapp.lexicon.ads.models.AdType
@@ -104,7 +103,7 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
         }
 
         if (!wordList.isNullOrEmpty()) vm.initTest(wordList!!.toList())
-        when(AD_TYPE_MAIN) {
+        when(AD_MAIN) {
             AdType.INTERSTITIAL.type -> {
                 adsVM.loadInterstitialAd(INTERSTITIAL_MAIN)
                 adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
@@ -315,7 +314,7 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
     ) {
         if (this.adsIsEnabled) {
 
-            when(AD_TYPE_MAIN) {
+            when(AD_MAIN) {
                 AdType.BANNER.type -> {
                     requireActivity().startBannersActivity(
                         onImpression = {data: AdData? ->

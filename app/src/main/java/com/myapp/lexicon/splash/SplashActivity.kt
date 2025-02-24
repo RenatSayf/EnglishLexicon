@@ -9,6 +9,7 @@ import android.speech.tts.TextToSpeech
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AppOpenAdViewModel
@@ -38,15 +39,14 @@ import java.util.Locale
 class SplashActivity : AppCompatActivity() {
 
     companion object {
-        const val NEED_UPDATE_USER_REWARD = 147852324
+        const val KEY_AD_DATA = "KEY_AD_DATA_258741359"
     }
 
     private lateinit var binding: ALayoutSplashScreenBinding
     private var speaker: Speaker? = null
 
-    private var appOpenAd: AppOpenAd? = null
     private val authVM: AuthViewModel by viewModels()
-    private val openAdVM: AppOpenAdViewModel by viewModels()
+    private lateinit var openAdVM: AppOpenAdViewModel
 
     private var authChecked = false
     private var speechChecked = false
@@ -56,6 +56,8 @@ class SplashActivity : AppCompatActivity() {
 
         binding = ALayoutSplashScreenBinding.inflate(layoutInflater, CoordinatorLayout(this), false)
         setContentView(binding.root)
+
+        openAdVM = ViewModelProvider(this)[AppOpenAdViewModel::class]
 
         IS_REWARD_ACCESSIBLE
         MESSAGE_TO_USER
@@ -83,12 +85,6 @@ class SplashActivity : AppCompatActivity() {
             }
             state.onFailure {
                 authChecked = true
-            }
-        }
-
-        openAdVM.resultOpenAd.observe(this) { result ->
-            result.onSuccess { ad: AppOpenAd ->
-                appOpenAd = ad
             }
         }
     }
@@ -216,12 +212,17 @@ class SplashActivity : AppCompatActivity() {
                 if (authChecked && speechChecked) {
                     this@SplashActivity.isUserRegistered(
                         onYes = {
-                            appOpenAd?.show(this@SplashActivity)?: run {
-                                startMainActivity()
+                            openAdVM.resultOpenAd.observe(this@SplashActivity) { result ->
+                                result.onSuccess { ad: AppOpenAd ->
+                                    ad.show(this@SplashActivity)
+                                }
+                                result.onFailure {
+                                    startMainActivity(null)
+                                }
                             }
                         },
                         onNotRegistered = {
-                            startMainActivity()
+                            startMainActivity(null)
                         }
                     )
                 }
@@ -229,20 +230,23 @@ class SplashActivity : AppCompatActivity() {
         }
 
         openAdVM.resultAdData.observe(this) { result ->
-            result.onSuccess { data: AdData ->
-                this.setResult(NEED_UPDATE_USER_REWARD, Intent().apply {
-                    putExtra("", data.toString())
-                })
+            result?.onSuccess { data: AdData ->
+                startMainActivity(data)
             }
-            result.onFailure {
-                startMainActivity()
+            result?.onFailure {
+                startMainActivity(null)
             }
         }
 
     }
 
-    private fun startMainActivity() {
-        val intent = Intent(this@SplashActivity, MainActivity::class.java)
+    private fun startMainActivity(data: AdData?) {
+        openAdVM.invalidateAdData()
+        val intent = Intent(this@SplashActivity, MainActivity::class.java).apply {
+            if (data != null) {
+                putExtra(KEY_AD_DATA, data.toString())
+            }
+        }
         startActivity(intent)
         this@SplashActivity.finish()
     }

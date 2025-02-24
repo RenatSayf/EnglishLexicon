@@ -1,13 +1,13 @@
 package com.myapp.lexicon.ads
 
+import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.common.IS_REWARD_ACCESSIBLE
-import com.myapp.lexicon.di.App
-import com.myapp.lexicon.main.viewmodels.UserViewModel
-import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.settings.isUserRegistered
 import com.yandex.mobile.ads.appopenad.AppOpenAd
 import com.yandex.mobile.ads.appopenad.AppOpenAdEventListener
@@ -18,19 +18,30 @@ import com.yandex.mobile.ads.common.AdRequestConfiguration
 import com.yandex.mobile.ads.common.AdRequestError
 import com.yandex.mobile.ads.common.ImpressionData
 
-class AppOpenAdViewModel(app: App): AndroidViewModel(app) {
+
+class AppOpenAdViewModel(app: Application): AndroidViewModel(app) {
 
     private val appOpenAdLoader: AppOpenAdLoader = AppOpenAdLoader(app)
-    private val adId = "demo-appopenad-yandex"
-    private val adRequestConfiguration = AdRequestConfiguration.Builder(adId).build()
+    private val adId = try {
+        Firebase.remoteConfig.getString("AD_ON_OPEN_ID")
+    } catch (e: Exception) {
+        ""
+    }
+    private val adRequestConfiguration by lazy {
+        if (adId.isNotEmpty()) AdRequestConfiguration.Builder(adId).build() else null
+    }
     private val appOpenAdEventListener = AdEventListener()
     val isUserRegistered = app.isUserRegistered(onYes = {})
 
     private var _resultOpenAd = MutableLiveData<Result<AppOpenAd>>()
     val resultOpenAd: LiveData<Result<AppOpenAd>> = _resultOpenAd
 
-    private var _resultAdData = MutableLiveData<Result<AdData>>()
-    val resultAdData: LiveData<Result<AdData>> = _resultAdData
+    private var _resultAdData: MutableLiveData<Result<AdData>?> = MutableLiveData(null)
+    val resultAdData: LiveData<Result<AdData>?> = _resultAdData
+
+    fun invalidateAdData() {
+        _resultAdData.value = null
+    }
 
     private var _bonus = MutableLiveData(Result.success(0.0))
     val bonus: LiveData<Result<Double>> = _bonus
@@ -47,22 +58,31 @@ class AppOpenAdViewModel(app: App): AndroidViewModel(app) {
     }
 
     private fun loadAppOpenAd() {
-        appOpenAdLoader.loadAd(adRequestConfiguration)
+        adRequestConfiguration?.let {
+            appOpenAdLoader.loadAd(it)
+        }?: run {
+            _resultOpenAd.value = Result.failure(Throwable())
+        }
     }
 
     private inner class AdEventListener : AppOpenAdEventListener {
+        private var adData: AdData? = null
+
         override fun onAdShown() {
 
         }
 
         override fun onAdFailedToShow(adError: AdError) {
-            _resultAdData.value = Result.failure(Throwable())
+            _resultAdData.value = null
             _bonus.value = Result.failure(Throwable())
         }
 
         override fun onAdDismissed() {
-            _resultAdData.value?.onSuccess { data: AdData ->
-                _bonus.value = Result.success((data.revenue * UserViewModel.USER_PERCENTAGE).to2DigitsScale())
+            if (adData != null) {
+                _resultAdData.value = Result.success(adData!!)
+            }
+            else {
+                _resultAdData.value = Result.failure(Throwable())
             }
         }
 
@@ -75,23 +95,14 @@ class AppOpenAdViewModel(app: App): AndroidViewModel(app) {
                 impressionData?.rawData?.toAdData(
                     onSuccess = {data: AdData ->
                         if (isUserRegistered) {
-                            _resultAdData.value = Result.success(data)
-                        }
-                        else {
-                            _resultAdData.value = Result.failure(Throwable())
+                            adData = data
                         }
                     },
-                    onFailed = {
-                        _resultAdData.value = Result.failure(Throwable())
-                    }
+                    onFailed = {}
                 )
             }
         }
     }
-
-
-
-
 
     init {
         appOpenAdLoader.setAdLoadListener(appOpenAdLoadListener)

@@ -22,7 +22,7 @@ import com.myapp.lexicon.ads.NATIVE_AD_TRANS
 import com.myapp.lexicon.ads.REWARDED_TRANSLATE_ID
 import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.loadBanner
-import com.myapp.lexicon.ads.models.AD_TYPE_TRANSLATE
+import com.myapp.lexicon.ads.models.AD_TRANSLATE
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.ads.models.AdName
 import com.myapp.lexicon.ads.models.AdType
@@ -112,7 +112,7 @@ class TranslateFragment : Fragment()
         super.onViewCreated(view, savedInstanceState)
         binding = TranslateFragmentBinding.bind(view)
 
-        when(AD_TYPE_TRANSLATE) {
+        when(AD_TRANSLATE) {
             AdType.INTERSTITIAL.type -> {
                 adsVM.loadInterstitialAd(INTERSTITIAL_TRANSLATE)
                 adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
@@ -239,7 +239,7 @@ class TranslateFragment : Fragment()
         {
             is MainActivity -> {
 
-                when(AD_TYPE_TRANSLATE) {
+                when(AD_TRANSLATE) {
                     AdType.BANNER.type -> {
                         requireActivity().startBannersActivity(
                             onImpression = {data: AdData? ->
@@ -307,7 +307,7 @@ class TranslateFragment : Fragment()
             }
             is TranslateActivity -> {
 
-                when(AD_TYPE_TRANSLATE) {
+                when(AD_TRANSLATE) {
                     AdType.BANNER.type -> {
                         requireActivity().startBannersActivity(
                             onImpression = {data: AdData? ->

@@ -9,7 +9,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.ViewModelProvider
-import com.myapp.lexicon.ads.models.AD_TYPE_VIDEO
+import com.myapp.lexicon.ads.models.AD_VIDEO
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.ads.models.AdType
 import com.myapp.lexicon.databinding.FragmentAdBinding
@@ -33,7 +33,7 @@ class AdFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        when(AD_TYPE_VIDEO) {
+        when(AD_VIDEO) {
             AdType.BANNER.type -> {
                 requireActivity().startBannersActivity(
                     onImpression = {data: AdData? ->

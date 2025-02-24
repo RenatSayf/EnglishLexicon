@@ -10,46 +10,46 @@ enum class AdType(val type: Int) {
     REWARDED(type = 4)
 }
 
-val AD_TYPE_MAIN: Int
+val AD_MAIN: Int
     get() {
         return try {
-            Firebase.remoteConfig.getLong("AD_TYPE_MAIN").toInt()
+            Firebase.remoteConfig.getLong("AD_MAIN").toInt()
         } catch (e: Exception) {
             2
         }
     }
 
-val AD_TYPE_SERVICE: Int
+val AD_SERVICE: Int
     get() {
         return try {
-            Firebase.remoteConfig.getLong("AD_TYPE_SERVICE").toInt()
+            Firebase.remoteConfig.getLong("AD_SERVICE").toInt()
         } catch (e: Exception) {
             2
         }
     }
 
-val AD_TYPE_TEST: Int
+val AD_TEST: Int
     get() {
         return try {
-            Firebase.remoteConfig.getLong("AD_TYPE_TEST").toInt()
+            Firebase.remoteConfig.getLong("AD_TEST").toInt()
         } catch (e: Exception) {
             4
         }
     }
 
-val AD_TYPE_TRANSLATE: Int
+val AD_TRANSLATE: Int
     get() {
         return try {
-            Firebase.remoteConfig.getLong("AD_TYPE_TRANSLATE").toInt()
+            Firebase.remoteConfig.getLong("AD_TRANSLATE").toInt()
         } catch (e: Exception) {
             2
         }
     }
 
-val AD_TYPE_VIDEO: Int
+val AD_VIDEO: Int
     get() {
         return try {
-            Firebase.remoteConfig.getLong("AD_TYPE_VIDEO").toInt()
+            Firebase.remoteConfig.getLong("AD_VIDEO").toInt()
         } catch (e: Exception) {
             4
         }

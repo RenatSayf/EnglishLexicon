@@ -30,7 +30,7 @@ import com.myapp.lexicon.ads.INTERSTITIAL_TEST
 import com.myapp.lexicon.ads.NATIVE_AD_MAIN
 import com.myapp.lexicon.ads.REWARDED_TEST_ID
 import com.myapp.lexicon.ads.RevenueViewModel
-import com.myapp.lexicon.ads.models.AD_TYPE_TEST
+import com.myapp.lexicon.ads.models.AD_TEST
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.ads.models.AdName
 import com.myapp.lexicon.ads.models.AdType
@@ -302,7 +302,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
             testVM.state.observe(viewLifecycleOwner) { state ->
                 when (state) {
                     TestViewModel.State.Init -> {
-                        when(AD_TYPE_TEST) {
+                        when(AD_TEST) {
                             AdType.INTERSTITIAL.type -> adsVM.loadInterstitialAd(INTERSTITIAL_TEST)
                             AdType.REWARDED.type -> adsVM.loadRewardedAd(REWARDED_TEST_ID)
                         }
@@ -311,7 +311,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                     TestViewModel.State.NotShowAd -> {}
                     TestViewModel.State.ShowAd -> {
 
-                        when(AD_TYPE_TEST) {
+                        when(AD_TEST) {
                             AdType.BANNER.type -> {
                                 requireActivity().startBannersActivity(
                                     onImpression = {data: AdData? ->
