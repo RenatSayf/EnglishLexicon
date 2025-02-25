@@ -6,7 +6,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
+import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.ads.models.AdData
+import com.myapp.lexicon.common.AdsSource
 import com.myapp.lexicon.common.IS_REWARD_ACCESSIBLE
 import com.myapp.lexicon.settings.isUserRegistered
 import com.yandex.mobile.ads.appopenad.AppOpenAd
@@ -23,7 +25,8 @@ class AppOpenAdViewModel(app: Application): AndroidViewModel(app) {
 
     private val appOpenAdLoader: AppOpenAdLoader = AppOpenAdLoader(app)
     private val adId = try {
-        Firebase.remoteConfig.getString("AD_ON_OPEN_ID")
+        if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) "demo-appopenad-yandex"
+        else Firebase.remoteConfig.getString("AD_ON_OPEN_ID")
     } catch (e: Exception) {
         ""
     }
