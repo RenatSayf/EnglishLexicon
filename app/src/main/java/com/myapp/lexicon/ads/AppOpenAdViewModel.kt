@@ -33,15 +33,11 @@ class AppOpenAdViewModel(app: Application): AndroidViewModel(app) {
     private val appOpenAdEventListener = AdEventListener()
     val isUserRegistered = app.isUserRegistered(onYes = {})
 
-    private var _resultOpenAd = MutableLiveData<Result<AppOpenAd>>()
-    val resultOpenAd: LiveData<Result<AppOpenAd>> = _resultOpenAd
+    private var _resultLoadOpenAd = MutableLiveData<Result<AppOpenAd>>()
+    val resultLoadOpenAd: LiveData<Result<AppOpenAd>> = _resultLoadOpenAd
 
     private var _resultAdData: MutableLiveData<Result<AdData>?> = MutableLiveData(null)
     val resultAdData: LiveData<Result<AdData>?> = _resultAdData
-
-    fun invalidateAdData() {
-        _resultAdData.value = null
-    }
 
     private var _bonus = MutableLiveData(Result.success(0.0))
     val bonus: LiveData<Result<Double>> = _bonus
@@ -49,11 +45,11 @@ class AppOpenAdViewModel(app: Application): AndroidViewModel(app) {
     private val appOpenAdLoadListener = object : AppOpenAdLoadListener {
         override fun onAdLoaded(appOpenAd: AppOpenAd) {
             appOpenAd.setAdEventListener(appOpenAdEventListener)
-            _resultOpenAd.value = Result.success(appOpenAd)
+            _resultLoadOpenAd.value = Result.success(appOpenAd)
         }
 
         override fun onAdFailedToLoad(error: AdRequestError) {
-            _resultOpenAd.value = Result.failure(Throwable(error.description))
+            _resultLoadOpenAd.value = Result.failure(Throwable(error.description))
         }
     }
 
@@ -61,7 +57,7 @@ class AppOpenAdViewModel(app: Application): AndroidViewModel(app) {
         adRequestConfiguration?.let {
             appOpenAdLoader.loadAd(it)
         }?: run {
-            _resultOpenAd.value = Result.failure(Throwable())
+            _resultLoadOpenAd.value = Result.failure(Throwable())
         }
     }
 
@@ -80,6 +76,7 @@ class AppOpenAdViewModel(app: Application): AndroidViewModel(app) {
         override fun onAdDismissed() {
             if (adData != null) {
                 _resultAdData.value = Result.success(adData!!)
+                _resultAdData.value = null
             }
             else {
                 _resultAdData.value = Result.failure(Throwable())

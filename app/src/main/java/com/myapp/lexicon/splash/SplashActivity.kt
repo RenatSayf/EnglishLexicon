@@ -47,6 +47,7 @@ class SplashActivity : AppCompatActivity() {
 
     private val authVM: AuthViewModel by viewModels()
     private lateinit var openAdVM: AppOpenAdViewModel
+    private var appOpenAd: AppOpenAd? = null
 
     private var authChecked = false
     private var speechChecked = false
@@ -87,10 +88,6 @@ class SplashActivity : AppCompatActivity() {
                 authChecked = true
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
 
         speaker = Speaker(this, object : Speaker.Listener {
             override fun onSuccessInit() {
@@ -202,30 +199,12 @@ class SplashActivity : AppCompatActivity() {
             }
         })
 
-        startTimer(15000, onFinish = {
-            authChecked = true
-        })
-
-        lifecycleScope.launch {
-            while (!speechChecked || !authChecked) {
-                delay(500)
-                if (authChecked && speechChecked) {
-                    this@SplashActivity.isUserRegistered(
-                        onYes = {
-                            openAdVM.resultOpenAd.observe(this@SplashActivity) { result ->
-                                result.onSuccess { ad: AppOpenAd ->
-                                    ad.show(this@SplashActivity)
-                                }
-                                result.onFailure {
-                                    startMainActivity(null)
-                                }
-                            }
-                        },
-                        onNotRegistered = {
-                            startMainActivity(null)
-                        }
-                    )
-                }
+        openAdVM.resultLoadOpenAd.observe(this@SplashActivity) { result ->
+            result.onSuccess { ad: AppOpenAd ->
+                appOpenAd = ad
+            }
+            result.onFailure {
+                startMainActivity(null)
             }
         }
 
@@ -238,10 +217,30 @@ class SplashActivity : AppCompatActivity() {
             }
         }
 
+        startTimer(15000, onFinish = {
+            authChecked = true
+        })
+
+        lifecycleScope.launch {
+            while (!speechChecked || !authChecked || openAdVM.resultLoadOpenAd.value == null) {
+                delay(500)
+                if (authChecked && speechChecked && openAdVM.resultLoadOpenAd.value != null) {
+                    this@SplashActivity.isUserRegistered(
+                        onYes = {
+                            appOpenAd?.show(this@SplashActivity)?: run {
+                                startMainActivity(null)
+                            }
+                        },
+                        onNotRegistered = {
+                            startMainActivity(null)
+                        }
+                    )
+                }
+            }
+        }
     }
 
     private fun startMainActivity(data: AdData?) {
-        openAdVM.invalidateAdData()
         val intent = Intent(this@SplashActivity, MainActivity::class.java).apply {
             if (data != null) {
                 putExtra(KEY_AD_DATA, data.toString())
