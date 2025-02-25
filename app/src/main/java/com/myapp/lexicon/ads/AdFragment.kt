@@ -30,8 +30,16 @@ class AdFragment : Fragment() {
         ViewModelProvider(this)[AdsViewModel::class.java]
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = FragmentAdBinding.inflate(inflater, container, false)
+        return binding!!.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         when(AD_VIDEO) {
             AdType.BANNER.type -> {
@@ -46,6 +54,7 @@ class AdFragment : Fragment() {
                     },
                     onDismissed = {
                         setFragmentResult(YouTubeFragment.KEY_AD_DISMISSED, Bundle.EMPTY)
+                        parentFragmentManager.beginTransaction().remove(this).commit()
                     }
                 )
             }
@@ -62,12 +71,13 @@ class AdFragment : Fragment() {
                     },
                     onDismissed = {bonus: Double ->
                         setFragmentResult(YouTubeFragment.KEY_AD_DISMISSED, Bundle.EMPTY)
+                        parentFragmentManager.beginTransaction().remove(this).commit()
                     }
                 )
             }
             AdType.INTERSTITIAL.type -> {
                 adsVM.loadInterstitialAd(INTERSTITIAL_VIDEO)
-                adsVM.interstitialAd.observe(this) { result ->
+                adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
                     result.onSuccess { ad: InterstitialAd ->
                         ad.showAd(
                             requireActivity(),
@@ -81,6 +91,7 @@ class AdFragment : Fragment() {
                             },
                             onDismissed = {
                                 setFragmentResult(YouTubeFragment.KEY_AD_DISMISSED, Bundle.EMPTY)
+                                parentFragmentManager.beginTransaction().remove(this).commit()
                             }
                         )
                     }
@@ -102,21 +113,13 @@ class AdFragment : Fragment() {
                             },
                             onDismissed = {bonus: Double ->
                                 setFragmentResult(YouTubeFragment.KEY_AD_DISMISSED, Bundle.EMPTY)
+                                parentFragmentManager.beginTransaction().remove(this).commit()
                             }
                         )
                     }
                 }
             }
         }
-
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        binding = FragmentAdBinding.inflate(inflater, container, false)
-        return binding!!.root
     }
 
     override fun onDestroy() {
