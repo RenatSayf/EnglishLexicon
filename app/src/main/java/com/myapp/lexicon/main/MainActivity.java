@@ -30,7 +30,6 @@ import com.myapp.lexicon.ads.AdsViewModel;
 import com.myapp.lexicon.ads.AdsViewModelKt;
 import com.myapp.lexicon.ads.BannerAdIdsKt;
 import com.myapp.lexicon.ads.RevenueViewModel;
-import com.myapp.lexicon.ads.models.AdData;
 import com.myapp.lexicon.ads.models.AdName;
 import com.myapp.lexicon.auth.AuthFragment;
 import com.myapp.lexicon.auth.AuthViewModel;
@@ -62,7 +61,6 @@ import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.service.PhoneUnlockedReceiver;
 import com.myapp.lexicon.settings.ContainerFragment;
 import com.myapp.lexicon.settings.SettingsExtKt;
-import com.myapp.lexicon.splash.SplashActivity;
 import com.myapp.lexicon.video.constants.ConstantsKt;
 import com.myapp.lexicon.video.web.YouTubeFragment;
 import com.myapp.lexicon.wordeditor.WordEditorActivity;
@@ -513,6 +511,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         CommonConstantsKt.getAD_SHOWING_INTERVAL_IN_SEC();
         CommonConstantsKt.getSELF_EMPLOYED_THRESHOLD();
+
+        MainActivityExtKt.handleAdDataFromSplashActivity(
+                MainActivity.this,
+                (adData, bonus) -> {
+                    if (adData != null) {
+                        revenueVM.updateUserRevenueIntoCloud(adData);
+                    }
+                    if (bonus > 0.0)
+                    {
+                        ExtensionsKt.startTimer(
+                                2000,
+                                2000,
+                                () -> null,
+                                () -> {
+                                    showUserRewardAnimatedly(bonus);
+                                    return null;
+                                }
+                        );
+                    }
+                    return null;
+                }
+        );
     }
 
     private SpeechViewModel createSpeechViewModel()
@@ -690,31 +710,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     this,
                     CommonConstantsKt.getMESSAGE_TO_USER()
             );
-        }
-    }
-
-    @Override
-    protected void onResume()
-    {
-        super.onResume();
-
-        Intent intent = getIntent();
-        if (intent != null) {
-            String strAdData = intent.getStringExtra(SplashActivity.KEY_AD_DATA);
-            if (strAdData != null)
-            {
-                AdData adData = AdData.Companion.fromString(strAdData);
-                if (adData != null)
-                {
-                    revenueVM.updateUserRevenueIntoCloud(adData);
-                    double bonus = UserKt.to2DigitsScale(adData.getRevenue() * UserViewModel.Companion.getUSER_PERCENTAGE());
-                    if (bonus > 0.0) {
-
-                        showUserRewardAnimatedly(bonus);
-                    }
-                }
-
-            }
         }
     }
 

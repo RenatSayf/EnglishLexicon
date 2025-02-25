@@ -56,9 +56,8 @@ fun FragmentActivity.showThankDialog(
 fun FragmentActivity.handleAdDataFromSplashActivity(
     onCompleted: (AdData?, Double) -> Unit
 ) {
-    val intent = intent
-    if (intent != null) {
-        val strAdData = intent.getStringExtra(SplashActivity.KEY_AD_DATA)
+    if (this.intent != null) {
+        val strAdData = this.intent.getStringExtra(SplashActivity.KEY_AD_DATA)
         if (strAdData != null) {
             val adData: AdData? = strAdData.fromString()
             if (adData != null) {
@@ -72,5 +71,8 @@ fun FragmentActivity.handleAdDataFromSplashActivity(
         else {
             onCompleted.invoke(null, 0.0)
         }
+    }
+    else {
+        onCompleted.invoke(null, 0.0)
     }
 }
