@@ -521,8 +521,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     if (bonus > 0.0)
                     {
                         ExtensionsKt.startTimer(
-                                2000,
-                                2000,
+                                1000,
+                                1000,
                                 () -> null,
                                 () -> {
                                     showUserRewardAnimatedly(bonus);
