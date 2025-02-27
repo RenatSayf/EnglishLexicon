@@ -157,6 +157,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         revenueVM = new ViewModelProvider(MainActivity.this).get(RevenueViewModel.class);
         UserViewModel userVM = new ViewModelProvider(MainActivity.this).get(UserViewModel.class);
 
+        SettingsExtKt.getAuthDataFromPref(
+                MainActivity.this,
+                () -> null,
+                (email, pass) -> {
+                    authVM.signInWithEmailAndPassword(email, pass);
+                    return null;
+                },
+                e -> {
+                    ExtensionsKt.printStackTraceIfDebug(e);
+                    return null;
+                }
+        );
+
         authVM.getState().observe(this, result -> {
             result.onInit(() -> {
                 buildRewardText(null);

@@ -6,7 +6,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.lifecycle.ViewModelProvider
@@ -14,19 +13,15 @@ import androidx.lifecycle.lifecycleScope
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AppOpenAdViewModel
 import com.myapp.lexicon.ads.models.AdData
-import com.myapp.lexicon.auth.AuthViewModel
 import com.myapp.lexicon.common.IS_REWARD_ACCESSIBLE
 import com.myapp.lexicon.common.KEY_APP_STORE_LINK
 import com.myapp.lexicon.common.MESSAGE_TO_USER
 import com.myapp.lexicon.databinding.ALayoutSplashScreenBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.showDialogAsSingleton
-import com.myapp.lexicon.helpers.startTimer
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.Speaker
-import com.myapp.lexicon.settings.adsIsEnabled
 import com.myapp.lexicon.settings.checkOnStartSpeech
-import com.myapp.lexicon.settings.getAuthDataFromPref
 import com.myapp.lexicon.settings.goToAppStore
 import com.myapp.lexicon.settings.isUserRegistered
 import com.yandex.mobile.ads.appopenad.AppOpenAd
@@ -45,11 +40,9 @@ class SplashActivity : AppCompatActivity() {
     private lateinit var binding: ALayoutSplashScreenBinding
     private var speaker: Speaker? = null
 
-    private val authVM: AuthViewModel by viewModels()
     private lateinit var openAdVM: AppOpenAdViewModel
     private var appOpenAd: AppOpenAd? = null
 
-    private var authChecked = false
     private var speechChecked = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,25 +61,6 @@ class SplashActivity : AppCompatActivity() {
         if (!appStoreLink.isNullOrEmpty()) {
             goToAppStore()
             finish()
-        }
-
-        applicationContext.getAuthDataFromPref(
-            onNotRegistered = {
-                authChecked = true
-            },
-            onSuccess = { email, password ->
-                authVM.signInWithEmailAndPassword(email, password)
-            }
-        )
-
-        authVM.state.observe(this) { state ->
-            state.onSignIn { user ->
-                this.adsIsEnabled = user.isAdsEnabled
-                authChecked = true
-            }
-            state.onFailure {
-                authChecked = true
-            }
         }
 
         speaker = Speaker(this, object : Speaker.Listener {
@@ -203,9 +177,6 @@ class SplashActivity : AppCompatActivity() {
             result.onSuccess { ad: AppOpenAd ->
                 appOpenAd = ad
             }
-            result.onFailure {
-                startMainActivity(null)
-            }
         }
 
         openAdVM.resultAdData.observe(this) { result ->
@@ -217,14 +188,10 @@ class SplashActivity : AppCompatActivity() {
             }
         }
 
-        startTimer(15000, onFinish = {
-            authChecked = true
-        })
-
         lifecycleScope.launch {
-            while (!speechChecked || !authChecked || openAdVM.resultLoadOpenAd.value == null) {
+            while (!speechChecked || openAdVM.resultLoadOpenAd.value == null) {
                 delay(500)
-                if (authChecked && speechChecked && openAdVM.resultLoadOpenAd.value != null) {
+                if (speechChecked && openAdVM.resultLoadOpenAd.value != null) {
                     this@SplashActivity.isUserRegistered(
                         onYes = {
                             appOpenAd?.show(this@SplashActivity)?: run {
