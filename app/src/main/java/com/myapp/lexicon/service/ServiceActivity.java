@@ -94,7 +94,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                             userState.onFailure(
                                     e -> {
                                         String message = (e.getMessage() == null) ? ServiceActivity.class.getSimpleName().concat(" - Unknown error") : e.getMessage();
-                                        ExtensionsKt.showMiltiLineSnackBar(binding.getRoot(), message, Snackbar.LENGTH_LONG);
+                                        ExtensionsKt.showMultiLineSnackBar(binding.getRoot(), message, Snackbar.LENGTH_LONG);
                                         return null;
                                     }
                             );
@@ -103,7 +103,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                     },
                     e -> {
                         String message = (e.getMessage() == null) ? ServiceActivity.class.getSimpleName().concat(" - Unknown error") : e.getMessage();
-                        ExtensionsKt.showMiltiLineSnackBar(binding.getRoot(), message, Snackbar.LENGTH_LONG);
+                        ExtensionsKt.showMultiLineSnackBar(binding.getRoot(), message, Snackbar.LENGTH_LONG);
                         return null;
                     }
             );

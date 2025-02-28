@@ -218,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 boolean isAdsEnabled = CommonConstantsKt.getIS_ADS_ENABLED() || user.isAdsEnabled();
                 SettingsExtKt.setAdsIsEnabled(this, isAdsEnabled);
                 if (!user.isAdsEnabled() && !user.getMessage().isEmpty()) {
-                    ExtensionsKt.showMiltiLineSnackBar(navView, user.getMessage(), Snackbar.LENGTH_LONG);
+                    ExtensionsKt.showMultiLineSnackBar(navView, user.getMessage(), Snackbar.LENGTH_LONG);
                 }
                 if (!user.getMessage().isEmpty()) {
                     MainActivityExtKt.showThankDialog(
@@ -255,12 +255,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             });
             result.onSignOut(() -> {
                 handleSignOutAction();
-                ExtensionsKt.showMiltiLineSnackBar(mainControlLayout, getString(R.string.text_you_are_signed_out), Snackbar.LENGTH_LONG);
+                ExtensionsKt.showMultiLineSnackBar(mainControlLayout, getString(R.string.text_you_are_signed_out), Snackbar.LENGTH_LONG);
                 return null;
             });
             result.onAccountDeleted(() -> {
                 handleSignOutAction();
-                ExtensionsKt.showMiltiLineSnackBar(mainControlLayout, getString(R.string.text_account_has_been_deleted), Snackbar.LENGTH_LONG);
+                ExtensionsKt.showMultiLineSnackBar(mainControlLayout, getString(R.string.text_account_has_been_deleted), Snackbar.LENGTH_LONG);
                 return null;
             });
         });
@@ -880,7 +880,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         String message = error.getMessage();
                         if (message != null)
                         {
-                            ExtensionsKt.showMiltiLineSnackBar(binding.getRoot(), message, Snackbar.LENGTH_LONG);
+                            ExtensionsKt.showMultiLineSnackBar(binding.getRoot(), message, Snackbar.LENGTH_LONG);
                         }
                         return null;
                     });
@@ -972,7 +972,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         mainVM.deleteDicts(list, integer -> {
                             if (integer > 0)
                             {
-                                ExtensionsKt.showMiltiLineSnackBar(mainControlLayout, getString(R.string.msg_selected_dict_removed), Snackbar.LENGTH_LONG);
+                                ExtensionsKt.showMultiLineSnackBar(mainControlLayout, getString(R.string.msg_selected_dict_removed), Snackbar.LENGTH_LONG);
                                 boolean contains = list.contains(btnViewDict.getText().toString());
                                 if (contains)
                                 {
@@ -984,12 +984,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             return null;
                         }, dict -> {
                             String message = getString(R.string.text_dict_not_found);
-                            ExtensionsKt.showMiltiLineSnackBar(mainControlLayout, message, Snackbar.LENGTH_LONG);
+                            ExtensionsKt.showMultiLineSnackBar(mainControlLayout, message, Snackbar.LENGTH_LONG);
                             return null;
                         }, t -> {
                             if (t != null && t.getMessage() != null)
                             {
-                                ExtensionsKt.showMiltiLineSnackBar(mainControlLayout, t.getMessage(), Snackbar.LENGTH_LONG);
+                                ExtensionsKt.showMultiLineSnackBar(mainControlLayout, t.getMessage(), Snackbar.LENGTH_LONG);
                             }
                             locker.unLock();
                             dialog.dismiss();

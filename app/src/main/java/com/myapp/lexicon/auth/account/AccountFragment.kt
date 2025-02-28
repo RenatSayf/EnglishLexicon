@@ -42,7 +42,7 @@ import com.myapp.lexicon.helpers.isItPhone
 import com.myapp.lexicon.helpers.orientationLock
 import com.myapp.lexicon.helpers.orientationUnLock
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
-import com.myapp.lexicon.helpers.showMiltiLineSnackBar
+import com.myapp.lexicon.helpers.showMultiLineSnackBar
 import com.myapp.lexicon.helpers.showToastIfDebug
 import com.myapp.lexicon.helpers.timeInMillisMoscowTimeZone
 import com.myapp.lexicon.main.viewmodels.UserViewModel
@@ -219,7 +219,7 @@ class AccountFragment : Fragment() {
                     tvBankNameValue.setAdapter(bankListAdapter)
                 }
                 result.onFailure { exception ->
-                    showMiltiLineSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
+                    showMultiLineSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
                 }
             }
 
@@ -230,7 +230,7 @@ class AccountFragment : Fragment() {
                         setReadOnlyState(true)
                     }
                     is UserViewModel.State.PersonalDataUpdated -> {
-                        showMiltiLineSnackBar(getString(R.string.data_is_saved))
+                        showMultiLineSnackBar(getString(R.string.data_is_saved))
                         if (currentUser != null) {
                             userVM.getUserFromCloud()
                         }
@@ -247,7 +247,7 @@ class AccountFragment : Fragment() {
                                             requireActivity().orientationLock()
                                         },
                                         onSuccess = {
-                                            showMiltiLineSnackBar(getString(R.string.text_request_sented))
+                                            showMultiLineSnackBar(getString(R.string.text_request_sented))
                                         }
                                     ) { exception ->
                                         exception?.printStackTraceIfDebug()
@@ -262,7 +262,7 @@ class AccountFragment : Fragment() {
                         }
                     }
                     is UserViewModel.State.Error -> {
-                        showMiltiLineSnackBar(state.message)
+                        showMultiLineSnackBar(state.message)
                     }
                     is UserViewModel.State.ReceivedUserData -> {
                         requireContext().isFirstLogin(
@@ -441,10 +441,10 @@ class AccountFragment : Fragment() {
                             userVM.setState(UserViewModel.State.PaymentRequestSent(user, 0, 0.0))
                         },
                         onNotEnough = {
-                            showMiltiLineSnackBar(getString(R.string.text_not_money))
+                            showMultiLineSnackBar(getString(R.string.text_not_money))
                         },
                         onInvalidToken = {s: String ->
-                            showMiltiLineSnackBar(getString(R.string.text_session_has_expired))
+                            showMultiLineSnackBar(getString(R.string.text_session_has_expired))
                             val authFragment = AuthFragment.newInstance()
                             parentFragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, authFragment).commit()
                         },
@@ -453,7 +453,7 @@ class AccountFragment : Fragment() {
                             setReadOnlyState()
                             if (exception != null) {
                                 if (BuildConfig.DEBUG) exception.printStackTrace()
-                                showMiltiLineSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
+                                showMultiLineSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
                             }
                             requireActivity().orientationUnLock()
                         }
@@ -485,7 +485,7 @@ class AccountFragment : Fragment() {
                                 )?.constantState
                             }
                             if (editText != null) {
-                                showMiltiLineSnackBar(getString(R.string.text_form_incorrect))
+                                showMultiLineSnackBar(getString(R.string.text_form_incorrect))
                                 return@setOnMenuItemClickListener true
                             }
                             val userMap = mapOf<String, Any>(
@@ -841,7 +841,7 @@ class AccountFragment : Fragment() {
                             onComplete = { exception ->
                                 exception?.let {
                                     it.printStackTrace()
-                                    showMiltiLineSnackBar(it.message?: getString(R.string.text_unknown_error_message))
+                                    showMultiLineSnackBar(it.message?: getString(R.string.text_unknown_error_message))
                                 }
                                 requireActivity().orientationUnLock()
                                 authVM.setLoadingState(AuthViewModel.LoadingState.Complete)
