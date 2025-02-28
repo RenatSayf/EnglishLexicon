@@ -218,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 boolean isAdsEnabled = CommonConstantsKt.getIS_ADS_ENABLED() || user.isAdsEnabled();
                 SettingsExtKt.setAdsIsEnabled(this, isAdsEnabled);
                 if (!user.isAdsEnabled() && !user.getMessage().isEmpty()) {
-                    ExtensionsKt.showSnackBar(navView, user.getMessage(), Snackbar.LENGTH_LONG);
+                    ExtensionsKt.showMiltiLineSnackBar(navView, user.getMessage(), Snackbar.LENGTH_LONG);
                 }
                 if (!user.getMessage().isEmpty()) {
                     MainActivityExtKt.showThankDialog(
@@ -233,16 +233,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             }
                     );
                 }
+                MainActivityExtKt.handleAdDataFromSplashActivity(
+                        MainActivity.this,
+                        (adData, bonus) -> {
+                            if (adData != null) {
+                                revenueVM.updateUserRevenueIntoCloud(adData);
+                            }
+                            if (bonus > 0.0)
+                            {
+                                showUserRewardAnimatedly(bonus);
+                            } else
+                            {
+                                ExtensionsKt.showToastIfDebug(
+                                        this, "Bonus is less than 0.01"
+                                );
+                            }
+                            return null;
+                        }
+                );
                 return null;
             });
             result.onSignOut(() -> {
                 handleSignOutAction();
-                ExtensionsKt.showSnackBar(mainControlLayout, getString(R.string.text_you_are_signed_out), Snackbar.LENGTH_LONG);
+                ExtensionsKt.showMiltiLineSnackBar(mainControlLayout, getString(R.string.text_you_are_signed_out), Snackbar.LENGTH_LONG);
                 return null;
             });
             result.onAccountDeleted(() -> {
                 handleSignOutAction();
-                ExtensionsKt.showSnackBar(mainControlLayout, getString(R.string.text_account_has_been_deleted), Snackbar.LENGTH_LONG);
+                ExtensionsKt.showMiltiLineSnackBar(mainControlLayout, getString(R.string.text_account_has_been_deleted), Snackbar.LENGTH_LONG);
                 return null;
             });
         });
@@ -525,27 +543,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         CommonConstantsKt.getAD_SHOWING_INTERVAL_IN_SEC();
         CommonConstantsKt.getSELF_EMPLOYED_THRESHOLD();
 
-        MainActivityExtKt.handleAdDataFromSplashActivity(
-                MainActivity.this,
-                (adData, bonus) -> {
-                    if (adData != null) {
-                        revenueVM.updateUserRevenueIntoCloud(adData);
-                    }
-                    if (bonus > 0.0)
-                    {
-                        ExtensionsKt.startTimer(
-                                1000,
-                                1000,
-                                () -> null,
-                                () -> {
-                                    showUserRewardAnimatedly(bonus);
-                                    return null;
-                                }
-                        );
-                    }
-                    return null;
-                }
-        );
     }
 
     private SpeechViewModel createSpeechViewModel()
@@ -883,7 +880,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         String message = error.getMessage();
                         if (message != null)
                         {
-                            ExtensionsKt.showSnackBar(binding.getRoot(), message, Snackbar.LENGTH_LONG);
+                            ExtensionsKt.showMiltiLineSnackBar(binding.getRoot(), message, Snackbar.LENGTH_LONG);
                         }
                         return null;
                     });
@@ -975,7 +972,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         mainVM.deleteDicts(list, integer -> {
                             if (integer > 0)
                             {
-                                ExtensionsKt.showSnackBar(mainControlLayout, getString(R.string.msg_selected_dict_removed), Snackbar.LENGTH_LONG);
+                                ExtensionsKt.showMiltiLineSnackBar(mainControlLayout, getString(R.string.msg_selected_dict_removed), Snackbar.LENGTH_LONG);
                                 boolean contains = list.contains(btnViewDict.getText().toString());
                                 if (contains)
                                 {
@@ -987,12 +984,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             return null;
                         }, dict -> {
                             String message = getString(R.string.text_dict_not_found);
-                            ExtensionsKt.showSnackBar(mainControlLayout, message, Snackbar.LENGTH_LONG);
+                            ExtensionsKt.showMiltiLineSnackBar(mainControlLayout, message, Snackbar.LENGTH_LONG);
                             return null;
                         }, t -> {
                             if (t != null && t.getMessage() != null)
                             {
-                                ExtensionsKt.showSnackBar(mainControlLayout, t.getMessage(), Snackbar.LENGTH_LONG);
+                                ExtensionsKt.showMiltiLineSnackBar(mainControlLayout, t.getMessage(), Snackbar.LENGTH_LONG);
                             }
                             locker.unLock();
                             dialog.dismiss();

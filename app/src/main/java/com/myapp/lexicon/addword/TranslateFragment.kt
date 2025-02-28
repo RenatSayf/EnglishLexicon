@@ -31,7 +31,7 @@ import com.myapp.lexicon.ads.startBannersActivity
 import com.myapp.lexicon.ads.startNativeAdsActivity
 import com.myapp.lexicon.databinding.TranslateFragmentBinding
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
-import com.myapp.lexicon.helpers.showSnackBar
+import com.myapp.lexicon.helpers.showMiltiLineSnackBar
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.MainViewModel
 import com.myapp.lexicon.main.viewmodels.UserViewModel
@@ -190,10 +190,10 @@ class TranslateFragment : Fragment()
                         }
                     )
                     val message = "${getString(R.string.in_dictionary)}  ${pair.first?.dictName}  ${getString(R.string.new_word_is_added)}"
-                    showSnackBar(message)
+                    showMiltiLineSnackBar(message)
                 }
                 else if (pair.second is Throwable) {
-                    showSnackBar(pair.second?.message?: getString(R.string.text_unknown_error_message))
+                    showMiltiLineSnackBar(pair.second?.message?: getString(R.string.text_unknown_error_message))
                 }
             }
 

@@ -15,7 +15,7 @@ import com.myapp.lexicon.auth.agreement.UserAgreementDialog
 import com.myapp.lexicon.databinding.FragmentAuthBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.isItEmail
-import com.myapp.lexicon.helpers.showSnackBar
+import com.myapp.lexicon.helpers.showMiltiLineSnackBar
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserState
 import com.myapp.lexicon.settings.getAuthDataFromPref
@@ -96,11 +96,11 @@ class AuthFragment : Fragment() {
 
                     },
                     onEmailNotValid = { message ->
-                        showSnackBar(message)
+                        showMiltiLineSnackBar(message)
                         authVM.setState(UserState.EmailValid(false))
                     },
                     onPasswordNotValid = { message ->
-                        showSnackBar(message)
+                        showMiltiLineSnackBar(message)
                         authVM.setState(UserState.PasswordValid(false))
                     }
                 )
@@ -132,11 +132,11 @@ class AuthFragment : Fragment() {
                         authVM.signInWithEmailAndPassword(email, password)
                     },
                     onEmailNotValid = { message ->
-                        showSnackBar(message)
+                        showMiltiLineSnackBar(message)
                         authVM.setState(UserState.EmailValid(false))
                     },
                     onPasswordNotValid = { message ->
-                        showSnackBar(message)
+                        showMiltiLineSnackBar(message)
                         authVM.setState(UserState.PasswordValid(false))
                     }
                 )
@@ -185,14 +185,14 @@ class AuthFragment : Fragment() {
             authVM.state.observe(viewLifecycleOwner) { state ->
                 state.onExists {
                     etPassword.text?.clear()
-                    showSnackBar(getString(R.string.text_such_user_already_exists))
+                    showMiltiLineSnackBar(getString(R.string.text_such_user_already_exists))
                 }
                 state.onSignUp { user ->
-                    showSnackBar(getString(R.string.text_user_is_registered))
+                    showMiltiLineSnackBar(getString(R.string.text_user_is_registered))
                     handleAuthorization(user)
                 }
                 state.onSignIn { user ->
-                    showSnackBar(getString(R.string.text_login_completed))
+                    showMiltiLineSnackBar(getString(R.string.text_login_completed))
                     handleAuthorization(user)
                 }
                 state.onEmailValid { flag ->
@@ -214,16 +214,16 @@ class AuthFragment : Fragment() {
                 state.onPasswordReset {
                     etPassword.text?.clear()
                     btnRegistration.visibility = View.GONE
-                    showSnackBar(getString(R.string.text_check_email))
+                    showMiltiLineSnackBar(getString(R.string.text_check_email))
                 }
                 state.onNotRegistered {
                     etPassword.text?.clear()
                     btnRegistration.visibility = View.VISIBLE
-                    showSnackBar(getString(R.string.text_user_not_found))
+                    showMiltiLineSnackBar(getString(R.string.text_user_not_found))
                 }
                 state.onFailure { exception ->
                     exception.printStackTrace()
-                    showSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
+                    showMiltiLineSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
                 }
             }
         }

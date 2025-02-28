@@ -209,14 +209,14 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             {
                 if (editorVM.selectedWord != null)
                 {
-                    ExtensionsKt.showSnackBar(switcher, getString(R.string.text_word_deleted), Snackbar.LENGTH_LONG);
+                    ExtensionsKt.showMiltiLineSnackBar(switcher, getString(R.string.text_word_deleted), Snackbar.LENGTH_LONG);
                     editorVM.getAllWordsByDictName(editorVM.selectedWord.getDictName());
                     setResult(NEED_UPDATE_PLAY_LIST);
                 }
             }
             else if (id < 0)
             {
-                ExtensionsKt.showSnackBar(switcher, getString(R.string.msg_data_base_error), Snackbar.LENGTH_LONG);
+                ExtensionsKt.showMiltiLineSnackBar(switcher, getString(R.string.msg_data_base_error), Snackbar.LENGTH_LONG);
             }
         });
 
@@ -270,7 +270,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             if (isUpdated != null && isUpdated)
             {
                 editorVM.getAllWordsByDictName(dictListSpinner.getSelectedItem().toString());
-                ExtensionsKt.showSnackBar(switcher, getString(R.string.text_dict_is_updated), Snackbar.LENGTH_LONG);
+                ExtensionsKt.showMiltiLineSnackBar(switcher, getString(R.string.text_dict_is_updated), Snackbar.LENGTH_LONG);
                 setResult(NEED_UPDATE_PLAY_LIST);
             }
         });
@@ -280,12 +280,12 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             Throwable throwable = pair.getSecond();
             if (word != null)
             {
-                ExtensionsKt.showSnackBar(switcher, getString(R.string.text_dict_is_updated), Snackbar.LENGTH_LONG);
+                ExtensionsKt.showMiltiLineSnackBar(switcher, getString(R.string.text_dict_is_updated), Snackbar.LENGTH_LONG);
                 setResult(NEED_UPDATE_PLAY_LIST);
             }
             else if (throwable != null) {
                 String message = (throwable.getMessage() != null) ? throwable.getMessage() : getString(R.string.text_unknown_error_message);
-                ExtensionsKt.showSnackBar(
+                ExtensionsKt.showMiltiLineSnackBar(
                         switcher,
                         message,
                         Snackbar.LENGTH_LONG

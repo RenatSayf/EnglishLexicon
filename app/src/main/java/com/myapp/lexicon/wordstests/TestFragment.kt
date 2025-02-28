@@ -43,7 +43,7 @@ import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.UiState
 import com.myapp.lexicon.helpers.hideKeyboard
 import com.myapp.lexicon.helpers.showCustomSnackBar
-import com.myapp.lexicon.helpers.showSnackBar
+import com.myapp.lexicon.helpers.showMiltiLineSnackBar
 import com.myapp.lexicon.main.SpeechViewModel
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.getTestStateFromPref
@@ -677,7 +677,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 testVM.getWordsByDictName(state.dict)
             },
             onError = { err ->
-                showSnackBar(err?: "Unknown error")
+                showMiltiLineSnackBar(err?: "Unknown error")
                 Throwable(err).printStackTrace()
             }
         )
