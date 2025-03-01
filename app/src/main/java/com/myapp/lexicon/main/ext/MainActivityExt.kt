@@ -62,6 +62,7 @@ fun FragmentActivity.handleAdDataFromSplashActivity(
             val adData: AdData? = strAdData.fromString()
             if (adData != null) {
                 val bonus = (adData.revenue * USER_PERCENTAGE).to2DigitsScale()
+                this.intent.putExtra(SplashActivity.KEY_AD_DATA, null as String?)
                 onCompleted.invoke(adData, bonus)
             }
             else {

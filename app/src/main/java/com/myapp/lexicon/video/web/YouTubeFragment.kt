@@ -22,6 +22,7 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
+import android.widget.PopupWindow
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
@@ -77,6 +78,8 @@ class YouTubeFragment : Fragment() {
             TypedValue.complexToDimensionPixelSize(this.data, resources.displayMetrics)
         }
     }
+
+    private var adPopup: PopupWindow? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -235,7 +238,7 @@ class YouTubeFragment : Fragment() {
 
                             bottomBar.changeHeightAnimatedly(5.toDp)
 
-                            vPopAnchor.showAdPopup(
+                            adPopup = vPopAnchor.showAdPopup(
                                 onClick = {
                                     pbLoadPage.visibility = View.VISIBLE
                                     webView.evaluateJavascript(
@@ -457,6 +460,8 @@ class YouTubeFragment : Fragment() {
 
     override fun onDestroy() {
 
+        adPopup?.dismiss()
+        adPopup = null
         binding = null
         super.onDestroy()
     }

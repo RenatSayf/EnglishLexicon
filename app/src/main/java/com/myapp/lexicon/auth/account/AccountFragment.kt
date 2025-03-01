@@ -105,6 +105,8 @@ class AccountFragment : Fragment() {
 
         with(binding) {
 
+            userVM.setState(UserViewModel.State.Init)
+
             lifecycleScope.launch {
                 lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
                     userVM.loadingState.collect { state ->
