@@ -6,25 +6,25 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.myapp.lexicon.R
-import com.myapp.lexicon.auth.AuthViewModel
+import com.myapp.lexicon.ads.AppOpenAdViewModel
+import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.common.IS_REWARD_ACCESSIBLE
 import com.myapp.lexicon.common.KEY_APP_STORE_LINK
 import com.myapp.lexicon.common.MESSAGE_TO_USER
 import com.myapp.lexicon.databinding.ALayoutSplashScreenBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.showDialogAsSingleton
-import com.myapp.lexicon.helpers.startTimer
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.Speaker
-import com.myapp.lexicon.settings.adsIsEnabled
 import com.myapp.lexicon.settings.checkOnStartSpeech
-import com.myapp.lexicon.settings.getAuthDataFromPref
 import com.myapp.lexicon.settings.goToAppStore
+import com.myapp.lexicon.settings.isUserRegistered
+import com.yandex.mobile.ads.appopenad.AppOpenAd
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -33,12 +33,16 @@ import java.util.Locale
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : AppCompatActivity() {
 
+    companion object {
+        const val KEY_AD_DATA = "KEY_AD_DATA_258741359"
+    }
+
     private lateinit var binding: ALayoutSplashScreenBinding
     private var speaker: Speaker? = null
 
-    private val authVM: AuthViewModel by viewModels()
+    private lateinit var openAdVM: AppOpenAdViewModel
+    private var appOpenAd: AppOpenAd? = null
 
-    private var authChecked = false
     private var speechChecked = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,6 +50,8 @@ class SplashActivity : AppCompatActivity() {
 
         binding = ALayoutSplashScreenBinding.inflate(layoutInflater, CoordinatorLayout(this), false)
         setContentView(binding.root)
+
+        openAdVM = ViewModelProvider(this)[AppOpenAdViewModel::class]
 
         IS_REWARD_ACCESSIBLE
         MESSAGE_TO_USER
@@ -56,29 +62,6 @@ class SplashActivity : AppCompatActivity() {
             goToAppStore()
             finish()
         }
-
-        applicationContext.getAuthDataFromPref(
-            onNotRegistered = {
-                authChecked = true
-            },
-            onSuccess = { email, password ->
-                authVM.signInWithEmailAndPassword(email, password)
-            }
-        )
-
-        authVM.state.observe(this) { state ->
-            state.onSignIn { user ->
-                this.adsIsEnabled = user.isAdsEnabled
-                authChecked = true
-            }
-            state.onFailure {
-                authChecked = true
-            }
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
 
         speaker = Speaker(this, object : Speaker.Listener {
             override fun onSuccessInit() {
@@ -190,21 +173,48 @@ class SplashActivity : AppCompatActivity() {
             }
         })
 
-        startTimer(15000, onFinish = {
-            authChecked = true
-        })
-
-        lifecycleScope.launch {
-            while (!speechChecked || !authChecked) {
-                delay(500)
-                if (authChecked && speechChecked) {
-                    val intent = Intent(this@SplashActivity, MainActivity::class.java)
-                    startActivity(intent)
-                    this@SplashActivity.finish()
-                }
+        openAdVM.resultLoadOpenAd.observe(this@SplashActivity) { result ->
+            result.onSuccess { ad: AppOpenAd ->
+                appOpenAd = ad
             }
         }
 
+        openAdVM.resultAdData.observe(this) { result ->
+            result?.onSuccess { data: AdData ->
+                startMainActivity(data)
+            }
+            result?.onFailure {
+                startMainActivity(null)
+            }
+        }
+
+        lifecycleScope.launch {
+            while (!speechChecked || openAdVM.resultLoadOpenAd.value == null) {
+                delay(500)
+                if (speechChecked && openAdVM.resultLoadOpenAd.value != null) {
+                    this@SplashActivity.isUserRegistered(
+                        onYes = {
+                            appOpenAd?.show(this@SplashActivity)?: run {
+                                startMainActivity(null)
+                            }
+                        },
+                        onNotRegistered = {
+                            startMainActivity(null)
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    private fun startMainActivity(data: AdData?) {
+        val intent = Intent(this@SplashActivity, MainActivity::class.java).apply {
+            if (data != null) {
+                putExtra(KEY_AD_DATA, data.toString())
+            }
+        }
+        startActivity(intent)
+        this@SplashActivity.finish()
     }
 
 }

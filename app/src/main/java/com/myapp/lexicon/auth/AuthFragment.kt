@@ -17,13 +17,10 @@ import com.myapp.lexicon.auth.agreement.UserAgreementDialog
 import com.myapp.lexicon.databinding.FragmentAuthBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.isItEmail
-import com.myapp.lexicon.helpers.showSnackBar
-import com.myapp.lexicon.models.Tokens
+import com.myapp.lexicon.helpers.showMultiLineSnackBar
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserState
-import com.myapp.lexicon.settings.emailIntoPref
-import com.myapp.lexicon.settings.passwordIntoPref
-import com.myapp.lexicon.settings.saveAuthTokens
+import com.myapp.lexicon.settings.getAuthDataFromPref
 import com.myapp.lexicon.settings.saveUserToPref
 
 class AuthFragment : Fragment() {
@@ -100,11 +97,11 @@ class AuthFragment : Fragment() {
 
                     },
                     onEmailNotValid = { message ->
-                        showSnackBar(message)
+                        showMultiLineSnackBar(message)
                         authVM.setState(UserState.EmailValid(false))
                     },
                     onPasswordNotValid = { message ->
-                        showSnackBar(message)
+                        showMultiLineSnackBar(message)
                         authVM.setState(UserState.PasswordValid(false))
                     }
                 )
@@ -136,11 +133,11 @@ class AuthFragment : Fragment() {
                         authVM.logInWithEmailAndPassword(email, password)
                     },
                     onEmailNotValid = { message ->
-                        showSnackBar(message)
+                        showMultiLineSnackBar(message)
                         authVM.setState(UserState.EmailValid(false))
                     },
                     onPasswordNotValid = { message ->
-                        showSnackBar(message)
+                        showMultiLineSnackBar(message)
                         authVM.setState(UserState.PasswordValid(false))
                     }
                 )
@@ -189,7 +186,7 @@ class AuthFragment : Fragment() {
             authVM.state.observe(viewLifecycleOwner) { state ->
                 state.onExists {
                     etPassword.text?.clear()
-                    showSnackBar(getString(R.string.text_such_user_already_exists))
+                    showMultiLineSnackBar(getString(R.string.text_such_user_already_exists))
                 }
                 state.onNotAcceptable {
                     showSnackBar(getString(R.string.text_password_incorrect))
@@ -197,11 +194,11 @@ class AuthFragment : Fragment() {
                 state.onSignUp { user ->
                     requireContext().emailIntoPref = etEmail.text.toString()
                     requireContext().passwordIntoPref = etPassword.text.toString()
-                    showSnackBar(getString(R.string.text_user_is_registered))
+                    showMultiLineSnackBar(getString(R.string.text_user_is_registered))
                     handleAuthorization(user)
                 }
                 state.onSignIn { user ->
-                    showSnackBar(getString(R.string.text_login_completed))
+                    showMultiLineSnackBar(getString(R.string.text_login_completed))
                     handleAuthorization(user)
                 }
                 state.onLogUp { tokens: Tokens ->
@@ -232,16 +229,16 @@ class AuthFragment : Fragment() {
                 state.onPasswordReset {
                     etPassword.text?.clear()
                     btnRegistration.visibility = View.GONE
-                    showSnackBar(getString(R.string.text_check_email))
+                    showMultiLineSnackBar(getString(R.string.text_check_email))
                 }
                 state.onNotRegistered {
                     etPassword.text?.clear()
                     btnRegistration.visibility = View.VISIBLE
-                    showSnackBar(getString(R.string.text_user_not_found))
+                    showMultiLineSnackBar(getString(R.string.text_user_not_found))
                 }
                 state.onFailure { exception ->
                     exception.printStackTrace()
-                    showSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
+                    showMultiLineSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
                 }
                 state.onHttpFailure { message: String? ->
                     showSnackBar(getString(R.string.text_service_unavailable))

@@ -123,7 +123,7 @@ class BannersActivity : AppCompatActivity() {
 
             try {
                 bannerViewTop.loadBanner(
-                    adId = BannerAdIds.BANNER_4,
+                    adId = BANNER_ACTIVITY_1,
                     heightRate = 0.5,
                     onCompleted = { error: AdRequestError? ->
                         loadCount++
@@ -171,7 +171,7 @@ class BannersActivity : AppCompatActivity() {
 
             try {
                 bannerViewBottom.loadBanner(
-                    adId = BannerAdIds.BANNER_5,
+                    adId = BANNER_ACTIVITY_2,
                     heightRate = 0.5,
                     onCompleted = { error: AdRequestError? ->
                         loadCount++

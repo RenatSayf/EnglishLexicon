@@ -17,14 +17,17 @@ import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.adapters.OneFiveTestAdapter
 import com.myapp.lexicon.ads.AdsViewModel
-import com.myapp.lexicon.ads.InterstitialAdIds
+import com.myapp.lexicon.ads.INTERSTITIAL_MAIN
+import com.myapp.lexicon.ads.NATIVE_AD_MAIN
+import com.myapp.lexicon.ads.REWARDED_MAIN_ID
 import com.myapp.lexicon.ads.RevenueViewModel
+import com.myapp.lexicon.ads.models.AD_MAIN
 import com.myapp.lexicon.ads.models.AdData
+import com.myapp.lexicon.ads.models.AdName
 import com.myapp.lexicon.ads.models.AdType
 import com.myapp.lexicon.ads.showAd
 import com.myapp.lexicon.ads.startBannersActivity
 import com.myapp.lexicon.ads.startNativeAdsActivity
-import com.myapp.lexicon.common.AD_TYPE
 import com.myapp.lexicon.databinding.OneOfFiveFragmNewBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.RandomNumberGenerator
@@ -33,6 +36,7 @@ import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.adsIsEnabled
 import com.yandex.mobile.ads.interstitial.InterstitialAd
+import com.yandex.mobile.ads.rewarded.RewardedAd
 import java.util.Date
 
 const val ROWS: Int = 5
@@ -47,6 +51,7 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
     private val adsVM: AdsViewModel by activityViewModels()
     private val revenueVM: RevenueViewModel by activityViewModels()
     private var interstitialAd: InterstitialAd? = null
+    private var rewardedAd: RewardedAd? = null
 
     private val wordsAdapter: OneFiveTestAdapter by lazy {
         OneFiveTestAdapter().apply {
@@ -98,12 +103,21 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
         }
 
         if (!wordList.isNullOrEmpty()) vm.initTest(wordList!!.toList())
-
-        if (AD_TYPE == AdType.INTERSTITIAL) {
-            adsVM.loadInterstitialAd(InterstitialAdIds.INTERSTITIAL_2)
-            adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
-                result.onSuccess { ad ->
-                    interstitialAd = ad
+        when(AD_MAIN) {
+            AdType.INTERSTITIAL.type -> {
+                adsVM.loadInterstitialAd(INTERSTITIAL_MAIN)
+                adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
+                    result.onSuccess { ad: InterstitialAd ->
+                        interstitialAd = ad
+                    }
+                }
+            }
+            AdType.REWARDED.type -> {
+                adsVM.loadRewardedAd(REWARDED_MAIN_ID)
+                adsVM.rewardedAd.observe(viewLifecycleOwner) { result ->
+                    result.onSuccess { ad: RewardedAd ->
+                        rewardedAd = ad
+                    }
                 }
             }
         }
@@ -300,11 +314,12 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
     ) {
         if (this.adsIsEnabled) {
 
-            when(AD_TYPE) {
-                AdType.BANNER -> {
+            when(AD_MAIN) {
+                AdType.BANNER.type -> {
                     requireActivity().startBannersActivity(
                         onImpression = {data: AdData? ->
                             if (data != null) {
+                                data.adCount = mapOf(AdName.FULL_MAIN.name to 1)
                                 revenueVM.updateUserRevenueIntoCloud(data)
                             }
                         },
@@ -314,11 +329,13 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
                         }
                     )
                 }
-                AdType.NATIVE -> {
+                AdType.NATIVE.type -> {
                     requireActivity().startNativeAdsActivity(
+                        adId = NATIVE_AD_MAIN,
                         onImpression = {data: AdData? ->
                             if (data != null) {
                                 try {
+                                    data.adCount = mapOf(AdName.FULL_MAIN.name to 1)
                                     revenueVM.updateUserRevenueIntoCloud(data)
                                 } catch (e: Exception) {
                                     e.printStackTraceIfDebug()
@@ -335,11 +352,12 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
                         }
                     )
                 }
-                AdType.INTERSTITIAL -> {
+                AdType.INTERSTITIAL.type -> {
                     interstitialAd?.showAd(
                         requireActivity(),
                         onImpression = { data ->
                             if (data != null) {
+                                data.adCount = mapOf(AdName.FULL_MAIN.name to 1)
                                 revenueVM.updateUserRevenueIntoCloud(data)
                             }
                         }, onDismissed = { bonus: Double ->
@@ -348,6 +366,23 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
                         }
                     )
                     if (interstitialAd == null) {
+                        onComplete.invoke()
+                    }
+                }
+                AdType.REWARDED.type -> {
+                    rewardedAd?.showAd(
+                        requireActivity(),
+                        onImpression = {data: AdData? ->
+                            if (data != null) {
+                                data.adCount = mapOf(AdName.FULL_MAIN.name to 1)
+                                revenueVM.updateUserRevenueIntoCloud(data)
+                            }
+                        },
+                        onDismissed = {bonus: Double ->
+                            adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+                            onComplete.invoke()
+                        }
+                    )?: run {
                         onComplete.invoke()
                     }
                 }

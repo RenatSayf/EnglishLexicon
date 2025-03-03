@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit
 fun View.showAdPopup(
     onClick: () -> Unit = {},
     onDismissed: () -> Unit = {}
-) {
+): PopupWindow {
     val layoutInflater =
         this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
@@ -53,6 +53,7 @@ fun View.showAdPopup(
             onDismissed.invoke()
         }
     }.start()
+    return popUp
 }
 
 fun View.showUserRewardPerAdPopup(message: String) {
