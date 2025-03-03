@@ -4,7 +4,6 @@ import android.net.Uri
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
-import com.myapp.lexicon.ads.models.AdType
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 
 const val KEY_APP_STORE_LINK = "link"
@@ -28,22 +27,6 @@ val PAYMENTS_CONDITIONS: String = try {
     e.printStackTraceIfDebug()
     ""
 }
-
-val AD_TYPE: AdType
-    get() {
-        return try {
-            val value = Firebase.remoteConfig.getLong("ad_type").toInt()
-            when (value) {
-                1 -> AdType.BANNER
-                2 -> AdType.NATIVE
-                else -> AdType.INTERSTITIAL
-            }
-        }
-        catch (e: Exception) {
-            e.printStackTraceIfDebug()
-            AdType.BANNER
-        }
-    }
 
 val IS_ADS_ENABLED: Boolean
     get() {

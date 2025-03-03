@@ -36,6 +36,7 @@ import kotlinx.coroutines.launch
 class NativeAdsActivity : AppCompatActivity() {
 
     companion object {
+        const val KEY_AD_ID = "KEY_AD_ID_25488714"
         private var listener: Listener? = null
         fun setAdDataListener(listener: Listener) {
             this.listener = listener
@@ -70,7 +71,9 @@ class NativeAdsActivity : AppCompatActivity() {
 
             nativeAdLoader = NativeBulkAdLoader(this@NativeAdsActivity)
             val adId = if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) "demo-native-app-yandex"
-            else NativeAdIds.NATIVE_1.id
+            else {
+                intent.extras?.getString(KEY_AD_ID)?: NATIVE_AD_MAIN
+            }
             nativeAdLoader?.loadAds(
                 nativeAdRequestConfiguration = NativeAdRequestConfiguration.Builder(adId).apply {
                     setShouldLoadImagesAutomatically(true)
@@ -212,6 +215,7 @@ class NativeAdsActivity : AppCompatActivity() {
 }
 
 fun Activity.startNativeAdsActivity(
+    adId: String = NativeAdIds.NATIVE_1.id,
     onImpression: (data: AdData?) -> Unit,
     onDismissed: (bonus: Double) -> Unit
 ) {
@@ -228,5 +232,7 @@ fun Activity.startNativeAdsActivity(
             }
         }
     })
-    this.startActivity(Intent(this, NativeAdsActivity::class.java))
+    this.startActivity(Intent(this, NativeAdsActivity::class.java).apply {
+        putExtra(NativeAdsActivity.KEY_AD_ID, adId)
+    })
 }

@@ -28,8 +28,9 @@ import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
 import com.myapp.lexicon.ads.AdsViewModel;
 import com.myapp.lexicon.ads.AdsViewModelKt;
-import com.myapp.lexicon.ads.BannerAdIds;
+import com.myapp.lexicon.ads.BannerAdIdsKt;
 import com.myapp.lexicon.ads.RevenueViewModel;
+import com.myapp.lexicon.ads.models.AdName;
 import com.myapp.lexicon.auth.AuthFragment;
 import com.myapp.lexicon.auth.AuthViewModel;
 import com.myapp.lexicon.auth.account.AccountFragment;
@@ -154,6 +155,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         speechVM = new ViewModelProvider(this).get(SpeechViewModel.class);
         AuthViewModel authVM = new ViewModelProvider(this).get(AuthViewModel.class);
         revenueVM = new ViewModelProvider(MainActivity.this).get(RevenueViewModel.class);
+        UserViewModel userVM = new ViewModelProvider(MainActivity.this).get(UserViewModel.class);
 
         authVM.getState().observe(this, result -> {
             result.onInit(() -> {
@@ -203,10 +205,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 boolean isAdsEnabled = CommonConstantsKt.getIS_ADS_ENABLED() || user.isAdsEnabled();
                 SettingsExtKt.setAdsIsEnabled(this, isAdsEnabled);
                 if (!user.isAdsEnabled() && !user.getMessage().isEmpty()) {
-                    ExtensionsKt.showSnackBar(navView, user.getMessage(), Snackbar.LENGTH_LONG);
+                    ExtensionsKt.showMultiLineSnackBar(navView, user.getMessage(), Snackbar.LENGTH_LONG);
                 }
                 if (!user.getMessage().isEmpty()) {
-                    UserViewModel userVM = new ViewModelProvider(this).get(UserViewModel.class);
                     MainActivityExtKt.showThankDialog(
                             this,
                             user.getMessage(),
@@ -219,19 +220,50 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             }
                     );
                 }
+                MainActivityExtKt.handleAdDataFromSplashActivity(
+                        MainActivity.this,
+                        (adData, bonus) -> {
+                            if (adData != null) {
+                                revenueVM.updateUserRevenueIntoCloud(adData);
+                            }
+                            if (bonus > 0.0)
+                            {
+                                showUserRewardAnimatedly(bonus);
+                            } else
+                            {
+                                ExtensionsKt.showToastIfDebug(
+                                        this, "Bonus is less than 0.01"
+                                );
+                            }
+                            return null;
+                        }
+                );
                 return null;
             });
             result.onSignOut(() -> {
                 handleSignOutAction();
-                ExtensionsKt.showSnackBar(mainControlLayout, getString(R.string.text_you_are_signed_out), Snackbar.LENGTH_LONG);
+                ExtensionsKt.showMultiLineSnackBar(mainControlLayout, getString(R.string.text_you_are_signed_out), Snackbar.LENGTH_LONG);
                 return null;
             });
             result.onAccountDeleted(() -> {
                 handleSignOutAction();
-                ExtensionsKt.showSnackBar(mainControlLayout, getString(R.string.text_account_has_been_deleted), Snackbar.LENGTH_LONG);
+                ExtensionsKt.showMultiLineSnackBar(mainControlLayout, getString(R.string.text_account_has_been_deleted), Snackbar.LENGTH_LONG);
                 return null;
             });
         });
+
+        SettingsExtKt.getAuthDataFromPref(
+                MainActivity.this,
+                () -> null,
+                (email, pass) -> {
+                    authVM.signInWithEmailAndPassword(email, pass);
+                    return null;
+                },
+                e -> {
+                    ExtensionsKt.printStackTraceIfDebug(e);
+                    return null;
+                }
+        );
 
         btnViewDict = contentBinding.btnViewDict;
         btnViewDictOnClick(btnViewDict);
@@ -487,9 +519,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         BannerAdView bannerView = contentBinding.bannerView;
         AdsViewModelKt.loadBanner(
-                bannerView, BannerAdIds.BANNER_2,
+                bannerView,
+                BannerAdIdsKt.getBANNER_MAIN(),
                 0.08,
-                (data) -> null,
+                (data) -> {
+                    SettingsExtKt.getAuthDataFromPref(
+                            this,
+                            () -> null,
+                            (email, p) -> {
+                                userVM.updateUserDataIntoCloud(Map.of(User.KEY_EMAIL, email, AdName.BANNER_MAIN.name(), 1));
+                                return null;
+                            },
+                            e -> null
+                    );
+                    return null;
+                },
                 e -> null,
                 () -> null
         );
@@ -498,6 +542,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         CommonConstantsKt.getAD_SHOWING_INTERVAL_IN_SEC();
         CommonConstantsKt.getSELF_EMPLOYED_THRESHOLD();
+
     }
 
     private SpeechViewModel createSpeechViewModel()
@@ -835,7 +880,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         String message = error.getMessage();
                         if (message != null)
                         {
-                            ExtensionsKt.showSnackBar(binding.getRoot(), message, Snackbar.LENGTH_LONG);
+                            ExtensionsKt.showMultiLineSnackBar(binding.getRoot(), message, Snackbar.LENGTH_LONG);
                         }
                         return null;
                     });
@@ -927,7 +972,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         mainVM.deleteDicts(list, integer -> {
                             if (integer > 0)
                             {
-                                ExtensionsKt.showSnackBar(mainControlLayout, getString(R.string.msg_selected_dict_removed), Snackbar.LENGTH_LONG);
+                                ExtensionsKt.showMultiLineSnackBar(mainControlLayout, getString(R.string.msg_selected_dict_removed), Snackbar.LENGTH_LONG);
                                 boolean contains = list.contains(btnViewDict.getText().toString());
                                 if (contains)
                                 {
@@ -939,12 +984,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             return null;
                         }, dict -> {
                             String message = getString(R.string.text_dict_not_found);
-                            ExtensionsKt.showSnackBar(mainControlLayout, message, Snackbar.LENGTH_LONG);
+                            ExtensionsKt.showMultiLineSnackBar(mainControlLayout, message, Snackbar.LENGTH_LONG);
                             return null;
                         }, t -> {
                             if (t != null && t.getMessage() != null)
                             {
-                                ExtensionsKt.showSnackBar(mainControlLayout, t.getMessage(), Snackbar.LENGTH_LONG);
+                                ExtensionsKt.showMultiLineSnackBar(mainControlLayout, t.getMessage(), Snackbar.LENGTH_LONG);
                             }
                             locker.unLock();
                             dialog.dismiss();
@@ -984,20 +1029,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 double bonus = ((AdsViewModel.AdState.Dismissed) adState).getBonus();
                 if (bonus > 0.0)
                 {
-                    TextView tvSubTitle = toolbarBinding.tvSubtitle;
-                    int x = tvSubTitle.getRight();
-                    int top = tvSubTitle.getTop();
-                    int bottom = tvSubTitle.getBottom();
-                    Pair<Integer, Integer> coordinates = new Pair<>(x, top + ((top - bottom)/2));
-                    FrameLayout frameLayout = contentBinding.frameToPageFragm;
-                    com.myapp.lexicon.ads.ext.ExtensionsKt.showUserRewardAnimatedly(
-                            frameLayout,
-                            String.valueOf(bonus),
-                            coordinates
-                    );
+                    showUserRewardAnimatedly(bonus);
                 }
             }
         });
+    }
+
+    private void showUserRewardAnimatedly(Double bonus) {
+        TextView tvSubTitle = toolbarBinding.tvSubtitle;
+        int x = tvSubTitle.getRight();
+        int top = tvSubTitle.getTop();
+        int bottom = tvSubTitle.getBottom();
+        Pair<Integer, Integer> coordinates = new Pair<>(x, top + ((top - bottom)/2));
+        FrameLayout frameLayout = contentBinding.frameToPageFragm;
+        com.myapp.lexicon.ads.ext.ExtensionsKt.showUserRewardAnimatedly(
+                frameLayout,
+                String.valueOf(bonus),
+                coordinates
+        );
     }
 
     @Override

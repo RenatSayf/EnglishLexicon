@@ -22,6 +22,7 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
+import android.widget.PopupWindow
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
@@ -31,6 +32,7 @@ import com.myapp.lexicon.ads.AdFragment
 import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.ext.showAdPopup
 import com.myapp.lexicon.ads.models.AdData
+import com.myapp.lexicon.ads.models.AdName
 import com.myapp.lexicon.databinding.FragmentYouTubeBinding
 import com.myapp.lexicon.helpers.isNetworkAvailable
 import com.myapp.lexicon.helpers.orientationLock
@@ -76,6 +78,8 @@ class YouTubeFragment : Fragment() {
             TypedValue.complexToDimensionPixelSize(this.data, resources.displayMetrics)
         }
     }
+
+    private var adPopup: PopupWindow? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -234,7 +238,7 @@ class YouTubeFragment : Fragment() {
 
                             bottomBar.changeHeightAnimatedly(5.toDp)
 
-                            vPopAnchor.showAdPopup(
+                            adPopup = vPopAnchor.showAdPopup(
                                 onClick = {
                                     pbLoadPage.visibility = View.VISIBLE
                                     webView.evaluateJavascript(
@@ -393,6 +397,7 @@ class YouTubeFragment : Fragment() {
                         null
                     }
                     adData?.let { data: AdData ->
+                        data.adCount = mapOf(AdName.FULL_VIDEO.name to 1)
                         revenueVM.updateUserRevenueIntoCloud(data)
                     }
                 }
@@ -455,6 +460,8 @@ class YouTubeFragment : Fragment() {
 
     override fun onDestroy() {
 
+        adPopup?.dismiss()
+        adPopup = null
         binding = null
         super.onDestroy()
     }

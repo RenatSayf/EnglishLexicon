@@ -16,26 +16,33 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
-import com.myapp.lexicon.ads.BannerAdIds
-import com.myapp.lexicon.ads.InterstitialAdIds
+import com.myapp.lexicon.ads.BANNER_TRANSLATE
+import com.myapp.lexicon.ads.INTERSTITIAL_TRANSLATE
+import com.myapp.lexicon.ads.NATIVE_AD_TRANS
+import com.myapp.lexicon.ads.REWARDED_TRANSLATE_ID
 import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.loadBanner
+import com.myapp.lexicon.ads.models.AD_TRANSLATE
 import com.myapp.lexicon.ads.models.AdData
+import com.myapp.lexicon.ads.models.AdName
 import com.myapp.lexicon.ads.models.AdType
 import com.myapp.lexicon.ads.showAd
 import com.myapp.lexicon.ads.startBannersActivity
 import com.myapp.lexicon.ads.startNativeAdsActivity
-import com.myapp.lexicon.common.AD_TYPE
 import com.myapp.lexicon.databinding.TranslateFragmentBinding
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
-import com.myapp.lexicon.helpers.showSnackBar
+import com.myapp.lexicon.helpers.showMultiLineSnackBar
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.MainViewModel
+import com.myapp.lexicon.main.viewmodels.UserViewModel
+import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.toWord
+import com.myapp.lexicon.settings.getAuthDataFromPref
 import com.myapp.lexicon.settings.getWordFromPref
 import com.myapp.lexicon.settings.orderPlayFromPref
 import com.yandex.mobile.ads.interstitial.InterstitialAd
+import com.yandex.mobile.ads.rewarded.RewardedAd
 import java.net.URLDecoder
 
 
@@ -47,6 +54,7 @@ class TranslateFragment : Fragment()
     private lateinit var binding: TranslateFragmentBinding
     private lateinit var mActivity: AppCompatActivity
     private var interstitialAd: InterstitialAd? = null
+    private var rewardedAd: RewardedAd? = null
     private val adsVM: AdsViewModel by activityViewModels()
     private val addWordVM: AddWordViewModel by lazy {
         val factory = AddWordViewModel.Factory(requireContext())
@@ -57,6 +65,7 @@ class TranslateFragment : Fragment()
         ViewModelProvider(this, factory)[MainViewModel::class.java]
     }
     private val revenueVM: RevenueViewModel by activityViewModels()
+    private val userVM: UserViewModel by activityViewModels()
 
     companion object
     {
@@ -103,11 +112,23 @@ class TranslateFragment : Fragment()
         super.onViewCreated(view, savedInstanceState)
         binding = TranslateFragmentBinding.bind(view)
 
-        if (AD_TYPE == AdType.INTERSTITIAL) {
-            adsVM.loadInterstitialAd(InterstitialAdIds.INTERSTITIAL_1)
-            adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
-                result.onSuccess { ad ->
-                    interstitialAd = ad
+        when(AD_TRANSLATE) {
+            AdType.INTERSTITIAL.type -> {
+                adsVM.loadInterstitialAd(INTERSTITIAL_TRANSLATE)
+                adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
+                    result.onSuccess { ad: InterstitialAd ->
+                        interstitialAd = ad
+                    }
+                }
+            }
+            AdType.REWARDED.type -> {
+                adsVM.apply {
+                    loadRewardedAd(REWARDED_TRANSLATE_ID)
+                    rewardedAd.observe(viewLifecycleOwner) { result ->
+                        result.onSuccess { ad: RewardedAd ->
+                            this@TranslateFragment.rewardedAd = ad
+                        }
+                    }
                 }
             }
         }
@@ -169,14 +190,28 @@ class TranslateFragment : Fragment()
                         }
                     )
                     val message = "${getString(R.string.in_dictionary)}  ${pair.first?.dictName}  ${getString(R.string.new_word_is_added)}"
-                    showSnackBar(message)
+                    showMultiLineSnackBar(message)
                 }
                 else if (pair.second is Throwable) {
-                    showSnackBar(pair.second?.message?: getString(R.string.text_unknown_error_message))
+                    showMultiLineSnackBar(pair.second?.message?: getString(R.string.text_unknown_error_message))
                 }
             }
 
-            bannerView.loadBanner(adId = BannerAdIds.BANNER_1)
+            bannerView.loadBanner(
+                adId = BANNER_TRANSLATE,
+                onImpression = {
+                    requireContext().getAuthDataFromPref(
+                        onSuccess = {email: String, password: String ->
+                            userVM.updateUserDataIntoCloud(
+                                userMap = mapOf(
+                                    User.KEY_EMAIL to email,
+                                    AdName.BANNER_TRANSLATE.name to 1
+                                )
+                            )
+                        }
+                    )
+                }
+            )
         }
 
     }
@@ -204,11 +239,12 @@ class TranslateFragment : Fragment()
         {
             is MainActivity -> {
 
-                when(AD_TYPE) {
-                    AdType.BANNER -> {
+                when(AD_TRANSLATE) {
+                    AdType.BANNER.type -> {
                         requireActivity().startBannersActivity(
                             onImpression = {data: AdData? ->
                                 if (data != null) {
+                                    data.adCount = mapOf(AdName.FULL_TRANSLATE.name to 1)
                                     revenueVM.updateUserRevenueIntoCloud(data)
                                 }
                             },
@@ -218,10 +254,12 @@ class TranslateFragment : Fragment()
                             }
                         )
                     }
-                    AdType.NATIVE -> {
+                    AdType.NATIVE.type -> {
                         requireActivity().startNativeAdsActivity(
+                            adId = NATIVE_AD_TRANS,
                             onImpression = {data: AdData? ->
                                 if (data != null) {
+                                    data.adCount = mapOf(AdName.FULL_TRANSLATE.name to 1)
                                     revenueVM.updateUserRevenueIntoCloud(data)
                                 }
                             },
@@ -231,16 +269,34 @@ class TranslateFragment : Fragment()
                             }
                         )
                     }
-                    AdType.INTERSTITIAL -> {
+                    AdType.INTERSTITIAL.type -> {
                         interstitialAd?.showAd(
                             requireActivity(),
                             onImpression = { data ->
                                 if (data is AdData) {
+                                    data.adCount = mapOf(AdName.FULL_TRANSLATE.name to 1)
                                     revenueVM.updateUserRevenueIntoCloud(data)
                                 }
                             },
-                            onDismissed = {
-                                adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(it))
+                            onDismissed = { bonus: Double ->
+                                adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+                                parentFragmentManager.popBackStack()
+                            }
+                        )?: run {
+                            parentFragmentManager.popBackStack()
+                        }
+                    }
+                    AdType.REWARDED.type -> {
+                        rewardedAd?.showAd(
+                            requireActivity(),
+                            onImpression = { data: AdData? ->
+                                if (data is AdData) {
+                                    data.adCount = mapOf(AdName.FULL_TRANSLATE.name to 1)
+                                    revenueVM.updateUserRevenueIntoCloud(data)
+                                }
+                            },
+                            onDismissed = {bonus: Double ->
+                                adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
                                 parentFragmentManager.popBackStack()
                             }
                         )?: run {
@@ -251,11 +307,12 @@ class TranslateFragment : Fragment()
             }
             is TranslateActivity -> {
 
-                when(AD_TYPE) {
-                    AdType.BANNER -> {
+                when(AD_TRANSLATE) {
+                    AdType.BANNER.type -> {
                         requireActivity().startBannersActivity(
                             onImpression = {data: AdData? ->
                                 if (data != null) {
+                                    data.adCount = mapOf(AdName.FULL_TRANSLATE.name to 1)
                                     revenueVM.updateUserRevenueIntoCloud(data)
                                 }
                             },
@@ -264,27 +321,45 @@ class TranslateFragment : Fragment()
                             }
                         )
                     }
-                    AdType.NATIVE -> {
+                    AdType.NATIVE.type -> {
                         requireActivity().startNativeAdsActivity(
-                            onImpression = {data: AdData? ->
+                            onImpression = { data: AdData? ->
                                 if (data != null) {
+                                    data.adCount = mapOf(AdName.FULL_TRANSLATE.name to 1)
                                     revenueVM.updateUserRevenueIntoCloud(data)
                                 }
                             },
-                            onDismissed = {bonus: Double ->
+                            onDismissed = { bonus: Double ->
                                 requireActivity().finish()
                             }
                         )
                     }
-                    AdType.INTERSTITIAL -> {
+                    AdType.INTERSTITIAL.type -> {
                         interstitialAd?.showAd(
                             requireActivity(),
                             onImpression = { data ->
                                 if (data is AdData) {
+                                    data.adCount = mapOf(AdName.FULL_TRANSLATE.name to 1)
                                     revenueVM.updateUserRevenueIntoCloud(data)
                                 }
                             },
                             onDismissed = {
+                                requireActivity().finish()
+                            }
+                        )?: run {
+                            requireActivity().finish()
+                        }
+                    }
+                    AdType.REWARDED.type -> {
+                        rewardedAd?.showAd(
+                            requireActivity(),
+                            onImpression = { data: AdData? ->
+                                if (data is AdData) {
+                                    data.adCount = mapOf(AdName.FULL_TRANSLATE.name to 1)
+                                    revenueVM.updateUserRevenueIntoCloud(data)
+                                }
+                            },
+                            onDismissed = {bonus: Double ->
                                 requireActivity().finish()
                             }
                         )?: run {

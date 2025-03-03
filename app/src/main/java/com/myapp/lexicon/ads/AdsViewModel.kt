@@ -2,6 +2,7 @@ package com.myapp.lexicon.ads
 
 import android.app.Activity
 import android.app.Application
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -30,6 +31,10 @@ import com.yandex.mobile.ads.interstitial.InterstitialAd
 import com.yandex.mobile.ads.interstitial.InterstitialAdEventListener
 import com.yandex.mobile.ads.interstitial.InterstitialAdLoadListener
 import com.yandex.mobile.ads.interstitial.InterstitialAdLoader
+import com.yandex.mobile.ads.nativeads.NativeAd
+import com.yandex.mobile.ads.nativeads.NativeAdRequestConfiguration
+import com.yandex.mobile.ads.nativeads.NativeBulkAdLoadListener
+import com.yandex.mobile.ads.nativeads.NativeBulkAdLoader
 import com.yandex.mobile.ads.rewarded.Reward
 import com.yandex.mobile.ads.rewarded.RewardedAd
 import com.yandex.mobile.ads.rewarded.RewardedAdEventListener
@@ -62,7 +67,7 @@ class AdsViewModel @Inject constructor(
     val interstitialAd: LiveData<Result<InterstitialAd>> = _interstitialAd
 
     private var _rewardedAd = MutableLiveData<Result<RewardedAd>>()
-    val rewardedAd: LiveData<Result<RewardedAd>> = _rewardedAd
+    var rewardedAd: LiveData<Result<RewardedAd>> = _rewardedAd
 
     fun getInterstitialAdOrNull(): InterstitialAd? {
         _interstitialAd.value?.onSuccess { ad ->
@@ -78,12 +83,12 @@ class AdsViewModel @Inject constructor(
         return null
     }
 
-    fun loadInterstitialAd(adId: InterstitialAdIds? = null) {
+    fun loadInterstitialAd(adId: String) {
 
         val id = if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
             "demo-interstitial-yandex"
         } else {
-            adId?.id ?: InterstitialAdIds.entries.toTypedArray().random().id
+            adId
         }
         val adRequestConfiguration = AdRequestConfiguration.Builder(id).build()
         InterstitialAdLoader(app).apply {
@@ -101,12 +106,12 @@ class AdsViewModel @Inject constructor(
         }
     }
 
-    fun loadRewardedAd(adId: RewardedAdIds? = null) {
+    fun loadRewardedAd(adId: String) {
 
         val id = if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
             "demo-rewarded-yandex"
         } else {
-            adId?.id ?: RewardedAdIds.entries.toTypedArray().random().id
+            adId
         }
         val adRequestConfiguration = AdRequestConfiguration.Builder(id).build()
         RewardedAdLoader(app).apply {
@@ -207,49 +212,60 @@ fun RewardedAd.showAd(
     activity: Activity,
     onShown: () -> Unit = {},
     onImpression: (data: AdData?) -> Unit = {},
-    onDismissed: () -> Unit = {}
+    onDismissed: (bonus: Double) -> Unit = {}
 ) {
+    val isUserRegistered = activity.isUserRegistered(onYes = {})
     this.apply {
         setAdEventListener(object : RewardedAdEventListener {
+            private var bonus: Double = 0.0
+
             override fun onAdShown() {
                 onShown.invoke()
             }
 
             override fun onAdFailedToShow(adError: AdError) {
                 printLogIfDebug("${this::class.simpleName} - ${adError.description}")
-                onDismissed.invoke()
+                onDismissed.invoke(bonus)
             }
 
             override fun onAdDismissed() {
-                onDismissed.invoke()
+                onDismissed.invoke(bonus)
             }
 
             override fun onAdClicked() {}
 
             override fun onAdImpression(impressionData: ImpressionData?) {
-                impressionData?.let {
-                    val rawData = it.rawData
-                    rawData.toAdData(
-                        onSuccess = {data ->
-                            onImpression.invoke(data)
-                        },
-                        onFailed = {
-                            onImpression.invoke(null)
-                        }
-                    )
-                }?: run {
-                    if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name || BuildConfig.ADS_SOURCE == AdsSource.LOCAL_HOST.name) {
-                        TEST_REWARDED_DATA.toAdData(
-                            onSuccess = { data ->
-                                onImpression.invoke(data)
+                if (IS_REWARD_ACCESSIBLE) {
+                    impressionData?.let {
+                        val rawData = it.rawData
+                        rawData.toAdData(
+                            onSuccess = {data ->
+
+                                if (isUserRegistered) {
+                                    bonus = (data.revenue * UserViewModel.USER_PERCENTAGE).to2DigitsScale()
+                                    onImpression.invoke(data)
+                                } else {
+                                    onImpression.invoke(null)
+                                }
                             },
                             onFailed = {
                                 onImpression.invoke(null)
                             }
                         )
-                    }
-                    else {
-                        onImpression.invoke(null)
+                    }?: run {
+                        if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name || BuildConfig.ADS_SOURCE == AdsSource.LOCAL_HOST.name) {
+                            TEST_REWARDED_DATA.toAdData(
+                                onSuccess = { data ->
+                                    onImpression.invoke(data)
+                                },
+                                onFailed = {
+                                    onImpression.invoke(null)
+                                }
+                            )
+                        }
+                        else {
+                            onImpression.invoke(null)
+                        }
                     }
                 }
             }
@@ -259,6 +275,8 @@ fun RewardedAd.showAd(
         show(activity)
     }
 }
+
+
 
 fun String.toAdData(
     onSuccess: (AdData) -> Unit,
@@ -327,8 +345,35 @@ private val TEST_BANNER_DATA: String
 }"""
     }
 
+fun FragmentActivity.loadNativeAds(
+    adId: String,
+    adCount: Int = 1,
+    onLoaded: (List<NativeAd>) -> Unit,
+    onFailed: (Throwable) -> Unit
+) {
+    val nativeAdLoader = NativeBulkAdLoader(this)
+    val id = if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) "demo-native-app-yandex"
+    else adId
+
+    nativeAdLoader.loadAds(
+        nativeAdRequestConfiguration = NativeAdRequestConfiguration.Builder(id).apply {
+            setShouldLoadImagesAutomatically(true)
+        }.build(),
+        adsCount = adCount
+    )
+    nativeAdLoader.setNativeBulkAdLoadListener(object : NativeBulkAdLoadListener {
+        override fun onAdsFailedToLoad(error: AdRequestError) {
+            onFailed.invoke(Throwable(error.description))
+        }
+
+        override fun onAdsLoaded(nativeAds: List<NativeAd>) {
+            onLoaded.invoke(nativeAds)
+        }
+    })
+}
+
 fun BannerAdView.loadBanner(
-    adId: BannerAdIds? = null,
+    adId: String,
     heightRate: Double = 0.08,
     onCompleted: (error: AdRequestError?) -> Unit = {},
     onImpression: (data: AdData?) -> Unit = {},
@@ -343,7 +388,7 @@ fun BannerAdView.loadBanner(
             val id = if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
                 "demo-banner-yandex"
             } else {
-                adId?.id ?: BannerAdIds.entries.toTypedArray().random().id
+                adId
             }
             setAdUnitId(id)
             setAdSize(fixedSize)
@@ -352,7 +397,7 @@ fun BannerAdView.loadBanner(
         this.setBannerAdEventListener(object : BannerAdEventListener {
 
             override fun onAdClicked() {
-                return
+                onAdClicked.invoke()
             }
 
             override fun onAdFailedToLoad(error: AdRequestError) {

@@ -11,6 +11,7 @@ import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.models.AdData
+import com.myapp.lexicon.ads.models.AdName
 import com.myapp.lexicon.common.mapToUser
 import com.myapp.lexicon.helpers.LOCALE_RU
 import com.myapp.lexicon.helpers.toStringTime
@@ -161,7 +162,12 @@ open class UserViewModel @Inject constructor(
             currentUser.email = email
         }
         userMap.forEach { entry ->
-            currentUser.put(entry.key, entry.value?: "")
+            if (AdName.entries.firstOrNull { it.name == entry.key } != null) {
+                currentUser.increment(entry.key, entry.value as Number)
+            }
+            else {
+                currentUser.put(entry.key, entry.value?: "")
+            }
         }
         currentUser.saveInBackground(object : SaveCallback {
             override fun done(e: ParseException?) {
