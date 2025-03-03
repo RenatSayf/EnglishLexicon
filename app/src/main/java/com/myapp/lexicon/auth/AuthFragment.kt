@@ -18,9 +18,12 @@ import com.myapp.lexicon.databinding.FragmentAuthBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.isItEmail
 import com.myapp.lexicon.helpers.showMultiLineSnackBar
+import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserState
-import com.myapp.lexicon.settings.getAuthDataFromPref
+import com.myapp.lexicon.settings.emailIntoPref
+import com.myapp.lexicon.settings.passwordIntoPref
+import com.myapp.lexicon.settings.saveAuthTokens
 import com.myapp.lexicon.settings.saveUserToPref
 
 class AuthFragment : Fragment() {
@@ -189,7 +192,7 @@ class AuthFragment : Fragment() {
                     showMultiLineSnackBar(getString(R.string.text_such_user_already_exists))
                 }
                 state.onNotAcceptable {
-                    showSnackBar(getString(R.string.text_password_incorrect))
+                    showMultiLineSnackBar(getString(R.string.text_password_incorrect))
                 }
                 state.onSignUp { user ->
                     requireContext().emailIntoPref = etEmail.text.toString()
@@ -202,11 +205,11 @@ class AuthFragment : Fragment() {
                     handleAuthorization(user)
                 }
                 state.onLogUp { tokens: Tokens ->
-                    showSnackBar(getString(R.string.text_user_is_registered))
+                    showMultiLineSnackBar(getString(R.string.text_user_is_registered))
                     requireContext().saveAuthTokens(tokens)
                 }
                 state.onLogIn { tokens: Tokens ->
-                    showSnackBar(getString(R.string.text_login_completed))
+                    showMultiLineSnackBar(getString(R.string.text_login_completed))
                     //TODO Redirect to account screen
                 }
                 state.onEmailValid { flag ->
@@ -223,7 +226,7 @@ class AuthFragment : Fragment() {
                     }
                     else {
                         etPassword.background = ResourcesCompat.getDrawable(resources, R.drawable.bg_horizontal_oval_error, null)
-                        showSnackBar(getString(R.string.text_short_password))
+                        showMultiLineSnackBar(getString(R.string.text_short_password))
                     }
                 }
                 state.onPasswordReset {
@@ -241,7 +244,7 @@ class AuthFragment : Fragment() {
                     showMultiLineSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
                 }
                 state.onHttpFailure { message: String? ->
-                    showSnackBar(getString(R.string.text_service_unavailable))
+                    showMultiLineSnackBar(getString(R.string.text_service_unavailable))
                 }
                 state.onTokensUpdated { tokens: Tokens ->
                     requireContext().saveAuthTokens(tokens)
