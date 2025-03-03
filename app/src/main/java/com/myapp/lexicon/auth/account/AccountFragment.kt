@@ -759,7 +759,7 @@ class AccountFragment : Fragment() {
                         },
                         onComplete = { exception: Exception? ->
                             if (exception != null) {
-                                showSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
+                                showMultiLineSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
                             }
                             requireActivity().orientationUnLock()
                             dialog.dismiss()
