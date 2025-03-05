@@ -8,8 +8,8 @@ import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.ads.models.AdData.Companion.fromString
 import com.myapp.lexicon.databinding.DialogConfirmationBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
-import com.myapp.lexicon.main.viewmodels.UserViewModel.Companion.USER_PERCENTAGE
 import com.myapp.lexicon.models.to2DigitsScale
+import com.myapp.lexicon.settings.userPercentFromPref
 import com.myapp.lexicon.splash.SplashActivity
 
 
@@ -61,7 +61,7 @@ fun FragmentActivity.handleAdDataFromSplashActivity(
         if (strAdData != null) {
             val adData: AdData? = strAdData.fromString()
             if (adData != null) {
-                val bonus = (adData.revenue * USER_PERCENTAGE).to2DigitsScale()
+                val bonus = (adData.revenue * this.userPercentFromPref).to2DigitsScale()
                 this.intent.putExtra(SplashActivity.KEY_AD_DATA, null as String?)
                 onCompleted.invoke(adData, bonus)
             }

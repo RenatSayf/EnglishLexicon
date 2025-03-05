@@ -87,6 +87,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                         authVM.getState().observe(this, userState -> {
                             userState.onSignIn(
                                     user -> {
+                                        SettingsExtKt.saveUserPercentToPref(this, user);
                                         handleAdvertisingPayload();
                                         return null;
                                     }

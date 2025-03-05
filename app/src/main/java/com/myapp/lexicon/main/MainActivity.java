@@ -204,6 +204,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 buildRewardText(new Revenue(user.getUserReward(), user.getReservedPayment(), user.getCurrency(), user.getCurrencySymbol()));
                 boolean isAdsEnabled = CommonConstantsKt.getIS_ADS_ENABLED() || user.isAdsEnabled();
                 SettingsExtKt.setAdsIsEnabled(this, isAdsEnabled);
+                SettingsExtKt.saveUserPercentToPref(this, user);
                 if (!user.isAdsEnabled() && !user.getMessage().isEmpty()) {
                     ExtensionsKt.showMultiLineSnackBar(navView, user.getMessage(), Snackbar.LENGTH_LONG);
                 }

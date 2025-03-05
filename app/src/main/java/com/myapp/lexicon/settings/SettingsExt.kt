@@ -11,6 +11,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.models.TestState
@@ -109,6 +111,23 @@ val Fragment.adsIsEnabled: Boolean
     get() {
         return requireContext().adsIsEnabled
     }
+
+val Context.userPercentFromPref: Double
+    get() {
+        val value = appSettings.getFloat("USER_PERCENTAGE", -1.0f)
+        return if (value < 0)  {
+            try {
+                Firebase.remoteConfig.getDouble("USER_PERCENTAGE")
+            } catch (e: Exception) {
+                0.0
+            }
+        } else value.toDouble()
+    }
+
+
+fun Context.saveUserPercentToPref(user: User) {
+    appSettings.edit().putFloat("USER_PERCENTAGE", user.userPercent?.toFloat()?: -1.0f).apply()
+}
 
 var Context.checkFirstLaunch: Boolean
     get() {

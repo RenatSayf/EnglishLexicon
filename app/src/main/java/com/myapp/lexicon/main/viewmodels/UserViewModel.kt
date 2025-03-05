@@ -6,8 +6,6 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.models.AdData
@@ -18,6 +16,7 @@ import com.myapp.lexicon.helpers.toStringTime
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.settings.getAuthDataFromPref
+import com.myapp.lexicon.settings.userPercentFromPref
 import com.parse.GetCallback
 import com.parse.LogInCallback
 import com.parse.LogOutCallback
@@ -32,15 +31,11 @@ import java.util.Currency
 import javax.inject.Inject
 
 
+
+
 open class UserViewModel @Inject constructor(
     private val app: Application
 ) : AndroidViewModel(app) {
-    companion object {
-
-        val USER_PERCENTAGE: Double by lazy {
-            Firebase.remoteConfig.getDouble("USER_PERCENTAGE")
-        }
-    }
 
     sealed class LoadingState {
         data object Start: LoadingState()
@@ -212,8 +207,7 @@ open class UserViewModel @Inject constructor(
                 currentUser.apply {
                     increment(User.KEY_REVENUE_USD, adData.revenueUSD)
                     increment(User.KEY_TOTAL_REVENUE, adData.revenue)
-                    val percent = if (user.value?.userPercent == null) USER_PERCENTAGE else user.value!!.userPercent
-                    increment(User.KEY_USER_REWARD, adData.revenue * (percent?: USER_PERCENTAGE))
+                    increment(User.KEY_USER_REWARD, adData.revenue * app.userPercentFromPref)
                     put(User.KEY_CURRENCY, adData.currency.toString())
                     val currencySymbol = Currency.getInstance(adData.currency).symbol
                     put(User.KEY_CURRENCY_SYMBOL, currencySymbol)
