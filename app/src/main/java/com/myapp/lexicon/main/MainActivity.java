@@ -227,7 +227,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             if (adData != null) {
                                 revenueVM.updateUserRevenueIntoCloud(adData);
                             }
-                            if (bonus > 0.0)
+                            if (bonus > 0.009)
                             {
                                 showUserRewardAnimatedly(bonus);
                             } else
@@ -1028,9 +1028,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         adsVM.getInterstitialAdState().observe(this, adState -> {
             if (adState instanceof AdsViewModel.AdState.Dismissed) {
                 double bonus = ((AdsViewModel.AdState.Dismissed) adState).getBonus();
-                if (bonus > 0.0)
+                if (bonus > 0.009)
                 {
                     showUserRewardAnimatedly(bonus);
+                } else
+                {
+                    ExtensionsKt.showToastIfDebug(
+                            this, "Bonus is less than 0.01"
+                    );
                 }
             }
         });
