@@ -25,6 +25,7 @@ import com.myapp.lexicon.databinding.ServiceDialogActivityBinding;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.interfaces.IModalFragment;
+import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.settings.SettingsExtKt;
 import com.myapp.lexicon.splash.SplashActivity;
 import com.parse.ParseUser;
@@ -39,6 +40,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
 
 
+/** @noinspection DataFlowIssue*/
 public class ServiceActivity extends AppCompatActivity implements IModalFragment
 {
     public static final String ARG_JSON = ServiceActivity.class.getCanonicalName() + ".ARG_JSON";
@@ -49,6 +51,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
     private InterstitialAd interstitialAd;
     private RewardedAd rewardedAd;
     private LockOrientation locker;
+    private AlarmScheduler scheduler;
 
     private static Long lastAdShowTime = 0L;
 
@@ -66,6 +69,8 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
 
         locker = new LockOrientation(this);
         locker.lock();
+
+        scheduler = new AlarmScheduler(this);
 
         binding = ServiceDialogActivityBinding.inflate(getLayoutInflater(), new FrameLayout(this), false);
         setContentView(binding.getRoot());
@@ -250,10 +255,13 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
     @Override
     protected void onDestroy()
     {
+        long repeatingInterval = SettingsExtKt.getNotificationRepeatingInterval(this);
+        scheduler.scheduleOne(repeatingInterval);
         lastAdShowTime = System.currentTimeMillis();
         locker.unLock();
         super.onDestroy();
     }
+
 }
 
 

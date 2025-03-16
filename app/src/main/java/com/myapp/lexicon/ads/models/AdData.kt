@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.myapp.lexicon.ads.models
 
 import kotlinx.serialization.SerialName
@@ -28,7 +30,7 @@ data class AdData(
     var requestId: String? = null,
     var revenue: Double = 0.0,
     var revenueUSD: Double = 0.0
-) : java.io.Serializable {
+) {
 
     companion object {
         fun String.fromString(): AdData? {

@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.myapp.lexicon.schedule
 
 import android.app.AlarmManager
@@ -7,7 +9,7 @@ import android.content.Intent
 import android.os.Build
 
 
-class AlarmScheduler constructor(private val context: Context)
+class AlarmScheduler(private val context: Context)
 {
     companion object
     {

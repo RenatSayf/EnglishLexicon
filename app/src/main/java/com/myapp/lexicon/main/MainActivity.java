@@ -94,6 +94,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import kotlin.Pair;
 
 
+/** @noinspection DataFlowIssue*/
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         MainFragment.Listener, FragmentResultListener
 {
@@ -279,7 +280,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mainViewPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
 
         mainVM.wordsList.observe(this, list -> {
-            if (list != null && !list.getWords().isEmpty())
+            if (!list.getWords().isEmpty())
             {
                 int order = ExtensionsKt.checkSorting(list.getWords());
                 SettingsExtKt.saveOrderPlay(this, order);
@@ -786,10 +787,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Intent intent = new Intent(this, WordEditorActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putString(WordEditorActivity.KEY_EXTRA_DICT_NAME, btnViewDict.getText().toString());
-                if (currentWord != null)
-                {
-                    bundle.putString(WordEditorActivity.KEY_EXTRA_WORD, currentWord.toString());
-                }
+                bundle.putString(WordEditorActivity.KEY_EXTRA_WORD, currentWord.toString());
                 intent.replaceExtras(bundle);
                 activityResultLauncher.launch(intent);
             }
