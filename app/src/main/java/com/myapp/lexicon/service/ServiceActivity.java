@@ -149,7 +149,6 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
 
         int adType = AdTypeKt.getAD_SERVICE();
         if (adType == AdType.INTERSTITIAL.getType()) {
-            adsVM.loadInterstitialAd(InterstitialAdIdsKt.getINTERSTITIAL_SERVICE());
             adsVM.getInterstitialAd().observe(ServiceActivity.this, result -> {
                 interstitialAd = adsVM.getInterstitialAdOrNull();
                 if (interstitialAd != null) {
@@ -179,6 +178,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                     adsVM.setInterstitialAdState(new AdsViewModel.AdState.Dismissed(0.0));
                 }
             });
+            adsVM.loadInterstitialAd(InterstitialAdIdsKt.getINTERSTITIAL_SERVICE());
         }
         if (adType == AdType.BANNER.getType()) {
             BannersActivityKt.startBannersActivity(
@@ -222,7 +222,6 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
             );
         }
         if (adType == AdType.REWARDED.getType()) {
-            adsVM.loadRewardedAd(RewardedAdIdsKt.getREWARDED_SERVICE_ID());
             adsVM.getRewardedAd().observe(ServiceActivity.this, result -> {
                 rewardedAd = adsVM.getRewardedAdOrNull();
                 if (rewardedAd != null) {
@@ -249,6 +248,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                     );
                 }
             });
+            adsVM.loadRewardedAd(RewardedAdIdsKt.getREWARDED_SERVICE_ID());
         }
     }
 
@@ -258,6 +258,8 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         long repeatingInterval = SettingsExtKt.getNotificationRepeatingInterval(this);
         scheduler.scheduleOne(repeatingInterval);
         lastAdShowTime = System.currentTimeMillis();
+        interstitialAd = null;
+        rewardedAd = null;
         locker.unLock();
         super.onDestroy();
     }
