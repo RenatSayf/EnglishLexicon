@@ -41,12 +41,13 @@ open class NetRepository(
             })
             when(response.status) {
                 HttpStatusCode.OK -> {
-                    try {
+                    runCatching {
                         val json = response.body<String>()
-                        val tokens = jsonDecoder.decodeFromString<Tokens>(json)
+                        jsonDecoder.decodeFromString<Tokens>(json)
+                    }.onSuccess { tokens ->
                         emit(Result.success(tokens))
-                    } catch (e: Exception) {
-                        emit(Result.failure(e))
+                    }.onFailure { ex ->
+                        Result.failure<Exception>(ex)
                     }
                 }
                 else -> {

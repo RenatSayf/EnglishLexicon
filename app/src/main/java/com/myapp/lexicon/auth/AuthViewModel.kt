@@ -52,8 +52,6 @@ open class AuthViewModel(
         const val ACCOUNT_DELETING_ERROR = "Account deleting error"
     }
 
-    private val repository: INetRepository = netModule.provideNetRepository()
-
     sealed class LoadingState {
         data object Start: LoadingState()
         data object Complete: LoadingState()
@@ -94,6 +92,16 @@ open class AuthViewModel(
     open fun setState(state: UserState) {
         _state.value = state
     }
+
+    private val repository: INetRepository = netModule.apply {
+        setTokensUpdateListener(object : INetRepositoryModule.Listener {
+            override fun onUpdateTokens(tokens: Tokens) {
+                _state.value = UserState.TokensUpdated(tokens)
+            }
+
+            override fun onAuthorizationRequired() {}
+        })
+    }.provideNetRepository()
 
     open fun registerForNewUser(email: String, password: String, dispatcher: CoroutineDispatcher = Dispatchers.IO) {
         _loadingState.value = LoadingState.Start

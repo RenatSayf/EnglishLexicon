@@ -154,7 +154,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mainVM = createMainViewModel();
         speechVM = createSpeechViewModel();
         speechVM = new ViewModelProvider(this).get(SpeechViewModel.class);
-        AuthViewModel authVM = new ViewModelProvider(this).get(AuthViewModel.class);
+
+        AuthViewModel authVM = new AuthViewModel.Factory().create(AuthViewModel.class);
+        //AuthViewModel authVM = new ViewModelProvider(this).get(AuthViewModel.class);
         revenueVM = new ViewModelProvider(MainActivity.this).get(RevenueViewModel.class);
         UserViewModel userVM = new ViewModelProvider(MainActivity.this).get(UserViewModel.class);
 
