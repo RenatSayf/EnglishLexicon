@@ -1,4 +1,4 @@
-@file:Suppress("MoveVariableDeclarationIntoWhen")
+@file:Suppress("MoveVariableDeclarationIntoWhen", "unused")
 
 package com.myapp.lexicon.settings
 
@@ -6,11 +6,14 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.content.edit
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.models.TestState
@@ -18,6 +21,7 @@ import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.toWord
 import kotlinx.serialization.SerializationException
+import java.util.concurrent.TimeUnit
 
 val Context.appSettings: SharedPreferences
     get() {
@@ -30,19 +34,22 @@ val Fragment.appSettings: SharedPreferences
     }
 
 fun Context.saveUserToPref(user: User) {
-    appSettings.edit().apply {
-        putString("KEY_EMAIL", user.email)
-        putString("KEY_PASSWORD", user.password)
-        putBoolean("KEY_IS_REGISTERED", true)
-    }.apply()
+    appSettings.edit {
+        apply {
+            putString("KEY_EMAIL", user.email)
+            putString("KEY_PASSWORD", user.password)
+            putBoolean("KEY_IS_REGISTERED", true)
+        }
+    }
 }
 
 fun Context.clearEmailPasswordInPref() {
-    appSettings.edit().apply {
-        putString("KEY_EMAIL", null).apply()
-        putString("KEY_PASSWORD", null).apply()
-        putBoolean("KEY_IS_REGISTERED", false).apply()
-    }.apply()
+    appSettings.edit {
+        apply {
+            putString("KEY_EMAIL", null).apply()
+            putString("KEY_PASSWORD", null).apply()
+            putBoolean("KEY_IS_REGISTERED", false).apply()
+    }}
 
 }
 
@@ -90,7 +97,7 @@ fun Context.isFirstLogin(
     val isFirst = appSettings.getBoolean(key, true)
     if (isFirst) {
         onYes.invoke()
-        appSettings.edit().putBoolean(key, false).apply()
+        appSettings.edit { putBoolean(key, false) }
     }
     else {
         onNotFirst.invoke()
@@ -102,7 +109,7 @@ var Context.adsIsEnabled: Boolean
         return appSettings.getBoolean(getString(R.string.KEY_IS_ADS_ENABLED), true)
     }
     set(value) {
-        appSettings.edit().putBoolean(getString(R.string.KEY_IS_ADS_ENABLED), value).apply()
+        appSettings.edit { putBoolean(getString(R.string.KEY_IS_ADS_ENABLED), value) }
     }
 
 val Fragment.adsIsEnabled: Boolean
@@ -110,12 +117,29 @@ val Fragment.adsIsEnabled: Boolean
         return requireContext().adsIsEnabled
     }
 
+val Context.userPercentFromPref: Double
+    get() {
+        val value = appSettings.getFloat("USER_PERCENTAGE", -1.0f)
+        return if (value < 0)  {
+            try {
+                Firebase.remoteConfig.getDouble("USER_PERCENTAGE")
+            } catch (e: Exception) {
+                0.0
+            }
+        } else value.toDouble()
+    }
+
+
+fun Context.saveUserPercentToPref(user: User) {
+    appSettings.edit { putFloat("USER_PERCENTAGE", user.userPercent?.toFloat() ?: -1.0f) }
+}
+
 var Context.checkFirstLaunch: Boolean
     get() {
         return appSettings.getBoolean(getString(R.string.KEY_FIRST_LAUNCH), true)
     }
     set(value) {
-        appSettings.edit().putBoolean(getString(R.string.KEY_FIRST_LAUNCH), value).apply()
+        appSettings.edit { putBoolean(getString(R.string.KEY_FIRST_LAUNCH), value) }
     }
 
 fun Context.checkOnStartSpeech(onEnabled: () -> Unit, onDisabled: () -> Unit) {
@@ -129,12 +153,12 @@ fun Context.checkOnStartSpeech(onEnabled: () -> Unit, onDisabled: () -> Unit) {
 fun Context.saveWordToPref(word: Word?, bookmark: Int) {
     if (word != null) {
         val strToSave = word.toString()
-        appSettings.edit().putString("KEY_CURRENT_WORD", strToSave).apply()
-        appSettings.edit().putInt("KEY_BOOKMARK", bookmark).apply()
+        appSettings.edit { putString("KEY_CURRENT_WORD", strToSave) }
+        appSettings.edit { putInt("KEY_BOOKMARK", bookmark) }
     }
     else {
-        appSettings.edit().putString("KEY_CURRENT_WORD", null).apply()
-        appSettings.edit().putInt("KEY_BOOKMARK", -1).apply()
+        appSettings.edit { putString("KEY_CURRENT_WORD", null) }
+        appSettings.edit { putInt("KEY_BOOKMARK", -1) }
     }
 }
 
@@ -190,8 +214,8 @@ fun Context.disablePassiveWordsRepeat(
     onError: (String) -> Unit
 ) {
     try {
-        appSettings.edit().putString(getString(R.string.key_show_intervals), "0").apply()
-        appSettings.edit().putBoolean(getString(R.string.key_service), false).apply()
+        appSettings.edit { putString(getString(R.string.key_show_intervals), "0") }
+        appSettings.edit { putBoolean(getString(R.string.key_service), false) }
         onDisabled.invoke()
     } catch (e: Exception) {
         onError.invoke(e.message?: "Unknown error")
@@ -208,26 +232,30 @@ fun Fragment.disablePassiveWordsRepeat(
 
 fun Fragment.saveTestStateToPref(state: TestState?) {
     if (state != null) {
-        appSettings.edit().apply {
-            putString(TestState.KEY_DICTIONARY, state.dict)
-            putInt(TestState.KEY_WORD_ID, state.wordId)
-            putInt(TestState.KEY_PROGRESS, state.progress)
-            putInt(TestState.KEY_PROGRESS_MAX, state.progressMax)
-            putInt(TestState.KEY_RIGHT_ANSWERS, state.rightAnswers)
-            val stringIds = state.studiedWordIds.map { item ->
-                item.toString()
-            }.toSet()
-            putStringSet(TestState.KEY_STUDIED_WORD_IDS, stringIds)
-        }.apply()
+        appSettings.edit {
+            apply {
+                putString(TestState.KEY_DICTIONARY, state.dict)
+                putInt(TestState.KEY_WORD_ID, state.wordId)
+                putInt(TestState.KEY_PROGRESS, state.progress)
+                putInt(TestState.KEY_PROGRESS_MAX, state.progressMax)
+                putInt(TestState.KEY_RIGHT_ANSWERS, state.rightAnswers)
+                val stringIds = state.studiedWordIds.map { item ->
+                    item.toString()
+                }.toSet()
+                putStringSet(TestState.KEY_STUDIED_WORD_IDS, stringIds)
+            }
+        }
     } else {
-        appSettings.edit().apply {
-            putString(TestState.KEY_DICTIONARY, null)
-            putInt(TestState.KEY_WORD_ID, 0)
-            putInt(TestState.KEY_PROGRESS, 0)
-            putInt(TestState.KEY_PROGRESS_MAX, Int.MAX_VALUE)
-            putInt(TestState.KEY_RIGHT_ANSWERS, 0)
-            putStringSet(TestState.KEY_STUDIED_WORD_IDS, null)
-        }.apply()
+        appSettings.edit {
+            apply {
+                putString(TestState.KEY_DICTIONARY, null)
+                putInt(TestState.KEY_WORD_ID, 0)
+                putInt(TestState.KEY_PROGRESS, 0)
+                putInt(TestState.KEY_PROGRESS_MAX, Int.MAX_VALUE)
+                putInt(TestState.KEY_RIGHT_ANSWERS, 0)
+                putStringSet(TestState.KEY_STUDIED_WORD_IDS, null)
+            }
+        }
     }
 }
 
@@ -313,12 +341,12 @@ fun Context.checkPassiveModeEnabled(): Boolean {
 
 fun Context.goToAppStore() {
     val intent = Intent(Intent.ACTION_VIEW)
-    intent.data = Uri.parse(this.getString(R.string.app_link).plus(this.packageName))
+    intent.data = this.getString(R.string.app_link).plus(this.packageName).toUri()
     startActivity(intent)
 }
 
 fun Context.saveOrderPlay(order: Int) {
-    appSettings.edit().putInt("KEY_ORDER_PLAY", order).apply()
+    appSettings.edit { putInt("KEY_ORDER_PLAY", order) }
 }
 
 fun Context.getOrderPlay(
@@ -344,7 +372,7 @@ var Context.isEngSpeech: Boolean
         return appSettings.getBoolean("KEY_ENG_SPEECH", true)
     }
     set(value) {
-        appSettings.edit().putBoolean("KEY_ENG_SPEECH", value).apply()
+        appSettings.edit { putBoolean("KEY_ENG_SPEECH", value) }
     }
 
 var Context.isRuSpeech: Boolean
@@ -352,7 +380,7 @@ var Context.isRuSpeech: Boolean
         return appSettings.getBoolean("KEY_RUS_SPEECH", false)
     }
     set(value) {
-        appSettings.edit().putBoolean("KEY_RUS_SPEECH", value).apply()
+        appSettings.edit { putBoolean("KEY_RUS_SPEECH", value) }
     }
 
 fun Context.isAppInstalled(packageName: String): Boolean {
@@ -363,6 +391,12 @@ fun Context.isAppInstalled(packageName: String): Boolean {
         false
     }
 }
+
+val Context.notificationRepeatingInterval: Long
+    get() {
+        val minutes = appSettings.getString("show_interval", "20").toString().toLong()
+        return TimeUnit.MINUTES.toMillis(minutes)
+    }
 
 
 

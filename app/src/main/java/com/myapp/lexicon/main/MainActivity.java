@@ -94,6 +94,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import kotlin.Pair;
 
 
+/** @noinspection DataFlowIssue*/
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         MainFragment.Listener, FragmentResultListener
 {
@@ -204,6 +205,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 buildRewardText(new Revenue(user.getUserReward(), user.getReservedPayment(), user.getCurrency(), user.getCurrencySymbol()));
                 boolean isAdsEnabled = CommonConstantsKt.getIS_ADS_ENABLED() || user.isAdsEnabled();
                 SettingsExtKt.setAdsIsEnabled(this, isAdsEnabled);
+                SettingsExtKt.saveUserPercentToPref(this, user);
                 if (!user.isAdsEnabled() && !user.getMessage().isEmpty()) {
                     ExtensionsKt.showMultiLineSnackBar(navView, user.getMessage(), Snackbar.LENGTH_LONG);
                 }
@@ -226,7 +228,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             if (adData != null) {
                                 revenueVM.updateUserRevenueIntoCloud(adData);
                             }
-                            if (bonus > 0.0)
+                            if (bonus > 0.009)
                             {
                                 showUserRewardAnimatedly(bonus);
                             } else
@@ -278,7 +280,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mainViewPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
 
         mainVM.wordsList.observe(this, list -> {
-            if (list != null && !list.getWords().isEmpty())
+            if (!list.getWords().isEmpty())
             {
                 int order = ExtensionsKt.checkSorting(list.getWords());
                 SettingsExtKt.saveOrderPlay(this, order);
@@ -785,10 +787,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Intent intent = new Intent(this, WordEditorActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putString(WordEditorActivity.KEY_EXTRA_DICT_NAME, btnViewDict.getText().toString());
-                if (currentWord != null)
-                {
-                    bundle.putString(WordEditorActivity.KEY_EXTRA_WORD, currentWord.toString());
-                }
+                bundle.putString(WordEditorActivity.KEY_EXTRA_WORD, currentWord.toString());
                 intent.replaceExtras(bundle);
                 activityResultLauncher.launch(intent);
             }
@@ -1027,9 +1026,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         adsVM.getInterstitialAdState().observe(this, adState -> {
             if (adState instanceof AdsViewModel.AdState.Dismissed) {
                 double bonus = ((AdsViewModel.AdState.Dismissed) adState).getBonus();
-                if (bonus > 0.0)
+                if (bonus > 0.009)
                 {
                     showUserRewardAnimatedly(bonus);
+                } else
+                {
+                    ExtensionsKt.showToastIfDebug(
+                            this, "Bonus is less than 0.01"
+                    );
                 }
             }
         });

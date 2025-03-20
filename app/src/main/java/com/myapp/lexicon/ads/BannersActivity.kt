@@ -17,8 +17,8 @@ import com.myapp.lexicon.databinding.ActivityBannersBinding
 import com.myapp.lexicon.helpers.orientationLock
 import com.myapp.lexicon.helpers.orientationUnLock
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
-import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.to2DigitsScale
+import com.myapp.lexicon.settings.userPercentFromPref
 import com.yandex.mobile.ads.common.AdRequestError
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -269,7 +269,7 @@ fun Activity.startBannersActivity(
         override fun onDismissed(data: AdData?) {
             if (data != null) {
                 onImpression.invoke(data)
-                val bonus = (data.revenue * UserViewModel.USER_PERCENTAGE).to2DigitsScale()
+                val bonus = (data.revenue * this@startBannersActivity.userPercentFromPref).to2DigitsScale()
                 onDismissed.invoke(bonus)
             }
         }
