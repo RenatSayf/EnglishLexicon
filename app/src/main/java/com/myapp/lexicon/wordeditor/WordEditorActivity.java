@@ -53,6 +53,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
 
 
+/** @noinspection DataFlowIssue*/
 @SuppressWarnings("CodeBlock2Expr")
 public class WordEditorActivity extends AppCompatActivity implements ListViewAdapter.IListViewAdapter
 {
@@ -294,7 +295,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
         });
 
         mainVM.getCountRepeat().observe(this, id -> {
-            if (id != null && id > 0)
+            if (id > 0)
             {
                 editorVM.getAllWordsByDictName(dictListSpinner.getSelectedItem().toString());
             }

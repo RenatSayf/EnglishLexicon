@@ -25,6 +25,7 @@ import com.myapp.lexicon.databinding.ServiceDialogActivityBinding;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.interfaces.IModalFragment;
+import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.settings.SettingsExtKt;
 import com.myapp.lexicon.splash.SplashActivity;
 import com.parse.ParseUser;
@@ -39,6 +40,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
 
 
+/** @noinspection DataFlowIssue*/
 public class ServiceActivity extends AppCompatActivity implements IModalFragment
 {
     public static final String ARG_JSON = ServiceActivity.class.getCanonicalName() + ".ARG_JSON";
@@ -49,6 +51,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
     private InterstitialAd interstitialAd;
     private RewardedAd rewardedAd;
     private LockOrientation locker;
+    private AlarmScheduler scheduler;
 
     private static Long lastAdShowTime = 0L;
 
@@ -66,6 +69,8 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
 
         locker = new LockOrientation(this);
         locker.lock();
+
+        scheduler = new AlarmScheduler(this);
 
         binding = ServiceDialogActivityBinding.inflate(getLayoutInflater(), new FrameLayout(this), false);
         setContentView(binding.getRoot());
@@ -87,6 +92,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                         authVM.getState().observe(this, userState -> {
                             userState.onSignIn(
                                     user -> {
+                                        SettingsExtKt.saveUserPercentToPref(this, user);
                                         handleAdvertisingPayload();
                                         return null;
                                     }
@@ -143,7 +149,6 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
 
         int adType = AdTypeKt.getAD_SERVICE();
         if (adType == AdType.INTERSTITIAL.getType()) {
-            adsVM.loadInterstitialAd(InterstitialAdIdsKt.getINTERSTITIAL_SERVICE());
             adsVM.getInterstitialAd().observe(ServiceActivity.this, result -> {
                 interstitialAd = adsVM.getInterstitialAdOrNull();
                 if (interstitialAd != null) {
@@ -173,6 +178,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                     adsVM.setInterstitialAdState(new AdsViewModel.AdState.Dismissed(0.0));
                 }
             });
+            adsVM.loadInterstitialAd(InterstitialAdIdsKt.getINTERSTITIAL_SERVICE());
         }
         if (adType == AdType.BANNER.getType()) {
             BannersActivityKt.startBannersActivity(
@@ -216,7 +222,6 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
             );
         }
         if (adType == AdType.REWARDED.getType()) {
-            adsVM.loadRewardedAd(RewardedAdIdsKt.getREWARDED_SERVICE_ID());
             adsVM.getRewardedAd().observe(ServiceActivity.this, result -> {
                 rewardedAd = adsVM.getRewardedAdOrNull();
                 if (rewardedAd != null) {
@@ -243,16 +248,22 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                     );
                 }
             });
+            adsVM.loadRewardedAd(RewardedAdIdsKt.getREWARDED_SERVICE_ID());
         }
     }
 
     @Override
     protected void onDestroy()
     {
+        long repeatingInterval = SettingsExtKt.getNotificationRepeatingInterval(this);
+        scheduler.scheduleOne(repeatingInterval);
         lastAdShowTime = System.currentTimeMillis();
+        interstitialAd = null;
+        rewardedAd = null;
         locker.unLock();
         super.onDestroy();
     }
+
 }
 
 

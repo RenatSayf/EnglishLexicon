@@ -16,6 +16,7 @@ import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.AppResult
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.to2DigitsScale
+import com.myapp.lexicon.settings.userPercentFromPref
 import com.parse.GetCallback
 import com.parse.ParseException
 import com.parse.ParseObject
@@ -28,7 +29,7 @@ import javax.inject.Inject
 
 
 class RevenueViewModel @Inject constructor(
-    app: Application
+    private val app: Application
 ): UserViewModel(app) {
 
     private var _userRevenueLD = MutableLiveData<AppResult>(AppResult.Init)
@@ -44,12 +45,7 @@ class RevenueViewModel @Inject constructor(
                     increment(User.KEY_REVENUE_USD, adData.revenueUSD)
                     increment(User.KEY_TOTAL_REVENUE, adData.revenue)
 
-                    val percent =
-                        when(state.value) {
-                            is State.ReceivedUserData -> (state.value as State.ReceivedUserData).user.userPercent
-                            else -> USER_PERCENTAGE
-                        }
-                    val userReward = adData.revenue * (percent?: USER_PERCENTAGE)
+                    val userReward = adData.revenue * app.userPercentFromPref
                     increment(User.KEY_USER_REWARD, userReward)
                     increment(User.KEY_USER_DAILY_REWARD, userReward)
 
@@ -93,7 +89,7 @@ class RevenueViewModel @Inject constructor(
                                             val revenue = obj.mapToRevenue()
                                             _userRevenueLD.value = AppResult.Success(revenue)
                                             val user = obj.mapToUser()
-                                            _state.value = State.RevenueUpdated(adData.revenue * USER_PERCENTAGE, user)
+                                            _state.value = State.RevenueUpdated(adData.revenue * app.userPercentFromPref, user)
                                         }
                                         e is ParseException -> {
                                             _userRevenueLD.value = AppResult.Error(Exception(e.message))

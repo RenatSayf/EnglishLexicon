@@ -21,8 +21,8 @@ import com.myapp.lexicon.helpers.logIfDebug
 import com.myapp.lexicon.helpers.orientationLock
 import com.myapp.lexicon.helpers.orientationUnLock
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
-import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.to2DigitsScale
+import com.myapp.lexicon.settings.userPercentFromPref
 import com.yandex.mobile.ads.common.AdRequestError
 import com.yandex.mobile.ads.common.ImpressionData
 import com.yandex.mobile.ads.nativeads.NativeAd
@@ -224,7 +224,7 @@ fun Activity.startNativeAdsActivity(
             if (data != null) {
                 try {
                     onImpression.invoke(data)
-                    val bonus = (data.revenue * UserViewModel.USER_PERCENTAGE).to2DigitsScale()
+                    val bonus = (data.revenue * this@startNativeAdsActivity.userPercentFromPref).to2DigitsScale()
                     onDismissed.invoke(bonus)
                 } catch (e: Exception) {
                     e.printStackTraceIfDebug()
