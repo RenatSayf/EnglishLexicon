@@ -18,6 +18,7 @@ import com.myapp.lexicon.di.INetRepositoryModule
 import com.myapp.lexicon.di.NetRepositoryModule
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.models.Tokens
+import com.myapp.lexicon.repository.network.INetRepository
 import com.parse.GetCallback
 import com.parse.ParseException
 import com.parse.ParseObject
@@ -47,6 +48,14 @@ open class AccountViewModel(
         }
     }
 
+    sealed class LoadingState {
+        data object Start: LoadingState()
+        data object Complete: LoadingState()
+    }
+
+    protected var _loadingState = MutableLiveData<LoadingState>()
+    open val loadingState: LiveData<LoadingState> = _loadingState
+
     open val paymentThreshold: Double = PAYMENT_THRESHOLD
 
     open val paymentCode: String = if (!BuildConfig.DEBUG)
@@ -62,9 +71,8 @@ open class AccountViewModel(
 
     private var thread: Thread? = null
     private var payoutThread: Thread? = null
-    private val repository = netModule.provideNetRepository()
 
-    private var _screenState = MutableLiveData<AccountScreenState>(AccountScreenState.Init)
+    protected open var _screenState = MutableLiveData<AccountScreenState>(AccountScreenState.Init)
     open val screenState: LiveData<AccountScreenState> = _screenState
     fun saveScreenState(state: AccountScreenState) {
         _screenState.value = state
@@ -80,6 +88,26 @@ open class AccountViewModel(
 
     var authorizationRequired = MutableStateFlow<Result<Boolean>>(Result.failure(Throwable()))
         private set
+
+    sealed interface AuthState {
+        data class TokensUpdated(val tokens: Tokens): AuthState
+        data object AuthorizationRequired: AuthState
+    }
+
+    protected open var _authState = MutableLiveData<AuthState>()
+    open val authState: LiveData<AuthState> = _authState
+
+    protected open val repository: INetRepository = netModule.apply {
+        setTokensUpdateListener(object : INetRepositoryModule.Listener {
+            override fun onUpdateTokens(tokens: Tokens) {
+                _authState.value = AuthState.TokensUpdated(tokens)
+            }
+
+            override fun onAuthorizationRequired() {
+                _authState.value = AuthState.AuthorizationRequired
+            }
+        })
+    }.provideNetRepository()
 
     open fun fetchBankListFromNet() {
 
@@ -251,7 +279,7 @@ open class AccountViewModel(
         netModule.apply {
             setTokensUpdateListener(object : INetRepositoryModule.Listener {
                 override fun onUpdateTokens(tokens: Tokens) {
-                    setRefreshToken(tokens.refreshToken)
+                    this@apply.setRefreshToken(tokens.refreshToken)
                     newTokens.value = Result.success(tokens)
                 }
 

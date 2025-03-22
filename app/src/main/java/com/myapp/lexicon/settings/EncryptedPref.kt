@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.myapp.lexicon.models.Tokens
+import androidx.core.content.edit
 
 private const val ACCESS_TOKEN = "KEY_ACCESS_TOKEN_54784297855"
 private const val REFRESH_TOKEN = "KEY_REFRESH_TOKEN_4878975645"
@@ -28,10 +29,12 @@ private val Context.encryptPref: SharedPreferences
     }
 
 fun Context.saveAuthTokens(tokens: Tokens) {
-    this.encryptPref.edit().apply {
-        putString(ACCESS_TOKEN, tokens.accessToken)
-        putString(REFRESH_TOKEN, tokens.refreshToken)
-    }.apply()
+    this.encryptPref.edit {
+        apply {
+            putString(ACCESS_TOKEN, tokens.accessToken)
+            putString(REFRESH_TOKEN, tokens.refreshToken)
+        }
+    }
 }
 
 val Context.accessToken: String
@@ -48,10 +51,10 @@ var Context.emailIntoPref: String
     get() {
         return this.encryptPref.getString(KEY_EMAIL, "").toString()
     }
-    set(value) { this.encryptPref.edit().putString(KEY_EMAIL, value).apply() }
+    set(value) { this.encryptPref.edit { putString(KEY_EMAIL, value) } }
 
 var Context.passwordIntoPref: String
     get() {
         return this.encryptPref.getString(KEY_PASSWORD, "").toString()
     }
-    set(value) { this.encryptPref.edit().putString(KEY_PASSWORD, value).apply() }
+    set(value) { this.encryptPref.edit { putString(KEY_PASSWORD, value) } }

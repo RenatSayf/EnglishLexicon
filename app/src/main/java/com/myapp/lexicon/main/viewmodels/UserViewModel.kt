@@ -6,14 +6,22 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.ads.models.AdName
+import com.myapp.lexicon.auth.account.AccountViewModel
 import com.myapp.lexicon.common.mapToUser
+import com.myapp.lexicon.di.App
+import com.myapp.lexicon.di.INetRepositoryModule
+import com.myapp.lexicon.di.NetRepositoryModule
 import com.myapp.lexicon.helpers.LOCALE_RU
 import com.myapp.lexicon.helpers.toStringTime
 import com.myapp.lexicon.models.User
+import com.myapp.lexicon.models.UserX
 import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.settings.getAuthDataFromPref
 import com.myapp.lexicon.settings.userPercentFromPref
@@ -25,15 +33,17 @@ import com.parse.ParseObject
 import com.parse.ParseQuery
 import com.parse.ParseUser
 import com.parse.SaveCallback
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import java.util.Currency
 import javax.inject.Inject
 
 
 
 
-open class UserViewModel @Inject constructor(
+open class UserViewModel(
     private val app: Application
 ) : AndroidViewModel(app) {
 

@@ -207,6 +207,9 @@ class AuthFragment : Fragment() {
                 state.onLogUp { tokens: Tokens ->
                     showMultiLineSnackBar(getString(R.string.text_user_is_registered))
                     requireContext().saveAuthTokens(tokens)
+                    requireContext().emailIntoPref = etEmail.text.toString()
+                    requireContext().passwordIntoPref = etPassword.text.toString()
+                    redirectToAccountScreen()
                 }
                 state.onLogIn { tokens: Tokens ->
                     showMultiLineSnackBar(getString(R.string.text_login_completed))
@@ -260,6 +263,17 @@ class AuthFragment : Fragment() {
             requireContext().saveUserToPref(user.apply {
                 this.password = password
             })
+
+            val accountFragment = AccountFragment.newInstance()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.frame_to_page_fragm, accountFragment)
+                .addToBackStack(null)
+                .commit()
+        }
+    }
+
+    private fun redirectToAccountScreen() {
+        with(binding) {
 
             val accountFragment = AccountFragment.newInstance()
             parentFragmentManager.beginTransaction()

@@ -1,7 +1,10 @@
 package com.myapp.lexicon.models
 
+import com.myapp.lexicon.models.currency.Currencies
+import com.myapp.lexicon.models.currency.Currency
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import java.util.Locale
 
 
 @Serializable
@@ -35,6 +38,9 @@ data class UserX(
     @SerialName("month_balance")
     val monthBalance: Double = 0.0,
 
+    @SerialName("previous_month_balance")
+    val previousMonthBalance: Int = 0,
+
     @SerialName("reserved_payout")
     val reservedPayout: Int = 0,
 
@@ -43,4 +49,14 @@ data class UserX(
 
     @SerialName("yesterday_balance")
     val yesterdayBalance: Double = 0.0
-)
+) {
+
+    val currencySymbol: String
+        get() {
+            val currency = java.util.Currency.getInstance(Locale.getDefault())
+            return if (this.currencyCode == Currencies.RUB.name) {
+                currency.symbol
+            }
+            else "X"
+        }
+}

@@ -43,13 +43,13 @@ import com.myapp.lexicon.helpers.orientationLock
 import com.myapp.lexicon.helpers.orientationUnLock
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showMultiLineSnackBar
-import com.myapp.lexicon.helpers.showToastIfDebug
 import com.myapp.lexicon.helpers.timeInMillisMoscowTimeZone
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.Payout
 import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserState
+import com.myapp.lexicon.models.UserX
 import com.myapp.lexicon.models.ViewState
 import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.settings.accessToken
@@ -94,6 +94,11 @@ class AccountFragment : Fragment() {
         ViewModelProvider(this, factory)[AuthViewModel::class.java]
     }
 
+    private val userDataVM: UserDataViewModel by lazy {
+        val factory = UserDataViewModel.Factory()
+        ViewModelProvider(this, factory)[UserDataViewModel::class]
+    }
+
     private val userVM: UserViewModel by lazy {
         ViewModelProvider(requireActivity())[userVMClass] as UserViewModel
     }
@@ -119,9 +124,11 @@ class AccountFragment : Fragment() {
                         when(state) {
                             UserViewModel.LoadingState.Complete -> {
                                 progressBar.visibility = View.GONE
+                                requireActivity().orientationUnLock()
                             }
                             UserViewModel.LoadingState.Start -> {
                                 progressBar.visibility = View.VISIBLE
+                                requireActivity().orientationLock()
                             }
                         }
                     }
@@ -140,11 +147,39 @@ class AccountFragment : Fragment() {
                 }
             }
 
+            accountVM.loadingState.observe(viewLifecycleOwner) { state ->
+                when(state) {
+                    AccountViewModel.LoadingState.Complete -> {
+                        requireActivity().orientationUnLock()
+                    }
+                    AccountViewModel.LoadingState.Start -> {
+                        requireActivity().orientationLock()
+                    }
+                }
+            }
+
+            accountVM.authState.observe(viewLifecycleOwner) { state ->
+                when(state) {
+                    AccountViewModel.AuthState.AuthorizationRequired -> {
+                        val authFragment = AuthFragment.newInstance()
+                        parentFragmentManager.beginTransaction()
+                            .replace(R.id.frame_to_page_fragm, authFragment)
+                            .addToBackStack(null)
+                            .commit()
+                    }
+                    is AccountViewModel.AuthState.TokensUpdated -> {
+                        requireContext().saveAuthTokens(state.tokens)
+                    }
+                }
+            }
+
             accountVM.screenState.observe(viewLifecycleOwner) { state ->
                 when(state) {
                     AccountScreenState.Init -> {
                         setReadOnlyState(true)
-                        userVM.getUserFromCloud()
+                        //userVM.getUserFromCloud()
+                        val accessToken = requireContext().accessToken
+                        userDataVM.fetchUserData(accessToken)
                     }
                     is AccountScreenState.Current -> {
                         tvRewardValue.text = state.reward.text
@@ -235,44 +270,86 @@ class AccountFragment : Fragment() {
             userVM.state.observe(viewLifecycleOwner) { state ->
                 when(state) {
                     UserViewModel.State.Init -> {
-                        setReadOnlyState(true)
+                        //setReadOnlyState(true)
                     }
                     is UserViewModel.State.PersonalDataUpdated -> {
-                        showMultiLineSnackBar(getString(R.string.data_is_saved))
-                        if (currentUser != null) {
-                            userVM.getUserFromCloud()
-                        }
+//                        showMultiLineSnackBar(getString(R.string.data_is_saved))
+//                        if (currentUser != null) {
+//                            userVM.getUserFromCloud()
+//                        }
                     }
                     is UserViewModel.State.PaymentRequestSent -> {
-                        showConfirmDialog()
-                        if (currentUser != null) {
-                            userVM.getUserFromCloud().observe(viewLifecycleOwner) { result ->
-                                result.onSuccess { value: User ->
-                                    handleUserData(value)
-                                    accountVM.sendPaymentInfoToTGChannel(
-                                        message = buildMessageAboutPayment(value),
-                                        onStart = {
-                                            requireActivity().orientationLock()
-                                        },
-                                        onSuccess = {
-                                            showMultiLineSnackBar(getString(R.string.text_request_sented))
-                                        }
-                                    ) { exception ->
-                                        exception?.printStackTraceIfDebug()
-                                        requireActivity().orientationUnLock()
-                                    }
-                                }
-                                result.onFailure { exception ->
-                                    exception.printStackTraceIfDebug()
-                                    showToastIfDebug(exception.message)
-                                }
-                            }
-                        }
+//                        showConfirmDialog()
+//                        if (currentUser != null) {
+//                            userVM.getUserFromCloud().observe(viewLifecycleOwner) { result ->
+//                                result.onSuccess { value: User ->
+//                                    handleUserData(value)
+//                                    accountVM.sendPaymentInfoToTGChannel(
+//                                        message = buildMessageAboutPayment(value),
+//                                        onStart = {
+//                                            requireActivity().orientationLock()
+//                                        },
+//                                        onSuccess = {
+//                                            showMultiLineSnackBar(getString(R.string.text_request_sented))
+//                                        }
+//                                    ) { exception ->
+//                                        exception?.printStackTraceIfDebug()
+//                                        requireActivity().orientationUnLock()
+//                                    }
+//                                }
+//                                result.onFailure { exception ->
+//                                    exception.printStackTraceIfDebug()
+//                                    showToastIfDebug(exception.message)
+//                                }
+//                            }
+//                        }
                     }
                     is UserViewModel.State.Error -> {
-                        showMultiLineSnackBar(state.message)
+                        //showMultiLineSnackBar(state.message)
                     }
                     is UserViewModel.State.ReceivedUserData -> {
+//                        requireContext().isFirstLogin(
+//                            onYes = {
+//                                showInfoDialog()
+//                            }
+//                        )
+//                        handleUserData(state.user)
+                    }
+                    else -> {}
+                }
+            }
+
+            userDataVM.userState.observe(viewLifecycleOwner) { state ->
+                val accessToken = requireContext().accessToken
+                when(state) {
+                    is UserDataViewModel.UserDataState.Error -> {
+                        showMultiLineSnackBar(state.message)
+                    }
+                    UserDataViewModel.UserDataState.Init -> {
+                        setReadOnlyState(true)
+                    }
+                    is UserDataViewModel.UserDataState.PaymentRequestSent -> {
+                        showConfirmDialog()
+                        showMultiLineSnackBar(getString(R.string.text_request_sented))
+                        userDataVM.fetchUserData(accessToken)
+                        accountVM.sendPaymentInfoToTGChannel(
+                            message = buildMessageAboutPayment(state.user),
+                            onStart = {
+                                requireActivity().orientationLock()
+                            },
+                            onSuccess = {
+                                showMultiLineSnackBar(getString(R.string.text_request_sented))
+                            }
+                        ) { exception ->
+                            exception?.printStackTraceIfDebug()
+                            requireActivity().orientationUnLock()
+                        }
+                    }
+                    UserDataViewModel.UserDataState.PersonalDataUpdated -> {
+                        showMultiLineSnackBar(getString(R.string.data_is_saved))
+                        userDataVM.fetchUserData(accessToken)
+                    }
+                    is UserDataViewModel.UserDataState.ReceivedUserData -> {
                         requireContext().isFirstLogin(
                             onYes = {
                                 showInfoDialog()
@@ -544,23 +621,23 @@ class AccountFragment : Fragment() {
         }
     }
 
-    private fun handleUserData(user: User) {
+    private fun handleUserData(user: UserX) {
 
         with(binding) {
 
             val currentMonth = timeInMillisMoscowTimeZone.getMonthNameFromMillis()
-            val rewardToDisplay = "${getString(R.string.text_reward_for)} $currentMonth: ${(user.userReward).to2DigitsScale()} ${user.currencySymbol}"
+            val rewardToDisplay = "${getString(R.string.text_reward_for)} $currentMonth: ${(user.monthBalance).to2DigitsScale()} ${user.currencySymbol}"
             tvRewardValue.text = rewardToDisplay
 
-            if (user.reservedPayment > 0) {
+            if (user.previousMonthBalance > 0) {
                 groupToPayout.visibility = View.VISIBLE
                 val previousMonth = timeInMillisMoscowTimeZone.getPreviousMonthNameFromMillis()
-                val payoutToDisplay = "${getString(R.string.text_to_payment)} $previousMonth: ${user.reservedPayment} ${user.currencySymbol}"
+                val payoutToDisplay = "${getString(R.string.text_to_payment)} $previousMonth: ${user.previousMonthBalance} ${user.currencySymbol}"
                 tvReservedValue.text = payoutToDisplay
             }
-            else if (user.requiresPayment > 0 && user.reservedPayment == 0.0) {
+            else if (user.reservedPayout > 0 && user.previousMonthBalance == 0) {
                 groupToPayout.visibility = View.VISIBLE
-                val payoutToDisplay = "${getString(R.string.text_prepare_to_payment)}: ${user.requiresPayment} ${user.currencySymbol}"
+                val payoutToDisplay = "${getString(R.string.text_prepare_to_payment)}: ${user.reservedPayout} ${user.currencySymbol}"
                 tvReservedValue.text = payoutToDisplay
             }
             else {
@@ -568,7 +645,7 @@ class AccountFragment : Fragment() {
             }
 
             with(includeYesterday) {
-                val yesterdayReward = user.yesterdayUserReward.to2DigitsScale()
+                val yesterdayReward = user.yesterdayBalance.to2DigitsScale()
                 if (yesterdayReward > 0.0) {
                     dailyRewardRoot.visibility = View.VISIBLE
                     tvTitle.text = getString(R.string.text_yesterday)
@@ -581,7 +658,7 @@ class AccountFragment : Fragment() {
             }
 
             with(includeToday) {
-                val todayReward = user.userDailyReward.to2DigitsScale()
+                val todayReward = user.todayBalance.to2DigitsScale()
                 if (todayReward > 0.0) {
                     dailyRewardRoot.visibility = View.VISIBLE
                     tvTitle.text = getString(R.string.text_today)
@@ -596,41 +673,41 @@ class AccountFragment : Fragment() {
             tvEmailValue.setText(user.email)
             if (!user.email.isItEmail) setNotValidFieldState(tvEmailValue)
 
-            if (user.phone.isItPhone) {
+            if (user.phone?.isItPhone == true) {
                 layoutPhone.visibility = View.VISIBLE
                 tvPhoneValue.setText(user.phone)
             }
 
-            if (user.bankName.isNotEmpty()) {
+            if (user.bankName.isNullOrEmpty()) {
                 layoutBankName.visibility = View.VISIBLE
                 tvBankNameValue.setText(user.bankName)
             }
 
-            if (accountVM.isBankCardRequired && user.bankCard.checkIfAllDigits()) {
+            if (accountVM.isBankCardRequired && user.bankCard?.checkIfAllDigits() == true) {
                 layoutBankCard.visibility = View.VISIBLE
                 tvCardNumber.setText(user.bankCard)
             }
 
-            if (user.firstName.isNotEmpty()) {
+            if (user.firstName.isNullOrEmpty()) {
                 layoutFirstName.visibility = View.VISIBLE
                 tvFirstNameValue.setText(user.firstName)
             }
 
-            if (user.lastName.isNotEmpty()) {
+            if (user.lastName?.isNotEmpty() == true) {
                 layoutLastName.visibility = View.VISIBLE
                 tvLastNameValue.setText(user.lastName)
             }
 
-            val rewardThreshold = (accountVM.paymentThreshold * user.currencyRate).toInt()
+            val rewardThreshold = accountVM.paymentThreshold.toInt()
             val textCondition = "$PAYMENTS_CONDITIONS $rewardThreshold ${user.currencySymbol}"
             tvRewardCondition.text = textCondition
-            if (user.userReward <= 0.0 || PAYMENTS_CONDITIONS.isEmpty()) {
+            if (user.monthBalance <= 0.0 || PAYMENTS_CONDITIONS.isEmpty()) {
                 tvRewardCondition.visibility = View.GONE
             }
             else tvRewardCondition.visibility = View.VISIBLE
 
-            btnGetReward.isEnabled = user.reservedPayment > rewardThreshold && accountVM.paymentCode == BuildConfig.PAYMENT_CODE.trim()
-            if (user.reservedPayment > SELF_EMPLOYED_THRESHOLD) {
+            btnGetReward.isEnabled = user.previousMonthBalance > rewardThreshold && accountVM.paymentCode == BuildConfig.PAYMENT_CODE.trim()
+            if (user.previousMonthBalance > SELF_EMPLOYED_THRESHOLD) {
                 setInvoiceRequiredState()
             }
         }
@@ -901,14 +978,14 @@ class AccountFragment : Fragment() {
         parentFragmentManager.beginTransaction().detach(this@AccountFragment).commit()
     }
 
-    private fun buildMessageAboutPayment(user: User): String {
+    private fun buildMessageAboutPayment(user: UserX): String {
         return "${getString(R.string.text_user)} ${user.firstName} ${user.lastName} ${getString(R.string.text_wishes_to_get_reward)}. " +
-                "${getString(R.string.text_amount)}: ${user.requiresPayment} ${user.currencySymbol}, " +
+                "${getString(R.string.text_amount)}: ${user.reservedPayout} ${user.currencySymbol}, " +
                 "${getString(R.string.title_phone)}: ${user.phone}, " +
                 "${getString(R.string.title_e_mail)}: ${user.email}, " +
                 "${getString(R.string.text_bank_card)}: ${user.bankCard}, " +
                 "${getString(R.string.text_bank_name)}: ${user.bankName}. " +
-                "${getString(R.string.text_check_ref)}: ${user.checkReference}"
+                "${getString(R.string.text_check_ref)}: XXX"
     }
 
     private fun checkIfSelfEmployedAppInstalled(user: User) {

@@ -73,14 +73,14 @@ val PAYMENT_THRESHOLD: Double
         return try {
             if (BuildConfig.ADS_SOURCE != AdsSource.LOCAL_HOST.name) {
                 if (!BuildConfig.DEBUG)
-                    Firebase.remoteConfig.getDouble("payment_threshold") else 0.1
+                    100.0 else 10.0
             }
             else {
-                1.0
+                100.0
             }
         }
         catch (e: Exception) {
-            1.0
+            100.0
         }
     }
 
