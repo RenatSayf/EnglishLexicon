@@ -1,10 +1,9 @@
 package com.myapp.lexicon.models
 
-import com.myapp.lexicon.models.currency.Currencies
-import com.myapp.lexicon.models.currency.Currency
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import java.util.Locale
+import java.util.Currency
 
 
 @Serializable
@@ -12,28 +11,28 @@ data class UserX(
 
     val email: String,
 
-    val phone: String?,
+    val phone: String = "",
 
     @SerialName("first_name")
-    val firstName: String?,
+    val firstName: String = "",
 
     @SerialName("second_name")
-    val secondName: String?,
+    val secondName: String = "",
 
     @SerialName("last_name")
-    val lastName: String?,
+    val lastName: String = "",
 
     @SerialName("bank_card")
-    val bankCard: String?,
+    val bankCard: String = "",
 
     @SerialName("bank_name")
-    val bankName: String?,
+    val bankName: String = "",
 
     @SerialName("message_to_user")
-    val messageToUser: String?,
+    val messageToUser: String = "",
 
     @SerialName("currency_code")
-    val currencyCode: String?,
+    val currencyCode: String = "",
 
     @SerialName("month_balance")
     val monthBalance: Double = 0.0,
@@ -53,10 +52,11 @@ data class UserX(
 
     val currencySymbol: String
         get() {
-            val currency = java.util.Currency.getInstance(Locale.getDefault())
-            return if (this.currencyCode == Currencies.RUB.name) {
-                currency.symbol
+            return try {
+                Currency.getInstance(currencyCode).symbol
+            } catch (e: IllegalArgumentException) {
+                e.printStackTraceIfDebug()
+                ""
             }
-            else "X"
         }
 }

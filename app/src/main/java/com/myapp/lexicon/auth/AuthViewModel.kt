@@ -111,19 +111,19 @@ open class AuthViewModel(
             repository.signUp(data = signUpData).collect(collector = { result ->
                 result.onSuccess { value: Tokens ->
                     netModule.setRefreshToken(value.refreshToken)
-                    _state.value = UserState.LogUp(value)
+                    _state.postValue(UserState.LogUp(value))
                 }
                 result.onFailure { exception: Throwable ->
                     val errorCode = (exception as HttpThrowable).errorCode
                     when(errorCode) {
                         409 -> {
-                            _state.value = UserState.AlreadyExists
+                            _state.postValue(UserState.AlreadyExists)
                         }
                         422 -> {
-                            _state.value = UserState.PasswordValid(false)
+                            _state.postValue(UserState.PasswordValid(false))
                         }
                         else -> {
-                            _state.value = UserState.HttpFailure(exception.message)
+                            _state.postValue(UserState.HttpFailure(exception.message))
                         }
                     }
                 }
@@ -178,13 +178,13 @@ open class AuthViewModel(
                     val errorCode = (exception as HttpThrowable).errorCode
                     when(errorCode) {
                         404 -> {
-                            _state.value = UserState.NotRegistered
+                            _state.postValue(UserState.NotRegistered)
                         }
                         406 -> {
-                            _state.value = UserState.NotAcceptable
+                            _state.postValue(UserState.NotAcceptable)
                         }
                         else -> {
-                            _state.value = UserState.HttpFailure(exception.message)
+                            _state.postValue(UserState.HttpFailure(exception.message))
                         }
                     }
                 }

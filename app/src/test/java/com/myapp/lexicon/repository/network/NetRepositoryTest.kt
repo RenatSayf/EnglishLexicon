@@ -169,19 +169,20 @@ class NetRepositoryTest {
     fun getUserProfile_with_expired_token() {
 
         val userJson = """{
-  "today_balance": 10.5,
-  "yesterday_balance": 20.3,
-  "month_balance": 100.89,
-  "currency_code": "RUB",
-  "reserved_payout": 200,
   "email": "user-test@mail.com",
+  "today_balance": 10.0,
+  "yesterday_balance": 20.0,
+  "month_balance": 100.0,
+  "previous_month_balance": 200,
+  "reserved_payout": 300,
+  "currency_code": "RUB",
   "phone": "+79998887755",
-  "first_name": "User",
-  "second_name": null,
-  "last_name": "Test",
-  "bank_name": "BCS",
+  "first_name": "Кутман",
+  "second_name": "Уулу",
+  "last_name": "Бекмурза",
+  "bank_name": "Сбербанк",
   "bank_card": null,
-  "message_to_user": null
+  "message_to_user": "Тестовое сообщение"
 }"""
 
         val oldAccessToken = "access00000000000"

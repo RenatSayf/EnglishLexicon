@@ -44,13 +44,13 @@ class UserDataViewModel(netModule: INetRepositoryModule) : AccountViewModel(netM
 
         viewModelScope.launch(context = Dispatchers.IO) {
             val result = repository.getUserProfile(accessToken = token).await()
-            result.onSuccess { user ->
-                super._loadingState.value = LoadingState.Complete
-                _userState.value = UserDataState.ReceivedUserData(user)
+            result.onSuccess { user: UserX ->
+                super._loadingState.postValue(LoadingState.Complete)
+                _userState.postValue(UserDataState.ReceivedUserData(user))
             }
             result.onFailure { t ->
-                super._loadingState.value = LoadingState.Complete
-                _userState.value = UserDataState.Error(t.message?: "Unknown error")
+                super._loadingState.postValue(LoadingState.Complete)
+                _userState.postValue(UserDataState.Error(t.message?: "Unknown error"))
             }
         }
     }

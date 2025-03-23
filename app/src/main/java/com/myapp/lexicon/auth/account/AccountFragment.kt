@@ -86,7 +86,8 @@ class AccountFragment : Fragment() {
     private lateinit var binding: FragmentAccountBinding
 
     private val accountVM: AccountViewModel by lazy {
-        ViewModelProvider(this)[accountVMClass] as AccountViewModel
+        val factory = AccountViewModel.Factory()
+        ViewModelProvider(this, factory)[AccountViewModel::class]
     }
 
     private val authVM: AuthViewModel by lazy {
