@@ -32,7 +32,7 @@ class UserTest {
 
         val user = jsonDecoder.decodeFromString<UserX>(userJson)
         Assert.assertEquals("user-test@mail.com", user.email)
-        Assert.assertEquals("", user.bankCard)
+        Assert.assertEquals(null, user.bankCard)
     }
 
     @Test
@@ -44,6 +44,6 @@ class UserTest {
 
         val user = jsonDecoder.decodeFromString<UserX>(userJson)
         Assert.assertEquals("user-test@mail.com", user.email)
-        Assert.assertEquals("", user.bankCard)
+        Assert.assertEquals(null, user.bankCard)
     }
 }

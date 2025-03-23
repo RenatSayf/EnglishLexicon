@@ -627,16 +627,16 @@ class AccountFragment : Fragment() {
         with(binding) {
 
             val currentMonth = timeInMillisMoscowTimeZone.getMonthNameFromMillis()
-            val rewardToDisplay = "${getString(R.string.text_reward_for)} $currentMonth: ${(user.monthBalance).to2DigitsScale()} ${user.currencySymbol}"
+            val rewardToDisplay = "${getString(R.string.text_reward_for)} $currentMonth: ${(user.monthBalance)?.to2DigitsScale()?: 0.0} ${user.currencySymbol}"
             tvRewardValue.text = rewardToDisplay
 
-            if (user.previousMonthBalance > 0) {
+            if ((user.previousMonthBalance ?: 0) > 0) {
                 groupToPayout.visibility = View.VISIBLE
                 val previousMonth = timeInMillisMoscowTimeZone.getPreviousMonthNameFromMillis()
                 val payoutToDisplay = "${getString(R.string.text_to_payment)} $previousMonth: ${user.previousMonthBalance} ${user.currencySymbol}"
                 tvReservedValue.text = payoutToDisplay
             }
-            else if (user.reservedPayout > 0 && user.previousMonthBalance == 0) {
+            else if ((user.reservedPayout ?: 0) > 0 && user.previousMonthBalance == 0) {
                 groupToPayout.visibility = View.VISIBLE
                 val payoutToDisplay = "${getString(R.string.text_prepare_to_payment)}: ${user.reservedPayout} ${user.currencySymbol}"
                 tvReservedValue.text = payoutToDisplay
@@ -646,8 +646,8 @@ class AccountFragment : Fragment() {
             }
 
             with(includeYesterday) {
-                val yesterdayReward = user.yesterdayBalance.to2DigitsScale()
-                if (yesterdayReward > 0.0) {
+                val yesterdayReward = user.yesterdayBalance?.to2DigitsScale()
+                if ((yesterdayReward ?: 0.0) > 0.0) {
                     dailyRewardRoot.visibility = View.VISIBLE
                     tvTitle.text = getString(R.string.text_yesterday)
                     val valueToDisplay = "+$yesterdayReward ${user.currencySymbol}"
@@ -659,8 +659,8 @@ class AccountFragment : Fragment() {
             }
 
             with(includeToday) {
-                val todayReward = user.todayBalance.to2DigitsScale()
-                if (todayReward > 0.0) {
+                val todayReward = user.todayBalance?.to2DigitsScale()
+                if ((todayReward ?: 0.0) > 0.0) {
                     dailyRewardRoot.visibility = View.VISIBLE
                     tvTitle.text = getString(R.string.text_today)
                     val valueToDisplay = "+$todayReward ${user.currencySymbol}"
@@ -694,7 +694,7 @@ class AccountFragment : Fragment() {
                 tvFirstNameValue.setText(user.firstName)
             }
 
-            if (user.lastName?.isNotEmpty() == true) {
+            if (user.lastName.isNullOrEmpty() == true) {
                 layoutLastName.visibility = View.VISIBLE
                 tvLastNameValue.setText(user.lastName)
             }
@@ -702,13 +702,14 @@ class AccountFragment : Fragment() {
             val rewardThreshold = accountVM.paymentThreshold.toInt()
             val textCondition = "$PAYMENTS_CONDITIONS $rewardThreshold ${user.currencySymbol}"
             tvRewardCondition.text = textCondition
-            if (user.monthBalance <= 0.0 || PAYMENTS_CONDITIONS.isEmpty()) {
+            if ((user.monthBalance ?: 0.0) <= 0.0 || PAYMENTS_CONDITIONS.isEmpty()) {
                 tvRewardCondition.visibility = View.GONE
             }
             else tvRewardCondition.visibility = View.VISIBLE
 
-            btnGetReward.isEnabled = user.previousMonthBalance > rewardThreshold && accountVM.paymentCode == BuildConfig.PAYMENT_CODE.trim()
-            if (user.previousMonthBalance > SELF_EMPLOYED_THRESHOLD) {
+            btnGetReward.isEnabled = (user.previousMonthBalance
+                ?: 0) > rewardThreshold && accountVM.paymentCode == BuildConfig.PAYMENT_CODE.trim()
+            if ((user.previousMonthBalance ?: 0) > SELF_EMPLOYED_THRESHOLD) {
                 setInvoiceRequiredState()
             }
         }

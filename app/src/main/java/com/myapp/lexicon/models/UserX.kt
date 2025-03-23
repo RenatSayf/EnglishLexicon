@@ -11,50 +11,50 @@ data class UserX(
 
     val email: String,
 
-    val phone: String = "",
+    val phone: String? = null,
 
     @SerialName("first_name")
-    val firstName: String = "",
+    val firstName: String? = null,
 
     @SerialName("second_name")
-    val secondName: String = "",
+    val secondName: String? = null,
 
     @SerialName("last_name")
-    val lastName: String = "",
+    val lastName: String? = null,
 
     @SerialName("bank_card")
-    val bankCard: String = "",
+    val bankCard: String? = null,
 
     @SerialName("bank_name")
-    val bankName: String = "",
+    val bankName: String? = null,
 
     @SerialName("message_to_user")
-    val messageToUser: String = "",
+    val messageToUser: String? = null,
 
     @SerialName("currency_code")
-    val currencyCode: String = "",
+    val currencyCode: String? = null,
 
     @SerialName("month_balance")
-    val monthBalance: Double = 0.0,
+    val monthBalance: Double? = null,
 
     @SerialName("previous_month_balance")
-    val previousMonthBalance: Int = 0,
+    val previousMonthBalance: Int? = null,
 
     @SerialName("reserved_payout")
-    val reservedPayout: Int = 0,
+    val reservedPayout: Int? = null,
 
     @SerialName("today_balance")
-    val todayBalance: Double = 0.0,
+    val todayBalance: Double? = null,
 
     @SerialName("yesterday_balance")
-    val yesterdayBalance: Double = 0.0
+    val yesterdayBalance: Double? = null
 ) {
 
     val currencySymbol: String
         get() {
             return try {
                 Currency.getInstance(currencyCode).symbol
-            } catch (e: IllegalArgumentException) {
+            } catch (e: Exception) {
                 e.printStackTraceIfDebug()
                 ""
             }
