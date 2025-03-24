@@ -88,14 +88,15 @@ class NetRepositoryModule(
             if (originalCall.response.status == HttpStatusCode.Unauthorized) {
                 val refreshResponse = httpClient.post(urlString = "$baseUrl/auth/refresh", block = {
                     contentType(ContentType.Application.Json)
+                    header(key = KEY_API, value = API_KEY)
                     if (this@NetRepositoryModule.refreshToken.isNotEmpty()) {
-                        setBody("{'refresh_token': '$refreshToken'}")
+                        setBody("""{"refresh_token": "$refreshToken"}""")
                     } else {
                         throw IllegalArgumentException("********* refresh_token is empty **********")
                     }
                 })
                 when(refreshResponse.status) {
-                    HttpStatusCode.Accepted -> {
+                    HttpStatusCode.OK, HttpStatusCode.Accepted -> {
                         val newTokens = Json.decodeFromString<Tokens>(refreshResponse.body())
                         listener?.onUpdateTokens(newTokens)
                         request.url.encodedParameters["access_token"] = newTokens.accessToken

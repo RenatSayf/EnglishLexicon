@@ -53,6 +53,7 @@ import com.myapp.lexicon.main.ext.MainActivityExtKt;
 import com.myapp.lexicon.main.viewmodels.UserViewModel;
 import com.myapp.lexicon.models.AppResult;
 import com.myapp.lexicon.models.Revenue;
+import com.myapp.lexicon.models.Tokens;
 import com.myapp.lexicon.models.User;
 import com.myapp.lexicon.models.UserKt;
 import com.myapp.lexicon.models.UserX;
@@ -165,6 +166,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         UserDataViewModel.Factory userFactory = new UserDataViewModel.Factory();
         UserDataViewModel userDataVM = new ViewModelProvider(this, userFactory).get(UserDataViewModel.class);
+
+        userDataVM.getAuthState().observe(this, authState -> {
+            if (authState instanceof AccountViewModel.AuthState.TokensUpdated) {
+                Tokens tokens = ((AccountViewModel.AuthState.TokensUpdated) authState).getTokens();
+                EncryptedPrefKt.saveAuthTokens(this, tokens);
+            }
+            if (authState instanceof AccountViewModel.AuthState.AuthorizationRequired) {
+                MainActivityExtKt.redirectToAuthScreen(this);
+            }
+        });
 
         userDataVM.getUserState().observe(this, userState -> {
             if (userState instanceof UserDataViewModel.UserDataState.ReceivedUserData) {

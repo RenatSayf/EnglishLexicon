@@ -101,11 +101,11 @@ open class AccountViewModel(
         setTokensUpdateListener(object : INetRepositoryModule.Listener {
             override fun onUpdateTokens(tokens: Tokens) {
                 this@apply.setRefreshToken(tokens.refreshToken)
-                _authState.value = AuthState.TokensUpdated(tokens)
+                _authState.postValue(AuthState.TokensUpdated(tokens))
             }
 
             override fun onAuthorizationRequired() {
-                _authState.value = AuthState.AuthorizationRequired
+                _authState.postValue(AuthState.AuthorizationRequired)
             }
         })
     }.provideNetRepository()
