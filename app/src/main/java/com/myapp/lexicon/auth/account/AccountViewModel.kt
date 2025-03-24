@@ -35,7 +35,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 open class AccountViewModel(
-    netModule: INetRepositoryModule
+    private val netModule: INetRepositoryModule
 ) : ViewModel() {
 
     @Suppress("UNCHECKED_CAST")
@@ -100,6 +100,7 @@ open class AccountViewModel(
     protected open val repository: INetRepository = netModule.apply {
         setTokensUpdateListener(object : INetRepositoryModule.Listener {
             override fun onUpdateTokens(tokens: Tokens) {
+                this@apply.setRefreshToken(tokens.refreshToken)
                 _authState.value = AuthState.TokensUpdated(tokens)
             }
 
@@ -108,6 +109,10 @@ open class AccountViewModel(
             }
         })
     }.provideNetRepository()
+
+    open fun setRefreshToken(token: String) {
+        netModule.setRefreshToken(token)
+    }
 
     open fun fetchBankListFromNet() {
 
@@ -276,18 +281,18 @@ open class AccountViewModel(
     init {
         //this.fetchBankListFromNet()
         this.getBankListFromCloud()
-        netModule.apply {
-            setTokensUpdateListener(object : INetRepositoryModule.Listener {
-                override fun onUpdateTokens(tokens: Tokens) {
-                    this@apply.setRefreshToken(tokens.refreshToken)
-                    newTokens.value = Result.success(tokens)
-                }
-
-                override fun onAuthorizationRequired() {
-                    authorizationRequired.value = Result.success(true)
-                }
-            })
-        }
+//        netModule.apply {
+//            setTokensUpdateListener(object : INetRepositoryModule.Listener {
+//                override fun onUpdateTokens(tokens: Tokens) {
+//                    this@apply.setRefreshToken(tokens.refreshToken)
+//                    newTokens.value = Result.success(tokens)
+//                }
+//
+//                override fun onAuthorizationRequired() {
+//                    authorizationRequired.value = Result.success(true)
+//                }
+//            })
+//        }
         this.fetchBankListFromNet()
     }
 }

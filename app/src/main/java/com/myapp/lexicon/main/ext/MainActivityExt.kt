@@ -2,10 +2,12 @@ package com.myapp.lexicon.main.ext
 
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.ads.models.AdData.Companion.fromString
+import com.myapp.lexicon.auth.AuthFragment
 import com.myapp.lexicon.databinding.DialogConfirmationBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.models.to2DigitsScale
@@ -76,4 +78,12 @@ fun FragmentActivity.handleAdDataFromSplashActivity(
     else {
         onCompleted.invoke(null, 0.0)
     }
+}
+
+fun FragmentActivity.redirectToAuthScreen() {
+    val authFragment = AuthFragment.newInstance()
+    this.supportFragmentManager.beginTransaction()
+        .replace(R.id.frame_to_page_fragm, authFragment)
+        .addToBackStack(null)
+        .commit()
 }

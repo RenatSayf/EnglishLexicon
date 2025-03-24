@@ -35,6 +35,7 @@ import com.myapp.lexicon.auth.AuthFragment;
 import com.myapp.lexicon.auth.AuthViewModel;
 import com.myapp.lexicon.auth.account.AccountFragment;
 import com.myapp.lexicon.auth.account.AccountViewModel;
+import com.myapp.lexicon.auth.account.UserDataViewModel;
 import com.myapp.lexicon.common.CommonConstantsKt;
 import com.myapp.lexicon.common.TimeExtKt;
 import com.myapp.lexicon.database.AppDataBase;
@@ -54,12 +55,14 @@ import com.myapp.lexicon.models.AppResult;
 import com.myapp.lexicon.models.Revenue;
 import com.myapp.lexicon.models.User;
 import com.myapp.lexicon.models.UserKt;
+import com.myapp.lexicon.models.UserX;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.models.WordList;
 import com.myapp.lexicon.repository.DataRepositoryImpl;
 import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.service.PhoneUnlockedReceiver;
 import com.myapp.lexicon.settings.ContainerFragment;
+import com.myapp.lexicon.settings.EncryptedPrefKt;
 import com.myapp.lexicon.settings.SettingsExtKt;
 import com.myapp.lexicon.video.constants.ConstantsKt;
 import com.myapp.lexicon.video.web.YouTubeFragment;
@@ -159,6 +162,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         AuthViewModel authVM = new ViewModelProvider(this, authFactory).get(AuthViewModel.class);
         revenueVM = new ViewModelProvider(MainActivity.this).get(RevenueViewModel.class);
         UserViewModel userVM = new ViewModelProvider(MainActivity.this).get(UserViewModel.class);
+
+        UserDataViewModel.Factory userFactory = new UserDataViewModel.Factory();
+        UserDataViewModel userDataVM = new ViewModelProvider(this, userFactory).get(UserDataViewModel.class);
+
+        userDataVM.getUserState().observe(this, userState -> {
+            if (userState instanceof UserDataViewModel.UserDataState.ReceivedUserData) {
+                UserX user = ((UserDataViewModel.UserDataState.ReceivedUserData) userState).getUser();
+            }
+            if (userState instanceof UserDataViewModel.UserDataState.AuthorizationRequired) {
+                MainActivityExtKt.redirectToAuthScreen(this);
+            }
+            if (userState instanceof UserDataViewModel.UserDataState.Error) {
+                String errorMessage = ((UserDataViewModel.UserDataState.Error) userState).getMessage();
+            }
+        });
+        String refreshToken = EncryptedPrefKt.getRefreshToken(this);
+        userDataVM.setRefreshToken(refreshToken);
+        String accessToken = EncryptedPrefKt.getAccessToken(this);
+        userDataVM.fetchUserData(accessToken);
 
         authVM.getState().observe(this, result -> {
             result.onInit(() -> {

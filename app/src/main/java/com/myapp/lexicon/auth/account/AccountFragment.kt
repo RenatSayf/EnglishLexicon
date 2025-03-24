@@ -44,6 +44,7 @@ import com.myapp.lexicon.helpers.orientationUnLock
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showMultiLineSnackBar
 import com.myapp.lexicon.helpers.timeInMillisMoscowTimeZone
+import com.myapp.lexicon.main.ext.redirectToAuthScreen
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.Payout
 import com.myapp.lexicon.models.Tokens
@@ -59,7 +60,6 @@ import com.myapp.lexicon.settings.isAppInstalled
 import com.myapp.lexicon.settings.isFirstLogin
 import com.myapp.lexicon.settings.passwordIntoPref
 import com.myapp.lexicon.settings.saveAuthTokens
-import com.parse.ParseUser
 import kotlinx.coroutines.launch
 
 
@@ -267,59 +267,6 @@ class AccountFragment : Fragment() {
                 }
             }
 
-            val currentUser = ParseUser.getCurrentUser()
-            userVM.state.observe(viewLifecycleOwner) { state ->
-                when(state) {
-                    UserViewModel.State.Init -> {
-                        //setReadOnlyState(true)
-                    }
-                    is UserViewModel.State.PersonalDataUpdated -> {
-//                        showMultiLineSnackBar(getString(R.string.data_is_saved))
-//                        if (currentUser != null) {
-//                            userVM.getUserFromCloud()
-//                        }
-                    }
-                    is UserViewModel.State.PaymentRequestSent -> {
-//                        showConfirmDialog()
-//                        if (currentUser != null) {
-//                            userVM.getUserFromCloud().observe(viewLifecycleOwner) { result ->
-//                                result.onSuccess { value: User ->
-//                                    handleUserData(value)
-//                                    accountVM.sendPaymentInfoToTGChannel(
-//                                        message = buildMessageAboutPayment(value),
-//                                        onStart = {
-//                                            requireActivity().orientationLock()
-//                                        },
-//                                        onSuccess = {
-//                                            showMultiLineSnackBar(getString(R.string.text_request_sented))
-//                                        }
-//                                    ) { exception ->
-//                                        exception?.printStackTraceIfDebug()
-//                                        requireActivity().orientationUnLock()
-//                                    }
-//                                }
-//                                result.onFailure { exception ->
-//                                    exception.printStackTraceIfDebug()
-//                                    showToastIfDebug(exception.message)
-//                                }
-//                            }
-//                        }
-                    }
-                    is UserViewModel.State.Error -> {
-                        //showMultiLineSnackBar(state.message)
-                    }
-                    is UserViewModel.State.ReceivedUserData -> {
-//                        requireContext().isFirstLogin(
-//                            onYes = {
-//                                showInfoDialog()
-//                            }
-//                        )
-//                        handleUserData(state.user)
-                    }
-                    else -> {}
-                }
-            }
-
             userDataVM.userState.observe(viewLifecycleOwner) { state ->
                 val accessToken = requireContext().accessToken
                 when(state) {
@@ -358,7 +305,11 @@ class AccountFragment : Fragment() {
                         )
                         handleUserData(state.user)
                     }
-                    else -> {}
+
+                    UserDataViewModel.UserDataState.AuthorizationRequired -> {
+                        requireActivity().redirectToAuthScreen()
+                    }
+                    is UserDataViewModel.UserDataState.RevenueUpdated -> {}
                 }
             }
 

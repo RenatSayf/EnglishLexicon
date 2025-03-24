@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.myapp.lexicon.di.INetRepositoryModule
 import com.myapp.lexicon.di.NetRepositoryModule
+import com.myapp.lexicon.models.HttpThrowable
+import com.myapp.lexicon.models.UserState
 import com.myapp.lexicon.models.UserX
 import com.myapp.lexicon.repository.network.INetRepository
 import kotlinx.coroutines.Dispatchers
@@ -24,13 +26,14 @@ class UserDataViewModel(netModule: INetRepositoryModule) : AccountViewModel(netM
         }
     }
 
-    sealed class UserDataState {
-        data object Init: UserDataState()
-        data class ReceivedUserData(val user: UserX): UserDataState()
-        data object PersonalDataUpdated: UserDataState()
-        data class RevenueUpdated(val bonus: Double, val user: UserX): UserDataState()
-        data class PaymentRequestSent(val user: UserX, val payout: Int, val remainder: Double): UserDataState()
-        data class Error(val message: String): UserDataState()
+    sealed interface UserDataState {
+        data object Init: UserDataState
+        data class ReceivedUserData(val user: UserX): UserDataState
+        data object PersonalDataUpdated: UserDataState
+        data class RevenueUpdated(val bonus: Double, val user: UserX): UserDataState
+        data class PaymentRequestSent(val user: UserX, val payout: Int, val remainder: Double): UserDataState
+        data object AuthorizationRequired: UserDataState
+        data class Error(val message: String): UserDataState
     }
 
     private var _userState = MutableLiveData<UserDataState>(UserDataState.Init)
@@ -38,6 +41,10 @@ class UserDataViewModel(netModule: INetRepositoryModule) : AccountViewModel(netM
 
     override val repository: INetRepository
         get() = super.repository
+
+    override fun setRefreshToken(token: String) {
+        super.setRefreshToken(token)
+    }
 
     fun fetchUserData(token: String) {
         super._loadingState.value = LoadingState.Start
@@ -48,9 +55,18 @@ class UserDataViewModel(netModule: INetRepositoryModule) : AccountViewModel(netM
                 super._loadingState.postValue(LoadingState.Complete)
                 _userState.postValue(UserDataState.ReceivedUserData(user))
             }
-            result.onFailure { t ->
+            result.onFailure { exception ->
                 super._loadingState.postValue(LoadingState.Complete)
-                _userState.postValue(UserDataState.Error(t.message?: "Unknown error"))
+                val errorCode = (exception as HttpThrowable).errorCode
+                when(errorCode) {
+                    401, 406 -> {
+
+                    }
+                    else -> {
+                        _userState.postValue(UserDataState.Error(exception.message?: "Unknown error"))
+                    }
+                }
+                _userState.postValue(UserDataState.Error(exception.message?: "Unknown error"))
             }
         }
     }
