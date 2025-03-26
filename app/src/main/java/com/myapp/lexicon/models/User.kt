@@ -71,6 +71,23 @@ data class User(
     var isAdsEnabled: Boolean = true
 
 
+    fun toUserX(): UserX {
+        return UserX(
+            email = this.email,
+            phone = this.phone,
+            firstName = this.firstName,
+            lastName = this.lastName,
+            bankName = this.bankName,
+            currencyCode = this.currency,
+            messageToUser = this.message,
+            monthBalance = this.userReward,
+            previousMonthBalance = this.reservedPayment.toInt(),
+            todayBalance = this.userDailyReward,
+            yesterdayBalance = this.yesterdayUserReward,
+            reservedPayout = this.requiresPayment
+        )
+    }
+
 }
 
 fun Double.to2DigitsScale(): Double {

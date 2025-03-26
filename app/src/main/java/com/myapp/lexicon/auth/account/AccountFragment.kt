@@ -293,7 +293,7 @@ class AccountFragment : Fragment() {
                             requireActivity().orientationUnLock()
                         }
                     }
-                    UserDataViewModel.UserDataState.PersonalDataUpdated -> {
+                    is UserDataViewModel.UserDataState.UserDataUpdated -> {
                         showMultiLineSnackBar(getString(R.string.data_is_saved))
                         userDataVM.fetchUserData(accessToken)
                     }

@@ -18,6 +18,7 @@ import com.myapp.lexicon.models.HttpThrowable
 import com.myapp.lexicon.models.SignInData
 import com.myapp.lexicon.models.SignUpData
 import com.myapp.lexicon.models.Tokens
+import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserState
 import com.myapp.lexicon.repository.network.INetRepository
 import com.parse.DeleteCallback
@@ -192,6 +193,9 @@ open class AuthViewModel(
         }
     }
 
+    var user: User? = null
+        private set
+
     open fun signInWithEmailAndPassword(email: String, password: String) {
 
         _loadingState.value = LoadingState.Start
@@ -199,13 +203,13 @@ open class AuthViewModel(
             email,
             password,
             object : LogInCallback {
-                override fun done(user: ParseUser?, e: ParseException?) {
+                override fun done(u: ParseUser?, e: ParseException?) {
 
                     when {
-                        user is ParseUser -> {
+                        u is ParseUser -> {
                             _loadingState.value = LoadingState.Start
                             val query = ParseQuery<ParseObject>("_User")
-                            query.getInBackground(user.objectId, object : GetCallback<ParseObject> {
+                            query.getInBackground(u.objectId, object : GetCallback<ParseObject> {
 
                                 override fun done(obj: ParseObject?, e: ParseException?) {
                                     when {
@@ -215,6 +219,7 @@ open class AuthViewModel(
                                                 this.email = email
                                                 this.password = password
                                             })
+                                            user = userFromCloud
                                             _state.value = newState
                                         }
 

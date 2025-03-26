@@ -8,9 +8,9 @@ import androidx.lifecycle.viewModelScope
 import com.myapp.lexicon.di.INetRepositoryModule
 import com.myapp.lexicon.di.NetRepositoryModule
 import com.myapp.lexicon.models.HttpThrowable
-import com.myapp.lexicon.models.UserState
 import com.myapp.lexicon.models.UserX
 import com.myapp.lexicon.repository.network.INetRepository
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -29,7 +29,7 @@ class UserDataViewModel(netModule: INetRepositoryModule) : AccountViewModel(netM
     sealed interface UserDataState {
         data object Init: UserDataState
         data class ReceivedUserData(val user: UserX): UserDataState
-        data object PersonalDataUpdated: UserDataState
+        data class UserDataUpdated(val userX: UserX): UserDataState
         data class RevenueUpdated(val bonus: Double, val user: UserX): UserDataState
         data class PaymentRequestSent(val user: UserX, val payout: Int, val remainder: Double): UserDataState
         data object AuthorizationRequired: UserDataState
@@ -60,7 +60,7 @@ class UserDataViewModel(netModule: INetRepositoryModule) : AccountViewModel(netM
                 val errorCode = (exception as HttpThrowable).errorCode
                 when(errorCode) {
                     401, 406 -> {
-
+                        _userState.postValue(UserDataState.AuthorizationRequired)
                     }
                     else -> {
                         _userState.postValue(UserDataState.Error(exception.message?: "Unknown error"))
@@ -70,4 +70,36 @@ class UserDataViewModel(netModule: INetRepositoryModule) : AccountViewModel(netM
             }
         }
     }
+
+    fun updateUserData(token: String, data: UserX, dispatcher: CoroutineDispatcher = Dispatchers.IO) {
+        super._loadingState.value = LoadingState.Start
+
+        viewModelScope.launch(context = dispatcher) {
+            val jsonString = data.toJsonString()
+            repository.updateUserData(token, jsonString).collect(
+                collector = { result ->
+                    result.onSuccess { user ->
+                        super._loadingState.postValue(LoadingState.Complete)
+                        _userState.postValue(UserDataState.UserDataUpdated(user))
+                    }
+                    result.onFailure { ex ->
+                        super._loadingState.postValue(LoadingState.Complete)
+                        val errorCode = (ex as HttpThrowable).errorCode
+                        when(errorCode) {
+                            401, 406 -> {
+                                _userState.postValue(UserDataState.AuthorizationRequired)
+                            }
+                            else -> {
+                                _userState.postValue(UserDataState.Error(ex.message?: "Unknown error"))
+                            }
+                        }
+                        _userState.postValue(UserDataState.Error(ex.message?: "Unknown error"))
+                    }
+                }
+            )
+        }
+    }
+
+
+
 }

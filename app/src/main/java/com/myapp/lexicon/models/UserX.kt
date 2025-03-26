@@ -3,6 +3,7 @@ package com.myapp.lexicon.models
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import java.util.Currency
 
 
@@ -59,4 +60,14 @@ data class UserX(
                 ""
             }
         }
+
+    fun toJsonString(): String {
+        val format = Json { explicitNulls = false }
+        return try {
+            format.encodeToString(serializer(), this)
+        } catch (e: Exception) {
+            e.printStackTraceIfDebug()
+            "******"
+        }
+    }
 }

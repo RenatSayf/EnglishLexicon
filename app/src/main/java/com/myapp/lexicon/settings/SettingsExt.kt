@@ -17,12 +17,13 @@ import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.models.TestState
-import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.toWord
 import kotlinx.serialization.SerializationException
 import java.util.concurrent.TimeUnit
+
+
 
 val Context.appSettings: SharedPreferences
     get() {
@@ -44,10 +45,6 @@ fun Context.saveUserToPref(user: User) {
     }
 }
 
-fun Context.saveTokensToPref(tokens: Tokens) {
-
-}
-
 fun Context.clearEmailPasswordInPref() {
     appSettings.edit {
         apply {
@@ -55,7 +52,6 @@ fun Context.clearEmailPasswordInPref() {
             putString("KEY_PASSWORD", null).apply()
             putBoolean("KEY_IS_REGISTERED", false).apply()
     }}
-
 }
 
 fun Context.getAuthDataFromPref(
@@ -63,8 +59,10 @@ fun Context.getAuthDataFromPref(
     onSuccess: (email: String, password: String) -> Unit = {_,_ ->},
     onFailure: (Exception) -> Unit = {}
 ) {
-    val email = appSettings.getString("KEY_EMAIL", null)
-    val password = appSettings.getString("KEY_PASSWORD", null)
+    var email = appSettings.getString("KEY_EMAIL", null)
+    email = "testuser@gmail.com" //TODO Delete before release
+    var password = appSettings.getString("KEY_PASSWORD", null)
+    password = "123654" //TODO Delete before release
     try {
         if (email == null || password == null) {
             onNotRegistered.invoke()

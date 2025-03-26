@@ -73,6 +73,8 @@ import com.myapp.lexicon.wordstests.TestFragment;
 import com.parse.ParseUser;
 import com.yandex.mobile.ads.banner.BannerAdView;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.Currency;
 import java.util.List;
@@ -164,34 +166,37 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         revenueVM = new ViewModelProvider(MainActivity.this).get(RevenueViewModel.class);
         UserViewModel userVM = new ViewModelProvider(MainActivity.this).get(UserViewModel.class);
 
-        UserDataViewModel.Factory userFactory = new UserDataViewModel.Factory();
-        UserDataViewModel userDataVM = new ViewModelProvider(this, userFactory).get(UserDataViewModel.class);
-
-        userDataVM.getAuthState().observe(this, authState -> {
-            if (authState instanceof AccountViewModel.AuthState.TokensUpdated) {
-                Tokens tokens = ((AccountViewModel.AuthState.TokensUpdated) authState).getTokens();
-                EncryptedPrefKt.saveAuthTokens(this, tokens);
-            }
-            if (authState instanceof AccountViewModel.AuthState.AuthorizationRequired) {
-                MainActivityExtKt.redirectToAuthScreen(this);
-            }
-        });
-
-        userDataVM.getUserState().observe(this, userState -> {
-            if (userState instanceof UserDataViewModel.UserDataState.ReceivedUserData) {
-                UserX user = ((UserDataViewModel.UserDataState.ReceivedUserData) userState).getUser();
-            }
-            if (userState instanceof UserDataViewModel.UserDataState.AuthorizationRequired) {
-                MainActivityExtKt.redirectToAuthScreen(this);
-            }
-            if (userState instanceof UserDataViewModel.UserDataState.Error) {
-                String errorMessage = ((UserDataViewModel.UserDataState.Error) userState).getMessage();
-            }
-        });
-        String refreshToken = EncryptedPrefKt.getRefreshToken(this);
-        userDataVM.setRefreshToken(refreshToken);
-        String accessToken = EncryptedPrefKt.getAccessToken(this);
-        userDataVM.fetchUserData(accessToken);
+//        UserDataViewModel.Factory userFactory = new UserDataViewModel.Factory();
+//        UserDataViewModel userDataVM = new ViewModelProvider(this, userFactory).get(UserDataViewModel.class);
+//
+//        userDataVM.getAuthState().observe(this, authState -> {
+//            if (authState instanceof AccountViewModel.AuthState.TokensUpdated) {
+//                Tokens tokens = ((AccountViewModel.AuthState.TokensUpdated) authState).getTokens();
+//                EncryptedPrefKt.saveAuthTokens(this, tokens);
+//            }
+//            if (authState instanceof AccountViewModel.AuthState.AuthorizationRequired) {
+//                MainActivityExtKt.redirectToAuthScreen(this);
+//            }
+//        });
+//
+//        userDataVM.getUserState().observe(this, userState -> {
+//            if (userState instanceof UserDataViewModel.UserDataState.ReceivedUserData) {
+//                UserX user = ((UserDataViewModel.UserDataState.ReceivedUserData) userState).getUser();
+//            }
+//            if (userState instanceof UserDataViewModel.UserDataState.AuthorizationRequired) {
+//                MainActivityExtKt.redirectToAuthScreen(this);
+//            }
+//            if (userState instanceof UserDataViewModel.UserDataState.Error) {
+//                String errorMessage = ((UserDataViewModel.UserDataState.Error) userState).getMessage();
+//            }
+//        });
+//        String refreshToken = EncryptedPrefKt.getRefreshToken(this);
+//        if (!refreshToken.isEmpty())
+//        {
+//            userDataVM.setRefreshToken(refreshToken);
+//            String accessToken = EncryptedPrefKt.getAccessToken(this);
+//            userDataVM.fetchUserData(accessToken);
+//        }
 
         authVM.getState().observe(this, result -> {
             result.onInit(() -> {
@@ -202,23 +207,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             boolean isFirstLaunch = SettingsExtKt.getCheckFirstLaunch(this);
                             if (isFirstLaunch)
                             {
-                                ExtensionsKt.showSignUpBenefitsDialog(
-                                        this,
-                                        () -> {
-                                            SettingsExtKt.setCheckFirstLaunch(MainActivity.this, false);
-                                            AuthFragment authFragment = AuthFragment.Companion.newInstance();
-                                            getSupportFragmentManager()
-                                                    .beginTransaction()
-                                                    .replace(R.id.frame_to_page_fragm, authFragment)
-                                                    .addToBackStack(null)
-                                                    .commit();
-                                            return null;
-                                        },
-                                        () -> {
-                                            SettingsExtKt.setCheckFirstLaunch(MainActivity.this, false);
-                                            return null;
-                                        }
-                                );
+
                             }
                             return null;
                         }
@@ -594,19 +583,53 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return new ViewModelProvider(this, factory).get(MainViewModel.class);
     }
 
-    private void buildRewardText(Revenue revenue)
+    private void buildRewardText(@Nullable Revenue revenue)
     {
+//        if (toolBar != null)
+//        {
+//            String text = "";
+//            try
+//            {
+//                String currentMonth = TimeExtKt.getMonthNameFromMillis(ExtensionsKt.getTimeInMillisMoscowTimeZone());
+//                double rewardToDisplay = (revenue != null) ? UserKt.to2DigitsScale(revenue.getReward()) : 0.0;
+//                text = getString(R.string.coins_bag).concat(" ")
+//                        .concat(currentMonth).concat(" ")
+//                        .concat(String.valueOf(rewardToDisplay)).concat(" ")
+//                        .concat((revenue != null) ? revenue.getCurrencySymbol() : Currency.getInstance("RUB").getSymbol());
+//                TextView tvSubTitle = toolbarBinding.tvSubtitle;
+//                tvSubTitle.setText(text);
+//            } catch (Exception e)
+//            {
+//                ExtensionsKt.printStackTraceIfDebug(e);
+//            }
+//
+//            if (tvReward != null)
+//            {
+//                tvReward.setText(text);
+//                tvReward.setVisibility(View.VISIBLE);
+//            }
+//            toolBar.setOnClickListener(view -> {
+//                if (drawerLayout != null)
+//                {
+//                    drawerLayout.open();
+//                }
+//            });
+//        }
+    }
+
+    private void buildRewardTextX(@Nullable UserX user) {
         if (toolBar != null)
         {
             String text = "";
             try
             {
                 String currentMonth = TimeExtKt.getMonthNameFromMillis(ExtensionsKt.getTimeInMillisMoscowTimeZone());
-                double rewardToDisplay = (revenue != null) ? UserKt.to2DigitsScale(revenue.getReward()) : 0.0;
+                Double todayBalance = user.getTodayBalance();
+                double rewardToDisplay = (todayBalance != null) ? UserKt.to2DigitsScale(todayBalance) : 0.0;
                 text = getString(R.string.coins_bag).concat(" ")
                         .concat(currentMonth).concat(" ")
                         .concat(String.valueOf(rewardToDisplay)).concat(" ")
-                        .concat((revenue != null) ? revenue.getCurrencySymbol() : Currency.getInstance("RUB").getSymbol());
+                        .concat((todayBalance != null) ? user.getCurrencySymbol() : Currency.getInstance("RUB").getSymbol());
                 TextView tvSubTitle = toolbarBinding.tvSubtitle;
                 tvSubTitle.setText(text);
             } catch (Exception e)
@@ -1123,6 +1146,46 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (requestKey.equals(OneOfFiveFragm.TEST_START)) {
             mainViewPager.setUserInputEnabled(true);
         }
+    }
+
+    @Override
+    public void onMigrationFromBack4AppCompleted(@NotNull UserX user)
+    {
+        buildRewardTextX(user);
+    }
+
+    @Override
+    public void onFetchUserData(@NotNull UserX user)
+    {
+        buildRewardTextX(user);
+    }
+
+    @Override
+    public void onFirstLaunch()
+    {
+        ExtensionsKt.showSignUpBenefitsDialog(
+                this,
+                () -> {
+                    SettingsExtKt.setCheckFirstLaunch(MainActivity.this, false);
+                    AuthFragment authFragment = AuthFragment.Companion.newInstance();
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.frame_to_page_fragm, authFragment)
+                            .addToBackStack(null)
+                            .commit();
+                    return null;
+                },
+                () -> {
+                    SettingsExtKt.setCheckFirstLaunch(MainActivity.this, false);
+                    return null;
+                }
+        );
+    }
+
+    @Override
+    public void onAuthError(@NotNull String message)
+    {
+
     }
 }
 

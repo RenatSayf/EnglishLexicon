@@ -128,7 +128,7 @@ open class NetRepository(
                     }
                     else -> {
                         val status = response.status
-                        Result.failure(Throwable("********** Error description: ${status.description}. Code: ${status.value} ************"))
+                        Result.failure(HttpThrowable(message = status.description, errorCode = status.value))
                     }
                 }
             }
@@ -188,6 +188,34 @@ open class NetRepository(
                 else -> {
                     val status = response.status
                     emit(Result.failure(Throwable("********** Error description: ${status.description}. Code: ${status.value} ************")))
+                }
+            }
+        }
+    }
+
+    override suspend fun updateUserData(
+        accessToken: String,
+        json: String
+    ): Flow<Result<UserX>> {
+        return flow {
+            val response = httpClient.put(urlString = "$baseUrl/user/profile", block = {
+                contentType(ContentType.Application.Json)
+                parameter("access_token", accessToken)
+                setBody(json)
+            })
+            when(response.status) {
+                HttpStatusCode.OK -> {
+                    val bodyText = response.body<String>()
+                    try {
+                        val user = jsonDecoder.decodeFromString<UserX>(bodyText)
+                        emit(Result.success(user))
+                    } catch (e: Exception) {
+                        emit(Result.failure(e))
+                    }
+                }
+                else -> {
+                    val status = response.status
+                    emit(Result.failure(HttpThrowable (message = status.description, errorCode = status.value)))
                 }
             }
         }
