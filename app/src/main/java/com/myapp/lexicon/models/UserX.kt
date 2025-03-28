@@ -7,6 +7,9 @@ import kotlinx.serialization.json.Json
 import java.util.Currency
 
 
+const val MESSAGE_TO_USER = "message_to_user"
+
+
 @Serializable
 data class UserX(
 
@@ -29,7 +32,7 @@ data class UserX(
     @SerialName("bank_name")
     val bankName: String? = null,
 
-    @SerialName("message_to_user")
+    @SerialName(MESSAGE_TO_USER)
     val messageToUser: String? = null,
 
     @SerialName("currency_code")
@@ -48,7 +51,10 @@ data class UserX(
     val todayBalance: Double? = null,
 
     @SerialName("yesterday_balance")
-    val yesterdayBalance: Double? = null
+    val yesterdayBalance: Double? = null,
+
+    @SerialName("is_ads_enabled")
+    val isAdsEnabled: Boolean = true
 ) {
 
     val currencySymbol: String

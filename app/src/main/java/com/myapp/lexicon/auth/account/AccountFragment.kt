@@ -15,7 +15,6 @@ import androidx.core.view.children
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -67,18 +66,8 @@ class AccountFragment : Fragment() {
 
     companion object {
 
-        private lateinit var authVMClass: Class<out ViewModel>
-        private lateinit var accountVMClass: Class<out ViewModel>
-        private lateinit var userVMClass: Class<out ViewModel>
-
         fun newInstance(
-            authVMClass: Class<out ViewModel> = AuthViewModel::class.java,
-            accountVMClass: Class<out ViewModel> = AccountViewModel::class.java,
-            userVMClass: Class<out ViewModel> = UserViewModel::class.java
         ): AccountFragment {
-            this.authVMClass = authVMClass
-            this.accountVMClass = accountVMClass
-            this.userVMClass = userVMClass
             return AccountFragment()
         }
     }
@@ -101,7 +90,7 @@ class AccountFragment : Fragment() {
     }
 
     private val userVM: UserViewModel by lazy {
-        ViewModelProvider(requireActivity())[userVMClass] as UserViewModel
+        ViewModelProvider(requireActivity())[UserViewModel::class]
     }
 
     override fun onCreateView(

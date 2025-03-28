@@ -34,7 +34,6 @@ import com.myapp.lexicon.ads.models.AdName;
 import com.myapp.lexicon.auth.AuthFragment;
 import com.myapp.lexicon.auth.AuthViewModel;
 import com.myapp.lexicon.auth.account.AccountFragment;
-import com.myapp.lexicon.auth.account.AccountViewModel;
 import com.myapp.lexicon.auth.account.UserDataViewModel;
 import com.myapp.lexicon.common.CommonConstantsKt;
 import com.myapp.lexicon.common.TimeExtKt;
@@ -53,10 +52,10 @@ import com.myapp.lexicon.main.ext.MainActivityExtKt;
 import com.myapp.lexicon.main.viewmodels.UserViewModel;
 import com.myapp.lexicon.models.AppResult;
 import com.myapp.lexicon.models.Revenue;
-import com.myapp.lexicon.models.Tokens;
 import com.myapp.lexicon.models.User;
 import com.myapp.lexicon.models.UserKt;
 import com.myapp.lexicon.models.UserX;
+import com.myapp.lexicon.models.UserXKt;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.models.WordList;
 import com.myapp.lexicon.repository.DataRepositoryImpl;
@@ -121,6 +120,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public MainViewModel mainVM;
     private SpeechViewModel speechVM;
     private RevenueViewModel revenueVM;
+    private UserDataViewModel userDataVM;
     public BackgroundFragm backgroundFragm = null;
     @Nullable
     private AccountFragment accountFragment;
@@ -163,8 +163,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         AuthViewModel.Factory authFactory = new AuthViewModel.Factory();
         AuthViewModel authVM = new ViewModelProvider(this, authFactory).get(AuthViewModel.class);
+
+        UserDataViewModel.Factory userFactory = new UserDataViewModel.Factory();
+        userDataVM = new ViewModelProvider(this, userFactory).get(UserDataViewModel.class);
+
         revenueVM = new ViewModelProvider(MainActivity.this).get(RevenueViewModel.class);
-        UserViewModel userVM = new ViewModelProvider(MainActivity.this).get(UserViewModel.class);
 
 //        UserDataViewModel.Factory userFactory = new UserDataViewModel.Factory();
 //        UserDataViewModel userDataVM = new ViewModelProvider(this, userFactory).get(UserDataViewModel.class);
@@ -200,23 +203,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         authVM.getState().observe(this, result -> {
             result.onInit(() -> {
-                buildRewardText(null);
-                SettingsExtKt.isUserRegistered(this,
-                        () -> null,
-                        () -> {
-                            boolean isFirstLaunch = SettingsExtKt.getCheckFirstLaunch(this);
-                            if (isFirstLaunch)
-                            {
-
-                            }
-                            return null;
-                        }
-                );
                 return null;
             });
             result.onNotRegistered(() -> {
-                navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_get_reward);
-                buildRewardText(null);
+
                 return null;
             });
             result.onSignUp(user -> {
@@ -224,46 +214,46 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return null;
             });
             result.onSignIn(user -> {
-                revenueVM.setState(new UserViewModel.State.ReceivedUserData(user));
-                navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_account);
-                buildRewardText(new Revenue(user.getUserReward(), user.getReservedPayment(), user.getCurrency(), user.getCurrencySymbol()));
-                boolean isAdsEnabled = CommonConstantsKt.getIS_ADS_ENABLED() || user.isAdsEnabled();
-                SettingsExtKt.setAdsIsEnabled(this, isAdsEnabled);
-                SettingsExtKt.saveUserPercentToPref(this, user);
-                if (!user.isAdsEnabled() && !user.getMessage().isEmpty()) {
-                    ExtensionsKt.showMultiLineSnackBar(navView, user.getMessage(), Snackbar.LENGTH_LONG);
-                }
-                if (!user.getMessage().isEmpty()) {
-                    MainActivityExtKt.showThankDialog(
-                            this,
-                            user.getMessage(),
-                            () -> {
-                                userVM.updateUserDataIntoCloud(Map.of(
-                                        User.KEY_MESSAGE, "",
-                                        User.KEY_EMAIL, user.getEmail()
-                                ));
-                                return null;
-                            }
-                    );
-                }
-                MainActivityExtKt.handleAdDataFromSplashActivity(
-                        MainActivity.this,
-                        (adData, bonus) -> {
-                            if (adData != null) {
-                                revenueVM.updateUserRevenueIntoCloud(adData);
-                            }
-                            if (bonus > 0.009)
-                            {
-                                showUserRewardAnimatedly(bonus);
-                            } else
-                            {
-                                ExtensionsKt.showToastIfDebug(
-                                        this, "Bonus is less than 0.01"
-                                );
-                            }
-                            return null;
-                        }
-                );
+//                revenueVM.setState(new UserViewModel.State.ReceivedUserData(user));
+//                navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_account);
+//                buildRewardText(new Revenue(user.getUserReward(), user.getReservedPayment(), user.getCurrency(), user.getCurrencySymbol()));
+//                boolean isAdsEnabled = CommonConstantsKt.getIS_ADS_ENABLED() || user.isAdsEnabled();
+//                SettingsExtKt.setAdsIsEnabled(this, isAdsEnabled);
+//                SettingsExtKt.saveUserPercentToPref(this, user);
+//                if (!user.isAdsEnabled() && !user.getMessage().isEmpty()) {
+//                    ExtensionsKt.showMultiLineSnackBar(navView, user.getMessage(), Snackbar.LENGTH_LONG);
+//                }
+//                if (!user.getMessage().isEmpty()) {
+//                    MainActivityExtKt.showThankDialog(
+//                            this,
+//                            user.getMessage(),
+//                            () -> {
+//                                userVM.updateUserDataIntoCloud(Map.of(
+//                                        User.KEY_MESSAGE, "",
+//                                        User.KEY_EMAIL, user.getEmail()
+//                                ));
+//                                return null;
+//                            }
+//                    );
+//                }
+//                MainActivityExtKt.handleAdDataFromSplashActivity(
+//                        MainActivity.this,
+//                        (adData, bonus) -> {
+//                            if (adData != null) {
+//                                revenueVM.updateUserRevenueIntoCloud(adData);
+//                            }
+//                            if (bonus > 0.009)
+//                            {
+//                                showUserRewardAnimatedly(bonus);
+//                            } else
+//                            {
+//                                ExtensionsKt.showToastIfDebug(
+//                                        this, "Bonus is less than 0.01"
+//                                );
+//                            }
+//                            return null;
+//                        }
+//                );
                 return null;
             });
             result.onSignOut(() -> {
@@ -277,19 +267,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return null;
             });
         });
-
-        SettingsExtKt.getAuthDataFromPref(
-                MainActivity.this,
-                () -> null,
-                (email, pass) -> {
-                    authVM.signInWithEmailAndPassword(email, pass);
-                    return null;
-                },
-                e -> {
-                    ExtensionsKt.printStackTraceIfDebug(e);
-                    return null;
-                }
-        );
 
         btnViewDict = contentBinding.btnViewDict;
         btnViewDictOnClick(btnViewDict);
@@ -549,15 +526,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 BannerAdIdsKt.getBANNER_MAIN(),
                 0.08,
                 (data) -> {
-                    SettingsExtKt.getAuthDataFromPref(
-                            this,
-                            () -> null,
-                            (email, p) -> {
-                                userVM.updateUserDataIntoCloud(Map.of(User.KEY_EMAIL, email, AdName.BANNER_MAIN.name(), 1));
-                                return null;
-                            },
-                            e -> null
-                    );
+                    String accessToken = EncryptedPrefKt.getAccessToken(this);
+                    if (!accessToken.isEmpty()) {
+
+                    }
                     return null;
                 },
                 e -> null,
@@ -907,40 +879,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int itemId = item.getItemId();
         if (itemId == R.id.nav_user_reward)
         {
-            SettingsExtKt.getAuthDataFromPref(
-                    this,
-                    () -> {
-                        AuthFragment authFragment = AuthFragment.Companion.newInstance();
-                        transaction.replace(R.id.frame_to_page_fragm, authFragment).addToBackStack(null).commit();
-                        return null;
-                    },
-                    (email, password) -> {
-                        ParseUser currentUser = ParseUser.getCurrentUser();
-                        if (currentUser != null)
-                        {
-                            accountFragment = AccountFragment.Companion.newInstance(
-                                    AuthViewModel.class,
-                                    AccountViewModel.class,
-                                    UserViewModel.class
-                            );
-                            transaction.replace(R.id.frame_to_page_fragm, accountFragment)
-                                    .addToBackStack(null)
-                                    .commit();
-                        } else
-                        {
-                            AuthFragment authFragment = AuthFragment.Companion.newInstance();
-                            transaction.replace(R.id.frame_to_page_fragm, authFragment).addToBackStack(null).commit();
-                        }
-                        return null;
-                    },
-                    error -> {
-                        String message = error.getMessage();
-                        if (message != null)
-                        {
-                            ExtensionsKt.showMultiLineSnackBar(binding.getRoot(), message, Snackbar.LENGTH_LONG);
-                        }
-                        return null;
-                    });
+            String accessToken = EncryptedPrefKt.getAccessToken(this);
+            if (accessToken.isEmpty()) {
+                AuthFragment authFragment = AuthFragment.Companion.newInstance();
+                transaction.replace(R.id.frame_to_page_fragm, authFragment).addToBackStack(null).commit();
+            }
+            else {
+                accountFragment = AccountFragment.Companion.newInstance();
+                transaction.replace(R.id.frame_to_page_fragm, accountFragment)
+                        .addToBackStack(null)
+                        .commit();
+            }
         }
         if (itemId == R.id.nav_video_list)
         {
@@ -1067,6 +1016,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     private void onRevenueUpdate()
     {
+
+
         revenueVM.getUserRevenueLD().observe(this, result -> {
             if (result instanceof AppResult.Success<?>)
             {
@@ -1151,13 +1102,48 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onMigrationFromBack4AppCompleted(@NotNull UserX user)
     {
+        navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_account);
         buildRewardTextX(user);
     }
 
     @Override
     public void onFetchUserData(@NotNull UserX user)
     {
+        navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_account);
         buildRewardTextX(user);
+        if (!user.isAdsEnabled() && !user.getMessageToUser().isEmpty()) {
+            ExtensionsKt.showMultiLineSnackBar(navView, user.getMessageToUser(), Snackbar.LENGTH_LONG);
+        }
+        if (!user.getMessageToUser().isEmpty()) {
+            MainActivityExtKt.showThankDialog(
+                    this,
+                    user.getMessageToUser(),
+                    () -> {
+                        String accessToken = EncryptedPrefKt.getAccessToken(this);
+                        Map<String, String> newMessage = Map.of(UserXKt.MESSAGE_TO_USER, "");
+                        userDataVM.updateUserData(accessToken, newMessage);
+                        return null;
+                    }
+            );
+        }
+        MainActivityExtKt.handleAdDataFromSplashActivity(
+                MainActivity.this,
+                (adData, bonus) -> {
+                    if (adData != null) {
+                        revenueVM.updateUserRevenueIntoCloud(adData);
+                    }
+                    if (bonus > 0.009)
+                    {
+                        showUserRewardAnimatedly(bonus);
+                    } else
+                    {
+                        ExtensionsKt.showToastIfDebug(
+                                this, "Bonus is less than 0.01"
+                        );
+                    }
+                    return null;
+                }
+        );
     }
 
     @Override
@@ -1185,7 +1171,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onAuthError(@NotNull String message)
     {
+        MainActivityExtKt.redirectToAuthScreen(this);
+    }
 
+    @Override
+    public void onNotRegistered()
+    {
+        navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_get_reward);
+        buildRewardText(null);
     }
 }
 

@@ -7,14 +7,18 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.myapp.lexicon.di.INetRepositoryModule
 import com.myapp.lexicon.di.NetRepositoryModule
+import com.myapp.lexicon.models.Balance
 import com.myapp.lexicon.models.HttpThrowable
+import com.myapp.lexicon.models.RevenueX
 import com.myapp.lexicon.models.UserX
 import com.myapp.lexicon.repository.network.INetRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
-class UserDataViewModel(netModule: INetRepositoryModule) : AccountViewModel(netModule) {
+open class UserDataViewModel(netModule: INetRepositoryModule) : AccountViewModel(netModule) {
 
     @Suppress("UNCHECKED_CAST")
     class Factory(
@@ -36,8 +40,12 @@ class UserDataViewModel(netModule: INetRepositoryModule) : AccountViewModel(netM
         data class Error(val message: String): UserDataState
     }
 
+    private val jsonCoder = Json { prettyPrint = true }
+
     private var _userState = MutableLiveData<UserDataState>(UserDataState.Init)
     val userState: LiveData<UserDataState> = _userState
+
+    open var user: UserX? = null
 
     override val repository: INetRepository
         get() = super.repository
@@ -53,6 +61,7 @@ class UserDataViewModel(netModule: INetRepositoryModule) : AccountViewModel(netM
             val result = repository.getUserProfile(accessToken = token).await()
             result.onSuccess { user: UserX ->
                 super._loadingState.postValue(LoadingState.Complete)
+                this@UserDataViewModel.user = user
                 _userState.postValue(UserDataState.ReceivedUserData(user))
             }
             result.onFailure { exception ->
@@ -80,6 +89,7 @@ class UserDataViewModel(netModule: INetRepositoryModule) : AccountViewModel(netM
                 collector = { result ->
                     result.onSuccess { user ->
                         super._loadingState.postValue(LoadingState.Complete)
+                        this@UserDataViewModel.user = user
                         _userState.postValue(UserDataState.UserDataUpdated(user))
                     }
                     result.onFailure { ex ->
@@ -94,6 +104,53 @@ class UserDataViewModel(netModule: INetRepositoryModule) : AccountViewModel(netM
                             }
                         }
                         _userState.postValue(UserDataState.Error(ex.message?: "Unknown error"))
+                    }
+                }
+            )
+        }
+    }
+
+    fun updateUserData(token: String, data: Map<String, Any?>) {
+        super._loadingState.value = LoadingState.Start
+
+        viewModelScope.launch(context = Dispatchers.IO) {
+            val jsonString = jsonCoder.encodeToString(data)
+            repository.updateUserData(token, jsonString).collect(
+                collector = { result ->
+                    result.onSuccess { user ->
+                        super._loadingState.postValue(LoadingState.Complete)
+                        this@UserDataViewModel.user = user
+                        _userState.postValue(UserDataState.UserDataUpdated(user))
+                    }
+                    result.onFailure { ex ->
+                        super._loadingState.postValue(LoadingState.Complete)
+                        val errorCode = (ex as HttpThrowable).errorCode
+                        when(errorCode) {
+                            401, 406 -> {
+                                _userState.postValue(UserDataState.AuthorizationRequired)
+                            }
+                            else -> {
+                                _userState.postValue(UserDataState.Error(ex.message?: "Unknown error"))
+                            }
+                        }
+                        _userState.postValue(UserDataState.Error(ex.message?: "Unknown error"))
+                    }
+                }
+            )
+        }
+    }
+
+    fun updateUserBalance(token: String, data: RevenueX) {
+        super._loadingState.value = LoadingState.Start
+
+        viewModelScope.launch(context = Dispatchers.IO) {
+            repository.updateUserBalance(token, data).collect(
+                collector = { result ->
+                    result.onSuccess { balance: Balance ->
+
+                    }
+                    result.onFailure { ex ->
+
                     }
                 }
             )

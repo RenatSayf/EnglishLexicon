@@ -10,7 +10,6 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
-import com.myapp.lexicon.auth.MockAuthViewModel
 import com.myapp.lexicon.common.AdsSource
 import com.myapp.lexicon.main.viewmodels.MockUserViewModel
 import com.myapp.lexicon.models.User
@@ -62,9 +61,6 @@ class AccountFragmentTest {
             MockUserViewModel.testData = user
 
             val accountFragment = AccountFragment.newInstance(
-                authVMClass = MockAuthViewModel::class.java,
-                accountVMClass = MockAccountViewModel::class.java,
-                userVMClass = MockUserViewModel::class.java
             )
             act.supportFragmentManager
                 .beginTransaction()

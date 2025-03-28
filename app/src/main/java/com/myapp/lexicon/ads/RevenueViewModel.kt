@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.ads.models.AdData
+import com.myapp.lexicon.auth.account.UserDataViewModel
 import com.myapp.lexicon.common.mapToRevenue
 import com.myapp.lexicon.common.mapToUser
 import com.myapp.lexicon.helpers.LOCALE_RU
@@ -30,12 +31,12 @@ import javax.inject.Inject
 
 class RevenueViewModel @Inject constructor(
     private val app: Application
-): UserViewModel(app) {
+): UserDataViewModel() {
 
     private var _userRevenueLD = MutableLiveData<AppResult>(AppResult.Init)
     val userRevenueLD: LiveData<AppResult> = _userRevenueLD
 
-    override fun updateUserRevenueIntoCloud(adData: AdData) {
+    fun updateUserRevenueIntoCloud(adData: AdData) {
 
         val currentUser = ParseUser.getCurrentUser()
         if (currentUser is ParseUser) {

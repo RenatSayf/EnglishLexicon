@@ -20,6 +20,7 @@ import com.myapp.lexicon.ads.models.AD_TEST
 import com.myapp.lexicon.ads.models.AD_TRANSLATE
 import com.myapp.lexicon.ads.models.AD_VIDEO
 import com.myapp.lexicon.auth.AuthViewModel
+import com.myapp.lexicon.auth.account.AccountViewModel
 import com.myapp.lexicon.auth.account.UserDataViewModel
 import com.myapp.lexicon.common.IS_IMPORTANT_UPDATE
 import com.myapp.lexicon.dialogs.ConfirmDialog
@@ -28,6 +29,7 @@ import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.registerFinishReceiver
 import com.myapp.lexicon.helpers.setServiceBroadcasts
 import com.myapp.lexicon.helpers.throwIfDebug
+import com.myapp.lexicon.main.ext.redirectToAuthScreen
 import com.myapp.lexicon.main.viewmodels.FinishViewModel
 import com.myapp.lexicon.models.UserState
 import com.myapp.lexicon.models.UserX
@@ -69,6 +71,7 @@ class MainFragment : Fragment() {
         fun onMigrationFromBack4AppCompleted(user: UserX)
         fun onFetchUserData(user: UserX)
         fun onFirstLaunch()
+        fun onNotRegistered()
         fun onAuthError(message: String)
     }
 
@@ -188,6 +191,7 @@ class MainFragment : Fragment() {
 
         userDataVM.userState.observe(this) { state ->
             when(state) {
+                UserDataViewModel.UserDataState.Init -> {}
                 is UserDataViewModel.UserDataState.Error -> {
                     val error = state.message
                     listener?.onAuthError(message = error)
@@ -196,11 +200,13 @@ class MainFragment : Fragment() {
                     val user = state.user
                     listener?.onFetchUserData(user)
                 }
-                UserDataViewModel.UserDataState.Init -> {}
                 is UserDataViewModel.UserDataState.UserDataUpdated -> {
                     requireContext().clearEmailPasswordInPref()
                     val userX = state.userX
                     listener?.onMigrationFromBack4AppCompleted(userX)
+                }
+                UserDataViewModel.UserDataState.AuthorizationRequired -> {
+                    requireActivity().redirectToAuthScreen()
                 }
                 else -> {}
             }
