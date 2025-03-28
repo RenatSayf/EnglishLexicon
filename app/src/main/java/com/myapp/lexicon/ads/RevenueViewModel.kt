@@ -31,12 +31,12 @@ import javax.inject.Inject
 
 class RevenueViewModel @Inject constructor(
     private val app: Application
-): UserDataViewModel() {
+): UserViewModel(app) {
 
     private var _userRevenueLD = MutableLiveData<AppResult>(AppResult.Init)
     val userRevenueLD: LiveData<AppResult> = _userRevenueLD
 
-    fun updateUserRevenueIntoCloud(adData: AdData) {
+    override fun updateUserRevenueIntoCloud(adData: AdData) {
 
         val currentUser = ParseUser.getCurrentUser()
         if (currentUser is ParseUser) {
