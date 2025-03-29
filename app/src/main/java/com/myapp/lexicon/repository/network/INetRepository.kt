@@ -1,6 +1,5 @@
 package com.myapp.lexicon.repository.network
 
-import com.myapp.lexicon.models.Balance
 import com.myapp.lexicon.models.RevenueX
 import com.myapp.lexicon.models.SignInData
 import com.myapp.lexicon.models.SignUpData
@@ -20,13 +19,13 @@ interface INetRepository {
 
     suspend fun getUserProfile(accessToken: String): Deferred<Result<UserX>>
 
-    suspend fun updateUserBalance(accessToken: String, revenue: RevenueX): Flow<Result<Balance>>
+    suspend fun updateUserBalance(accessToken: String, revenue: RevenueX): Flow<Result<UserX>>
 
-    suspend fun updateUserProfile(accessToken: String, profile: UserProfile): Flow<Result<UserProfile>>
+    suspend fun updateUserProfile(accessToken: String, profile: UserProfile): Flow<Result<UserX>>
 
     suspend fun updateUserData(accessToken: String, json: String): Flow<Result<UserX>>
 
-    suspend fun reservedPaymentToUser(accessToken: String, sum: Int): Flow<Result<Balance>>
+    suspend fun reservedPaymentToUser(accessToken: String, sum: Int): Flow<Result<UserX>>
 
     suspend fun updateClickCounter(accessToken: String): Flow<Result<Boolean>>
 

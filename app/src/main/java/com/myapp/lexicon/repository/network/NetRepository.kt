@@ -1,6 +1,5 @@
 package com.myapp.lexicon.repository.network
 
-import com.myapp.lexicon.models.Balance
 import com.myapp.lexicon.models.HttpThrowable
 import com.myapp.lexicon.models.RevenueX
 import com.myapp.lexicon.models.SignInData
@@ -46,8 +45,9 @@ open class NetRepository(
                         jsonDecoder.decodeFromString<Tokens>(json)
                     }.onSuccess { tokens ->
                         emit(Result.success(tokens))
-                    }.onFailure { ex ->
-                        Result.failure<Exception>(ex)
+                    }.onFailure { t ->
+                        val throwable = HttpThrowable(message = t.message, errorCode = t.hashCode())
+                        Result.failure<Throwable>(throwable)
                     }
                 }
                 else -> {
@@ -67,13 +67,15 @@ open class NetRepository(
                 setBody(json)
             })
             when(response.status) {
-                HttpStatusCode.Accepted -> {
-                    try {
+                HttpStatusCode.Accepted, HttpStatusCode.OK -> {
+                    runCatching {
                         val json = response.body<String>()
-                        val tokens = jsonDecoder.decodeFromString<Tokens>(json)
+                        jsonDecoder.decodeFromString<Tokens>(json)
+                    }.onSuccess { tokens ->
                         emit(Result.success(tokens))
-                    } catch (e: Exception) {
-                        emit(Result.failure(e))
+                    }.onFailure { t ->
+                        val throwable = HttpThrowable(message = t.message, errorCode = t.hashCode())
+                        Result.failure<Throwable>(throwable)
                     }
                 }
                 else -> {
@@ -93,17 +95,21 @@ open class NetRepository(
             })
             when(response.status) {
                 HttpStatusCode.OK -> {
-                    val json = response.body<String>()
-                    try {
-                        val tokens = jsonDecoder.decodeFromString<Tokens>(json)
+                    runCatching {
+                        val json = response.body<String>()
+                        jsonDecoder.decodeFromString<Tokens>(json)
+
+                    }.onSuccess { tokens ->
                         emit(Result.success(tokens))
-                    } catch (e: Exception) {
-                        emit(Result.failure(e))
+                    }.onFailure { t ->
+                        val throwable = HttpThrowable(message = t.message, errorCode = t.hashCode())
+                        Result.failure<Throwable>(throwable)
                     }
                 }
                 else -> {
                     val status = response.status
-                    emit(Result.failure(Throwable("********** Error description: ${status.description}. Code: ${status.value} ************")))
+                    val httpThrowable = HttpThrowable(message = status.description, errorCode = status.value)
+                    emit(Result.failure(httpThrowable))
                 }
             }
         }
@@ -118,12 +124,14 @@ open class NetRepository(
                 })
                 when(response.status) {
                     HttpStatusCode.OK -> {
-                        val bodyText = response.body<String>()
-                        try {
-                            val user = jsonDecoder.decodeFromString<UserX>(bodyText)
+                        runCatching {
+                            val bodyText = response.body<String>()
+                            jsonDecoder.decodeFromString<UserX>(bodyText)
+                        }.onSuccess { user ->
                             Result.success(user)
-                        } catch (e: Exception) {
-                            Result.failure(e)
+                        }.onFailure { t ->
+                            val throwable = HttpThrowable(message = t.message, errorCode = t.hashCode())
+                            Result.failure<Throwable>(throwable)
                         }
                     }
                     else -> {
@@ -138,7 +146,7 @@ open class NetRepository(
     override suspend fun updateUserBalance(
         accessToken: String,
         revenue: RevenueX
-    ): Flow<Result<Balance>> {
+    ): Flow<Result<UserX>> {
         return flow {
             val response = httpClient.put(urlString = "$baseUrl/user/balance", block = {
                 contentType(ContentType.Application.Json)
@@ -149,16 +157,19 @@ open class NetRepository(
             when(response.status) {
                 HttpStatusCode.OK -> {
                     val bodyText = response.body<String>()
-                    try {
-                        val balance = jsonDecoder.decodeFromString<Balance>(bodyText)
-                        emit(Result.success(balance))
-                    } catch (e: Exception) {
-                        emit(Result.failure(e))
+                    runCatching {
+                        jsonDecoder.decodeFromString<UserX>(bodyText)
+                    }.onSuccess { user: UserX ->
+                        emit(Result.success(user))
+                    }.onFailure { t ->
+                        val throwable = HttpThrowable(message = t.message, errorCode = t.hashCode())
+                        Result.failure<Throwable>(throwable)
                     }
                 }
                 else -> {
                     val status = response.status
-                    emit(Result.failure(Throwable("********** Error description: ${status.description}. Code: ${status.value} ************")))
+                    val httpThrowable = HttpThrowable(message = status.description, errorCode = status.value)
+                    emit(Result.failure(httpThrowable))
                 }
             }
         }
@@ -167,7 +178,7 @@ open class NetRepository(
     override suspend fun updateUserProfile(
         accessToken: String,
         profile: UserProfile
-    ): Flow<Result<UserProfile>> {
+    ): Flow<Result<UserX>> {
         return flow {
             val response = httpClient.put(urlString = "$baseUrl/user/profile", block = {
                 contentType(ContentType.Application.Json)
@@ -177,17 +188,20 @@ open class NetRepository(
             })
             when(response.status) {
                 HttpStatusCode.OK -> {
-                    val bodyText = response.body<String>()
-                    try {
-                        val profile1 = jsonDecoder.decodeFromString<UserProfile>(bodyText)
-                        emit(Result.success(profile1))
-                    } catch (e: Exception) {
-                        emit(Result.failure(e))
+                    runCatching {
+                        val bodyText = response.body<String>()
+                        jsonDecoder.decodeFromString<UserX>(bodyText)
+                    }.onSuccess { user ->
+                        emit(Result.success(user))
+                    }.onFailure { t ->
+                        val throwable = HttpThrowable(message = t.message, errorCode = t.hashCode())
+                        Result.failure<Throwable>(throwable)
                     }
                 }
                 else -> {
                     val status = response.status
-                    emit(Result.failure(Throwable("********** Error description: ${status.description}. Code: ${status.value} ************")))
+                    val httpThrowable = HttpThrowable(message = status.description, errorCode = status.value)
+                    emit(Result.failure(httpThrowable))
                 }
             }
         }
@@ -205,12 +219,14 @@ open class NetRepository(
             })
             when(response.status) {
                 HttpStatusCode.OK -> {
-                    val bodyText = response.body<String>()
-                    try {
-                        val user = jsonDecoder.decodeFromString<UserX>(bodyText)
+                    runCatching {
+                        val bodyText = response.body<String>()
+                        jsonDecoder.decodeFromString<UserX>(bodyText)
+                    }.onSuccess { user ->
                         emit(Result.success(user))
-                    } catch (e: Exception) {
-                        emit(Result.failure(e))
+                    }.onFailure { t ->
+                        val throwable = HttpThrowable(message = t.message, errorCode = t.hashCode())
+                        Result.failure<Throwable>(throwable)
                     }
                 }
                 else -> {
@@ -224,7 +240,7 @@ open class NetRepository(
     override suspend fun reservedPaymentToUser(
         accessToken: String,
         sum: Int
-    ): Flow<Result<Balance>> {
+    ): Flow<Result<UserX>> {
         return flow {
             val response = httpClient.put(urlString = "$baseUrl/user/payment", block = {
                 contentType(ContentType.Application.Json)
@@ -233,17 +249,19 @@ open class NetRepository(
             })
             when(response.status) {
                 HttpStatusCode.OK -> {
-                    val bodyText = response.body<String>()
-                    try {
-                        val balance = jsonDecoder.decodeFromString<Balance>(bodyText)
-                        emit(Result.success(balance))
-                    } catch (e: Exception) {
-                        emit(Result.failure(e))
+                    runCatching {
+                        val bodyText = response.body<String>()
+                        jsonDecoder.decodeFromString<UserX>(bodyText)
+                    }.onSuccess { user ->
+                        emit(Result.success(user))
+                    }.onFailure { t ->
+                        val throwable = HttpThrowable(message = t.message, errorCode = t.hashCode())
+                        Result.failure<Throwable>(throwable)
                     }
                 }
                 else -> {
                     val status = response.status
-                    emit(Result.failure(Throwable("********** Error description: ${status.description}. Code: ${status.value} ************")))
+                    emit(Result.failure(HttpThrowable (message = status.description, errorCode = status.value)))
                 }
             }
         }
@@ -257,17 +275,19 @@ open class NetRepository(
             })
             when(response.status) {
                 HttpStatusCode.OK -> {
-                    val bodyText = response.body<String>()
-                    try {
-                        val isDeleted = jsonDecoder.decodeFromString<Boolean>(bodyText)
-                        emit(Result.success(isDeleted))
-                    } catch (e: Exception) {
-                        emit(Result.failure(e))
+                    runCatching {
+                        val bodyText = response.body<String>()
+                        jsonDecoder.decodeFromString<Boolean>(bodyText)
+                    }.onSuccess { isUpdated ->
+                        emit(Result.success(isUpdated))
+                    }.onFailure { t ->
+                        val throwable = HttpThrowable(message = t.message, errorCode = t.hashCode())
+                        Result.failure<Throwable>(throwable)
                     }
                 }
                 else -> {
                     val status = response.status
-                    emit(Result.failure(Throwable("********** Error description: ${status.description}. Code: ${status.value} ************")))
+                    emit(Result.failure(HttpThrowable (message = status.description, errorCode = status.value)))
                 }
             }
         }
@@ -281,12 +301,14 @@ open class NetRepository(
             })
             when(response.status) {
                 HttpStatusCode.OK -> {
-                    val bodyText = response.body<String>()
-                    try {
-                        val isDeleted = jsonDecoder.decodeFromString<Boolean>(bodyText)
+                    runCatching {
+                        val bodyText = response.body<String>()
+                        jsonDecoder.decodeFromString<Boolean>(bodyText)
+                    }.onSuccess { isDeleted ->
                         emit(Result.success(isDeleted))
-                    } catch (e: Exception) {
-                        emit(Result.failure(e))
+                    }.onFailure { t ->
+                        val throwable = HttpThrowable(message = t.message, errorCode = t.hashCode())
+                        Result.failure<Throwable>(throwable)
                     }
                 }
                 else -> {

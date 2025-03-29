@@ -7,10 +7,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.myapp.lexicon.di.INetRepositoryModule
 import com.myapp.lexicon.di.NetRepositoryModule
-import com.myapp.lexicon.models.Balance
 import com.myapp.lexicon.models.HttpThrowable
 import com.myapp.lexicon.models.RevenueX
 import com.myapp.lexicon.models.UserX
+import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.repository.network.INetRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -146,11 +146,25 @@ open class UserDataViewModel(netModule: INetRepositoryModule) : AccountViewModel
         viewModelScope.launch(context = Dispatchers.IO) {
             repository.updateUserBalance(token, data).collect(
                 collector = { result ->
-                    result.onSuccess { balance: Balance ->
-
+                    result.onSuccess { user: UserX ->
+                        super._loadingState.value = LoadingState.Complete
+                        _userState.postValue(UserDataState.RevenueUpdated(
+                            bonus = (data.revenueRub * user.rewardRatio).to2DigitsScale(),
+                            user = user
+                        ))
                     }
                     result.onFailure { ex ->
-
+                        super._loadingState.value = LoadingState.Complete
+                        val errorCode = (ex as HttpThrowable).errorCode
+                        when(errorCode) {
+                            401, 406 -> {
+                                _userState.postValue(UserDataState.AuthorizationRequired)
+                            }
+                            else -> {
+                                _userState.postValue(UserDataState.Error(ex.message?: "Unknown error"))
+                            }
+                        }
+                        _userState.postValue(UserDataState.Error(ex.message?: "Unknown error"))
                     }
                 }
             )

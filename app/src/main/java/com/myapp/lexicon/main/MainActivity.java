@@ -1111,7 +1111,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_account);
         buildRewardTextX(user);
-        if (!user.isAdsEnabled() && !user.getMessageToUser().isEmpty()) {
+        if (!SettingsExtKt.getConfigFromPref(this).isAdsEnabled() && !user.getMessageToUser().isEmpty()) {
             ExtensionsKt.showMultiLineSnackBar(navView, user.getMessageToUser(), Snackbar.LENGTH_LONG);
         }
         if (!user.getMessageToUser().isEmpty()) {

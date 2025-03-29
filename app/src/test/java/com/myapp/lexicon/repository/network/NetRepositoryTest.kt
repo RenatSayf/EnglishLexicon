@@ -1,11 +1,9 @@
 package com.myapp.lexicon.repository.network
 
-import com.myapp.lexicon.common.APP_VERSION
 import com.myapp.lexicon.di.INetRepositoryModule
 import com.myapp.lexicon.di.KEY_API
 import com.myapp.lexicon.di.NetRepositoryModule
 import com.myapp.lexicon.helpers.logIfDebug
-import com.myapp.lexicon.models.Balance
 import com.myapp.lexicon.models.RevenueX
 import com.myapp.lexicon.models.SignInData
 import com.myapp.lexicon.models.SignUpData
@@ -307,6 +305,7 @@ class NetRepositoryTest {
     fun updateUserBalance_success() {
         val accessToken = "XXXXXXXXXXXXXX"
         val responseJson = """{
+  "email": "user-test@mail.com",
   "today_balance": 10.5,
   "yesterday_balance": 20.6,
   "month_balance": 50.59,
@@ -344,17 +343,18 @@ class NetRepositoryTest {
 
         val revenue = RevenueX(
             currencyCode = "RUB",
-            lastAdId = "Adfsdfsdfjk",
+            adRequestID = "Adfsdfsdfjk",
+            adBlockId = "ad-demo-block",
             revenueRub = 0.12,
             revenueUsd = 0.0012
         )
         runBlocking {
             repository.updateUserBalance(accessToken = accessToken, revenue = revenue)
                 .collect(collector = { result ->
-                    result.onSuccess { value: Balance ->
-                        Assert.assertEquals(10.5, value.todayBalance, 0.0001)
-                        Assert.assertEquals(20.6, value.yesterdayBalance, 0.0001)
-                        Assert.assertEquals(50.59, value.monthBalance, 0.0001)
+                    result.onSuccess { value: UserX ->
+                        Assert.assertEquals(10.5, value.todayBalance?: 0.0, 0.0001)
+                        Assert.assertEquals(20.6, value.yesterdayBalance?: 0.0, 0.0001)
+                        Assert.assertEquals(50.59, value.monthBalance?: 0.0, 0.0001)
                         Assert.assertEquals(200, value.reservedPayout)
                     }
                     result.onFailure { exception: Throwable ->
@@ -420,11 +420,10 @@ class NetRepositoryTest {
         runBlocking {
             repository.updateUserProfile(accessToken = accessToken, profile = userProfile)
                 .collect(collector = { result ->
-                    result.onSuccess { value: UserProfile ->
+                    result.onSuccess { value: UserX ->
                         Assert.assertEquals("user-test@mail.com", value.email)
                         Assert.assertEquals("+79998887755", value.phone)
                         Assert.assertEquals(null, value.secondName)
-                        Assert.assertEquals(APP_VERSION, value.appVersion)
                     }
                     result.onFailure { exception: Throwable ->
                         exception.message!!.logIfDebug()
@@ -443,6 +442,7 @@ class NetRepositoryTest {
             val isApiKey = request.headers.contains(KEY_API)
             if (isApiKey) {
                 val responseJson = """{
+                      "email": "user-test@mail.com",
                       "today_balance": 10.5,
                       "yesterday_balance": 20.4,
                       "month_balance": 50.54,
@@ -479,7 +479,7 @@ class NetRepositoryTest {
             val sum = 200
             repository.reservedPaymentToUser(accessToken = accessToken, sum = sum)
                 .collect(collector = { result ->
-                    result.onSuccess { value: Balance ->
+                    result.onSuccess { value: UserX ->
                         Assert.assertEquals(200, value.reservedPayout)
                     }
                     result.onFailure { exception: Throwable ->

@@ -53,8 +53,11 @@ data class UserX(
     @SerialName("yesterday_balance")
     val yesterdayBalance: Double? = null,
 
-    @SerialName("is_ads_enabled")
-    val isAdsEnabled: Boolean = true
+    @SerialName(value = "reward_ratio")
+    val rewardRatio: Double = 0.5,
+
+    @SerialName(value = "payout_threshold")
+    val payoutThreshold: Int = 100
 ) {
 
     val currencySymbol: String

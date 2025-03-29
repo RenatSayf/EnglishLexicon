@@ -19,6 +19,7 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.models.TestState
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.Word
+import com.myapp.lexicon.models.config.RemoteConfig
 import com.myapp.lexicon.models.toWord
 import kotlinx.serialization.SerializationException
 import java.util.concurrent.TimeUnit
@@ -136,6 +137,23 @@ val Context.userPercentFromPref: Double
 fun Context.saveUserPercentToPref(user: User) {
     appSettings.edit { putFloat("USER_PERCENTAGE", user.userPercent?.toFloat() ?: -1.0f) }
 }
+
+fun Context.saveConfigToPref(config: RemoteConfig) {
+    appSettings.edit {
+        putBoolean("IS_ADS_ENABLED", config.isAdsEnabled)
+        putFloat("REWARD_RATIO", config.rewardRatio.toFloat())
+        putInt("PAYOUT_THRESHOLD", config.payoutThreshold)
+    }
+}
+
+val Context.configFromPref: RemoteConfig
+    get() {
+        return RemoteConfig(
+            isAdsEnabled = appSettings.getBoolean("IS_ADS_ENABLED", true),
+            rewardRatio = appSettings.getFloat("REWARD_RATIO", 0.5f).toDouble(),
+            payoutThreshold = appSettings.getInt("PAYOUT_THRESHOLD", 100)
+        )
+    }
 
 var Context.checkFirstLaunch: Boolean
     get() {
