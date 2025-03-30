@@ -161,10 +161,10 @@ class MainFragment : Fragment() {
         authVM.state.observe(this) { state ->
             when(state) {
                 is UserState.Failure -> {
-
+                    state.error.throwIfDebug()
                 }
                 is UserState.HttpFailure -> {
-
+                    Exception(state.message?: "***** Unknown error *******").throwIfDebug()
                 }
                 is UserState.SignIn -> { // after login in back4app
                     requireContext().getAuthDataFromPref(

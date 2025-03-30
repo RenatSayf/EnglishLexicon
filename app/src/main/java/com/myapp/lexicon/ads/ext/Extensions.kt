@@ -176,6 +176,16 @@ fun AdData.emptyRevenue(): RevenueX {
     )
 }
 
+fun AdData.toRevenue(): RevenueX {
+    return RevenueX(
+        currencyCode = this.currency?: "",
+        adRequestID = this.requestId?: "",
+        adBlockId = this.blockId?: "",
+        revenueRub = this.revenue,
+        revenueUsd = this.revenueUSD
+    )
+}
+
 
 
 

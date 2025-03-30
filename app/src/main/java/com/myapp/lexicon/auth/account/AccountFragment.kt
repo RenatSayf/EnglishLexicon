@@ -93,10 +93,6 @@ class AccountFragment : Fragment() {
         ViewModelProvider(this, factory)[UserDataViewModel::class]
     }
 
-    private val userVM: UserViewModel by lazy {
-        ViewModelProvider(requireActivity())[UserViewModel::class]
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -109,8 +105,6 @@ class AccountFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         with(binding) {
-
-            userVM.setState(UserViewModel.State.Init)
 
             userDataVM.loadingState.observe(viewLifecycleOwner) { state ->
                 when(state) {
@@ -365,7 +359,7 @@ class AccountFragment : Fragment() {
                 }
             }
             tvCheckRefValue.doOnTextChanged { text, start, before, count ->
-                val reservedPayment = userVM.user.value?.reservedPayment ?: 0.0
+                val reservedPayment = userDataVM.user?.previousMonthBalance?: 0
                 if (reservedPayment > SELF_EMPLOYED_THRESHOLD) {
                     val isMatches = tvCheckRefValue.text?.matches(Regex(PAYMENT_CHECK_PATTERN))
                     if (isMatches == true) {
@@ -383,7 +377,7 @@ class AccountFragment : Fragment() {
             }
 
             btnGetReward.setOnClickListener {
-                val user = userVM.user.value
+                val user = userDataVM.user
                 if (user != null) {
                     val email = tvEmailValue.text.toString()
                     if (email.isEmpty() || !authVM.isValidEmail(email)) {
@@ -436,7 +430,7 @@ class AccountFragment : Fragment() {
                         return@setOnClickListener
                     }
 
-                    val reservedPayment = userVM.user.value?.reservedPayment ?: 0.0
+                    val reservedPayment = userDataVM.user?.previousMonthBalance ?: 0
                     if (reservedPayment > SELF_EMPLOYED_THRESHOLD) {
                         val isMatches = tvCheckRefValue.text?.matches(Regex(PAYMENT_CHECK_PATTERN))
                         if (isMatches == false) {
@@ -454,49 +448,51 @@ class AccountFragment : Fragment() {
                         User.KEY_LAST_NAME to tvLastNameValue.text.toString().trim().firstCap()
                     )
 
-                    val payoutMap = Payout(
-                        reservedSum = 0,
-                        payoutSum = user.reservedPayment.toInt(),
-                        payoutTime = System.currentTimeMillis(),
-                        checkReference = tvCheckRefValue.text.toString()
-                    ).toMap().toMutableMap()
+                    if ((user.previousMonthBalance?: 0) > 0) {
+                        val payoutMap = Payout(
+                            reservedSum = 0,
+                            payoutSum = user.previousMonthBalance!!,
+                            payoutTime = System.currentTimeMillis(),
+                            checkReference = tvCheckRefValue.text.toString()
+                        ).toMap().toMutableMap()
 
-                    payoutMap.putAll(requisitesMap)
+                        payoutMap.putAll(requisitesMap)
 
-                    accountVM.demandPayment(
-                        threshold = (accountVM.paymentThreshold * user.currencyRate).toInt(),
-                        reward = user.reservedPayment.toInt(),
-                        userMap = payoutMap,
-                        onStart = {
-                            userDataVM.setLoadingState(AccountViewModel.LoadingState.Start)
-                            requireActivity().orientationLock()
-                        },
-                        onSuccess = {
-                            userVM.setState(UserViewModel.State.PaymentRequestSent(user, 0, 0.0))
-                        },
-                        onNotEnough = {
-                            showMultiLineSnackBar(getString(R.string.text_not_money))
-                        },
-                        onInvalidToken = {s: String ->
-                            showMultiLineSnackBar(getString(R.string.text_session_has_expired))
-                            val authFragment = AuthFragment.newInstance()
-                            parentFragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, authFragment).commit()
-                        },
-                        onComplete = {exception: Exception? ->
-                            userDataVM.setLoadingState(AccountViewModel.LoadingState.Complete)
-                            setReadOnlyState()
-                            if (exception != null) {
-                                if (BuildConfig.DEBUG) exception.printStackTrace()
-                                showMultiLineSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
+                        accountVM.demandPayment(
+                            threshold = user.payoutThreshold,
+                            reward = user.previousMonthBalance,
+                            userMap = payoutMap,
+                            onStart = {
+                                userDataVM.setLoadingState(AccountViewModel.LoadingState.Start)
+                                requireActivity().orientationLock()
+                            },
+                            onSuccess = {
+                                userDataVM.setUserState(UserDataViewModel.UserDataState.PaymentRequestSent(user, 0, 0.0))
+                            },
+                            onNotEnough = {
+                                showMultiLineSnackBar(getString(R.string.text_not_money))
+                            },
+                            onInvalidToken = {s: String ->
+                                showMultiLineSnackBar(getString(R.string.text_session_has_expired))
+                                val authFragment = AuthFragment.newInstance()
+                                parentFragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, authFragment).commit()
+                            },
+                            onComplete = {exception: Exception? ->
+                                userDataVM.setLoadingState(AccountViewModel.LoadingState.Complete)
+                                setReadOnlyState()
+                                if (exception != null) {
+                                    if (BuildConfig.DEBUG) exception.printStackTrace()
+                                    showMultiLineSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
+                                }
+                                requireActivity().orientationUnLock()
                             }
-                            requireActivity().orientationUnLock()
-                        }
-                    )
+                        )
+                    }
                 }
             }
 
             btnCreateCheck.setOnClickListener {
-                userVM.user.value?.let { usr -> checkIfSelfEmployedAppInstalled(usr) }
+                userDataVM.user?.let { usr -> checkIfSelfEmployedAppInstalled(usr) }
             }
 
             btnLogOut.setOnClickListener {
@@ -509,7 +505,7 @@ class AccountFragment : Fragment() {
                         setReadOnlyState(flag = false)
                     }
                     R.id.menu_save -> {
-                        val user = userVM.user.value
+                        val user = userDataVM.user
                         if (user != null) {
                             val editText = editTextList.firstOrNull {
                                 it.background.constantState == ResourcesCompat.getDrawable(
@@ -530,7 +526,10 @@ class AccountFragment : Fragment() {
                                 User.KEY_FIRST_NAME to tvFirstNameValue.text.toString().firstCap(),
                                 User.KEY_LAST_NAME to tvLastNameValue.text.toString().firstCap()
                             )
-                            userVM.updateUserDataIntoCloud(userMap)
+                            userDataVM.updateUserData(
+                                token = requireContext().accessToken,
+                                data = userMap
+                            )
                             setReadOnlyState()
                         }
                     }
@@ -937,7 +936,7 @@ class AccountFragment : Fragment() {
                 "${getString(R.string.text_check_ref)}: XXX"
     }
 
-    private fun checkIfSelfEmployedAppInstalled(user: User) {
+    private fun checkIfSelfEmployedAppInstalled(user: UserX) {
         val isInstalled = requireContext().isAppInstalled(SELF_EMPLOYED_PACKAGE)
         if (isInstalled) {
             parentFragmentManager.beginTransaction()

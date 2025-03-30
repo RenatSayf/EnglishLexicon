@@ -29,7 +29,6 @@ import com.myapp.lexicon.addword.TranslateFragment;
 import com.myapp.lexicon.ads.AdsViewModel;
 import com.myapp.lexicon.ads.AdsViewModelKt;
 import com.myapp.lexicon.ads.BannerAdIdsKt;
-import com.myapp.lexicon.ads.RevenueViewModel;
 import com.myapp.lexicon.auth.AuthFragment;
 import com.myapp.lexicon.auth.account.AccountFragment;
 import com.myapp.lexicon.auth.account.UserDataViewModel;
@@ -47,6 +46,7 @@ import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.Share;
 import com.myapp.lexicon.main.ext.MainActivityExtKt;
+import com.myapp.lexicon.models.RevenueX;
 import com.myapp.lexicon.models.UserKt;
 import com.myapp.lexicon.models.UserX;
 import com.myapp.lexicon.models.UserXKt;
@@ -111,7 +111,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private final MainViewPagerAdapter pagerAdapter = new MainViewPagerAdapter();
     public MainViewModel mainVM;
     private SpeechViewModel speechVM;
-    private RevenueViewModel revenueVM;
     private UserDataViewModel userDataVM;
     public BackgroundFragm backgroundFragm = null;
 
@@ -153,8 +152,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         UserDataViewModel.Factory userFactory = new UserDataViewModel.Factory();
         userDataVM = new ViewModelProvider(this, userFactory).get(UserDataViewModel.class);
-
-        revenueVM = new ViewModelProvider(MainActivity.this).get(RevenueViewModel.class);
 
         btnViewDict = contentBinding.btnViewDict;
         btnViewDictOnClick(btnViewDict);
@@ -981,7 +978,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 MainActivity.this,
                 (adData, bonus) -> {
                     if (adData != null) {
-                        revenueVM.updateUserRevenueIntoCloud(adData);
+                        RevenueX revenue = com.myapp.lexicon.ads.ext.ExtensionsKt.toRevenue(adData);
+                        String accessToken = EncryptedPrefKt.getAccessToken(this);
+                        userDataVM.updateUserBalance(accessToken, revenue);
                     }
                     if (bonus > 0.009)
                     {

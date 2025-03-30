@@ -48,6 +48,10 @@ open class UserDataViewModel(netModule: INetRepositoryModule) : AccountViewModel
     private var _userState = MutableLiveData<UserDataState>(UserDataState.Init)
     val userState: LiveData<UserDataState> = _userState
 
+    fun setUserState(state: UserDataState) {
+        _userState.value = state
+    }
+
     open var user: UserX? = null
 
     override val repository: INetRepository

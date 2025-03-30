@@ -16,15 +16,16 @@ import com.myapp.lexicon.common.SELF_EMPLOYED_MARKET
 import com.myapp.lexicon.common.SELF_EMPLOYED_PACKAGE
 import com.myapp.lexicon.common.SELF_EMPLOYED_RU_STORE
 import com.myapp.lexicon.databinding.FragmentPayoutGuideBinding
-import com.myapp.lexicon.models.User
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
+import com.myapp.lexicon.models.UserX
 
 class PayoutGuideFragment : Fragment() {
 
     companion object {
 
-        private var user: User? = null
+        private var user: UserX? = null
 
-        fun newInstance(user: User): PayoutGuideFragment {
+        fun newInstance(user: UserX): PayoutGuideFragment {
             this.user = user
             return PayoutGuideFragment()
         }
@@ -47,7 +48,7 @@ class PayoutGuideFragment : Fragment() {
         with(binding!!) {
 
             toolBar.apply {
-                subtitle = "${getString(R.string.text_your_reward)} ${user?.reservedPayment?.toInt()} ${user?.currencySymbol}"
+                subtitle = "${getString(R.string.text_your_reward)} ${user?.previousMonthBalance} ${user?.currencySymbol}"
             }
 
             webView.apply {
@@ -76,6 +77,7 @@ class PayoutGuideFragment : Fragment() {
                     try {
                         startActivity(Intent(Intent.ACTION_VIEW, SELF_EMPLOYED_MARKET))
                     } catch (e: Exception) {
+                        e.printStackTraceIfDebug()
                         startActivity(Intent(Intent.ACTION_VIEW, SELF_EMPLOYED_RU_STORE))
                     }
                 }
