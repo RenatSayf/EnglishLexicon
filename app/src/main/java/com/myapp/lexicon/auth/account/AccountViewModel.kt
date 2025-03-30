@@ -66,6 +66,7 @@ open class AccountViewModel(
     open val isBankCardRequired: Boolean = try {
         Firebase.remoteConfig.getBoolean("is_bank_card_required")
     } catch (e: Exception) {
+        e.printStackTraceIfDebug()
         false
     }
 

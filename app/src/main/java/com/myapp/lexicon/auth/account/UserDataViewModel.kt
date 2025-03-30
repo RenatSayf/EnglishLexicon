@@ -7,8 +7,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.myapp.lexicon.di.INetRepositoryModule
 import com.myapp.lexicon.di.NetRepositoryModule
+import com.myapp.lexicon.helpers.castToHttpThrowable
 import com.myapp.lexicon.models.HttpThrowable
 import com.myapp.lexicon.models.RevenueX
+import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.models.UserX
 import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.repository.network.INetRepository
@@ -36,6 +38,7 @@ open class UserDataViewModel(netModule: INetRepositoryModule) : AccountViewModel
         data class UserDataUpdated(val userX: UserX): UserDataState
         data class RevenueUpdated(val bonus: Double, val user: UserX): UserDataState
         data class PaymentRequestSent(val user: UserX, val payout: Int, val remainder: Double): UserDataState
+        data class TokensUpdated(val tokens: Tokens): UserDataState
         data object AuthorizationRequired: UserDataState
         data class Error(val message: String): UserDataState
     }
@@ -66,7 +69,7 @@ open class UserDataViewModel(netModule: INetRepositoryModule) : AccountViewModel
             }
             result.onFailure { exception ->
                 super._loadingState.postValue(LoadingState.Complete)
-                val errorCode = (exception as HttpThrowable).errorCode
+                val errorCode = exception.castToHttpThrowable().errorCode
                 when(errorCode) {
                     401, 406 -> {
                         _userState.postValue(UserDataState.AuthorizationRequired)
@@ -169,6 +172,18 @@ open class UserDataViewModel(netModule: INetRepositoryModule) : AccountViewModel
                 }
             )
         }
+    }
+
+    init {
+        netModule.setTokensUpdateListener(object : INetRepositoryModule.Listener {
+            override fun onUpdateTokens(tokens: Tokens) {
+                _userState.postValue(UserDataState.TokensUpdated(tokens))
+            }
+
+            override fun onAuthorizationRequired() {
+                _userState.postValue(UserDataState.AuthorizationRequired)
+            }
+        })
     }
 
 

@@ -30,7 +30,6 @@ import com.myapp.lexicon.ads.AdsViewModel;
 import com.myapp.lexicon.ads.AdsViewModelKt;
 import com.myapp.lexicon.ads.BannerAdIdsKt;
 import com.myapp.lexicon.ads.RevenueViewModel;
-import com.myapp.lexicon.ads.models.AdName;
 import com.myapp.lexicon.auth.AuthFragment;
 import com.myapp.lexicon.auth.AuthViewModel;
 import com.myapp.lexicon.auth.account.AccountFragment;
@@ -49,10 +48,7 @@ import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.Share;
 import com.myapp.lexicon.main.ext.MainActivityExtKt;
-import com.myapp.lexicon.main.viewmodels.UserViewModel;
-import com.myapp.lexicon.models.AppResult;
-import com.myapp.lexicon.models.Revenue;
-import com.myapp.lexicon.models.User;
+import com.myapp.lexicon.models.RevenueX;
 import com.myapp.lexicon.models.UserKt;
 import com.myapp.lexicon.models.UserX;
 import com.myapp.lexicon.models.UserXKt;
@@ -69,7 +65,6 @@ import com.myapp.lexicon.video.web.YouTubeFragment;
 import com.myapp.lexicon.wordeditor.WordEditorActivity;
 import com.myapp.lexicon.wordstests.OneOfFiveFragm;
 import com.myapp.lexicon.wordstests.TestFragment;
-import com.parse.ParseUser;
 import com.yandex.mobile.ads.banner.BannerAdView;
 
 import org.jetbrains.annotations.NotNull;
@@ -101,7 +96,7 @@ import kotlin.Pair;
 
 /** @noinspection DataFlowIssue*/
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
-        MainFragment.Listener, FragmentResultListener
+        MainFragment.Listener, FragmentResultListener, AccountFragment.Listener
 {
 
     private ANavigMainBinding binding;
@@ -525,14 +520,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 bannerView,
                 BannerAdIdsKt.getBANNER_MAIN(),
                 0.08,
-                (data) -> {
+                (error) -> null,
+                data -> {
                     String accessToken = EncryptedPrefKt.getAccessToken(this);
                     if (!accessToken.isEmpty()) {
-
+                        userDataVM.updateUserBalance(
+                                accessToken,
+                                com.myapp.lexicon.ads.ext.ExtensionsKt.emptyRevenue(data)
+                        );
                     }
                     return null;
                 },
-                e -> null,
                 () -> null
         );
 
@@ -553,40 +551,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private MainViewModel createMainViewModel() {
         MainViewModel.Factory factory = new MainViewModel.Factory(this.getApplication());
         return new ViewModelProvider(this, factory).get(MainViewModel.class);
-    }
-
-    private void buildRewardText(@Nullable Revenue revenue)
-    {
-//        if (toolBar != null)
-//        {
-//            String text = "";
-//            try
-//            {
-//                String currentMonth = TimeExtKt.getMonthNameFromMillis(ExtensionsKt.getTimeInMillisMoscowTimeZone());
-//                double rewardToDisplay = (revenue != null) ? UserKt.to2DigitsScale(revenue.getReward()) : 0.0;
-//                text = getString(R.string.coins_bag).concat(" ")
-//                        .concat(currentMonth).concat(" ")
-//                        .concat(String.valueOf(rewardToDisplay)).concat(" ")
-//                        .concat((revenue != null) ? revenue.getCurrencySymbol() : Currency.getInstance("RUB").getSymbol());
-//                TextView tvSubTitle = toolbarBinding.tvSubtitle;
-//                tvSubTitle.setText(text);
-//            } catch (Exception e)
-//            {
-//                ExtensionsKt.printStackTraceIfDebug(e);
-//            }
-//
-//            if (tvReward != null)
-//            {
-//                tvReward.setText(text);
-//                tvReward.setVisibility(View.VISIBLE);
-//            }
-//            toolBar.setOnClickListener(view -> {
-//                if (drawerLayout != null)
-//                {
-//                    drawerLayout.open();
-//                }
-//            });
-//        }
     }
 
     private void buildRewardTextX(@Nullable UserX user) {
@@ -635,7 +599,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void handleSignOutAction()
     {
         navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_get_reward);
-        buildRewardText(null);
+        buildRewardTextX(null);
     }
 
     public void testPassed()
@@ -885,7 +849,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 transaction.replace(R.id.frame_to_page_fragm, authFragment).addToBackStack(null).commit();
             }
             else {
-                accountFragment = AccountFragment.Companion.newInstance();
+                accountFragment = AccountFragment.Companion.newInstance(this);
                 transaction.replace(R.id.frame_to_page_fragm, accountFragment)
                         .addToBackStack(null)
                         .commit();
@@ -1011,23 +975,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
     }
 
-    /**
-     * @noinspection unchecked
-     */
     private void onRevenueUpdate()
     {
-
-
-        revenueVM.getUserRevenueLD().observe(this, result -> {
-            if (result instanceof AppResult.Success<?>)
-            {
-                AppResult.Success<Revenue> castResult = (AppResult.Success<Revenue>) result;
-                Revenue revenue = castResult.getData();
-                buildRewardText(revenue);
+        userDataVM.getUserState().observe(this, state -> {
+            if (state instanceof UserDataViewModel.UserDataState.RevenueUpdated) {
+                UserX user = ((UserDataViewModel.UserDataState.RevenueUpdated) state).getUser();
+                buildRewardTextX(user);
             }
-            if (result instanceof AppResult.Error error)
+            if (state instanceof UserDataViewModel.UserDataState.Error)
             {
-                ExtensionsKt.printStackTraceIfDebug((Exception) error.getError());
+                String errorMessage = ((UserDataViewModel.UserDataState.Error) state).getMessage();
+                ExtensionsKt.printStackTraceIfDebug(new Exception(errorMessage));
             }
         });
 
@@ -1178,7 +1136,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onNotRegistered()
     {
         navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_get_reward);
-        buildRewardText(null);
+        buildRewardTextX(null);
+    }
+
+    @Override
+    public void onLogInUser(@NotNull UserX user)
+    {
+        onFetchUserData(user);
     }
 }
 

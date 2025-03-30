@@ -15,8 +15,10 @@ import android.widget.PopupWindow
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import com.myapp.lexicon.R
+import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.databinding.PopupLayoutBinding
 import com.myapp.lexicon.databinding.PopupRewardPerAdBinding
+import com.myapp.lexicon.models.RevenueX
 import java.util.concurrent.TimeUnit
 
 fun View.showAdPopup(
@@ -162,6 +164,16 @@ fun ViewGroup.showUserRewardAnimatedly(
         })
     }.start()
 
+}
+
+fun AdData.emptyRevenue(): RevenueX {
+    return RevenueX(
+        currencyCode = this.currency?: "",
+        adRequestID = this.requestId?: "",
+        adBlockId = this.blockId?: "",
+        revenueRub = 0.0,
+        revenueUsd = 0.0
+    )
 }
 
 

@@ -20,7 +20,6 @@ import com.myapp.lexicon.ads.models.AD_TEST
 import com.myapp.lexicon.ads.models.AD_TRANSLATE
 import com.myapp.lexicon.ads.models.AD_VIDEO
 import com.myapp.lexicon.auth.AuthViewModel
-import com.myapp.lexicon.auth.account.AccountViewModel
 import com.myapp.lexicon.auth.account.UserDataViewModel
 import com.myapp.lexicon.common.IS_IMPORTANT_UPDATE
 import com.myapp.lexicon.dialogs.ConfirmDialog
@@ -42,6 +41,7 @@ import com.myapp.lexicon.settings.emailIntoPref
 import com.myapp.lexicon.settings.getAuthDataFromPref
 import com.myapp.lexicon.settings.goToAppStore
 import com.myapp.lexicon.settings.passwordIntoPref
+import com.myapp.lexicon.settings.refreshToken
 import com.myapp.lexicon.settings.saveAuthTokens
 import kotlinx.coroutines.launch
 
@@ -219,9 +219,13 @@ class MainFragment : Fragment() {
                 authVM.signInWithEmailAndPassword(email = email, password = password) //login in back4app
             },
             onNotRegistered = {
-                val token = requireContext().accessToken
-                if (token.isNotEmpty()) {
-                    userDataVM.fetchUserData(token)
+                val accessToken = requireContext().accessToken
+                val refreshToken = requireContext().refreshToken
+                if (refreshToken.isNotEmpty()) {
+                    userDataVM.setRefreshToken(refreshToken)
+                }
+                if (accessToken.isNotEmpty()) {
+                    userDataVM.fetchUserData(accessToken)
                 } else {
                     listener?.onFirstLaunch()
                 }

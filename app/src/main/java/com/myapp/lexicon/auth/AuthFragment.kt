@@ -18,6 +18,7 @@ import com.myapp.lexicon.databinding.FragmentAuthBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.isItEmail
 import com.myapp.lexicon.helpers.showMultiLineSnackBar
+import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserState
@@ -194,16 +195,17 @@ class AuthFragment : Fragment() {
                 state.onNotAcceptable {
                     showMultiLineSnackBar(getString(R.string.text_password_incorrect))
                 }
+                // register in Back4App
                 state.onSignUp { user ->
-                    requireContext().emailIntoPref = etEmail.text.toString()
-                    requireContext().passwordIntoPref = etPassword.text.toString()
                     showMultiLineSnackBar(getString(R.string.text_user_is_registered))
                     handleAuthorization(user)
                 }
+                // login in Back4App
                 state.onSignIn { user ->
                     showMultiLineSnackBar(getString(R.string.text_login_completed))
                     handleAuthorization(user)
                 }
+                // register in TimeWeb
                 state.onLogUp { tokens: Tokens ->
                     showMultiLineSnackBar(getString(R.string.text_user_is_registered))
                     requireContext().saveAuthTokens(tokens)
@@ -211,9 +213,13 @@ class AuthFragment : Fragment() {
                     requireContext().passwordIntoPref = etPassword.text.toString()
                     redirectToAccountScreen()
                 }
+                // login in TimeWeb
                 state.onLogIn { tokens: Tokens ->
                     showMultiLineSnackBar(getString(R.string.text_login_completed))
-                    //TODO Redirect to account screen
+                    requireContext().saveAuthTokens(tokens)
+                    requireContext().emailIntoPref = etEmail.text.toString()
+                    requireContext().passwordIntoPref = etPassword.text.toString()
+                    redirectToAccountScreen()
                 }
                 state.onEmailValid { flag ->
                     if (flag) {
@@ -264,7 +270,7 @@ class AuthFragment : Fragment() {
                 this.password = password
             })
 
-            val accountFragment = AccountFragment.newInstance()
+            val accountFragment = AccountFragment.newInstance(listener = requireActivity() as MainActivity)
             parentFragmentManager.beginTransaction()
                 .replace(R.id.frame_to_page_fragm, accountFragment)
                 .addToBackStack(null)
@@ -275,7 +281,7 @@ class AuthFragment : Fragment() {
     private fun redirectToAccountScreen() {
         with(binding) {
 
-            val accountFragment = AccountFragment.newInstance()
+            val accountFragment = AccountFragment.newInstance(listener = requireActivity() as MainActivity)
             parentFragmentManager.beginTransaction()
                 .replace(R.id.frame_to_page_fragm, accountFragment)
                 .addToBackStack(null)

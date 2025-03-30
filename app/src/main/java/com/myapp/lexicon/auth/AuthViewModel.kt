@@ -14,6 +14,7 @@ import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.common.mapToUser
 import com.myapp.lexicon.di.INetRepositoryModule
 import com.myapp.lexicon.di.NetRepositoryModule
+import com.myapp.lexicon.helpers.castToHttpThrowable
 import com.myapp.lexicon.models.HttpThrowable
 import com.myapp.lexicon.models.SignInData
 import com.myapp.lexicon.models.SignUpData
@@ -21,15 +22,12 @@ import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserState
 import com.myapp.lexicon.repository.network.INetRepository
-import com.parse.DeleteCallback
 import com.parse.GetCallback
 import com.parse.LogInCallback
 import com.parse.ParseException
 import com.parse.ParseObject
 import com.parse.ParseQuery
 import com.parse.ParseUser
-import com.parse.RequestPasswordResetCallback
-import com.parse.SignUpCallback
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -94,15 +92,7 @@ open class AuthViewModel(
         _state.value = state
     }
 
-    private val repository: INetRepository = netModule.apply {
-        setTokensUpdateListener(object : INetRepositoryModule.Listener {
-            override fun onUpdateTokens(tokens: Tokens) {
-                _state.value = UserState.TokensUpdated(tokens)
-            }
-
-            override fun onAuthorizationRequired() {}
-        })
-    }.provideNetRepository()
+    private val repository: INetRepository = netModule.provideNetRepository()
 
     open fun registerForNewUser(email: String, password: String, dispatcher: CoroutineDispatcher = Dispatchers.IO) {
         _loadingState.value = LoadingState.Start
@@ -115,7 +105,7 @@ open class AuthViewModel(
                     _state.postValue(UserState.LogUp(value))
                 }
                 result.onFailure { exception: Throwable ->
-                    val errorCode = (exception as HttpThrowable).errorCode
+                    val errorCode = exception.castToHttpThrowable().errorCode
                     when(errorCode) {
                         409 -> {
                             _state.postValue(UserState.AlreadyExists)
@@ -133,39 +123,11 @@ open class AuthViewModel(
 
     }
 
-    open fun registerWithEmailAndPassword(email: String, password: String) {
-
-        _loadingState.value = LoadingState.Start
-        val parseUser = ParseUser()
-        parseUser.apply {
-            this.username = email
-            this.email = email
-            setPassword(password)
-        }.signUpInBackground(object : SignUpCallback {
-            override fun done(e: ParseException?) {
-                if (e == null) {
-                    signInWithEmailAndPassword(email, password)
-                }
-                else {
-                    ParseUser.logOut()
-                    when (e.code) {
-                        ParseException.EMAIL_TAKEN, ParseException.USERNAME_TAKEN -> {
-                            _state.value = UserState.AlreadyExists
-                        }
-                        else -> {
-                            _state.value = UserState.Failure(e)
-                        }
-                    }
-                }
-                _loadingState.value = LoadingState.Complete
-            }
-        })
-    }
-
     open fun isValidEmail(email: String): Boolean {
         return !TextUtils.isEmpty(email) && Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 
+    // login in TimeWeb
     open fun logInWithEmailAndPassword(email: String, password: String, dispatcher: CoroutineDispatcher = Dispatchers.IO) {
         _loadingState.value = LoadingState.Start
         viewModelScope.launch(dispatcher) {
@@ -176,7 +138,7 @@ open class AuthViewModel(
                     _state.value = UserState.LogIn(value)
                 }
                 result.onFailure { exception: Throwable ->
-                    val errorCode = (exception as HttpThrowable).errorCode
+                    val errorCode = exception.castToHttpThrowable().errorCode
                     when(errorCode) {
                         404 -> {
                             _state.postValue(UserState.NotRegistered)
@@ -196,6 +158,7 @@ open class AuthViewModel(
     var user: User? = null
         private set
 
+    // login in Back4App
     open fun signInWithEmailAndPassword(email: String, password: String) {
 
         _loadingState.value = LoadingState.Start
@@ -253,39 +216,24 @@ open class AuthViewModel(
         viewModelScope.launch(dispatcher) {
             repository.forgotPassword(email).collect(collector = { result ->
                 result.onSuccess { value: String ->
-                    _state.value = UserState.PasswordReset
+                    _loadingState.value = LoadingState.Complete
+                    _state.postValue(UserState.PasswordReset)
                 }
                 result.onFailure { exception: Throwable ->
-                    val errorCode = (exception as HttpThrowable).errorCode
+                    _loadingState.value = LoadingState.Complete
+                    val errorCode = exception.castToHttpThrowable().errorCode
                     when(errorCode) {
                         404 -> {
-                            _state.value = UserState.NotRegistered
+                            _state.postValue(UserState.NotRegistered)
                         }
                         else -> {
-                            _state.value = UserState.HttpFailure(exception.message)
+                            _state.postValue(UserState.HttpFailure(exception.message))
                         }
                     }
                 }
             })
         }
 
-    }
-
-    open fun resetPassword(email: String) {
-
-        _loadingState.value = LoadingState.Start
-
-        ParseUser.requestPasswordResetInBackground(email, object : RequestPasswordResetCallback {
-            override fun done(e: ParseException?) {
-                if (e == null) {
-                    _state.value = UserState.PasswordReset
-                }
-                else {
-                    _state.value = UserState.Failure(e)
-                }
-                _loadingState.value = LoadingState.Complete
-            }
-        })
     }
 
     open fun deleteUserAccount(
@@ -311,32 +259,6 @@ open class AuthViewModel(
                     onComplete.invoke(exception as Exception)
                 }
             })
-        }
-    }
-
-    open fun deleteAccount(
-        onStart: () -> Unit = {},
-        onSuccess: () -> Unit,
-        onComplete: (Exception?) -> Unit = {}
-    ) {
-        onStart.invoke()
-        val currentUser = ParseUser.getCurrentUser()
-        if (currentUser != null) {
-            currentUser.deleteInBackground(object : DeleteCallback {
-                override fun done(e: ParseException?) {
-                    if (e == null) {
-                        ParseUser.logOut()
-                        onSuccess.invoke()
-                        onComplete.invoke(null)
-                    }
-                    else {
-                        onComplete.invoke(e)
-                    }
-                }
-            })
-        }
-        else {
-            onComplete.invoke(Exception("************ Current user is NULL ***********"))
         }
     }
 

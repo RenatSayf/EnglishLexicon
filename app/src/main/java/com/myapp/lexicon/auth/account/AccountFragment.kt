@@ -14,6 +14,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.children
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -66,10 +67,15 @@ class AccountFragment : Fragment() {
 
     companion object {
 
-        fun newInstance(
-        ): AccountFragment {
+        private var listener: Listener? = null
+        fun newInstance(listener: Listener): AccountFragment {
+            this.listener = listener
             return AccountFragment()
         }
+    }
+
+    interface Listener {
+        fun onLogInUser(user: UserX)
     }
 
     private lateinit var binding: FragmentAccountBinding
@@ -299,6 +305,7 @@ class AccountFragment : Fragment() {
                         requireActivity().redirectToAuthScreen()
                     }
                     is UserDataViewModel.UserDataState.RevenueUpdated -> {}
+                    is UserDataViewModel.UserDataState.TokensUpdated -> {}
                 }
             }
 
@@ -912,12 +919,12 @@ class AccountFragment : Fragment() {
     }
 
     private fun goBack() {
-        val user = userVM.user.value
+        val user = userDataVM.user
         user?.let {
-            authVM.setState(UserState.SignIn(it))
-            userVM.setState(UserViewModel.State.ReceivedUserData(it))
+            listener?.onLogInUser(it)
         }
-        parentFragmentManager.beginTransaction().detach(this@AccountFragment).commit()
+        //parentFragmentManager.beginTransaction().detach(this@AccountFragment).commit()
+        parentFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }
 
     private fun buildMessageAboutPayment(user: UserX): String {
@@ -943,6 +950,12 @@ class AccountFragment : Fragment() {
                 .addToBackStack(null)
                 .commit()
         }
+    }
+
+    override fun onDestroy() {
+
+        listener = null
+        super.onDestroy()
     }
 
 

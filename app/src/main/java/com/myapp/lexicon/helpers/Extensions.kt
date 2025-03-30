@@ -39,6 +39,7 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.common.APP_TIME_ZONE
 import com.myapp.lexicon.databinding.SnackBarTestBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
+import com.myapp.lexicon.models.HttpThrowable
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.schedule.AlarmScheduler
 import com.myapp.lexicon.schedule.AppNotification
@@ -411,6 +412,14 @@ fun Exception.throwIfDebug() {
 fun Throwable.throwIfDebug() {
     if (BuildConfig.DEBUG) {
         throw this
+    }
+}
+
+fun Throwable.castToHttpThrowable(): HttpThrowable {
+    return try {
+        HttpThrowable(message = this.message, errorCode = this.hashCode())
+    } catch (e: Exception) {
+        HttpThrowable(message = e.message, errorCode = e.hashCode())
     }
 }
 

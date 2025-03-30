@@ -1,5 +1,6 @@
 package com.myapp.lexicon.repository.network
 
+import com.myapp.lexicon.helpers.castToHttpThrowable
 import com.myapp.lexicon.models.HttpThrowable
 import com.myapp.lexicon.models.RevenueX
 import com.myapp.lexicon.models.SignInData
@@ -46,7 +47,7 @@ open class NetRepository(
                     }.onSuccess { tokens ->
                         emit(Result.success(tokens))
                     }.onFailure { t ->
-                        val throwable = HttpThrowable(message = t.message, errorCode = t.hashCode())
+                        val throwable = t.castToHttpThrowable()
                         Result.failure<Throwable>(throwable)
                     }
                 }
@@ -74,7 +75,7 @@ open class NetRepository(
                     }.onSuccess { tokens ->
                         emit(Result.success(tokens))
                     }.onFailure { t ->
-                        val throwable = HttpThrowable(message = t.message, errorCode = t.hashCode())
+                        val throwable = t.castToHttpThrowable()
                         Result.failure<Throwable>(throwable)
                     }
                 }
@@ -102,7 +103,7 @@ open class NetRepository(
                     }.onSuccess { tokens ->
                         emit(Result.success(tokens))
                     }.onFailure { t ->
-                        val throwable = HttpThrowable(message = t.message, errorCode = t.hashCode())
+                        val throwable = t.castToHttpThrowable()
                         Result.failure<Throwable>(throwable)
                     }
                 }
@@ -130,7 +131,7 @@ open class NetRepository(
                         }.onSuccess { user ->
                             Result.success(user)
                         }.onFailure { t ->
-                            val throwable = HttpThrowable(message = t.message, errorCode = t.hashCode())
+                            val throwable = t.castToHttpThrowable()
                             Result.failure<Throwable>(throwable)
                         }
                     }
@@ -162,7 +163,7 @@ open class NetRepository(
                     }.onSuccess { user: UserX ->
                         emit(Result.success(user))
                     }.onFailure { t ->
-                        val throwable = HttpThrowable(message = t.message, errorCode = t.hashCode())
+                        val throwable = t.castToHttpThrowable()
                         Result.failure<Throwable>(throwable)
                     }
                 }
@@ -194,7 +195,7 @@ open class NetRepository(
                     }.onSuccess { user ->
                         emit(Result.success(user))
                     }.onFailure { t ->
-                        val throwable = HttpThrowable(message = t.message, errorCode = t.hashCode())
+                        val throwable = t.castToHttpThrowable()
                         Result.failure<Throwable>(throwable)
                     }
                 }
@@ -225,7 +226,7 @@ open class NetRepository(
                     }.onSuccess { user ->
                         emit(Result.success(user))
                     }.onFailure { t ->
-                        val throwable = HttpThrowable(message = t.message, errorCode = t.hashCode())
+                        val throwable = t.castToHttpThrowable()
                         Result.failure<Throwable>(throwable)
                     }
                 }
@@ -255,7 +256,7 @@ open class NetRepository(
                     }.onSuccess { user ->
                         emit(Result.success(user))
                     }.onFailure { t ->
-                        val throwable = HttpThrowable(message = t.message, errorCode = t.hashCode())
+                        val throwable = t.castToHttpThrowable()
                         Result.failure<Throwable>(throwable)
                     }
                 }
@@ -281,7 +282,7 @@ open class NetRepository(
                     }.onSuccess { isUpdated ->
                         emit(Result.success(isUpdated))
                     }.onFailure { t ->
-                        val throwable = HttpThrowable(message = t.message, errorCode = t.hashCode())
+                        val throwable = t.castToHttpThrowable()
                         Result.failure<Throwable>(throwable)
                     }
                 }
@@ -307,7 +308,7 @@ open class NetRepository(
                     }.onSuccess { isDeleted ->
                         emit(Result.success(isDeleted))
                     }.onFailure { t ->
-                        val throwable = HttpThrowable(message = t.message, errorCode = t.hashCode())
+                        val throwable = t.castToHttpThrowable()
                         Result.failure<Throwable>(throwable)
                     }
                 }
