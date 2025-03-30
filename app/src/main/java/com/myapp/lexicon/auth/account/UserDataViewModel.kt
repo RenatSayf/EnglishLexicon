@@ -5,6 +5,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.myapp.lexicon.common.DynamicLookupSerializer
+import com.myapp.lexicon.common.NonEmptyStringSerializer
 import com.myapp.lexicon.di.INetRepositoryModule
 import com.myapp.lexicon.di.NetRepositoryModule
 import com.myapp.lexicon.helpers.castToHttpThrowable
@@ -19,6 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
 
 open class UserDataViewModel(netModule: INetRepositoryModule) : AccountViewModel(netModule) {
 
@@ -43,7 +46,15 @@ open class UserDataViewModel(netModule: INetRepositoryModule) : AccountViewModel
         data class Error(val message: String): UserDataState
     }
 
-    private val jsonCoder = Json { prettyPrint = true }
+    private val jsonCoder = Json {
+        prettyPrint = true
+        serializersModule = SerializersModule {
+            contextual(Any::class, DynamicLookupSerializer)
+            contextual(String::class, NonEmptyStringSerializer)
+        }
+        encodeDefaults = false
+        explicitNulls = false
+    }
 
     private var _userState = MutableLiveData<UserDataState>(UserDataState.Init)
     val userState: LiveData<UserDataState> = _userState

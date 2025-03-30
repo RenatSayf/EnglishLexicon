@@ -440,15 +440,18 @@ class AccountFragment : Fragment() {
                         }
                     }
 
-                    val requisitesMap = mutableMapOf(
-                        User.KEY_PHONE to tvPhoneValue.text.toString().trim(),
-                        User.KEY_BANK_NAME to tvBankNameValue.text.toString().trim(),
-                        User.KEY_BANK_CARD to tvCardNumber.text.toString().trim(),
-                        User.KEY_FIRST_NAME to tvFirstNameValue.text.toString().trim().firstCap(),
-                        User.KEY_LAST_NAME to tvLastNameValue.text.toString().trim().firstCap()
-                    )
-
                     if ((user.previousMonthBalance?: 0) > 0) {
+
+                        val requisitesMap = mapOf<String, Any?>(
+                            User.KEY_PHONE to tvPhoneValue.text.toString().trim().ifEmpty { null },
+                            User.KEY_BANK_NAME to tvBankNameValue.text.toString().trim().ifEmpty { null },
+                            User.KEY_BANK_CARD to tvCardNumber.text.toString().trim().ifEmpty { null },
+                            User.KEY_FIRST_NAME to tvFirstNameValue.text.toString().trim().firstCap().ifEmpty { null },
+                            User.KEY_LAST_NAME to tvLastNameValue.text.toString().trim().firstCap().ifEmpty { null }
+                        ).filter {
+                            it.value != null
+                        }
+
                         val payoutMap = Payout(
                             reservedSum = 0,
                             payoutSum = user.previousMonthBalance!!,
@@ -456,7 +459,7 @@ class AccountFragment : Fragment() {
                             checkReference = tvCheckRefValue.text.toString()
                         ).toMap().toMutableMap()
 
-                        payoutMap.putAll(requisitesMap)
+                        payoutMap.putAll(requisitesMap as Map<out String, Any>)
 
                         accountVM.demandPayment(
                             threshold = user.payoutThreshold,
@@ -518,14 +521,16 @@ class AccountFragment : Fragment() {
                                 showMultiLineSnackBar(getString(R.string.text_form_incorrect))
                                 return@setOnMenuItemClickListener true
                             }
-                            val userMap = mapOf<String, Any>(
-                                User.KEY_EMAIL to tvEmailValue.text.toString(),
-                                User.KEY_PHONE to tvPhoneValue.text.toString(),
-                                User.KEY_BANK_NAME to tvBankNameValue.text.toString(),
-                                User.KEY_BANK_CARD to tvCardNumber.text.toString(),
-                                User.KEY_FIRST_NAME to tvFirstNameValue.text.toString().firstCap(),
-                                User.KEY_LAST_NAME to tvLastNameValue.text.toString().firstCap()
-                            )
+                            val userMap = mapOf<String, String?>(
+                                User.KEY_EMAIL to tvEmailValue.text.toString().ifEmpty { null },
+                                User.KEY_PHONE to tvPhoneValue.text.toString().ifEmpty { null },
+                                User.KEY_BANK_NAME to tvBankNameValue.text.toString().ifEmpty { null },
+                                User.KEY_BANK_CARD to tvCardNumber.text.toString().ifEmpty { null },
+                                User.KEY_FIRST_NAME to tvFirstNameValue.text.toString().firstCap().ifEmpty { null },
+                                User.KEY_LAST_NAME to tvLastNameValue.text.toString().firstCap().ifEmpty { null }
+                            ).filter {
+                                !it.value.isNullOrEmpty()
+                            }
                             userDataVM.updateUserData(
                                 token = requireContext().accessToken,
                                 data = userMap
