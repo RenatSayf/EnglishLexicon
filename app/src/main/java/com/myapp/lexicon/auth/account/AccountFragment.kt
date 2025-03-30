@@ -175,7 +175,6 @@ class AccountFragment : Fragment() {
                 when(state) {
                     AccountScreenState.Init -> {
                         setReadOnlyState(true)
-                        //userVM.getUserFromCloud()
                         val accessToken = requireContext().accessToken
                         userDataVM.fetchUserData(accessToken)
                     }
