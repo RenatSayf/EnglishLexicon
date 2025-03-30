@@ -31,7 +31,6 @@ import com.myapp.lexicon.ads.AdsViewModelKt;
 import com.myapp.lexicon.ads.BannerAdIdsKt;
 import com.myapp.lexicon.ads.RevenueViewModel;
 import com.myapp.lexicon.auth.AuthFragment;
-import com.myapp.lexicon.auth.AuthViewModel;
 import com.myapp.lexicon.auth.account.AccountFragment;
 import com.myapp.lexicon.auth.account.UserDataViewModel;
 import com.myapp.lexicon.common.CommonConstantsKt;
@@ -48,7 +47,6 @@ import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.Share;
 import com.myapp.lexicon.main.ext.MainActivityExtKt;
-import com.myapp.lexicon.models.RevenueX;
 import com.myapp.lexicon.models.UserKt;
 import com.myapp.lexicon.models.UserX;
 import com.myapp.lexicon.models.UserXKt;
@@ -99,7 +97,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         MainFragment.Listener, FragmentResultListener, AccountFragment.Listener
 {
 
-    private ANavigMainBinding binding;
     private LayoutMainToolbarBinding toolbarBinding;
     private AContentMainBinding contentBinding;
     private NavigationView navView;
@@ -117,15 +114,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private RevenueViewModel revenueVM;
     private UserDataViewModel userDataVM;
     public BackgroundFragm backgroundFragm = null;
-    @Nullable
-    private AccountFragment accountFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
 
-        binding = ANavigMainBinding.inflate(LayoutInflater.from(this));
+        com.myapp.lexicon.databinding.ANavigMainBinding binding = ANavigMainBinding.inflate(LayoutInflater.from(this));
         setContentView(binding.getRoot());
 
         toolbarBinding = binding.includeLayoutMain.includeContentMain.includeToolBar;
@@ -156,112 +151,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         speechVM = createSpeechViewModel();
         speechVM = new ViewModelProvider(this).get(SpeechViewModel.class);
 
-        AuthViewModel.Factory authFactory = new AuthViewModel.Factory();
-        AuthViewModel authVM = new ViewModelProvider(this, authFactory).get(AuthViewModel.class);
-
         UserDataViewModel.Factory userFactory = new UserDataViewModel.Factory();
         userDataVM = new ViewModelProvider(this, userFactory).get(UserDataViewModel.class);
 
         revenueVM = new ViewModelProvider(MainActivity.this).get(RevenueViewModel.class);
-
-//        UserDataViewModel.Factory userFactory = new UserDataViewModel.Factory();
-//        UserDataViewModel userDataVM = new ViewModelProvider(this, userFactory).get(UserDataViewModel.class);
-//
-//        userDataVM.getAuthState().observe(this, authState -> {
-//            if (authState instanceof AccountViewModel.AuthState.TokensUpdated) {
-//                Tokens tokens = ((AccountViewModel.AuthState.TokensUpdated) authState).getTokens();
-//                EncryptedPrefKt.saveAuthTokens(this, tokens);
-//            }
-//            if (authState instanceof AccountViewModel.AuthState.AuthorizationRequired) {
-//                MainActivityExtKt.redirectToAuthScreen(this);
-//            }
-//        });
-//
-//        userDataVM.getUserState().observe(this, userState -> {
-//            if (userState instanceof UserDataViewModel.UserDataState.ReceivedUserData) {
-//                UserX user = ((UserDataViewModel.UserDataState.ReceivedUserData) userState).getUser();
-//            }
-//            if (userState instanceof UserDataViewModel.UserDataState.AuthorizationRequired) {
-//                MainActivityExtKt.redirectToAuthScreen(this);
-//            }
-//            if (userState instanceof UserDataViewModel.UserDataState.Error) {
-//                String errorMessage = ((UserDataViewModel.UserDataState.Error) userState).getMessage();
-//            }
-//        });
-//        String refreshToken = EncryptedPrefKt.getRefreshToken(this);
-//        if (!refreshToken.isEmpty())
-//        {
-//            userDataVM.setRefreshToken(refreshToken);
-//            String accessToken = EncryptedPrefKt.getAccessToken(this);
-//            userDataVM.fetchUserData(accessToken);
-//        }
-
-        authVM.getState().observe(this, result -> {
-            result.onInit(() -> {
-                return null;
-            });
-            result.onNotRegistered(() -> {
-
-                return null;
-            });
-            result.onSignUp(user -> {
-                navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_account);
-                return null;
-            });
-            result.onSignIn(user -> {
-//                revenueVM.setState(new UserViewModel.State.ReceivedUserData(user));
-//                navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_account);
-//                buildRewardText(new Revenue(user.getUserReward(), user.getReservedPayment(), user.getCurrency(), user.getCurrencySymbol()));
-//                boolean isAdsEnabled = CommonConstantsKt.getIS_ADS_ENABLED() || user.isAdsEnabled();
-//                SettingsExtKt.setAdsIsEnabled(this, isAdsEnabled);
-//                SettingsExtKt.saveUserPercentToPref(this, user);
-//                if (!user.isAdsEnabled() && !user.getMessage().isEmpty()) {
-//                    ExtensionsKt.showMultiLineSnackBar(navView, user.getMessage(), Snackbar.LENGTH_LONG);
-//                }
-//                if (!user.getMessage().isEmpty()) {
-//                    MainActivityExtKt.showThankDialog(
-//                            this,
-//                            user.getMessage(),
-//                            () -> {
-//                                userVM.updateUserDataIntoCloud(Map.of(
-//                                        User.KEY_MESSAGE, "",
-//                                        User.KEY_EMAIL, user.getEmail()
-//                                ));
-//                                return null;
-//                            }
-//                    );
-//                }
-//                MainActivityExtKt.handleAdDataFromSplashActivity(
-//                        MainActivity.this,
-//                        (adData, bonus) -> {
-//                            if (adData != null) {
-//                                revenueVM.updateUserRevenueIntoCloud(adData);
-//                            }
-//                            if (bonus > 0.009)
-//                            {
-//                                showUserRewardAnimatedly(bonus);
-//                            } else
-//                            {
-//                                ExtensionsKt.showToastIfDebug(
-//                                        this, "Bonus is less than 0.01"
-//                                );
-//                            }
-//                            return null;
-//                        }
-//                );
-                return null;
-            });
-            result.onSignOut(() -> {
-                handleSignOutAction();
-                ExtensionsKt.showMultiLineSnackBar(mainControlLayout, getString(R.string.text_you_are_signed_out), Snackbar.LENGTH_LONG);
-                return null;
-            });
-            result.onAccountDeleted(() -> {
-                handleSignOutAction();
-                ExtensionsKt.showMultiLineSnackBar(mainControlLayout, getString(R.string.text_account_has_been_deleted), Snackbar.LENGTH_LONG);
-                return null;
-            });
-        });
 
         btnViewDict = contentBinding.btnViewDict;
         btnViewDictOnClick(btnViewDict);
@@ -560,7 +453,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             try
             {
                 String currentMonth = TimeExtKt.getMonthNameFromMillis(ExtensionsKt.getTimeInMillisMoscowTimeZone());
-                Double todayBalance = user.getTodayBalance();
+                Double todayBalance = user.getMonthBalance();
                 double rewardToDisplay = (todayBalance != null) ? UserKt.to2DigitsScale(todayBalance) : 0.0;
                 text = getString(R.string.coins_bag).concat(" ")
                         .concat(currentMonth).concat(" ")
@@ -849,7 +742,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 transaction.replace(R.id.frame_to_page_fragm, authFragment).addToBackStack(null).commit();
             }
             else {
-                accountFragment = AccountFragment.Companion.newInstance(this);
+                AccountFragment accountFragment = AccountFragment.Companion.newInstance(this);
                 transaction.replace(R.id.frame_to_page_fragm, accountFragment)
                         .addToBackStack(null)
                         .commit();
@@ -1143,6 +1036,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onLogInUser(@NotNull UserX user)
     {
         onFetchUserData(user);
+    }
+
+    @Override
+    public void onLogOutUser()
+    {
+        handleSignOutAction();
+        ExtensionsKt.showMultiLineSnackBar(mainControlLayout, getString(R.string.text_you_are_signed_out), Snackbar.LENGTH_LONG);
+    }
+
+    @Override
+    public void onDeletedAccount()
+    {
+        handleSignOutAction();
+        ExtensionsKt.showMultiLineSnackBar(mainControlLayout, getString(R.string.text_account_has_been_deleted), Snackbar.LENGTH_LONG);
     }
 }
 

@@ -14,11 +14,8 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.children
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.auth.AuthFragment
@@ -49,7 +46,6 @@ import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.Payout
 import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.models.User
-import com.myapp.lexicon.models.UserState
 import com.myapp.lexicon.models.UserX
 import com.myapp.lexicon.models.ViewState
 import com.myapp.lexicon.models.to2DigitsScale
@@ -76,6 +72,8 @@ class AccountFragment : Fragment() {
 
     interface Listener {
         fun onLogInUser(user: UserX)
+        fun onLogOutUser()
+        fun onDeletedAccount()
     }
 
     private lateinit var binding: FragmentAccountBinding
@@ -114,19 +112,23 @@ class AccountFragment : Fragment() {
 
             userVM.setState(UserViewModel.State.Init)
 
-            lifecycleScope.launch {
-                lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                    userVM.loadingState.collect { state ->
-                        when(state) {
-                            UserViewModel.LoadingState.Complete -> {
-                                progressBar.visibility = View.GONE
-                                requireActivity().orientationUnLock()
-                            }
-                            UserViewModel.LoadingState.Start -> {
-                                progressBar.visibility = View.VISIBLE
-                                requireActivity().orientationLock()
-                            }
-                        }
+            userDataVM.loadingState.observe(viewLifecycleOwner) { state ->
+                when(state) {
+                    AccountViewModel.LoadingState.Complete -> {
+                        progressBar.visibility = View.GONE
+                        requireActivity().orientationUnLock()
+                    }
+                    AccountViewModel.LoadingState.Start -> {
+                        progressBar.visibility = View.VISIBLE
+                        requireActivity().orientationLock()
+                    }
+                    UserViewModel.LoadingState.Complete -> {
+                        progressBar.visibility = View.GONE
+                        requireActivity().orientationUnLock()
+                    }
+                    UserViewModel.LoadingState.Start -> {
+                        progressBar.visibility = View.VISIBLE
+                        requireActivity().orientationLock()
                     }
                 }
             }
@@ -467,7 +469,7 @@ class AccountFragment : Fragment() {
                         reward = user.reservedPayment.toInt(),
                         userMap = payoutMap,
                         onStart = {
-                            userVM.setLoadingState(UserViewModel.LoadingState.Start)
+                            userDataVM.setLoadingState(AccountViewModel.LoadingState.Start)
                             requireActivity().orientationLock()
                         },
                         onSuccess = {
@@ -482,7 +484,7 @@ class AccountFragment : Fragment() {
                             parentFragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, authFragment).commit()
                         },
                         onComplete = {exception: Exception? ->
-                            userVM.setLoadingState(UserViewModel.LoadingState.Complete)
+                            userDataVM.setLoadingState(AccountViewModel.LoadingState.Complete)
                             setReadOnlyState()
                             if (exception != null) {
                                 if (BuildConfig.DEBUG) exception.printStackTrace()
@@ -780,7 +782,7 @@ class AccountFragment : Fragment() {
                             requireContext().saveAuthTokens(tokens)
                             requireContext().emailIntoPref = ""
                             requireContext().passwordIntoPref = ""
-                            authVM.setState(UserState.SignOut)
+                            listener?.onLogOutUser()
                             parentFragmentManager.beginTransaction().detach(this@AccountFragment).commit()
                         },
                         onComplete = { exception: Exception? ->
@@ -899,7 +901,7 @@ class AccountFragment : Fragment() {
                             onSuccess = {
                                 requireContext().cacheDir.deleteRecursively()
                                 requireContext().clearEmailPasswordInPref()
-                                authVM.setState(UserState.AccountDeleted)
+                                listener?.onDeletedAccount()
                                 parentFragmentManager.beginTransaction().detach(this@AccountFragment).commit()
                             },
                             onComplete = { exception: Exception? ->
@@ -923,8 +925,7 @@ class AccountFragment : Fragment() {
         user?.let {
             listener?.onLogInUser(it)
         }
-        //parentFragmentManager.beginTransaction().detach(this@AccountFragment).commit()
-        parentFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        parentFragmentManager.beginTransaction().detach(this@AccountFragment).commit()
     }
 
     private fun buildMessageAboutPayment(user: UserX): String {

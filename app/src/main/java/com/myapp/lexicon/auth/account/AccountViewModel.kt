@@ -56,6 +56,10 @@ open class AccountViewModel(
     protected var _loadingState = MutableLiveData<LoadingState>()
     open val loadingState: LiveData<LoadingState> = _loadingState
 
+    open fun setLoadingState(state: LoadingState) {
+        _loadingState.value = state
+    }
+
     open val paymentThreshold: Double = PAYMENT_THRESHOLD
 
     open val paymentCode: String = if (!BuildConfig.DEBUG)
@@ -282,18 +286,6 @@ open class AccountViewModel(
     init {
         //this.fetchBankListFromNet()
         this.getBankListFromCloud()
-//        netModule.apply {
-//            setTokensUpdateListener(object : INetRepositoryModule.Listener {
-//                override fun onUpdateTokens(tokens: Tokens) {
-//                    this@apply.setRefreshToken(tokens.refreshToken)
-//                    newTokens.value = Result.success(tokens)
-//                }
-//
-//                override fun onAuthorizationRequired() {
-//                    authorizationRequired.value = Result.success(true)
-//                }
-//            })
-//        }
         this.fetchBankListFromNet()
     }
 }

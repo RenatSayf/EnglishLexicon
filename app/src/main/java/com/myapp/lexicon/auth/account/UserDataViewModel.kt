@@ -57,6 +57,10 @@ open class UserDataViewModel(netModule: INetRepositoryModule) : AccountViewModel
         super.setRefreshToken(token)
     }
 
+    override fun setLoadingState(state: LoadingState) {
+        super.setLoadingState(state)
+    }
+
     fun fetchUserData(token: String) {
         super._loadingState.value = LoadingState.Start
 
@@ -150,14 +154,14 @@ open class UserDataViewModel(netModule: INetRepositoryModule) : AccountViewModel
             repository.updateUserBalance(token, data).collect(
                 collector = { result ->
                     result.onSuccess { user: UserX ->
-                        super._loadingState.value = LoadingState.Complete
+                        super._loadingState.postValue(LoadingState.Complete)
                         _userState.postValue(UserDataState.RevenueUpdated(
                             bonus = (data.revenueRub * user.rewardRatio).to2DigitsScale(),
                             user = user
                         ))
                     }
                     result.onFailure { ex ->
-                        super._loadingState.value = LoadingState.Complete
+                        super._loadingState.postValue(LoadingState.Complete)
                         val errorCode = (ex as HttpThrowable).errorCode
                         when(errorCode) {
                             401, 406 -> {

@@ -15,7 +15,6 @@ import com.myapp.lexicon.common.mapToUser
 import com.myapp.lexicon.di.INetRepositoryModule
 import com.myapp.lexicon.di.NetRepositoryModule
 import com.myapp.lexicon.helpers.castToHttpThrowable
-import com.myapp.lexicon.models.HttpThrowable
 import com.myapp.lexicon.models.SignInData
 import com.myapp.lexicon.models.SignUpData
 import com.myapp.lexicon.models.Tokens
@@ -92,7 +91,18 @@ open class AuthViewModel(
         _state.value = state
     }
 
-    private val repository: INetRepository = netModule.provideNetRepository()
+    private val repository: INetRepository = netModule.apply {
+        setTokensUpdateListener(object : INetRepositoryModule.Listener {
+            override fun onUpdateTokens(tokens: Tokens) {
+                netModule.setRefreshToken(tokens.refreshToken)
+                _state.postValue(UserState.TokensUpdated(tokens))
+            }
+
+            override fun onAuthorizationRequired() {
+                _state.postValue(UserState.NotAcceptable)
+            }
+        })
+    }.provideNetRepository()
 
     open fun registerForNewUser(email: String, password: String, dispatcher: CoroutineDispatcher = Dispatchers.IO) {
         _loadingState.value = LoadingState.Start
@@ -118,6 +128,7 @@ open class AuthViewModel(
                         }
                     }
                 }
+                _loadingState.postValue(LoadingState.Complete)
             })
         }
 
@@ -135,7 +146,7 @@ open class AuthViewModel(
             repository.signIn(signInData).collect(collector = { result ->
                 result.onSuccess { value: Tokens ->
                     netModule.setRefreshToken(value.refreshToken)
-                    _state.value = UserState.LogIn(value)
+                    _state.postValue(UserState.LogIn(value))
                 }
                 result.onFailure { exception: Throwable ->
                     val errorCode = exception.castToHttpThrowable().errorCode
@@ -151,6 +162,7 @@ open class AuthViewModel(
                         }
                     }
                 }
+                _loadingState.postValue(LoadingState.Complete)
             })
         }
     }
@@ -216,11 +228,9 @@ open class AuthViewModel(
         viewModelScope.launch(dispatcher) {
             repository.forgotPassword(email).collect(collector = { result ->
                 result.onSuccess { value: String ->
-                    _loadingState.value = LoadingState.Complete
                     _state.postValue(UserState.PasswordReset)
                 }
                 result.onFailure { exception: Throwable ->
-                    _loadingState.value = LoadingState.Complete
                     val errorCode = exception.castToHttpThrowable().errorCode
                     when(errorCode) {
                         404 -> {
@@ -231,6 +241,7 @@ open class AuthViewModel(
                         }
                     }
                 }
+                _loadingState.postValue(LoadingState.Complete)
             })
         }
 
@@ -263,18 +274,4 @@ open class AuthViewModel(
     }
 
 
-    init {
-
-        netModule.setTokensUpdateListener(object : INetRepositoryModule.Listener {
-            override fun onUpdateTokens(tokens: Tokens) {
-                netModule.setRefreshToken(tokens.refreshToken)
-                _state.value = UserState.TokensUpdated(tokens)
-            }
-
-            override fun onAuthorizationRequired() {
-                _state.value = UserState.NotAcceptable
-            }
-        })
-
-    }
 }

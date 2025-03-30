@@ -255,10 +255,5 @@ class MainFragment : Fragment() {
         super.onStop()
     }
 
-    override fun onResume() {
-        super.onResume()
-
-
-    }
 
 }
