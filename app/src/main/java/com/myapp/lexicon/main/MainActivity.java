@@ -49,7 +49,6 @@ import com.myapp.lexicon.main.ext.MainActivityExtKt;
 import com.myapp.lexicon.models.RevenueX;
 import com.myapp.lexicon.models.UserKt;
 import com.myapp.lexicon.models.UserX;
-import com.myapp.lexicon.models.UserXKt;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.models.WordList;
 import com.myapp.lexicon.repository.DataRepositoryImpl;
@@ -968,7 +967,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     user.getMessageToUser(),
                     () -> {
                         String accessToken = EncryptedPrefKt.getAccessToken(this);
-                        Map<String, String> newMessage = Map.of(UserXKt.MESSAGE_TO_USER, "");
+                        Map<String, String> newMessage = Map.of(UserX.KEY_MESSAGE_TO_USER, "");
                         userDataVM.updateUserData(accessToken, newMessage);
                         return null;
                     }

@@ -45,7 +45,6 @@ import com.myapp.lexicon.main.ext.redirectToAuthScreen
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.Payout
 import com.myapp.lexicon.models.Tokens
-import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserX
 import com.myapp.lexicon.models.ViewState
 import com.myapp.lexicon.models.to2DigitsScale
@@ -55,6 +54,7 @@ import com.myapp.lexicon.settings.emailIntoPref
 import com.myapp.lexicon.settings.isAppInstalled
 import com.myapp.lexicon.settings.isFirstLogin
 import com.myapp.lexicon.settings.passwordIntoPref
+import com.myapp.lexicon.settings.refreshToken
 import com.myapp.lexicon.settings.saveAuthTokens
 import kotlinx.coroutines.launch
 
@@ -80,7 +80,9 @@ class AccountFragment : Fragment() {
 
     private val accountVM: AccountViewModel by lazy {
         val factory = AccountViewModel.Factory()
-        ViewModelProvider(this, factory)[AccountViewModel::class]
+        ViewModelProvider(this, factory)[AccountViewModel::class].apply {
+            this.setRefreshToken(requireContext().refreshToken)
+        }
     }
 
     private val authVM: AuthViewModel by lazy {
@@ -90,7 +92,9 @@ class AccountFragment : Fragment() {
 
     private val userDataVM: UserDataViewModel by lazy {
         val factory = UserDataViewModel.Factory()
-        ViewModelProvider(this, factory)[UserDataViewModel::class]
+        ViewModelProvider(this, factory)[UserDataViewModel::class].apply {
+            this.setRefreshToken(requireContext().refreshToken)
+        }
     }
 
     override fun onCreateView(
@@ -443,11 +447,11 @@ class AccountFragment : Fragment() {
                     if ((user.previousMonthBalance?: 0) > 0) {
 
                         val requisitesMap = mapOf<String, Any?>(
-                            User.KEY_PHONE to tvPhoneValue.text.toString().trim().ifEmpty { null },
-                            User.KEY_BANK_NAME to tvBankNameValue.text.toString().trim().ifEmpty { null },
-                            User.KEY_BANK_CARD to tvCardNumber.text.toString().trim().ifEmpty { null },
-                            User.KEY_FIRST_NAME to tvFirstNameValue.text.toString().trim().firstCap().ifEmpty { null },
-                            User.KEY_LAST_NAME to tvLastNameValue.text.toString().trim().firstCap().ifEmpty { null }
+                            UserX.KEY_PHONE to tvPhoneValue.text.toString().trim().ifEmpty { null },
+                            UserX.KEY_BANK_NAME to tvBankNameValue.text.toString().trim().ifEmpty { null },
+                            UserX.KEY_BANK_CARD to tvCardNumber.text.toString().trim().ifEmpty { null },
+                            UserX.KEY_FIRST_NAME to tvFirstNameValue.text.toString().trim().firstCap().ifEmpty { null },
+                            UserX.KEY_LAST_NAME to tvLastNameValue.text.toString().trim().firstCap().ifEmpty { null }
                         ).filter {
                             it.value != null
                         }
@@ -459,6 +463,7 @@ class AccountFragment : Fragment() {
                             checkReference = tvCheckRefValue.text.toString()
                         ).toMap().toMutableMap()
 
+                        @Suppress("UNCHECKED_CAST")
                         payoutMap.putAll(requisitesMap as Map<out String, Any>)
 
                         accountVM.demandPayment(
@@ -522,12 +527,12 @@ class AccountFragment : Fragment() {
                                 return@setOnMenuItemClickListener true
                             }
                             val userMap = mapOf<String, String?>(
-                                User.KEY_EMAIL to tvEmailValue.text.toString().ifEmpty { null },
-                                User.KEY_PHONE to tvPhoneValue.text.toString().ifEmpty { null },
-                                User.KEY_BANK_NAME to tvBankNameValue.text.toString().ifEmpty { null },
-                                User.KEY_BANK_CARD to tvCardNumber.text.toString().ifEmpty { null },
-                                User.KEY_FIRST_NAME to tvFirstNameValue.text.toString().firstCap().ifEmpty { null },
-                                User.KEY_LAST_NAME to tvLastNameValue.text.toString().firstCap().ifEmpty { null }
+                                UserX.KEY_EMAIL to tvEmailValue.text.toString().ifEmpty { null },
+                                UserX.KEY_PHONE to tvPhoneValue.text.toString().ifEmpty { null },
+                                UserX.KEY_BANK_NAME to tvBankNameValue.text.toString().ifEmpty { null },
+                                UserX.KEY_BANK_CARD to tvCardNumber.text.toString().ifEmpty { null },
+                                UserX.KEY_FIRST_NAME to tvFirstNameValue.text.toString().firstCap().ifEmpty { null },
+                                UserX.KEY_LAST_NAME to tvLastNameValue.text.toString().firstCap().ifEmpty { null }
                             ).filter {
                                 !it.value.isNullOrEmpty()
                             }
@@ -631,7 +636,7 @@ class AccountFragment : Fragment() {
                 tvPhoneValue.setText(user.phone)
             }
 
-            if (user.bankName.isNullOrEmpty()) {
+            if (!user.bankName.isNullOrEmpty()) {
                 layoutBankName.visibility = View.VISIBLE
                 tvBankNameValue.setText(user.bankName)
             }
@@ -641,12 +646,12 @@ class AccountFragment : Fragment() {
                 tvCardNumber.setText(user.bankCard)
             }
 
-            if (user.firstName.isNullOrEmpty()) {
+            if (!user.firstName.isNullOrEmpty()) {
                 layoutFirstName.visibility = View.VISIBLE
                 tvFirstNameValue.setText(user.firstName)
             }
 
-            if (user.lastName.isNullOrEmpty() == true) {
+            if (!user.lastName.isNullOrEmpty()) {
                 layoutLastName.visibility = View.VISIBLE
                 tvLastNameValue.setText(user.lastName)
             }

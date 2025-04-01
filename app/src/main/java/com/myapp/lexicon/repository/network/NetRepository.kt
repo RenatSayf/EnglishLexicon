@@ -213,7 +213,7 @@ open class NetRepository(
         json: String
     ): Flow<Result<UserX>> {
         return flow {
-            val response = httpClient.put(urlString = "$baseUrl/user/profile", block = {
+            val response = httpClient.put(urlString = "$baseUrl/user/new-user-data", block = {
                 contentType(ContentType.Application.Json)
                 parameter("access_token", accessToken)
                 setBody(json)

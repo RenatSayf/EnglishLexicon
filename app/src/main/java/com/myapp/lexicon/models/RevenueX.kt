@@ -24,5 +24,5 @@ data class RevenueX(
     val revenueUsd: Double,
 
     @SerialName("app_version")
-    val appVersion: String = BuildConfig.VERSION_NAME
+    val appVersion: String = "v.${BuildConfig.VERSION_NAME}"
 )

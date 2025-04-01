@@ -208,7 +208,15 @@ class MainFragment : Fragment() {
                 UserDataViewModel.UserDataState.AuthorizationRequired -> {
                     requireActivity().redirectToAuthScreen()
                 }
-                else -> {}
+                is UserDataViewModel.UserDataState.PaymentRequestSent -> {
+                    state.payout
+                }
+                is UserDataViewModel.UserDataState.RevenueUpdated -> {
+                    state.bonus
+                }
+                is UserDataViewModel.UserDataState.TokensUpdated -> {
+                    requireContext().saveAuthTokens(state.tokens)
+                }
             }
         }
 
