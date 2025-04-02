@@ -67,9 +67,9 @@ android {
     flavorDimensions = ['BASE_URL']
     productFlavors {
         LOCAL_HOST_ {
-            dimension 'BASE_URL'
+            dimension('BASE_URL')
             buildConfigField('String', 'ADS_SOURCE', '\"LOCAL_HOST\"')
-            buildConfigField('String', 'BASE_URL', '\"https://api.dev.englishlexicon.ru\"')
+            buildConfigField('String', 'BASE_URL', '\"http://10.0.2.2:8005\"')
         }
         DEV_HOST_TEST_ADS_ {
             dimension('BASE_URL')
@@ -130,7 +130,7 @@ dependencies {
     implementation "androidx.viewpager2:viewpager2:1.1.0"
 
     //firebase
-    implementation platform('com.google.firebase:firebase-bom:33.10.0')
+    implementation platform('com.google.firebase:firebase-bom:33.12.0')
     implementation 'com.google.firebase:firebase-storage-ktx'
     implementation 'com.google.firebase:firebase-config-ktx'
     implementation 'com.google.firebase:firebase-messaging-ktx'

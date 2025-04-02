@@ -14,6 +14,7 @@ import android.widget.LinearLayout
 import android.widget.PopupWindow
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
+import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.databinding.PopupLayoutBinding
@@ -172,7 +173,8 @@ fun AdData.emptyRevenue(): RevenueX {
         adRequestID = this.requestId?: "",
         adBlockId = this.blockId?: "",
         revenueRub = 0.0,
-        revenueUsd = 0.0
+        revenueUsd = 0.0,
+        appVersion = BuildConfig.VERSION_NAME
     )
 }
 
@@ -182,7 +184,8 @@ fun AdData.toRevenue(): RevenueX {
         adRequestID = this.requestId?: "",
         adBlockId = this.blockId?: "",
         revenueRub = this.revenue,
-        revenueUsd = this.revenueUSD
+        revenueUsd = this.revenueUSD,
+        appVersion = BuildConfig.VERSION_NAME
     )
 }
 

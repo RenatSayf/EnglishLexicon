@@ -1,6 +1,5 @@
 package com.myapp.lexicon.models
 
-import com.myapp.lexicon.BuildConfig
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -24,5 +23,5 @@ data class RevenueX(
     val revenueUsd: Double,
 
     @SerialName("app_version")
-    val appVersion: String = "v.${BuildConfig.VERSION_NAME}"
+    val appVersion: String
 )

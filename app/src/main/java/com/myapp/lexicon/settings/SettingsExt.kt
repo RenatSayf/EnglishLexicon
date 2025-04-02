@@ -61,9 +61,9 @@ fun Context.getAuthDataFromPref(
     onFailure: (Exception) -> Unit = {}
 ) {
     var email = appSettings.getString("KEY_EMAIL", null)
-    //email = "testuser@gmail.com" //TODO Delete before release
+    email = "testuser@gmail.com" //TODO Delete before release
     var password = appSettings.getString("KEY_PASSWORD", null)
-    //password = "123654" //TODO Delete before release
+    password = "123654" //TODO Delete before release
     try {
         if (email == null || password == null) {
             onNotRegistered.invoke()
