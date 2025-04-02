@@ -29,23 +29,25 @@ import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.INTERSTITIAL_TEST
 import com.myapp.lexicon.ads.NATIVE_AD_MAIN
 import com.myapp.lexicon.ads.REWARDED_TEST_ID
-import com.myapp.lexicon.ads.RevenueViewModel
+import com.myapp.lexicon.ads.ext.toRevenue
 import com.myapp.lexicon.ads.models.AD_TEST
 import com.myapp.lexicon.ads.models.AdData
-import com.myapp.lexicon.ads.models.AdName
 import com.myapp.lexicon.ads.models.AdType
 import com.myapp.lexicon.ads.showAd
 import com.myapp.lexicon.ads.startBannersActivity
 import com.myapp.lexicon.ads.startNativeAdsActivity
+import com.myapp.lexicon.auth.account.UserDataViewModel
 import com.myapp.lexicon.databinding.TestFragmentBinding
 import com.myapp.lexicon.dialogs.DictListDialog
 import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.UiState
 import com.myapp.lexicon.helpers.hideKeyboard
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showCustomSnackBar
 import com.myapp.lexicon.helpers.showMultiLineSnackBar
 import com.myapp.lexicon.main.SpeechViewModel
 import com.myapp.lexicon.models.Word
+import com.myapp.lexicon.settings.accessToken
 import com.myapp.lexicon.settings.getTestStateFromPref
 import com.myapp.lexicon.settings.saveTestStateToPref
 import com.myapp.lexicon.viewmodels.AnimViewModel
@@ -86,7 +88,10 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     }
     private val adsVM: AdsViewModel by activityViewModels()
 
-    private val revenueVM: RevenueViewModel by activityViewModels()
+    private val userDataVM: UserDataViewModel by lazy {
+        val factory = UserDataViewModel.Factory()
+        ViewModelProvider(this, factory)[UserDataViewModel::class]
+    }
 
     private val composite = CompositeDisposable()
     private var dialogWarning: DialogWarning? = null
@@ -311,13 +316,18 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                     TestViewModel.State.NotShowAd -> {}
                     TestViewModel.State.ShowAd -> {
 
+                        val accessToken = requireContext().accessToken
                         when(AD_TEST) {
                             AdType.BANNER.type -> {
                                 requireActivity().startBannersActivity(
                                     onImpression = {data: AdData? ->
-                                        if (data != null) {
-                                            data.adCount = mapOf(AdName.FULL_TEST.name to 1)
-                                            revenueVM.updateUserRevenueIntoCloud(data)
+                                        if (data != null && accessToken.isNotEmpty()) {
+                                            try {
+                                                val revenue = data.toRevenue()
+                                                userDataVM.updateUserBalance(accessToken, revenue)
+                                            } catch (e: Exception) {
+                                                e.printStackTraceIfDebug()
+                                            }
                                         }
                                     },
                                     onDismissed = {bonus: Double ->
@@ -329,9 +339,13 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                                 requireActivity().startNativeAdsActivity(
                                     adId = NATIVE_AD_MAIN,
                                     onImpression = {data: AdData? ->
-                                        if (data != null) {
-                                            data.adCount = mapOf(AdName.FULL_TEST.name to 1)
-                                            revenueVM.updateUserRevenueIntoCloud(data)
+                                        if (data != null && accessToken.isNotEmpty()) {
+                                            try {
+                                                val revenue = data.toRevenue()
+                                                userDataVM.updateUserBalance(accessToken, revenue)
+                                            } catch (e: Exception) {
+                                                e.printStackTraceIfDebug()
+                                            }
                                         }
                                         testVM.setState(TestViewModel.State.Init)
                                     },
@@ -344,9 +358,13 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                                 interstitialAd?.showAd(
                                     requireActivity(),
                                     onImpression = { data ->
-                                        if (data != null) {
-                                            data.adCount = mapOf(AdName.FULL_TEST.name to 1)
-                                            revenueVM.updateUserRevenueIntoCloud(data)
+                                        if (data != null && accessToken.isNotEmpty()) {
+                                            try {
+                                                val revenue = data.toRevenue()
+                                                userDataVM.updateUserBalance(accessToken, revenue)
+                                            } catch (e: Exception) {
+                                                e.printStackTraceIfDebug()
+                                            }
                                         }
                                         testVM.setState(TestViewModel.State.Init)
                                     },
@@ -359,9 +377,13 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                                 rewardedAd?.showAd(
                                     requireActivity(),
                                     onImpression = {data: AdData? ->
-                                        if (data != null) {
-                                            data.adCount = mapOf(AdName.FULL_TEST.name to 1)
-                                            revenueVM.updateUserRevenueIntoCloud(data)
+                                        if (data != null && accessToken.isNotEmpty()) {
+                                            try {
+                                                val revenue = data.toRevenue()
+                                                userDataVM.updateUserBalance(accessToken, revenue)
+                                            } catch (e: Exception) {
+                                                e.printStackTraceIfDebug()
+                                            }
                                         }
                                         testVM.setState(TestViewModel.State.Init)
                                     },
@@ -408,6 +430,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 val subList = try {
                     shuffledList?.subList(0, 3)
                 } catch (e: IndexOutOfBoundsException) {
+                    e.printStackTraceIfDebug()
                     shuffledList
                 }
 

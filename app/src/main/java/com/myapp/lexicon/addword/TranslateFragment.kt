@@ -20,25 +20,24 @@ import com.myapp.lexicon.ads.BANNER_TRANSLATE
 import com.myapp.lexicon.ads.INTERSTITIAL_TRANSLATE
 import com.myapp.lexicon.ads.NATIVE_AD_TRANS
 import com.myapp.lexicon.ads.REWARDED_TRANSLATE_ID
-import com.myapp.lexicon.ads.RevenueViewModel
+import com.myapp.lexicon.ads.ext.emptyRevenue
+import com.myapp.lexicon.ads.ext.toRevenue
 import com.myapp.lexicon.ads.loadBanner
 import com.myapp.lexicon.ads.models.AD_TRANSLATE
 import com.myapp.lexicon.ads.models.AdData
-import com.myapp.lexicon.ads.models.AdName
 import com.myapp.lexicon.ads.models.AdType
 import com.myapp.lexicon.ads.showAd
 import com.myapp.lexicon.ads.startBannersActivity
 import com.myapp.lexicon.ads.startNativeAdsActivity
+import com.myapp.lexicon.auth.account.UserDataViewModel
 import com.myapp.lexicon.databinding.TranslateFragmentBinding
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showMultiLineSnackBar
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.MainViewModel
-import com.myapp.lexicon.main.viewmodels.UserViewModel
-import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.toWord
-import com.myapp.lexicon.settings.getAuthDataFromPref
+import com.myapp.lexicon.settings.accessToken
 import com.myapp.lexicon.settings.getWordFromPref
 import com.myapp.lexicon.settings.orderPlayFromPref
 import com.yandex.mobile.ads.interstitial.InterstitialAd
@@ -52,20 +51,29 @@ private const val TEXT = "translate_text"
 class TranslateFragment : Fragment()
 {
     private lateinit var binding: TranslateFragmentBinding
+
     private lateinit var mActivity: AppCompatActivity
+
     private var interstitialAd: InterstitialAd? = null
+
     private var rewardedAd: RewardedAd? = null
+
     private val adsVM: AdsViewModel by activityViewModels()
+
     private val addWordVM: AddWordViewModel by lazy {
         val factory = AddWordViewModel.Factory(requireContext())
         ViewModelProvider(this, factory)[AddWordViewModel::class.java]
     }
+
     private val mainVM: MainViewModel by lazy {
         val factory = MainViewModel.Factory(requireActivity().application)
         ViewModelProvider(this, factory)[MainViewModel::class.java]
     }
-    private val revenueVM: RevenueViewModel by activityViewModels()
-    private val userVM: UserViewModel by activityViewModels()
+
+    private val userDataVM: UserDataViewModel by lazy {
+        val factory = UserDataViewModel.Factory()
+        ViewModelProvider(this, factory)[UserDataViewModel::class]
+    }
 
     companion object
     {
@@ -199,17 +207,14 @@ class TranslateFragment : Fragment()
 
             bannerView.loadBanner(
                 adId = BANNER_TRANSLATE,
-                onImpression = {
-                    requireContext().getAuthDataFromPref(
-                        onSuccess = {email: String, password: String ->
-                            userVM.updateUserDataIntoCloud(
-                                userMap = mapOf(
-                                    User.KEY_EMAIL to email,
-                                    AdName.BANNER_TRANSLATE.name to 1
-                                )
-                            )
-                        }
-                    )
+                onImpression = { data ->
+                    val accessToken = requireContext().accessToken
+                    if (data != null && accessToken.isNotEmpty()) {
+                        userDataVM.updateUserBalance(
+                            token = requireContext().accessToken,
+                            data = data.emptyRevenue()
+                        )
+                    }
                 }
             )
         }
@@ -235,6 +240,8 @@ class TranslateFragment : Fragment()
     }
 
     private fun selectAndShowAd() {
+
+        val accessToken = requireContext().accessToken
         when(mActivity)
         {
             is MainActivity -> {
@@ -243,9 +250,13 @@ class TranslateFragment : Fragment()
                     AdType.BANNER.type -> {
                         requireActivity().startBannersActivity(
                             onImpression = {data: AdData? ->
-                                if (data != null) {
-                                    data.adCount = mapOf(AdName.FULL_TRANSLATE.name to 1)
-                                    revenueVM.updateUserRevenueIntoCloud(data)
+                                if (data != null && accessToken.isNotEmpty()) {
+                                    try {
+                                        val revenue = data.toRevenue()
+                                        userDataVM.updateUserBalance(accessToken, revenue)
+                                    } catch (e: Exception) {
+                                        e.printStackTraceIfDebug()
+                                    }
                                 }
                             },
                             onDismissed = {bonus: Double ->
@@ -258,9 +269,13 @@ class TranslateFragment : Fragment()
                         requireActivity().startNativeAdsActivity(
                             adId = NATIVE_AD_TRANS,
                             onImpression = {data: AdData? ->
-                                if (data != null) {
-                                    data.adCount = mapOf(AdName.FULL_TRANSLATE.name to 1)
-                                    revenueVM.updateUserRevenueIntoCloud(data)
+                                if (data != null && accessToken.isNotEmpty()) {
+                                    try {
+                                        val revenue = data.toRevenue()
+                                        userDataVM.updateUserBalance(accessToken, revenue)
+                                    } catch (e: Exception) {
+                                        e.printStackTraceIfDebug()
+                                    }
                                 }
                             },
                             onDismissed = {bonus: Double ->
@@ -273,9 +288,13 @@ class TranslateFragment : Fragment()
                         interstitialAd?.showAd(
                             requireActivity(),
                             onImpression = { data ->
-                                if (data is AdData) {
-                                    data.adCount = mapOf(AdName.FULL_TRANSLATE.name to 1)
-                                    revenueVM.updateUserRevenueIntoCloud(data)
+                                if (data != null && accessToken.isNotEmpty()) {
+                                    try {
+                                        val revenue = data.toRevenue()
+                                        userDataVM.updateUserBalance(accessToken, revenue)
+                                    } catch (e: Exception) {
+                                        e.printStackTraceIfDebug()
+                                    }
                                 }
                             },
                             onDismissed = { bonus: Double ->
@@ -290,9 +309,13 @@ class TranslateFragment : Fragment()
                         rewardedAd?.showAd(
                             requireActivity(),
                             onImpression = { data: AdData? ->
-                                if (data is AdData) {
-                                    data.adCount = mapOf(AdName.FULL_TRANSLATE.name to 1)
-                                    revenueVM.updateUserRevenueIntoCloud(data)
+                                if (data != null && accessToken.isNotEmpty()) {
+                                    try {
+                                        val revenue = data.toRevenue()
+                                        userDataVM.updateUserBalance(accessToken, revenue)
+                                    } catch (e: Exception) {
+                                        e.printStackTraceIfDebug()
+                                    }
                                 }
                             },
                             onDismissed = {bonus: Double ->
@@ -311,9 +334,13 @@ class TranslateFragment : Fragment()
                     AdType.BANNER.type -> {
                         requireActivity().startBannersActivity(
                             onImpression = {data: AdData? ->
-                                if (data != null) {
-                                    data.adCount = mapOf(AdName.FULL_TRANSLATE.name to 1)
-                                    revenueVM.updateUserRevenueIntoCloud(data)
+                                if (data != null && accessToken.isNotEmpty()) {
+                                    try {
+                                        val revenue = data.toRevenue()
+                                        userDataVM.updateUserBalance(accessToken, revenue)
+                                    } catch (e: Exception) {
+                                        e.printStackTraceIfDebug()
+                                    }
                                 }
                             },
                             onDismissed = {bonus: Double ->
@@ -324,9 +351,13 @@ class TranslateFragment : Fragment()
                     AdType.NATIVE.type -> {
                         requireActivity().startNativeAdsActivity(
                             onImpression = { data: AdData? ->
-                                if (data != null) {
-                                    data.adCount = mapOf(AdName.FULL_TRANSLATE.name to 1)
-                                    revenueVM.updateUserRevenueIntoCloud(data)
+                                if (data != null && accessToken.isNotEmpty()) {
+                                    try {
+                                        val revenue = data.toRevenue()
+                                        userDataVM.updateUserBalance(accessToken, revenue)
+                                    } catch (e: Exception) {
+                                        e.printStackTraceIfDebug()
+                                    }
                                 }
                             },
                             onDismissed = { bonus: Double ->
@@ -338,9 +369,13 @@ class TranslateFragment : Fragment()
                         interstitialAd?.showAd(
                             requireActivity(),
                             onImpression = { data ->
-                                if (data is AdData) {
-                                    data.adCount = mapOf(AdName.FULL_TRANSLATE.name to 1)
-                                    revenueVM.updateUserRevenueIntoCloud(data)
+                                if (data != null && accessToken.isNotEmpty()) {
+                                    try {
+                                        val revenue = data.toRevenue()
+                                        userDataVM.updateUserBalance(accessToken, revenue)
+                                    } catch (e: Exception) {
+                                        e.printStackTraceIfDebug()
+                                    }
                                 }
                             },
                             onDismissed = {
@@ -354,9 +389,13 @@ class TranslateFragment : Fragment()
                         rewardedAd?.showAd(
                             requireActivity(),
                             onImpression = { data: AdData? ->
-                                if (data is AdData) {
-                                    data.adCount = mapOf(AdName.FULL_TRANSLATE.name to 1)
-                                    revenueVM.updateUserRevenueIntoCloud(data)
+                                if (data != null && accessToken.isNotEmpty()) {
+                                    try {
+                                        val revenue = data.toRevenue()
+                                        userDataVM.updateUserBalance(accessToken, revenue)
+                                    } catch (e: Exception) {
+                                        e.printStackTraceIfDebug()
+                                    }
                                 }
                             },
                             onDismissed = {bonus: Double ->

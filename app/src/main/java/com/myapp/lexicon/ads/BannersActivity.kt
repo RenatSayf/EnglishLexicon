@@ -238,11 +238,7 @@ class BannersActivity : AppCompatActivity() {
                     finish()
                 }
             }
-            if (this.callback != null) {
-                onBackInvokedDispatcher.registerOnBackInvokedCallback(0,
-                    this.callback as OnBackInvokedCallback
-                )
-            }
+            onBackInvokedDispatcher.registerOnBackInvokedCallback(0, this.callback as OnBackInvokedCallback)
         }
     }
 

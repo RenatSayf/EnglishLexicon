@@ -13,26 +13,24 @@ import com.myapp.lexicon.ads.BannersActivityKt;
 import com.myapp.lexicon.ads.InterstitialAdIdsKt;
 import com.myapp.lexicon.ads.NativeAdIdsKt;
 import com.myapp.lexicon.ads.NativeAdsActivityKt;
-import com.myapp.lexicon.ads.RevenueViewModel;
 import com.myapp.lexicon.ads.RewardedAdIdsKt;
-import com.myapp.lexicon.ads.models.AdData;
-import com.myapp.lexicon.ads.models.AdName;
 import com.myapp.lexicon.ads.models.AdType;
 import com.myapp.lexicon.ads.models.AdTypeKt;
 import com.myapp.lexicon.auth.AuthViewModel;
+import com.myapp.lexicon.auth.account.UserDataViewModel;
 import com.myapp.lexicon.common.CommonConstantsKt;
 import com.myapp.lexicon.databinding.ServiceDialogActivityBinding;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.interfaces.IModalFragment;
+import com.myapp.lexicon.models.RevenueX;
 import com.myapp.lexicon.schedule.AlarmScheduler;
+import com.myapp.lexicon.settings.EncryptedPrefKt;
 import com.myapp.lexicon.settings.SettingsExtKt;
 import com.myapp.lexicon.splash.SplashActivity;
 import com.parse.ParseUser;
 import com.yandex.mobile.ads.interstitial.InterstitialAd;
 import com.yandex.mobile.ads.rewarded.RewardedAd;
-
-import java.util.Map;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -47,7 +45,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
     private ServiceDialogActivityBinding binding;
     private AuthViewModel authVM;
     private AdsViewModel adsVM;
-    private RevenueViewModel revenueVM;
+    private UserDataViewModel userDataVM;
     private InterstitialAd interstitialAd;
     private RewardedAd rewardedAd;
     private LockOrientation locker;
@@ -76,7 +74,9 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         setContentView(binding.getRoot());
 
         adsVM = new ViewModelProvider(ServiceActivity.this).get(AdsViewModel.class);
-        revenueVM = new ViewModelProvider(ServiceActivity.this).get(RevenueViewModel.class);
+
+        UserDataViewModel.Factory factory = new UserDataViewModel.Factory();
+        userDataVM = new ViewModelProvider(this, factory).get(UserDataViewModel.class);
 
         ParseUser currentUser = ParseUser.getCurrentUser();
         if (currentUser != null) {
@@ -147,6 +147,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
             return;
         }
 
+        String accessToken = EncryptedPrefKt.getAccessToken(ServiceActivity.this);
         int adType = AdTypeKt.getAD_SERVICE();
         if (adType == AdType.INTERSTITIAL.getType()) {
             adsVM.getInterstitialAd().observe(ServiceActivity.this, result -> {
@@ -157,14 +158,10 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                             ServiceActivity.this,
                             () -> null,
                             adData -> {
-                                if (adData != null)
+                                if (adData != null && !accessToken.isEmpty())
                                 {
-                                    adData.setAdCount(Map.of(AdName.FULL_SERVICE.name(), 1));
-                                    revenueVM.updateUserRevenueIntoCloud(adData);
-                                }
-                                else {
-                                    AdData emptyAdData = new AdData("", "", "", "", null, "", "", 0.0, 0.0);
-                                    revenueVM.updateUserRevenueIntoCloud(emptyAdData);
+                                    RevenueX revenue = com.myapp.lexicon.ads.ext.ExtensionsKt.toRevenue(adData);
+                                    userDataVM.updateUserBalance(accessToken, revenue);
                                 }
                                 return null;
                             },
@@ -184,13 +181,9 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
             BannersActivityKt.startBannersActivity(
                     this,
                     adData -> {
-                        if (adData != null) {
-                            adData.setAdCount(Map.of(AdName.FULL_SERVICE.name(), 1));
-                            revenueVM.updateUserRevenueIntoCloud(adData);
-                        }
-                        else {
-                            AdData emptyAdData = new AdData("", "", "", "", null, "", "", 0.0, 0.0);
-                            revenueVM.updateUserRevenueIntoCloud(emptyAdData);
+                        if (adData != null && !accessToken.isEmpty()) {
+                            RevenueX revenue = com.myapp.lexicon.ads.ext.ExtensionsKt.toRevenue(adData);
+                            userDataVM.updateUserBalance(accessToken, revenue);
                         }
                         return null;
                     },
@@ -205,13 +198,9 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                     this,
                     NativeAdIdsKt.getNATIVE_AD_SERVICE(),
                     adData -> {
-                        if (adData != null) {
-                            adData.setAdCount(Map.of(AdName.FULL_SERVICE.name(), 1));
-                            revenueVM.updateUserRevenueIntoCloud(adData);
-                        }
-                        else {
-                            AdData emptyAdData = new AdData("", "", "", "", null, "", "", 0.0, 0.0);
-                            revenueVM.updateUserRevenueIntoCloud(emptyAdData);
+                        if (adData != null && !accessToken.isEmpty()) {
+                            RevenueX revenue = com.myapp.lexicon.ads.ext.ExtensionsKt.toRevenue(adData);
+                            userDataVM.updateUserBalance(accessToken, revenue);
                         }
                         return null;
                     },
@@ -230,14 +219,10 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                             ServiceActivity.this,
                             () -> null,
                             adData -> {
-                                if (adData != null)
+                                if (adData != null && !accessToken.isEmpty())
                                 {
-                                    adData.setAdCount(Map.of(AdName.FULL_SERVICE.name(), 1));
-                                    revenueVM.updateUserRevenueIntoCloud(adData);
-                                }
-                                else {
-                                    AdData emptyAdData = new AdData("", "", "", "", null, "", "", 0.0, 0.0);
-                                    revenueVM.updateUserRevenueIntoCloud(emptyAdData);
+                                    RevenueX revenue = com.myapp.lexicon.ads.ext.ExtensionsKt.toRevenue(adData);
+                                    userDataVM.updateUserBalance(accessToken, revenue);
                                 }
                                 return null;
                             },

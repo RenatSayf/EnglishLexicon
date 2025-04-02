@@ -5,7 +5,6 @@ package com.myapp.lexicon.video.web
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Bitmap
-import android.net.Uri
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -24,23 +23,26 @@ import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import android.widget.PopupWindow
 import androidx.activity.OnBackPressedCallback
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdFragment
-import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.ext.showAdPopup
+import com.myapp.lexicon.ads.ext.toRevenue
 import com.myapp.lexicon.ads.models.AdData
-import com.myapp.lexicon.ads.models.AdName
+import com.myapp.lexicon.auth.account.UserDataViewModel
 import com.myapp.lexicon.databinding.FragmentYouTubeBinding
 import com.myapp.lexicon.helpers.isNetworkAvailable
 import com.myapp.lexicon.helpers.orientationLock
 import com.myapp.lexicon.helpers.orientationUnLock
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.toDp
-import com.myapp.lexicon.main.viewmodels.UserViewModel
+import com.myapp.lexicon.main.ext.redirectToAuthScreen
 import com.myapp.lexicon.models.to2DigitsScale
+import com.myapp.lexicon.settings.accessToken
+import com.myapp.lexicon.settings.saveAuthTokens
 import com.myapp.lexicon.video.constants.PRETTY_PRINT_URL
 import com.myapp.lexicon.video.constants.VIDEO_URL
 import com.myapp.lexicon.video.extensions.changeHeightAnimatedly
@@ -70,8 +72,9 @@ class YouTubeFragment : Fragment() {
     private val youTubeVM: YouTubeViewModel by lazy {
         ViewModelProvider(this)[YouTubeViewModel::class.java]
     }
-    private val revenueVM: RevenueViewModel by lazy {
-        ViewModelProvider(requireActivity())[RevenueViewModel::class.java]
+    private val userDataVM: UserDataViewModel by lazy {
+        val factory = UserDataViewModel.Factory()
+        ViewModelProvider(this, factory)[UserDataViewModel::class]
     }
     private val actionBarHeight: Int by lazy {
         with(TypedValue().also {requireContext().theme.resolveAttribute(android.R.attr.actionBarSize, it, true)}) {
@@ -178,15 +181,13 @@ class YouTubeFragment : Fragment() {
                         request: WebResourceRequest?
                     ): Boolean {
                         if (view?.url != null && view.url?.startsWith(VIDEO_URL) == false) {
-                            requireActivity().startActivity(
-                                Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                            )
+                            requireActivity().startActivity(Intent(Intent.ACTION_VIEW, url?.toUri()))
                         }
                         val isOpenApp = request?.url?.query?.contains("open_app")
                         val parameterNames = request?.url?.queryParameterNames
                         val isRedirect = parameterNames?.contains("redirect_app_store_ios") == true ||
                             parameterNames?.contains("app") == true
-                        return isOpenApp?: true || isRedirect
+                        return isOpenApp != false || isRedirect
                     }
 
                 }
@@ -309,7 +310,10 @@ class YouTubeFragment : Fragment() {
             })
 
             if (savedInstanceState == null) {
-                revenueVM.getUserFromCloud()
+                val accessToken = requireContext().accessToken
+                if (accessToken.isNotEmpty()) {
+                    userDataVM.fetchUserData(accessToken)
+                }
             }
 
             //the touch listener is used because the scroll listener stops working after a while
@@ -337,9 +341,10 @@ class YouTubeFragment : Fragment() {
                             actionBarHeight,
                             onEnd = { isVisible: Boolean ->
                                 if (!isVisible) {
-                                    if (revenueVM.state.value is UserViewModel.State.RevenueUpdated) {
-                                        val user = (revenueVM.state.value!! as UserViewModel.State.RevenueUpdated).user
-                                        revenueVM.setState(UserViewModel.State.ReceivedUserData(user))
+                                    if (userDataVM.userState.value is UserDataViewModel.UserDataState.RevenueUpdated) {
+                                        val user = (userDataVM.userState.value!! as UserDataViewModel.UserDataState.RevenueUpdated).user
+                                        val bonus = (userDataVM.userState.value!! as UserDataViewModel.UserDataState.RevenueUpdated).bonus
+                                        userDataVM.setUserState(UserDataViewModel.UserDataState.RevenueUpdated(bonus, user))
                                     }
                                 }
                             }
@@ -394,11 +399,12 @@ class YouTubeFragment : Fragment() {
                     val adData = try {
                         Json.decodeFromString<AdData>(strData)
                     } catch (e: Exception) {
+                        e.printStackTraceIfDebug()
                         null
                     }
                     adData?.let { data: AdData ->
-                        data.adCount = mapOf(AdName.FULL_VIDEO.name to 1)
-                        revenueVM.updateUserRevenueIntoCloud(data)
+                        val accessToken = requireContext().accessToken
+                        userDataVM.updateUserBalance(accessToken, data.toRevenue())
                     }
                 }
             })
@@ -409,24 +415,31 @@ class YouTubeFragment : Fragment() {
                 }
             })
 
-            revenueVM.userRevenueLD.observe(viewLifecycleOwner) { result ->
-                result.onError { throwable ->
-                    throwable.printStackTraceIfDebug()
-                }
-            }
 
-            revenueVM.state.observe(viewLifecycleOwner) { state ->
+            userDataVM.userState.observe(viewLifecycleOwner) { state ->
                 when(state) {
-                    is UserViewModel.State.ReceivedUserData -> {
+                    UserDataViewModel.UserDataState.AuthorizationRequired -> {
+                        requireActivity().redirectToAuthScreen()
+                    }
+                    is UserDataViewModel.UserDataState.Error -> {
+                        Exception(state.message).printStackTraceIfDebug()
+                    }
+                    is UserDataViewModel.UserDataState.ReceivedUserData -> {
                         val rewardText = "${getString(R.string.coins_bag)} " +
-                                "${getString(R.string.text_your_reward)} ${state.user.userReward.to2DigitsScale()} ${state.user.currencySymbol}"
+                                "${getString(R.string.text_your_reward)} ${state.user.monthBalance?.to2DigitsScale()} ${state.user.currencySymbol}"
                         tvReward.text = rewardText
                     }
-                    is UserViewModel.State.RevenueUpdated -> {
+                    is UserDataViewModel.UserDataState.RevenueUpdated -> {
                         val rewardText = "${getString(R.string.coins_bag)}  +${state.bonus.to2DigitsScale()} ${state.user.currencySymbol}. " +
-                                "${getString(R.string.text_your_reward)} ${state.user.userReward.to2DigitsScale()} ${state.user.currencySymbol}"
+                                "${getString(R.string.text_your_reward)} ${state.user.monthBalance?.to2DigitsScale()} ${state.user.currencySymbol}"
                         tvReward.text = rewardText
                         bottomBar.changeHeightAnimatedly(actionBarHeight)
+                    }
+                    is UserDataViewModel.UserDataState.TokensUpdated -> {
+                        requireContext().saveAuthTokens(state.tokens)
+                    }
+                    is UserDataViewModel.UserDataState.UserDataUpdated -> {
+                        state.userX
                     }
                     else -> {}
                 }

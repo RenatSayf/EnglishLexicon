@@ -20,20 +20,21 @@ import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.INTERSTITIAL_MAIN
 import com.myapp.lexicon.ads.NATIVE_AD_MAIN
 import com.myapp.lexicon.ads.REWARDED_MAIN_ID
-import com.myapp.lexicon.ads.RevenueViewModel
+import com.myapp.lexicon.ads.ext.toRevenue
 import com.myapp.lexicon.ads.models.AD_MAIN
 import com.myapp.lexicon.ads.models.AdData
-import com.myapp.lexicon.ads.models.AdName
 import com.myapp.lexicon.ads.models.AdType
 import com.myapp.lexicon.ads.showAd
 import com.myapp.lexicon.ads.startBannersActivity
 import com.myapp.lexicon.ads.startNativeAdsActivity
+import com.myapp.lexicon.auth.account.UserDataViewModel
 import com.myapp.lexicon.databinding.OneOfFiveFragmNewBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.RandomNumberGenerator
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.models.Word
+import com.myapp.lexicon.settings.accessToken
 import com.myapp.lexicon.settings.adsIsEnabled
 import com.yandex.mobile.ads.interstitial.InterstitialAd
 import com.yandex.mobile.ads.rewarded.RewardedAd
@@ -46,10 +47,17 @@ const val ROWS: Int = 5
 class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
 {
     private lateinit var binding: OneOfFiveFragmNewBinding
+
     private lateinit var vm: OneOfFiveViewModel
+
     private lateinit var mActivity: MainActivity
+
     private val adsVM: AdsViewModel by activityViewModels()
-    private val revenueVM: RevenueViewModel by activityViewModels()
+
+    private val userDataVM: UserDataViewModel by lazy {
+        val factory = UserDataViewModel.Factory()
+        ViewModelProvider(this, factory)[UserDataViewModel::class]
+    }
     private var interstitialAd: InterstitialAd? = null
     private var rewardedAd: RewardedAd? = null
 
@@ -59,7 +67,6 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
             setOnItemClickListener(this@OneOfFiveFragm)
         }
     }
-
 
     companion object
     {
@@ -314,13 +321,19 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
     ) {
         if (this.adsIsEnabled) {
 
+            val accessToken = requireContext().accessToken
+
             when(AD_MAIN) {
                 AdType.BANNER.type -> {
                     requireActivity().startBannersActivity(
                         onImpression = {data: AdData? ->
-                            if (data != null) {
-                                data.adCount = mapOf(AdName.FULL_MAIN.name to 1)
-                                revenueVM.updateUserRevenueIntoCloud(data)
+                            if (data != null && accessToken.isNotEmpty()) {
+                                try {
+                                    val revenue = data.toRevenue()
+                                    userDataVM.updateUserBalance(accessToken, revenue)
+                                } catch (e: Exception) {
+                                    e.printStackTraceIfDebug()
+                                }
                             }
                         },
                         onDismissed = {bonus: Double ->
@@ -333,10 +346,10 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
                     requireActivity().startNativeAdsActivity(
                         adId = NATIVE_AD_MAIN,
                         onImpression = {data: AdData? ->
-                            if (data != null) {
+                            if (data != null && accessToken.isNotEmpty()) {
                                 try {
-                                    data.adCount = mapOf(AdName.FULL_MAIN.name to 1)
-                                    revenueVM.updateUserRevenueIntoCloud(data)
+                                    val revenue = data.toRevenue()
+                                    userDataVM.updateUserBalance(accessToken, revenue)
                                 } catch (e: Exception) {
                                     e.printStackTraceIfDebug()
                                 }
@@ -356,9 +369,13 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
                     interstitialAd?.showAd(
                         requireActivity(),
                         onImpression = { data ->
-                            if (data != null) {
-                                data.adCount = mapOf(AdName.FULL_MAIN.name to 1)
-                                revenueVM.updateUserRevenueIntoCloud(data)
+                            if (data != null && accessToken.isNotEmpty()) {
+                                try {
+                                    val revenue = data.toRevenue()
+                                    userDataVM.updateUserBalance(accessToken, revenue)
+                                } catch (e: Exception) {
+                                    e.printStackTraceIfDebug()
+                                }
                             }
                         }, onDismissed = { bonus: Double ->
                             adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
@@ -373,9 +390,13 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
                     rewardedAd?.showAd(
                         requireActivity(),
                         onImpression = {data: AdData? ->
-                            if (data != null) {
-                                data.adCount = mapOf(AdName.FULL_MAIN.name to 1)
-                                revenueVM.updateUserRevenueIntoCloud(data)
+                            if (data != null && accessToken.isNotEmpty()) {
+                                try {
+                                    val revenue = data.toRevenue()
+                                    userDataVM.updateUserBalance(accessToken, revenue)
+                                } catch (e: Exception) {
+                                    e.printStackTraceIfDebug()
+                                }
                             }
                         },
                         onDismissed = {bonus: Double ->
