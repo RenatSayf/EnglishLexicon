@@ -40,6 +40,7 @@ import com.myapp.lexicon.models.toWord
 import com.myapp.lexicon.settings.accessToken
 import com.myapp.lexicon.settings.getWordFromPref
 import com.myapp.lexicon.settings.orderPlayFromPref
+import com.myapp.lexicon.settings.refreshToken
 import com.yandex.mobile.ads.interstitial.InterstitialAd
 import com.yandex.mobile.ads.rewarded.RewardedAd
 import java.net.URLDecoder
@@ -72,7 +73,9 @@ class TranslateFragment : Fragment()
 
     private val userDataVM: UserDataViewModel by lazy {
         val factory = UserDataViewModel.Factory()
-        ViewModelProvider(this, factory)[UserDataViewModel::class]
+        ViewModelProvider(this, factory)[UserDataViewModel::class].apply {
+            this.setRefreshToken(requireContext().refreshToken)
+        }
     }
 
     companion object

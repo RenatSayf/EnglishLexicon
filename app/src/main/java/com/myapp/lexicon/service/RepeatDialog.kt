@@ -11,27 +11,22 @@ import android.widget.CompoundButton
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.aboutapp.checkAppUpdate
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.BANNER_SERVICE
-import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.ext.emptyRevenue
 import com.myapp.lexicon.ads.ext.showUserRewardAnimatedly
 import com.myapp.lexicon.ads.loadBanner
 import com.myapp.lexicon.auth.account.UserDataViewModel
 import com.myapp.lexicon.common.IS_IMPORTANT_UPDATE
 import com.myapp.lexicon.databinding.SRepeatModalFragmentBinding
-import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showToast
 import com.myapp.lexicon.interfaces.IModalFragment
 import com.myapp.lexicon.main.MainViewModel
 import com.myapp.lexicon.main.SpeechViewModel
-import com.myapp.lexicon.main.viewmodels.UserViewModel
-import com.myapp.lexicon.models.Revenue
 import com.myapp.lexicon.models.UserX
 import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.models.toWordList
@@ -39,6 +34,7 @@ import com.myapp.lexicon.settings.accessToken
 import com.myapp.lexicon.settings.disablePassiveWordsRepeat
 import com.myapp.lexicon.settings.getOrderPlay
 import com.myapp.lexicon.settings.isUserRegistered
+import com.myapp.lexicon.settings.refreshToken
 import java.util.Locale
 
 
@@ -64,14 +60,14 @@ class RepeatDialog: DialogFragment() {
         val factory = SpeechViewModel.Factory(requireActivity().application)
         ViewModelProvider(this, factory)[SpeechViewModel::class.java]
     }
-    private val userVM by viewModels<UserViewModel>()
 
     private val userDataVM: UserDataViewModel by lazy {
         val factory = UserDataViewModel.Factory()
-        ViewModelProvider(requireActivity(), factory)[UserDataViewModel::class]
+        ViewModelProvider(requireActivity(), factory)[UserDataViewModel::class].apply {
+            this.setRefreshToken(requireContext().refreshToken)
+        }
     }
 
-    private val revenueVM by activityViewModels<RevenueViewModel>()
     private val adsVM by activityViewModels<AdsViewModel>()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -209,15 +205,6 @@ class RepeatDialog: DialogFragment() {
                 }
             )
 
-            userVM.state.observe(viewLifecycleOwner) { state ->
-                when(state) {
-                    is UserViewModel.State.ReceivedUserData -> {
-
-                    }
-                    else -> {}
-                }
-            }
-
             userDataVM.userState.observe(viewLifecycleOwner) { state ->
                 when(state) {
                     is UserDataViewModel.UserDataState.ReceivedUserData -> {
@@ -231,17 +218,6 @@ class RepeatDialog: DialogFragment() {
                     else -> {}
                 }
             }
-
-//            revenueVM.userRevenueLD.observe(viewLifecycleOwner) { result ->
-//                result.onSuccess<Revenue> { revenue ->
-//                    buildRewardText(revenue)
-//                    adProgress.visibility = View.GONE
-//                }
-//                result.onError { throwable ->
-//                    throwable.printStackTraceIfDebug()
-//                    adProgress.visibility = View.GONE
-//                }
-//            }
 
             adsVM.interstitialAdState.observe(viewLifecycleOwner) { state ->
                 if (state is AdsViewModel.AdState.Dismissed) {
@@ -271,12 +247,6 @@ class RepeatDialog: DialogFragment() {
         binding.tvReward.text = text
     }
 
-    private fun buildRewardText(revenue: Revenue) {
-
-        val userReward = revenue.reward.to2DigitsScale()
-        val text = "${getString(R.string.coins_bag)} $userReward ${revenue.currencySymbol}"
-        binding.tvReward.text = text
-    }
     override fun onResume() {
         super.onResume()
 

@@ -42,7 +42,6 @@ import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showMultiLineSnackBar
 import com.myapp.lexicon.helpers.timeInMillisMoscowTimeZone
 import com.myapp.lexicon.main.ext.redirectToAuthScreen
-import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.Payout
 import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.models.UserX
@@ -117,14 +116,6 @@ class AccountFragment : Fragment() {
                         requireActivity().orientationUnLock()
                     }
                     AccountViewModel.LoadingState.Start -> {
-                        progressBar.visibility = View.VISIBLE
-                        requireActivity().orientationLock()
-                    }
-                    UserViewModel.LoadingState.Complete -> {
-                        progressBar.visibility = View.GONE
-                        requireActivity().orientationUnLock()
-                    }
-                    UserViewModel.LoadingState.Start -> {
                         progressBar.visibility = View.VISIBLE
                         requireActivity().orientationLock()
                     }
