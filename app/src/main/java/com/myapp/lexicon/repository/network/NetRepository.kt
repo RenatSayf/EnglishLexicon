@@ -152,7 +152,7 @@ open class NetRepository(
         return flow {
             val response = httpClient.put(urlString = "$baseUrl/user/balance-increment", block = {
                 contentType(ContentType.Application.Json)
-                parameter("token", accessToken)
+                parameter("access_token", accessToken)
                 val json = jsonDecoder.encodeToString(RevenueX.serializer(), revenue)
                 setBody(json)
             })
