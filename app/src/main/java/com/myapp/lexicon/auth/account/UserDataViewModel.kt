@@ -10,11 +10,11 @@ import com.myapp.lexicon.common.NonEmptyStringSerializer
 import com.myapp.lexicon.di.INetRepositoryModule
 import com.myapp.lexicon.di.NetRepositoryModule
 import com.myapp.lexicon.helpers.castToHttpThrowable
+import com.myapp.lexicon.models.AdsReward
 import com.myapp.lexicon.models.HttpThrowable
 import com.myapp.lexicon.models.RevenueX
 import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.models.UserX
-import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.repository.network.INetRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -39,7 +39,7 @@ open class UserDataViewModel(netModule: INetRepositoryModule) : AccountViewModel
         data object Init: UserDataState
         data class ReceivedUserData(val user: UserX): UserDataState
         data class UserDataUpdated(val userX: UserX): UserDataState
-        data class RevenueUpdated(val bonus: Double, val user: UserX): UserDataState
+        data class RevenueUpdated(val reward: AdsReward): UserDataState
         data class PaymentRequestSent(val user: UserX, val payout: Int, val remainder: Double): UserDataState
         data class TokensUpdated(val tokens: Tokens): UserDataState
         data object AuthorizationRequired: UserDataState
@@ -168,12 +168,9 @@ open class UserDataViewModel(netModule: INetRepositoryModule) : AccountViewModel
         viewModelScope.launch(context = Dispatchers.IO) {
             repository.updateUserBalance(token, data).collect(
                 collector = { result ->
-                    result.onSuccess { user: UserX ->
+                    result.onSuccess { reward: AdsReward ->
                         super._loadingState.postValue(LoadingState.Complete)
-                        _userState.postValue(UserDataState.RevenueUpdated(
-                            bonus = (data.revenueRub * user.rewardRatio).to2DigitsScale(),
-                            user = user
-                        ))
+                        _userState.postValue(UserDataState.RevenueUpdated(reward = reward))
                     }
                     result.onFailure { ex ->
                         super._loadingState.postValue(LoadingState.Complete)

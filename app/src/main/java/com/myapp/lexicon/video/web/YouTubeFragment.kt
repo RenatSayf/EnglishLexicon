@@ -342,9 +342,8 @@ class YouTubeFragment : Fragment() {
                             onEnd = { isVisible: Boolean ->
                                 if (!isVisible) {
                                     if (userDataVM.userState.value is UserDataViewModel.UserDataState.RevenueUpdated) {
-                                        val user = (userDataVM.userState.value!! as UserDataViewModel.UserDataState.RevenueUpdated).user
-                                        val bonus = (userDataVM.userState.value!! as UserDataViewModel.UserDataState.RevenueUpdated).bonus
-                                        userDataVM.setUserState(UserDataViewModel.UserDataState.RevenueUpdated(bonus, user))
+                                        val reward = (userDataVM.userState.value!! as UserDataViewModel.UserDataState.RevenueUpdated).reward
+                                        userDataVM.setUserState(UserDataViewModel.UserDataState.RevenueUpdated(reward))
                                     }
                                 }
                             }
@@ -430,8 +429,8 @@ class YouTubeFragment : Fragment() {
                         tvReward.text = rewardText
                     }
                     is UserDataViewModel.UserDataState.RevenueUpdated -> {
-                        val rewardText = "${getString(R.string.coins_bag)}  +${state.bonus.to2DigitsScale()} ${state.user.currencySymbol}. " +
-                                "${getString(R.string.text_your_reward)} ${state.user.monthBalance?.to2DigitsScale()} ${state.user.currencySymbol}"
+                        val rewardText = "${getString(R.string.coins_bag)}  +${state.reward.rewardPerAd.to2DigitsScale()} ${state.reward.currencySymbol}. " +
+                                "${getString(R.string.text_your_reward)} ${state.reward.monthBalance.to2DigitsScale()} ${state.reward.currencySymbol}"
                         tvReward.text = rewardText
                         bottomBar.changeHeightAnimatedly(actionBarHeight)
                     }

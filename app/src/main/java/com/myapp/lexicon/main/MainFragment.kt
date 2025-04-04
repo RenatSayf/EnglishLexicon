@@ -212,7 +212,7 @@ class MainFragment : Fragment() {
                     state.payout
                 }
                 is UserDataViewModel.UserDataState.RevenueUpdated -> {
-                    state.bonus
+                    state.reward
                 }
                 is UserDataViewModel.UserDataState.TokensUpdated -> {
                     requireContext().saveAuthTokens(state.tokens)

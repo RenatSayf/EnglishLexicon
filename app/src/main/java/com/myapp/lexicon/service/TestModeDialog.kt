@@ -32,6 +32,7 @@ import com.myapp.lexicon.helpers.showToast
 import com.myapp.lexicon.interfaces.IModalFragment
 import com.myapp.lexicon.main.MainViewModel
 import com.myapp.lexicon.main.SpeechViewModel
+import com.myapp.lexicon.models.AdsReward
 import com.myapp.lexicon.models.UserX
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.to2DigitsScale
@@ -230,8 +231,8 @@ class TestModeDialog : DialogFragment() {
                         buildRewardText(user)
                     }
                     is UserDataViewModel.UserDataState.RevenueUpdated -> {
-                        val user = state.user
-                        buildRewardText(user)
+                        val reward = state.reward
+                        buildRewardText(reward)
                     }
                     else -> {}
                 }
@@ -280,6 +281,13 @@ class TestModeDialog : DialogFragment() {
                     requireActivity().finish()
                 }
             })
+    }
+
+    private fun buildRewardText(reward: AdsReward) {
+
+        val userReward = reward.monthBalance.to2DigitsScale()
+        val text = "${getString(R.string.coins_bag)} $userReward ${reward.currencySymbol}"
+        binding.tvReward.text = text
     }
 
     private fun buildRewardText(user: UserX) {

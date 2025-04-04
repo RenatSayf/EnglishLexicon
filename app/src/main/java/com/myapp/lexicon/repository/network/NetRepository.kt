@@ -1,6 +1,7 @@
 package com.myapp.lexicon.repository.network
 
 import com.myapp.lexicon.helpers.castToHttpThrowable
+import com.myapp.lexicon.models.AdsReward
 import com.myapp.lexicon.models.HttpThrowable
 import com.myapp.lexicon.models.RevenueX
 import com.myapp.lexicon.models.SignInData
@@ -147,9 +148,9 @@ open class NetRepository(
     override suspend fun updateUserBalance(
         accessToken: String,
         revenue: RevenueX
-    ): Flow<Result<UserX>> {
+    ): Flow<Result<AdsReward>> {
         return flow {
-            val response = httpClient.put(urlString = "$baseUrl/user/balance", block = {
+            val response = httpClient.put(urlString = "$baseUrl/user/balance-increment", block = {
                 contentType(ContentType.Application.Json)
                 parameter("token", accessToken)
                 val json = jsonDecoder.encodeToString(RevenueX.serializer(), revenue)
@@ -159,9 +160,9 @@ open class NetRepository(
                 HttpStatusCode.OK -> {
                     val bodyText = response.body<String>()
                     runCatching {
-                        jsonDecoder.decodeFromString<UserX>(bodyText)
-                    }.onSuccess { user: UserX ->
-                        emit(Result.success(user))
+                        jsonDecoder.decodeFromString<AdsReward>(bodyText)
+                    }.onSuccess { reward: AdsReward ->
+                        emit(Result.success(reward))
                     }.onFailure { t ->
                         val throwable = t.castToHttpThrowable()
                         Result.failure<Throwable>(throwable)

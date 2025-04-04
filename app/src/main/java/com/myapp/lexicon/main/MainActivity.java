@@ -46,6 +46,7 @@ import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.helpers.Share;
 import com.myapp.lexicon.main.ext.MainActivityExtKt;
+import com.myapp.lexicon.models.AdsReward;
 import com.myapp.lexicon.models.RevenueX;
 import com.myapp.lexicon.models.UserKt;
 import com.myapp.lexicon.models.UserX;
@@ -67,7 +68,6 @@ import com.yandex.mobile.ads.banner.BannerAdView;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -442,19 +442,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return new ViewModelProvider(this, factory).get(MainViewModel.class);
     }
 
-    private void buildRewardTextX(@Nullable UserX user) {
+    private void buildRewardTextX(@Nullable AdsReward reward) {
         if (toolBar != null)
         {
             String text = "";
             try
             {
                 String currentMonth = TimeExtKt.getMonthNameFromMillis(ExtensionsKt.getTimeInMillisMoscowTimeZone());
-                Double todayBalance = user.getMonthBalance();
-                double rewardToDisplay = (todayBalance != null) ? UserKt.to2DigitsScale(todayBalance) : 0.0;
+                double todayBalance = reward.getMonthBalance();
+                double rewardToDisplay = UserKt.to2DigitsScale(todayBalance);
                 text = getString(R.string.coins_bag).concat(" ")
                         .concat(currentMonth).concat(" ")
                         .concat(String.valueOf(rewardToDisplay)).concat(" ")
-                        .concat((todayBalance != null) ? user.getCurrencySymbol() : Currency.getInstance("RUB").getSymbol());
+                        .concat(reward.getCurrencySymbol());
                 TextView tvSubTitle = toolbarBinding.tvSubtitle;
                 tvSubTitle.setText(text);
             } catch (Exception e)
@@ -868,8 +868,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         userDataVM.getUserState().observe(this, state -> {
             if (state instanceof UserDataViewModel.UserDataState.RevenueUpdated) {
-                UserX user = ((UserDataViewModel.UserDataState.RevenueUpdated) state).getUser();
-                buildRewardTextX(user);
+                AdsReward reward = ((UserDataViewModel.UserDataState.RevenueUpdated) state).getReward();
+                buildRewardTextX(reward);
             }
             if (state instanceof UserDataViewModel.UserDataState.Error)
             {
@@ -950,14 +950,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onMigrationFromBack4AppCompleted(@NotNull UserX user)
     {
         navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_account);
-        buildRewardTextX(user);
+        AdsReward reward = new AdsReward(
+                user.getCurrencyCode(),
+                user.getTodayBalance(),
+                user.getMonthBalance(),
+                0.0
+        );
+        buildRewardTextX(reward);
     }
 
     @Override
     public void onFetchUserData(@NotNull UserX user)
     {
         navView.getMenu().findItem(R.id.nav_user_reward).setTitle(R.string.text_account);
-        buildRewardTextX(user);
+        AdsReward reward = new AdsReward(
+                user.getCurrencyCode(),
+                user.getTodayBalance(),
+                user.getMonthBalance(),
+                0.0
+        );
+        buildRewardTextX(reward);
         if (!SettingsExtKt.getConfigFromPref(this).isAdsEnabled() && !user.getMessageToUser().isEmpty()) {
             ExtensionsKt.showMultiLineSnackBar(navView, user.getMessageToUser(), Snackbar.LENGTH_LONG);
         }
