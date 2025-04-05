@@ -331,7 +331,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                                         }
                                     },
                                     onDismissed = {bonus: Double ->
-                                        adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+                                        adsVM.setAdState(AdsViewModel.AdState.Dismissed(bonus))
                                     }
                                 )
                             }
@@ -339,18 +339,21 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                                 requireActivity().startNativeAdsActivity(
                                     adId = NATIVE_AD_MAIN,
                                     onImpression = {data: AdData? ->
-                                        if (data != null && accessToken.isNotEmpty()) {
-                                            try {
-                                                val revenue = data.toRevenue()
-                                                userDataVM.updateUserBalance(accessToken, revenue)
-                                            } catch (e: Exception) {
-                                                e.printStackTraceIfDebug()
-                                            }
-                                        }
+//                                        if (data != null && accessToken.isNotEmpty()) {
+//                                            try {
+//                                                val revenue = data.toRevenue()
+//                                                userDataVM.updateUserBalance(accessToken, revenue)
+//                                            } catch (e: Exception) {
+//                                                e.printStackTraceIfDebug()
+//                                            }
+//                                        }
                                         testVM.setState(TestViewModel.State.Init)
                                     },
                                     onDismissed = {bonus: Double ->
-                                        adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+                                        //adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+                                    },
+                                    onClosing = { reward ->
+                                        adsVM.setAdState(AdsViewModel.AdState.Rewarded(reward))
                                     }
                                 )
                             }
@@ -369,7 +372,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                                         testVM.setState(TestViewModel.State.Init)
                                     },
                                     onDismissed = {bonus: Double ->
-                                        adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+                                        adsVM.setAdState(AdsViewModel.AdState.Dismissed(bonus))
                                     }
                                 )
                             }
@@ -388,7 +391,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                                         testVM.setState(TestViewModel.State.Init)
                                     },
                                     onDismissed = { bonus: Double ->
-                                        adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+                                        adsVM.setAdState(AdsViewModel.AdState.Dismissed(bonus))
                                     }
                                 )
                             }

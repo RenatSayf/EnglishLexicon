@@ -238,13 +238,13 @@ class TestModeDialog : DialogFragment() {
                 }
             }
 
-            adsVM.interstitialAdState.observe(viewLifecycleOwner) { state ->
-                if (state is AdsViewModel.AdState.Dismissed) {
+            adsVM.adState.observe(viewLifecycleOwner) { state ->
+                if (state is AdsViewModel.AdState.Rewarded) {
                     adProgress.visibility = View.GONE
-                    val bonus = state.bonus
-                    if (bonus > 0.0) {
+                    val reward = state.reward.rewardPerAd
+                    if (reward > 0.0) {
                         val coordinates = Pair(btnOpenApp.right + 55, btnOpenApp.top + 15)
-                        layoutRoot.showUserRewardAnimatedly(bonus.toString(), coordinates)
+                        layoutRoot.showUserRewardAnimatedly(reward.toString(), coordinates)
                     }
                     requireContext().checkAppUpdate(
                         onAvailable = {

@@ -263,7 +263,7 @@ class TranslateFragment : Fragment()
                                 }
                             },
                             onDismissed = {bonus: Double ->
-                                adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+                                adsVM.setAdState(AdsViewModel.AdState.Dismissed(bonus))
                                 parentFragmentManager.popBackStack()
                             }
                         )
@@ -282,7 +282,11 @@ class TranslateFragment : Fragment()
                                 }
                             },
                             onDismissed = {bonus: Double ->
-                                adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+                                adsVM.setAdState(AdsViewModel.AdState.Dismissed(bonus))
+                                parentFragmentManager.popBackStack()
+                            },
+                            onClosing = { reward ->
+                                adsVM.setAdState(AdsViewModel.AdState.Rewarded(reward))
                                 parentFragmentManager.popBackStack()
                             }
                         )
@@ -301,7 +305,7 @@ class TranslateFragment : Fragment()
                                 }
                             },
                             onDismissed = { bonus: Double ->
-                                adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+                                adsVM.setAdState(AdsViewModel.AdState.Dismissed(bonus))
                                 parentFragmentManager.popBackStack()
                             }
                         )?: run {
@@ -322,7 +326,7 @@ class TranslateFragment : Fragment()
                                 }
                             },
                             onDismissed = {bonus: Double ->
-                                adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+                                adsVM.setAdState(AdsViewModel.AdState.Dismissed(bonus))
                                 parentFragmentManager.popBackStack()
                             }
                         )?: run {
@@ -365,6 +369,10 @@ class TranslateFragment : Fragment()
                             },
                             onDismissed = { bonus: Double ->
                                 requireActivity().finish()
+                            },
+                            onClosing = { reward ->
+                                adsVM.setAdState(AdsViewModel.AdState.Rewarded(reward))
+                                parentFragmentManager.popBackStack()
                             }
                         )
                     }

@@ -143,7 +143,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         long diffTime = System.currentTimeMillis() - lastAdShowTime;
         if (diffTime < CommonConstantsKt.getAD_SHOWING_INTERVAL_IN_SEC() * 1000)
         {
-            adsVM.setInterstitialAdState(new AdsViewModel.AdState.Dismissed(0.0));
+            adsVM.setAdState(new AdsViewModel.AdState.Dismissed(0.0));
             return;
         }
 
@@ -166,13 +166,13 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                                 return null;
                             },
                             bonus -> {
-                                adsVM.setInterstitialAdState(new AdsViewModel.AdState.Dismissed(bonus));
+                                adsVM.setAdState(new AdsViewModel.AdState.Dismissed(bonus));
                                 return null;
                             }
                     );
                 }
                 else {
-                    adsVM.setInterstitialAdState(new AdsViewModel.AdState.Dismissed(0.0));
+                    adsVM.setAdState(new AdsViewModel.AdState.Dismissed(0.0));
                 }
             });
             adsVM.loadInterstitialAd(InterstitialAdIdsKt.getINTERSTITIAL_SERVICE());
@@ -188,7 +188,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                         return null;
                     },
                     bonus -> {
-                        adsVM.setInterstitialAdState(new AdsViewModel.AdState.Dismissed(bonus));
+                        adsVM.setAdState(new AdsViewModel.AdState.Dismissed(bonus));
                         return null;
                     }
             );
@@ -198,14 +198,18 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                     this,
                     NativeAdIdsKt.getNATIVE_AD_SERVICE(),
                     adData -> {
-                        if (adData != null && !accessToken.isEmpty()) {
-                            RevenueX revenue = com.myapp.lexicon.ads.ext.ExtensionsKt.toRevenue(adData);
-                            userDataVM.updateUserBalance(accessToken, revenue);
-                        }
+//                        if (adData != null && !accessToken.isEmpty()) {
+//                            RevenueX revenue = com.myapp.lexicon.ads.ext.ExtensionsKt.toRevenue(adData);
+//                            userDataVM.updateUserBalance(accessToken, revenue);
+//                        }
                         return null;
                     },
                     bonus -> {
-                        adsVM.setInterstitialAdState(new AdsViewModel.AdState.Dismissed(bonus));
+                        //adsVM.setInterstitialAdState(new AdsViewModel.AdState.Dismissed(bonus));
+                        return null;
+                    },
+                    adsReward -> {
+                        adsVM.setAdState(new AdsViewModel.AdState.Rewarded(adsReward));
                         return null;
                     }
             );
@@ -227,7 +231,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                                 return null;
                             },
                             bonus -> {
-                                adsVM.setInterstitialAdState(new AdsViewModel.AdState.Dismissed(bonus));
+                                adsVM.setAdState(new AdsViewModel.AdState.Dismissed(bonus));
                                 return null;
                             }
                     );

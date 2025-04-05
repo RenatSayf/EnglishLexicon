@@ -15,6 +15,7 @@ import com.myapp.lexicon.helpers.printLogIfDebug
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.screenHeight
 import com.myapp.lexicon.helpers.screenWidth
+import com.myapp.lexicon.models.AdsReward
 import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.settings.adsIsEnabled
 import com.myapp.lexicon.settings.isUserRegistered
@@ -54,13 +55,14 @@ class AdsViewModel @Inject constructor(
     sealed class AdState {
         data object Init: AdState()
         data class Dismissed(val bonus: Double): AdState()
+        data class Rewarded(val reward: AdsReward): AdState()
     }
 
-    private var _interstitialAdState = MutableLiveData<AdState>(AdState.Init)
-    val interstitialAdState: LiveData<AdState> = _interstitialAdState
+    private var _adState = MutableLiveData<AdState>(AdState.Init)
+    val adState: LiveData<AdState> = _adState
 
-    fun setInterstitialAdState(state: AdState) {
-        _interstitialAdState.value = state
+    fun setAdState(state: AdState) {
+        _adState.value = state
     }
 
     private var _interstitialAd = MutableLiveData<Result<InterstitialAd>>()

@@ -866,9 +866,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void onRevenueUpdate()
     {
+        final double[] bonusX = {0.0};
         userDataVM.getUserState().observe(this, state -> {
             if (state instanceof UserDataViewModel.UserDataState.RevenueUpdated) {
                 AdsReward reward = ((UserDataViewModel.UserDataState.RevenueUpdated) state).getReward();
+                bonusX[0] = reward.getRewardPerAd();
                 buildRewardTextX(reward);
             }
             if (state instanceof UserDataViewModel.UserDataState.Error)
@@ -879,12 +881,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
 
         AdsViewModel adsVM = new ViewModelProvider(this).get(AdsViewModel.class);
-        adsVM.getInterstitialAdState().observe(this, adState -> {
+        adsVM.getAdState().observe(this, adState -> {
             if (adState instanceof AdsViewModel.AdState.Dismissed) {
                 double bonus = ((AdsViewModel.AdState.Dismissed) adState).getBonus();
-                if (bonus > 0.009)
+                if (bonusX[0] > 0.009)
                 {
-                    showUserRewardAnimatedly(bonus);
+                    showUserRewardAnimatedly(bonusX[0]);
                 } else
                 {
                     ExtensionsKt.showToastIfDebug(

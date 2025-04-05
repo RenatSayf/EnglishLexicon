@@ -30,8 +30,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdFragment
 import com.myapp.lexicon.ads.ext.showAdPopup
-import com.myapp.lexicon.ads.ext.toRevenue
-import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.auth.account.UserDataViewModel
 import com.myapp.lexicon.databinding.FragmentYouTubeBinding
 import com.myapp.lexicon.helpers.isNetworkAvailable
@@ -40,6 +38,7 @@ import com.myapp.lexicon.helpers.orientationUnLock
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.toDp
 import com.myapp.lexicon.main.ext.redirectToAuthScreen
+import com.myapp.lexicon.models.AdsReward
 import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.settings.accessToken
 import com.myapp.lexicon.settings.saveAuthTokens
@@ -395,15 +394,14 @@ class YouTubeFragment : Fragment() {
             setFragmentResultListener(KEY_AD_DATA, listener = {requestKey: String, bundle: Bundle ->
                 val strData = bundle.getString(KEY_JSON_AD_DATA)
                 if (strData != null) {
-                    val adData = try {
-                        Json.decodeFromString<AdData>(strData)
+                    val reward = try {
+                        Json.decodeFromString<AdsReward>(strData)
                     } catch (e: Exception) {
                         e.printStackTraceIfDebug()
                         null
                     }
-                    adData?.let { data: AdData ->
-                        val accessToken = requireContext().accessToken
-                        userDataVM.updateUserBalance(accessToken, data.toRevenue())
+                    if (reward != null && reward.rewardPerAd > 0.0) {
+                        userDataVM.setUserState(UserDataViewModel.UserDataState.RevenueUpdated(reward))
                     }
                 }
             })

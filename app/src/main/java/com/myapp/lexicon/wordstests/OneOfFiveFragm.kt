@@ -337,7 +337,7 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
                             }
                         },
                         onDismissed = {bonus: Double ->
-                            adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+                            adsVM.setAdState(AdsViewModel.AdState.Dismissed(bonus))
                             onComplete.invoke()
                         }
                     )
@@ -346,22 +346,26 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
                     requireActivity().startNativeAdsActivity(
                         adId = NATIVE_AD_MAIN,
                         onImpression = {data: AdData? ->
-                            if (data != null && accessToken.isNotEmpty()) {
-                                try {
-                                    val revenue = data.toRevenue()
-                                    userDataVM.updateUserBalance(accessToken, revenue)
-                                } catch (e: Exception) {
-                                    e.printStackTraceIfDebug()
-                                }
-                            }
+//                            if (data != null && accessToken.isNotEmpty()) {
+//                                try {
+//                                    val revenue = data.toRevenue()
+//                                    userDataVM.updateUserBalance(accessToken, revenue)
+//                                } catch (e: Exception) {
+//                                    e.printStackTraceIfDebug()
+//                                }
+//                            }
                         },
                         onDismissed = {bonus: Double ->
-                            adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
-                            try {
-                                onComplete.invoke()
-                            } catch (e: Exception) {
-                                e.printStackTraceIfDebug()
-                            }
+//                            adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+//                            try {
+//                                onComplete.invoke()
+//                            } catch (e: Exception) {
+//                                e.printStackTraceIfDebug()
+//                            }
+                        },
+                        onClosing = { reward ->
+                            adsVM.setAdState(AdsViewModel.AdState.Rewarded(reward))
+                            onComplete.invoke()
                         }
                     )
                 }
@@ -378,7 +382,7 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
                                 }
                             }
                         }, onDismissed = { bonus: Double ->
-                            adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+                            adsVM.setAdState(AdsViewModel.AdState.Dismissed(bonus))
                             onComplete.invoke()
                         }
                     )
@@ -400,7 +404,7 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
                             }
                         },
                         onDismissed = {bonus: Double ->
-                            adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+                            adsVM.setAdState(AdsViewModel.AdState.Dismissed(bonus))
                             onComplete.invoke()
                         }
                     )?: run {
