@@ -1,7 +1,9 @@
 package com.myapp.lexicon.ads
 
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.remoteconfig.ktx.remoteConfig
+import android.content.Context
+import android.content.SharedPreferences
+import androidx.preference.PreferenceManager
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
 
 enum class BannerAdIds(val id: String) {
     BANNER_1("R-M-711878-1"),
@@ -11,57 +13,47 @@ enum class BannerAdIds(val id: String) {
     BANNER_5("R-M-711878-8")
 }
 
-val BANNER_MAIN: String
+private val Context.pref: SharedPreferences
+    get() {
+        return PreferenceManager.getDefaultSharedPreferences(this)
+    }
+
+val Context.BANNER_MAIN: String
     get() {
         return try {
-            Firebase.remoteConfig.getString("BANNER_MAIN").trim()
+            pref.getString("MAIN_BANNER_ID", BannerAdIds.BANNER_1.id)!!
         } catch (e: Exception) {
+            e.printStackTraceIfDebug()
             BannerAdIds.BANNER_1.id
         }
     }
 
-val BANNER_TRANSLATE: String
+val Context.BANNER_TRANSLATE: String
     get() {
         return try {
-            Firebase.remoteConfig.getString("BANNER_TRANSLATE").trim()
+            this.pref.getString("BANNER_TRANSLATE", BannerAdIds.BANNER_2.id)!!
         } catch (e: Exception) {
+            e.printStackTraceIfDebug()
             BannerAdIds.BANNER_2.id
         }
     }
 
-val BANNER_SERVICE: String
+val Context.BANNER_SERVICE: String
     get() {
         return try {
-            Firebase.remoteConfig.getString("BANNER_SERVICE").trim()
+            this.pref.getString("BANNER_SERVICE", BannerAdIds.BANNER_1.id)!!
         } catch (e: Exception) {
+            e.printStackTraceIfDebug()
             BannerAdIds.BANNER_1.id
         }
     }
 
-val BANNER_EDITOR: String
+val Context.BANNER_EDITOR: String
     get() {
         return try {
-            Firebase.remoteConfig.getString("BANNER_EDITOR").trim()
-        } catch (e: Exception) {
-            BannerAdIds.BANNER_4.id
-        }
-    }
-
-val BANNER_ACTIVITY_1: String
-    get() {
-        return try {
-            Firebase.remoteConfig.getString("BANNER_ACTIVITY_1").trim()
+            this.pref.getString("BANNER_EDITOR", BannerAdIds.BANNER_3.id)!!
         } catch (e: Exception) {
             BannerAdIds.BANNER_3.id
-        }
-    }
-
-val BANNER_ACTIVITY_2: String
-    get() {
-        return try {
-            Firebase.remoteConfig.getString("BANNER_ACTIVITY_2").trim()
-        } catch (e: Exception) {
-            BannerAdIds.BANNER_4.id
         }
     }
 

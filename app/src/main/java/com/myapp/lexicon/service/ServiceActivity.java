@@ -8,7 +8,6 @@ import android.widget.FrameLayout;
 import com.google.android.material.snackbar.Snackbar;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.ads.AdsViewModel;
-import com.myapp.lexicon.ads.BannersActivityKt;
 import com.myapp.lexicon.ads.NativeAdsActivityKt;
 import com.myapp.lexicon.ads.feed_ad.FeedAdsActivityKt;
 import com.myapp.lexicon.ads.interstitial.InterstitialAdExtKt;
@@ -16,15 +15,12 @@ import com.myapp.lexicon.ads.models.AdType;
 import com.myapp.lexicon.ads.models.AdTypeKt;
 import com.myapp.lexicon.ads.rewarded.RewardedAdExtKt;
 import com.myapp.lexicon.auth.AuthViewModel;
-import com.myapp.lexicon.auth.account.UserDataViewModel;
 import com.myapp.lexicon.common.CommonConstantsKt;
 import com.myapp.lexicon.databinding.ServiceDialogActivityBinding;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.interfaces.IModalFragment;
-import com.myapp.lexicon.models.RevenueX;
 import com.myapp.lexicon.schedule.AlarmScheduler;
-import com.myapp.lexicon.settings.EncryptedPrefKt;
 import com.myapp.lexicon.settings.SettingsExtKt;
 import com.myapp.lexicon.splash.SplashActivity;
 import com.parse.ParseUser;
@@ -42,7 +38,6 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
     private ServiceDialogActivityBinding binding;
     private AuthViewModel authVM;
     private AdsViewModel adsVM;
-    private UserDataViewModel userDataVM;
     private LockOrientation locker;
     private AlarmScheduler scheduler;
 
@@ -69,9 +64,6 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         setContentView(binding.getRoot());
 
         adsVM = new ViewModelProvider(ServiceActivity.this).get(AdsViewModel.class);
-
-        UserDataViewModel.Factory factory = new UserDataViewModel.Factory();
-        userDataVM = new ViewModelProvider(this, factory).get(UserDataViewModel.class);
 
         ParseUser currentUser = ParseUser.getCurrentUser();
         if (currentUser != null) {
@@ -142,7 +134,6 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
             return;
         }
 
-        String accessToken = EncryptedPrefKt.getAccessToken(ServiceActivity.this);
         int adType = AdTypeKt.getAD_SERVICE(ServiceActivity.this);
 
         if (adType == AdType.INTERSTITIAL.getType()) {
@@ -157,22 +148,6 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                                 },
                                 () -> null
                         );
-                        return null;
-                    }
-            );
-        }
-        if (adType == AdType.BANNER.getType()) {
-            BannersActivityKt.startBannersActivity(
-                    this,
-                    adData -> {
-                        if (adData != null && !accessToken.isEmpty()) {
-                            RevenueX revenue = com.myapp.lexicon.ads.ext.ExtensionsKt.toRevenue(adData);
-                            userDataVM.updateUserBalance(accessToken, revenue);
-                        }
-                        return null;
-                    },
-                    bonus -> {
-                        adsVM.setAdState(new AdsViewModel.AdState.Dismissed(bonus));
                         return null;
                     }
             );

@@ -26,15 +26,12 @@ import com.myapp.lexicon.R;
 import com.myapp.lexicon.addword.AddWordViewModel;
 import com.myapp.lexicon.ads.AdsViewModelKt;
 import com.myapp.lexicon.ads.BannerAdIdsKt;
-import com.myapp.lexicon.auth.account.UserDataViewModel;
 import com.myapp.lexicon.dialogs.ConfirmDialog;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SpeechViewModel;
-import com.myapp.lexicon.models.RevenueX;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.models.WordKt;
-import com.myapp.lexicon.settings.EncryptedPrefKt;
 import com.myapp.lexicon.viewmodels.EditorSearchViewModel;
 import com.yandex.mobile.ads.banner.BannerAdView;
 
@@ -137,10 +134,6 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
         editorVM = createEditorViewModel();
         addWordVM = createAddWordViewModel();
         speechVM = createSpeechViewModel();
-        //userVM = new ViewModelProvider(WordEditorActivity.this).get(UserViewModel.class);
-
-        UserDataViewModel.Factory factory = new UserDataViewModel.Factory();
-        UserDataViewModel userDataVM = new ViewModelProvider(this, factory).get(UserDataViewModel.class);
 
         initViews();
 
@@ -316,22 +309,9 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
         BannerAdView bannerView = findViewById(R.id.bannerView);
         AdsViewModelKt.loadBanner(
                 bannerView,
-                BannerAdIdsKt.getBANNER_EDITOR(),
-                0.08,
-                (error) -> {
-                    ExtensionsKt.printLogIfDebug(error.getDescription());
-                    return null;
-                },
-                data -> {
-                    String accessToken = EncryptedPrefKt.getAccessToken(WordEditorActivity.this);
-                    if (data != null && !accessToken.isEmpty())
-                    {
-                        RevenueX revenueX = com.myapp.lexicon.ads.ext.ExtensionsKt.emptyRevenue(data);
-                        userDataVM.updateUserBalance(accessToken, revenueX);
-                    }
-                    return null;
-                },
-                () -> null
+                this,
+                BannerAdIdsKt.getBANNER_EDITOR(this),
+                0.08
         );
 
     }

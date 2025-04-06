@@ -7,11 +7,10 @@ import androidx.preference.PreferenceManager
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 
 enum class AdType(val type: Int) {
-    BANNER(type = 1),
-    NATIVE(type = 2),
-    INTERSTITIAL(type = 3),
-    REWARDED(type = 4),
-    FEED(type = 5)
+    NATIVE(type = 1),
+    INTERSTITIAL(type = 2),
+    REWARDED(type = 3),
+    FEED(type = 4)
 }
 
 private val Context.adSettings: SharedPreferences

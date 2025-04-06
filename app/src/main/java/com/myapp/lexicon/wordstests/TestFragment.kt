@@ -26,18 +26,14 @@ import com.jakewharton.rxbinding2.widget.RxTextView
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
-import com.myapp.lexicon.ads.ext.toRevenue
 import com.myapp.lexicon.ads.feed_ad.startFeedAdsActivity
 import com.myapp.lexicon.ads.interstitial.loadInterstitialAd
 import com.myapp.lexicon.ads.interstitial.showInterstitialAd
 import com.myapp.lexicon.ads.models.AD_TEST
-import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.ads.models.AdType
 import com.myapp.lexicon.ads.rewarded.loadRewardedAd
 import com.myapp.lexicon.ads.rewarded.showRewardedAd
-import com.myapp.lexicon.ads.startBannersActivity
 import com.myapp.lexicon.ads.startNativeAdsActivity
-import com.myapp.lexicon.auth.account.UserDataViewModel
 import com.myapp.lexicon.databinding.TestFragmentBinding
 import com.myapp.lexicon.dialogs.DictListDialog
 import com.myapp.lexicon.helpers.LockOrientation
@@ -49,12 +45,10 @@ import com.myapp.lexicon.helpers.showMultiLineSnackBar
 import com.myapp.lexicon.main.SpeechViewModel
 import com.myapp.lexicon.main.ext.redirectToAuthScreen
 import com.myapp.lexicon.models.Word
-import com.myapp.lexicon.settings.accessToken
 import com.myapp.lexicon.settings.getTestStateFromPref
 import com.myapp.lexicon.settings.saveTestStateToPref
 import com.myapp.lexicon.viewmodels.AnimViewModel
 import com.myapp.lexicon.viewmodels.PageBackViewModel
-import com.yandex.mobile.ads.rewarded.RewardedAd
 import io.reactivex.disposables.CompositeDisposable
 import java.util.Locale
 import java.util.concurrent.TimeUnit
@@ -89,14 +83,8 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     }
     private val adsVM: AdsViewModel by activityViewModels()
 
-    private val userDataVM: UserDataViewModel by lazy {
-        val factory = UserDataViewModel.Factory()
-        ViewModelProvider(this, factory)[UserDataViewModel::class]
-    }
-
     private val composite = CompositeDisposable()
     private var dialogWarning: DialogWarning? = null
-    private var rewardedAd: RewardedAd? = null
 
     private val lockOrientation: LockOrientation by lazy {
         LockOrientation(requireActivity())
@@ -292,12 +280,6 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 progressValueTV.text = progressValue
             }
 
-            adsVM.rewardedAd.observe(viewLifecycleOwner) { result ->
-                result.onSuccess { ad: RewardedAd ->
-                    rewardedAd = ad
-                }
-            }
-
             testVM.state.observe(viewLifecycleOwner) { state ->
                 when (state) {
                     TestViewModel.State.Init -> {
@@ -310,25 +292,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                     TestViewModel.State.NotShowAd -> {}
                     TestViewModel.State.ShowAd -> {
 
-                        val accessToken = requireContext().accessToken
                         when(AD_TEST) {
-                            AdType.BANNER.type -> {
-                                requireActivity().startBannersActivity(
-                                    onImpression = {data: AdData? ->
-                                        if (data != null && accessToken.isNotEmpty()) {
-                                            try {
-                                                val revenue = data.toRevenue()
-                                                userDataVM.updateUserBalance(accessToken, revenue)
-                                            } catch (e: Exception) {
-                                                e.printStackTraceIfDebug()
-                                            }
-                                        }
-                                    },
-                                    onDismissed = {bonus: Double ->
-                                        adsVM.setAdState(AdsViewModel.AdState.Dismissed(bonus))
-                                    }
-                                )
-                            }
                             AdType.NATIVE.type -> {
                                 requireActivity().startNativeAdsActivity(
                                     onDismissed = { reward ->

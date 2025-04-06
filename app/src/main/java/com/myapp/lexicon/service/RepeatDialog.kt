@@ -17,7 +17,6 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.aboutapp.checkAppUpdate
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.BANNER_SERVICE
-import com.myapp.lexicon.ads.ext.emptyRevenue
 import com.myapp.lexicon.ads.ext.showUserRewardAnimatedly
 import com.myapp.lexicon.ads.loadBanner
 import com.myapp.lexicon.auth.account.UserDataViewModel
@@ -98,11 +97,7 @@ class RepeatDialog: DialogFragment() {
 
         with(binding) {
 
-            bannerView.loadBanner(BANNER_SERVICE, onImpression = { data ->
-                if (accessToken.isNotEmpty() && data != null) {
-                    userDataVM.updateUserBalance(accessToken, data.emptyRevenue())
-                }
-            })
+            bannerView.loadBanner(requireActivity(), requireContext().BANNER_SERVICE)
 
             val extra = requireActivity().intent.getStringExtra(ServiceActivity.ARG_JSON)
             if (extra != null) {

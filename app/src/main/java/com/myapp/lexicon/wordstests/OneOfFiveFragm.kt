@@ -17,18 +17,14 @@ import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.adapters.OneFiveTestAdapter
 import com.myapp.lexicon.ads.AdsViewModel
-import com.myapp.lexicon.ads.ext.toRevenue
 import com.myapp.lexicon.ads.feed_ad.startFeedAdsActivity
 import com.myapp.lexicon.ads.interstitial.loadInterstitialAd
 import com.myapp.lexicon.ads.interstitial.showInterstitialAd
 import com.myapp.lexicon.ads.models.AD_MAIN
-import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.ads.models.AdType
 import com.myapp.lexicon.ads.rewarded.loadRewardedAd
 import com.myapp.lexicon.ads.rewarded.showRewardedAd
-import com.myapp.lexicon.ads.startBannersActivity
 import com.myapp.lexicon.ads.startNativeAdsActivity
-import com.myapp.lexicon.auth.account.UserDataViewModel
 import com.myapp.lexicon.databinding.OneOfFiveFragmNewBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.RandomNumberGenerator
@@ -36,7 +32,6 @@ import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.ext.redirectToAuthScreen
 import com.myapp.lexicon.models.Word
-import com.myapp.lexicon.settings.accessToken
 import com.myapp.lexicon.settings.adsIsEnabled
 import java.util.Date
 
@@ -53,11 +48,6 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
     private lateinit var mActivity: MainActivity
 
     private val adsVM: AdsViewModel by activityViewModels()
-
-    private val userDataVM: UserDataViewModel by lazy {
-        val factory = UserDataViewModel.Factory()
-        ViewModelProvider(this, factory)[UserDataViewModel::class]
-    }
 
     private val wordsAdapter: OneFiveTestAdapter by lazy {
         OneFiveTestAdapter().apply {
@@ -309,27 +299,7 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
     ) {
         if (this.adsIsEnabled) {
 
-            val accessToken = requireContext().accessToken
-
             when(AD_MAIN) {
-                AdType.BANNER.type -> {
-                    requireActivity().startBannersActivity(
-                        onImpression = {data: AdData? ->
-                            if (data != null && accessToken.isNotEmpty()) {
-                                try {
-                                    val revenue = data.toRevenue()
-                                    userDataVM.updateUserBalance(accessToken, revenue)
-                                } catch (e: Exception) {
-                                    e.printStackTraceIfDebug()
-                                }
-                            }
-                        },
-                        onDismissed = {bonus: Double ->
-                            adsVM.setAdState(AdsViewModel.AdState.Dismissed(bonus))
-                            onComplete.invoke()
-                        }
-                    )
-                }
                 AdType.NATIVE.type -> {
                     requireActivity().startNativeAdsActivity(
                         onDismissed = { reward ->

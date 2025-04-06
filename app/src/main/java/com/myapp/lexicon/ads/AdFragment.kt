@@ -12,7 +12,6 @@ import com.myapp.lexicon.ads.feed_ad.startFeedAdsActivity
 import com.myapp.lexicon.ads.interstitial.loadInterstitialAd
 import com.myapp.lexicon.ads.interstitial.showInterstitialAd
 import com.myapp.lexicon.ads.models.AD_VIDEO
-import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.ads.models.AdType
 import com.myapp.lexicon.ads.rewarded.loadRewardedAd
 import com.myapp.lexicon.ads.rewarded.showRewardedAd
@@ -43,22 +42,6 @@ class AdFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         when(AD_VIDEO) {
-            AdType.BANNER.type -> {
-                requireActivity().startBannersActivity(
-                    onImpression = {data: AdData? ->
-                        setFragmentResult(YouTubeFragment.KEY_AD_DATA, Bundle().apply {
-                            if (data != null) {
-                                val jsonData = Json.encodeToJsonElement(AdData.serializer(), data).toString()
-                                putString(YouTubeFragment.KEY_JSON_AD_DATA, jsonData)
-                            }
-                        })
-                    },
-                    onDismissed = {
-                        setFragmentResult(YouTubeFragment.KEY_AD_DISMISSED, Bundle.EMPTY)
-                        parentFragmentManager.beginTransaction().remove(this).commit()
-                    }
-                )
-            }
             AdType.NATIVE.type -> {
                 requireActivity().startNativeAdsActivity(
                     onDismissed = { reward ->

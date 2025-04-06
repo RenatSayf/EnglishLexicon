@@ -408,20 +408,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         BannerAdView bannerView = contentBinding.bannerView;
         AdsViewModelKt.loadBanner(
                 bannerView,
-                BannerAdIdsKt.getBANNER_MAIN(),
-                0.08,
-                (error) -> null,
-                data -> {
-                    String accessToken = EncryptedPrefKt.getAccessToken(this);
-                    if (!accessToken.isEmpty()) {
-                        userDataVM.updateUserBalance(
-                                accessToken,
-                                com.myapp.lexicon.ads.ext.ExtensionsKt.emptyRevenue(data)
-                        );
-                    }
-                    return null;
-                },
-                () -> null
+                this,
+                BannerAdIdsKt.getBANNER_MAIN(this),
+                0.08
         );
 
         onRevenueUpdate();
