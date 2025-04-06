@@ -17,6 +17,7 @@ import com.myapp.lexicon.models.AdsReward
 import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.repository.network.INetRepository
 import com.myapp.lexicon.settings.accessToken
+import com.myapp.lexicon.settings.refreshToken
 import com.myapp.lexicon.settings.saveAuthTokens
 import com.yandex.mobile.ads.common.AdError
 import com.yandex.mobile.ads.common.AdRequestConfiguration
@@ -98,6 +99,7 @@ fun FragmentActivity.showRewardedAd(
                     onAuthorizationRequired.invoke()
                 }
             })
+            setRefreshToken(this@showRewardedAd.refreshToken)
         }.provideNetRepository()
 
         override fun onAdShown() {

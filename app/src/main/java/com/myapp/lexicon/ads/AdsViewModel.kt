@@ -19,6 +19,7 @@ import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.repository.network.INetRepository
 import com.myapp.lexicon.settings.accessToken
 import com.myapp.lexicon.settings.adsIsEnabled
+import com.myapp.lexicon.settings.refreshToken
 import com.myapp.lexicon.settings.saveAuthTokens
 import com.yandex.mobile.ads.banner.BannerAdEventListener
 import com.yandex.mobile.ads.banner.BannerAdSize
@@ -93,6 +94,7 @@ fun BannerAdView.loadBanner(
                     }
                     override fun onAuthorizationRequired() {}
                 })
+                setRefreshToken(this@loadBanner.context.refreshToken)
             }.provideNetRepository()
 
             override fun onAdClicked() {

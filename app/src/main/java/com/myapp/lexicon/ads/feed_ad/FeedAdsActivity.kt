@@ -22,6 +22,7 @@ import com.myapp.lexicon.main.ext.redirectToAuthScreen
 import com.myapp.lexicon.models.AdsReward
 import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.repository.network.INetRepository
+import com.myapp.lexicon.settings.refreshToken
 import com.myapp.lexicon.settings.saveAuthTokens
 import com.yandex.mobile.ads.common.AdRequestError
 import com.yandex.mobile.ads.common.ImpressionData
@@ -66,6 +67,7 @@ class FeedAdsActivity : AppCompatActivity() {
                 this@FeedAdsActivity.redirectToAuthScreen()
             }
         })
+        setRefreshToken(this@FeedAdsActivity.refreshToken)
     }.provideNetRepository()
 
     private val testAdData: String
