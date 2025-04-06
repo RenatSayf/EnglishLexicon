@@ -17,11 +17,12 @@ import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.BANNER_TRANSLATE
-import com.myapp.lexicon.ads.INTERSTITIAL_TRANSLATE
-import com.myapp.lexicon.ads.NATIVE_AD_TRANS
 import com.myapp.lexicon.ads.REWARDED_TRANSLATE_ID
 import com.myapp.lexicon.ads.ext.emptyRevenue
 import com.myapp.lexicon.ads.ext.toRevenue
+import com.myapp.lexicon.ads.feed_ad.startFeedAdsActivity
+import com.myapp.lexicon.ads.interstitial.loadInterstitialAd
+import com.myapp.lexicon.ads.interstitial.showInterstitialAd
 import com.myapp.lexicon.ads.loadBanner
 import com.myapp.lexicon.ads.models.AD_TRANSLATE
 import com.myapp.lexicon.ads.models.AdData
@@ -35,13 +36,13 @@ import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showMultiLineSnackBar
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.MainViewModel
+import com.myapp.lexicon.main.ext.redirectToAuthScreen
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.toWord
 import com.myapp.lexicon.settings.accessToken
 import com.myapp.lexicon.settings.getWordFromPref
 import com.myapp.lexicon.settings.orderPlayFromPref
 import com.myapp.lexicon.settings.refreshToken
-import com.yandex.mobile.ads.interstitial.InterstitialAd
 import com.yandex.mobile.ads.rewarded.RewardedAd
 import java.net.URLDecoder
 
@@ -54,8 +55,6 @@ class TranslateFragment : Fragment()
     private lateinit var binding: TranslateFragmentBinding
 
     private lateinit var mActivity: AppCompatActivity
-
-    private var interstitialAd: InterstitialAd? = null
 
     private var rewardedAd: RewardedAd? = null
 
@@ -125,12 +124,7 @@ class TranslateFragment : Fragment()
 
         when(AD_TRANSLATE) {
             AdType.INTERSTITIAL.type -> {
-                adsVM.loadInterstitialAd(INTERSTITIAL_TRANSLATE)
-                adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
-                    result.onSuccess { ad: InterstitialAd ->
-                        interstitialAd = ad
-                    }
-                }
+                requireActivity().loadInterstitialAd()
             }
             AdType.REWARDED.type -> {
                 adsVM.apply {
@@ -270,47 +264,26 @@ class TranslateFragment : Fragment()
                     }
                     AdType.NATIVE.type -> {
                         requireActivity().startNativeAdsActivity(
-                            adId = NATIVE_AD_TRANS,
-                            onImpression = {data: AdData? ->
-                                if (data != null && accessToken.isNotEmpty()) {
-                                    try {
-                                        val revenue = data.toRevenue()
-                                        userDataVM.updateUserBalance(accessToken, revenue)
-                                    } catch (e: Exception) {
-                                        e.printStackTraceIfDebug()
-                                    }
-                                }
-                            },
-                            onDismissed = {bonus: Double ->
-                                adsVM.setAdState(AdsViewModel.AdState.Dismissed(bonus))
+                            onDismissed = { reward ->
+                                adsVM.setAdState(AdsViewModel.AdState.Rewarded(reward))
                                 parentFragmentManager.popBackStack()
                             },
-                            onClosing = { reward ->
-                                adsVM.setAdState(AdsViewModel.AdState.Rewarded(reward))
+                            onError = { error: String ->
+                                Exception(error).printStackTraceIfDebug()
                                 parentFragmentManager.popBackStack()
                             }
                         )
                     }
                     AdType.INTERSTITIAL.type -> {
-                        interstitialAd?.showAd(
-                            requireActivity(),
-                            onImpression = { data ->
-                                if (data != null && accessToken.isNotEmpty()) {
-                                    try {
-                                        val revenue = data.toRevenue()
-                                        userDataVM.updateUserBalance(accessToken, revenue)
-                                    } catch (e: Exception) {
-                                        e.printStackTraceIfDebug()
-                                    }
-                                }
-                            },
-                            onDismissed = { bonus: Double ->
-                                adsVM.setAdState(AdsViewModel.AdState.Dismissed(bonus))
+                        requireActivity().showInterstitialAd(
+                            onDismissed = { reward ->
+                                adsVM.setAdState(AdsViewModel.AdState.Rewarded(reward))
                                 parentFragmentManager.popBackStack()
+                            },
+                            onAuthorizationRequired = {
+                                requireActivity().redirectToAuthScreen()
                             }
-                        )?: run {
-                            parentFragmentManager.popBackStack()
-                        }
+                        )
                     }
                     AdType.REWARDED.type -> {
                         rewardedAd?.showAd(
@@ -332,6 +305,18 @@ class TranslateFragment : Fragment()
                         )?: run {
                             parentFragmentManager.popBackStack()
                         }
+                    }
+                    AdType.FEED.type -> {
+                        requireActivity().startFeedAdsActivity(
+                            onDismissed = { reward ->
+                                adsVM.setAdState(AdsViewModel.AdState.Rewarded(reward))
+                                parentFragmentManager.popBackStack()
+                            },
+                            onError = { error: String ->
+                                Exception(error).printStackTraceIfDebug()
+                                parentFragmentManager.popBackStack()
+                            }
+                        )
                     }
                 }
             }
@@ -357,44 +342,25 @@ class TranslateFragment : Fragment()
                     }
                     AdType.NATIVE.type -> {
                         requireActivity().startNativeAdsActivity(
-                            onImpression = { data: AdData? ->
-                                if (data != null && accessToken.isNotEmpty()) {
-                                    try {
-                                        val revenue = data.toRevenue()
-                                        userDataVM.updateUserBalance(accessToken, revenue)
-                                    } catch (e: Exception) {
-                                        e.printStackTraceIfDebug()
-                                    }
-                                }
-                            },
-                            onDismissed = { bonus: Double ->
+                            onDismissed = { reward ->
+                                adsVM.setAdState(AdsViewModel.AdState.Rewarded(reward))
                                 requireActivity().finish()
                             },
-                            onClosing = { reward ->
-                                adsVM.setAdState(AdsViewModel.AdState.Rewarded(reward))
-                                parentFragmentManager.popBackStack()
+                            onError = { error: String ->
+                                Exception(error).printStackTraceIfDebug()
+                                requireActivity().finish()
                             }
                         )
                     }
                     AdType.INTERSTITIAL.type -> {
-                        interstitialAd?.showAd(
-                            requireActivity(),
-                            onImpression = { data ->
-                                if (data != null && accessToken.isNotEmpty()) {
-                                    try {
-                                        val revenue = data.toRevenue()
-                                        userDataVM.updateUserBalance(accessToken, revenue)
-                                    } catch (e: Exception) {
-                                        e.printStackTraceIfDebug()
-                                    }
-                                }
-                            },
-                            onDismissed = {
+                        requireActivity().showInterstitialAd(
+                            onDismissed = { reward ->
                                 requireActivity().finish()
+                            },
+                            onAuthorizationRequired = {
+                                requireActivity().redirectToAuthScreen()
                             }
-                        )?: run {
-                            requireActivity().finish()
-                        }
+                        )
                     }
                     AdType.REWARDED.type -> {
                         rewardedAd?.showAd(
@@ -415,6 +381,18 @@ class TranslateFragment : Fragment()
                         )?: run {
                             requireActivity().finish()
                         }
+                    }
+                    AdType.FEED.type -> {
+                        requireActivity().startFeedAdsActivity(
+                            onDismissed = { reward ->
+                                adsVM.setAdState(AdsViewModel.AdState.Rewarded(reward))
+                                parentFragmentManager.popBackStack()
+                            },
+                            onError = { error: String ->
+                                Exception(error).printStackTraceIfDebug()
+                                parentFragmentManager.popBackStack()
+                            }
+                        )
                     }
                 }
             }

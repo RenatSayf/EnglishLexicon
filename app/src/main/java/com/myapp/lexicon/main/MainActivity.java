@@ -151,6 +151,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         UserDataViewModel.Factory userFactory = new UserDataViewModel.Factory();
         userDataVM = new ViewModelProvider(this, userFactory).get(UserDataViewModel.class);
+        userDataVM.setRefreshToken(EncryptedPrefKt.getRefreshToken(this));
 
         btnViewDict = contentBinding.btnViewDict;
         btnViewDictOnClick(btnViewDict);
@@ -866,33 +867,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void onRevenueUpdate()
     {
-        final double[] bonusX = {0.0};
-        userDataVM.getUserState().observe(this, state -> {
-            if (state instanceof UserDataViewModel.UserDataState.RevenueUpdated) {
-                AdsReward reward = ((UserDataViewModel.UserDataState.RevenueUpdated) state).getReward();
-                bonusX[0] = reward.getRewardPerAd();
-                buildRewardTextX(reward);
-            }
-            if (state instanceof UserDataViewModel.UserDataState.Error)
-            {
-                String errorMessage = ((UserDataViewModel.UserDataState.Error) state).getMessage();
-                ExtensionsKt.printStackTraceIfDebug(new Exception(errorMessage));
-            }
-        });
-
         AdsViewModel adsVM = new ViewModelProvider(this).get(AdsViewModel.class);
         adsVM.getAdState().observe(this, adState -> {
-            if (adState instanceof AdsViewModel.AdState.Dismissed) {
-                double bonus = ((AdsViewModel.AdState.Dismissed) adState).getBonus();
-                if (bonusX[0] > 0.009)
-                {
-                    showUserRewardAnimatedly(bonusX[0]);
-                } else
-                {
-                    ExtensionsKt.showToastIfDebug(
-                            this, "Bonus is less than 0.01"
-                    );
-                }
+
+            if (adState instanceof AdsViewModel.AdState.Rewarded) {
+                AdsReward reward = ((AdsViewModel.AdState.Rewarded) adState).getReward();
+                buildRewardTextX(reward);
+                showUserRewardAnimatedly(reward.getRewardPerAd());
             }
         });
     }

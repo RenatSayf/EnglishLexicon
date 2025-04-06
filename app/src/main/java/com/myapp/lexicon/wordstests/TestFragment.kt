@@ -27,7 +27,6 @@ import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.INTERSTITIAL_TEST
-import com.myapp.lexicon.ads.NATIVE_AD_MAIN
 import com.myapp.lexicon.ads.REWARDED_TEST_ID
 import com.myapp.lexicon.ads.ext.toRevenue
 import com.myapp.lexicon.ads.models.AD_TEST
@@ -337,23 +336,12 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                             }
                             AdType.NATIVE.type -> {
                                 requireActivity().startNativeAdsActivity(
-                                    adId = NATIVE_AD_MAIN,
-                                    onImpression = {data: AdData? ->
-//                                        if (data != null && accessToken.isNotEmpty()) {
-//                                            try {
-//                                                val revenue = data.toRevenue()
-//                                                userDataVM.updateUserBalance(accessToken, revenue)
-//                                            } catch (e: Exception) {
-//                                                e.printStackTraceIfDebug()
-//                                            }
-//                                        }
-                                        testVM.setState(TestViewModel.State.Init)
-                                    },
-                                    onDismissed = {bonus: Double ->
-                                        //adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
-                                    },
-                                    onClosing = { reward ->
+                                    onDismissed = { reward ->
                                         adsVM.setAdState(AdsViewModel.AdState.Rewarded(reward))
+                                    },
+                                    onError = { error: String ->
+                                        Exception(error).printStackTraceIfDebug()
+                                        parentFragmentManager.popBackStack()
                                     }
                                 )
                             }

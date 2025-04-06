@@ -19,7 +19,9 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.databinding.PopupLayoutBinding
 import com.myapp.lexicon.databinding.PopupRewardPerAdBinding
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.models.RevenueX
+import kotlinx.serialization.json.Json
 import java.util.concurrent.TimeUnit
 
 fun View.showAdPopup(
@@ -187,6 +189,16 @@ fun AdData.toRevenue(): RevenueX {
         revenueUsd = this.revenueUSD,
         appVersion = BuildConfig.VERSION_NAME
     )
+}
+
+fun String.toRevenue(): RevenueX? {
+    return try {
+        Json.decodeFromString<AdData>(this).toRevenue()
+    }
+    catch (e: Exception) {
+        e.printStackTraceIfDebug()
+        null
+    }
 }
 
 

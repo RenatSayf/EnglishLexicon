@@ -11,7 +11,6 @@ import com.myapp.lexicon.ads.AdsViewModel;
 import com.myapp.lexicon.ads.AdsViewModelKt;
 import com.myapp.lexicon.ads.BannersActivityKt;
 import com.myapp.lexicon.ads.InterstitialAdIdsKt;
-import com.myapp.lexicon.ads.NativeAdIdsKt;
 import com.myapp.lexicon.ads.NativeAdsActivityKt;
 import com.myapp.lexicon.ads.RewardedAdIdsKt;
 import com.myapp.lexicon.ads.models.AdType;
@@ -148,7 +147,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         }
 
         String accessToken = EncryptedPrefKt.getAccessToken(ServiceActivity.this);
-        int adType = AdTypeKt.getAD_SERVICE();
+        int adType = AdTypeKt.getAD_SERVICE(ServiceActivity.this);
         if (adType == AdType.INTERSTITIAL.getType()) {
             adsVM.getInterstitialAd().observe(ServiceActivity.this, result -> {
                 interstitialAd = adsVM.getInterstitialAdOrNull();
@@ -196,20 +195,12 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         if (adType == AdType.NATIVE.getType()) {
             NativeAdsActivityKt.startNativeAdsActivity(
                     this,
-                    NativeAdIdsKt.getNATIVE_AD_SERVICE(),
-                    adData -> {
-//                        if (adData != null && !accessToken.isEmpty()) {
-//                            RevenueX revenue = com.myapp.lexicon.ads.ext.ExtensionsKt.toRevenue(adData);
-//                            userDataVM.updateUserBalance(accessToken, revenue);
-//                        }
-                        return null;
-                    },
-                    bonus -> {
-                        //adsVM.setInterstitialAdState(new AdsViewModel.AdState.Dismissed(bonus));
-                        return null;
-                    },
                     adsReward -> {
                         adsVM.setAdState(new AdsViewModel.AdState.Rewarded(adsReward));
+                        return null;
+                    },
+                    error -> {
+                        ExtensionsKt.printLogIfDebug(error);
                         return null;
                     }
             );

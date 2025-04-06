@@ -1,56 +1,95 @@
 package com.myapp.lexicon.ads.models
 
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.remoteconfig.ktx.remoteConfig
+import android.content.Context
+import android.content.SharedPreferences
+import androidx.fragment.app.Fragment
+import androidx.preference.PreferenceManager
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
 
 enum class AdType(val type: Int) {
     BANNER(type = 1),
     NATIVE(type = 2),
     INTERSTITIAL(type = 3),
-    REWARDED(type = 4)
+    REWARDED(type = 4),
+    FEED(type = 5)
 }
 
-val AD_MAIN: Int
+private val Context.adSettings: SharedPreferences
+    get() {
+        return PreferenceManager.getDefaultSharedPreferences(this)
+    }
+
+val Context.AD_MAIN: Int
     get() {
         return try {
-            Firebase.remoteConfig.getLong("AD_MAIN").toInt()
+            this.adSettings.getInt("AD_MAIN", AdType.NATIVE.type)
         } catch (e: Exception) {
-            2
+            e.printStackTraceIfDebug()
+            AdType.NATIVE.type
         }
     }
 
-val AD_SERVICE: Int
+val Fragment.AD_MAIN: Int
+    get() {
+        return requireContext().AD_MAIN
+    }
+
+val Context.AD_SERVICE: Int
     get() {
         return try {
-            Firebase.remoteConfig.getLong("AD_SERVICE").toInt()
+            this.adSettings.getInt("AD_SERVICE", AdType.NATIVE.type)
         } catch (e: Exception) {
-            2
+            e.printStackTraceIfDebug()
+            AdType.NATIVE.type
         }
     }
 
-val AD_TEST: Int
+val Fragment.AD_SERVICE: Int
+    get() {
+        return requireContext().AD_SERVICE
+    }
+
+val Context.AD_TEST: Int
     get() {
         return try {
-            Firebase.remoteConfig.getLong("AD_TEST").toInt()
+            this.adSettings.getInt("AD_TEST", AdType.REWARDED.type)
         } catch (e: Exception) {
-            4
+            e.printStackTraceIfDebug()
+            AdType.REWARDED.type
         }
     }
 
-val AD_TRANSLATE: Int
+val Fragment.AD_TEST: Int
+    get() {
+        return requireContext().AD_TEST
+    }
+
+val Context.AD_TRANSLATE: Int
     get() {
         return try {
-            Firebase.remoteConfig.getLong("AD_TRANSLATE").toInt()
+            this.adSettings.getInt("AD_TRANSLATE", AdType.INTERSTITIAL.type)
         } catch (e: Exception) {
-            2
+            e.printStackTraceIfDebug()
+            AdType.INTERSTITIAL.type
         }
     }
 
-val AD_VIDEO: Int
+val Fragment.AD_TRANSLATE: Int
+    get() {
+        return requireContext().AD_TRANSLATE
+    }
+
+val Context.AD_VIDEO: Int
     get() {
         return try {
-            Firebase.remoteConfig.getLong("AD_VIDEO").toInt()
+            this.adSettings.getInt("AD_VIDEO", AdType.REWARDED.type)
         } catch (e: Exception) {
-            4
+            e.printStackTraceIfDebug()
+            AdType.REWARDED.type
         }
+    }
+
+val Fragment.AD_VIDEO: Int
+    get() {
+        return requireContext().AD_VIDEO
     }

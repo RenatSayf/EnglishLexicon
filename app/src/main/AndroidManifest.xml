@@ -34,6 +34,12 @@
         android:theme="@style/AppTheme"
         tools:targetApi="s">
         <activity
+            android:name=".ads.feed_ad.FeedAdsActivity"
+            android:enableOnBackInvokedCallback="true"
+            android:exported="false"
+            android:theme="@style/popAppWindow"
+            tools:targetApi="tiramisu" />
+        <activity
             android:name=".ads.NativeAdsActivity"
             android:enableOnBackInvokedCallback="true"
             android:exported="false"
@@ -48,8 +54,8 @@
         <activity
             android:name=".splash.SplashActivity"
             android:configChanges="orientation|keyboardHidden"
-            android:exported="true"
             android:enableOnBackInvokedCallback="true"
+            android:exported="true"
             android:launchMode="singleTop"
             android:screenOrientation="userPortrait"
             android:theme="@style/AppTheme.Launcher"
@@ -68,8 +74,8 @@
         </activity>
         <activity
             android:name=".addword.TranslateActivity"
-            android:exported="true"
             android:enableOnBackInvokedCallback="true"
+            android:exported="true"
             tools:targetApi="tiramisu">
             <intent-filter>
                 <action android:name="android.intent.action.PROCESS_TEXT" />
@@ -85,8 +91,8 @@
         <activity
             android:name=".main.MainActivity"
             android:configChanges="orientation|screenSize"
-            android:exported="true"
             android:enableOnBackInvokedCallback="true"
+            android:exported="true"
             android:theme="@style/AppTheme.NoActionBar"
             tools:targetApi="tiramisu">
             <intent-filter android:label="Английский изучай">
@@ -98,11 +104,11 @@
         </activity>
         <activity
             android:name=".wordeditor.WordEditorActivity"
+            android:enableOnBackInvokedCallback="true"
             android:exported="true"
             android:label="@string/title_activity_word_editor"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden"
-            android:enableOnBackInvokedCallback="true"
             tools:targetApi="tiramisu">
             <intent-filter android:label="Англо-русский переводчик">
                 <action android:name="android.intent.action.VIEW" />
@@ -119,8 +125,8 @@
         </activity>
         <activity
             android:name=".service.ServiceActivity"
-            android:theme="@style/popAppWindow"
             android:enableOnBackInvokedCallback="true"
+            android:theme="@style/popAppWindow"
             tools:targetApi="tiramisu" />
         <!--
              ATTENTION: This was auto-generated to add Google Play services to your project for

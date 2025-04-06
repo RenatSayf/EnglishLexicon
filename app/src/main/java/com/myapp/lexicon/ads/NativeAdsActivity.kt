@@ -28,11 +28,10 @@ import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.main.ext.redirectToAuthScreen
 import com.myapp.lexicon.models.AdsReward
 import com.myapp.lexicon.models.Tokens
-import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.repository.network.INetRepository
 import com.myapp.lexicon.settings.accessToken
+import com.myapp.lexicon.settings.nativeAdIdFromPref
 import com.myapp.lexicon.settings.saveAuthTokens
-import com.myapp.lexicon.settings.userPercentFromPref
 import com.yandex.mobile.ads.common.AdRequestError
 import com.yandex.mobile.ads.common.ImpressionData
 import com.yandex.mobile.ads.nativeads.NativeAd
@@ -47,7 +46,6 @@ import kotlinx.coroutines.launch
 class NativeAdsActivity : AppCompatActivity() {
 
     companion object {
-        const val KEY_AD_ID = "KEY_AD_ID_25488714"
         private var listener: Listener? = null
         fun setAdDataListener(listener: Listener) {
             this.listener = listener
@@ -60,12 +58,12 @@ class NativeAdsActivity : AppCompatActivity() {
 
     private var timer: CountDownTimer? = null
     interface Listener {
-        fun onDismissed(data: AdData?)
-        fun onClosing(reward: AdsReward)
+        fun onDismissed(reward: AdsReward)
+        fun onError(error: String)
     }
 
     private var adData: AdData = AdData()
-    private var reward: AdsReward = AdsReward("", 0.0, 0.0, 0.0)
+    private var reward: AdsReward? = null
     private var callback: OnBackInvokedCallback? = null
     private val ratingList: MutableList<Double> = mutableListOf()
 
@@ -88,8 +86,8 @@ class NativeAdsActivity : AppCompatActivity() {
       "precision": "estimated",
       "revenue": "4.0",
       "requestId": "${System.currentTimeMillis()}-demo-native-app-yandex",
-      "blockId": "demo-rewarded-yandex",
-      "adType": "interstitial",
+      "blockId": "demo-native-app-yandex",
+      "adType": "native",
       "ad_unit_id": "demo-native-app-yandex",
       "network": {
         "name": "Yandex",
@@ -114,9 +112,9 @@ class NativeAdsActivity : AppCompatActivity() {
             pbLoadAds.visibility = View.VISIBLE
 
             nativeAdLoader = NativeBulkAdLoader(this@NativeAdsActivity)
-            val adId = if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) "demo-native-app-yandex"
+            val adId = if (BuildConfig.ADS_SOURCE != AdsSource.TEST_AD.name) "demo-native-app-yandex"
             else {
-                intent.extras?.getString(KEY_AD_ID)?: NATIVE_AD_MAIN
+                this@NativeAdsActivity.nativeAdIdFromPref
             }
 
             nativeAdLoader?.setNativeBulkAdLoadListener(object : NativeBulkAdLoadListener {
@@ -219,16 +217,18 @@ class NativeAdsActivity : AppCompatActivity() {
                                 }
                             }
                             lifecycleScope.launch {
-                                repository.updateUserBalance(
-                                    accessToken = this@NativeAdsActivity.accessToken,
-                                    revenue = adData.toRevenue()
-                                ).collect(collector = { result ->
-                                    result.onSuccess { reward ->
-                                        this@NativeAdsActivity.reward = reward
-                                    }
-                                    binding.btnClose.visibility = View.VISIBLE
-                                })
-                                //delay(5000)
+                                val accessToken = this@NativeAdsActivity.accessToken
+                                if (accessToken.isNotEmpty()) {
+                                    repository.updateUserBalance(
+                                        accessToken = accessToken,
+                                        revenue = adData.toRevenue()
+                                    ).collect(collector = { result ->
+                                        result.onSuccess { reward ->
+                                            this@NativeAdsActivity.reward = reward
+                                        }
+                                        binding.btnClose.visibility = View.VISIBLE
+                                    })
+                                }
                             }
                         }
                     },
@@ -259,8 +259,9 @@ class NativeAdsActivity : AppCompatActivity() {
 
     override fun onDestroy() {
 
-        listener?.onDismissed(adData)
-        listener?.onClosing(this.reward)
+        if (this.reward != null) {
+            listener?.onDismissed(this.reward!!)
+        }
         timer?.cancel()
         timer = null
         listener = null
@@ -274,28 +275,17 @@ class NativeAdsActivity : AppCompatActivity() {
 }
 
 fun Activity.startNativeAdsActivity(
-    adId: String = NativeAdIds.NATIVE_1.id,
-    onImpression: (data: AdData?) -> Unit,
-    onDismissed: (bonus: Double) -> Unit,
-    onClosing: (reward: AdsReward) -> Unit
+    onDismissed: (reward: AdsReward) -> Unit,
+    onError: (error: String) -> Unit
 ) {
     NativeAdsActivity.setAdDataListener(object : NativeAdsActivity.Listener {
-        override fun onDismissed(data: AdData?) {
-            if (data != null) {
-                try {
-                    onImpression.invoke(data)
-                    val bonus = (data.revenue * this@startNativeAdsActivity.userPercentFromPref).to2DigitsScale()
-                    onDismissed.invoke(bonus)
-                } catch (e: Exception) {
-                    e.printStackTraceIfDebug()
-                }
-            }
+        override fun onDismissed(reward: AdsReward) {
+            onDismissed.invoke(reward)
         }
-        override fun onClosing(reward: AdsReward) {
-            onClosing.invoke(reward)
+
+        override fun onError(error: String) {
+            onError.invoke(error)
         }
     })
-    this.startActivity(Intent(this, NativeAdsActivity::class.java).apply {
-        putExtra(NativeAdsActivity.KEY_AD_ID, adId)
-    })
+    this.startActivity(Intent(this, NativeAdsActivity::class.java))
 }

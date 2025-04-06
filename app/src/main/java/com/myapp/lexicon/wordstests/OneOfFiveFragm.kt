@@ -18,7 +18,6 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.adapters.OneFiveTestAdapter
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.INTERSTITIAL_MAIN
-import com.myapp.lexicon.ads.NATIVE_AD_MAIN
 import com.myapp.lexicon.ads.REWARDED_MAIN_ID
 import com.myapp.lexicon.ads.ext.toRevenue
 import com.myapp.lexicon.ads.models.AD_MAIN
@@ -344,28 +343,13 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
                 }
                 AdType.NATIVE.type -> {
                     requireActivity().startNativeAdsActivity(
-                        adId = NATIVE_AD_MAIN,
-                        onImpression = {data: AdData? ->
-//                            if (data != null && accessToken.isNotEmpty()) {
-//                                try {
-//                                    val revenue = data.toRevenue()
-//                                    userDataVM.updateUserBalance(accessToken, revenue)
-//                                } catch (e: Exception) {
-//                                    e.printStackTraceIfDebug()
-//                                }
-//                            }
-                        },
-                        onDismissed = {bonus: Double ->
-//                            adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
-//                            try {
-//                                onComplete.invoke()
-//                            } catch (e: Exception) {
-//                                e.printStackTraceIfDebug()
-//                            }
-                        },
-                        onClosing = { reward ->
+                        onDismissed = { reward ->
                             adsVM.setAdState(AdsViewModel.AdState.Rewarded(reward))
                             onComplete.invoke()
+                        },
+                        onError = { error: String ->
+                            Exception(error).printStackTraceIfDebug()
+                            parentFragmentManager.popBackStack()
                         }
                     )
                 }

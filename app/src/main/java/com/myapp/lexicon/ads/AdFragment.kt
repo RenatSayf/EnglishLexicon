@@ -13,6 +13,7 @@ import com.myapp.lexicon.ads.models.AD_VIDEO
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.ads.models.AdType
 import com.myapp.lexicon.databinding.FragmentAdBinding
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.models.AdsReward
 import com.myapp.lexicon.video.web.YouTubeFragment
 import com.yandex.mobile.ads.interstitial.InterstitialAd
@@ -61,20 +62,16 @@ class AdFragment : Fragment() {
             }
             AdType.NATIVE.type -> {
                 requireActivity().startNativeAdsActivity(
-                    adId = NATIVE_AD_VIDEO,
-                    onImpression = {data: AdData? ->
-
-                    },
-                    onDismissed = {bonus: Double ->
-                        //setFragmentResult(YouTubeFragment.KEY_AD_DISMISSED, Bundle.EMPTY)
-
-                    },
-                    onClosing = { reward ->
+                    onDismissed = { reward ->
                         setFragmentResult(YouTubeFragment.KEY_AD_DATA, Bundle().apply {
                             val jsonData = Json.encodeToJsonElement(AdsReward.serializer(), reward).toString()
                             putString(YouTubeFragment.KEY_JSON_AD_DATA, jsonData)
                         })
                         parentFragmentManager.beginTransaction().remove(this).commit()
+                    },
+                    onError = { error: String ->
+                        Exception(error).printStackTraceIfDebug()
+                        parentFragmentManager.popBackStack()
                     }
                 )
             }
