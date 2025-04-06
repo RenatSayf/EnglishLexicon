@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorTransparent"
-    tools:context=".ads.NativeAdsActivity">
+    tools:context=".ads.native_ad.NativeAdsActivity">
 
     <ScrollView
         android:id="@+id/scrollAds"

@@ -28,7 +28,7 @@ import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
 import com.myapp.lexicon.ads.AdsViewModel;
 import com.myapp.lexicon.ads.AdsViewModelKt;
-import com.myapp.lexicon.ads.BannerAdIdsKt;
+import com.myapp.lexicon.ads.banner.BannerAdIdsKt;
 import com.myapp.lexicon.auth.AuthFragment;
 import com.myapp.lexicon.auth.account.AccountFragment;
 import com.myapp.lexicon.auth.account.UserDataViewModel;

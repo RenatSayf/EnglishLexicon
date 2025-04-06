@@ -50,6 +50,7 @@ private val TEST_INTERSTITIAL_DATA: String
     }"""
 
 fun FragmentActivity.loadInterstitialAd(
+    adId: String,
     onLoaded: (ad: InterstitialAd) -> Unit = {}
 ) {
 
@@ -58,7 +59,7 @@ fun FragmentActivity.loadInterstitialAd(
     val id = if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
         "demo-interstitial-yandex"
     } else {
-        this.interstitialAdIdFromPref
+        adId
     }
     val adRequestConfiguration = AdRequestConfiguration.Builder(id).build()
     InterstitialAdLoader(this).apply {

@@ -1,4 +1,4 @@
-package com.myapp.lexicon.ads
+package com.myapp.lexicon.ads.banner
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -53,6 +53,7 @@ val Context.BANNER_EDITOR: String
         return try {
             this.pref.getString("BANNER_EDITOR", BannerAdIds.BANNER_3.id)!!
         } catch (e: Exception) {
+            e.printStackTraceIfDebug()
             BannerAdIds.BANNER_3.id
         }
     }

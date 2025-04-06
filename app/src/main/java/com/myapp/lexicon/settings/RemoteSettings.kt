@@ -3,10 +3,10 @@ package com.myapp.lexicon.settings
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
-import com.myapp.lexicon.ads.BannerAdIds
-import com.myapp.lexicon.ads.InterstitialAdIds
-import com.myapp.lexicon.ads.NativeAdIds
-import com.myapp.lexicon.ads.RewardedAdIds
+import com.myapp.lexicon.ads.banner.BannerAdIds
+import com.myapp.lexicon.ads.interstitial.InterstitialAdIds
+import com.myapp.lexicon.ads.native_ad.NativeAdIds
+import com.myapp.lexicon.ads.rewarded.RewardedAdIds
 import com.myapp.lexicon.ads.feed_ad.FeedAdIds
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 

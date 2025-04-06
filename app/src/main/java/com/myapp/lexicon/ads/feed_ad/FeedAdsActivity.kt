@@ -22,7 +22,6 @@ import com.myapp.lexicon.main.ext.redirectToAuthScreen
 import com.myapp.lexicon.models.AdsReward
 import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.repository.network.INetRepository
-import com.myapp.lexicon.settings.feedAdIdFromPref
 import com.myapp.lexicon.settings.saveAuthTokens
 import com.yandex.mobile.ads.common.AdRequestError
 import com.yandex.mobile.ads.common.ImpressionData
@@ -38,6 +37,8 @@ import kotlin.math.roundToInt
 class FeedAdsActivity : AppCompatActivity() {
 
     companion object {
+
+        const val AD_ID = "AD_ID_35978123"
 
         private var listener: Listener? = null
 
@@ -97,7 +98,8 @@ class FeedAdsActivity : AppCompatActivity() {
 
         val adId = if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) "demo-feed-yandex"
         else {
-            this.feedAdIdFromPref
+            val id = intent.extras?.getString(AD_ID)?: FeedAdIds.FEED_1.id
+            id
         }
 
         val feedMarginDp = 16
@@ -160,6 +162,7 @@ class FeedAdsActivity : AppCompatActivity() {
 }
 
 fun Activity.startFeedAdsActivity(
+    adId: String,
     onDismissed: (reward: AdsReward) -> Unit,
     onError: (error: String) -> Unit
 ) {
@@ -179,7 +182,9 @@ fun Activity.startFeedAdsActivity(
         }
 
     })
-    this.startActivity(Intent(this, FeedAdsActivity ::class.java))
+    this.startActivity(Intent(this, FeedAdsActivity ::class.java).apply {
+        putExtra(FeedAdsActivity.AD_ID, adId)
+    })
 }
 
 

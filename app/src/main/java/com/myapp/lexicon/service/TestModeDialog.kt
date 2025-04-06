@@ -19,7 +19,7 @@ import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.aboutapp.checkAppUpdate
 import com.myapp.lexicon.ads.AdsViewModel
-import com.myapp.lexicon.ads.BANNER_SERVICE
+import com.myapp.lexicon.ads.banner.BANNER_SERVICE
 import com.myapp.lexicon.ads.ext.showUserRewardAnimatedly
 import com.myapp.lexicon.ads.loadBanner
 import com.myapp.lexicon.auth.account.UserDataViewModel

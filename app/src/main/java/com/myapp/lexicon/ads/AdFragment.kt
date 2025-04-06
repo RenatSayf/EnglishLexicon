@@ -8,11 +8,16 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
+import com.myapp.lexicon.ads.feed_ad.FEED_VIDEO
 import com.myapp.lexicon.ads.feed_ad.startFeedAdsActivity
+import com.myapp.lexicon.ads.interstitial.INTERSTITIAL_VIDEO
 import com.myapp.lexicon.ads.interstitial.loadInterstitialAd
 import com.myapp.lexicon.ads.interstitial.showInterstitialAd
 import com.myapp.lexicon.ads.models.AD_VIDEO
 import com.myapp.lexicon.ads.models.AdType
+import com.myapp.lexicon.ads.native_ad.NATIVE_VIDEO
+import com.myapp.lexicon.ads.native_ad.startNativeAdsActivity
+import com.myapp.lexicon.ads.rewarded.REWARDED_VIDEO
 import com.myapp.lexicon.ads.rewarded.loadRewardedAd
 import com.myapp.lexicon.ads.rewarded.showRewardedAd
 import com.myapp.lexicon.databinding.FragmentAdBinding
@@ -44,6 +49,7 @@ class AdFragment : Fragment() {
         when(AD_VIDEO) {
             AdType.NATIVE.type -> {
                 requireActivity().startNativeAdsActivity(
+                    adId = requireContext().NATIVE_VIDEO,
                     onDismissed = { reward ->
                         setFragmentResult(YouTubeFragment.KEY_AD_DATA, Bundle().apply {
                             val jsonData = Json.encodeToJsonElement(AdsReward.serializer(), reward).toString()
@@ -59,6 +65,7 @@ class AdFragment : Fragment() {
             }
             AdType.INTERSTITIAL.type -> {
                 requireActivity().loadInterstitialAd(
+                    adId = requireContext().INTERSTITIAL_VIDEO,
                     onLoaded = { ad ->
                         requireActivity().showInterstitialAd(
                             onDismissed = { reward ->
@@ -77,6 +84,7 @@ class AdFragment : Fragment() {
             }
             AdType.REWARDED.type -> {
                 requireActivity().loadRewardedAd(
+                    adId = requireContext().REWARDED_VIDEO,
                     onLoaded = {
                         requireActivity().showRewardedAd(
                             onDismissed = { reward ->
@@ -95,6 +103,7 @@ class AdFragment : Fragment() {
             }
             AdType.FEED.type -> {
                 requireActivity().startFeedAdsActivity(
+                    adId = requireContext().FEED_VIDEO,
                     onDismissed = { reward ->
                         setFragmentResult(YouTubeFragment.KEY_AD_DATA, Bundle().apply {
                             val jsonData = Json.encodeToJsonElement(AdsReward.serializer(), reward).toString()

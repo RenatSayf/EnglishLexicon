@@ -1,12 +1,13 @@
-package com.myapp.lexicon.ads.feed_ad
+package com.myapp.lexicon.ads.native_ad
 
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 
-enum class FeedAdIds(val id: String) {
-    FEED_1(id = "R-M-711878-18")
+enum class NativeAdIds(val id: String) {
+    NATIVE_1(id = "R-M-711878-14"),
+    NATIVE_2(id = "R-M-711878-15")
 }
 
 private val Context.pref: SharedPreferences
@@ -14,53 +15,52 @@ private val Context.pref: SharedPreferences
         return PreferenceManager.getDefaultSharedPreferences(this)
     }
 
-val Context.FEED_MAIN: String
+val Context.NATIVE_MAIN: String
     get() {
         return try {
-            this.pref.getString("FEED_MAIN", FeedAdIds.FEED_1.id)!!
+            this.pref.getString("NATIVE_MAIN", NativeAdIds.NATIVE_1.id)!!
         } catch (e: Exception) {
             e.printStackTraceIfDebug()
-            FeedAdIds.FEED_1.id
+            NativeAdIds.NATIVE_1.id
         }
     }
 
-val Context.FEED_SERVICE: String
+val Context.NATIVE_TRANSLATE: String
     get() {
         return try {
-            this.pref.getString("FEED_SERVICE", FeedAdIds.FEED_1.id)!!
+            this.pref.getString("NATIVE_TRANSLATE", NativeAdIds.NATIVE_2.id)!!
         } catch (e: Exception) {
             e.printStackTraceIfDebug()
-            FeedAdIds.FEED_1.id
+            NativeAdIds.NATIVE_2.id
         }
     }
 
-val Context.FEED_TRANSLATE: String
+val Context.NATIVE_TEST: String
     get() {
         return try {
-            this.pref.getString("FEED_TRANSLATE", FeedAdIds.FEED_1.id)!!
+            this.pref.getString("NATIVE_TEST", NativeAdIds.NATIVE_2.id)!!
         } catch (e: Exception) {
             e.printStackTraceIfDebug()
-            FeedAdIds.FEED_1.id
+            NativeAdIds.NATIVE_2.id
         }
     }
 
-val Context.FEED_TEST: String
+val Context.NATIVE_VIDEO: String
     get() {
         return try {
-            this.pref.getString("FEED_TEST", FeedAdIds.FEED_1.id)!!
+            this.pref.getString("NATIVE_VIDEO", NativeAdIds.NATIVE_1.id)!!
         } catch (e: Exception) {
             e.printStackTraceIfDebug()
-            FeedAdIds.FEED_1.id
+            NativeAdIds.NATIVE_1.id
         }
     }
 
-val Context.FEED_VIDEO: String
+val Context.NATIVE_SERVICE: String
     get() {
         return try {
-            this.pref.getString("FEED_VIDEO", FeedAdIds.FEED_1.id)!!
+            this.pref.getString("NATIVE_SERVICE", NativeAdIds.NATIVE_1.id)!!
         } catch (e: Exception) {
             e.printStackTraceIfDebug()
-            FeedAdIds.FEED_1.id
+            NativeAdIds.NATIVE_1.id
         }
     }
-

@@ -1,6 +1,6 @@
 @file:Suppress("ObjectLiteralToLambda", "RedundantSamConstructor")
 
-package com.myapp.lexicon.ads
+package com.myapp.lexicon.ads.native_ad
 
 import android.app.Activity
 import android.content.Intent
@@ -16,6 +16,7 @@ import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.ads.ext.toRevenue
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.ads.models.TestAdData
+import com.myapp.lexicon.ads.toAdData
 import com.myapp.lexicon.common.AdsSource
 import com.myapp.lexicon.common.IS_REWARD_ACCESSIBLE
 import com.myapp.lexicon.databinding.ActivityNativeAdsBinding
@@ -30,7 +31,6 @@ import com.myapp.lexicon.models.AdsReward
 import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.repository.network.INetRepository
 import com.myapp.lexicon.settings.accessToken
-import com.myapp.lexicon.settings.nativeAdIdFromPref
 import com.myapp.lexicon.settings.saveAuthTokens
 import com.yandex.mobile.ads.common.AdRequestError
 import com.yandex.mobile.ads.common.ImpressionData
@@ -42,10 +42,12 @@ import com.yandex.mobile.ads.nativeads.NativeBulkAdLoader
 import kotlinx.coroutines.launch
 
 
-
 class NativeAdsActivity : AppCompatActivity() {
 
     companion object {
+
+        const val AD_ID = "AD_ID_524178912"
+
         private var listener: Listener? = null
         fun setAdDataListener(listener: Listener) {
             this.listener = listener
@@ -112,9 +114,10 @@ class NativeAdsActivity : AppCompatActivity() {
             pbLoadAds.visibility = View.VISIBLE
 
             nativeAdLoader = NativeBulkAdLoader(this@NativeAdsActivity)
-            val adId = if (BuildConfig.ADS_SOURCE != AdsSource.TEST_AD.name) "demo-native-app-yandex"
+            val adId = if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) "demo-native-app-yandex"
             else {
-                this@NativeAdsActivity.nativeAdIdFromPref
+                val id = intent.extras?.getString(AD_ID)?: NativeAdIds.NATIVE_1.id
+                id
             }
 
             nativeAdLoader?.setNativeBulkAdLoadListener(object : NativeBulkAdLoadListener {
@@ -275,6 +278,7 @@ class NativeAdsActivity : AppCompatActivity() {
 }
 
 fun Activity.startNativeAdsActivity(
+    adId: String,
     onDismissed: (reward: AdsReward) -> Unit,
     onError: (error: String) -> Unit
 ) {
@@ -287,5 +291,7 @@ fun Activity.startNativeAdsActivity(
             onError.invoke(error)
         }
     })
-    this.startActivity(Intent(this, NativeAdsActivity::class.java))
+    this.startActivity(Intent(this, NativeAdsActivity::class.java).apply {
+        putExtra(NativeAdsActivity.AD_ID, adId)
+    })
 }

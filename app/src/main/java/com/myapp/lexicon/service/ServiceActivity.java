@@ -8,12 +8,16 @@ import android.widget.FrameLayout;
 import com.google.android.material.snackbar.Snackbar;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.ads.AdsViewModel;
-import com.myapp.lexicon.ads.NativeAdsActivityKt;
+import com.myapp.lexicon.ads.feed_ad.FeedAdIdsKt;
 import com.myapp.lexicon.ads.feed_ad.FeedAdsActivityKt;
 import com.myapp.lexicon.ads.interstitial.InterstitialAdExtKt;
+import com.myapp.lexicon.ads.interstitial.InterstitialAdIdsKt;
 import com.myapp.lexicon.ads.models.AdType;
 import com.myapp.lexicon.ads.models.AdTypeKt;
+import com.myapp.lexicon.ads.native_ad.NativeAdIdsKt;
+import com.myapp.lexicon.ads.native_ad.NativeAdsActivityKt;
 import com.myapp.lexicon.ads.rewarded.RewardedAdExtKt;
+import com.myapp.lexicon.ads.rewarded.RewardedAdIdsKt;
 import com.myapp.lexicon.auth.AuthViewModel;
 import com.myapp.lexicon.common.CommonConstantsKt;
 import com.myapp.lexicon.databinding.ServiceDialogActivityBinding;
@@ -139,6 +143,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         if (adType == AdType.INTERSTITIAL.getType()) {
             InterstitialAdExtKt.loadInterstitialAd(
                     this,
+                    InterstitialAdIdsKt.getINTERSTITIAL_SERVICE(this),
                     interstitialAd -> {
                         InterstitialAdExtKt.showInterstitialAd(
                                 this,
@@ -155,6 +160,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         if (adType == AdType.NATIVE.getType()) {
             NativeAdsActivityKt.startNativeAdsActivity(
                     this,
+                    NativeAdIdsKt.getNATIVE_SERVICE(this),
                     adsReward -> {
                         adsVM.setAdState(new AdsViewModel.AdState.Rewarded(adsReward));
                         return null;
@@ -168,6 +174,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         if (adType == AdType.REWARDED.getType()) {
             RewardedAdExtKt.loadRewardedAd(
                     this,
+                    RewardedAdIdsKt.getREWARDED_SERVICE(this),
                     rewardedAd1 -> {
                         RewardedAdExtKt.showRewardedAd(
                                 this,
@@ -185,6 +192,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         {
             FeedAdsActivityKt.startFeedAdsActivity(
                     this,
+                    FeedAdIdsKt.getFEED_SERVICE(this),
                     reward -> {
                         adsVM.setAdState(new AdsViewModel.AdState.Rewarded(reward));
                         return null;

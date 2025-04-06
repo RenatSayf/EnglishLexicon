@@ -40,7 +40,7 @@
             android:theme="@style/popAppWindow"
             tools:targetApi="tiramisu" />
         <activity
-            android:name=".ads.NativeAdsActivity"
+            android:name=".ads.native_ad.NativeAdsActivity"
             android:enableOnBackInvokedCallback="true"
             android:exported="false"
             android:theme="@style/popAppWindow"
