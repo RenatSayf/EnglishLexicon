@@ -41,3 +41,13 @@ val Context.interstitialAdIdFromPref: String
         }
     }
 
+val Context.rewardedAdIdFromPref: String
+    get() {
+        return try {
+            rSettings.getString("REWARDED_AD_ID", "R-M-711878-10")!!
+        } catch (e: Exception) {
+            e.printStackTraceIfDebug()
+            "R-M-711878-10"
+        }
+    }
+

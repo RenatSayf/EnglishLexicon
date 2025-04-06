@@ -17,13 +17,15 @@ import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.adapters.OneFiveTestAdapter
 import com.myapp.lexicon.ads.AdsViewModel
-import com.myapp.lexicon.ads.INTERSTITIAL_MAIN
-import com.myapp.lexicon.ads.REWARDED_MAIN_ID
 import com.myapp.lexicon.ads.ext.toRevenue
+import com.myapp.lexicon.ads.feed_ad.startFeedAdsActivity
+import com.myapp.lexicon.ads.interstitial.loadInterstitialAd
+import com.myapp.lexicon.ads.interstitial.showInterstitialAd
 import com.myapp.lexicon.ads.models.AD_MAIN
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.ads.models.AdType
-import com.myapp.lexicon.ads.showAd
+import com.myapp.lexicon.ads.rewarded.loadRewardedAd
+import com.myapp.lexicon.ads.rewarded.showRewardedAd
 import com.myapp.lexicon.ads.startBannersActivity
 import com.myapp.lexicon.ads.startNativeAdsActivity
 import com.myapp.lexicon.auth.account.UserDataViewModel
@@ -32,11 +34,10 @@ import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.RandomNumberGenerator
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.main.MainActivity
+import com.myapp.lexicon.main.ext.redirectToAuthScreen
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.accessToken
 import com.myapp.lexicon.settings.adsIsEnabled
-import com.yandex.mobile.ads.interstitial.InterstitialAd
-import com.yandex.mobile.ads.rewarded.RewardedAd
 import java.util.Date
 
 const val ROWS: Int = 5
@@ -57,8 +58,6 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
         val factory = UserDataViewModel.Factory()
         ViewModelProvider(this, factory)[UserDataViewModel::class]
     }
-    private var interstitialAd: InterstitialAd? = null
-    private var rewardedAd: RewardedAd? = null
 
     private val wordsAdapter: OneFiveTestAdapter by lazy {
         OneFiveTestAdapter().apply {
@@ -111,20 +110,10 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
         if (!wordList.isNullOrEmpty()) vm.initTest(wordList!!.toList())
         when(AD_MAIN) {
             AdType.INTERSTITIAL.type -> {
-                adsVM.loadInterstitialAd(INTERSTITIAL_MAIN)
-                adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
-                    result.onSuccess { ad: InterstitialAd ->
-                        interstitialAd = ad
-                    }
-                }
+                requireActivity().loadInterstitialAd()
             }
             AdType.REWARDED.type -> {
-                adsVM.loadRewardedAd(REWARDED_MAIN_ID)
-                adsVM.rewardedAd.observe(viewLifecycleOwner) { result ->
-                    result.onSuccess { ad: RewardedAd ->
-                        rewardedAd = ad
-                    }
-                }
+                requireActivity().loadRewardedAd()
             }
         }
 
@@ -354,46 +343,38 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
                     )
                 }
                 AdType.INTERSTITIAL.type -> {
-                    interstitialAd?.showAd(
-                        requireActivity(),
-                        onImpression = { data ->
-                            if (data != null && accessToken.isNotEmpty()) {
-                                try {
-                                    val revenue = data.toRevenue()
-                                    userDataVM.updateUserBalance(accessToken, revenue)
-                                } catch (e: Exception) {
-                                    e.printStackTraceIfDebug()
-                                }
-                            }
-                        }, onDismissed = { bonus: Double ->
-                            adsVM.setAdState(AdsViewModel.AdState.Dismissed(bonus))
+                    requireActivity().showInterstitialAd(
+                        onDismissed = { reward ->
+                            adsVM.setAdState(AdsViewModel.AdState.Rewarded(reward))
+                        },
+                        onAuthorizationRequired = {
+                            requireActivity().redirectToAuthScreen()
                             onComplete.invoke()
                         }
                     )
-                    if (interstitialAd == null) {
-                        onComplete.invoke()
-                    }
                 }
                 AdType.REWARDED.type -> {
-                    rewardedAd?.showAd(
-                        requireActivity(),
-                        onImpression = {data: AdData? ->
-                            if (data != null && accessToken.isNotEmpty()) {
-                                try {
-                                    val revenue = data.toRevenue()
-                                    userDataVM.updateUserBalance(accessToken, revenue)
-                                } catch (e: Exception) {
-                                    e.printStackTraceIfDebug()
-                                }
-                            }
-                        },
-                        onDismissed = {bonus: Double ->
-                            adsVM.setAdState(AdsViewModel.AdState.Dismissed(bonus))
+                    requireActivity().showRewardedAd(
+                        onDismissed = { reward ->
+                            adsVM.setAdState(AdsViewModel.AdState.Rewarded(reward))
                             onComplete.invoke()
+                        },
+                        onAuthorizationRequired = {
+                            requireActivity().redirectToAuthScreen()
                         }
-                    )?: run {
-                        onComplete.invoke()
-                    }
+                    )
+                }
+                AdType.FEED.type -> {
+                    requireActivity().startFeedAdsActivity(
+                        onDismissed = { reward ->
+                            adsVM.setAdState(AdsViewModel.AdState.Rewarded(reward))
+                            onComplete.invoke()
+                        },
+                        onError = { error ->
+                            Exception(error).printStackTraceIfDebug()
+                            parentFragmentManager.popBackStack()
+                        }
+                    )
                 }
             }
         }

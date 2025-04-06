@@ -17,7 +17,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.BANNER_TRANSLATE
-import com.myapp.lexicon.ads.REWARDED_TRANSLATE_ID
 import com.myapp.lexicon.ads.ext.emptyRevenue
 import com.myapp.lexicon.ads.ext.toRevenue
 import com.myapp.lexicon.ads.feed_ad.startFeedAdsActivity
@@ -27,7 +26,8 @@ import com.myapp.lexicon.ads.loadBanner
 import com.myapp.lexicon.ads.models.AD_TRANSLATE
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.ads.models.AdType
-import com.myapp.lexicon.ads.showAd
+import com.myapp.lexicon.ads.rewarded.loadRewardedAd
+import com.myapp.lexicon.ads.rewarded.showRewardedAd
 import com.myapp.lexicon.ads.startBannersActivity
 import com.myapp.lexicon.ads.startNativeAdsActivity
 import com.myapp.lexicon.auth.account.UserDataViewModel
@@ -43,7 +43,6 @@ import com.myapp.lexicon.settings.accessToken
 import com.myapp.lexicon.settings.getWordFromPref
 import com.myapp.lexicon.settings.orderPlayFromPref
 import com.myapp.lexicon.settings.refreshToken
-import com.yandex.mobile.ads.rewarded.RewardedAd
 import java.net.URLDecoder
 
 
@@ -55,8 +54,6 @@ class TranslateFragment : Fragment()
     private lateinit var binding: TranslateFragmentBinding
 
     private lateinit var mActivity: AppCompatActivity
-
-    private var rewardedAd: RewardedAd? = null
 
     private val adsVM: AdsViewModel by activityViewModels()
 
@@ -127,14 +124,7 @@ class TranslateFragment : Fragment()
                 requireActivity().loadInterstitialAd()
             }
             AdType.REWARDED.type -> {
-                adsVM.apply {
-                    loadRewardedAd(REWARDED_TRANSLATE_ID)
-                    rewardedAd.observe(viewLifecycleOwner) { result ->
-                        result.onSuccess { ad: RewardedAd ->
-                            this@TranslateFragment.rewardedAd = ad
-                        }
-                    }
-                }
+                requireActivity().loadRewardedAd()
             }
         }
 
@@ -286,25 +276,15 @@ class TranslateFragment : Fragment()
                         )
                     }
                     AdType.REWARDED.type -> {
-                        rewardedAd?.showAd(
-                            requireActivity(),
-                            onImpression = { data: AdData? ->
-                                if (data != null && accessToken.isNotEmpty()) {
-                                    try {
-                                        val revenue = data.toRevenue()
-                                        userDataVM.updateUserBalance(accessToken, revenue)
-                                    } catch (e: Exception) {
-                                        e.printStackTraceIfDebug()
-                                    }
-                                }
-                            },
-                            onDismissed = {bonus: Double ->
-                                adsVM.setAdState(AdsViewModel.AdState.Dismissed(bonus))
+                        requireActivity().showRewardedAd(
+                            onDismissed = { reward ->
+                                adsVM.setAdState(AdsViewModel.AdState.Rewarded(reward))
                                 parentFragmentManager.popBackStack()
+                            },
+                            onAuthorizationRequired = {
+                                requireActivity().redirectToAuthScreen()
                             }
-                        )?: run {
-                            parentFragmentManager.popBackStack()
-                        }
+                        )
                     }
                     AdType.FEED.type -> {
                         requireActivity().startFeedAdsActivity(
@@ -363,24 +343,14 @@ class TranslateFragment : Fragment()
                         )
                     }
                     AdType.REWARDED.type -> {
-                        rewardedAd?.showAd(
-                            requireActivity(),
-                            onImpression = { data: AdData? ->
-                                if (data != null && accessToken.isNotEmpty()) {
-                                    try {
-                                        val revenue = data.toRevenue()
-                                        userDataVM.updateUserBalance(accessToken, revenue)
-                                    } catch (e: Exception) {
-                                        e.printStackTraceIfDebug()
-                                    }
-                                }
-                            },
-                            onDismissed = {bonus: Double ->
+                        requireActivity().showRewardedAd(
+                            onDismissed = { reward ->
                                 requireActivity().finish()
+                            },
+                            onAuthorizationRequired = {
+                                requireActivity().redirectToAuthScreen()
                             }
-                        )?: run {
-                            requireActivity().finish()
-                        }
+                        )
                     }
                     AdType.FEED.type -> {
                         requireActivity().startFeedAdsActivity(

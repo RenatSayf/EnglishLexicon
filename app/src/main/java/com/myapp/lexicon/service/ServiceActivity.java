@@ -8,13 +8,13 @@ import android.widget.FrameLayout;
 import com.google.android.material.snackbar.Snackbar;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.ads.AdsViewModel;
-import com.myapp.lexicon.ads.AdsViewModelKt;
 import com.myapp.lexicon.ads.BannersActivityKt;
-import com.myapp.lexicon.ads.InterstitialAdIdsKt;
 import com.myapp.lexicon.ads.NativeAdsActivityKt;
-import com.myapp.lexicon.ads.RewardedAdIdsKt;
+import com.myapp.lexicon.ads.feed_ad.FeedAdsActivityKt;
+import com.myapp.lexicon.ads.interstitial.InterstitialAdExtKt;
 import com.myapp.lexicon.ads.models.AdType;
 import com.myapp.lexicon.ads.models.AdTypeKt;
+import com.myapp.lexicon.ads.rewarded.RewardedAdExtKt;
 import com.myapp.lexicon.auth.AuthViewModel;
 import com.myapp.lexicon.auth.account.UserDataViewModel;
 import com.myapp.lexicon.common.CommonConstantsKt;
@@ -28,8 +28,6 @@ import com.myapp.lexicon.settings.EncryptedPrefKt;
 import com.myapp.lexicon.settings.SettingsExtKt;
 import com.myapp.lexicon.splash.SplashActivity;
 import com.parse.ParseUser;
-import com.yandex.mobile.ads.interstitial.InterstitialAd;
-import com.yandex.mobile.ads.rewarded.RewardedAd;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -45,8 +43,6 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
     private AuthViewModel authVM;
     private AdsViewModel adsVM;
     private UserDataViewModel userDataVM;
-    private InterstitialAd interstitialAd;
-    private RewardedAd rewardedAd;
     private LockOrientation locker;
     private AlarmScheduler scheduler;
 
@@ -148,33 +144,22 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
 
         String accessToken = EncryptedPrefKt.getAccessToken(ServiceActivity.this);
         int adType = AdTypeKt.getAD_SERVICE(ServiceActivity.this);
+
         if (adType == AdType.INTERSTITIAL.getType()) {
-            adsVM.getInterstitialAd().observe(ServiceActivity.this, result -> {
-                interstitialAd = adsVM.getInterstitialAdOrNull();
-                if (interstitialAd != null) {
-                    AdsViewModelKt.showAd(
-                            interstitialAd,
-                            ServiceActivity.this,
-                            () -> null,
-                            adData -> {
-                                if (adData != null && !accessToken.isEmpty())
-                                {
-                                    RevenueX revenue = com.myapp.lexicon.ads.ext.ExtensionsKt.toRevenue(adData);
-                                    userDataVM.updateUserBalance(accessToken, revenue);
-                                }
-                                return null;
-                            },
-                            bonus -> {
-                                adsVM.setAdState(new AdsViewModel.AdState.Dismissed(bonus));
-                                return null;
-                            }
-                    );
-                }
-                else {
-                    adsVM.setAdState(new AdsViewModel.AdState.Dismissed(0.0));
-                }
-            });
-            adsVM.loadInterstitialAd(InterstitialAdIdsKt.getINTERSTITIAL_SERVICE());
+            InterstitialAdExtKt.loadInterstitialAd(
+                    this,
+                    interstitialAd -> {
+                        InterstitialAdExtKt.showInterstitialAd(
+                                this,
+                                reward -> {
+                                    adsVM.setAdState(new AdsViewModel.AdState.Rewarded(reward));
+                                    return null;
+                                },
+                                () -> null
+                        );
+                        return null;
+                    }
+            );
         }
         if (adType == AdType.BANNER.getType()) {
             BannersActivityKt.startBannersActivity(
@@ -206,29 +191,34 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
             );
         }
         if (adType == AdType.REWARDED.getType()) {
-            adsVM.getRewardedAd().observe(ServiceActivity.this, result -> {
-                rewardedAd = adsVM.getRewardedAdOrNull();
-                if (rewardedAd != null) {
-                    AdsViewModelKt.showAd(
-                            rewardedAd,
-                            ServiceActivity.this,
-                            () -> null,
-                            adData -> {
-                                if (adData != null && !accessToken.isEmpty())
-                                {
-                                    RevenueX revenue = com.myapp.lexicon.ads.ext.ExtensionsKt.toRevenue(adData);
-                                    userDataVM.updateUserBalance(accessToken, revenue);
-                                }
-                                return null;
-                            },
-                            bonus -> {
-                                adsVM.setAdState(new AdsViewModel.AdState.Dismissed(bonus));
-                                return null;
-                            }
-                    );
-                }
-            });
-            adsVM.loadRewardedAd(RewardedAdIdsKt.getREWARDED_SERVICE_ID());
+            RewardedAdExtKt.loadRewardedAd(
+                    this,
+                    rewardedAd1 -> {
+                        RewardedAdExtKt.showRewardedAd(
+                                this,
+                                reward -> {
+                                    adsVM.setAdState(new AdsViewModel.AdState.Rewarded(reward));
+                                    return null;
+                                },
+                                () -> null
+                        );
+                        return null;
+                    }
+            );
+        }
+        if (adType == AdType.FEED.getType())
+        {
+            FeedAdsActivityKt.startFeedAdsActivity(
+                    this,
+                    reward -> {
+                        adsVM.setAdState(new AdsViewModel.AdState.Rewarded(reward));
+                        return null;
+                    },
+                    error -> {
+                        ExtensionsKt.printLogIfDebug(error);
+                        return null;
+                    }
+            );
         }
     }
 
@@ -238,8 +228,6 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         long repeatingInterval = SettingsExtKt.getNotificationRepeatingInterval(this);
         scheduler.scheduleOne(repeatingInterval);
         lastAdShowTime = System.currentTimeMillis();
-        interstitialAd = null;
-        rewardedAd = null;
         locker.unLock();
         super.onDestroy();
     }

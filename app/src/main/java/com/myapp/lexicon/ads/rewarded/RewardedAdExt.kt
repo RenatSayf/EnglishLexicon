@@ -1,4 +1,4 @@
-package com.myapp.lexicon.ads.interstitial
+package com.myapp.lexicon.ads.rewarded
 
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
@@ -17,72 +17,74 @@ import com.myapp.lexicon.models.AdsReward
 import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.repository.network.INetRepository
 import com.myapp.lexicon.settings.accessToken
-import com.myapp.lexicon.settings.interstitialAdIdFromPref
+import com.myapp.lexicon.settings.rewardedAdIdFromPref
 import com.myapp.lexicon.settings.saveAuthTokens
 import com.yandex.mobile.ads.common.AdError
 import com.yandex.mobile.ads.common.AdRequestConfiguration
 import com.yandex.mobile.ads.common.AdRequestError
 import com.yandex.mobile.ads.common.ImpressionData
-import com.yandex.mobile.ads.interstitial.InterstitialAd
-import com.yandex.mobile.ads.interstitial.InterstitialAdEventListener
-import com.yandex.mobile.ads.interstitial.InterstitialAdLoadListener
-import com.yandex.mobile.ads.interstitial.InterstitialAdLoader
+import com.yandex.mobile.ads.rewarded.Reward
+import com.yandex.mobile.ads.rewarded.RewardedAd
+import com.yandex.mobile.ads.rewarded.RewardedAdEventListener
+import com.yandex.mobile.ads.rewarded.RewardedAdLoadListener
+import com.yandex.mobile.ads.rewarded.RewardedAdLoader
 import kotlinx.coroutines.launch
 
 
-private var ad: InterstitialAd? = null
-
-private val TEST_INTERSTITIAL_DATA: String
+private val TEST_REWARDED_DATA: String
     get() = """{
       "currency": "RUB",
-      "revenueUSD": "0.03332",
+      "revenueUSD": "0.50051",
       "precision": "estimated",
-      "revenue": "2.9999",
-      "requestId": "${System.currentTimeMillis()}617871108186477874100342-demo-interstitial-yandex",
-      "blockId": "demo-interstitial-yandex",
+      "revenue": "50.0",
+      "requestId": "${System.currentTimeMillis()}617871108186477874100342-demo-rewarded-yandex",
+      "blockId": "demo-rewarded-yandex",
       "adType": "interstitial",
-      "ad_unit_id": "demo-interstitial-yandex",
+      "ad_unit_id": "demo-rewarded-yandex",
       "network": {
         "name": "Yandex",
         "adapter": "Yandex",
-        "ad_unit_id": "demo-interstitial-yandex"
+        "ad_unit_id": "demo-rewarded-yandex"
       }
     }"""
 
-fun FragmentActivity.loadInterstitialAd() {
+private var ad: RewardedAd? = null
+
+fun FragmentActivity.loadRewardedAd(
+    onLoaded: (ad: RewardedAd) -> Unit = {}
+) {
 
     this.orientationLock()
 
     val id = if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
-        "demo-interstitial-yandex"
+        "demo-rewarded-yandex"
     } else {
-        this.interstitialAdIdFromPref
+        this.rewardedAdIdFromPref
     }
+
     val adRequestConfiguration = AdRequestConfiguration.Builder(id).build()
-    InterstitialAdLoader(this).apply {
-
-        setAdLoadListener(object : InterstitialAdLoadListener {
-            override fun onAdLoaded(interstitialAd: InterstitialAd) {
-
-                this@loadInterstitialAd.orientationUnLock()
-                ad = interstitialAd
+    RewardedAdLoader(this).apply {
+        setAdLoadListener(object : RewardedAdLoadListener {
+            override fun onAdLoaded(rewarded: RewardedAd) {
+                ad = rewarded
+                onLoaded.invoke(rewarded)
+                this@loadRewardedAd.orientationUnLock()
             }
 
             override fun onAdFailedToLoad(error: AdRequestError) {
-
-                this@loadInterstitialAd.orientationUnLock()
                 "${this::class.simpleName} - ${error.description}".logIfDebug()
+                this@loadRewardedAd.orientationUnLock()
             }
         })
         loadAd(adRequestConfiguration)
     }
 }
 
-fun FragmentActivity.showInterstitialAd(
+fun FragmentActivity.showRewardedAd(
     onDismissed: (reward: AdsReward) -> Unit = {},
     onAuthorizationRequired: () -> Unit
 ) {
-    ad?.setAdEventListener(object : InterstitialAdEventListener {
+    ad?.setAdEventListener(object : RewardedAdEventListener {
 
         private var reward: AdsReward? = null
 
@@ -90,7 +92,7 @@ fun FragmentActivity.showInterstitialAd(
             setTokensUpdateListener(object : INetRepositoryModule.Listener {
                 override fun onUpdateTokens(tokens: Tokens) {
                     this@apply.setRefreshToken(tokens.refreshToken)
-                    this@showInterstitialAd.saveAuthTokens(tokens)
+                    this@showRewardedAd.saveAuthTokens(tokens)
                 }
                 override fun onAuthorizationRequired() {
                     onAuthorizationRequired.invoke()
@@ -99,15 +101,16 @@ fun FragmentActivity.showInterstitialAd(
         }.provideNetRepository()
 
         override fun onAdShown() {
-            this@showInterstitialAd.orientationLock()
+            this@showRewardedAd.orientationLock()
         }
 
         override fun onAdFailedToShow(adError: AdError) {
             "${this::class.simpleName} - ${adError.description}".logIfDebug()
+            this@showRewardedAd.orientationUnLock()
         }
 
         override fun onAdDismissed() {
-            this@showInterstitialAd.orientationUnLock()
+            this@showRewardedAd.orientationUnLock()
             try {
                 if (reward != null) {
                     onDismissed.invoke(reward!!)
@@ -121,9 +124,8 @@ fun FragmentActivity.showInterstitialAd(
 
         override fun onAdImpression(impressionData: ImpressionData?) {
             if (IS_REWARD_ACCESSIBLE) {
-
                 val impressData: ImpressionData? = if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
-                    TestAdData(TEST_INTERSTITIAL_DATA)
+                    TestAdData(TEST_REWARDED_DATA)
                 }
                 else {
                     impressionData
@@ -132,9 +134,9 @@ fun FragmentActivity.showInterstitialAd(
                 impressData?.let {
                     val rawData = it.rawData
                     val revenue = rawData.toRevenue()
-                    val accessToken = this@showInterstitialAd.accessToken
+                    val accessToken = this@showRewardedAd.accessToken
                     if (accessToken.isNotEmpty() && revenue != null) {
-                        this@showInterstitialAd.lifecycleScope.launch {
+                        this@showRewardedAd.lifecycleScope.launch {
                             repository.updateUserBalance(accessToken, revenue).collect(collector = { result ->
                                 result.onSuccess { r ->
                                     reward = r
@@ -145,21 +147,13 @@ fun FragmentActivity.showInterstitialAd(
                 }
             }
         }
+
+        override fun onRewarded(reward: Reward) {}
     })
     ad?.show(this)?: run {
         Exception("Ad is not loaded yet").printStackTraceIfDebug()
     }
 }
-
-
-
-
-
-
-
-
-
-
 
 
 

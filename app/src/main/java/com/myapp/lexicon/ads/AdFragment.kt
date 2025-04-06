@@ -8,16 +8,19 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
-import androidx.lifecycle.ViewModelProvider
+import com.myapp.lexicon.ads.feed_ad.startFeedAdsActivity
+import com.myapp.lexicon.ads.interstitial.loadInterstitialAd
+import com.myapp.lexicon.ads.interstitial.showInterstitialAd
 import com.myapp.lexicon.ads.models.AD_VIDEO
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.ads.models.AdType
+import com.myapp.lexicon.ads.rewarded.loadRewardedAd
+import com.myapp.lexicon.ads.rewarded.showRewardedAd
 import com.myapp.lexicon.databinding.FragmentAdBinding
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
+import com.myapp.lexicon.main.ext.redirectToAuthScreen
 import com.myapp.lexicon.models.AdsReward
 import com.myapp.lexicon.video.web.YouTubeFragment
-import com.yandex.mobile.ads.interstitial.InterstitialAd
-import com.yandex.mobile.ads.rewarded.RewardedAd
 import kotlinx.serialization.json.Json
 
 class AdFragment : Fragment() {
@@ -27,10 +30,6 @@ class AdFragment : Fragment() {
     }
 
     private var binding: FragmentAdBinding? = null
-
-    private val adsVM: AdsViewModel by lazy {
-        ViewModelProvider(this)[AdsViewModel::class.java]
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -76,48 +75,55 @@ class AdFragment : Fragment() {
                 )
             }
             AdType.INTERSTITIAL.type -> {
-                adsVM.loadInterstitialAd(INTERSTITIAL_VIDEO)
-                adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
-                    result.onSuccess { ad: InterstitialAd ->
-                        ad.showAd(
-                            requireActivity(),
-                            onImpression = {data: AdData? ->
+                requireActivity().loadInterstitialAd(
+                    onLoaded = { ad ->
+                        requireActivity().showInterstitialAd(
+                            onDismissed = { reward ->
                                 setFragmentResult(YouTubeFragment.KEY_AD_DATA, Bundle().apply {
-                                    if (data != null) {
-                                        val jsonData = Json.encodeToJsonElement(AdData.serializer(), data).toString()
-                                        putString(YouTubeFragment.KEY_JSON_AD_DATA, jsonData)
-                                    }
+                                    val jsonData = Json.encodeToJsonElement(AdsReward.serializer(), reward).toString()
+                                    putString(YouTubeFragment.KEY_JSON_AD_DATA, jsonData)
                                 })
                             },
-                            onDismissed = {
-                                setFragmentResult(YouTubeFragment.KEY_AD_DISMISSED, Bundle.EMPTY)
+                            onAuthorizationRequired = {
                                 parentFragmentManager.beginTransaction().remove(this).commit()
+                                requireActivity().redirectToAuthScreen()
                             }
                         )
                     }
-                }
+                )
             }
             AdType.REWARDED.type -> {
-                adsVM.loadRewardedAd(REWARDED_VIDEO_ID)
-                adsVM.rewardedAd.observe(viewLifecycleOwner) { result ->
-                    result.onSuccess { ad: RewardedAd ->
-                        ad.showAd(
-                            requireActivity(),
-                            onImpression = {data: AdData? ->
+                requireActivity().loadRewardedAd(
+                    onLoaded = {
+                        requireActivity().showRewardedAd(
+                            onDismissed = { reward ->
                                 setFragmentResult(YouTubeFragment.KEY_AD_DATA, Bundle().apply {
-                                    if (data != null) {
-                                        val jsonData = Json.encodeToJsonElement(AdData.serializer(), data).toString()
-                                        putString(YouTubeFragment.KEY_JSON_AD_DATA, jsonData)
-                                    }
+                                    val jsonData = Json.encodeToJsonElement(AdsReward.serializer(), reward).toString()
+                                    putString(YouTubeFragment.KEY_JSON_AD_DATA, jsonData)
                                 })
                             },
-                            onDismissed = {bonus: Double ->
-                                setFragmentResult(YouTubeFragment.KEY_AD_DISMISSED, Bundle.EMPTY)
+                            onAuthorizationRequired = {
                                 parentFragmentManager.beginTransaction().remove(this).commit()
+                                requireActivity().redirectToAuthScreen()
                             }
                         )
                     }
-                }
+                )
+            }
+            AdType.FEED.type -> {
+                requireActivity().startFeedAdsActivity(
+                    onDismissed = { reward ->
+                        setFragmentResult(YouTubeFragment.KEY_AD_DATA, Bundle().apply {
+                            val jsonData = Json.encodeToJsonElement(AdsReward.serializer(), reward).toString()
+                            putString(YouTubeFragment.KEY_JSON_AD_DATA, jsonData)
+                        })
+                        parentFragmentManager.beginTransaction().remove(this).commit()
+                    },
+                    onError = { error ->
+                        Exception(error).printStackTraceIfDebug()
+                        parentFragmentManager.popBackStack()
+                    }
+                )
             }
         }
     }

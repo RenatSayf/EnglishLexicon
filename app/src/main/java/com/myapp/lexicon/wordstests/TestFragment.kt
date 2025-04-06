@@ -26,13 +26,15 @@ import com.jakewharton.rxbinding2.widget.RxTextView
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
-import com.myapp.lexicon.ads.INTERSTITIAL_TEST
-import com.myapp.lexicon.ads.REWARDED_TEST_ID
 import com.myapp.lexicon.ads.ext.toRevenue
+import com.myapp.lexicon.ads.feed_ad.startFeedAdsActivity
+import com.myapp.lexicon.ads.interstitial.loadInterstitialAd
+import com.myapp.lexicon.ads.interstitial.showInterstitialAd
 import com.myapp.lexicon.ads.models.AD_TEST
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.ads.models.AdType
-import com.myapp.lexicon.ads.showAd
+import com.myapp.lexicon.ads.rewarded.loadRewardedAd
+import com.myapp.lexicon.ads.rewarded.showRewardedAd
 import com.myapp.lexicon.ads.startBannersActivity
 import com.myapp.lexicon.ads.startNativeAdsActivity
 import com.myapp.lexicon.auth.account.UserDataViewModel
@@ -45,13 +47,13 @@ import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showCustomSnackBar
 import com.myapp.lexicon.helpers.showMultiLineSnackBar
 import com.myapp.lexicon.main.SpeechViewModel
+import com.myapp.lexicon.main.ext.redirectToAuthScreen
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.accessToken
 import com.myapp.lexicon.settings.getTestStateFromPref
 import com.myapp.lexicon.settings.saveTestStateToPref
 import com.myapp.lexicon.viewmodels.AnimViewModel
 import com.myapp.lexicon.viewmodels.PageBackViewModel
-import com.yandex.mobile.ads.interstitial.InterstitialAd
 import com.yandex.mobile.ads.rewarded.RewardedAd
 import io.reactivex.disposables.CompositeDisposable
 import java.util.Locale
@@ -94,7 +96,6 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
 
     private val composite = CompositeDisposable()
     private var dialogWarning: DialogWarning? = null
-    private var interstitialAd: InterstitialAd? = null
     private var rewardedAd: RewardedAd? = null
 
     private val lockOrientation: LockOrientation by lazy {
@@ -291,12 +292,6 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 progressValueTV.text = progressValue
             }
 
-            adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
-                result.onSuccess { ad ->
-                    interstitialAd = ad
-                }
-            }
-
             adsVM.rewardedAd.observe(viewLifecycleOwner) { result ->
                 result.onSuccess { ad: RewardedAd ->
                     rewardedAd = ad
@@ -307,8 +302,8 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 when (state) {
                     TestViewModel.State.Init -> {
                         when(AD_TEST) {
-                            AdType.INTERSTITIAL.type -> adsVM.loadInterstitialAd(INTERSTITIAL_TEST)
-                            AdType.REWARDED.type -> adsVM.loadRewardedAd(REWARDED_TEST_ID)
+                            AdType.INTERSTITIAL.type -> requireActivity().loadInterstitialAd()
+                            AdType.REWARDED.type -> requireActivity().loadRewardedAd()
                         }
                     }
 
@@ -341,45 +336,36 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                                     },
                                     onError = { error: String ->
                                         Exception(error).printStackTraceIfDebug()
-                                        parentFragmentManager.popBackStack()
                                     }
                                 )
                             }
                             AdType.INTERSTITIAL.type -> {
-                                interstitialAd?.showAd(
-                                    requireActivity(),
-                                    onImpression = { data ->
-                                        if (data != null && accessToken.isNotEmpty()) {
-                                            try {
-                                                val revenue = data.toRevenue()
-                                                userDataVM.updateUserBalance(accessToken, revenue)
-                                            } catch (e: Exception) {
-                                                e.printStackTraceIfDebug()
-                                            }
-                                        }
-                                        testVM.setState(TestViewModel.State.Init)
+                                requireActivity().showInterstitialAd(
+                                    onDismissed = { reward ->
+                                        adsVM.setAdState(AdsViewModel.AdState.Rewarded(reward))
                                     },
-                                    onDismissed = {bonus: Double ->
-                                        adsVM.setAdState(AdsViewModel.AdState.Dismissed(bonus))
+                                    onAuthorizationRequired = {
+                                        requireActivity().redirectToAuthScreen()
                                     }
                                 )
                             }
                             AdType.REWARDED.type -> {
-                                rewardedAd?.showAd(
-                                    requireActivity(),
-                                    onImpression = {data: AdData? ->
-                                        if (data != null && accessToken.isNotEmpty()) {
-                                            try {
-                                                val revenue = data.toRevenue()
-                                                userDataVM.updateUserBalance(accessToken, revenue)
-                                            } catch (e: Exception) {
-                                                e.printStackTraceIfDebug()
-                                            }
-                                        }
-                                        testVM.setState(TestViewModel.State.Init)
+                                requireActivity().showRewardedAd(
+                                    onDismissed = { reward ->
+                                        adsVM.setAdState(AdsViewModel.AdState.Rewarded(reward))
                                     },
-                                    onDismissed = { bonus: Double ->
-                                        adsVM.setAdState(AdsViewModel.AdState.Dismissed(bonus))
+                                    onAuthorizationRequired = {
+                                        requireActivity().redirectToAuthScreen()
+                                    }
+                                )
+                            }
+                            AdType.FEED.type -> {
+                                requireActivity().startFeedAdsActivity(
+                                    onDismissed = { reward ->
+                                        adsVM.setAdState(AdsViewModel.AdState.Rewarded(reward))
+                                    },
+                                    onError = { error ->
+                                        Exception(error).printStackTraceIfDebug()
                                     }
                                 )
                             }
