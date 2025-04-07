@@ -20,6 +20,7 @@ import com.myapp.lexicon.ads.toAdData
 import com.myapp.lexicon.common.AdsSource
 import com.myapp.lexicon.common.IS_REWARD_ACCESSIBLE
 import com.myapp.lexicon.databinding.ActivityNativeAdsBinding
+import com.myapp.lexicon.di.App
 import com.myapp.lexicon.di.INetRepositoryModule
 import com.myapp.lexicon.di.NetRepositoryModule
 import com.myapp.lexicon.helpers.logIfDebug
@@ -80,7 +81,7 @@ class NativeAdsActivity : AppCompatActivity() {
                 this@NativeAdsActivity.redirectToAuthScreen()
             }
         })
-        setRefreshToken(this@NativeAdsActivity.refreshToken)
+        setRefreshToken(App.INSTANCE.refreshToken)
     }.provideNetRepository()
 
     private val testAdData: String

@@ -12,6 +12,7 @@ import com.myapp.lexicon.ads.models.TestAdData
 import com.myapp.lexicon.common.AdsSource
 import com.myapp.lexicon.common.IS_REWARD_ACCESSIBLE
 import com.myapp.lexicon.databinding.ActivityFeedAdsBinding
+import com.myapp.lexicon.di.App
 import com.myapp.lexicon.di.INetRepositoryModule
 import com.myapp.lexicon.di.NetRepositoryModule
 import com.myapp.lexicon.helpers.orientationLock
@@ -67,7 +68,7 @@ class FeedAdsActivity : AppCompatActivity() {
                 this@FeedAdsActivity.redirectToAuthScreen()
             }
         })
-        setRefreshToken(this@FeedAdsActivity.refreshToken)
+        setRefreshToken(App.INSTANCE.refreshToken)
     }.provideNetRepository()
 
     private val testAdData: String
