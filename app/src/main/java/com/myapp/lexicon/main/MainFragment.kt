@@ -14,11 +14,6 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.aboutapp.checkAppUpdate
 import com.myapp.lexicon.aboutapp.showUpdateDialog
 import com.myapp.lexicon.aboutapp.showUpdateSnackBar
-import com.myapp.lexicon.ads.models.AD_MAIN
-import com.myapp.lexicon.ads.models.AD_SERVICE
-import com.myapp.lexicon.ads.models.AD_TEST
-import com.myapp.lexicon.ads.models.AD_TRANSLATE
-import com.myapp.lexicon.ads.models.AD_VIDEO
 import com.myapp.lexicon.auth.AuthViewModel
 import com.myapp.lexicon.auth.account.UserDataViewModel
 import com.myapp.lexicon.common.IS_IMPORTANT_UPDATE
@@ -90,12 +85,6 @@ class MainFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        AD_MAIN
-        AD_TRANSLATE
-        AD_TEST
-        AD_VIDEO
-        AD_SERVICE
 
         val launcher = this.registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
 
