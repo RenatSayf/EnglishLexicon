@@ -9,6 +9,7 @@ import com.myapp.lexicon.models.SignUpData
 import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.models.UserProfile
 import com.myapp.lexicon.models.UserX
+import com.myapp.lexicon.settings.RemoteConfigViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -342,6 +343,80 @@ open class NetRepository(
         }
 
     }
+
+    override suspend fun fetchRemoteConfig(): Flow<Result<RemoteConfigViewModel.Config>> {
+        return flow {
+            val response = httpClient.get(urlString = "$baseUrl/config", block = {
+                contentType(ContentType.Application.Json)
+            })
+            when(response.status) {
+                HttpStatusCode.NotFound, HttpStatusCode.BadGateway, HttpStatusCode.BadRequest -> {
+                    runCatching {
+                        //val json = response.body<String>()
+                        val json = jsonConfig
+                        jsonDecoder.decodeFromString(
+                            RemoteConfigViewModel.Config.serializer(),
+                            json
+                        )
+                    }.onSuccess { config ->
+                        emit(Result.success(config))
+                    }.onFailure { t ->
+                        val throwable = t.castToHttpThrowable()
+                        Result.failure<Throwable>(throwable)
+                    }
+                }
+                else -> {
+                    val status = response.status
+                    val httpThrowable = HttpThrowable(message = status.description, errorCode = status.value)
+                    emit(Result.failure(httpThrowable))
+                }
+            }
+        }
+    }
+
+    private val jsonConfig = """{
+  "adTypePerScreen" : {
+    "main" : 1,
+    "service" : 1,
+    "test" : 3,
+    "translate" : 1,
+    "video" : 3
+  },
+  "bannerIds" : {
+    "main" : "R-M-711878-1",
+    "service" : "R-M-711878-1",
+    "editor" : "R-M-711878-2",
+    "translate" : "R-M-711878-3"
+  },
+  "nativeIds" : {
+    "main" : "R-M-711878-14",
+    "service" : "R-M-711878-14",
+    "translate" : "R-M-711878-15",
+    "test" : "R-M-711878-15",
+    "video" : "R-M-711878-14"
+  },
+  "interstitialAdIds" : {
+    "main" : "R-M-711878-4",
+    "service" : "R-M-711878-4",
+    "translate" : "R-M-711878-5",
+    "test" : "R-M-711878-6",
+    "video" : "R-M-711878-6"
+  },
+  "rewardedIds" : {
+    "main" : "R-M-711878-10",
+    "service" : "R-M-711878-10",
+    "translate" : "R-M-711878-11",
+    "test" : "R-M-711878-12",
+    "video" : "R-M-711878-12"
+  },
+  "feedIds" : {
+    "main" : "R-M-711878-18",
+    "service" : "R-M-711878-18",
+    "translate" : "R-M-711878-18",
+    "test" : "R-M-711878-18",
+    "video" : "R-M-711878-18"
+  }
+}"""
 
 
 }

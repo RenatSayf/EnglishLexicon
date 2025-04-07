@@ -26,19 +26,15 @@ import com.jakewharton.rxbinding2.widget.RxTextView
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
-import com.myapp.lexicon.ads.feed_ad.FEED_TEST
 import com.myapp.lexicon.ads.feed_ad.startFeedAdsActivity
-import com.myapp.lexicon.ads.interstitial.INTERSTITIAL_TEST
 import com.myapp.lexicon.ads.interstitial.loadInterstitialAd
 import com.myapp.lexicon.ads.interstitial.showInterstitialAd
-import com.myapp.lexicon.ads.models.AD_TEST
 import com.myapp.lexicon.ads.models.AdType
-import com.myapp.lexicon.ads.native_ad.NATIVE_TEST
+import com.myapp.lexicon.ads.native_ad.startNativeAdsActivity
 import com.myapp.lexicon.ads.rewarded.loadRewardedAd
 import com.myapp.lexicon.ads.rewarded.showRewardedAd
-import com.myapp.lexicon.ads.native_ad.startNativeAdsActivity
-import com.myapp.lexicon.ads.rewarded.REWARDED_TEST
 import com.myapp.lexicon.databinding.TestFragmentBinding
+import com.myapp.lexicon.di.App
 import com.myapp.lexicon.dialogs.DictListDialog
 import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.UiState
@@ -285,21 +281,23 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
             }
 
             testVM.state.observe(viewLifecycleOwner) { state ->
+
+                val config = App.INSTANCE.defaultConfig
                 when (state) {
                     TestViewModel.State.Init -> {
-                        when(AD_TEST) {
-                            AdType.INTERSTITIAL.type -> requireActivity().loadInterstitialAd(adId = requireContext().INTERSTITIAL_TEST)
-                            AdType.REWARDED.type -> requireActivity().loadRewardedAd(adId = requireContext().REWARDED_TEST)
+                        when(config.adTypePerScreen.test) {
+                            AdType.INTERSTITIAL.type -> requireActivity().loadInterstitialAd(adId = config.interstitialAdIds.test)
+                            AdType.REWARDED.type -> requireActivity().loadRewardedAd(adId = config.rewardedIds.test)
                         }
                     }
 
                     TestViewModel.State.NotShowAd -> {}
                     TestViewModel.State.ShowAd -> {
 
-                        when(AD_TEST) {
+                        when(config.adTypePerScreen.test) {
                             AdType.NATIVE.type -> {
                                 requireActivity().startNativeAdsActivity(
-                                    adId = requireContext().NATIVE_TEST,
+                                    adId = config.nativeIds.test,
                                     onDismissed = { reward ->
                                         adsVM.setAdState(AdsViewModel.AdState.Rewarded(reward))
                                     },
@@ -330,7 +328,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                             }
                             AdType.FEED.type -> {
                                 requireActivity().startFeedAdsActivity(
-                                    adId = requireContext().FEED_TEST,
+                                    adId = config.feedIds.test,
                                     onDismissed = { reward ->
                                         adsVM.setAdState(AdsViewModel.AdState.Rewarded(reward))
                                     },

@@ -25,13 +25,14 @@ import com.google.android.material.snackbar.Snackbar;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.addword.AddWordViewModel;
 import com.myapp.lexicon.ads.AdsViewModelKt;
-import com.myapp.lexicon.ads.banner.BannerAdIdsKt;
+import com.myapp.lexicon.di.App;
 import com.myapp.lexicon.dialogs.ConfirmDialog;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SpeechViewModel;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.models.WordKt;
+import com.myapp.lexicon.settings.RemoteConfigViewModel;
 import com.myapp.lexicon.viewmodels.EditorSearchViewModel;
 import com.yandex.mobile.ads.banner.BannerAdView;
 
@@ -306,11 +307,12 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             switcher.showNext();
         }
 
+        RemoteConfigViewModel.Config config = App.Companion.getINSTANCE().getDefaultConfig();
         BannerAdView bannerView = findViewById(R.id.bannerView);
         AdsViewModelKt.loadBanner(
                 bannerView,
                 this,
-                BannerAdIdsKt.getBANNER_EDITOR(this),
+                config.getBannerIds().getEditor(),
                 0.08
         );
 

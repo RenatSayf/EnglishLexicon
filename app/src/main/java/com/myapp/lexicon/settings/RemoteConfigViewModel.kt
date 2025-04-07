@@ -1,91 +1,163 @@
 package com.myapp.lexicon.settings
 
-import android.app.Application
-import android.content.SharedPreferences
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.preference.PreferenceManager
-import com.myapp.lexicon.ads.banner.BannerAdIds
-import com.myapp.lexicon.di.App
+import androidx.lifecycle.viewModelScope
 import com.myapp.lexicon.di.INetRepositoryModule
 import com.myapp.lexicon.di.NetRepositoryModule
+import com.myapp.lexicon.helpers.castToHttpThrowable
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
+import com.myapp.lexicon.models.HttpThrowable
 import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.repository.network.INetRepository
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.Json
 
 
 class RemoteConfigViewModel(
-    private val app: Application,
     private val netModule: INetRepositoryModule
-) : AndroidViewModel(app) {
+) : ViewModel() {
 
     @Suppress("UNCHECKED_CAST")
     class Factory(
-        private val app: Application = App(),
         private val netModule: INetRepositoryModule = NetRepositoryModule()
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             require(modelClass == RemoteConfigViewModel::class.java)
-            return RemoteConfigViewModel(app, netModule) as T
+            return RemoteConfigViewModel(netModule) as T
         }
     }
 
     sealed interface State {
-        data class RemoteConfigLoaded(val config: Config)
+        data class RemoteConfigLoaded(val config: Config): State
+        data class FailureLoad(val throwable: HttpThrowable): State
     }
 
-    private var _state = MutableLiveData<Config>()
-    val state: LiveData<Config> = _state
+    private var _state = MutableLiveData<State>()
+    val state: LiveData<State> = _state
 
     private val repository: INetRepository = netModule.apply {
         setTokensUpdateListener(object : INetRepositoryModule.Listener {
             override fun onUpdateTokens(tokens: Tokens) {
                 netModule.setRefreshToken(tokens.refreshToken)
-                app.saveAuthTokens(tokens)
+
             }
 
             override fun onAuthorizationRequired() {
 
             }
         })
-        setRefreshToken(app.refreshToken)
     }.provideNetRepository()
 
-    private val pref: SharedPreferences
-        get() {
-            return PreferenceManager.getDefaultSharedPreferences(app)
-        }
+    private val decoder = Json(builderAction = {
+        ignoreUnknownKeys = true
+    })
 
     @Serializable
     data class Config(
-        val adTypePerScreen: Map<String, Int> = mapOf(
-            AD_MAIN to 1,
-            AD_SERVICE to 1,
-            AD_TEST to 3,
-            AD_TRANSLATE to 1,
-            AD_VIDEO to 3
-        ),
-        val bannerIds: Map<String, String> = mapOf(
-            "BANNER_MAIN" to BannerAdIds.BANNER_1.id,
-            "BANNER_TRANSLATE" to BannerAdIds.BANNER_2.id,
-            "BANNER_SERVICE" to BannerAdIds.BANNER_1.id,
-            "BANNER_EDITOR" to BannerAdIds.BANNER_3.id
-        ),
-        val nativeIds: Map<String, String> = mapOf(
-
-        )
+        val adTypePerScreen: AdType,
+        val bannerIds: BannerIds,
+        val nativeIds: NativeIds,
+        val interstitialAdIds: InterstitialIds,
+        val rewardedIds: RewardedIds,
+        val feedIds: FeedAdIds
     ) {
-        companion object {
-            const val AD_MAIN = "AD_MAIN"
-            const val AD_SERVICE = "AD_SERVICE"
-            const val AD_TEST = "AD_TEST"
-            const val AD_TRANSLATE = "AD_TRANSLATE"
-            const val AD_VIDEO = "AD_VIDEO"
+        @Serializable
+        data class AdType(
+            val main: Int,
+            val service: Int,
+            val test: Int,
+            val translate: Int,
+            val video: Int
+        )
+        @Serializable
+        data class BannerIds(
+            val main: String,
+            val service: String,
+            val editor: String,
+            val translate: String
+        )
+        @Serializable
+        data class InterstitialIds(
+            val main: String,
+            val service: String,
+            val translate: String,
+            val test: String,
+            val video: String
+        )
+        @Serializable
+        data class NativeIds(
+            val main: String,
+            val service: String,
+            val translate: String,
+            val test: String,
+            val video: String
+        )
+        @Serializable
+        data class RewardedIds(
+            val main: String,
+            val service: String,
+            val translate: String,
+            val test: String,
+            val video: String
+        )
+        @Serializable
+        data class FeedAdIds(
+            val main: String,
+            val service: String,
+            val translate: String,
+            val test: String,
+            val video: String
+        )
+    }
+
+    fun fetchRemoteConfig(
+        onSuccess: (config: Config) -> Unit,
+        onFailure: (t: Throwable) -> Unit,
+        dispatcher: CoroutineDispatcher = Dispatchers.Default
+    ) {
+
+        viewModelScope.launch(context = dispatcher) {
+            repository.fetchRemoteConfig().collect(collector = { res ->
+                res.onSuccess { config ->
+                    _state.postValue(State.RemoteConfigLoaded(config))
+                    onSuccess.invoke(config)
+                }
+                res.onFailure { t ->
+                    _state.postValue(State.FailureLoad(t.castToHttpThrowable()))
+                    onFailure.invoke(t)
+                }
+            })
         }
     }
+
+    fun encodeToJsonString(config: Config): String? {
+        return try {
+            val string = decoder.encodeToString(Config.serializer(), config)
+            string
+        } catch (e: SerializationException) {
+            e.printStackTraceIfDebug()
+            null
+        }
+    }
+
+    fun decodeFromString(json: String): Config? {
+        return try {
+            val config = decoder.decodeFromString(Config.serializer(), json)
+            config
+        } catch (e: Exception) {
+            e.printStackTraceIfDebug()
+            null
+        }
+    }
+
+
 }
 
 

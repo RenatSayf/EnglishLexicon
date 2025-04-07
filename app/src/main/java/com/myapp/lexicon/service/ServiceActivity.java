@@ -8,23 +8,20 @@ import android.widget.FrameLayout;
 import com.google.android.material.snackbar.Snackbar;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.ads.AdsViewModel;
-import com.myapp.lexicon.ads.feed_ad.FeedAdIdsKt;
 import com.myapp.lexicon.ads.feed_ad.FeedAdsActivityKt;
 import com.myapp.lexicon.ads.interstitial.InterstitialAdExtKt;
-import com.myapp.lexicon.ads.interstitial.InterstitialAdIdsKt;
 import com.myapp.lexicon.ads.models.AdType;
-import com.myapp.lexicon.ads.models.AdTypeKt;
-import com.myapp.lexicon.ads.native_ad.NativeAdIdsKt;
 import com.myapp.lexicon.ads.native_ad.NativeAdsActivityKt;
 import com.myapp.lexicon.ads.rewarded.RewardedAdExtKt;
-import com.myapp.lexicon.ads.rewarded.RewardedAdIdsKt;
 import com.myapp.lexicon.auth.AuthViewModel;
 import com.myapp.lexicon.common.CommonConstantsKt;
 import com.myapp.lexicon.databinding.ServiceDialogActivityBinding;
+import com.myapp.lexicon.di.App;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.interfaces.IModalFragment;
 import com.myapp.lexicon.schedule.AlarmScheduler;
+import com.myapp.lexicon.settings.RemoteConfigViewModel;
 import com.myapp.lexicon.settings.SettingsExtKt;
 import com.myapp.lexicon.splash.SplashActivity;
 import com.parse.ParseUser;
@@ -138,12 +135,12 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
             return;
         }
 
-        int adType = AdTypeKt.getAD_SERVICE(ServiceActivity.this);
+        RemoteConfigViewModel.Config config = App.Companion.getINSTANCE().getDefaultConfig();
 
-        if (adType == AdType.INTERSTITIAL.getType()) {
+        if (config.getAdTypePerScreen().getService() == AdType.INTERSTITIAL.getType()) {
             InterstitialAdExtKt.loadInterstitialAd(
                     this,
-                    InterstitialAdIdsKt.getINTERSTITIAL_SERVICE(this),
+                    config.getInterstitialAdIds().getService(),
                     interstitialAd -> {
                         InterstitialAdExtKt.showInterstitialAd(
                                 this,
@@ -157,10 +154,10 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                     }
             );
         }
-        if (adType == AdType.NATIVE.getType()) {
+        if (config.getAdTypePerScreen().getService() == AdType.NATIVE.getType()) {
             NativeAdsActivityKt.startNativeAdsActivity(
                     this,
-                    NativeAdIdsKt.getNATIVE_SERVICE(this),
+                    config.getNativeIds().getService(),
                     adsReward -> {
                         adsVM.setAdState(new AdsViewModel.AdState.Rewarded(adsReward));
                         return null;
@@ -171,10 +168,10 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                     }
             );
         }
-        if (adType == AdType.REWARDED.getType()) {
+        if (config.getAdTypePerScreen().getService() == AdType.REWARDED.getType()) {
             RewardedAdExtKt.loadRewardedAd(
                     this,
-                    RewardedAdIdsKt.getREWARDED_SERVICE(this),
+                    config.getRewardedIds().getService(),
                     rewardedAd1 -> {
                         RewardedAdExtKt.showRewardedAd(
                                 this,
@@ -188,11 +185,11 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                     }
             );
         }
-        if (adType == AdType.FEED.getType())
+        if (config.getAdTypePerScreen().getService() == AdType.FEED.getType())
         {
             FeedAdsActivityKt.startFeedAdsActivity(
                     this,
-                    FeedAdIdsKt.getFEED_SERVICE(this),
+                    config.getFeedIds().getService(),
                     reward -> {
                         adsVM.setAdState(new AdsViewModel.AdState.Rewarded(reward));
                         return null;

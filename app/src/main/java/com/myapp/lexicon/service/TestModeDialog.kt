@@ -19,12 +19,12 @@ import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.aboutapp.checkAppUpdate
 import com.myapp.lexicon.ads.AdsViewModel
-import com.myapp.lexicon.ads.banner.BANNER_SERVICE
 import com.myapp.lexicon.ads.ext.showUserRewardAnimatedly
 import com.myapp.lexicon.ads.loadBanner
 import com.myapp.lexicon.auth.account.UserDataViewModel
 import com.myapp.lexicon.common.IS_IMPORTANT_UPDATE
 import com.myapp.lexicon.databinding.STestModalFragmentBinding
+import com.myapp.lexicon.di.App
 import com.myapp.lexicon.helpers.RandomNumberGenerator
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showToast
@@ -110,7 +110,8 @@ class TestModeDialog : DialogFragment() {
 
         with(binding) {
 
-            bannerView.loadBanner(requireActivity(), requireContext().BANNER_SERVICE)
+            val adId = App.INSTANCE.defaultConfig.bannerIds.service
+            bannerView.loadBanner(requireActivity(), adId)
 
             val extra = requireActivity().intent.getStringExtra(ServiceActivity.ARG_JSON)
             if (extra != null) {

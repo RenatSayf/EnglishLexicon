@@ -28,7 +28,6 @@ import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
 import com.myapp.lexicon.ads.AdsViewModel;
 import com.myapp.lexicon.ads.AdsViewModelKt;
-import com.myapp.lexicon.ads.banner.BannerAdIdsKt;
 import com.myapp.lexicon.auth.AuthFragment;
 import com.myapp.lexicon.auth.account.AccountFragment;
 import com.myapp.lexicon.auth.account.UserDataViewModel;
@@ -38,6 +37,7 @@ import com.myapp.lexicon.database.AppDataBase;
 import com.myapp.lexicon.databinding.AContentMainBinding;
 import com.myapp.lexicon.databinding.ANavigMainBinding;
 import com.myapp.lexicon.databinding.LayoutMainToolbarBinding;
+import com.myapp.lexicon.di.App;
 import com.myapp.lexicon.dialogs.ConfirmDialog;
 import com.myapp.lexicon.dialogs.DictListDialog;
 import com.myapp.lexicon.dialogs.OrderPlayDialog;
@@ -405,11 +405,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         MainFragment mainFragment = MainFragment.Companion.getInstance(this);
         getSupportFragmentManager().beginTransaction().add(R.id.frame_to_page_fragm, mainFragment).commit();
 
+        String adId = App.Companion.getINSTANCE().getDefaultConfig().getBannerIds().getMain();
         BannerAdView bannerView = contentBinding.bannerView;
         AdsViewModelKt.loadBanner(
                 bannerView,
                 this,
-                BannerAdIdsKt.getBANNER_MAIN(this),
+                adId,
                 0.08
         );
 

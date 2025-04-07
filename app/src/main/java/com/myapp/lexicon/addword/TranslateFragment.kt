@@ -16,21 +16,16 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
-import com.myapp.lexicon.ads.banner.BANNER_TRANSLATE
-import com.myapp.lexicon.ads.feed_ad.FEED_TRANSLATE
 import com.myapp.lexicon.ads.feed_ad.startFeedAdsActivity
-import com.myapp.lexicon.ads.interstitial.INTERSTITIAL_TRANSLATE
 import com.myapp.lexicon.ads.interstitial.loadInterstitialAd
 import com.myapp.lexicon.ads.interstitial.showInterstitialAd
 import com.myapp.lexicon.ads.loadBanner
-import com.myapp.lexicon.ads.models.AD_TRANSLATE
 import com.myapp.lexicon.ads.models.AdType
-import com.myapp.lexicon.ads.native_ad.NATIVE_TRANSLATE
+import com.myapp.lexicon.ads.native_ad.startNativeAdsActivity
 import com.myapp.lexicon.ads.rewarded.loadRewardedAd
 import com.myapp.lexicon.ads.rewarded.showRewardedAd
-import com.myapp.lexicon.ads.native_ad.startNativeAdsActivity
-import com.myapp.lexicon.ads.rewarded.REWARDED_TRANSLATE
 import com.myapp.lexicon.databinding.TranslateFragmentBinding
+import com.myapp.lexicon.di.App
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showMultiLineSnackBar
 import com.myapp.lexicon.main.MainActivity
@@ -109,12 +104,14 @@ class TranslateFragment : Fragment()
         super.onViewCreated(view, savedInstanceState)
         binding = TranslateFragmentBinding.bind(view)
 
-        when(AD_TRANSLATE) {
+        val config = App.INSTANCE.defaultConfig
+
+        when(config.adTypePerScreen.translate) {
             AdType.INTERSTITIAL.type -> {
-                requireActivity().loadInterstitialAd(adId = requireContext().INTERSTITIAL_TRANSLATE)
+                requireActivity().loadInterstitialAd(adId = config.interstitialAdIds.translate)
             }
             AdType.REWARDED.type -> {
-                requireActivity().loadRewardedAd(adId = requireContext().REWARDED_TRANSLATE)
+                requireActivity().loadRewardedAd(adId = config.rewardedIds.translate)
             }
         }
 
@@ -182,7 +179,7 @@ class TranslateFragment : Fragment()
                 }
             }
 
-            bannerView.loadBanner(activity = requireActivity(), adId = requireContext().BANNER_TRANSLATE)
+            bannerView.loadBanner(activity = requireActivity(), adId = config.bannerIds.translate)
         }
 
     }
@@ -207,14 +204,15 @@ class TranslateFragment : Fragment()
 
     private fun selectAndShowAd() {
 
+        val config = App.INSTANCE.defaultConfig
         when(mActivity)
         {
             is MainActivity -> {
 
-                when(AD_TRANSLATE) {
+                when(config.adTypePerScreen.translate) {
                     AdType.NATIVE.type -> {
                         requireActivity().startNativeAdsActivity(
-                            adId = requireContext().NATIVE_TRANSLATE,
+                            adId = config.nativeIds.translate,
                             onDismissed = { reward ->
                                 adsVM.setAdState(AdsViewModel.AdState.Rewarded(reward))
                                 parentFragmentManager.popBackStack()
@@ -249,7 +247,7 @@ class TranslateFragment : Fragment()
                     }
                     AdType.FEED.type -> {
                         requireActivity().startFeedAdsActivity(
-                            adId = requireContext().FEED_TRANSLATE,
+                            adId = config.feedIds.translate,
                             onDismissed = { reward ->
                                 adsVM.setAdState(AdsViewModel.AdState.Rewarded(reward))
                                 parentFragmentManager.popBackStack()
@@ -264,10 +262,10 @@ class TranslateFragment : Fragment()
             }
             is TranslateActivity -> {
 
-                when(AD_TRANSLATE) {
+                when(config.adTypePerScreen.translate) {
                     AdType.NATIVE.type -> {
                         requireActivity().startNativeAdsActivity(
-                            adId = requireContext().NATIVE_TRANSLATE,
+                            adId = config.nativeIds.translate,
                             onDismissed = { reward ->
                                 adsVM.setAdState(AdsViewModel.AdState.Rewarded(reward))
                                 requireActivity().finish()
@@ -300,7 +298,7 @@ class TranslateFragment : Fragment()
                     }
                     AdType.FEED.type -> {
                         requireActivity().startFeedAdsActivity(
-                            adId = requireContext().FEED_TRANSLATE,
+                            adId = config.feedIds.translate,
                             onDismissed = { reward ->
                                 adsVM.setAdState(AdsViewModel.AdState.Rewarded(reward))
                                 parentFragmentManager.popBackStack()

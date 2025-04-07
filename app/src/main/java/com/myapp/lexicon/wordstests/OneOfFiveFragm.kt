@@ -17,19 +17,15 @@ import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.adapters.OneFiveTestAdapter
 import com.myapp.lexicon.ads.AdsViewModel
-import com.myapp.lexicon.ads.feed_ad.FEED_MAIN
 import com.myapp.lexicon.ads.feed_ad.startFeedAdsActivity
-import com.myapp.lexicon.ads.interstitial.INTERSTITIAL_MAIN
 import com.myapp.lexicon.ads.interstitial.loadInterstitialAd
 import com.myapp.lexicon.ads.interstitial.showInterstitialAd
-import com.myapp.lexicon.ads.models.AD_MAIN
 import com.myapp.lexicon.ads.models.AdType
-import com.myapp.lexicon.ads.native_ad.NATIVE_MAIN
+import com.myapp.lexicon.ads.native_ad.startNativeAdsActivity
 import com.myapp.lexicon.ads.rewarded.loadRewardedAd
 import com.myapp.lexicon.ads.rewarded.showRewardedAd
-import com.myapp.lexicon.ads.native_ad.startNativeAdsActivity
-import com.myapp.lexicon.ads.rewarded.REWARDED_MAIN
 import com.myapp.lexicon.databinding.OneOfFiveFragmNewBinding
+import com.myapp.lexicon.di.App
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.RandomNumberGenerator
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
@@ -102,12 +98,14 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
         }
 
         if (!wordList.isNullOrEmpty()) vm.initTest(wordList!!.toList())
-        when(AD_MAIN) {
+
+        val config = App.INSTANCE.defaultConfig
+        when(config.adTypePerScreen.main) {
             AdType.INTERSTITIAL.type -> {
-                requireActivity().loadInterstitialAd(adId = requireContext().INTERSTITIAL_MAIN)
+                requireActivity().loadInterstitialAd(adId = config.interstitialAdIds.main)
             }
             AdType.REWARDED.type -> {
-                requireActivity().loadRewardedAd(adId = requireContext().REWARDED_MAIN)
+                requireActivity().loadRewardedAd(adId = config.rewardedIds.main)
             }
         }
 
@@ -303,10 +301,12 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
     ) {
         if (this.adsIsEnabled) {
 
-            when(AD_MAIN) {
+            val config = App.INSTANCE.defaultConfig
+
+            when(config.adTypePerScreen.main) {
                 AdType.NATIVE.type -> {
                     requireActivity().startNativeAdsActivity(
-                        adId = requireContext().NATIVE_MAIN,
+                        adId = config.nativeIds.main,
                         onDismissed = { reward ->
                             adsVM.setAdState(AdsViewModel.AdState.Rewarded(reward))
                             onComplete.invoke()
@@ -341,7 +341,7 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
                 }
                 AdType.FEED.type -> {
                     requireActivity().startFeedAdsActivity(
-                        adId = requireContext().FEED_MAIN,
+                        adId = config.feedIds.main,
                         onDismissed = { reward ->
                             adsVM.setAdState(AdsViewModel.AdState.Rewarded(reward))
                             onComplete.invoke()
