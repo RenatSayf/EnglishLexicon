@@ -3,6 +3,7 @@ package com.myapp.lexicon.models
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import java.util.Currency
 
 
@@ -30,4 +31,15 @@ data class AdsReward(
                 ""
             }
         }
+}
+
+private val decoder = Json(builderAction = { ignoreUnknownKeys })
+
+fun String.toAdsReward(): AdsReward? {
+    return try {
+        decoder.decodeFromString(AdsReward.serializer(), this)
+    } catch (e: Exception) {
+        e.printStackTraceIfDebug()
+        null
+    }
 }

@@ -35,7 +35,8 @@ class RemoteConfigViewModel(
     }
 
     sealed interface State {
-        data class RemoteConfigLoaded(val config: Config): State
+        data class RemoteConfigLoaded(val config: String): State
+        data object NoDifferences: State
         data class FailureLoad(val throwable: HttpThrowable): State
     }
 
@@ -118,16 +119,23 @@ class RemoteConfigViewModel(
     }
 
     fun fetchRemoteConfig(
-        onSuccess: (config: Config) -> Unit,
+        checkSum: Long,
+        onSuccess: (config: String) -> Unit,
+        noDifferences: () -> Unit,
         onFailure: (t: Throwable) -> Unit,
         dispatcher: CoroutineDispatcher = Dispatchers.Default
     ) {
 
         viewModelScope.launch(context = dispatcher) {
-            repository.fetchRemoteConfig().collect(collector = { res ->
-                res.onSuccess { config ->
-                    _state.postValue(State.RemoteConfigLoaded(config))
-                    onSuccess.invoke(config)
+            repository.fetchRemoteConfig(checkSum).collect(collector = { res ->
+                res.onSuccess { configStr: String? ->
+                    if (configStr != null) {
+                        _state.postValue(State.RemoteConfigLoaded(configStr))
+                        onSuccess.invoke(configStr)
+                    } else {
+                        _state.postValue(State.NoDifferences)
+                        noDifferences.invoke()
+                    }
                 }
                 res.onFailure { t ->
                     _state.postValue(State.FailureLoad(t.castToHttpThrowable()))

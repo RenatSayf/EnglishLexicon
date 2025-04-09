@@ -35,5 +35,5 @@ interface INetRepository {
 
     suspend fun forgotPassword(email: String): Flow<Result<String>>
 
-    suspend fun fetchRemoteConfig(): Flow<Result<RemoteConfigViewModel.Config>>
+    suspend fun fetchRemoteConfig(checkSum: Long): Flow<Result<String?>>
 }

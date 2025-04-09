@@ -93,7 +93,7 @@ import kotlin.Pair;
 
 /** @noinspection DataFlowIssue*/
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
-        MainFragment.Listener, FragmentResultListener, AccountFragment.Listener
+        MainFragment.Listener, FragmentResultListener, AccountFragment.Listener, YouTubeFragment.Listener
 {
 
     private LayoutMainToolbarBinding toolbarBinding;
@@ -737,7 +737,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         if (itemId == R.id.nav_video_list)
         {
-            YouTubeFragment videoListFragment = YouTubeFragment.Companion.newInstance();
+            YouTubeFragment videoListFragment = YouTubeFragment.Companion.newInstance(this);
             transaction.replace(R.id.frame_to_page_fragm, videoListFragment).addToBackStack(null).commit();
         }
         if (itemId == R.id.nav_add_word)
@@ -1033,6 +1033,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         handleSignOutAction();
         ExtensionsKt.showMultiLineSnackBar(mainControlLayout, getString(R.string.text_account_has_been_deleted), Snackbar.LENGTH_LONG);
+    }
+
+    @Override
+    public void onYouTubeAdReward(@NotNull AdsReward reward)
+    {
+        buildRewardTextX(reward);
     }
 }
 

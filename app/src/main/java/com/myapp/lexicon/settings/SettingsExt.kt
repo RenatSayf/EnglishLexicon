@@ -25,7 +25,6 @@ import kotlinx.serialization.SerializationException
 import java.util.concurrent.TimeUnit
 
 
-
 val Context.appSettings: SharedPreferences
     get() {
         return PreferenceManager.getDefaultSharedPreferences(this)
@@ -107,6 +106,17 @@ fun Context.isFirstLogin(
         onNotFirst.invoke()
     }
 }
+
+fun Context.saveAsRemoteConfigToPref(json: String) {
+    this.appSettings.edit {
+        putString("REMOTE_CONFIG", json)
+    }
+}
+
+val Context.remoteConfigJsonFromPref: String
+    get() {
+        return this.appSettings.getString("REMOTE_CONFIG", "")?: ""
+    }
 
 var Context.adsIsEnabled: Boolean
     get() {

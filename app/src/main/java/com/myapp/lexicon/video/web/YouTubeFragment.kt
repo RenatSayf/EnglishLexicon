@@ -62,8 +62,17 @@ class YouTubeFragment : Fragment() {
         const val KEY_AD_DATA = "KEY_AD_DATA_78541"
         const val KEY_JSON_AD_DATA = "KEY_JSON_AD_DATA_52398"
 
+        private var listener: Listener? = null
+
         @JvmStatic
-        fun newInstance() = YouTubeFragment()
+        fun newInstance(listener: Listener): YouTubeFragment {
+            this.listener = listener
+            return YouTubeFragment()
+        }
+    }
+
+    interface Listener {
+        fun onYouTubeAdReward(reward: AdsReward)
     }
 
     private var binding: FragmentYouTubeBinding? = null
@@ -394,6 +403,7 @@ class YouTubeFragment : Fragment() {
             setFragmentResultListener(KEY_AD_DATA, listener = {requestKey: String, bundle: Bundle ->
                 val strData = bundle.getString(KEY_JSON_AD_DATA)
                 if (strData != null) {
+
                     val reward = try {
                         Json.decodeFromString<AdsReward>(strData)
                     } catch (e: Exception) {
@@ -402,6 +412,7 @@ class YouTubeFragment : Fragment() {
                     }
                     if (reward != null && reward.rewardPerAd > 0.0) {
                         userDataVM.setUserState(UserDataViewModel.UserDataState.RevenueUpdated(reward))
+                        listener?.onYouTubeAdReward(reward)
                     }
                 }
             })

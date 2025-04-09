@@ -1,6 +1,7 @@
 package com.myapp.lexicon.repository.network
 
 import com.myapp.lexicon.helpers.castToHttpThrowable
+import com.myapp.lexicon.helpers.getCRC32CheckSum
 import com.myapp.lexicon.models.AdsReward
 import com.myapp.lexicon.models.HttpThrowable
 import com.myapp.lexicon.models.RevenueX
@@ -9,7 +10,6 @@ import com.myapp.lexicon.models.SignUpData
 import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.models.UserProfile
 import com.myapp.lexicon.models.UserX
-import com.myapp.lexicon.settings.RemoteConfigViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -344,20 +344,24 @@ open class NetRepository(
 
     }
 
-    override suspend fun fetchRemoteConfig(): Flow<Result<RemoteConfigViewModel.Config>> {
+    override suspend fun fetchRemoteConfig(checkSum: Long): Flow<Result<String?>> {
         return flow {
             val response = httpClient.get(urlString = "$baseUrl/config", block = {
                 contentType(ContentType.Application.Json)
+                parameter("check_sum", checkSum)
             })
             when(response.status) {
                 HttpStatusCode.NotFound, HttpStatusCode.BadGateway, HttpStatusCode.BadRequest -> {
                     runCatching {
                         //val json = response.body<String>()
-                        val json = jsonConfig
-                        jsonDecoder.decodeFromString(
-                            RemoteConfigViewModel.Config.serializer(),
-                            json
-                        )
+
+                        val remoteCheckSum = jsonConfig.getCRC32CheckSum()
+                        if (remoteCheckSum != checkSum) {
+                            jsonConfig
+                        }
+                        else {
+                            null
+                        }
                     }.onSuccess { config ->
                         emit(Result.success(config))
                     }.onFailure { t ->

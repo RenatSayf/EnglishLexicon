@@ -22,9 +22,12 @@ import com.myapp.lexicon.ads.feed_ad.FeedAdIds
 import com.myapp.lexicon.ads.interstitial.InterstitialAdIds
 import com.myapp.lexicon.ads.native_ad.NativeAdIds
 import com.myapp.lexicon.ads.rewarded.RewardedAdIds
+import com.myapp.lexicon.helpers.getCRC32CheckSum
 import com.myapp.lexicon.helpers.printLogIfDebug
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.settings.RemoteConfigViewModel
+import com.myapp.lexicon.settings.remoteConfigJsonFromPref
+import com.myapp.lexicon.settings.saveAsRemoteConfigToPref
 import com.parse.Parse
 import com.yandex.mobile.ads.common.InitializationListener
 import com.yandex.mobile.ads.common.MobileAds
@@ -138,12 +141,18 @@ class App : Application(), Configuration.Provider {
         )
 
         val configVM = RemoteConfigViewModel(netModule = NetRepositoryModule())
+        val configCheckSum = this.remoteConfigJsonFromPref.getCRC32CheckSum()
         configVM.fetchRemoteConfig(
-            onSuccess = { config ->
-                this.defaultConfig = config
+            checkSum = configCheckSum,
+            onSuccess = { configStr ->
+                this.saveAsRemoteConfigToPref(configStr)
+                defaultConfig = configVM.decodeFromString(this.remoteConfigJsonFromPref)?: defaultConfig
             },
-            onFailure = {
-
+            noDifferences = {
+                defaultConfig = configVM.decodeFromString(this.remoteConfigJsonFromPref)?: defaultConfig
+            },
+            onFailure = { t ->
+                t.printStackTraceIfDebug()
             }
         )
 
