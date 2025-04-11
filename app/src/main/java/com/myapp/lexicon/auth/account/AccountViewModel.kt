@@ -16,8 +16,11 @@ import com.myapp.lexicon.auth.models.SBPBanks
 import com.myapp.lexicon.common.PAYMENT_THRESHOLD
 import com.myapp.lexicon.di.INetRepositoryModule
 import com.myapp.lexicon.di.NetRepositoryModule
+import com.myapp.lexicon.helpers.castToHttpThrowable
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
+import com.myapp.lexicon.models.HttpThrowable
 import com.myapp.lexicon.models.Tokens
+import com.myapp.lexicon.models.UserX
 import com.myapp.lexicon.repository.network.INetRepository
 import com.parse.GetCallback
 import com.parse.ParseException
@@ -178,9 +181,40 @@ open class AccountViewModel(
     }
 
     fun demandPayment(
-        accessToken: String
+        accessToken: String,
+        userMap: Map<String, Any>,
+        onStart: () -> Unit = {},
+        onSuccess: (user: UserX) -> Unit,
+        onNotEnough: () -> Unit = {},
+        onInvalidToken: () -> Unit,
+        onComplete: (HttpThrowable?) -> Unit = {},
+        dispatcher: CoroutineDispatcher = Dispatchers.IO
     ) {
-
+        onStart.invoke()
+        viewModelScope.launch(context = dispatcher) {
+            repository.reservedPaymentToUser(
+                accessToken = accessToken,
+                map = userMap
+            ).collect(collector = { result ->
+                result.onSuccess { user ->
+                    onSuccess.invoke(user)
+                }
+                var throwable: HttpThrowable? = null
+                result.onFailure { t ->
+                    throwable = t.castToHttpThrowable()
+                    when(throwable.errorCode) {
+                        401 -> {
+                            onInvalidToken.invoke()
+                        }
+                        else -> {
+                            onComplete.invoke(throwable)
+                            return@collect
+                        }
+                    }
+                }
+                onComplete.invoke(throwable)
+            })
+        }
     }
 
     fun demandPayment(

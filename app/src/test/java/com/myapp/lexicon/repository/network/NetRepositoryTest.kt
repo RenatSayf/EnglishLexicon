@@ -440,15 +440,25 @@ class NetRepositoryTest {
             val isApiKey = request.headers.contains(KEY_API)
             if (isApiKey) {
                 val responseJson = """{
-                      "email": "user-test@mail.com",
-                      "today_balance": 10.5,
-                      "yesterday_balance": 20.4,
-                      "month_balance": 50.54,
+                      "email": "user@example.com",
+                      "today_balance": 10.05,
+                      "yesterday_balance": 20.36,
+                      "month_balance": 50.89,
+                      "previous_month_balance": 0.0,
+                      "reserved_payout": 100.0,
                       "currency_code": "RUB",
-                      "reserved_payout": 200
+                      "phone": "+79998887755",
+                      "first_name": "Кутман",
+                      "second_name": "Кутман",
+                      "last_name": "Бекмурза",
+                      "bank_name": "Сбербанк",
+                      "bank_card": "",
+                      "message_to_user": "",
+                      "reward_ratio": 0.5,
+                      "payout_threshold": 100.0
                     }""".trimIndent()
                 when(request.url.fullPath) {
-                    "/user/payment?token=$accessToken" -> {
+                    "/user/payment?access_token=$accessToken" -> {
                         respond(
                             content = responseJson,
                             status = HttpStatusCode.OK,
@@ -473,12 +483,19 @@ class NetRepositoryTest {
         }
         repository = repositoryModule.provideNetRepository()
 
+        val requisitesMap = mapOf<String, Any>(
+            UserX.KEY_PHONE to "+79998887755",
+            UserX.KEY_BANK_NAME to "Сбербанк",
+            UserX.KEY_FIRST_NAME to "Кутман",
+            UserX.KEY_SECOND_NAME to "Кутман",
+            UserX.KEY_LAST_NAME to "Бекмурза"
+        )
+
         runBlocking {
-            val sum = 200
-            repository.reservedPaymentToUser(accessToken = accessToken, sum = sum)
+            repository.reservedPaymentToUser(accessToken = accessToken, map = requisitesMap)
                 .collect(collector = { result ->
                     result.onSuccess { value: UserX ->
-                        Assert.assertEquals(200, value.reservedPayout)
+                        Assert.assertEquals(100.0, value.reservedPayout)
                     }
                     result.onFailure { exception: Throwable ->
                         exception.message!!.logIfDebug()

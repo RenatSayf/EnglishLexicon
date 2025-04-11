@@ -43,6 +43,7 @@ import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showMultiLineSnackBar
 import com.myapp.lexicon.helpers.timeInMillisMoscowTimeZone
 import com.myapp.lexicon.main.ext.redirectToAuthScreen
+import com.myapp.lexicon.models.HttpThrowable
 import com.myapp.lexicon.models.Payout
 import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.models.UserX
@@ -438,56 +439,85 @@ class AccountFragment : Fragment() {
 
                     if ((user.previousMonthBalance?: 0.0) > 0.0) {
 
-                        val requisitesMap = mapOf<String, Any?>(
-                            UserX.KEY_PHONE to tvPhoneValue.text.toString().trim().ifEmpty { null },
-                            UserX.KEY_BANK_NAME to tvBankNameValue.text.toString().trim().ifEmpty { null },
-                            UserX.KEY_BANK_CARD to tvCardNumber.text.toString().trim().ifEmpty { null },
-                            UserX.KEY_FIRST_NAME to tvFirstNameValue.text.toString().trim().firstCap().ifEmpty { null },
-                            UserX.KEY_LAST_NAME to tvLastNameValue.text.toString().trim().firstCap().ifEmpty { null },
+                        val firstSecondName = tvFirstNameValue.text.toString().trim()
+                        val names = firstSecondName.split(" ")
+                        val firstName = names[0]
+                        val secondName = names.takeIf { it.size > 1 }?.get(1).toString()
 
-                        ).filter {
-                            it.value != null
-                        }
-
-                        val payoutMap = Payout(
-                            reservedSum = 0,
-                            payoutSum = user.previousMonthBalance?.toInt()!!,
-                            payoutTime = System.currentTimeMillis(),
-                            checkReference = tvCheckRefValue.text.toString()
-                        ).toMap().toMutableMap()
-
-                        @Suppress("UNCHECKED_CAST")
-                        payoutMap.putAll(requisitesMap as Map<out String, Any>)
+                        val requisitesMap = mapOf<String, Any>(
+                            UserX.KEY_PHONE to tvPhoneValue.text.toString().trim(),
+                            UserX.KEY_BANK_NAME to tvBankNameValue.text.toString().trim(),
+                            UserX.KEY_FIRST_NAME to firstName.firstCap(),
+                            UserX.KEY_SECOND_NAME to secondName.firstCap(),
+                            UserX.KEY_LAST_NAME to tvLastNameValue.text.toString().trim().firstCap()
+                        )
 
                         accountVM.demandPayment(
-                            threshold = user.payoutThreshold.toInt(),
-                            reward = user.previousMonthBalance.toInt(),
-                            userMap = payoutMap,
+                            accessToken = requireContext().accessToken,
+                            userMap = requisitesMap,
                             onStart = {
                                 userDataVM.setLoadingState(AccountViewModel.LoadingState.Start)
                                 requireActivity().orientationLock()
                             },
-                            onSuccess = {
+                            onSuccess = { user: UserX ->
                                 userDataVM.setUserState(UserDataViewModel.UserDataState.PaymentRequestSent(user, 0, 0.0))
                             },
                             onNotEnough = {
                                 showMultiLineSnackBar(getString(R.string.text_not_money))
                             },
-                            onInvalidToken = {s: String ->
-                                showMultiLineSnackBar(getString(R.string.text_session_has_expired))
-                                val authFragment = AuthFragment.newInstance()
-                                parentFragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, authFragment).commit()
+                            onInvalidToken = {
+                                requireActivity().redirectToAuthScreen()
                             },
-                            onComplete = {exception: Exception? ->
+                            onComplete = { t: HttpThrowable?  ->
                                 userDataVM.setLoadingState(AccountViewModel.LoadingState.Complete)
                                 setReadOnlyState()
-                                if (exception != null) {
-                                    if (BuildConfig.DEBUG) exception.printStackTrace()
-                                    showMultiLineSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
+                                if (t != null) {
+                                    t.printStackTraceIfDebug()
+                                    showMultiLineSnackBar(t.message?: getString(R.string.text_unknown_error_message))
                                 }
                                 requireActivity().orientationUnLock()
                             }
                         )
+
+//                        val payoutMap = Payout(
+//                            reservedSum = 0,
+//                            payoutSum = user.previousMonthBalance?.toInt()!!,
+//                            payoutTime = System.currentTimeMillis(),
+//                            checkReference = tvCheckRefValue.text.toString()
+//                        ).toMap().toMutableMap()
+//
+//                        @Suppress("UNCHECKED_CAST")
+//                        payoutMap.putAll(requisitesMap as Map<out String, Any>)
+
+//                        accountVM.demandPayment(
+//                            threshold = user.payoutThreshold.toInt(),
+//                            reward = user.previousMonthBalance.toInt(),
+//                            userMap = payoutMap,
+//                            onStart = {
+//                                userDataVM.setLoadingState(AccountViewModel.LoadingState.Start)
+//                                requireActivity().orientationLock()
+//                            },
+//                            onSuccess = {
+//                                userDataVM.setUserState(UserDataViewModel.UserDataState.PaymentRequestSent(user, 0, 0.0))
+//                            },
+//                            onNotEnough = {
+//                                showMultiLineSnackBar(getString(R.string.text_not_money))
+//                            },
+//                            onInvalidToken = {s: String ->
+//                                showMultiLineSnackBar(getString(R.string.text_session_has_expired))
+//                                val authFragment = AuthFragment.newInstance()
+//                                parentFragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, authFragment).commit()
+//                            },
+//                            onComplete = {exception: Exception? ->
+//                                userDataVM.setLoadingState(AccountViewModel.LoadingState.Complete)
+//                                setReadOnlyState()
+//                                if (exception != null) {
+//                                    if (BuildConfig.DEBUG) exception.printStackTrace()
+//                                    showMultiLineSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
+//                                }
+//                                requireActivity().orientationUnLock()
+//                            }
+//                        )
                     }
                 }
             }

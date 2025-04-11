@@ -108,7 +108,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7'
     implementation 'com.google.android.gms:play-services-auth-base:18.1.0'
     implementation 'androidx.activity:activity-ktx:1.10.1'
-    implementation 'androidx.activity:activity:1.10.1'
+    //implementation 'androidx.activity:activity-ktx:1.10.1'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
@@ -120,6 +120,8 @@ dependencies {
     testImplementation 'com.google.truth:truth:1.4.4'
     testImplementation 'androidx.test:core-ktx:1.6.1'
     testImplementation 'androidx.test.ext:junit-ktx:1.2.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.1'
+    testImplementation 'org.json:json:20220924'
 
     //Robolectric
     testImplementation 'org.robolectric:robolectric:4.14.1'
@@ -141,18 +143,18 @@ dependencies {
     implementation 'androidx.browser:browser:1.8.0'
 
     //region Room
-    implementation 'androidx.room:room-runtime:2.6.1'
-    implementation 'androidx.room:room-ktx:2.6.1'
+    implementation 'androidx.room:room-runtime:2.7.0'
+    implementation 'androidx.room:room-ktx:2.7.0'
     //noinspection KaptUsageInsteadOfKsp
-    kapt "androidx.room:room-compiler:2.6.1"
+    kapt "androidx.room:room-compiler:2.7.0"
     // optional - Test helpers
-    testImplementation 'androidx.room:room-testing:2.6.1'
+    testImplementation 'androidx.room:room-testing:2.7.0'
     //endregion
 
     //reactivex
     implementation 'io.reactivex.rxjava2:rxjava:2.2.21'
     implementation 'com.jakewharton.rxbinding2:rxbinding:2.2.0'
-    implementation 'androidx.room:room-rxjava2:2.6.1'
+    implementation 'androidx.room:room-rxjava2:2.7.0'
 
     //jsoup
     implementation 'org.jsoup:jsoup:1.18.3'
@@ -173,7 +175,7 @@ dependencies {
 
     // Yandex Mobile Ads SDK
     //noinspection MobileAdsSdkOutdatedVersion
-    implementation 'com.yandex.android:mobileads:7.11.0'
+    implementation 'com.yandex.android:mobileads:7.12.0'
 
     // Yandex AppMetrica SDK.
     implementation 'io.appmetrica.analytics:analytics:7.7.0'
@@ -204,7 +206,7 @@ dependencies {
     implementation 'com.google.android.play:app-update-ktx:2.1.0'
 
     // EncryptedSharedPreferences
-    implementation "androidx.security:security-crypto:1.1.0-alpha06"
+    implementation "androidx.security:security-crypto:1.1.0-alpha07"
 
 }
 
