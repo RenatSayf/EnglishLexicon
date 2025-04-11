@@ -354,7 +354,7 @@ class AccountFragment : Fragment() {
                 }
             }
             tvCheckRefValue.doOnTextChanged { text, start, before, count ->
-                val reservedPayment = userDataVM.user?.previousMonthBalance?: 0
+                val reservedPayment = userDataVM.user?.previousMonthBalance?: 0.0
                 if (reservedPayment > SELF_EMPLOYED_THRESHOLD) {
                     val isMatches = tvCheckRefValue.text?.matches(Regex(PAYMENT_CHECK_PATTERN))
                     if (isMatches == true) {
@@ -425,7 +425,7 @@ class AccountFragment : Fragment() {
                         return@setOnClickListener
                     }
 
-                    val reservedPayment = userDataVM.user?.previousMonthBalance ?: 0
+                    val reservedPayment = userDataVM.user?.previousMonthBalance ?: 0.0
                     if (reservedPayment > SELF_EMPLOYED_THRESHOLD) {
                         val isMatches = tvCheckRefValue.text?.matches(Regex(PAYMENT_CHECK_PATTERN))
                         if (isMatches == false) {
@@ -435,7 +435,7 @@ class AccountFragment : Fragment() {
                         }
                     }
 
-                    if ((user.previousMonthBalance?: 0) > 0) {
+                    if ((user.previousMonthBalance?: 0.0) > 0.0) {
 
                         val requisitesMap = mapOf<String, Any?>(
                             UserX.KEY_PHONE to tvPhoneValue.text.toString().trim().ifEmpty { null },
@@ -449,7 +449,7 @@ class AccountFragment : Fragment() {
 
                         val payoutMap = Payout(
                             reservedSum = 0,
-                            payoutSum = user.previousMonthBalance!!,
+                            payoutSum = user.previousMonthBalance?.toInt()!!,
                             payoutTime = System.currentTimeMillis(),
                             checkReference = tvCheckRefValue.text.toString()
                         ).toMap().toMutableMap()
@@ -458,8 +458,8 @@ class AccountFragment : Fragment() {
                         payoutMap.putAll(requisitesMap as Map<out String, Any>)
 
                         accountVM.demandPayment(
-                            threshold = user.payoutThreshold,
-                            reward = user.previousMonthBalance,
+                            threshold = user.payoutThreshold.toInt(),
+                            reward = user.previousMonthBalance.toInt(),
                             userMap = payoutMap,
                             onStart = {
                                 userDataVM.setLoadingState(AccountViewModel.LoadingState.Start)
@@ -578,13 +578,13 @@ class AccountFragment : Fragment() {
             val rewardToDisplay = "${getString(R.string.text_reward_for)} $currentMonth: ${(user.monthBalance)?.to2DigitsScale()?: 0.0} ${user.currencySymbol}"
             tvRewardValue.text = rewardToDisplay
 
-            if ((user.previousMonthBalance ?: 0) > 0) {
+            if ((user.previousMonthBalance ?: 0.0) > 0.0) {
                 groupToPayout.visibility = View.VISIBLE
                 val previousMonth = timeInMillisMoscowTimeZone.getPreviousMonthNameFromMillis()
                 val payoutToDisplay = "${getString(R.string.text_to_payment)} $previousMonth: ${user.previousMonthBalance} ${user.currencySymbol}"
                 tvReservedValue.text = payoutToDisplay
             }
-            else if ((user.reservedPayout ?: 0) > 0 && user.previousMonthBalance == 0) {
+            else if ((user.reservedPayout ?: 0.0) > 0.0 && user.previousMonthBalance == 0.0) {
                 groupToPayout.visibility = View.VISIBLE
                 val payoutToDisplay = "${getString(R.string.text_prepare_to_payment)}: ${user.reservedPayout} ${user.currencySymbol}"
                 tvReservedValue.text = payoutToDisplay
@@ -656,8 +656,8 @@ class AccountFragment : Fragment() {
             else tvRewardCondition.visibility = View.VISIBLE
 
             btnGetReward.isEnabled = (user.previousMonthBalance
-                ?: 0) > rewardThreshold && accountVM.paymentCode == BuildConfig.PAYMENT_CODE.trim()
-            if ((user.previousMonthBalance ?: 0) > SELF_EMPLOYED_THRESHOLD) {
+                ?: 0.0) > rewardThreshold && accountVM.paymentCode == BuildConfig.PAYMENT_CODE.trim()
+            if ((user.previousMonthBalance ?: 0.0) > SELF_EMPLOYED_THRESHOLD) {
                 setInvoiceRequiredState()
             }
         }

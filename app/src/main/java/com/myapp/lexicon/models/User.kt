@@ -31,7 +31,6 @@ data class User(
         const val KEY_RESERVED_PAYMENT_DATE = "reservedPaymentDate"
         const val KEY_CHECK_REFERENCE = "checkReference"
         const val KEY_MESSAGE = "messageToUser"
-        const val KEY_MESSAGING_TOKEN = "messagingToken"
         const val KEY_IS_ADS_ENABLED = "isAdsEnabled"
         const val KEY_USER_PERCENT = "userPercent"
         const val KEY_APP_VERSION = "appVersion"
@@ -81,10 +80,10 @@ data class User(
             currencyCode = this.currency,
             messageToUser = this.message,
             monthBalance = this.userReward,
-            previousMonthBalance = this.reservedPayment.toInt(),
+            previousMonthBalance = this.reservedPayment,
             todayBalance = this.userDailyReward,
             yesterdayBalance = this.yesterdayUserReward,
-            reservedPayout = this.requiresPayment
+            reservedPayout = this.requiresPayment.toDouble()
         )
     }
 

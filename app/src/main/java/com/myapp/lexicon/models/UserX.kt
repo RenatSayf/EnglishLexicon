@@ -40,10 +40,10 @@ data class UserX(
     val monthBalance: Double? = null,
 
     @SerialName(KEY_PREVIOUS_MONTH_BALANCE)
-    val previousMonthBalance: Int? = null,
+    val previousMonthBalance: Double? = null,
 
     @SerialName(KEY_RESERVED_PAYOUT)
-    val reservedPayout: Int? = null,
+    val reservedPayout: Double? = null,
 
     @SerialName(KEY_TODAY_BALANCE)
     val todayBalance: Double? = null,
@@ -55,7 +55,7 @@ data class UserX(
     val rewardRatio: Double = 0.5,
 
     @SerialName(value = "payout_threshold")
-    val payoutThreshold: Int = 100
+    val payoutThreshold: Double = 100.0
 ) {
     companion object {
         const val KEY_EMAIL = "email"
