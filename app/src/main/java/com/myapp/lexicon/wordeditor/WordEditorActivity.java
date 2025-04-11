@@ -30,9 +30,9 @@ import com.myapp.lexicon.dialogs.ConfirmDialog;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SpeechViewModel;
+import com.myapp.lexicon.models.AppConfig;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.models.WordKt;
-import com.myapp.lexicon.settings.RemoteConfigViewModel;
 import com.myapp.lexicon.viewmodels.EditorSearchViewModel;
 import com.yandex.mobile.ads.banner.BannerAdView;
 
@@ -307,7 +307,7 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             switcher.showNext();
         }
 
-        RemoteConfigViewModel.Config config = App.Companion.getINSTANCE().getDefaultConfig();
+        AppConfig config = App.Companion.getINSTANCE().getDefaultConfig();
         BannerAdView bannerView = findViewById(R.id.bannerView);
         AdsViewModelKt.loadBanner(
                 bannerView,

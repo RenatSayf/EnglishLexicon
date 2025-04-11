@@ -26,7 +26,7 @@ interface INetRepository {
 
     suspend fun updateUserData(accessToken: String, json: String): Flow<Result<UserX>>
 
-    suspend fun reservedPaymentToUser(accessToken: String, sum: Int): Flow<Result<UserX>>
+    suspend fun reservedPaymentToUser(accessToken: String, map: Map<String, Any>): Flow<Result<UserX>>
 
     suspend fun updateClickCounter(accessToken: String): Flow<Result<Boolean>>
 

@@ -10,6 +10,7 @@ import com.myapp.lexicon.models.SignUpData
 import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.models.UserProfile
 import com.myapp.lexicon.models.UserX
+import com.myapp.lexicon.settings.DEFAULT_CONFIG_JSON
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -26,6 +27,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.json.Json
+import org.json.JSONObject
 
 open class NetRepository(
     private val httpClient: HttpClient,
@@ -242,13 +244,14 @@ open class NetRepository(
 
     override suspend fun reservedPaymentToUser(
         accessToken: String,
-        sum: Int
+        map: Map<String, Any>
     ): Flow<Result<UserX>> {
         return flow {
+            val json = JSONObject(map).toString()
             val response = httpClient.put(urlString = "$baseUrl/user/payment", block = {
                 contentType(ContentType.Application.Json)
-                parameter("token", accessToken)
-                setBody("""{"reserved_payout":"$sum"}""")
+                parameter("access_token", accessToken)
+                setBody(json)
             })
             when(response.status) {
                 HttpStatusCode.OK -> {
@@ -355,9 +358,9 @@ open class NetRepository(
                     runCatching {
                         //val json = response.body<String>()
 
-                        val remoteCheckSum = jsonConfig.getCRC32CheckSum()
+                        val remoteCheckSum = DEFAULT_CONFIG_JSON.getCRC32CheckSum()
                         if (remoteCheckSum != checkSum) {
-                            jsonConfig
+                            DEFAULT_CONFIG_JSON
                         }
                         else {
                             null
@@ -377,50 +380,6 @@ open class NetRepository(
             }
         }
     }
-
-    private val jsonConfig = """{
-  "adTypePerScreen" : {
-    "main" : 1,
-    "service" : 1,
-    "test" : 3,
-    "translate" : 1,
-    "video" : 3
-  },
-  "bannerIds" : {
-    "main" : "R-M-711878-1",
-    "service" : "R-M-711878-1",
-    "editor" : "R-M-711878-2",
-    "translate" : "R-M-711878-3"
-  },
-  "nativeIds" : {
-    "main" : "R-M-711878-14",
-    "service" : "R-M-711878-14",
-    "translate" : "R-M-711878-15",
-    "test" : "R-M-711878-15",
-    "video" : "R-M-711878-14"
-  },
-  "interstitialAdIds" : {
-    "main" : "R-M-711878-4",
-    "service" : "R-M-711878-4",
-    "translate" : "R-M-711878-5",
-    "test" : "R-M-711878-6",
-    "video" : "R-M-711878-6"
-  },
-  "rewardedIds" : {
-    "main" : "R-M-711878-10",
-    "service" : "R-M-711878-10",
-    "translate" : "R-M-711878-11",
-    "test" : "R-M-711878-12",
-    "video" : "R-M-711878-12"
-  },
-  "feedIds" : {
-    "main" : "R-M-711878-18",
-    "service" : "R-M-711878-18",
-    "translate" : "R-M-711878-18",
-    "test" : "R-M-711878-18",
-    "video" : "R-M-711878-18"
-  }
-}"""
 
 
 }

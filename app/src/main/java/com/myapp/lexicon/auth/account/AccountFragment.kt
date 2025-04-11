@@ -30,6 +30,7 @@ import com.myapp.lexicon.common.SELF_EMPLOYED_THRESHOLD
 import com.myapp.lexicon.common.getMonthNameFromMillis
 import com.myapp.lexicon.common.getPreviousMonthNameFromMillis
 import com.myapp.lexicon.databinding.FragmentAccountBinding
+import com.myapp.lexicon.di.App
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.LuhnAlgorithm
 import com.myapp.lexicon.helpers.checkIfAllDigits
@@ -442,7 +443,8 @@ class AccountFragment : Fragment() {
                             UserX.KEY_BANK_NAME to tvBankNameValue.text.toString().trim().ifEmpty { null },
                             UserX.KEY_BANK_CARD to tvCardNumber.text.toString().trim().ifEmpty { null },
                             UserX.KEY_FIRST_NAME to tvFirstNameValue.text.toString().trim().firstCap().ifEmpty { null },
-                            UserX.KEY_LAST_NAME to tvLastNameValue.text.toString().trim().firstCap().ifEmpty { null }
+                            UserX.KEY_LAST_NAME to tvLastNameValue.text.toString().trim().firstCap().ifEmpty { null },
+
                         ).filter {
                             it.value != null
                         }
@@ -647,17 +649,17 @@ class AccountFragment : Fragment() {
                 tvLastNameValue.setText(user.lastName)
             }
 
-            val rewardThreshold = accountVM.paymentThreshold.toInt()
+            val rewardThreshold = user.payoutThreshold
             val textCondition = "$PAYMENTS_CONDITIONS $rewardThreshold ${user.currencySymbol}"
             tvRewardCondition.text = textCondition
-            if ((user.monthBalance ?: 0.0) <= 0.0 || PAYMENTS_CONDITIONS.isEmpty()) {
+            if ((user.monthBalance ?: 0.0) <= 0.0 || App.INSTANCE.defaultConfig.paymentsConditions.isEmpty()) {
                 tvRewardCondition.visibility = View.GONE
             }
             else tvRewardCondition.visibility = View.VISIBLE
 
             btnGetReward.isEnabled = (user.previousMonthBalance
                 ?: 0.0) > rewardThreshold && accountVM.paymentCode == BuildConfig.PAYMENT_CODE.trim()
-            if ((user.previousMonthBalance ?: 0.0) > SELF_EMPLOYED_THRESHOLD) {
+            if ((user.previousMonthBalance ?: 0.0) > App.INSTANCE.defaultConfig.selfEmployedThreshold) {
                 setInvoiceRequiredState()
             }
         }

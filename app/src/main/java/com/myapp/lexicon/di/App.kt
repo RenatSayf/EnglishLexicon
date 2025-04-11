@@ -17,14 +17,10 @@ import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
-import com.myapp.lexicon.ads.banner.BannerAdIds
-import com.myapp.lexicon.ads.feed_ad.FeedAdIds
-import com.myapp.lexicon.ads.interstitial.InterstitialAdIds
-import com.myapp.lexicon.ads.native_ad.NativeAdIds
-import com.myapp.lexicon.ads.rewarded.RewardedAdIds
 import com.myapp.lexicon.helpers.getCRC32CheckSum
 import com.myapp.lexicon.helpers.printLogIfDebug
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
+import com.myapp.lexicon.settings.DEFAULT_CONFIG
 import com.myapp.lexicon.settings.RemoteConfigViewModel
 import com.myapp.lexicon.settings.remoteConfigJsonFromPref
 import com.myapp.lexicon.settings.saveAsRemoteConfigToPref
@@ -37,49 +33,7 @@ import io.appmetrica.analytics.AppMetricaConfig
 
 class App : Application(), Configuration.Provider {
 
-    var defaultConfig: RemoteConfigViewModel.Config = RemoteConfigViewModel.Config(
-        adTypePerScreen = RemoteConfigViewModel.Config.AdType(
-            main = 1,
-            service = 1,
-            test = 3,
-            translate = 1,
-            video = 3
-        ),
-        bannerIds = RemoteConfigViewModel.Config.BannerIds(
-            main = BannerAdIds.BANNER_1.id,
-            service = BannerAdIds.BANNER_1.id,
-            editor = BannerAdIds.BANNER_2.id,
-            translate = BannerAdIds.BANNER_3.id
-        ),
-        nativeIds = RemoteConfigViewModel.Config.NativeIds(
-            main = NativeAdIds.NATIVE_1.id,
-            service = NativeAdIds.NATIVE_1.id,
-            translate = NativeAdIds.NATIVE_2.id,
-            test = NativeAdIds.NATIVE_2.id,
-            video = NativeAdIds.NATIVE_1.id
-        ),
-        interstitialAdIds = RemoteConfigViewModel.Config.InterstitialIds(
-            main = InterstitialAdIds.INTERSTITIAL_1.id,
-            service = InterstitialAdIds.INTERSTITIAL_1.id,
-            translate = InterstitialAdIds.INTERSTITIAL_2.id,
-            test = InterstitialAdIds.INTERSTITIAL_3.id,
-            video = InterstitialAdIds.INTERSTITIAL_3.id
-        ),
-        rewardedIds = RemoteConfigViewModel.Config.RewardedIds(
-            main = RewardedAdIds.REWARDED_1.id,
-            service = RewardedAdIds.REWARDED_1.id,
-            translate = RewardedAdIds.REWARDED_2.id,
-            test = RewardedAdIds.REWARDED_3.id,
-            video = RewardedAdIds.REWARDED_3.id
-        ),
-        feedIds = RemoteConfigViewModel.Config.FeedAdIds(
-            main = FeedAdIds.FEED_1.id,
-            service = FeedAdIds.FEED_1.id,
-            translate = FeedAdIds.FEED_1.id,
-            test = FeedAdIds.FEED_1.id,
-            video = FeedAdIds.FEED_1.id
-        )
-    )
+    var defaultConfig = DEFAULT_CONFIG
 
     companion object {
         lateinit var INSTANCE: App

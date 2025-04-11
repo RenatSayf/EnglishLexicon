@@ -20,8 +20,8 @@ import com.myapp.lexicon.di.App;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.interfaces.IModalFragment;
+import com.myapp.lexicon.models.AppConfig;
 import com.myapp.lexicon.schedule.AlarmScheduler;
-import com.myapp.lexicon.settings.RemoteConfigViewModel;
 import com.myapp.lexicon.settings.SettingsExtKt;
 import com.myapp.lexicon.splash.SplashActivity;
 import com.parse.ParseUser;
@@ -135,7 +135,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
             return;
         }
 
-        RemoteConfigViewModel.Config config = App.Companion.getINSTANCE().getDefaultConfig();
+        AppConfig config = App.Companion.getINSTANCE().getDefaultConfig();
 
         if (config.getAdTypePerScreen().getService() == AdType.INTERSTITIAL.getType()) {
             InterstitialAdExtKt.loadInterstitialAd(

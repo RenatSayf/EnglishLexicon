@@ -9,13 +9,13 @@ import com.myapp.lexicon.di.INetRepositoryModule
 import com.myapp.lexicon.di.NetRepositoryModule
 import com.myapp.lexicon.helpers.castToHttpThrowable
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
+import com.myapp.lexicon.models.AppConfig
 import com.myapp.lexicon.models.HttpThrowable
 import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.repository.network.INetRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 
@@ -60,64 +60,6 @@ class RemoteConfigViewModel(
         ignoreUnknownKeys = true
     })
 
-    @Serializable
-    data class Config(
-        val adTypePerScreen: AdType,
-        val bannerIds: BannerIds,
-        val nativeIds: NativeIds,
-        val interstitialAdIds: InterstitialIds,
-        val rewardedIds: RewardedIds,
-        val feedIds: FeedAdIds
-    ) {
-        @Serializable
-        data class AdType(
-            val main: Int,
-            val service: Int,
-            val test: Int,
-            val translate: Int,
-            val video: Int
-        )
-        @Serializable
-        data class BannerIds(
-            val main: String,
-            val service: String,
-            val editor: String,
-            val translate: String
-        )
-        @Serializable
-        data class InterstitialIds(
-            val main: String,
-            val service: String,
-            val translate: String,
-            val test: String,
-            val video: String
-        )
-        @Serializable
-        data class NativeIds(
-            val main: String,
-            val service: String,
-            val translate: String,
-            val test: String,
-            val video: String
-        )
-        @Serializable
-        data class RewardedIds(
-            val main: String,
-            val service: String,
-            val translate: String,
-            val test: String,
-            val video: String
-        )
-        @Serializable
-        data class FeedAdIds(
-            val main: String,
-            val service: String,
-            val translate: String,
-            val test: String,
-            val video: String
-        )
-    }
-
     fun fetchRemoteConfig(
         checkSum: Long,
         onSuccess: (config: String) -> Unit,
@@ -145,9 +87,9 @@ class RemoteConfigViewModel(
         }
     }
 
-    fun encodeToJsonString(config: Config): String? {
+    fun encodeToJsonString(config: AppConfig): String? {
         return try {
-            val string = decoder.encodeToString(Config.serializer(), config)
+            val string = decoder.encodeToString(AppConfig.serializer(), config)
             string
         } catch (e: SerializationException) {
             e.printStackTraceIfDebug()
@@ -155,9 +97,9 @@ class RemoteConfigViewModel(
         }
     }
 
-    fun decodeFromString(json: String): Config? {
+    fun decodeFromString(json: String): AppConfig? {
         return try {
-            val config = decoder.decodeFromString(Config.serializer(), json)
+            val config = decoder.decodeFromString(AppConfig.serializer(), json)
             config
         } catch (e: Exception) {
             e.printStackTraceIfDebug()

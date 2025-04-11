@@ -178,6 +178,12 @@ open class AccountViewModel(
     }
 
     fun demandPayment(
+        accessToken: String
+    ) {
+
+    }
+
+    fun demandPayment(
         threshold: Int,
         reward: Int,
         userMap: Map<String, Any?> = mapOf(),
