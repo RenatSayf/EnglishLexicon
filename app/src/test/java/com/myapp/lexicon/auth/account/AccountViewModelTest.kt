@@ -64,17 +64,7 @@ class AccountViewModelTest {
             delay(1000)
 
             viewModel.signOut(
-                token = "XXXXXXXXX",
-                onStart = {
-                    Assert.assertTrue(true)
-                },
-                onSuccess = { tokens ->
-                    Assert.assertEquals("", tokens.accessToken)
-                    Assert.assertEquals("", tokens.refreshToken)
-                },
-                onComplete = {
-                    Assert.assertTrue(false)
-                }
+                token = "XXXXXXXXX"
             )
         }
     }

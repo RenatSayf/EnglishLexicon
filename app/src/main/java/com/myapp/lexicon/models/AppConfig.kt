@@ -11,7 +11,8 @@ data class AppConfig(
     val rewardedIds: RewardedIds,
     val feedIds: FeedAdIds,
     val paymentsConditions: String,
-    val selfEmployedThreshold: Int
+    val selfEmployedThreshold: Int,
+    val paymentCode: String
 ) {
     @Serializable
     data class AdType(

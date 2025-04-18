@@ -12,8 +12,8 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
+import com.myapp.lexicon.auth.AuthViewModel.Companion.ACCOUNT_DELETING_ERROR
 import com.myapp.lexicon.auth.models.SBPBanks
-import com.myapp.lexicon.common.PAYMENT_THRESHOLD
 import com.myapp.lexicon.di.INetRepositoryModule
 import com.myapp.lexicon.di.NetRepositoryModule
 import com.myapp.lexicon.helpers.castToHttpThrowable
@@ -26,8 +26,6 @@ import com.parse.GetCallback
 import com.parse.ParseException
 import com.parse.ParseObject
 import com.parse.ParseQuery
-import com.parse.ParseUser
-import com.parse.SaveCallback
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -60,13 +58,8 @@ open class AccountViewModel(
     open val loadingState: LiveData<LoadingState> = _loadingState
 
     open fun setLoadingState(state: LoadingState) {
-        _loadingState.value = state
+        _loadingState.postValue(state)
     }
-
-    open val paymentThreshold: Double = PAYMENT_THRESHOLD
-
-    open val paymentCode: String = if (!BuildConfig.DEBUG)
-        Firebase.remoteConfig.getString("PAYMENT_CODE").trim() else BuildConfig.PAYMENT_CODE.trim()
 
     open val paymentDays: Int = Firebase.remoteConfig.getDouble("payment_days").toInt()
     open val explainMessage: String = Firebase.remoteConfig.getString("reward_explain_message")
@@ -100,6 +93,9 @@ open class AccountViewModel(
     sealed interface AuthState {
         data class TokensUpdated(val tokens: Tokens): AuthState
         data object AuthorizationRequired: AuthState
+        data object LogOut: AuthState
+        data object AccountDeleting: AuthState
+        data class HttpError(val throwable: HttpThrowable): AuthState
     }
 
     protected open var _authState = MutableLiveData<AuthState>()
@@ -217,52 +213,6 @@ open class AccountViewModel(
         }
     }
 
-    fun demandPayment(
-        threshold: Int,
-        reward: Int,
-        userMap: Map<String, Any?> = mapOf(),
-        onStart: () -> Unit = {},
-        onSuccess: () -> Unit,
-        onNotEnough: () -> Unit = {},
-        onInvalidToken: (String) -> Unit,
-        onComplete: (Exception?) -> Unit = {}
-    ) {
-        onStart.invoke()
-        if (reward > threshold) {
-            val currentUser = ParseUser.getCurrentUser()
-            if (currentUser is ParseUser) {
-                userMap.forEach { entry ->
-                    currentUser.put(entry.key, entry.value?: "")
-                }
-                currentUser.saveInBackground(object : SaveCallback {
-                    override fun done(e: ParseException?) {
-                        if (e is ParseException) {
-                            if (e.code == ParseException.INVALID_SESSION_TOKEN) {
-                                onInvalidToken.invoke(currentUser.sessionToken)
-                                onComplete.invoke(null)
-                            }
-                            else {
-                                if (BuildConfig.DEBUG) e.printStackTrace()
-                                onComplete.invoke(e)
-                            }
-                        }
-                        else {
-                            onSuccess.invoke()
-                            onComplete.invoke(null)
-                        }
-                    }
-                })
-            }
-            else {
-                onComplete.invoke(Exception("************ Current user is NULL ***********"))
-            }
-        }
-        else {
-            onNotEnough.invoke()
-            onComplete.invoke(null)
-        }
-    }
-
     fun sendPaymentInfoToTGChannel(
         message: String,
         onStart: () -> Unit = {},
@@ -299,19 +249,42 @@ open class AccountViewModel(
 
     fun signOut(
         token: String,
-        onStart: () -> Unit = {},
-        onSuccess: (Tokens) -> Unit = {},
-        onComplete: (Exception?) -> Unit = {},
-        dispatcher: CoroutineDispatcher = Dispatchers.IO
+        dispatcher: CoroutineDispatcher = Dispatchers.Default
     ) {
-        onStart.invoke()
-        viewModelScope.launch(dispatcher) {
+        _loadingState.postValue(LoadingState.Start)
+        viewModelScope.launch(context = dispatcher) {
             repository.signOut(token).collect(collector = { result ->
                 result.onSuccess { tokens: Tokens ->
-                    onSuccess.invoke(tokens)
+                    _authState.postValue(AuthState.LogOut)
                 }
-                result.onFailure { exception: Throwable ->
-                    onComplete.invoke(exception as Exception)
+                result.onFailure { t ->
+                    val throwable = t.castToHttpThrowable()
+                    _authState.postValue(AuthState.HttpError(throwable))
+                }
+            })
+            _loadingState.postValue(LoadingState.Complete)
+        }
+    }
+
+    fun deleteUserAccount(
+        token: String,
+        dispatcher: CoroutineDispatcher = Dispatchers.Default
+    ) {
+        _loadingState.postValue(LoadingState.Start)
+        viewModelScope.launch(dispatcher) {
+            repository.deleteUser(token).collect(collector = { result ->
+                result.onSuccess { value: Boolean ->
+                    if (value) {
+                        _authState.postValue(AuthState.AccountDeleting)
+                    }
+                    else {
+                        val throwable = Exception(ACCOUNT_DELETING_ERROR).castToHttpThrowable()
+                        _authState.postValue(AuthState.HttpError(throwable))
+                    }
+                }
+                result.onFailure { t: Throwable ->
+                    val throwable = t.castToHttpThrowable()
+                    _authState.postValue(AuthState.HttpError(throwable))
                 }
             })
         }

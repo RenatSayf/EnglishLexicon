@@ -194,6 +194,10 @@ fun String.checkOnlyLetterAndFirstNotDigit(): Int {
     }
 }
 
+fun String.isValidEmail(): Boolean {
+    return !TextUtils.isEmpty(this) && Patterns.EMAIL_ADDRESS.matcher(this).matches()
+}
+
 private val Context.inputManager: InputMethodManager
     get() {
         return this.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager

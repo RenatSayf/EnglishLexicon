@@ -60,7 +60,7 @@ open class UserDataViewModel(netModule: INetRepositoryModule) : AccountViewModel
     val userState: LiveData<UserDataState> = _userState
 
     fun setUserState(state: UserDataState) {
-        _userState.value = state
+        _userState.postValue(state)
     }
 
     open var user: UserX? = null

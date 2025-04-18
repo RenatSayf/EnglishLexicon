@@ -19,14 +19,12 @@ import androidx.lifecycle.lifecycleScope
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.auth.AuthFragment
-import com.myapp.lexicon.auth.AuthViewModel
 import com.myapp.lexicon.auth.agreement.UserAgreementDialog
 import com.myapp.lexicon.auth.invoice.InstallTaxAppFragment
 import com.myapp.lexicon.auth.invoice.PayoutGuideFragment
 import com.myapp.lexicon.common.PAYMENTS_CONDITIONS
 import com.myapp.lexicon.common.PAYMENT_CHECK_PATTERN
 import com.myapp.lexicon.common.SELF_EMPLOYED_PACKAGE
-import com.myapp.lexicon.common.SELF_EMPLOYED_THRESHOLD
 import com.myapp.lexicon.common.getMonthNameFromMillis
 import com.myapp.lexicon.common.getPreviousMonthNameFromMillis
 import com.myapp.lexicon.databinding.FragmentAccountBinding
@@ -37,6 +35,7 @@ import com.myapp.lexicon.helpers.checkIfAllDigits
 import com.myapp.lexicon.helpers.firstCap
 import com.myapp.lexicon.helpers.isItEmail
 import com.myapp.lexicon.helpers.isItPhone
+import com.myapp.lexicon.helpers.isValidEmail
 import com.myapp.lexicon.helpers.orientationLock
 import com.myapp.lexicon.helpers.orientationUnLock
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
@@ -44,13 +43,11 @@ import com.myapp.lexicon.helpers.showMultiLineSnackBar
 import com.myapp.lexicon.helpers.timeInMillisMoscowTimeZone
 import com.myapp.lexicon.main.ext.redirectToAuthScreen
 import com.myapp.lexicon.models.HttpThrowable
-import com.myapp.lexicon.models.Payout
 import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.models.UserX
 import com.myapp.lexicon.models.ViewState
 import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.settings.accessToken
-import com.myapp.lexicon.settings.clearEmailPasswordInPref
 import com.myapp.lexicon.settings.emailIntoPref
 import com.myapp.lexicon.settings.isAppInstalled
 import com.myapp.lexicon.settings.isFirstLogin
@@ -84,11 +81,6 @@ class AccountFragment : Fragment() {
         ViewModelProvider(this, factory)[AccountViewModel::class].apply {
             this.setRefreshToken(requireContext().refreshToken)
         }
-    }
-
-    private val authVM: AuthViewModel by lazy {
-        val factory = AuthViewModel.Factory()
-        ViewModelProvider(this, factory)[AuthViewModel::class.java]
     }
 
     private val userDataVM: UserDataViewModel by lazy {
@@ -158,6 +150,24 @@ class AccountFragment : Fragment() {
                     }
                     is AccountViewModel.AuthState.TokensUpdated -> {
                         requireContext().saveAuthTokens(state.tokens)
+                    }
+
+                    AccountViewModel.AuthState.AccountDeleting -> {
+                        requireContext().cacheDir.deleteRecursively()
+                        requireContext().saveAuthTokens(Tokens(accessToken = "", refreshToken = ""))
+                        requireContext().emailIntoPref = ""
+                        requireContext().passwordIntoPref = ""
+                        listener?.onDeletedAccount()
+                        parentFragmentManager.beginTransaction().detach(this@AccountFragment).commit()
+                    }
+                    is AccountViewModel.AuthState.HttpError -> {
+                        state.throwable.printStackTraceIfDebug()
+                    }
+                    is AccountViewModel.AuthState.LogOut -> {
+                        requireContext().cacheDir.deleteRecursively()
+                        requireContext().saveAuthTokens(Tokens(accessToken = "", refreshToken = ""))
+                        listener?.onLogOutUser()
+                        parentFragmentManager.beginTransaction().detach(this@AccountFragment).commit()
                     }
                 }
             }
@@ -302,7 +312,7 @@ class AccountFragment : Fragment() {
             }
 
             tvEmailValue.doOnTextChanged { text, start, before, count ->
-                val isValid = authVM.isValidEmail(text.toString())
+                val isValid = text.toString().isValidEmail()
                 if (text.isNullOrEmpty() || !isValid) {
                     setNotValidFieldState(tvEmailValue)
                 }
@@ -357,7 +367,7 @@ class AccountFragment : Fragment() {
             }
             tvCheckRefValue.doOnTextChanged { text, start, before, count ->
                 val reservedPayment = userDataVM.user?.previousMonthBalance?: 0.0
-                if (reservedPayment > SELF_EMPLOYED_THRESHOLD) {
+                if (reservedPayment > App.INSTANCE.defaultConfig.selfEmployedThreshold) {
                     val isMatches = tvCheckRefValue.text?.matches(Regex(PAYMENT_CHECK_PATTERN))
                     if (isMatches == true) {
                         setValidFieldState(tvCheckRefValue)
@@ -377,7 +387,7 @@ class AccountFragment : Fragment() {
                 val user = userDataVM.user
                 if (user != null) {
                     val email = tvEmailValue.text.toString()
-                    if (email.isEmpty() || !authVM.isValidEmail(email)) {
+                    if (email.isEmpty() || !email.isValidEmail()) {
                         setNotValidFieldState(tvEmailValue)
                         return@setOnClickListener
                     }
@@ -428,7 +438,7 @@ class AccountFragment : Fragment() {
                     }
 
                     val reservedPayment = userDataVM.user?.previousMonthBalance ?: 0.0
-                    if (reservedPayment > SELF_EMPLOYED_THRESHOLD) {
+                    if (reservedPayment > App.INSTANCE.defaultConfig.selfEmployedThreshold) {
                         val isMatches = tvCheckRefValue.text?.matches(Regex(PAYMENT_CHECK_PATTERN))
                         if (isMatches == false) {
                             setReadOnlyState(false)
@@ -437,7 +447,7 @@ class AccountFragment : Fragment() {
                         }
                     }
 
-                    if ((user.previousMonthBalance?: 0.0) > 0.0) {
+                    if ((user.previousMonthBalance?: 0.0) > user.payoutThreshold) {
 
                         val firstSecondName = tvFirstNameValue.text.toString().trim()
                         val names = firstSecondName.split(" ")
@@ -449,7 +459,8 @@ class AccountFragment : Fragment() {
                             UserX.KEY_BANK_NAME to tvBankNameValue.text.toString().trim(),
                             UserX.KEY_FIRST_NAME to firstName.firstCap(),
                             UserX.KEY_SECOND_NAME to secondName.firstCap(),
-                            UserX.KEY_LAST_NAME to tvLastNameValue.text.toString().trim().firstCap()
+                            UserX.KEY_LAST_NAME to tvLastNameValue.text.toString().trim().firstCap(),
+                            UserX.KEY_RESERVED_PAYOUT to user.previousMonthBalance!!.toInt()
                         )
 
                         accountVM.demandPayment(
@@ -478,46 +489,9 @@ class AccountFragment : Fragment() {
                                 requireActivity().orientationUnLock()
                             }
                         )
-
-//                        val payoutMap = Payout(
-//                            reservedSum = 0,
-//                            payoutSum = user.previousMonthBalance?.toInt()!!,
-//                            payoutTime = System.currentTimeMillis(),
-//                            checkReference = tvCheckRefValue.text.toString()
-//                        ).toMap().toMutableMap()
-//
-//                        @Suppress("UNCHECKED_CAST")
-//                        payoutMap.putAll(requisitesMap as Map<out String, Any>)
-
-//                        accountVM.demandPayment(
-//                            threshold = user.payoutThreshold.toInt(),
-//                            reward = user.previousMonthBalance.toInt(),
-//                            userMap = payoutMap,
-//                            onStart = {
-//                                userDataVM.setLoadingState(AccountViewModel.LoadingState.Start)
-//                                requireActivity().orientationLock()
-//                            },
-//                            onSuccess = {
-//                                userDataVM.setUserState(UserDataViewModel.UserDataState.PaymentRequestSent(user, 0, 0.0))
-//                            },
-//                            onNotEnough = {
-//                                showMultiLineSnackBar(getString(R.string.text_not_money))
-//                            },
-//                            onInvalidToken = {s: String ->
-//                                showMultiLineSnackBar(getString(R.string.text_session_has_expired))
-//                                val authFragment = AuthFragment.newInstance()
-//                                parentFragmentManager.beginTransaction().replace(R.id.frame_to_page_fragm, authFragment).commit()
-//                            },
-//                            onComplete = {exception: Exception? ->
-//                                userDataVM.setLoadingState(AccountViewModel.LoadingState.Complete)
-//                                setReadOnlyState()
-//                                if (exception != null) {
-//                                    if (BuildConfig.DEBUG) exception.printStackTrace()
-//                                    showMultiLineSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
-//                                }
-//                                requireActivity().orientationUnLock()
-//                            }
-//                        )
+                    }
+                    else {
+                        showMultiLineSnackBar(getString(R.string.text_not_money))
                     }
                 }
             }
@@ -688,7 +662,7 @@ class AccountFragment : Fragment() {
             else tvRewardCondition.visibility = View.VISIBLE
 
             btnGetReward.isEnabled = (user.previousMonthBalance
-                ?: 0.0) > rewardThreshold && accountVM.paymentCode == BuildConfig.PAYMENT_CODE.trim()
+                ?: 0.0) > rewardThreshold && App.INSTANCE.defaultConfig.paymentCode == BuildConfig.PAYMENT_CODE.trim()
             if ((user.previousMonthBalance ?: 0.0) > App.INSTANCE.defaultConfig.selfEmployedThreshold) {
                 setInvoiceRequiredState()
             }
@@ -803,27 +777,8 @@ class AccountFragment : Fragment() {
                     }
                 }
                 btnOk.setOnClickListener {
-                    accountVM.signOut(
-                        token = requireContext().accessToken,
-                        onStart = {
-                            requireActivity().orientationLock()
-                        },
-                        onSuccess = { tokens ->
-                            requireContext().cacheDir.deleteRecursively()
-                            requireContext().saveAuthTokens(tokens)
-                            requireContext().emailIntoPref = ""
-                            requireContext().passwordIntoPref = ""
-                            listener?.onLogOutUser()
-                            parentFragmentManager.beginTransaction().detach(this@AccountFragment).commit()
-                        },
-                        onComplete = { exception: Exception? ->
-                            if (exception != null) {
-                                showMultiLineSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
-                            }
-                            requireActivity().orientationUnLock()
-                            dialog.dismiss()
-                        }
-                    )
+                    accountVM.signOut(token = requireContext().accessToken)
+                    dialog.dismiss()
                 }
             }
         }).show(parentFragmentManager, ConfirmDialog.TAG)
@@ -923,28 +878,8 @@ class AccountFragment : Fragment() {
                 btnOk.apply {
                     text = getString(R.string.btn_text_delete)
                     setOnClickListener {
-                        authVM.deleteUserAccount(
-                            token = requireContext().accessToken,
-                            onStart = {
-                                requireActivity().orientationLock()
-                                authVM.setLoadingState(AuthViewModel.LoadingState.Start)
-                            },
-                            onSuccess = {
-                                requireContext().cacheDir.deleteRecursively()
-                                requireContext().clearEmailPasswordInPref()
-                                listener?.onDeletedAccount()
-                                parentFragmentManager.beginTransaction().detach(this@AccountFragment).commit()
-                            },
-                            onComplete = { exception: Exception? ->
-                                exception?.let {
-                                    it.printStackTrace()
-                                    showMultiLineSnackBar(it.message?: getString(R.string.text_unknown_error_message))
-                                }
-                                requireActivity().orientationUnLock()
-                                authVM.setLoadingState(AuthViewModel.LoadingState.Complete)
-                                dialog.dismiss()
-                            }
-                        )
+                        accountVM.deleteUserAccount(token = requireContext().accessToken)
+                        dialog.dismiss()
                     }
                 }
             }

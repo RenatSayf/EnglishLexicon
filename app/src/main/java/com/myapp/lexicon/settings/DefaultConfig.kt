@@ -51,7 +51,8 @@ var DEFAULT_CONFIG = AppConfig(
         video = FeedAdIds.FEED_1.id
     ),
     paymentsConditions = "Следующая выплата вознаграждения состоится в период с 15 по 25 мая, при условии, что сумма будет больше",
-    selfEmployedThreshold = 150000
+    selfEmployedThreshold = 150000,
+    paymentCode = "58742554" // TODO перед релизом изменить
 )
 
 const val DEFAULT_CONFIG_JSON = """{
@@ -97,7 +98,8 @@ const val DEFAULT_CONFIG_JSON = """{
     "video" : "R-M-711878-18"
   },
   "paymentsConditions" : "Следующая выплата вознаграждения состоится в период с 15 по 25 мая, при условии, что сумма будет больше",
-  "selfEmployedThreshold" : 150000
+  "selfEmployedThreshold" : 150000,
+  "paymentCode" : "58742554"
 }"""
 
 

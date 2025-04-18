@@ -96,7 +96,7 @@ open class NetRepository(
         return flow {
             val response = httpClient.post(urlString = "$baseUrl/auth/sign-out", block = {
                 contentType(ContentType.Application.Json)
-                parameter("token", accessToken)
+                parameter("access_token", accessToken)
             })
             when(response.status) {
                 HttpStatusCode.OK -> {

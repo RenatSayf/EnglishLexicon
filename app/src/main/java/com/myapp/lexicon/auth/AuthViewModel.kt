@@ -58,10 +58,6 @@ open class AuthViewModel(
     protected var _loadingState = MutableLiveData<LoadingState>()
     open val loadingState: LiveData<LoadingState> = _loadingState
 
-    open fun setLoadingState(state: LoadingState) {
-        _loadingState.value = state
-    }
-
     sealed class ScreenState {
         data object Init: ScreenState()
         data class Current(
@@ -252,7 +248,7 @@ open class AuthViewModel(
         onStart: () -> Unit = {},
         onSuccess: () -> Unit,
         onComplete: (Exception?) -> Unit = {},
-        dispatcher: CoroutineDispatcher = Dispatchers.IO
+        dispatcher: CoroutineDispatcher = Dispatchers.Default
     ) {
         onStart.invoke()
         viewModelScope.launch(dispatcher) {

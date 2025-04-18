@@ -34,6 +34,9 @@
         android:theme="@style/AppTheme"
         tools:targetApi="s">
         <activity
+            android:name=".ads.native_ad.NativeAdsActivityX"
+            android:exported="false" />
+        <activity
             android:name=".ads.feed_ad.FeedAdsActivity"
             android:enableOnBackInvokedCallback="true"
             android:exported="false"
