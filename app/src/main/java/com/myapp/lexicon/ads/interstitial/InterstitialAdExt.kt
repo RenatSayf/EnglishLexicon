@@ -27,6 +27,7 @@ import com.yandex.mobile.ads.interstitial.InterstitialAd
 import com.yandex.mobile.ads.interstitial.InterstitialAdEventListener
 import com.yandex.mobile.ads.interstitial.InterstitialAdLoadListener
 import com.yandex.mobile.ads.interstitial.InterstitialAdLoader
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
@@ -140,7 +141,7 @@ fun FragmentActivity.showInterstitialAd(
                     val revenue = rawData.toRevenue()
                     val accessToken = this@showInterstitialAd.accessToken
                     if (accessToken.isNotEmpty() && revenue != null) {
-                        this@showInterstitialAd.lifecycleScope.launch {
+                        this@showInterstitialAd.lifecycleScope.launch(context = Dispatchers.Main) {
                             repository.updateUserBalance(accessToken, revenue).collect(collector = { result ->
                                 result.onSuccess { r ->
                                     reward = r

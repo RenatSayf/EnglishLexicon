@@ -27,6 +27,7 @@ import com.yandex.mobile.ads.banner.BannerAdView
 import com.yandex.mobile.ads.common.AdRequest
 import com.yandex.mobile.ads.common.AdRequestError
 import com.yandex.mobile.ads.common.ImpressionData
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlin.math.roundToInt
@@ -115,7 +116,7 @@ fun BannerAdView.loadBanner(
                         val emptyRevenue = data.emptyRevenue()
                         val accessToken = this@loadBanner.context.accessToken
                         if (accessToken.isNotEmpty()) {
-                            activity.lifecycleScope.launch {
+                            activity.lifecycleScope.launch(context = Dispatchers.Main) {
                                 repository.updateUserBalance(accessToken, emptyRevenue)
                             }
                         }

@@ -26,7 +26,6 @@ import com.parse.GetCallback
 import com.parse.ParseException
 import com.parse.ParseObject
 import com.parse.ParseQuery
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -34,9 +33,14 @@ import kotlinx.serialization.json.Json
 import java.io.BufferedInputStream
 import java.net.HttpURLConnection
 import java.net.URL
+import kotlin.coroutines.CoroutineContext
+
+
+
 
 open class AccountViewModel(
-    private val netModule: INetRepositoryModule
+    private val netModule: INetRepositoryModule,
+    private val coroutineContext: CoroutineContext = Dispatchers.Main
 ) : ViewModel() {
 
     @Suppress("UNCHECKED_CAST")
@@ -183,11 +187,10 @@ open class AccountViewModel(
         onSuccess: (user: UserX) -> Unit,
         onNotEnough: () -> Unit = {},
         onInvalidToken: () -> Unit,
-        onComplete: (HttpThrowable?) -> Unit = {},
-        dispatcher: CoroutineDispatcher = Dispatchers.IO
+        onComplete: (HttpThrowable?) -> Unit = {}
     ) {
         onStart.invoke()
-        viewModelScope.launch(context = dispatcher) {
+        viewModelScope.launch(context = this.coroutineContext) {
             repository.reservedPaymentToUser(
                 accessToken = accessToken,
                 map = userMap
@@ -249,7 +252,7 @@ open class AccountViewModel(
 
     fun signOut(token: String) {
         _loadingState.value = LoadingState.Start
-        viewModelScope.launch {
+        viewModelScope.launch(context = this.coroutineContext) {
             repository.signOut(token).collect(collector = { result ->
                 result.onSuccess { tokens: Tokens ->
                     _authState.value = AuthState.LogOut
@@ -265,7 +268,7 @@ open class AccountViewModel(
 
     fun deleteUserAccount(token: String) {
         _loadingState.value = LoadingState.Start
-        viewModelScope.launch {
+        viewModelScope.launch(context = this.coroutineContext) {
             repository.deleteUser(token).collect(collector = { result ->
                 result.onSuccess { value: Boolean ->
                     if (value) {

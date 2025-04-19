@@ -41,6 +41,7 @@ import com.yandex.mobile.ads.nativeads.NativeAdEventListener
 import com.yandex.mobile.ads.nativeads.NativeAdRequestConfiguration
 import com.yandex.mobile.ads.nativeads.NativeBulkAdLoadListener
 import com.yandex.mobile.ads.nativeads.NativeBulkAdLoader
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
@@ -222,7 +223,7 @@ class NativeAdsActivity : AppCompatActivity() {
                                     }
                                 }
                             }
-                            lifecycleScope.launch {
+                            lifecycleScope.launch(context = Dispatchers.Main) {
                                 val accessToken = this@NativeAdsActivity.accessToken
                                 if (accessToken.isNotEmpty()) {
                                     repository.updateUserBalance(

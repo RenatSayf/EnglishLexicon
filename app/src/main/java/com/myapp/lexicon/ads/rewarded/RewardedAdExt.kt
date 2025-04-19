@@ -28,6 +28,7 @@ import com.yandex.mobile.ads.rewarded.RewardedAd
 import com.yandex.mobile.ads.rewarded.RewardedAdEventListener
 import com.yandex.mobile.ads.rewarded.RewardedAdLoadListener
 import com.yandex.mobile.ads.rewarded.RewardedAdLoader
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
@@ -138,7 +139,7 @@ fun FragmentActivity.showRewardedAd(
                     val revenue = rawData.toRevenue()
                     val accessToken = this@showRewardedAd.accessToken
                     if (accessToken.isNotEmpty() && revenue != null) {
-                        this@showRewardedAd.lifecycleScope.launch {
+                        this@showRewardedAd.lifecycleScope.launch(context = Dispatchers.Main) {
                             repository.updateUserBalance(accessToken, revenue).collect(collector = { result ->
                                 result.onSuccess { r ->
                                     reward = r

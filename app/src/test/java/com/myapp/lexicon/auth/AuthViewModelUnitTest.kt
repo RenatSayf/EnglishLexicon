@@ -15,6 +15,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -24,12 +25,11 @@ import org.junit.Rule
 import org.junit.Test
 
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class AuthViewModelUnitTest {
 
     @get:Rule
     val rule = InstantTaskExecutorRule()
-
-
 
     @Before
     fun setUp() {
@@ -38,6 +38,7 @@ class AuthViewModelUnitTest {
 
     @After
     fun tearDown() {
+
     }
 
     @Test
@@ -65,12 +66,12 @@ class AuthViewModelUnitTest {
             }
             override fun onAuthorizationRequired() {}
         })
-        val viewModel = AuthViewModel(repositoryModule)
+        val viewModel = AuthViewModel(repositoryModule, coroutineContext = Dispatchers.IO)
 
         runBlocking {
-            viewModel.registerForNewUser(email = "testuser@gmail.com", password = "123456", dispatcher = Dispatchers.Unconfined)
+            viewModel.registerForNewUser(email = "testuser@gmail.com", password = "123456")
 
-            delay(2000)
+            delay(3000)
 
             val state = viewModel.state.value
             when(state) {
@@ -117,12 +118,12 @@ class AuthViewModelUnitTest {
             override fun onUpdateTokens(tokens: Tokens) {}
             override fun onAuthorizationRequired() {}
         })
-        val viewModel = AuthViewModel(repositoryModule)
+        val viewModel = AuthViewModel(repositoryModule, coroutineContext = Dispatchers.IO)
 
         runBlocking {
-            viewModel.registerForNewUser(email = "testuser@gmail.com", password = "123", dispatcher = Dispatchers.Unconfined)
+            viewModel.registerForNewUser(email = "testuser@gmail.com", password = "123")
 
-            delay(2000)
+            delay(3000)
 
             val state = viewModel.state.value
             when(state) {
@@ -157,12 +158,12 @@ class AuthViewModelUnitTest {
             override fun onUpdateTokens(tokens: Tokens) {}
             override fun onAuthorizationRequired() {}
         })
-        val viewModel = AuthViewModel(repositoryModule)
+        val viewModel = AuthViewModel(repositoryModule, coroutineContext = Dispatchers.IO)
 
         runBlocking {
-            viewModel.registerForNewUser(email = "testuser@gmail.com", password = "123456", dispatcher = Dispatchers.Unconfined)
+            viewModel.registerForNewUser(email = "testuser@gmail.com", password = "123456")
 
-            delay(2000)
+            delay(3000)
 
             val state = viewModel.state.value
             when(state) {
@@ -197,12 +198,12 @@ class AuthViewModelUnitTest {
             override fun onUpdateTokens(tokens: Tokens) {}
             override fun onAuthorizationRequired() {}
         })
-        val viewModel = AuthViewModel(repositoryModule)
+        val viewModel = AuthViewModel(repositoryModule, coroutineContext = Dispatchers.IO)
 
         runBlocking {
-            viewModel.registerForNewUser(email = "testuser@gmail.com", password = "123456", dispatcher = Dispatchers.Unconfined)
+            viewModel.registerForNewUser(email = "testuser@gmail.com", password = "123456")
 
-            delay(2000)
+            delay(3000)
 
             val state = viewModel.state.value
             when(state) {
@@ -244,12 +245,12 @@ class AuthViewModelUnitTest {
             override fun onAuthorizationRequired() {}
         })
 
-        val viewModel = AuthViewModel(repositoryModule)
+        val viewModel = AuthViewModel(repositoryModule, coroutineContext = Dispatchers.IO)
 
         runBlocking {
-            viewModel.logInWithEmailAndPassword(email = "testuser@gmail.com", password = "123456", dispatcher = Dispatchers.Unconfined)
+            viewModel.logInWithEmailAndPassword(email = "testuser@gmail.com", password = "123456")
 
-            delay(2000)
+            delay(3000)
 
             val state = viewModel.state.value
             when(state) {
@@ -284,12 +285,12 @@ class AuthViewModelUnitTest {
             override fun onAuthorizationRequired() {}
         })
 
-        val viewModel = AuthViewModel(repositoryModule)
+        val viewModel = AuthViewModel(repositoryModule, coroutineContext = Dispatchers.IO)
 
         runBlocking {
-            viewModel.logInWithEmailAndPassword(email = "testuser@gmail.com", password = "123456", dispatcher = Dispatchers.Unconfined)
+            viewModel.logInWithEmailAndPassword(email = "testuser@gmail.com", password = "123456")
 
-            delay(2000)
+            delay(3000)
 
             val state = viewModel.state.value
             when(state) {
@@ -325,12 +326,12 @@ class AuthViewModelUnitTest {
             }
         })
 
-        val viewModel = AuthViewModel(repositoryModule)
+        val viewModel = AuthViewModel(repositoryModule, coroutineContext = Dispatchers.IO)
 
         runBlocking {
-            viewModel.logInWithEmailAndPassword(email = "testuser@gmail.com", password = "123456", dispatcher = Dispatchers.Unconfined)
+            viewModel.logInWithEmailAndPassword(email = "testuser@gmail.com", password = "123456")
 
-            delay(2000)
+            delay(3000)
 
             val state = viewModel.state.value
             when(state) {
@@ -366,12 +367,12 @@ class AuthViewModelUnitTest {
             }
         })
 
-        val viewModel = AuthViewModel(repositoryModule)
+        val viewModel = AuthViewModel(repositoryModule, coroutineContext = Dispatchers.IO)
 
         runBlocking {
-            viewModel.resetUserPassword(email = "testuser@gmail.com", dispatcher = Dispatchers.Unconfined)
+            viewModel.resetUserPassword(email = "testuser@gmail.com")
 
-            delay(2000)
+            delay(3000)
 
             val state = viewModel.state.value
             when(state) {
@@ -407,12 +408,12 @@ class AuthViewModelUnitTest {
             }
         })
 
-        val viewModel = AuthViewModel(repositoryModule)
+        val viewModel = AuthViewModel(repositoryModule, coroutineContext = Dispatchers.IO)
 
         runBlocking {
-            viewModel.resetUserPassword(email = "testuser@gmail.com", dispatcher = Dispatchers.Unconfined)
+            viewModel.resetUserPassword(email = "testuser@gmail.com")
 
-            delay(2000)
+            delay(4000)
 
             val state = viewModel.state.value
             when(state) {
@@ -448,12 +449,12 @@ class AuthViewModelUnitTest {
             }
         })
 
-        val viewModel = AuthViewModel(repositoryModule)
+        val viewModel = AuthViewModel(repositoryModule, coroutineContext = Dispatchers.IO)
 
         runBlocking {
-            viewModel.resetUserPassword(email = "testuser@gmail.com", dispatcher = Dispatchers.Unconfined)
+            viewModel.resetUserPassword(email = "testuser@gmail.com")
 
-            delay(2000)
+            delay(4000)
 
             val state = viewModel.state.value
             when(state) {
@@ -489,11 +490,11 @@ class AuthViewModelUnitTest {
             }
         })
 
-        val viewModel = AuthViewModel(repositoryModule)
+        val viewModel = AuthViewModel(repositoryModule, coroutineContext = Dispatchers.IO)
 
         runBlocking {
 
-            delay(2000)
+            delay(3000)
 
             viewModel.deleteUserAccount(
                 token = "XXXXXXXX",
@@ -502,8 +503,7 @@ class AuthViewModelUnitTest {
                 },
                 onComplete = {
                     Assert.assertTrue(false)
-                },
-                dispatcher = Dispatchers.Unconfined
+                }
             )
         }
     }
@@ -530,11 +530,11 @@ class AuthViewModelUnitTest {
             }
         })
 
-        val viewModel = AuthViewModel(repositoryModule)
+        val viewModel = AuthViewModel(repositoryModule, coroutineContext = Dispatchers.IO)
 
         runBlocking {
 
-            delay(2000)
+            delay(3000)
 
             viewModel.deleteUserAccount(
                 token = "XXXXXXXX",
@@ -543,8 +543,7 @@ class AuthViewModelUnitTest {
                 },
                 onComplete = {
                     Assert.assertTrue(true)
-                },
-                dispatcher = Dispatchers.Unconfined
+                }
             )
         }
     }

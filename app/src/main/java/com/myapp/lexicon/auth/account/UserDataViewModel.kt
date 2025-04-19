@@ -16,14 +16,17 @@ import com.myapp.lexicon.models.RevenueX
 import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.models.UserX
 import com.myapp.lexicon.repository.network.INetRepository
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
+import kotlin.coroutines.CoroutineContext
 
-open class UserDataViewModel(netModule: INetRepositoryModule) : AccountViewModel(netModule) {
+open class UserDataViewModel(
+    netModule: INetRepositoryModule,
+    private val coroutineContext: CoroutineContext = Dispatchers.Main
+) : AccountViewModel(netModule) {
 
     @Suppress("UNCHECKED_CAST")
     class Factory(
@@ -60,7 +63,7 @@ open class UserDataViewModel(netModule: INetRepositoryModule) : AccountViewModel
     val userState: LiveData<UserDataState> = _userState
 
     fun setUserState(state: UserDataState) {
-        _userState.postValue(state)
+        _userState.value = state
     }
 
     open var user: UserX? = null
@@ -79,84 +82,89 @@ open class UserDataViewModel(netModule: INetRepositoryModule) : AccountViewModel
     fun fetchUserData(token: String) {
         super._loadingState.value = LoadingState.Start
 
-        viewModelScope.launch(context = Dispatchers.IO) {
+        viewModelScope.launch(context = this.coroutineContext) {
+
             val result = repository.getUserProfile(accessToken = token).await()
             result.onSuccess { user: UserX ->
-                super._loadingState.postValue(LoadingState.Complete)
                 this@UserDataViewModel.user = user
-                _userState.postValue(UserDataState.ReceivedUserData(user))
+                _userState.value = UserDataState.ReceivedUserData(user)
             }
             result.onFailure { exception ->
-                super._loadingState.postValue(LoadingState.Complete)
                 val errorCode = exception.castToHttpThrowable().errorCode
                 when(errorCode) {
                     401, 406 -> {
-                        _userState.postValue(UserDataState.AuthorizationRequired)
+                        _userState.value = UserDataState.AuthorizationRequired
                     }
                     else -> {
-                        _userState.postValue(UserDataState.Error(exception.message?: "Unknown error"))
+                        _userState.value = UserDataState.Error(exception.message?: "Unknown error")
                     }
                 }
-                _userState.postValue(UserDataState.Error(exception.message?: "Unknown error"))
+                _userState.value = UserDataState.Error(exception.message?: "Unknown error")
             }
+            super._loadingState.value = LoadingState.Complete
         }
     }
 
-    fun updateUserData(token: String, data: UserX, dispatcher: CoroutineDispatcher = Dispatchers.IO) {
+    fun updateUserData(
+        token: String,
+        data: UserX
+    ) {
         super._loadingState.value = LoadingState.Start
 
-        viewModelScope.launch(context = dispatcher) {
+        viewModelScope.launch(context = this.coroutineContext) {
             val jsonString = data.toJsonString()
             repository.updateUserData(token, jsonString).collect(
                 collector = { result ->
                     result.onSuccess { user ->
-                        super._loadingState.postValue(LoadingState.Complete)
                         this@UserDataViewModel.user = user
-                        _userState.postValue(UserDataState.UserDataUpdated(user))
+                        _userState.value = UserDataState.UserDataUpdated(user)
                     }
                     result.onFailure { ex ->
-                        super._loadingState.postValue(LoadingState.Complete)
                         val errorCode = (ex as HttpThrowable).errorCode
                         when(errorCode) {
                             401, 406 -> {
-                                _userState.postValue(UserDataState.AuthorizationRequired)
+                                _userState.value = UserDataState.AuthorizationRequired
                             }
                             else -> {
-                                _userState.postValue(UserDataState.Error(ex.message?: "Unknown error"))
+                                _userState.value = UserDataState.Error(ex.message?: "Unknown error")
                             }
                         }
-                        _userState.postValue(UserDataState.Error(ex.message?: "Unknown error"))
+                        _userState.value = UserDataState.Error(ex.message?: "Unknown error")
                     }
+                    super._loadingState.value = LoadingState.Complete
                 }
             )
         }
     }
 
-    fun updateUserData(token: String, data: Map<String, Any?>) {
+    fun updateUserData(
+        token: String,
+        data: Map<String, Any?>
+    ) {
         super._loadingState.value = LoadingState.Start
 
-        viewModelScope.launch(context = Dispatchers.IO) {
+        viewModelScope.launch(context = this.coroutineContext) {
             val jsonString = jsonCoder.encodeToString(data)
             repository.updateUserData(token, jsonString).collect(
                 collector = { result ->
                     result.onSuccess { user ->
-                        super._loadingState.postValue(LoadingState.Complete)
                         this@UserDataViewModel.user = user
-                        _userState.postValue(UserDataState.UserDataUpdated(user))
+                        _userState.value = UserDataState.UserDataUpdated(user)
                     }
                     result.onFailure { ex ->
                         super._loadingState.postValue(LoadingState.Complete)
                         val errorCode = (ex as HttpThrowable).errorCode
                         when(errorCode) {
                             401, 406 -> {
-                                _userState.postValue(UserDataState.AuthorizationRequired)
+                                _userState.value = UserDataState.AuthorizationRequired
                             }
                             else -> {
-                                _userState.postValue(UserDataState.Error(ex.message?: "Unknown error"))
+                                _userState.value = UserDataState.Error(ex.message?: "Unknown error")
                             }
                         }
-                        _userState.postValue(UserDataState.Error(ex.message?: "Unknown error"))
+                        _userState.value = UserDataState.Error(ex.message?: "Unknown error")
                     }
+                    super._loadingState.value = LoadingState.Complete
                 }
             )
         }
@@ -165,26 +173,26 @@ open class UserDataViewModel(netModule: INetRepositoryModule) : AccountViewModel
     fun updateUserBalance(token: String, data: RevenueX) {
         super._loadingState.value = LoadingState.Start
 
-        viewModelScope.launch(context = Dispatchers.IO) {
+        viewModelScope.launch(context = this.coroutineContext) {
             repository.updateUserBalance(token, data).collect(
                 collector = { result ->
                     result.onSuccess { reward: AdsReward ->
-                        super._loadingState.postValue(LoadingState.Complete)
-                        _userState.postValue(UserDataState.RevenueUpdated(reward = reward))
+                        _userState.value = UserDataState.RevenueUpdated(reward = reward)
                     }
                     result.onFailure { ex ->
-                        super._loadingState.postValue(LoadingState.Complete)
+                        super._loadingState.value = LoadingState.Complete
                         val errorCode = (ex as HttpThrowable).errorCode
                         when(errorCode) {
                             401, 406 -> {
-                                _userState.postValue(UserDataState.AuthorizationRequired)
+                                _userState.value = UserDataState.AuthorizationRequired
                             }
                             else -> {
-                                _userState.postValue(UserDataState.Error(ex.message?: "Unknown error"))
+                                _userState.value = UserDataState.Error(ex.message?: "Unknown error")
                             }
                         }
-                        _userState.postValue(UserDataState.Error(ex.message?: "Unknown error"))
+                        _userState.value = UserDataState.Error(ex.message?: "Unknown error")
                     }
+                    super._loadingState.value = LoadingState.Complete
                 }
             )
         }

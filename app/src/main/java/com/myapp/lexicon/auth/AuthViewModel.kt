@@ -27,13 +27,14 @@ import com.parse.ParseException
 import com.parse.ParseObject
 import com.parse.ParseQuery
 import com.parse.ParseUser
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
 
 open class AuthViewModel(
-    private val netModule: INetRepositoryModule
+    private val netModule: INetRepositoryModule,
+    private val coroutineContext: CoroutineContext = Dispatchers.Main
 ) : ViewModel() {
 
     @Suppress("UNCHECKED_CAST")
@@ -100,31 +101,31 @@ open class AuthViewModel(
         })
     }.provideNetRepository()
 
-    open fun registerForNewUser(email: String, password: String, dispatcher: CoroutineDispatcher = Dispatchers.IO) {
+    open fun registerForNewUser(email: String, password: String) {
         _loadingState.value = LoadingState.Start
 
         val signUpData = SignUpData(appVersion = BuildConfig.VERSION_NAME, email, password)
-        viewModelScope.launch(dispatcher) {
+        viewModelScope.launch(context = this.coroutineContext) {
             repository.signUp(data = signUpData).collect(collector = { result ->
                 result.onSuccess { value: Tokens ->
                     netModule.setRefreshToken(value.refreshToken)
-                    _state.postValue(UserState.LogUp(value))
+                    _state.value = UserState.LogUp(value)
                 }
                 result.onFailure { exception: Throwable ->
                     val errorCode = exception.castToHttpThrowable().errorCode
                     when(errorCode) {
                         409 -> {
-                            _state.postValue(UserState.AlreadyExists)
+                            _state.value = UserState.AlreadyExists
                         }
                         422 -> {
-                            _state.postValue(UserState.PasswordValid(false))
+                            _state.value = UserState.PasswordValid(false)
                         }
                         else -> {
-                            _state.postValue(UserState.HttpFailure(exception.message))
+                            _state.value = UserState.HttpFailure(exception.message)
                         }
                     }
                 }
-                _loadingState.postValue(LoadingState.Complete)
+                _loadingState.value = LoadingState.Complete
             })
         }
 
@@ -135,30 +136,30 @@ open class AuthViewModel(
     }
 
     // login in TimeWeb
-    open fun logInWithEmailAndPassword(email: String, password: String, dispatcher: CoroutineDispatcher = Dispatchers.IO) {
+    open fun logInWithEmailAndPassword(email: String, password: String) {
         _loadingState.value = LoadingState.Start
-        viewModelScope.launch(dispatcher) {
+        viewModelScope.launch(context = this.coroutineContext) {
             val signInData = SignInData(email, password)
             repository.signIn(signInData).collect(collector = { result ->
                 result.onSuccess { value: Tokens ->
                     netModule.setRefreshToken(value.refreshToken)
-                    _state.postValue(UserState.LogIn(value))
+                    _state.value = UserState.LogIn(value)
                 }
                 result.onFailure { exception: Throwable ->
                     val errorCode = exception.castToHttpThrowable().errorCode
                     when(errorCode) {
                         404 -> {
-                            _state.postValue(UserState.NotRegistered)
+                            _state.value = UserState.NotRegistered
                         }
                         406 -> {
-                            _state.postValue(UserState.NotAcceptable)
+                            _state.value = UserState.NotAcceptable
                         }
                         else -> {
-                            _state.postValue(UserState.HttpFailure(exception.message))
+                            _state.value = UserState.HttpFailure(exception.message)
                         }
                     }
                 }
-                _loadingState.postValue(LoadingState.Complete)
+                _loadingState.value = LoadingState.Complete
             })
         }
     }
@@ -219,39 +220,38 @@ open class AuthViewModel(
         )
     }
 
-    open fun resetUserPassword(email: String, dispatcher: CoroutineDispatcher = Dispatchers.IO) {
+    open fun resetUserPassword(email: String) {
         _loadingState.value = LoadingState.Start
-        viewModelScope.launch(dispatcher) {
+        viewModelScope.launch(context = this.coroutineContext) {
             repository.forgotPassword(email).collect(collector = { result ->
                 result.onSuccess { value: String ->
-                    _state.postValue(UserState.PasswordReset)
+                    _state.value = UserState.PasswordReset
                 }
                 result.onFailure { exception: Throwable ->
                     val errorCode = exception.castToHttpThrowable().errorCode
                     when(errorCode) {
                         404 -> {
-                            _state.postValue(UserState.NotRegistered)
+                            _state.value = UserState.NotRegistered
                         }
                         else -> {
-                            _state.postValue(UserState.HttpFailure(exception.message))
+                            _state.value = UserState.HttpFailure(exception.message)
                         }
                     }
                 }
-                _loadingState.postValue(LoadingState.Complete)
+                _loadingState.value = LoadingState.Complete
             })
         }
 
     }
 
-    open fun deleteUserAccount(
+    fun deleteUserAccount(
         token: String,
         onStart: () -> Unit = {},
         onSuccess: () -> Unit,
-        onComplete: (Exception?) -> Unit = {},
-        dispatcher: CoroutineDispatcher = Dispatchers.Default
+        onComplete: (Exception?) -> Unit = {}
     ) {
         onStart.invoke()
-        viewModelScope.launch(dispatcher) {
+        viewModelScope.launch(context = this.coroutineContext) {
             repository.deleteUser(token).collect(collector = { result ->
                 result.onSuccess { value: Boolean ->
                     if (value) {

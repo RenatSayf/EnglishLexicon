@@ -27,10 +27,13 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import org.json.JSONObject
+
+
+
+
 
 open class NetRepository(
     private val httpClient: HttpClient,
@@ -41,11 +44,13 @@ open class NetRepository(
 
     override suspend fun signUp(data: SignUpData): Flow<Result<Tokens>> {
         return flow {
-            val response = httpClient.post(urlString = "$baseUrl/auth/sign-up", block = {
-                contentType(ContentType.Application.Json)
-                val json = jsonDecoder.encodeToString(SignUpData.serializer(), data)
-                setBody(json)
-            })
+            val response = withContext(context = Dispatchers.IO){
+                httpClient.post(urlString = "$baseUrl/auth/sign-up", block = {
+                    contentType(ContentType.Application.Json)
+                    val json = jsonDecoder.encodeToString(SignUpData.serializer(), data)
+                    setBody(json)
+                })
+            }
             when(response.status) {
                 HttpStatusCode.OK -> {
                     runCatching {
@@ -69,11 +74,13 @@ open class NetRepository(
 
     override suspend fun signIn(data: SignInData): Flow<Result<Tokens>> {
         return flow {
-            val response = httpClient.post(urlString = "$baseUrl/auth/sign-in", block = {
-                contentType(ContentType.Application.Json)
-                val json = jsonDecoder.encodeToString(SignInData.serializer(), data)
-                setBody(json)
-            })
+            val response = withContext(context = Dispatchers.IO) {
+                httpClient.post(urlString = "$baseUrl/auth/sign-in", block = {
+                    contentType(ContentType.Application.Json)
+                    val json = jsonDecoder.encodeToString(SignInData.serializer(), data)
+                    setBody(json)
+                })
+            }
             when(response.status) {
                 HttpStatusCode.Accepted, HttpStatusCode.OK -> {
                     runCatching {
@@ -103,10 +110,6 @@ open class NetRepository(
                     parameter("access_token", accessToken)
                 })
             }
-//            val response = httpClient.post(urlString = "$baseUrl/auth/sign-out", block = {
-//                contentType(ContentType.Application.Json)
-//                parameter("access_token", accessToken)
-//            })
             when(response.status) {
                 HttpStatusCode.OK -> {
                     runCatching {
@@ -126,12 +129,12 @@ open class NetRepository(
                     emit(Result.failure(httpThrowable))
                 }
             }
-        }.flowOn(context = Dispatchers.Default)
+        }
     }
 
     override suspend fun getUserProfile(accessToken: String): Deferred<Result<UserX>> {
         return coroutineScope {
-            async {
+            async(context = Dispatchers.IO) {
                 val response = httpClient.get(urlString = "$baseUrl/mobile-user", block = {
                     contentType(ContentType.Application.Json)
                     parameter("access_token", accessToken)
@@ -162,12 +165,14 @@ open class NetRepository(
         revenue: RevenueX
     ): Flow<Result<AdsReward>> {
         return flow {
-            val response = httpClient.put(urlString = "$baseUrl/user/balance-increment", block = {
-                contentType(ContentType.Application.Json)
-                parameter("access_token", accessToken)
-                val json = jsonDecoder.encodeToString(RevenueX.serializer(), revenue)
-                setBody(json)
-            })
+            val response = withContext(context = Dispatchers.IO) {
+                httpClient.put(urlString = "$baseUrl/user/balance-increment", block = {
+                    contentType(ContentType.Application.Json)
+                    parameter("access_token", accessToken)
+                    val json = jsonDecoder.encodeToString(RevenueX.serializer(), revenue)
+                    setBody(json)
+                })
+            }
             when(response.status) {
                 HttpStatusCode.OK -> {
                     val bodyText = response.body<String>()
@@ -194,12 +199,14 @@ open class NetRepository(
         profile: UserProfile
     ): Flow<Result<UserX>> {
         return flow {
-            val response = httpClient.put(urlString = "$baseUrl/user/profile", block = {
-                contentType(ContentType.Application.Json)
-                parameter("access_token", accessToken)
-                val json = jsonDecoder.encodeToString(UserProfile.serializer(), profile)
-                setBody(json)
-            })
+            val response = withContext(context = Dispatchers.IO) {
+                httpClient.put(urlString = "$baseUrl/user/profile", block = {
+                    contentType(ContentType.Application.Json)
+                    parameter("access_token", accessToken)
+                    val json = jsonDecoder.encodeToString(UserProfile.serializer(), profile)
+                    setBody(json)
+                })
+            }
             when(response.status) {
                 HttpStatusCode.OK -> {
                     runCatching {
@@ -226,11 +233,13 @@ open class NetRepository(
         json: String
     ): Flow<Result<UserX>> {
         return flow {
-            val response = httpClient.put(urlString = "$baseUrl/user/new-user-data", block = {
-                contentType(ContentType.Application.Json)
-                parameter("access_token", accessToken)
-                setBody(json)
-            })
+            val response = withContext(context = Dispatchers.IO) {
+                httpClient.put(urlString = "$baseUrl/user/new-user-data", block = {
+                    contentType(ContentType.Application.Json)
+                    parameter("access_token", accessToken)
+                    setBody(json)
+                })
+            }
             when(response.status) {
                 HttpStatusCode.OK -> {
                     runCatching {
@@ -256,12 +265,14 @@ open class NetRepository(
         map: Map<String, Any>
     ): Flow<Result<UserX>> {
         return flow {
-            val json = JSONObject(map).toString()
-            val response = httpClient.put(urlString = "$baseUrl/user/payment", block = {
-                contentType(ContentType.Application.Json)
-                parameter("access_token", accessToken)
-                setBody(json)
-            })
+            val response = withContext(context = Dispatchers.IO) {
+                httpClient.put(urlString = "$baseUrl/user/payment", block = {
+                    contentType(ContentType.Application.Json)
+                    parameter("access_token", accessToken)
+                    val json = JSONObject(map).toString()
+                    setBody(json)
+                })
+            }
             when(response.status) {
                 HttpStatusCode.OK -> {
                     runCatching {
@@ -284,10 +295,12 @@ open class NetRepository(
 
     override suspend fun updateClickCounter(accessToken: String): Flow<Result<Boolean>> {
         return flow {
-            val response = httpClient.put(urlString = "$baseUrl/user/ad-click", block = {
-                contentType(ContentType.Application.Json)
-                parameter("token", accessToken)
-            })
+            val response = withContext(context = Dispatchers.IO) {
+                httpClient.put(urlString = "$baseUrl/user/ad-click", block = {
+                    contentType(ContentType.Application.Json)
+                    parameter("token", accessToken)
+                })
+            }
             when(response.status) {
                 HttpStatusCode.OK -> {
                     runCatching {
@@ -334,15 +347,17 @@ open class NetRepository(
                     emit(Result.failure(httpThrowable))
                 }
             }
-        }.flowOn(context = Dispatchers.Default)
+        }
     }
 
     override suspend fun forgotPassword(email: String): Flow<Result<String>> {
         return flow {
-            val response = httpClient.put(urlString = "$baseUrl/user/forgot-password", block = {
-                contentType(ContentType.Application.Json)
-                parameter("email", email)
-            })
+            val response = withContext(context = Dispatchers.IO) {
+                httpClient.put(urlString = "$baseUrl/user/forgot-password", block = {
+                    contentType(ContentType.Application.Json)
+                    parameter("email", email)
+                })
+            }
             when(response.status) {
                 HttpStatusCode.OK -> {
                     val bodyText = response.body<String>()
@@ -355,15 +370,16 @@ open class NetRepository(
                 }
             }
         }
-
     }
 
     override suspend fun fetchRemoteConfig(checkSum: Long): Flow<Result<String?>> {
         return flow {
-            val response = httpClient.get(urlString = "$baseUrl/config", block = {
-                contentType(ContentType.Application.Json)
-                parameter("check_sum", checkSum)
-            })
+            val response = withContext(context = Dispatchers.IO) {
+                httpClient.get(urlString = "$baseUrl/config", block = {
+                    contentType(ContentType.Application.Json)
+                    parameter("check_sum", checkSum)
+                })
+            }
             when(response.status) {
                 HttpStatusCode.NotFound, HttpStatusCode.BadGateway, HttpStatusCode.BadRequest -> {
                     runCatching {

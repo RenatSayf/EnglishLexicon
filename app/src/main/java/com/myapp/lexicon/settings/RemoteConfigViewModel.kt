@@ -13,15 +13,16 @@ import com.myapp.lexicon.models.AppConfig
 import com.myapp.lexicon.models.HttpThrowable
 import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.repository.network.INetRepository
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
+import kotlin.coroutines.CoroutineContext
 
 
 class RemoteConfigViewModel(
-    private val netModule: INetRepositoryModule
+    private val netModule: INetRepositoryModule,
+    private val coroutineContext: CoroutineContext = Dispatchers.Main
 ) : ViewModel() {
 
     @Suppress("UNCHECKED_CAST")
@@ -47,7 +48,6 @@ class RemoteConfigViewModel(
         setTokensUpdateListener(object : INetRepositoryModule.Listener {
             override fun onUpdateTokens(tokens: Tokens) {
                 netModule.setRefreshToken(tokens.refreshToken)
-
             }
 
             override fun onAuthorizationRequired() {
@@ -64,23 +64,22 @@ class RemoteConfigViewModel(
         checkSum: Long,
         onSuccess: (config: String) -> Unit,
         noDifferences: () -> Unit,
-        onFailure: (t: Throwable) -> Unit,
-        dispatcher: CoroutineDispatcher = Dispatchers.Default
+        onFailure: (t: Throwable) -> Unit
     ) {
 
-        viewModelScope.launch(context = dispatcher) {
+        viewModelScope.launch(context = this.coroutineContext) {
             repository.fetchRemoteConfig(checkSum).collect(collector = { res ->
                 res.onSuccess { configStr: String? ->
                     if (configStr != null) {
-                        _state.postValue(State.RemoteConfigLoaded(configStr))
+                        _state.value = State.RemoteConfigLoaded(configStr)
                         onSuccess.invoke(configStr)
                     } else {
-                        _state.postValue(State.NoDifferences)
+                        _state.value = State.NoDifferences
                         noDifferences.invoke()
                     }
                 }
                 res.onFailure { t ->
-                    _state.postValue(State.FailureLoad(t.castToHttpThrowable()))
+                    _state.value = State.FailureLoad(t.castToHttpThrowable())
                     onFailure.invoke(t)
                 }
             })

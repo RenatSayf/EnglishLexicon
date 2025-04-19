@@ -421,7 +421,10 @@ fun Throwable.throwIfDebug() {
 
 fun Throwable.castToHttpThrowable(): HttpThrowable {
     return try {
-        HttpThrowable(message = this.message, errorCode = this.hashCode())
+        when(this) {
+            is HttpThrowable -> this
+            else -> HttpThrowable(message = this.message, errorCode = 422)
+        }
     } catch (e: Exception) {
         HttpThrowable(message = e.message, errorCode = e.hashCode())
     }
