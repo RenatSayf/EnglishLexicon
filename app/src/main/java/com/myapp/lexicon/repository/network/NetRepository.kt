@@ -22,10 +22,13 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import org.json.JSONObject
 
@@ -94,10 +97,16 @@ open class NetRepository(
 
     override suspend fun signOut(accessToken: String): Flow<Result<Tokens>> {
         return flow {
-            val response = httpClient.post(urlString = "$baseUrl/auth/sign-out", block = {
-                contentType(ContentType.Application.Json)
-                parameter("access_token", accessToken)
-            })
+            val response = withContext(context = Dispatchers.IO) {
+                httpClient.post(urlString = "$baseUrl/auth/sign-out", block = {
+                    contentType(ContentType.Application.Json)
+                    parameter("access_token", accessToken)
+                })
+            }
+//            val response = httpClient.post(urlString = "$baseUrl/auth/sign-out", block = {
+//                contentType(ContentType.Application.Json)
+//                parameter("access_token", accessToken)
+//            })
             when(response.status) {
                 HttpStatusCode.OK -> {
                     runCatching {
@@ -117,7 +126,7 @@ open class NetRepository(
                     emit(Result.failure(httpThrowable))
                 }
             }
-        }
+        }.flowOn(context = Dispatchers.Default)
     }
 
     override suspend fun getUserProfile(accessToken: String): Deferred<Result<UserX>> {
@@ -301,10 +310,12 @@ open class NetRepository(
 
     override suspend fun deleteUser(accessToken: String): Flow<Result<Boolean>> {
         return flow {
-            val response = httpClient.put(urlString = "$baseUrl/user/delete", block = {
-                contentType(ContentType.Application.Json)
-                parameter("token", accessToken)
-            })
+            val response = withContext(context = Dispatchers.IO) {
+                httpClient.put(urlString = "$baseUrl/user/delete", block = {
+                    contentType(ContentType.Application.Json)
+                    parameter("access_token", accessToken)
+                })
+            }
             when(response.status) {
                 HttpStatusCode.OK -> {
                     runCatching {
@@ -323,7 +334,7 @@ open class NetRepository(
                     emit(Result.failure(httpThrowable))
                 }
             }
-        }
+        }.flowOn(context = Dispatchers.Default)
     }
 
     override suspend fun forgotPassword(email: String): Flow<Result<String>> {

@@ -436,27 +436,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void buildRewardTextX(@Nullable AdsReward reward) {
         if (toolBar != null)
         {
-            String text = "";
-            try
+            if (reward != null)
             {
-                String currentMonth = TimeExtKt.getMonthNameFromMillis(ExtensionsKt.getTimeInMillisMoscowTimeZone());
-                double todayBalance = reward.getMonthBalance();
-                double rewardToDisplay = UserKt.to2DigitsScale(todayBalance);
-                text = getString(R.string.coins_bag).concat(" ")
-                        .concat(currentMonth).concat(" ")
-                        .concat(String.valueOf(rewardToDisplay)).concat(" ")
-                        .concat(reward.getCurrencySymbol());
-                TextView tvSubTitle = toolbarBinding.tvSubtitle;
-                tvSubTitle.setText(text);
-            } catch (Exception e)
+                String text = "";
+                try
+                {
+                    String currentMonth = TimeExtKt.getMonthNameFromMillis(ExtensionsKt.getTimeInMillisMoscowTimeZone());
+                    double todayBalance = reward.getMonthBalance();
+                    double rewardToDisplay = UserKt.to2DigitsScale(todayBalance);
+                    text = getString(R.string.coins_bag).concat(" ")
+                            .concat(currentMonth).concat(" ")
+                            .concat(String.valueOf(rewardToDisplay)).concat(" ")
+                            .concat(reward.getCurrencySymbol());
+                    TextView tvSubTitle = toolbarBinding.tvSubtitle;
+                    tvSubTitle.setText(text);
+                    tvSubTitle.setVisibility(View.VISIBLE);
+                    tvReward.setText(text);
+                    tvReward.setVisibility(View.VISIBLE);
+                } catch (Exception e)
+                {
+                    ExtensionsKt.printStackTraceIfDebug(e);
+                }
+            } else
             {
-                ExtensionsKt.printStackTraceIfDebug(e);
-            }
-
-            if (tvReward != null)
-            {
-                tvReward.setText(text);
-                tvReward.setVisibility(View.VISIBLE);
+                tvReward.setVisibility(View.GONE);
+                toolbarBinding.tvSubtitle.setText(null);
+                toolbarBinding.tvSubtitle.setVisibility(View.VISIBLE);
             }
             toolBar.setOnClickListener(view -> {
                 if (drawerLayout != null)

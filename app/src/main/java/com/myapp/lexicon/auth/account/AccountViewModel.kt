@@ -247,44 +247,38 @@ open class AccountViewModel(
         payoutThread?.start()
     }
 
-    fun signOut(
-        token: String,
-        dispatcher: CoroutineDispatcher = Dispatchers.Default
-    ) {
-        _loadingState.postValue(LoadingState.Start)
-        viewModelScope.launch(context = dispatcher) {
+    fun signOut(token: String) {
+        _loadingState.value = LoadingState.Start
+        viewModelScope.launch {
             repository.signOut(token).collect(collector = { result ->
                 result.onSuccess { tokens: Tokens ->
-                    _authState.postValue(AuthState.LogOut)
+                    _authState.value = AuthState.LogOut
                 }
                 result.onFailure { t ->
                     val throwable = t.castToHttpThrowable()
-                    _authState.postValue(AuthState.HttpError(throwable))
+                    _authState.value = AuthState.HttpError(throwable)
                 }
             })
-            _loadingState.postValue(LoadingState.Complete)
+            _loadingState.value = LoadingState.Complete
         }
     }
 
-    fun deleteUserAccount(
-        token: String,
-        dispatcher: CoroutineDispatcher = Dispatchers.Default
-    ) {
-        _loadingState.postValue(LoadingState.Start)
-        viewModelScope.launch(dispatcher) {
+    fun deleteUserAccount(token: String) {
+        _loadingState.value = LoadingState.Start
+        viewModelScope.launch {
             repository.deleteUser(token).collect(collector = { result ->
                 result.onSuccess { value: Boolean ->
                     if (value) {
-                        _authState.postValue(AuthState.AccountDeleting)
+                        _authState.value = AuthState.AccountDeleting
                     }
                     else {
                         val throwable = Exception(ACCOUNT_DELETING_ERROR).castToHttpThrowable()
-                        _authState.postValue(AuthState.HttpError(throwable))
+                        _authState.value = AuthState.HttpError(throwable)
                     }
                 }
                 result.onFailure { t: Throwable ->
                     val throwable = t.castToHttpThrowable()
-                    _authState.postValue(AuthState.HttpError(throwable))
+                    _authState.value = AuthState.HttpError(throwable)
                 }
             })
         }
