@@ -3,11 +3,11 @@ package com.myapp.lexicon.splash
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.myapp.lexicon.R
@@ -21,9 +21,9 @@ import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.showDialogAsSingleton
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.Speaker
+import com.myapp.lexicon.settings.accessToken
 import com.myapp.lexicon.settings.checkOnStartSpeech
 import com.myapp.lexicon.settings.goToAppStore
-import com.myapp.lexicon.settings.isUserRegistered
 import com.yandex.mobile.ads.appopenad.AppOpenAd
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -100,7 +100,7 @@ class SplashActivity : AppCompatActivity() {
                             text = getString(R.string.btn_text_setup)
                             setOnClickListener {
                                 val intent = Intent(Intent.ACTION_VIEW).apply {
-                                    data = Uri.parse(getString(R.string.url_google_tts))
+                                    data = getString(R.string.url_google_tts).toUri()
                                 }
                                 startActivity(intent)
                                 dialog.dismiss()
@@ -192,16 +192,15 @@ class SplashActivity : AppCompatActivity() {
             while (!speechChecked || openAdVM.resultLoadOpenAd.value == null) {
                 delay(500)
                 if (speechChecked && openAdVM.resultLoadOpenAd.value != null) {
-                    this@SplashActivity.isUserRegistered(
-                        onYes = {
-                            appOpenAd?.show(this@SplashActivity)?: run {
-                                startMainActivity(null)
-                            }
-                        },
-                        onNotRegistered = {
+                    val accessToken = this@SplashActivity.accessToken
+                    if (accessToken.isNotEmpty()) {
+                        appOpenAd?.show(this@SplashActivity)?: run {
                             startMainActivity(null)
                         }
-                    )
+                    }
+                    else {
+                        startMainActivity(null)
+                    }
                 }
             }
         }
