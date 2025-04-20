@@ -205,6 +205,9 @@ open class AccountViewModel(
                         401 -> {
                             onInvalidToken.invoke()
                         }
+                        403 -> {
+                            onNotEnough.invoke()
+                        }
                         else -> {
                             onComplete.invoke(throwable)
                             return@collect
