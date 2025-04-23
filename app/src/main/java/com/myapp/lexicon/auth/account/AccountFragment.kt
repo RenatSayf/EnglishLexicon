@@ -119,6 +119,7 @@ class AccountFragment : Fragment() {
                 tvPhoneValue,
                 tvBankNameValue,
                 tvFirstNameValue,
+                tvSecondNameValue,
                 tvLastNameValue
             ).apply {
                 if (requireContext().currentConfig.isBankCardRequired) {
@@ -225,6 +226,14 @@ class AccountFragment : Fragment() {
                             setText(state.firstName.text)
                             background = state.firstName.background
                             if (state.firstName.isFocused) {
+                                requestFocus()
+                                setSelection(this.text?.length?: 0)
+                            }
+                        }
+                        tvSecondNameValue.apply {
+                            setText(state.secondName.text)
+                            background = state.secondName.background
+                            if (state.secondName.isFocused) {
                                 requestFocus()
                                 setSelection(this.text?.length?: 0)
                             }
@@ -355,6 +364,14 @@ class AccountFragment : Fragment() {
                     setNotValidFieldState(tvFirstNameValue)
                 }
             }
+            tvSecondNameValue.doOnTextChanged { text, start, before, count ->
+                if (text.toString().length > 1) {
+                    setValidFieldState(tvSecondNameValue)
+                }
+                else {
+                    setNotValidFieldState(tvSecondNameValue)
+                }
+            }
             tvLastNameValue.doOnTextChanged { text, start, before, count ->
                 if (text.toString().length > 1) {
                     setValidFieldState(tvLastNameValue)
@@ -428,6 +445,13 @@ class AccountFragment : Fragment() {
                         return@setOnClickListener
                     }
 
+                    val secondName = tvSecondNameValue.text.toString()
+                    if (secondName.isEmpty()) {
+                        setReadOnlyState(false)
+                        setNotValidFieldState(tvSecondNameValue)
+                        return@setOnClickListener
+                    }
+
                     val lastName = tvLastNameValue.text.toString()
                     if (lastName.isEmpty()) {
                         setReadOnlyState(false)
@@ -447,16 +471,11 @@ class AccountFragment : Fragment() {
 
                     if ((user.previousMonthBalance?: 0.0) > user.payoutThreshold) {
 
-                        val firstSecondName = tvFirstNameValue.text.toString().trim()
-                        val names = firstSecondName.split(" ")
-                        val firstName = names[0]
-                        val secondName = names.takeIf { it.size > 1 }?.get(1).toString()
-
                         val requisitesMap = mapOf<String, Any>(
                             UserX.KEY_PHONE to tvPhoneValue.text.toString().trim(),
                             UserX.KEY_BANK_NAME to tvBankNameValue.text.toString().trim(),
-                            UserX.KEY_FIRST_NAME to firstName.firstCap(),
-                            UserX.KEY_SECOND_NAME to secondName.firstCap(),
+                            UserX.KEY_FIRST_NAME to tvFirstNameValue.text.toString().firstCap(),
+                            UserX.KEY_SECOND_NAME to tvSecondNameValue.text.toString().firstCap(),
                             UserX.KEY_LAST_NAME to tvLastNameValue.text.toString().trim().firstCap(),
                             UserX.KEY_RESERVED_PAYOUT to user.previousMonthBalance!!.toInt()
                         )
@@ -527,6 +546,7 @@ class AccountFragment : Fragment() {
                                 UserX.KEY_BANK_NAME to tvBankNameValue.text.toString().ifEmpty { null },
                                 UserX.KEY_BANK_CARD to tvCardNumber.text.toString().ifEmpty { null },
                                 UserX.KEY_FIRST_NAME to tvFirstNameValue.text.toString().firstCap().ifEmpty { null },
+                                UserX.KEY_SECOND_NAME to tvSecondNameValue.text.toString().firstCap().ifEmpty { null },
                                 UserX.KEY_LAST_NAME to tvLastNameValue.text.toString().firstCap().ifEmpty { null }
                             ).filter {
                                 !it.value.isNullOrEmpty()
@@ -646,6 +666,11 @@ class AccountFragment : Fragment() {
                 tvFirstNameValue.setText(user.firstName)
             }
 
+            if (!user.secondName.isNullOrEmpty()) {
+                layoutSecondName.visibility = View.VISIBLE
+                tvSecondNameValue.setText(user.secondName)
+            }
+
             if (!user.lastName.isNullOrEmpty()) {
                 layoutLastName.visibility = View.VISIBLE
                 tvLastNameValue.setText(user.lastName)
@@ -719,6 +744,8 @@ class AccountFragment : Fragment() {
             }
             layoutFirstName.visibility = View.VISIBLE
             tvFirstNameValue.isEnabled = !flag
+            layoutSecondName.visibility = View.VISIBLE
+            tvSecondNameValue.isEnabled = !flag
             layoutLastName.visibility = View.VISIBLE
             tvLastNameValue.isEnabled = !flag
         }
@@ -830,6 +857,11 @@ class AccountFragment : Fragment() {
                         text = tvFirstNameValue.text.toString(),
                         background = tvFirstNameValue.background,
                         visibility = tvFirstNameValue.visibility
+                    ),
+                    secondName = ViewState(
+                        text = tvSecondNameValue.text.toString(),
+                        background = tvSecondNameValue.background,
+                        visibility = tvSecondNameValue.visibility
                     ),
                     lastName = ViewState(
                         text = tvLastNameValue.text.toString(),

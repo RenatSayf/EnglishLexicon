@@ -337,7 +337,7 @@
                 android:orientation="vertical"
                 android:gravity="start"
                 app:layout_constraintTop_toBottomOf="@+id/layoutBankCard"
-                app:layout_constraintBottom_toTopOf="@+id/layoutLastName"
+                app:layout_constraintBottom_toTopOf="@+id/layoutSecondName"
                 android:layout_marginTop="8dp"
                 android:visibility="gone"
                 tools:visibility="visible">
@@ -376,12 +376,57 @@
             </androidx.appcompat.widget.LinearLayoutCompat>
 
             <androidx.appcompat.widget.LinearLayoutCompat
-                android:id="@+id/layoutLastName"
+                android:id="@+id/layoutSecondName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="start"
                 app:layout_constraintTop_toBottomOf="@+id/layoutFirstName"
+                app:layout_constraintBottom_toTopOf="@+id/layoutLastName"
+                android:layout_marginTop="8dp"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvSecondNameTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="start"
+                    android:paddingStart="12dp"
+                    android:paddingTop="0dp"
+                    android:paddingEnd="12dp"
+                    android:paddingBottom="4dp"
+                    android:text="@string/title_second_name"
+                    android:textColor="@color/colorYellowDark"
+                    android:textSize="14sp"
+                    tools:ignore="TextContrastCheck" />
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/tvSecondNameValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_horizontal_oval"
+                    android:gravity="start"
+                    android:hint="@string/text_when_awarding"
+                    android:inputType="none"
+                    android:padding="8dp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:textColor="@color/color_3B5E91"
+                    android:textColorHint="@color/color_CCC3C3"
+                    android:textCursorDrawable="@null"
+                    android:textSize="18sp"
+                    tools:ignore="TouchTargetSizeCheck,VisualLintTextFieldSize,TextContrastCheck" />
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/layoutLastName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="start"
+                app:layout_constraintTop_toBottomOf="@+id/layoutSecondName"
                 app:layout_constraintBottom_toTopOf="@+id/layoutCheckRef"
                 android:layout_marginTop="8dp"
                 android:visibility="gone"

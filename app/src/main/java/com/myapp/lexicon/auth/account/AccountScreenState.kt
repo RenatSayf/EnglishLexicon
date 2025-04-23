@@ -15,6 +15,7 @@ sealed class AccountScreenState {
         val bankName: ViewState,
         val cardNumber: ViewState,
         val firstName: ViewState,
+        val secondName: ViewState,
         val lastName: ViewState,
         val checkRef: ViewState,
         val btnGetReward: ViewState,
