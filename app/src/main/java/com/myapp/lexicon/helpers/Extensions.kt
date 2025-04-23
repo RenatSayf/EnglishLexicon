@@ -32,8 +32,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.preference.PreferenceManager
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.common.APP_TIME_ZONE
@@ -98,10 +96,6 @@ fun Context.setServiceBroadcasts() {
             }
         }
     )
-}
-
-fun Fragment.alarmClockEnable() {
-    requireContext().alarmClockEnable()
 }
 
 fun View.showMultiLineSnackBar(message: String, duration: Int = Snackbar.LENGTH_LONG): Snackbar {
