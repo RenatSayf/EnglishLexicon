@@ -63,7 +63,8 @@ private val Context.DEFAULT_CONFIG: AppConfig
         paymentCheckPattern = "",
         paymentDays = 3,
         rewardExplainMessage = "",
-        signUpBenefitsMessage = ""
+        signUpBenefitsMessage = "",
+        isImportantUpdate = "2558788"
     )
 
 private var appConfig: AppConfig? = null
@@ -131,7 +132,8 @@ const val DEFAULT_CONFIG_JSON = """{
   "paymentCheckPattern": "^https://lknpd\\.nalog\\.ru/api/v1/receipt/\\d+/[a-zA-Z0-9]+/print$",
   "paymentDays": 3,
   "rewardExplainMessage": "Учите слова и фразы, проходите тесты и зарабатывайте монеты. После того как размер вознаграждения превысит минимальный порог, кнопка 'Получить награду' станет активной.",
-  "signUpBenefitsMessage": "Привет новый пользователь. Это приложение позволит тебе не только изучать слова, но и получать за это денежное вознаграждение.\nДля этого нужно просто зарегистрироваться в приложении. В боковом меню выберите \"Получать вознаграждение\" и пройдите легкую процедуру регистрации."
+  "signUpBenefitsMessage": "Привет новый пользователь. Это приложение позволит тебе не только изучать слова, но и получать за это денежное вознаграждение.\nДля этого нужно просто зарегистрироваться в приложении. В боковом меню выберите \"Получать вознаграждение\" и пройдите легкую процедуру регистрации.",
+  "isImportantUpdate": "2558788"
 }"""
 
 

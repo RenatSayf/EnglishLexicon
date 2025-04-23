@@ -6,7 +6,6 @@ import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.ads.ext.toRevenue
 import com.myapp.lexicon.ads.models.TestAdData
 import com.myapp.lexicon.common.AdsSource
-import com.myapp.lexicon.common.IS_REWARD_ACCESSIBLE
 import com.myapp.lexicon.di.INetRepositoryModule
 import com.myapp.lexicon.di.NetRepositoryModule
 import com.myapp.lexicon.helpers.logIfDebug
@@ -126,26 +125,24 @@ fun FragmentActivity.showRewardedAd(
         override fun onAdClicked() {}
 
         override fun onAdImpression(impressionData: ImpressionData?) {
-            if (IS_REWARD_ACCESSIBLE) {
-                val impressData: ImpressionData? = if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
-                    TestAdData(TEST_REWARDED_DATA)
-                }
-                else {
-                    impressionData
-                }
+            val impressData: ImpressionData? = if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
+                TestAdData(TEST_REWARDED_DATA)
+            }
+            else {
+                impressionData
+            }
 
-                impressData?.let {
-                    val rawData = it.rawData
-                    val revenue = rawData.toRevenue()
-                    val accessToken = this@showRewardedAd.accessToken
-                    if (accessToken.isNotEmpty() && revenue != null) {
-                        this@showRewardedAd.lifecycleScope.launch(context = Dispatchers.Main) {
-                            repository.updateUserBalance(accessToken, revenue).collect(collector = { result ->
-                                result.onSuccess { r ->
-                                    reward = r
-                                }
-                            })
-                        }
+            impressData?.let {
+                val rawData = it.rawData
+                val revenue = rawData.toRevenue()
+                val accessToken = this@showRewardedAd.accessToken
+                if (accessToken.isNotEmpty() && revenue != null) {
+                    this@showRewardedAd.lifecycleScope.launch(context = Dispatchers.Main) {
+                        repository.updateUserBalance(accessToken, revenue).collect(collector = { result ->
+                            result.onSuccess { r ->
+                                reward = r
+                            }
+                        })
                     }
                 }
             }

@@ -18,7 +18,6 @@ import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.ads.models.TestAdData
 import com.myapp.lexicon.ads.toAdData
 import com.myapp.lexicon.common.AdsSource
-import com.myapp.lexicon.common.IS_REWARD_ACCESSIBLE
 import com.myapp.lexicon.databinding.ActivityNativeAdsBinding
 import com.myapp.lexicon.di.App
 import com.myapp.lexicon.di.INetRepositoryModule
@@ -183,67 +182,64 @@ class NativeAdsActivity : AppCompatActivity() {
 
         override fun onImpression(impressionData: ImpressionData?) {
 
-            if (IS_REWARD_ACCESSIBLE) {
-
-                val impressData: ImpressionData? = if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
-                    TestAdData(testAdData)
-                }
-                else {
-                    impressionData
-                }
-                impressData?.rawData?.toAdData(
-                    onSuccess = { data: AdData ->
-                        adData.let {
-                            it.adType = data.adType
-                            it.adUnitId = data.adUnitId
-                            it.blockId = data.blockId
-                            it.currency = data.currency
-                            it.network = data.network
-                            it.precision = data.precision
-                            it.requestId = data.requestId
-                            it.revenue += data.revenue
-                            it.revenueUSD += data.revenueUSD
-                        }
-                        ratingList.add(data.revenue)
-                        if (ratingList.size >= 3) {
-                            val maxValue = ratingList.maxOrNull()
-                            if (maxValue != null) {
-                                with(binding){
-                                    rbTop.apply {
-                                        max = (maxValue * 100).toInt()
-                                        progress = (ratingList[0] * 100).toInt()
-                                    }
-                                    rbCenter.apply {
-                                        max = (maxValue * 100).toInt()
-                                        progress = (ratingList[1] * 100).toInt()
-                                    }
-                                    rbBottom.apply {
-                                        max = (maxValue * 100).toInt()
-                                        progress = (ratingList[2] * 100).toInt()
-                                    }
-                                }
-                            }
-                            lifecycleScope.launch(context = Dispatchers.Main) {
-                                val accessToken = this@NativeAdsActivity.accessToken
-                                if (accessToken.isNotEmpty()) {
-                                    repository.updateUserBalance(
-                                        accessToken = accessToken,
-                                        revenue = adData.toRevenue()
-                                    ).collect(collector = { result ->
-                                        result.onSuccess { reward ->
-                                            this@NativeAdsActivity.reward = reward
-                                        }
-                                        binding.btnClose.visibility = View.VISIBLE
-                                    })
-                                }
-                            }
-                        }
-                    },
-                    onFailed = {
-                        Exception("********* ImpressionData.rawData.toAdData() - parsing error ***********").printStackTraceIfDebug()
-                    }
-                )
+            val impressData: ImpressionData? = if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
+                TestAdData(testAdData)
             }
+            else {
+                impressionData
+            }
+            impressData?.rawData?.toAdData(
+                onSuccess = { data: AdData ->
+                    adData.let {
+                        it.adType = data.adType
+                        it.adUnitId = data.adUnitId
+                        it.blockId = data.blockId
+                        it.currency = data.currency
+                        it.network = data.network
+                        it.precision = data.precision
+                        it.requestId = data.requestId
+                        it.revenue += data.revenue
+                        it.revenueUSD += data.revenueUSD
+                    }
+                    ratingList.add(data.revenue)
+                    if (ratingList.size >= 3) {
+                        val maxValue = ratingList.maxOrNull()
+                        if (maxValue != null) {
+                            with(binding){
+                                rbTop.apply {
+                                    max = (maxValue * 100).toInt()
+                                    progress = (ratingList[0] * 100).toInt()
+                                }
+                                rbCenter.apply {
+                                    max = (maxValue * 100).toInt()
+                                    progress = (ratingList[1] * 100).toInt()
+                                }
+                                rbBottom.apply {
+                                    max = (maxValue * 100).toInt()
+                                    progress = (ratingList[2] * 100).toInt()
+                                }
+                            }
+                        }
+                        lifecycleScope.launch(context = Dispatchers.Main) {
+                            val accessToken = this@NativeAdsActivity.accessToken
+                            if (accessToken.isNotEmpty()) {
+                                repository.updateUserBalance(
+                                    accessToken = accessToken,
+                                    revenue = adData.toRevenue()
+                                ).collect(collector = { result ->
+                                    result.onSuccess { reward ->
+                                        this@NativeAdsActivity.reward = reward
+                                    }
+                                    binding.btnClose.visibility = View.VISIBLE
+                                })
+                            }
+                        }
+                    }
+                },
+                onFailed = {
+                    Exception("********* ImpressionData.rawData.toAdData() - parsing error ***********").printStackTraceIfDebug()
+                }
+            )
         }
 
         override fun onLeftApplication() {}

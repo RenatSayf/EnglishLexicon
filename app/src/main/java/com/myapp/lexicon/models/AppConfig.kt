@@ -20,7 +20,8 @@ data class AppConfig(
     val paymentCheckPattern: String,
     val paymentDays: Int,
     val rewardExplainMessage: String,
-    val signUpBenefitsMessage: String
+    val signUpBenefitsMessage: String,
+    val isImportantUpdate: String = "2558788"
 ) {
     @Serializable
     data class AdType(

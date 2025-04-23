@@ -13,9 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AppOpenAdViewModel
 import com.myapp.lexicon.ads.models.AdData
-import com.myapp.lexicon.common.IS_REWARD_ACCESSIBLE
 import com.myapp.lexicon.common.KEY_APP_STORE_LINK
-import com.myapp.lexicon.common.MESSAGE_TO_USER
 import com.myapp.lexicon.databinding.ALayoutSplashScreenBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.showDialogAsSingleton
@@ -53,9 +51,6 @@ class SplashActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         openAdVM = ViewModelProvider(this)[AppOpenAdViewModel::class]
-
-        IS_REWARD_ACCESSIBLE
-        MESSAGE_TO_USER
 
         this.scheduleRemoteConfigRequest()
 

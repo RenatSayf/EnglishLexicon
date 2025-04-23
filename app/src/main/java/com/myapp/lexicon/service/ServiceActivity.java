@@ -14,7 +14,6 @@ import com.myapp.lexicon.ads.models.AdType;
 import com.myapp.lexicon.ads.native_ad.NativeAdsActivityKt;
 import com.myapp.lexicon.ads.rewarded.RewardedAdExtKt;
 import com.myapp.lexicon.auth.AuthViewModel;
-import com.myapp.lexicon.common.CommonConstantsKt;
 import com.myapp.lexicon.databinding.ServiceDialogActivityBinding;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.LockOrientation;
@@ -129,14 +128,13 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
 
     private void handleAdvertisingPayload() {
 
+        AppConfig config = DefaultConfigKt.getCurrentConfig(this);
         long diffTime = System.currentTimeMillis() - lastAdShowTime;
-        if (diffTime < CommonConstantsKt.getAD_SHOWING_INTERVAL_IN_SEC() * 1000)
+        if (diffTime < config.getAdShowingIntervalInSec() * 1000L)
         {
             adsVM.setAdState(new AdsViewModel.AdState.Dismissed(0.0));
             return;
         }
-
-        AppConfig config = DefaultConfigKt.getCurrentConfig(this);
 
         if (config.getAdTypePerScreen().getService() == AdType.INTERSTITIAL.getType()) {
             InterstitialAdExtKt.loadInterstitialAd(

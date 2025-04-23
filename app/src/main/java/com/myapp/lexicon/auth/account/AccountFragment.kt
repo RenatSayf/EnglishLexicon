@@ -22,8 +22,6 @@ import com.myapp.lexicon.auth.AuthFragment
 import com.myapp.lexicon.auth.agreement.UserAgreementDialog
 import com.myapp.lexicon.auth.invoice.InstallTaxAppFragment
 import com.myapp.lexicon.auth.invoice.PayoutGuideFragment
-import com.myapp.lexicon.common.PAYMENTS_CONDITIONS
-import com.myapp.lexicon.common.PAYMENT_CHECK_PATTERN
 import com.myapp.lexicon.common.SELF_EMPLOYED_PACKAGE
 import com.myapp.lexicon.common.getMonthNameFromMillis
 import com.myapp.lexicon.common.getPreviousMonthNameFromMillis
@@ -368,7 +366,7 @@ class AccountFragment : Fragment() {
             tvCheckRefValue.doOnTextChanged { text, start, before, count ->
                 val reservedPayment = userDataVM.user?.previousMonthBalance?: 0.0
                 if (reservedPayment > requireContext().currentConfig.selfEmployedThreshold) {
-                    val isMatches = tvCheckRefValue.text?.matches(Regex(PAYMENT_CHECK_PATTERN))
+                    val isMatches = tvCheckRefValue.text?.matches(Regex(requireContext().currentConfig.paymentCheckPattern))
                     if (isMatches == true) {
                         setValidFieldState(tvCheckRefValue)
                         tvMessage.apply {
@@ -439,7 +437,7 @@ class AccountFragment : Fragment() {
 
                     val reservedPayment = userDataVM.user?.previousMonthBalance ?: 0.0
                     if (reservedPayment > requireContext().currentConfig.selfEmployedThreshold) {
-                        val isMatches = tvCheckRefValue.text?.matches(Regex(PAYMENT_CHECK_PATTERN))
+                        val isMatches = tvCheckRefValue.text?.matches(Regex(requireContext().currentConfig.paymentCheckPattern))
                         if (isMatches == false) {
                             setReadOnlyState(false)
                             setInvoiceRequiredState()
@@ -654,7 +652,7 @@ class AccountFragment : Fragment() {
             }
 
             val rewardThreshold = user.payoutThreshold
-            val textCondition = "$PAYMENTS_CONDITIONS $rewardThreshold ${user.currencySymbol}"
+            val textCondition = "${requireContext().currentConfig.paymentsConditions} $rewardThreshold ${user.currencySymbol}"
             tvRewardCondition.text = textCondition
             if ((user.monthBalance ?: 0.0) <= 0.0 || requireContext().currentConfig.paymentsConditions.isEmpty()) {
                 tvRewardCondition.visibility = View.GONE

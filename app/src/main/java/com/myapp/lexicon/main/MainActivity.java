@@ -417,9 +417,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         onRevenueUpdate();
 
-        CommonConstantsKt.getAD_SHOWING_INTERVAL_IN_SEC();
-        CommonConstantsKt.getSELF_EMPLOYED_THRESHOLD();
-
     }
 
     private SpeechViewModel createSpeechViewModel()
@@ -594,14 +591,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             AppDataBase dbInstance = AppDataBase.Companion.getDbInstance(this);
             DataRepositoryImpl repository = new DataRepositoryImpl(dbInstance.appDao());
             mainVM.injectDependencies(repository);
-        }
-
-        if (!CommonConstantsKt.getIS_REWARD_ACCESSIBLE())
-        {
-            MainActivityExtKt.showWarningDialog(
-                    this,
-                    CommonConstantsKt.getMESSAGE_TO_USER()
-            );
         }
     }
 

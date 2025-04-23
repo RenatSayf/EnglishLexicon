@@ -16,7 +16,6 @@ import com.myapp.lexicon.aboutapp.showUpdateDialog
 import com.myapp.lexicon.aboutapp.showUpdateSnackBar
 import com.myapp.lexicon.auth.AuthViewModel
 import com.myapp.lexicon.auth.account.UserDataViewModel
-import com.myapp.lexicon.common.IS_IMPORTANT_UPDATE
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.logIfDebug
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
@@ -32,6 +31,7 @@ import com.myapp.lexicon.service.FinishReceiver
 import com.myapp.lexicon.settings.accessToken
 import com.myapp.lexicon.settings.askForPermission
 import com.myapp.lexicon.settings.clearEmailPasswordInPref
+import com.myapp.lexicon.settings.currentConfig
 import com.myapp.lexicon.settings.emailIntoPref
 import com.myapp.lexicon.settings.getAuthDataFromPref
 import com.myapp.lexicon.settings.goToAppStore
@@ -132,7 +132,7 @@ class MainFragment : Fragment() {
 
         requireContext().checkAppUpdate(
             onAvailable = {
-                if (BuildConfig.IS_IMPORTANT_UPDATE == IS_IMPORTANT_UPDATE) {
+                if (BuildConfig.IS_IMPORTANT_UPDATE == requireContext().currentConfig.isImportantUpdate) {
                     requireActivity().showUpdateDialog( onClick = {
                         requireContext().setServiceBroadcasts()
                         requireActivity().finish()

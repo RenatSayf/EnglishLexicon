@@ -10,7 +10,6 @@ import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.ads.ext.toRevenue
 import com.myapp.lexicon.ads.models.TestAdData
 import com.myapp.lexicon.common.AdsSource
-import com.myapp.lexicon.common.IS_REWARD_ACCESSIBLE
 import com.myapp.lexicon.databinding.ActivityFeedAdsBinding
 import com.myapp.lexicon.di.App
 import com.myapp.lexicon.di.INetRepositoryModule
@@ -138,17 +137,15 @@ class FeedAdsActivity : AppCompatActivity() {
                 }
 
                 override fun onImpression(impressionData: ImpressionData?) {
-                    if (IS_REWARD_ACCESSIBLE) {
-                        val impressData: ImpressionData? = if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
-                            TestAdData(testAdData)
-                        }
-                        else {
-                            impressionData
-                        }
-                        val revenue = impressData?.rawData?.toRevenue()
-                        if (revenue != null) {
-                            revenue
-                        }
+                    val impressData: ImpressionData? = if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
+                        TestAdData(testAdData)
+                    }
+                    else {
+                        impressionData
+                    }
+                    val revenue = impressData?.rawData?.toRevenue()
+                    if (revenue != null) {
+                        revenue
                     }
                 }
             }

@@ -22,7 +22,6 @@ import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.ext.showUserRewardAnimatedly
 import com.myapp.lexicon.ads.loadBanner
 import com.myapp.lexicon.auth.account.UserDataViewModel
-import com.myapp.lexicon.common.IS_IMPORTANT_UPDATE
 import com.myapp.lexicon.databinding.STestModalFragmentBinding
 import com.myapp.lexicon.helpers.RandomNumberGenerator
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
@@ -244,7 +243,7 @@ class TestModeDialog : DialogFragment() {
                     }
                     requireContext().checkAppUpdate(
                         onAvailable = {
-                            if (BuildConfig.IS_IMPORTANT_UPDATE == IS_IMPORTANT_UPDATE) {
+                            if (BuildConfig.IS_IMPORTANT_UPDATE == requireContext().currentConfig.isImportantUpdate) {
                                 listener?.openApp()
                             }
                         }
