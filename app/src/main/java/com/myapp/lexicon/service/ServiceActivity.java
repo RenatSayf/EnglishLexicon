@@ -13,17 +13,19 @@ import com.myapp.lexicon.ads.interstitial.InterstitialAdExtKt;
 import com.myapp.lexicon.ads.models.AdType;
 import com.myapp.lexicon.ads.native_ad.NativeAdsActivityKt;
 import com.myapp.lexicon.ads.rewarded.RewardedAdExtKt;
-import com.myapp.lexicon.auth.AuthViewModel;
+import com.myapp.lexicon.auth.account.UserDataViewModel;
 import com.myapp.lexicon.databinding.ServiceDialogActivityBinding;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.interfaces.IModalFragment;
 import com.myapp.lexicon.models.AppConfig;
+import com.myapp.lexicon.models.Tokens;
+import com.myapp.lexicon.models.UserX;
 import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.settings.DefaultConfigKt;
+import com.myapp.lexicon.settings.EncryptedPrefKt;
 import com.myapp.lexicon.settings.SettingsExtKt;
 import com.myapp.lexicon.splash.SplashActivity;
-import com.parse.ParseUser;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,7 +38,6 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
 {
     public static final String ARG_JSON = ServiceActivity.class.getCanonicalName() + ".ARG_JSON";
     private ServiceDialogActivityBinding binding;
-    private AuthViewModel authVM;
     private AdsViewModel adsVM;
     private LockOrientation locker;
     private AlarmScheduler scheduler;
@@ -66,41 +67,30 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
 
         adsVM = new ViewModelProvider(ServiceActivity.this).get(AdsViewModel.class);
 
-        ParseUser currentUser = ParseUser.getCurrentUser();
-        if (currentUser != null) {
-            handleAdvertisingPayload();
-        }
-        else {
-            authVM = new ViewModelProvider(this).get(AuthViewModel.class);
-            SettingsExtKt.getAuthDataFromPref(
-                    this,
-                    () -> null,
-                    (email, password) -> {
-                        authVM.signInWithEmailAndPassword(email, password);
-                        authVM.getState().observe(this, userState -> {
-                            userState.onSignIn(
-                                    user -> {
-                                        SettingsExtKt.saveUserPercentToPref(this, user);
-                                        handleAdvertisingPayload();
-                                        return null;
-                                    }
-                            );
-                            userState.onFailure(
-                                    e -> {
-                                        String message = (e.getMessage() == null) ? ServiceActivity.class.getSimpleName().concat(" - Unknown error") : e.getMessage();
-                                        ExtensionsKt.showMultiLineSnackBar(binding.getRoot(), message, Snackbar.LENGTH_LONG);
-                                        return null;
-                                    }
-                            );
-                        });
-                        return null;
-                    },
-                    e -> {
-                        String message = (e.getMessage() == null) ? ServiceActivity.class.getSimpleName().concat(" - Unknown error") : e.getMessage();
-                        ExtensionsKt.showMultiLineSnackBar(binding.getRoot(), message, Snackbar.LENGTH_LONG);
-                        return null;
-                    }
-            );
+        UserDataViewModel userDataVM = new ViewModelProvider(ServiceActivity.this).get(UserDataViewModel.class);
+        userDataVM.getUserState().observe(this, state -> {
+            if (state instanceof UserDataViewModel.UserDataState.ReceivedUserData) {
+                UserX user = ((UserDataViewModel.UserDataState.ReceivedUserData) state).getUser();
+                SettingsExtKt.saveUserPercentToPref(this, user);
+                handleAdvertisingPayload();
+            }
+            else if (state instanceof  UserDataViewModel.UserDataState.TokensUpdated) {
+                Tokens tokens = ((UserDataViewModel.UserDataState.TokensUpdated) state).getTokens();
+                EncryptedPrefKt.saveAuthTokens(this, tokens);
+            }
+            else if (state instanceof UserDataViewModel.UserDataState.AuthorizationRequired) {
+                openApp();
+            }
+            else if (state instanceof UserDataViewModel.UserDataState.Error)
+            {
+                String errorMessage = ((UserDataViewModel.UserDataState.Error) state).getMessage();
+                ExtensionsKt.showMultiLineSnackBar(binding.getRoot(), errorMessage, Snackbar.LENGTH_LONG);
+            }
+        });
+        String accessToken = EncryptedPrefKt.getAccessToken(this);
+        if (!accessToken.isEmpty())
+        {
+            userDataVM.fetchUserData(accessToken);
         }
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);

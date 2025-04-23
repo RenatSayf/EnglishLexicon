@@ -121,7 +121,7 @@ class AccountFragment : Fragment() {
                 tvFirstNameValue,
                 tvLastNameValue
             ).apply {
-                if (accountVM.isBankCardRequired) {
+                if (requireContext().currentConfig.isBankCardRequired) {
                     add(tvCardNumber)
                 }
             }
@@ -397,7 +397,7 @@ class AccountFragment : Fragment() {
                         return@setOnClickListener
                     }
 
-                    if (accountVM.isBankCardRequired) {
+                    if (requireContext().currentConfig.isBankCardRequired) {
                         val number = tvCardNumber.text.toString()
                         if (number.isNotEmpty()) {
                             val isValidNumber = LuhnAlgorithm.isLuhnChecksumValid(number)
@@ -636,7 +636,7 @@ class AccountFragment : Fragment() {
                 tvBankNameValue.setText(user.bankName)
             }
 
-            if (accountVM.isBankCardRequired && user.bankCard?.checkIfAllDigits() == true) {
+            if (requireContext().currentConfig.isBankCardRequired && user.bankCard?.checkIfAllDigits() == true) {
                 layoutBankCard.visibility = View.VISIBLE
                 tvCardNumber.setText(user.bankCard)
             }
@@ -713,7 +713,7 @@ class AccountFragment : Fragment() {
             tvPhoneValue.isEnabled = !flag
             layoutBankName.visibility = View.VISIBLE
             tvBankNameValue.isEnabled = !flag
-            if (accountVM.isBankCardRequired){
+            if (requireContext().currentConfig.isBankCardRequired){
                 layoutBankCard.visibility = View.VISIBLE
                 tvCardNumber.isEnabled = !flag
             }
@@ -728,7 +728,7 @@ class AccountFragment : Fragment() {
         ConfirmDialog.newInstance(onLaunch = {dialog, binding ->
             with(binding) {
                 dialog.isCancelable = false
-                val message = "${getString(R.string.text_payment_request_sent_1)} ${accountVM.paymentDays} ${getString(R.string.text_payment_request_sent_2)}"
+                val message = "${getString(R.string.text_payment_request_sent_1)} ${requireContext().currentConfig.paymentDays} ${getString(R.string.text_payment_request_sent_2)}"
                 tvMessage.text = message
                 btnCancel.visibility = View.GONE
                 btnOk.setOnClickListener {
@@ -749,7 +749,7 @@ class AccountFragment : Fragment() {
                     visibility = View.VISIBLE
                     text = getString(R.string.coins_bag)
                 }
-                val message = accountVM.explainMessage
+                val message = requireContext().currentConfig.rewardExplainMessage
                 tvMessage.text = message
                 btnCancel.visibility = View.GONE
                 btnOk.setOnClickListener {

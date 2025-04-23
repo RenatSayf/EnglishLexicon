@@ -12,12 +12,11 @@ import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.models.TestState
 import com.myapp.lexicon.models.User
+import com.myapp.lexicon.models.UserX
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.config.RemoteConfig
 import com.myapp.lexicon.models.toWord
@@ -133,19 +132,11 @@ val Fragment.adsIsEnabled: Boolean
 
 val Context.userPercentFromPref: Double
     get() {
-        val value = appSettings.getFloat("USER_PERCENTAGE", -1.0f)
-        return if (value < 0)  {
-            try {
-                Firebase.remoteConfig.getDouble("USER_PERCENTAGE")
-            } catch (e: Exception) {
-                0.0
-            }
-        } else value.toDouble()
+        return appSettings.getFloat("USER_PERCENTAGE", 0.5f).toDouble()
     }
 
-
-fun Context.saveUserPercentToPref(user: User) {
-    appSettings.edit { putFloat("USER_PERCENTAGE", user.userPercent?.toFloat() ?: -1.0f) }
+fun Context.saveUserPercentToPref(user: UserX) {
+    appSettings.edit { putFloat("USER_PERCENTAGE", user.rewardRatio.toFloat()) }
 }
 
 fun Context.saveConfigToPref(config: RemoteConfig) {

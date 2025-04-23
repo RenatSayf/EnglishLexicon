@@ -58,7 +58,7 @@ class AdFragment : Fragment() {
                     },
                     onError = { error: String ->
                         Exception(error).printStackTraceIfDebug()
-                        parentFragmentManager.popBackStack()
+                        parentFragmentManager.beginTransaction().remove(this).commit()
                     }
                 )
             }
@@ -72,6 +72,7 @@ class AdFragment : Fragment() {
                                     val jsonData = Json.encodeToJsonElement(AdsReward.serializer(), reward).toString()
                                     putString(YouTubeFragment.KEY_JSON_AD_DATA, jsonData)
                                 })
+                                parentFragmentManager.beginTransaction().remove(this).commit()
                             },
                             onAuthorizationRequired = {
                                 parentFragmentManager.beginTransaction().remove(this).commit()
@@ -91,6 +92,7 @@ class AdFragment : Fragment() {
                                     val jsonData = Json.encodeToJsonElement(AdsReward.serializer(), reward).toString()
                                     putString(YouTubeFragment.KEY_JSON_AD_DATA, jsonData)
                                 })
+                                parentFragmentManager.beginTransaction().remove(this).commit()
                             },
                             onAuthorizationRequired = {
                                 parentFragmentManager.beginTransaction().remove(this).commit()
@@ -112,7 +114,7 @@ class AdFragment : Fragment() {
                     },
                     onError = { error ->
                         Exception(error).printStackTraceIfDebug()
-                        parentFragmentManager.popBackStack()
+                        parentFragmentManager.beginTransaction().remove(this).commit()
                     }
                 )
             }

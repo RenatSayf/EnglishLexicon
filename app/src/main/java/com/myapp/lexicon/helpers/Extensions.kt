@@ -46,6 +46,7 @@ import com.myapp.lexicon.schedule.AppNotification
 import com.myapp.lexicon.service.FinishReceiver
 import com.myapp.lexicon.service.PhoneUnlockedReceiver.Companion.getInstance
 import com.myapp.lexicon.settings.checkUnLockedBroadcast
+import com.myapp.lexicon.settings.currentConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
@@ -479,7 +480,7 @@ fun AppCompatActivity.showSignUpBenefitsDialog(
     onPositiveClick: () -> Unit,
     onCancel: () -> Unit = {}
 ) {
-    val explainMessage = Firebase.remoteConfig.getString("sign_up_benefits_message")
+    val explainMessage = this.currentConfig.signUpBenefitsMessage
     if (explainMessage.isNotEmpty()) {
         ConfirmDialog.newInstance(onLaunch = { dialog, binding ->
             with(binding) {

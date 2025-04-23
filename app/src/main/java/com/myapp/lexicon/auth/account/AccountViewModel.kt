@@ -9,8 +9,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.auth.AuthViewModel.Companion.ACCOUNT_DELETING_ERROR
 import com.myapp.lexicon.auth.models.SBPBanks
@@ -63,15 +61,6 @@ open class AccountViewModel(
 
     open fun setLoadingState(state: LoadingState) {
         _loadingState.postValue(state)
-    }
-
-    open val paymentDays: Int = Firebase.remoteConfig.getDouble("payment_days").toInt()
-    open val explainMessage: String = Firebase.remoteConfig.getString("reward_explain_message")
-    open val isBankCardRequired: Boolean = try {
-        Firebase.remoteConfig.getBoolean("is_bank_card_required")
-    } catch (e: Exception) {
-        e.printStackTraceIfDebug()
-        false
     }
 
     private var thread: Thread? = null

@@ -38,6 +38,7 @@ import com.myapp.lexicon.settings.goToAppStore
 import com.myapp.lexicon.settings.passwordIntoPref
 import com.myapp.lexicon.settings.refreshToken
 import com.myapp.lexicon.settings.saveAuthTokens
+import com.myapp.lexicon.settings.saveUserPercentToPref
 import kotlinx.coroutines.launch
 
 class MainFragment : Fragment() {
@@ -187,6 +188,7 @@ class MainFragment : Fragment() {
                 }
                 is UserDataViewModel.UserDataState.ReceivedUserData -> {
                     val user = state.user
+                    requireContext().saveUserPercentToPref(user)
                     listener?.onFetchUserData(user)
                 }
                 is UserDataViewModel.UserDataState.UserDataUpdated -> {
