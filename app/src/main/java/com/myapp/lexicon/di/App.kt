@@ -17,13 +17,8 @@ import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
-import com.myapp.lexicon.helpers.getCRC32CheckSum
 import com.myapp.lexicon.helpers.printLogIfDebug
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
-import com.myapp.lexicon.settings.DEFAULT_CONFIG
-import com.myapp.lexicon.settings.RemoteConfigViewModel
-import com.myapp.lexicon.settings.remoteConfigJsonFromPref
-import com.myapp.lexicon.settings.saveAsRemoteConfigToPref
 import com.parse.Parse
 import com.yandex.mobile.ads.common.InitializationListener
 import com.yandex.mobile.ads.common.MobileAds
@@ -32,8 +27,6 @@ import io.appmetrica.analytics.AppMetricaConfig
 
 
 class App : Application(), Configuration.Provider {
-
-    var defaultConfig = DEFAULT_CONFIG
 
     companion object {
         lateinit var INSTANCE: App
@@ -92,22 +85,6 @@ class App : Application(), Configuration.Provider {
                 clientKey(BuildConfig.PARSE_CLIENT_KEY)
                 server(getString(R.string.back4app_server_url))
             }.build()
-        )
-
-        val configVM = RemoteConfigViewModel(netModule = NetRepositoryModule())
-        val configCheckSum = this.remoteConfigJsonFromPref.getCRC32CheckSum()
-        configVM.fetchRemoteConfig(
-            checkSum = configCheckSum,
-            onSuccess = { configStr ->
-                this.saveAsRemoteConfigToPref(configStr)
-                defaultConfig = configVM.decodeFromString(this.remoteConfigJsonFromPref)?: defaultConfig
-            },
-            noDifferences = {
-                defaultConfig = configVM.decodeFromString(this.remoteConfigJsonFromPref)?: defaultConfig
-            },
-            onFailure = { t ->
-                t.printStackTraceIfDebug()
-            }
         )
 
     }

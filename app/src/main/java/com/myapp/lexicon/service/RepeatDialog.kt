@@ -21,7 +21,6 @@ import com.myapp.lexicon.ads.loadBanner
 import com.myapp.lexicon.auth.account.UserDataViewModel
 import com.myapp.lexicon.common.IS_IMPORTANT_UPDATE
 import com.myapp.lexicon.databinding.SRepeatModalFragmentBinding
-import com.myapp.lexicon.di.App
 import com.myapp.lexicon.helpers.showToast
 import com.myapp.lexicon.interfaces.IModalFragment
 import com.myapp.lexicon.main.MainViewModel
@@ -31,6 +30,7 @@ import com.myapp.lexicon.models.UserX
 import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.models.toWordList
 import com.myapp.lexicon.settings.accessToken
+import com.myapp.lexicon.settings.currentConfig
 import com.myapp.lexicon.settings.disablePassiveWordsRepeat
 import com.myapp.lexicon.settings.getOrderPlay
 import com.myapp.lexicon.settings.isUserRegistered
@@ -97,7 +97,7 @@ class RepeatDialog: DialogFragment() {
 
         with(binding) {
 
-            val adId = App.INSTANCE.defaultConfig.bannerIds.service
+            val adId = requireContext().currentConfig.bannerIds.service
             bannerView.loadBanner(requireActivity(), adId)
 
             val extra = requireActivity().intent.getStringExtra(ServiceActivity.ARG_JSON)

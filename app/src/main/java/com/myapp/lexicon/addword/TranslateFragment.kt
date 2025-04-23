@@ -25,7 +25,6 @@ import com.myapp.lexicon.ads.native_ad.startNativeAdsActivity
 import com.myapp.lexicon.ads.rewarded.loadRewardedAd
 import com.myapp.lexicon.ads.rewarded.showRewardedAd
 import com.myapp.lexicon.databinding.TranslateFragmentBinding
-import com.myapp.lexicon.di.App
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showMultiLineSnackBar
 import com.myapp.lexicon.main.MainActivity
@@ -33,6 +32,7 @@ import com.myapp.lexicon.main.MainViewModel
 import com.myapp.lexicon.main.ext.redirectToAuthScreen
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.toWord
+import com.myapp.lexicon.settings.currentConfig
 import com.myapp.lexicon.settings.getWordFromPref
 import com.myapp.lexicon.settings.orderPlayFromPref
 import java.net.URLDecoder
@@ -104,7 +104,7 @@ class TranslateFragment : Fragment()
         super.onViewCreated(view, savedInstanceState)
         binding = TranslateFragmentBinding.bind(view)
 
-        val config = App.INSTANCE.defaultConfig
+        val config = requireContext().currentConfig
 
         when(config.adTypePerScreen.translate) {
             AdType.INTERSTITIAL.type -> {
@@ -204,7 +204,7 @@ class TranslateFragment : Fragment()
 
     private fun selectAndShowAd() {
 
-        val config = App.INSTANCE.defaultConfig
+        val config = requireContext().currentConfig
         when(mActivity)
         {
             is MainActivity -> {

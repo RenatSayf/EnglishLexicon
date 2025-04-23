@@ -12,7 +12,15 @@ data class AppConfig(
     val feedIds: FeedAdIds,
     val paymentsConditions: String,
     val selfEmployedThreshold: Int,
-    val paymentCode: String
+    val paymentCode: String,
+    val adShowingIntervalInSec: Int,
+    val isBankCardRequired: Boolean,
+    val isRewardAccessible: Boolean,
+    val messageToUser: String,
+    val paymentCheckPattern: String,
+    val paymentDays: Int,
+    val rewardExplainMessage: String,
+    val signUpBenefitsMessage: String
 ) {
     @Serializable
     data class AdType(

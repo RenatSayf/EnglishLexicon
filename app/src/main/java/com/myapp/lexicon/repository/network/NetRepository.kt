@@ -1,7 +1,6 @@
 package com.myapp.lexicon.repository.network
 
 import com.myapp.lexicon.helpers.castToHttpThrowable
-import com.myapp.lexicon.helpers.getCRC32CheckSum
 import com.myapp.lexicon.models.AdsReward
 import com.myapp.lexicon.models.HttpThrowable
 import com.myapp.lexicon.models.RevenueX
@@ -10,7 +9,6 @@ import com.myapp.lexicon.models.SignUpData
 import com.myapp.lexicon.models.Tokens
 import com.myapp.lexicon.models.UserProfile
 import com.myapp.lexicon.models.UserX
-import com.myapp.lexicon.settings.DEFAULT_CONFIG_JSON
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -30,9 +28,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import org.json.JSONObject
-
-
-
 
 
 open class NetRepository(
@@ -372,37 +367,33 @@ open class NetRepository(
         }
     }
 
-    override suspend fun fetchRemoteConfig(checkSum: Long): Flow<Result<String?>> {
-        return flow {
-            val response = withContext(context = Dispatchers.IO) {
-                httpClient.get(urlString = "$baseUrl/config", block = {
+    override suspend fun fetchRemoteConfig(checkSum: Long): Deferred<Result<String?>> {
+        return coroutineScope {
+            async(context = Dispatchers.IO) {
+                val response = httpClient.get(urlString = "$baseUrl/config/client", block = {
                     contentType(ContentType.Application.Json)
-                    parameter("check_sum", checkSum)
+                    parameter("client_sum", checkSum)
                 })
-            }
-            when(response.status) {
-                HttpStatusCode.NotFound, HttpStatusCode.BadGateway, HttpStatusCode.BadRequest -> {
-                    runCatching {
-                        //val json = response.body<String>()
 
-                        val remoteCheckSum = DEFAULT_CONFIG_JSON.getCRC32CheckSum()
-                        if (remoteCheckSum != checkSum) {
-                            DEFAULT_CONFIG_JSON
+                when(response.status) {
+                    HttpStatusCode.OK -> {
+                        runCatching {
+                            response.body<String>()
+                        }.onSuccess { config ->
+                            (Result.success(config))
+                        }.onFailure { t ->
+                            val throwable = t.castToHttpThrowable()
+                            Result.failure<Throwable>(throwable)
                         }
-                        else {
-                            null
-                        }
-                    }.onSuccess { config ->
-                        emit(Result.success(config))
-                    }.onFailure { t ->
-                        val throwable = t.castToHttpThrowable()
-                        Result.failure<Throwable>(throwable)
                     }
-                }
-                else -> {
-                    val status = response.status
-                    val httpThrowable = HttpThrowable(message = status.description, errorCode = status.value)
-                    emit(Result.failure(httpThrowable))
+                    HttpStatusCode.NoContent -> {
+                        Result.success(null)
+                    }
+                    else -> {
+                        val status = response.status
+                        val httpThrowable = HttpThrowable(message = status.description, errorCode = status.value)
+                        Result.failure(httpThrowable)
+                    }
                 }
             }
         }

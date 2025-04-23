@@ -25,7 +25,6 @@ import com.myapp.lexicon.ads.native_ad.startNativeAdsActivity
 import com.myapp.lexicon.ads.rewarded.loadRewardedAd
 import com.myapp.lexicon.ads.rewarded.showRewardedAd
 import com.myapp.lexicon.databinding.OneOfFiveFragmNewBinding
-import com.myapp.lexicon.di.App
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.RandomNumberGenerator
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
@@ -33,6 +32,7 @@ import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.ext.redirectToAuthScreen
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.adsIsEnabled
+import com.myapp.lexicon.settings.currentConfig
 import java.util.Date
 
 const val ROWS: Int = 5
@@ -99,7 +99,7 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
 
         if (!wordList.isNullOrEmpty()) vm.initTest(wordList!!.toList())
 
-        val config = App.INSTANCE.defaultConfig
+        val config = requireContext().currentConfig
         when(config.adTypePerScreen.main) {
             AdType.INTERSTITIAL.type -> {
                 requireActivity().loadInterstitialAd(adId = config.interstitialAdIds.main)
@@ -301,7 +301,7 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
     ) {
         if (this.adsIsEnabled) {
 
-            val config = App.INSTANCE.defaultConfig
+            val config = requireContext().currentConfig
 
             when(config.adTypePerScreen.main) {
                 AdType.NATIVE.type -> {

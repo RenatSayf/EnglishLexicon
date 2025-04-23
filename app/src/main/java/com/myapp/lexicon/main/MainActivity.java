@@ -56,6 +56,7 @@ import com.myapp.lexicon.repository.DataRepositoryImpl;
 import com.myapp.lexicon.schedule.AlarmScheduler;
 import com.myapp.lexicon.service.PhoneUnlockedReceiver;
 import com.myapp.lexicon.settings.ContainerFragment;
+import com.myapp.lexicon.settings.DefaultConfigKt;
 import com.myapp.lexicon.settings.EncryptedPrefKt;
 import com.myapp.lexicon.settings.SettingsExtKt;
 import com.myapp.lexicon.video.constants.ConstantsKt;
@@ -405,7 +406,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         MainFragment mainFragment = MainFragment.Companion.getInstance(this);
         getSupportFragmentManager().beginTransaction().add(R.id.frame_to_page_fragm, mainFragment).commit();
 
-        String adId = App.Companion.getINSTANCE().getDefaultConfig().getBannerIds().getMain();
+        String adId = DefaultConfigKt.getCurrentConfig(MainActivity.this).getBannerIds().getMain();
         BannerAdView bannerView = contentBinding.bannerView;
         AdsViewModelKt.loadBanner(
                 bannerView,

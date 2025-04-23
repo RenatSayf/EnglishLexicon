@@ -16,12 +16,14 @@ import com.myapp.lexicon.ads.native_ad.startNativeAdsActivity
 import com.myapp.lexicon.ads.rewarded.loadRewardedAd
 import com.myapp.lexicon.ads.rewarded.showRewardedAd
 import com.myapp.lexicon.databinding.FragmentAdBinding
-import com.myapp.lexicon.di.App
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.main.ext.redirectToAuthScreen
 import com.myapp.lexicon.models.AdsReward
+import com.myapp.lexicon.settings.currentConfig
 import com.myapp.lexicon.video.web.YouTubeFragment
 import kotlinx.serialization.json.Json
+
+
 
 class AdFragment : Fragment() {
 
@@ -42,7 +44,7 @@ class AdFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val config = App.INSTANCE.defaultConfig
+        val config = requireContext().currentConfig
         when(config.adTypePerScreen.video) {
             AdType.NATIVE.type -> {
                 requireActivity().startNativeAdsActivity(

@@ -28,7 +28,6 @@ import com.myapp.lexicon.common.SELF_EMPLOYED_PACKAGE
 import com.myapp.lexicon.common.getMonthNameFromMillis
 import com.myapp.lexicon.common.getPreviousMonthNameFromMillis
 import com.myapp.lexicon.databinding.FragmentAccountBinding
-import com.myapp.lexicon.di.App
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.LuhnAlgorithm
 import com.myapp.lexicon.helpers.checkIfAllDigits
@@ -48,6 +47,7 @@ import com.myapp.lexicon.models.UserX
 import com.myapp.lexicon.models.ViewState
 import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.settings.accessToken
+import com.myapp.lexicon.settings.currentConfig
 import com.myapp.lexicon.settings.emailIntoPref
 import com.myapp.lexicon.settings.isAppInstalled
 import com.myapp.lexicon.settings.isFirstLogin
@@ -367,7 +367,7 @@ class AccountFragment : Fragment() {
             }
             tvCheckRefValue.doOnTextChanged { text, start, before, count ->
                 val reservedPayment = userDataVM.user?.previousMonthBalance?: 0.0
-                if (reservedPayment > App.INSTANCE.defaultConfig.selfEmployedThreshold) {
+                if (reservedPayment > requireContext().currentConfig.selfEmployedThreshold) {
                     val isMatches = tvCheckRefValue.text?.matches(Regex(PAYMENT_CHECK_PATTERN))
                     if (isMatches == true) {
                         setValidFieldState(tvCheckRefValue)
@@ -438,7 +438,7 @@ class AccountFragment : Fragment() {
                     }
 
                     val reservedPayment = userDataVM.user?.previousMonthBalance ?: 0.0
-                    if (reservedPayment > App.INSTANCE.defaultConfig.selfEmployedThreshold) {
+                    if (reservedPayment > requireContext().currentConfig.selfEmployedThreshold) {
                         val isMatches = tvCheckRefValue.text?.matches(Regex(PAYMENT_CHECK_PATTERN))
                         if (isMatches == false) {
                             setReadOnlyState(false)
@@ -656,14 +656,14 @@ class AccountFragment : Fragment() {
             val rewardThreshold = user.payoutThreshold
             val textCondition = "$PAYMENTS_CONDITIONS $rewardThreshold ${user.currencySymbol}"
             tvRewardCondition.text = textCondition
-            if ((user.monthBalance ?: 0.0) <= 0.0 || App.INSTANCE.defaultConfig.paymentsConditions.isEmpty()) {
+            if ((user.monthBalance ?: 0.0) <= 0.0 || requireContext().currentConfig.paymentsConditions.isEmpty()) {
                 tvRewardCondition.visibility = View.GONE
             }
             else tvRewardCondition.visibility = View.VISIBLE
 
             btnGetReward.isEnabled = (user.previousMonthBalance
-                ?: 0.0) > rewardThreshold && App.INSTANCE.defaultConfig.paymentCode == BuildConfig.PAYMENT_CODE.trim()
-            if ((user.previousMonthBalance ?: 0.0) > App.INSTANCE.defaultConfig.selfEmployedThreshold) {
+                ?: 0.0) > rewardThreshold && requireContext().currentConfig.paymentCode == BuildConfig.PAYMENT_CODE.trim()
+            if ((user.previousMonthBalance ?: 0.0) > requireContext().currentConfig.selfEmployedThreshold) {
                 setInvoiceRequiredState()
             }
         }

@@ -16,12 +16,12 @@ import com.myapp.lexicon.ads.rewarded.RewardedAdExtKt;
 import com.myapp.lexicon.auth.AuthViewModel;
 import com.myapp.lexicon.common.CommonConstantsKt;
 import com.myapp.lexicon.databinding.ServiceDialogActivityBinding;
-import com.myapp.lexicon.di.App;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.helpers.LockOrientation;
 import com.myapp.lexicon.interfaces.IModalFragment;
 import com.myapp.lexicon.models.AppConfig;
 import com.myapp.lexicon.schedule.AlarmScheduler;
+import com.myapp.lexicon.settings.DefaultConfigKt;
 import com.myapp.lexicon.settings.SettingsExtKt;
 import com.myapp.lexicon.splash.SplashActivity;
 import com.parse.ParseUser;
@@ -60,6 +60,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         locker.lock();
 
         scheduler = new AlarmScheduler(this);
+        RemoteConfigWorkerKt.scheduleRemoteConfigRequest(this);
 
         binding = ServiceDialogActivityBinding.inflate(getLayoutInflater(), new FrameLayout(this), false);
         setContentView(binding.getRoot());
@@ -135,7 +136,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
             return;
         }
 
-        AppConfig config = App.Companion.getINSTANCE().getDefaultConfig();
+        AppConfig config = DefaultConfigKt.getCurrentConfig(this);
 
         if (config.getAdTypePerScreen().getService() == AdType.INTERSTITIAL.getType()) {
             InterstitialAdExtKt.loadInterstitialAd(

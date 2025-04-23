@@ -21,6 +21,7 @@ import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.showDialogAsSingleton
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.Speaker
+import com.myapp.lexicon.service.scheduleRemoteConfigRequest
 import com.myapp.lexicon.settings.accessToken
 import com.myapp.lexicon.settings.checkOnStartSpeech
 import com.myapp.lexicon.settings.goToAppStore
@@ -55,6 +56,8 @@ class SplashActivity : AppCompatActivity() {
 
         IS_REWARD_ACCESSIBLE
         MESSAGE_TO_USER
+
+        this.scheduleRemoteConfigRequest()
 
         val extras = intent.extras
         val appStoreLink = extras?.getString(KEY_APP_STORE_LINK)

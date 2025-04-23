@@ -34,7 +34,6 @@ import com.myapp.lexicon.ads.native_ad.startNativeAdsActivity
 import com.myapp.lexicon.ads.rewarded.loadRewardedAd
 import com.myapp.lexicon.ads.rewarded.showRewardedAd
 import com.myapp.lexicon.databinding.TestFragmentBinding
-import com.myapp.lexicon.di.App
 import com.myapp.lexicon.dialogs.DictListDialog
 import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.UiState
@@ -45,6 +44,7 @@ import com.myapp.lexicon.helpers.showMultiLineSnackBar
 import com.myapp.lexicon.main.SpeechViewModel
 import com.myapp.lexicon.main.ext.redirectToAuthScreen
 import com.myapp.lexicon.models.Word
+import com.myapp.lexicon.settings.currentConfig
 import com.myapp.lexicon.settings.getTestStateFromPref
 import com.myapp.lexicon.settings.saveTestStateToPref
 import com.myapp.lexicon.viewmodels.AnimViewModel
@@ -282,7 +282,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
 
             testVM.state.observe(viewLifecycleOwner) { state ->
 
-                val config = App.INSTANCE.defaultConfig
+                val config = requireContext().currentConfig
                 when (state) {
                     TestViewModel.State.Init -> {
                         when(config.adTypePerScreen.test) {
