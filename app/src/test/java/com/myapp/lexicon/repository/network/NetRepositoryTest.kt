@@ -413,7 +413,8 @@ class NetRepositoryTest {
             secondName = null,
             lastName = "Test",
             bankCard = null,
-            bankName = "BCS"
+            bankName = "BCS",
+            appVersion = "v.test"
         )
         runBlocking {
             repository.updateUserProfile(accessToken = accessToken, profile = userProfile)

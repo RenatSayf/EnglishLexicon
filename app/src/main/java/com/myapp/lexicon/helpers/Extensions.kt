@@ -173,6 +173,19 @@ fun String.getCRC32CheckSum(): Long {
     return crC32.value
 }
 
+fun String.getASCIISum(): Int {
+    val preparedStr = this.replace(" ", "")
+        .replace("\n", "")
+        .trimIndent()
+    val charList = preparedStr.filter {
+        it != ' ' && it != '\\'
+    }.map {
+        it.code
+    }
+    val sum = charList.sum()
+    return sum
+}
+
 fun String.checkOnlyLetterAndFirstNotDigit(): Int {
     if (this.isNotEmpty() && this[0].isDigit()) {
         return 0

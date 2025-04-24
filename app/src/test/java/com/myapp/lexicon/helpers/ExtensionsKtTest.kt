@@ -17,9 +17,66 @@ class ExtensionsKtTest {
     @Test
     fun getCRC32CheckSum() {
 
-        val actualCheckSum =
-            "bjppaehkgdeldlcnmhnmiaeo.AO-J1OyRVjp1kZ3A2yGhxnfeDKo14VHnix1KJnN-xq5Ee_wFGtzp9YDkSCveWgRaUJ088qhvezU97VSL4_kq_d1u-Nwax1s_MQ/".getCRC32CheckSum()
-        Assert.assertEquals(2100595828L, actualCheckSum)
+        val inputStr =
+            """{
+  "adTypePerScreen" : {
+    "main" : 1,
+    "service" : 1,
+    "test" : 3,
+    "translate" : 1,
+    "video" : 3
+  },
+  "bannerIds" : {
+    "main" : "R-M-711878-1",
+    "service" : "R-M-711878-1",
+    "editor" : "R-M-711878-2",
+    "translate" : "R-M-711878-3"
+  },
+  "nativeIds" : {
+    "main" : "R-M-711878-14",
+    "service" : "R-M-711878-14",
+    "translate" : "R-M-711878-15",
+    "test" : "R-M-711878-15",
+    "video" : "R-M-711878-14"
+  },
+  "interstitialAdIds" : {
+    "main" : "R-M-711878-4",
+    "service" : "R-M-711878-4",
+    "translate" : "R-M-711878-5",
+    "test" : "R-M-711878-6",
+    "video" : "R-M-711878-6"
+  },
+  "rewardedIds" : {
+    "main" : "R-M-711878-10",
+    "service" : "R-M-711878-10",
+    "translate" : "R-M-711878-11",
+    "test" : "R-M-711878-12",
+    "video" : "R-M-711878-12"
+  },
+  "feedIds" : {
+    "main" : "R-M-711878-18",
+    "service" : "R-M-711878-18",
+    "translate" : "R-M-711878-18",
+    "test" : "R-M-711878-18",
+    "video" : "R-M-711878-18"
+  },
+  "version" : 3,
+  "paymentsConditions" : "Следующая выплата вознаграждения состоится в период с 15 по 25 мая, при условии, что сумма будет больше",
+  "selfEmployedThreshold" : 150000,
+  "paymentCode" : "587425",
+  "reward_ratio" : 0.5,
+  "payout_threshold" : 100,
+  "adShowingIntervalInSec" : 60,
+  "isBankCardRequired" : false,
+  "isRewardAccessible" : true,
+  "messageToUser" : "",
+  "paymentCheckPattern" : "^https://lknpd\\.nalog\\.ru/api/v1/receipt/\\d+/[a-zA-Z0-9]+/print$",
+  "paymentDays" : 3,
+  "rewardExplainMessage" : "Учите слова и фразы, проходите тесты и зарабатывайте монеты. После того как размер вознаграждения превысит минимальный порог, кнопка 'Получить награду' станет активной.",
+  "signUpBenefitsMessage" : "Привет новый пользователь. Это приложение позволит тебе не только изучать слова, но и получать за это денежное вознаграждение.\nДля этого нужно просто зарегистрироваться в приложении. В боковом меню выберите \"Получать вознаграждение\" и пройдите легкую процедуру регистрации."
+}"""
+        val asciiSum = inputStr.getASCIISum()
+        Assert.assertEquals(576820, asciiSum)
     }
 
     @Test
