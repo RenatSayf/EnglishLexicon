@@ -9,7 +9,7 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.myapp.lexicon.di.INetRepositoryModule
 import com.myapp.lexicon.di.NetRepositoryModule
-import com.myapp.lexicon.helpers.getCRC32CheckSum
+import com.myapp.lexicon.helpers.getASCIISum
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.models.AppConfig
 import com.myapp.lexicon.models.Tokens
@@ -28,7 +28,7 @@ class RemoteConfigWorker(
 
     override suspend fun doWork(): Result {
         return try {
-            val localCheckSum = context.remoteConfigJsonFromPref.getCRC32CheckSum()
+            val localCheckSum = context.remoteConfigJsonFromPref.getASCIISum()
 
             val result = fetchRemoteConfig(checkSum = localCheckSum)
             if (result.isSuccess) {
@@ -56,7 +56,7 @@ class RemoteConfigWorker(
     }
 
     @Suppress("RemoveRedundantQualifierName")
-    private suspend fun fetchRemoteConfig(checkSum: Long): kotlin.Result<String?> {
+    private suspend fun fetchRemoteConfig(checkSum: Int): kotlin.Result<String?> {
 
         val repository = NetRepositoryModule().apply {
             this.setRefreshToken(context.refreshToken)

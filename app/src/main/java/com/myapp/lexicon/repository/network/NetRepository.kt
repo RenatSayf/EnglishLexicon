@@ -367,7 +367,7 @@ open class NetRepository(
         }
     }
 
-    override suspend fun fetchRemoteConfig(checkSum: Long): Deferred<Result<String?>> {
+    override suspend fun fetchRemoteConfig(checkSum: Int): Deferred<Result<String?>> {
         return coroutineScope {
             async(context = Dispatchers.IO) {
                 val response = httpClient.get(urlString = "$baseUrl/config/client", block = {
