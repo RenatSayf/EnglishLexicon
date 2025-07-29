@@ -163,8 +163,8 @@ class RepeatDialog: DialogFragment() {
             }
 
             checkBoxRuSpeakModal.setOnCheckedChangeListener(object : CompoundButton.OnCheckedChangeListener {
-                override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
-                    speechVM.enableRuSpeech(isChecked)
+                override fun onCheckedChanged(p0: CompoundButton, p1: Boolean) {
+                    speechVM.enableRuSpeech(p1)
                 }
             })
 
