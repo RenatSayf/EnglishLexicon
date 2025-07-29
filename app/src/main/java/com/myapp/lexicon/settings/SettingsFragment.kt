@@ -3,11 +3,9 @@
 package com.myapp.lexicon.settings
 
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
-import android.widget.Toast
 import androidx.fragment.app.setFragmentResult
 import androidx.preference.CheckBoxPreference
 import androidx.preference.ListPreference
@@ -16,9 +14,7 @@ import androidx.preference.Preference.OnPreferenceChangeListener
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import com.myapp.lexicon.R
-import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.schedule.AlarmScheduler
-import java.util.Locale
 
 
 class SettingsFragment : PreferenceFragmentCompat()
@@ -181,19 +177,6 @@ class SettingsFragment : PreferenceFragmentCompat()
             }
         )
     }
-
-    private fun redirectIfXiaomiDevice()
-    {
-        if (Build.MANUFACTURER.toLowerCase(Locale.ROOT) == "xiaomi")
-        {
-            val intent = Intent("miui.intent.action.APP_PERM_EDITOR")
-            intent.setClassName("com.miui.securitycenter","com.miui.permcenter.permissions.PermissionsEditorActivity")
-            intent.putExtra("extra_pkgname", (requireActivity() as MainActivity).packageName)
-            startActivity(intent)
-            Toast.makeText(requireContext(), getString(R.string.text_enabled_permission_pop_up), Toast.LENGTH_LONG).show()
-        }
-    }
-
 
 
 }
