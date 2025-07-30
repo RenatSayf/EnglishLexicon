@@ -3,11 +3,11 @@ package com.myapp.lexicon.splash
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.appodeal.ads.Appodeal
@@ -70,7 +70,7 @@ class SplashActivity : AppCompatActivity() {
         if (BuildConfig.DEBUG) {
             Appodeal.setLogLevel(logLevel = Log.LogLevel.verbose)
         }
-        Appodeal.setTesting(!BuildConfig.DEBUG)
+        Appodeal.setTesting(BuildConfig.DEBUG)
 
         val adTypes = listOf(
             Appodeal.INTERSTITIAL,
@@ -128,7 +128,7 @@ class SplashActivity : AppCompatActivity() {
                             text = getString(R.string.btn_text_setup)
                             setOnClickListener {
                                 val intent = Intent(Intent.ACTION_VIEW).apply {
-                                    data = Uri.parse(getString(R.string.url_google_tts))
+                                    data = getString(R.string.url_google_tts).toUri()
                                 }
                                 startActivity(intent)
                                 dialog.dismiss()
